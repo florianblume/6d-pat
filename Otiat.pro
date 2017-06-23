@@ -12,9 +12,7 @@ TARGET = Otiat
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
-    src/main/main.cpp \
+SOURCES += src/main/main.cpp \
     src/main/mainwindow.cpp
 
 HEADERS  += \
