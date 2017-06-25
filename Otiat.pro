@@ -13,10 +13,22 @@ TEMPLATE = app
 
 
 SOURCES += src/main/main.cpp \
-    src/main/mainwindow.cpp
+    src/main/mainwindow.cpp \
+    src/main/model/objectimagecorrespondence.cpp \
+    src/main/model/image.cpp \
+    src/main/model/objectmodel.cpp \
+    src/main/model/modelmanager.cpp \
+    src/main/maincontroller.cpp
 
 HEADERS  += \
-    src/main/mainwindow.h
+    src/main/mainwindow.h \
+    src/main/objectimagecorrespondence.h \
+    src/main/model/objectimagecorrespondence.h \
+    src/main/model/image.h \
+    src/main/model/objectmodel.h \
+    src/main/model/modelmanager.h \
+    src/main/model/point.h \
+    src/main/maincontroller.h
 
 FORMS    += \
     resources/mainwindow.ui
