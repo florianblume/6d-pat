@@ -11,6 +11,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Otiat
 TEMPLATE = app
 
+LIBS += \
+       -lboost_system\
+       -lboost_filesystem\
 
 SOURCES += src/main/main.cpp \
     src/main/mainwindow.cpp \
@@ -18,7 +21,8 @@ SOURCES += src/main/main.cpp \
     src/main/model/image.cpp \
     src/main/model/objectmodel.cpp \
     src/main/model/modelmanager.cpp \
-    src/main/maincontroller.cpp
+    src/main/maincontroller.cpp \
+    src/main/model/loadandstorestrategy.cpp
 
 HEADERS  += \
     src/main/mainwindow.h \
@@ -28,7 +32,8 @@ HEADERS  += \
     src/main/model/objectmodel.h \
     src/main/model/modelmanager.h \
     src/main/model/point.h \
-    src/main/maincontroller.h
+    src/main/maincontroller.h \
+    src/main/model/loadandstorestrategy.h
 
 FORMS    += \
     resources/mainwindow.ui

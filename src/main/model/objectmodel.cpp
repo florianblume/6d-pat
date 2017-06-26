@@ -3,6 +3,6 @@
 ObjectModel::ObjectModel(string _objectModelUrl) : objectModelUrl(_objectModelUrl) {
 }
 
-string ObjectModel::getObjectModelUrl() {
+const string ObjectModel::getPath() const {
     return objectModelUrl;
 }

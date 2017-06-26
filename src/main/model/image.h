@@ -17,24 +17,27 @@ public:
       Using this constructor will store the image URL and set an empyt string for the segmentation image URL.
       \param _url the URL to the image
     */
-    Image(string _url);
+    Image(const string _url);
+
     //! Constructor of class Image.
     /*!
       Using this constructor will store the image URL and the segmentation image URL.
       \param _url the URL to the image
       \param _segmentationUrl the URL to the segmentation image
     */
-    Image(string _url, string _segmentationUrl);
+    Image(const string _url, const string _segmentationUrl);
+
     //! Returns the URL stored by this Image.
     /*!
       \return the URL stored by this image
     */
-    string getUrl();
-    //! Returns the URL of the segmentation image stored by this Image.
+    const string getPath() const;
+
+    //! Returns the path of the segmentation image stored by this Image.
     /*!
-      \return the URL of the segmentation image stored by this image
+      \return the path of the segmentation image stored by this image
     */
-    string getSegmentationUrl();
+    const string getSegmentationUrl() const;
 };
 
 #endif // IMAGE_H

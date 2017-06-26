@@ -1,6 +1,7 @@
 #ifndef OBJECTMODEL_H
 #define OBJECTMODEL_H
 
+#include <qsettings.h>
 #include <string>
 
 using namespace std;
@@ -21,7 +22,7 @@ public:
     /*!
       \return the URL to the object model
     */
-    string getObjectModelUrl();
+    const string getPath() const;
 };
 
 #endif // OBJECTMODEL_H
