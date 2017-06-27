@@ -1,7 +1,7 @@
 #include "modelmanager.h"
 
-ModelManager::ModelManager() {
-
+ModelManager::ModelManager(LoadAndStoreStrategy& _loadAndStoreStrategy) : loadAndStoreStrategy(&_loadAndStoreStrategy) {
+    init();
 }
 
 void ModelManager::init() {
@@ -10,6 +10,7 @@ void ModelManager::init() {
 }
 
 ModelManager::~ModelManager() {
+    // deletion of LoadAndStoreStrategy should be done by the injector
     writeSettings();
 }
 
@@ -36,12 +37,13 @@ void ModelManager::readSettings() {
 }
 
 void ModelManager::load() {
-    // TODO: suboptimal
-    loadAndStoreStrategy.loadEntities(imagesPath, &images, objectModelsPath, &objectModels, correspondencesPath, &correspondences);
+    images = loadAndStoreStrategy->loadImages(imagesPath);
+    objectModels = loadAndStoreStrategy->loadObjectModels(objectModelsPath);
+    correspondences = loadAndStoreStrategy->loadCorrespondences(&images, &objectModels);
 }
 
 bool ModelManager::setImagesPath(string path) {
-    if (!loadAndStoreStrategy.pathExists(path))
+    if (!loadAndStoreStrategy->pathExists(path))
         return false;
     imagesPath = path;
     load();
@@ -53,7 +55,7 @@ string ModelManager::getImagesPath() const {
 }
 
 bool ModelManager::setObjectModelsPath(string path) {
-    if (!loadAndStoreStrategy.pathExists(path))
+    if (!loadAndStoreStrategy->pathExists(path))
         return false;
     objectModelsPath = path;
     load();
@@ -65,7 +67,7 @@ string ModelManager::getObjectModelsPath() const {
 }
 
 bool ModelManager::setCorrespondencesPath(string path) {
-    if (!loadAndStoreStrategy.pathExists(path))
+    if (!loadAndStoreStrategy->pathExists(path))
         return false;
     correspondencesPath = path;
     load();
@@ -113,7 +115,7 @@ const list<ObjectImageCorrespondence>* ModelManager::getCorrespondences() const 
 }
 
 bool ModelManager::addOrUpdateObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) {
-    if (!loadAndStoreStrategy.persistObjectImageCorrespondence(objectImageCorrespondence, correspondencesPath, false)) {
+    if (!loadAndStoreStrategy->persistObjectImageCorrespondence(objectImageCorrespondence, correspondencesPath, false)) {
         //! if there is an error persisting the correspondence for any reason we should not add the correspondence to this manager
         return false;
     }
@@ -149,7 +151,7 @@ bool ModelManager::addOrUpdateObjectImageCorrespondence(ObjectImageCorrespondenc
 }
 
 bool ModelManager::removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) {
-    if (!loadAndStoreStrategy.persistObjectImageCorrespondence(objectImageCorrespondence, correspondencesPath, true)) {
+    if (!loadAndStoreStrategy->persistObjectImageCorrespondence(objectImageCorrespondence, correspondencesPath, true)) {
         //! there was an error persistently removing the corresopndence, maybe wrong folder, maybe the correspondence didn't exist
         //! thus it doesn't make sense to remove the correspondence from this manager
         return false;

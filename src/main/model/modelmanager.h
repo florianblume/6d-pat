@@ -4,6 +4,7 @@
 #include "objectimagecorrespondence.h"
 #include "image.h"
 #include "loadandstorestrategy.h"
+#include "textfileloadandstorestrategy.h"
 #include <string>
 #include <list>
 #include <map>
@@ -41,7 +42,7 @@ private:
     //! The list of the object image correspondences
     list<ObjectImageCorrespondence> correspondences;
     //! The strategy that is used to persist and also to load entities
-    LoadAndStoreStrategy loadAndStoreStrategy;
+    LoadAndStoreStrategy* loadAndStoreStrategy;
 
     /*!
      * \brief writeSettings Persists settings like paths.
@@ -58,17 +59,17 @@ private:
      */
     void load();
 
-public:
-
-    ModelManager();
-
-    ~ModelManager();
-
     /*!
      * \brief init Initializes this ModelManager. The init method takes care of reading the last set paths from the settings and
      * automatically loads the entities at those locations.
      */
     void init();
+
+public:
+
+    ModelManager(LoadAndStoreStrategy& _LoadAndStoreStrategy);
+
+    ~ModelManager();
 
     /*!
      * \brief setImagesPath Sets the path to the folder where the images that are to be annotated are located. After setting the
