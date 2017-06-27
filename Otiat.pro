@@ -13,6 +13,9 @@ include(./Otiat.pri)
 TARGET = Otiat
 TEMPLATE = app
 
+SOURCES += \
+    src/main/main.cpp
+
 LIBS += \
        -lboost_system\
        -lboost_filesystem\

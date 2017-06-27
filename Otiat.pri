@@ -1,5 +1,4 @@
-SOURCES += src/main/main.cpp \
-    $$PWD/src/main/mainwindow.cpp \
+SOURCES += $$PWD/src/main/mainwindow.cpp \
     $$PWD/src/main/model/objectimagecorrespondence.cpp \
     $$PWD/src/main/model/image.cpp \
     $$PWD/src/main/model/objectmodel.cpp \
