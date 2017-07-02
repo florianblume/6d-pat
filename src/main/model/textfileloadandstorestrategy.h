@@ -4,7 +4,7 @@
 #include "loadandstorestrategy.h"
 
 /*!
- * \brief The TextFileLoadAndStoreStrategy class This class is a simple implementation of a LoadAndStoreStrategy that makes no use of
+ * \brief The TextFileLoadAndStoreStrategy class is a simple implementation of a LoadAndStoreStrategy that makes no use of
  * caching already loaded images or object models and writes correspondences to text files. That is why it is important to set the
  * proper path to the folder of correspondences before using this strategy.
  */

@@ -46,7 +46,8 @@ const list<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesFo
 }
 
 bool CachingModelManager::addObjectImageCorrespondence(Image* image, ObjectModel* objectModel, Point position, Point rotation) {
-    ObjectImageCorrespondence corresopndence("id", position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, image, objectModel);
+    boost::uuids::uuid uuid = boost::uuids::random_generator()();
+    ObjectImageCorrespondence corresopndence(boost::lexical_cast<std::string>(uuid), position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, image, objectModel);
 
     if (!loadAndStoreStrategy->persistObjectImageCorrespondence(corresopndence, false)) {
         //! if there is an error persisting the correspondence for any reason we should not add the correspondence to this manager
@@ -107,4 +108,16 @@ bool CachingModelManager::removeObjectImageCorrespondence(ObjectImageCorresponde
     correspondencesForImages.erase(objectImageCorrespondence.getImage()->getPath());
     correspondencesForObjectModels.erase(objectImageCorrespondence.getObjectModel()->getPath());
     return true;
+}
+
+void CachingModelManager::imagesChanged() {
+    images = loadAndStoreStrategy->loadImages();
+}
+
+void CachingModelManager::objectModelsChanged() {
+    objectModels = loadAndStoreStrategy->loadObjectModels();
+}
+
+void CachingModelManager::corresopndencesChanged() {
+    correspondences = loadAndStoreStrategy->loadCorrespondences(&images, &objectModels);
 }

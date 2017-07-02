@@ -4,6 +4,7 @@
 #include "objectimagecorrespondence.h"
 #include "image.h"
 #include "loadandstorestrategy.h"
+#include "loadandstorestrategylistener.h"
 #include <string>
 #include <list>
 #include <map>
@@ -21,7 +22,7 @@ using namespace std;
  * Attention: To persist modified correspondences they have to be updated through the update method of the manager, otherwise the changes
  * will be lost on program restart.
 */
-class ModelManager
+class ModelManager : LoadAndStoreStrategyListener
 {
 
 protected:
@@ -110,6 +111,18 @@ public:
      * successful
      */
     virtual bool removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) = 0;
+
+    /**
+      ######################################
+      Interface LoadAndStoreStrategyListener
+      ######################################
+    */
+
+    virtual void imagesChanged() = 0;
+
+    virtual void objectModelsChanged() = 0;
+
+    virtual void corresopndencesChanged() = 0;
 
 };
 

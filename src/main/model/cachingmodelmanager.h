@@ -3,11 +3,17 @@
 
 #include "modelmanager.h"
 #include "loadandstorestrategy.h"
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/lexical_cast.hpp>
 #include <map>
 #include <string>
 #include <list>
 
-
+/*!
+ * \brief The CachingModelManager class implements the ModelManager interface. To improve the speed of the application
+ * this manager chaches the list of entities and refreshes them when necessary.
+ */
 class CachingModelManager : public ModelManager
 {
 private:
@@ -98,6 +104,12 @@ public:
      * successful
      */
     bool removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence);
+
+    void imagesChanged();
+
+    void objectModelsChanged();
+
+    void corresopndencesChanged() ;
 };
 
 #endif // CACHINGMODELMANAGER_H
