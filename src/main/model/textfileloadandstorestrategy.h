@@ -11,15 +11,19 @@
 class TextFileLoadAndStoreStrategy : public LoadAndStoreStrategy
 {
 private:
-    //! The path to the folder that stores the correspondences
+    //! Stores the path to the folder that holds the images
+    string imagesPath;
+    //! Stores the path to the folder that holds the object models
+    string objectModelsPath;
+    //! Stores the path to the already created correspondences
     string correspondencesPath;
 
 public:
-    TextFileLoadAndStoreStrategy(const string _correspondencesPath);
+    TextFileLoadAndStoreStrategy(const string _imagesPath, const string _objectModelsPath, const string _correspondencesPath);
     ~TextFileLoadAndStoreStrategy();
-    bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, string path, bool deleteCorrespondence);
-    list<Image> loadImages(const string imagesPath);
-    list<ObjectModel> loadObjectModels(const string objectModelsPath);
+    bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence);
+    list<Image> loadImages();
+    list<ObjectModel> loadObjectModels();
 
     /*!
      * \brief loadCorrespondences Loads the correspondences at the given path. How the correspondences are stored depends on the
@@ -36,16 +40,47 @@ public:
     list<ObjectImageCorrespondence> loadCorrespondences(list<Image>* images, list<ObjectModel>* objectModels);
 
     /*!
-     * \brief setCorrespondencesPath Sets the path to read from and store to all correspondences. This is necessary because this strategy
-     * uses text files to store correspondences.
-     * \param correspondencesPath the path to the folder that should hold the correspondences
-     * \return true if the path exists and is accessible
+     * \brief setImagesPath Sets the path to the folder where the images that are to be annotated are located. After setting the
+     * path the manager will automatically try to load the images and also their respective segmentation using the pattern for
+     * segmentation image names.
+     * \param path the path to the folder where the images are located
+     * \return true if the path is a valid path on the filesystem, false otherwise
      */
-    bool setCorrespondencesPath(const string correspondencesPath);
+    bool setImagesPath(string path);
 
     /*!
-     * \brief getCorrespondencesPath Returns the path to the folder that holds the correspondences and is used to store them.
-     * \return the path to the folder of correspondences
+     * \brief getImagesPath Returns the path that this manager uses to load images.
+     * \return the path that this manager uses to load images
+     */
+    string getImagesPath() const;
+
+    /*!
+     * \brief setObjectModelsPath Sets the path to the folder where the object models are located. After setting the path the
+     * manager will automatically try to load the objects.
+     * \param path the path to the folder where the objects are located
+     * \return true if the path is a valid path on the filesystem, false otherwise
+     */
+    bool setObjectModelsPath(string path);
+
+    /*!
+     * \brief getObjectModelsPath Returns the path that this manager uses to load object models.
+     * \return the path that this manager uses to load object models
+     */
+    string getObjectModelsPath() const;
+
+    /*!
+     * \brief setCorrespondencesPath Sets the path to the folder where object image correspondences are stored at. After setting
+     * the path the manager will automatically try to load the already existing correspondences and will store all future
+     * correspondences at this location.
+     * \param path the path where the manager should store correspondences at or where some correspondences already exist that
+     * are meant to be loaded
+     * \return true if the path is a valid path on the filesystem, false otherwise
+     */
+    bool setCorrespondencesPath(string path);
+
+    /*!
+     * \brief getCorrespondencesPath Returns the path that this manager uses to store and load correspondences.
+     * \return the path that this manager uses to store and load correspondences
      */
     string getCorrespondencesPath() const;
 };

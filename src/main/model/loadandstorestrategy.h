@@ -18,30 +18,25 @@ public:
     virtual ~LoadAndStoreStrategy();
 
     /*!
-     * \brief persistObjectImageCorrespondence Persists the given ObjectImageCorrespondence at the given path. The details of
+     * \brief persistObjectImageCorrespondence Persists the given ObjectImageCorrespondence. The details of
      * how the data is persisted depends on the LoadAndStoreStrategy implementation.
      * \param objectImageCorrespondence the object image correspondence to persist
-     * \param path the path at which the object image correspondence is to be persisted
      * \param deleteCorrespondence indicates whether the correspondence should be persistently deleted
      * \return true if persisting the object image correspondence was successful, false if not
      */
-    virtual bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, string path, bool deleteCorrespondence) = 0;
+    virtual bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence) = 0;
 
     /*!
-     * \brief loadImages Loads the images at the given path.
-     * \param imagesPath the path to load the images from
-     * \return the list of images at the given path
-     * \throws an exception if the path doesn't exist
+     * \brief loadImages Loads the images.
+     * \return the list of images
      */
-    virtual list<Image> loadImages(const string imagesPath) = 0;
+    virtual list<Image> loadImages() = 0;
 
     /*!
-     * \brief loadObjectModels Loads the object models at the given path.
-     * \param objectModelsPath the path to load the object models from
-     * \return the list of object models at the given path
-     * \throws an exception if the path doesn't exist
+     * \brief loadObjectModels Loads the object models.
+     * \return the list of object models
      */
-    virtual list<ObjectModel> loadObjectModels(const string objectModelsPath) = 0;
+    virtual list<ObjectModel> loadObjectModels() = 0;
 
     /*!
      * \brief loadCorrespondences Loads the correspondences at the given path. How the correspondences are stored depends on the

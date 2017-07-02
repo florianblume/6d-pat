@@ -1,14 +1,14 @@
 #ifndef MAINCONTROLLER_H
 #define MAINCONTROLLER_H
 
-#include "model/modelmanager.h"
+#include "model/cachingmodelmanager.h"
 #include "model/textfileloadandstorestrategy.h"
 
 class MainController
 {
 private:
     TextFileLoadAndStoreStrategy strategy;
-    ModelManager modelManager;
+    CachingModelManager modelManager;
 
 public:
     MainController();

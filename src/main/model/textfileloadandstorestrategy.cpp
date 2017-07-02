@@ -5,7 +5,9 @@
 const char correspondenceFormatDelimiter = ' ';
 const string correspondenceFileNameSuffix = "_correspondence";
 
-TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy(const string _correspondencesPath) : correspondencesPath(_correspondencesPath) {
+TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy(const string _imagesPath, const string _objectModelsPath,
+                                                           const string _correspondencesPath)
+    : imagesPath(_imagesPath), objectModelsPath(_objectModelsPath), correspondencesPath(_correspondencesPath) {
 }
 
 TextFileLoadAndStoreStrategy::~TextFileLoadAndStoreStrategy() {
@@ -27,14 +29,11 @@ list<string> getFilesAtPath(const string path) {
     return files;
 }
 
-bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, string path, bool deleteCorrespondence) {
-    if (!pathExists(path))
-        return false;
-
+bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence) {
     const string imagePath = objectImageCorrespondence.getImage()->getPath();
     boost::filesystem::path image(imagePath);
 
-    string correspondenceFileName = path + image.stem().string() + correspondenceFileNameSuffix + ".txt";
+    string correspondenceFileName = correspondencesPath + image.stem().string() + correspondenceFileNameSuffix + ".txt";
     boost::filesystem::path _path(correspondenceFileName);
     if (deleteCorrespondence) {
         std::remove(correspondenceFileName.c_str());
@@ -75,7 +74,7 @@ bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(const Object
     return true;
 }
 
-list<Image> TextFileLoadAndStoreStrategy::loadImages(const string imagesPath) {
+list<Image> TextFileLoadAndStoreStrategy::loadImages() {
     if (!pathExists(imagesPath)) {
         throw "Path does not exist";
     }
@@ -94,7 +93,7 @@ list<Image> TextFileLoadAndStoreStrategy::loadImages(const string imagesPath) {
     return images;
 }
 
-list<ObjectModel> TextFileLoadAndStoreStrategy::loadObjectModels(const string objectModelsPath) {
+list<ObjectModel> TextFileLoadAndStoreStrategy::loadObjectModels() {
     if (!pathExists(objectModelsPath)) {
         throw "Path does not exist";
     }
@@ -159,4 +158,39 @@ list<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondence
     }
 
     return correspondences;
+}
+
+
+
+bool TextFileLoadAndStoreStrategy::setImagesPath(string path) {
+    if (!this->pathExists(path))
+        return false;
+    imagesPath = path;
+    return true;
+}
+
+string TextFileLoadAndStoreStrategy::getImagesPath() const {
+    return  imagesPath;
+}
+
+bool TextFileLoadAndStoreStrategy::setObjectModelsPath(string path) {
+    if (!this->pathExists(path))
+        return false;
+    objectModelsPath = path;
+    return true;
+}
+
+string TextFileLoadAndStoreStrategy::getObjectModelsPath() const {
+    return objectModelsPath;
+}
+
+bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(string path) {
+    if (!this->pathExists(path))
+        return false;
+    correspondencesPath = path;
+    return false;
+}
+
+string TextFileLoadAndStoreStrategy::getCorrespondencesPath() const {
+    return correspondencesPath;
 }
