@@ -5,7 +5,7 @@
 #include "loadandstorestrategy.h"
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <map>
 #include <string>
 #include <list>
@@ -39,33 +39,33 @@ public:
      * \brief getImages Returns the list of all images loaded by this manager.
      * \return the list of all images loaded by this manager
      */
-    const list<Image>* getImages() const;
+    list<Image>* getImages();
 
     /*!
      * \brief getCorrespondencesForImage Returns all ObjectImageCorrespondences for the image at the given path.
      * \param imagePath the path of the image
      * \return the list of correspondences of the image at the given path
      */
-    list<ObjectImageCorrespondence*> getCorrespondencesForImage(string imagePath) const;
+    list<ObjectImageCorrespondence*> getCorrespondencesForImage(string imagePath);
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
      * \return the list of all objects models loaded by this manager
      */
-    const list<ObjectModel>* getObjectModels() const;
+    list<ObjectModel>* getObjectModels();
 
     /*!
      * \brief getCorrespondencesForObjectModels Returns all ObjectImageCorrespondences for the object model at the given path.
      * \param objectModelPath the path of the object model
      * \return the list of correspondences of the object model at the given path
      */
-    const list<ObjectImageCorrespondence*> getCorrespondencesForObjectModel(string objectModelPath) const;
+    list<ObjectImageCorrespondence*> getCorrespondencesForObjectModel(string objectModelPath);
 
     /*!
      * \brief getCorrespondences Returns the correspondences maintained by this manager.
      * \return the list of correspondences maintained by this manager
      */
-    const list<ObjectImageCorrespondence>* getCorrespondences() const;
+    list<ObjectImageCorrespondence>* getCorrespondences();
 
     /*!
      * \brief getCorrespondencesForImageAndObjectModel Returns all correspondences for the given image and object model.
@@ -73,7 +73,7 @@ public:
      * \param objectModelPath the object model
      * \return all correspondences of the given image and given object model
      */
-    const list<ObjectImageCorrespondence*> getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath);
+    list<ObjectImageCorrespondence*> getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath);
 
     /*!
      * \brief addObjectImageCorrespondence Adds a new ObjectImageCorrespondence to the correspondences managed by this manager.

@@ -9,11 +9,11 @@ CachingModelManager::CachingModelManager(LoadAndStoreStrategy& _loadAndStoreStra
 CachingModelManager::~CachingModelManager() {
 }
 
-const list<Image>* CachingModelManager::getImages() const {
+list<Image>* CachingModelManager::getImages() {
     return &images;
 }
 
-list<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesForImage(string imagePath) const {
+list<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesForImage(string imagePath) {
     if (correspondencesForImages.find(imagePath) == correspondencesForImages.end()) {
         return list<ObjectImageCorrespondence*>();
     } else {
@@ -21,11 +21,11 @@ list<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesForImage
     }
 }
 
-const list<ObjectModel>* CachingModelManager::getObjectModels() const {
+list<ObjectModel>* CachingModelManager::getObjectModels() {
     return &objectModels;
 }
 
-const list<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesForObjectModel(string objectModelPath) const{
+list<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesForObjectModel(string objectModelPath) {
     if (correspondencesForObjectModels.find(objectModelPath) == correspondencesForObjectModels.end()) {
         return list<ObjectImageCorrespondence*>();
     } else {
@@ -33,11 +33,11 @@ const list<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesFo
     }
 }
 
-const list<ObjectImageCorrespondence>* CachingModelManager::getCorrespondences() const {
+list<ObjectImageCorrespondence>* CachingModelManager::getCorrespondences() {
     return &correspondences;
 }
 
-const list<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath) {
+list<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath) {
     list<ObjectImageCorrespondence*> correspondencesForImageAndObject = correspondencesForImages[imagePath];
     correspondencesForImageAndObject.remove_if([&objectModelPath] (const ObjectImageCorrespondence* correspondence) {
         return !correspondence->getObjectModel()->getPath().compare(objectModelPath);
@@ -47,7 +47,7 @@ const list<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesFo
 
 bool CachingModelManager::addObjectImageCorrespondence(Image* image, ObjectModel* objectModel, Point position, Point rotation) {
     boost::uuids::uuid uuid = boost::uuids::random_generator()();
-    ObjectImageCorrespondence corresopndence(boost::lexical_cast<std::string>(uuid), position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, image, objectModel);
+    ObjectImageCorrespondence corresopndence(boost::uuids::to_string(uuid), position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, image, objectModel);
 
     if (!loadAndStoreStrategy->persistObjectImageCorrespondence(corresopndence, false)) {
         //! if there is an error persisting the correspondence for any reason we should not add the correspondence to this manager

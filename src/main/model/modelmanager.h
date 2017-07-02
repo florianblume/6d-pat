@@ -46,33 +46,33 @@ public:
      * \brief getImages Returns the list of all images loaded by this manager.
      * \return the list of all images loaded by this manager
      */
-   virtual  const list<Image>* getImages() const = 0;
+   virtual  list<Image>* getImages() = 0;
 
     /*!
      * \brief getCorrespondencesForImage Returns all ObjectImageCorrespondences for the image at the given path.
      * \param imagePath the path of the image
      * \return the list of correspondences of the image at the given path
      */
-    virtual list<ObjectImageCorrespondence*> getCorrespondencesForImage(string imagePath) const = 0;
+    virtual list<ObjectImageCorrespondence*> getCorrespondencesForImage(string imagePath) = 0;
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
      * \return the list of all objects models loaded by this manager
      */
-    virtual const list<ObjectModel>* getObjectModels() const = 0;
+    virtual list<ObjectModel>* getObjectModels() = 0;
 
     /*!
      * \brief getCorrespondencesForObjectModels Returns all ObjectImageCorrespondences for the object model at the given path.
      * \param objectModelPath the path of the object model
      * \return the list of correspondences of the object model at the given path
      */
-    virtual const list<ObjectImageCorrespondence*> getCorrespondencesForObjectModel(string objectModelPath) const = 0;
+    virtual list<ObjectImageCorrespondence*> getCorrespondencesForObjectModel(string objectModelPath) = 0;
 
     /*!
      * \brief getCorrespondences Returns the correspondences maintained by this manager.
      * \return the list of correspondences maintained by this manager
      */
-    virtual const list<ObjectImageCorrespondence>* getCorrespondences() const = 0;
+    virtual list<ObjectImageCorrespondence>* getCorrespondences() = 0;
 
     /*!
      * \brief getCorrespondencesForImageAndObjectModel Returns all correspondences for the given image and object model.
@@ -80,7 +80,7 @@ public:
      * \param objectModelPath the object model
      * \return all correspondences of the given image and given object model
      */
-    virtual const list<ObjectImageCorrespondence*> getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath) = 0;
+    virtual list<ObjectImageCorrespondence*> getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath) = 0;
 
     /*!
      * \brief addObjectImageCorrespondence Adds a new ObjectImageCorrespondence to the correspondences managed by this manager.
