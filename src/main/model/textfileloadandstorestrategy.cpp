@@ -8,6 +8,12 @@ const string correspondenceFileNameSuffix = "_correspondence";
 TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy(const string _imagesPath, const string _objectModelsPath,
                                                            const string _correspondencesPath)
     : imagesPath(_imagesPath), objectModelsPath(_objectModelsPath), correspondencesPath(_correspondencesPath) {
+    if (!pathExists(_imagesPath))
+        throw "Image path does not exist";
+    if (!pathExists(_objectModelsPath))
+        throw "ObjectModels path does not exist";
+    if (!pathExists(_correspondencesPath))
+        throw "Correspondences path does not exist";
 }
 
 TextFileLoadAndStoreStrategy::~TextFileLoadAndStoreStrategy() {
@@ -142,7 +148,7 @@ list<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondence
         string _file = file;
         //! only read txt files
         //!
-        if (strcmp(_file.substr(_file.size() - 5, 4).c_str(), ".txt") == 0) {
+        if (strcmp(_file.substr(_file.size() - 4, 4).c_str(), ".txt") == 0) {
             inFile.open(_file);
             string line;
             while (inFile >> line) {
@@ -165,7 +171,13 @@ list<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondence
 bool TextFileLoadAndStoreStrategy::setImagesPath(string path) {
     if (!this->pathExists(path))
         return false;
+    if (imagesPath == path)
+        return true;
+
     imagesPath = path;
+    for (LoadAndStoreStrategyListener *listener : listeners) {
+        listener->imagesChanged();
+    }
     return true;
 }
 
@@ -176,7 +188,13 @@ string TextFileLoadAndStoreStrategy::getImagesPath() const {
 bool TextFileLoadAndStoreStrategy::setObjectModelsPath(string path) {
     if (!this->pathExists(path))
         return false;
+    if (objectModelsPath == path)
+        return true;
+
     objectModelsPath = path;
+    for (LoadAndStoreStrategyListener *listener : listeners) {
+        listener->objectModelsChanged();
+    }
     return true;
 }
 
@@ -187,7 +205,13 @@ string TextFileLoadAndStoreStrategy::getObjectModelsPath() const {
 bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(string path) {
     if (!this->pathExists(path))
         return false;
+    if (correspondencesPath == path)
+        return true;
+
     correspondencesPath = path;
+    for (LoadAndStoreStrategyListener *listener : listeners) {
+        listener->corresopndencesChanged();
+    }
     return false;
 }
 
