@@ -2,6 +2,7 @@
 #define LOADANDSTORESTRATEGY_H
 
 #include "objectimagecorrespondence.h"
+#include "loadandstorestrategylistener.h"
 #include "image.h"
 #include "objectmodel.h"
 #include <iostream>
@@ -12,6 +13,9 @@
 using namespace std;
 
 class LoadAndStoreStrategy {
+
+protected:
+    list<LoadAndStoreStrategyListener*> listeners;
 
 public:
 
@@ -53,6 +57,18 @@ public:
      * \return true if the path exists and is accessible, false if not
      */
     bool pathExists(const string path);
+
+    /*!
+     * \brief addListener Adds a listener to this load and store strategy that will be notified if the underlying data changes somehow.
+     * \param listener the listener to be added
+     */
+    void addListener(LoadAndStoreStrategyListener* listener);
+
+    /*!
+     * \brief removeListener Removes the listener from the listeners of this strategy.
+     * \param listener the listener to be removed
+     */
+    void removeListener(LoadAndStoreStrategyListener* listener);
 
 };
 
