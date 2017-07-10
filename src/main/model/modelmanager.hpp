@@ -1,71 +1,78 @@
-#ifndef CACHINGMODELMANAGER_H
-#define CACHINGMODELMANAGER_H
+#ifndef MODELMANAGER_H
+#define MODELMANAGER_H
 
-#include "modelmanager.h"
-#include "loadandstorestrategy.h"
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <map>
+#include "objectimagecorrespondence.hpp"
+#include "image.hpp"
+#include "loadandstorestrategy.hpp"
+#include "loadandstorestrategylistener.hpp"
 #include <string>
 #include <list>
+#include <map>
 
+using namespace std;
+
+//! Interface ModelManager defines methods to load entities of the program and store them as well.
 /*!
- * \brief The CachingModelManager class implements the ModelManager interface. To improve the speed of the application
- * this manager chaches the list of entities and refreshes them when necessary.
- */
-class CachingModelManager : public ModelManager
+ * A ModelManager is there to read in images and 3D models as well as correspondences already created by the user. It does so automatically on
+ * startup and it also takes care of persisting changes constantly.
+ * A ModelManager can also provide the read images, object models and correspondences.
+ * To do so the ModelManager requires to receive a LoadAndStoreStrategy which handles the underlying details of how to persist and therefore
+ * also how to load entities.
+ *
+ * Attention: To persist modified correspondences they have to be updated through the update method of the manager, otherwise the changes
+ * will be lost on program restart.
+*/
+class ModelManager : LoadAndStoreStrategyListener
 {
-private:
-    //! The pattern that is used to load maybe existing segmentation images
-    string segmentationImagePattern;
-    //! The list of the loaded images
-    list<Image> images;
-    //! Convenience map to store correspondences for images
-    map<string, list<ObjectImageCorrespondence*>> correspondencesForImages;
-    //! The list of the loaded object models
-    list<ObjectModel> objectModels;
-    //! Convenience map to store correspondences for object models
-    map<string, list<ObjectImageCorrespondence*>> correspondencesForObjectModels;
-    //! The list of the object image correspondences
-    list<ObjectImageCorrespondence> correspondences;
+
+protected:
+    //! The strategy that is used to persist and also to load entities
+    LoadAndStoreStrategy* loadAndStoreStrategy;
 
 public:
-    CachingModelManager(LoadAndStoreStrategy& _loadAndStoreStrategy);
 
-    ~CachingModelManager();
+    /*!
+     * \brief ModelManager Constructor of class ModelManager.
+     *
+     * NOTE: The constructor will not call the init method, as some things like paths have to be set first before calling the method.
+     *
+     * \param _LoadAndStoreStrategy
+     */
+    ModelManager(LoadAndStoreStrategy& _LoadAndStoreStrategy);
+
+    virtual ~ModelManager();
 
     /*!
      * \brief getImages Returns the list of all images loaded by this manager.
      * \return the list of all images loaded by this manager
      */
-    list<Image>* getImages();
+   virtual  list<Image>* getImages() = 0;
 
     /*!
      * \brief getCorrespondencesForImage Returns all ObjectImageCorrespondences for the image at the given path.
      * \param imagePath the path of the image
      * \return the list of correspondences of the image at the given path
      */
-    list<ObjectImageCorrespondence*> getCorrespondencesForImage(string imagePath);
+    virtual list<ObjectImageCorrespondence*> getCorrespondencesForImage(string imagePath) = 0;
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
      * \return the list of all objects models loaded by this manager
      */
-    list<ObjectModel>* getObjectModels();
+    virtual list<ObjectModel>* getObjectModels() = 0;
 
     /*!
      * \brief getCorrespondencesForObjectModels Returns all ObjectImageCorrespondences for the object model at the given path.
      * \param objectModelPath the path of the object model
      * \return the list of correspondences of the object model at the given path
      */
-    list<ObjectImageCorrespondence*> getCorrespondencesForObjectModel(string objectModelPath);
+    virtual list<ObjectImageCorrespondence*> getCorrespondencesForObjectModel(string objectModelPath) = 0;
 
     /*!
      * \brief getCorrespondences Returns the correspondences maintained by this manager.
      * \return the list of correspondences maintained by this manager
      */
-    list<ObjectImageCorrespondence>* getCorrespondences();
+    virtual list<ObjectImageCorrespondence>* getCorrespondences() = 0;
 
     /*!
      * \brief getCorrespondencesForImageAndObjectModel Returns all correspondences for the given image and object model.
@@ -73,7 +80,7 @@ public:
      * \param objectModelPath the object model
      * \return all correspondences of the given image and given object model
      */
-    list<ObjectImageCorrespondence*> getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath);
+    virtual list<ObjectImageCorrespondence*> getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath) = 0;
 
     /*!
      * \brief addObjectImageCorrespondence Adds a new ObjectImageCorrespondence to the correspondences managed by this manager.
@@ -84,7 +91,7 @@ public:
      * \param rotation the rotation of the object model on the image
      * \return true if creating and persisting the correspondence was successful
      */
-    bool addObjectImageCorrespondence(Image* image, ObjectModel* objectModel, Point position, Point rotation);
+    virtual bool addObjectImageCorrespondence(Image* image, ObjectModel* objectModel, Point position, Point rotation) = 0;
 
     /*!
      * \brief addObjectImageCorrespondence Updates the given ObjectImageCorrespondence and automatically persists it according to the
@@ -94,7 +101,7 @@ public:
      * \return true if updating  and also persisting the correspondence was successful, false if this manager does not manage the given
      * correspondence or persisting it has failed
      */
-    bool updateObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence);
+    virtual bool updateObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) = 0;
 
     /*!
      * \brief removeObjectImageCorrespondence Removes the given ObjectImageCorrespondence if it is present in the list
@@ -103,13 +110,20 @@ public:
      * \return true if the correspondence was present and removing it, i.e. also removing it from the filesystem was
      * successful
      */
-    bool removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence);
+    virtual bool removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) = 0;
 
-    void imagesChanged();
+    /**
+      ######################################
+      Interface LoadAndStoreStrategyListener
+      ######################################
+    */
 
-    void objectModelsChanged();
+    virtual void imagesChanged() = 0;
 
-    void corresopndencesChanged() ;
+    virtual void objectModelsChanged() = 0;
+
+    virtual void corresopndencesChanged() = 0;
+
 };
 
-#endif // CACHINGMODELMANAGER_H
+#endif // MODELMANAGER_H

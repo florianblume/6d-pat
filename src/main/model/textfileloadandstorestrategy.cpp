@@ -1,12 +1,13 @@
-#include "textfileloadandstorestrategy.h"
+#include "textfileloadandstorestrategy.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/algorithm/string.hpp"
 
 const char correspondenceFormatDelimiter = ' ';
 const string correspondenceFileNameSuffix = "_correspondence";
+const string correspondenceFileExtension = ".txt";
 
-TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy(const string _imagesPath, const string _objectModelsPath,
-                                                           const string _correspondencesPath)
+TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy(const path _imagesPath, const path _objectModelsPath,
+                                                           const path _correspondencesPath)
     : imagesPath(_imagesPath), objectModelsPath(_objectModelsPath), correspondencesPath(_correspondencesPath) {
     if (!pathExists(_imagesPath))
         throw "Image path does not exist";
@@ -19,10 +20,9 @@ TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy(const string _imagesP
 TextFileLoadAndStoreStrategy::~TextFileLoadAndStoreStrategy() {
 }
 
-list<string> getFilesAtPath(const string path) {
+list<string> getFilesAtPath(const path _path) {
     list<string> files;
 
-    boost::filesystem::path _path(path);
     boost::filesystem::directory_iterator end_itr;
 
     for (boost::filesystem::directory_iterator itr(_path); itr != end_itr; ++itr) {
@@ -35,44 +35,45 @@ list<string> getFilesAtPath(const string path) {
     return files;
 }
 
-bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence) {
-    const string imagePath = objectImageCorrespondence.getImage()->getPath();
-    boost::filesystem::path image(imagePath);
+void persistCorrespondenceToFile(ifstream *inFile, ofstream *outFile, const ObjectImageCorrespondence* correspondence, bool deleteCorrespondence) {
+    bool correspondenceFound = false;
+    for (string line; getline(*inFile, line);) {
+        std::vector<std::string> results;
+        //! split the read line at the delimiter to obtain the ID of the correspondence and see if this is the line we need to update
+        boost::split(results, line, [](char c){return c == correspondenceFormatDelimiter;});
+        if (results[0].compare(correspondence->getID()) == 0) {
+            //! we found the correct line
+            correspondenceFound = true;
+            if (!deleteCorrespondence)
+                //! if we are to delete the correspondence, simply don't write back the line it concerns
+                *outFile << correspondence->toString() << endl;
+        } else {
+            *outFile << line << endl;
+        }
+    }
+    if (!correspondenceFound && !deleteCorrespondence)
+        //! since we didn't find the correspondence it must be a new one and we add it at the end of the file
+        //! but only if the delete flag isn't set to true
+        *outFile << correspondence->toString();
+}
 
-    string correspondenceFileName = correspondencesPath + image.stem().string() + correspondenceFileNameSuffix + ".txt";
-    boost::filesystem::path _path(correspondenceFileName);
-    if (deleteCorrespondence) {
-        std::remove(correspondenceFileName.c_str());
-    } else if (boost::filesystem::exists(_path) && boost::filesystem::is_regular_file(_path)) {
+bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence) {
+    boost::filesystem::path imagePath(objectImageCorrespondence.getImage()->getImagePath());
+    boost::filesystem::path imageFileName(imagePath.stem().string() + correspondenceFileNameSuffix + correspondenceFileExtension);
+    boost::filesystem::path corresopndenceFileName = absolute(imageFileName, correspondencesPath);
+    if (boost::filesystem::exists(corresopndenceFileName) && boost::filesystem::is_regular_file(corresopndenceFileName)) {
         //! file exists already we need to update it
-        ifstream inFile(correspondenceFileName);
+        ifstream inFile(corresopndenceFileName.string());
         //! we need to create a temproary file and replace the old version with the new one at the end
         ofstream outFile("./tmp.txt");
-        string line;
-        bool correspondenceFound = false;
-        while (inFile >> line) {
-            std::vector<std::string> results;
-            //! split the read line at the delimiter to obtain the ID of the correspondence and see if this is the line we need to update
-            boost::split(results, line, [](char c){return c == correspondenceFormatDelimiter;});
-            if (results[0].compare(objectImageCorrespondence.getID()) == 0) {
-                //! we found the correct line
-                correspondenceFound = true;
-                outFile << objectImageCorrespondence.toString() << endl;
-            } else {
-                outFile << line << endl;
-            }
-        }
-        if (!correspondenceFound)
-            //! since we didn't find the correspondence it must be a new one and we add it at the end of the file
-            outFile << objectImageCorrespondence.toString();
-
-        remove(correspondenceFileName.c_str());
-        boost::filesystem::copy_file(boost::filesystem::path("./tmp.txt"), boost::filesystem::path(correspondenceFileName));
+        persistCorrespondenceToFile(&inFile, &outFile, &objectImageCorrespondence, deleteCorrespondence);
+        boost::filesystem::copy_file(boost::filesystem::path("./tmp.txt"), corresopndenceFileName);
         inFile.close();
         outFile.close();
+        remove("./tmp.txt");
     } else {
         //! no file there yet so we have to create it
-        ofstream outFile(correspondenceFileName);
+        ofstream outFile(corresopndenceFileName.string());
         outFile << objectImageCorrespondence.toString();
         outFile.close();
     }
@@ -114,10 +115,9 @@ list<ObjectModel> TextFileLoadAndStoreStrategy::loadObjectModels() {
 map<string, Image*> createImageMap(list<Image>* images) {
     map<string, Image*> imageMap;
 
-    for (auto image : *images) {
-        Image _image = image;
-        imageMap[_image.getPath()] = &_image;
-    }
+    //for (int i = 0; i < images.size(); i++) {
+        //imageMap["((Image) images[i]).getPath"] = &(images[i]);
+    //}
 
     return imageMap;
 }
@@ -125,12 +125,27 @@ map<string, Image*> createImageMap(list<Image>* images) {
 map<string, ObjectModel*> createObjectModelMap(list<ObjectModel>* objectModels) {
     map<string, ObjectModel*> objectModelMap;
 
-    for (auto objectModel : *objectModels) {
-        ObjectModel _objectModel = objectModel;
-        objectModelMap[_objectModel.getPath()] = &_objectModel;
-    }
+   // for (int i = 0; i < objectModels.size(); i++) {
+        //objectModelMap[objectModel.getPath()] = &objectModel;
+    //}
 
     return objectModelMap;
+}
+
+void loadCorrespondencesFromFile(ifstream* inFile, list<ObjectImageCorrespondence> *correspondences,
+                       map<string, Image*>* imageMap, map<string, ObjectModel*> *objectModelMap) {
+    if (inFile->is_open()) {
+        //! read every line
+        for (string line; getline(*inFile, line);) {
+            std::vector<std::string> results;
+            //! split the read line at the delimiter and parse the results
+            boost::split(results, line, [](char c){return c == correspondenceFormatDelimiter;});
+            //! add the correspondence parsed from the line of the file to the list of correspondences
+            correspondences->push_back(ObjectImageCorrespondence(results[0], stoi(results[3]), stoi(results[4]),
+                    stoi(results[5]), stoi(results[6]), stoi(results[7]), stoi(results[8]), (*imageMap)[results[1]],
+                    (*objectModelMap)[results[2]]));
+        }
+    }
 }
 
 list<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondences(list<Image>* images, list<ObjectModel>* objectModels) {
@@ -150,15 +165,7 @@ list<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondence
         //!
         if (strcmp(_file.substr(_file.size() - 4, 4).c_str(), ".txt") == 0) {
             inFile.open(_file);
-            string line;
-            while (inFile >> line) {
-                std::vector<std::string> results;
-                //! split the read line at the delimiter and parse the results
-                boost::split(results, line, [](char c){return c == correspondenceFormatDelimiter;});
-                correspondences.push_back(ObjectImageCorrespondence(results[0], stoi(results[3]), stoi(results[4]),
-                        stoi(results[5]), stoi(results[6]), stoi(results[7]), stoi(results[8]), imageMap[results[1]],
-                        objectModelMap[results[2]]));
-            }
+            loadCorrespondencesFromFile(&inFile, &correspondences, &imageMap, &objectModelMap);
             inFile.close();
         }
     }
@@ -168,7 +175,7 @@ list<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondence
 
 
 
-bool TextFileLoadAndStoreStrategy::setImagesPath(string path) {
+bool TextFileLoadAndStoreStrategy::setImagesPath(path path) {
     if (!this->pathExists(path))
         return false;
     if (imagesPath == path)
@@ -181,11 +188,11 @@ bool TextFileLoadAndStoreStrategy::setImagesPath(string path) {
     return true;
 }
 
-string TextFileLoadAndStoreStrategy::getImagesPath() const {
+path TextFileLoadAndStoreStrategy::getImagesPath() const {
     return  imagesPath;
 }
 
-bool TextFileLoadAndStoreStrategy::setObjectModelsPath(string path) {
+bool TextFileLoadAndStoreStrategy::setObjectModelsPath(path path) {
     if (!this->pathExists(path))
         return false;
     if (objectModelsPath == path)
@@ -198,11 +205,11 @@ bool TextFileLoadAndStoreStrategy::setObjectModelsPath(string path) {
     return true;
 }
 
-string TextFileLoadAndStoreStrategy::getObjectModelsPath() const {
+path TextFileLoadAndStoreStrategy::getObjectModelsPath() const {
     return objectModelsPath;
 }
 
-bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(string path) {
+bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(path path) {
     if (!this->pathExists(path))
         return false;
     if (correspondencesPath == path)
@@ -215,6 +222,6 @@ bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(string path) {
     return false;
 }
 
-string TextFileLoadAndStoreStrategy::getCorrespondencesPath() const {
+path TextFileLoadAndStoreStrategy::getCorrespondencesPath() const {
     return correspondencesPath;
 }

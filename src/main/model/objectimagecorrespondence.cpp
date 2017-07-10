@@ -1,4 +1,4 @@
-#include "objectimagecorrespondence.h"
+#include "objectimagecorrespondence.hpp"
 
 ObjectImageCorrespondence::ObjectImageCorrespondence(string _id, int x, int y, int z, int r1, int r2, int r3,
                                                      const Image* _image, const ObjectModel* _objectModel)
@@ -41,7 +41,7 @@ bool ObjectImageCorrespondence::operator==(ObjectImageCorrespondence objectImage
 }
 
 string ObjectImageCorrespondence::toString() const {
-    return id + " " + image->getPath() + " " + objectModel->getPath() + " " + to_string(position.x) + " " +
+    return id + " " + image->getImagePath().string() + " " + objectModel->getPath().string() + " " + to_string(position.x) + " " +
             to_string(position.y) + " " + to_string(position.z) + " " + to_string(rotation.x) + " " +
             to_string(rotation.y) + " " + to_string(rotation.z);
 }

@@ -1,8 +1,16 @@
-#include "objectmodel.h"
+#include "objectmodel.hpp"
 
-ObjectModel::ObjectModel(string _objectModelUrl) : objectModelUrl(_objectModelUrl) {
+ObjectModel::ObjectModel(path _objectModelPath) : objectModelPath(_objectModelPath) {
 }
 
-const string ObjectModel::getPath() const {
-    return objectModelUrl;
+const path ObjectModel::getPath() const {
+    return objectModelPath;
+}
+
+const path ObjectModel::getBasePath() const {
+    return basePath;
+}
+
+const path ObjectModel::getAbsolutePath() const {
+    return absolute(objectModelPath, basePath);
 }

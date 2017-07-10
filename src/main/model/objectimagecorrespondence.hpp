@@ -1,9 +1,9 @@
 #ifndef OBJECTIMAGECORRESPONDENCE_H
 #define OBJECTIMAGECORRESPONDENCE_H
 
-#include "image.h"
-#include "objectmodel.h"
-#include "point.h"
+#include "image.hpp"
+#include "objectmodel.hpp"
+#include "point.hpp"
 #include <string.h>
 
 using namespace std;
@@ -92,7 +92,7 @@ public:
     bool operator==(ObjectImageCorrespondence objectImageCorrespondence);
 
     /*!
-     * \brief toString Converts this correspondence to a string.
+     * \brief toString Converts this correspondence to a string. It will print only the relative paths.
      * \return this correspondence converted to a string
      */
     string toString() const;

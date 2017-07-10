@@ -1,10 +1,10 @@
 #ifndef LOADANDSTORESTRATEGY_H
 #define LOADANDSTORESTRATEGY_H
 
-#include "objectimagecorrespondence.h"
-#include "loadandstorestrategylistener.h"
-#include "image.h"
-#include "objectmodel.h"
+#include "objectimagecorrespondence.hpp"
+#include "loadandstorestrategylistener.hpp"
+#include "image.hpp"
+#include "objectmodel.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -56,7 +56,7 @@ public:
      * \param path the path that is to be checked
      * \return true if the path exists and is accessible, false if not
      */
-    bool pathExists(const string path);
+    bool pathExists(const path path);
 
     /*!
      * \brief addListener Adds a listener to this load and store strategy that will be notified if the underlying data changes somehow.

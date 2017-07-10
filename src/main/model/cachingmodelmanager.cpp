@@ -1,4 +1,4 @@
-#include "cachingmodelmanager.h"
+#include "cachingmodelmanager.hpp"
 
 CachingModelManager::CachingModelManager(LoadAndStoreStrategy& _loadAndStoreStrategy) : ModelManager (_loadAndStoreStrategy) {
     images = loadAndStoreStrategy->loadImages();
@@ -57,8 +57,8 @@ bool CachingModelManager::addObjectImageCorrespondence(Image* image, ObjectModel
     //! correspondence has not yet been added
     correspondences.push_back(corresopndence);
 
-    const string imagePath = corresopndence.getImage()->getPath();
-    const string objectModelPath = corresopndence.getObjectModel()->getPath();
+    const string imagePath = corresopndence.getImage()->getImagePath().string();
+    const string objectModelPath = corresopndence.getObjectModel()->getPath().string();
 
     //! initialize and add the list of correspondences for an image
     list<ObjectImageCorrespondence*> newCorrespondencesForImageList = list<ObjectImageCorrespondence*>();
@@ -105,8 +105,8 @@ bool CachingModelManager::removeObjectImageCorrespondence(ObjectImageCorresponde
     }
 
     correspondences.remove(objectImageCorrespondence);
-    correspondencesForImages.erase(objectImageCorrespondence.getImage()->getPath());
-    correspondencesForObjectModels.erase(objectImageCorrespondence.getObjectModel()->getPath());
+    correspondencesForImages.erase(objectImageCorrespondence.getImage()->getImagePath().string());
+    correspondencesForObjectModels.erase(objectImageCorrespondence.getObjectModel()->getPath().string());
     return true;
 }
 

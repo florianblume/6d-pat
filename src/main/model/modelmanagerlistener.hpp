@@ -1,7 +1,7 @@
 #ifndef MODELMANAGERLISTENER_H
 #define MODELMANAGERLISTENER_H
 
-#include "objectimagecorrespondence.h"
+#include "objectimagecorrespondence.hpp"
 #include <string>
 
 /*!

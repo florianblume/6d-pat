@@ -1,8 +1,8 @@
 #ifndef MAINCONTROLLER_H
 #define MAINCONTROLLER_H
 
-#include "model/cachingmodelmanager.h"
-#include "model/textfileloadandstorestrategy.h"
+#include "model/cachingmodelmanager.hpp"
+#include "model/textfileloadandstorestrategy.hpp"
 
 class MainController
 {

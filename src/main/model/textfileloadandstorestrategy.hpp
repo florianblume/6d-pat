@@ -1,7 +1,8 @@
 #ifndef TEXTFILELOADANDSTORESTRATEGY_H
 #define TEXTFILELOADANDSTORESTRATEGY_H
 
-#include "loadandstorestrategy.h"
+#include "loadandstorestrategy.hpp"
+#include <map>
 
 /*!
  * \brief The TextFileLoadAndStoreStrategy class is a simple implementation of a LoadAndStoreStrategy that makes no use of
@@ -12,14 +13,14 @@ class TextFileLoadAndStoreStrategy : public LoadAndStoreStrategy
 {
 private:
     //! Stores the path to the folder that holds the images
-    string imagesPath;
+    path imagesPath;
     //! Stores the path to the folder that holds the object models
-    string objectModelsPath;
+    path objectModelsPath;
     //! Stores the path to the already created correspondences
-    string correspondencesPath;
+    path correspondencesPath;
 
 public:
-    TextFileLoadAndStoreStrategy(const string _imagesPath, const string _objectModelsPath, const string _correspondencesPath);
+    TextFileLoadAndStoreStrategy(const path _imagesPath, const path _objectModelsPath, const path _correspondencesPath);
     ~TextFileLoadAndStoreStrategy();
     bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence);
     list<Image> loadImages();
@@ -46,13 +47,13 @@ public:
      * \param path the path to the folder where the images are located
      * \return true if the path is a valid path on the filesystem, false otherwise
      */
-    bool setImagesPath(string path);
+    bool setImagesPath(path path);
 
     /*!
      * \brief getImagesPath Returns the path that this manager uses to load images.
      * \return the path that this manager uses to load images
      */
-    string getImagesPath() const;
+    path getImagesPath() const;
 
     /*!
      * \brief setObjectModelsPath Sets the path to the folder where the object models are located. After setting the path the
@@ -60,13 +61,13 @@ public:
      * \param path the path to the folder where the objects are located
      * \return true if the path is a valid path on the filesystem, false otherwise
      */
-    bool setObjectModelsPath(string path);
+    bool setObjectModelsPath(path path);
 
     /*!
      * \brief getObjectModelsPath Returns the path that this manager uses to load object models.
      * \return the path that this manager uses to load object models
      */
-    string getObjectModelsPath() const;
+    path getObjectModelsPath() const;
 
     /*!
      * \brief setCorrespondencesPath Sets the path to the folder where object image correspondences are stored at. After setting
@@ -76,13 +77,13 @@ public:
      * are meant to be loaded
      * \return true if the path is a valid path on the filesystem, false otherwise
      */
-    bool setCorrespondencesPath(string path);
+    bool setCorrespondencesPath(path path);
 
     /*!
      * \brief getCorrespondencesPath Returns the path that this manager uses to store and load correspondences.
      * \return the path that this manager uses to store and load correspondences
      */
-    string getCorrespondencesPath() const;
+    path getCorrespondencesPath() const;
 };
 
 #endif // TEXTFILELOADANDSTORESTRATEGY_H
