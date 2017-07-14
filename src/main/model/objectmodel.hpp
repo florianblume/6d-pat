@@ -18,7 +18,7 @@ public:
       This constructor stores the path to the 3D object model.
       \param _objectModelUrl the path to the object model
     */
-    ObjectModel(path _objectModelPath);
+    ObjectModel(path _objectModelPath, path _basePath);
 
     //! Returns the path to the object model.
     /*!

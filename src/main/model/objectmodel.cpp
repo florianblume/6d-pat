@@ -1,6 +1,6 @@
 #include "objectmodel.hpp"
 
-ObjectModel::ObjectModel(path _objectModelPath) : objectModelPath(_objectModelPath) {
+ObjectModel::ObjectModel(path _objectModelPath, path _basePath) : objectModelPath(_objectModelPath), basePath(_basePath) {
 }
 
 const path ObjectModel::getPath() const {

@@ -21,4 +21,5 @@ HEADERS  += \
     $$PWD/src/main/model/point.hpp \
     $$PWD/src/main/model/textfileloadandstorestrategy.hpp \
     $$PWD/src/main/maincontroller.hpp \
-    $$PWD/src/main/mainwindow.hpp
+    $$PWD/src/main/mainwindow.hpp \
+    $$PWD/src/main/misc/otiathelper.h

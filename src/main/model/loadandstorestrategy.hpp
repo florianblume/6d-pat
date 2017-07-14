@@ -8,14 +8,14 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <list>
+#include <vector>
 
 using namespace std;
 
 class LoadAndStoreStrategy {
 
 protected:
-    list<LoadAndStoreStrategyListener*> listeners;
+    vector<LoadAndStoreStrategyListener*> listeners;
 
 public:
 
@@ -34,13 +34,13 @@ public:
      * \brief loadImages Loads the images.
      * \return the list of images
      */
-    virtual list<Image> loadImages() = 0;
+    virtual vector<Image> loadImages() = 0;
 
     /*!
      * \brief loadObjectModels Loads the object models.
      * \return the list of object models
      */
-    virtual list<ObjectModel> loadObjectModels() = 0;
+    virtual vector<ObjectModel> loadObjectModels() = 0;
 
     /*!
      * \brief loadCorrespondences Loads the correspondences at the given path. How the correspondences are stored depends on the
@@ -49,7 +49,7 @@ public:
      * \param objectModels the object models to insert as reference into the respective correspondence
      * \return the list of all stored correspondences
      */
-    virtual list<ObjectImageCorrespondence> loadCorrespondences(list<Image>* images, list<ObjectModel>* objectModels) = 0;
+    virtual vector<ObjectImageCorrespondence> loadCorrespondences(vector<Image>* images, vector<ObjectModel>* objectModels) = 0;
 
     /*!
      * \brief pathExists Checks whether the given path exists on the file system and is accessible.

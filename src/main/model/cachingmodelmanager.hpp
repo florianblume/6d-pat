@@ -8,7 +8,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <map>
 #include <string>
-#include <list>
+#include <vector>
 
 /*!
  * \brief The CachingModelManager class implements the ModelManager interface. To improve the speed of the application
@@ -20,15 +20,15 @@ private:
     //! The pattern that is used to load maybe existing segmentation images
     string segmentationImagePattern;
     //! The list of the loaded images
-    list<Image> images;
+    vector<Image> images;
     //! Convenience map to store correspondences for images
-    map<string, list<ObjectImageCorrespondence*>> correspondencesForImages;
+    map<string, vector<ObjectImageCorrespondence*>> correspondencesForImages;
     //! The list of the loaded object models
-    list<ObjectModel> objectModels;
+    vector<ObjectModel> objectModels;
     //! Convenience map to store correspondences for object models
-    map<string, list<ObjectImageCorrespondence*>> correspondencesForObjectModels;
+    map<string, vector<ObjectImageCorrespondence*>> correspondencesForObjectModels;
     //! The list of the object image correspondences
-    list<ObjectImageCorrespondence> correspondences;
+    vector<ObjectImageCorrespondence> correspondences;
 
 public:
     CachingModelManager(LoadAndStoreStrategy& _loadAndStoreStrategy);
@@ -39,33 +39,33 @@ public:
      * \brief getImages Returns the list of all images loaded by this manager.
      * \return the list of all images loaded by this manager
      */
-    list<Image>* getImages();
+    vector<Image>* getImages();
 
     /*!
      * \brief getCorrespondencesForImage Returns all ObjectImageCorrespondences for the image at the given path.
      * \param imagePath the path of the image
      * \return the list of correspondences of the image at the given path
      */
-    list<ObjectImageCorrespondence*> getCorrespondencesForImage(string imagePath);
+    vector<ObjectImageCorrespondence*> getCorrespondencesForImage(string imagePath);
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
      * \return the list of all objects models loaded by this manager
      */
-    list<ObjectModel>* getObjectModels();
+    vector<ObjectModel>* getObjectModels();
 
     /*!
      * \brief getCorrespondencesForObjectModels Returns all ObjectImageCorrespondences for the object model at the given path.
      * \param objectModelPath the path of the object model
      * \return the list of correspondences of the object model at the given path
      */
-    list<ObjectImageCorrespondence*> getCorrespondencesForObjectModel(string objectModelPath);
+    vector<ObjectImageCorrespondence*> getCorrespondencesForObjectModel(string objectModelPath);
 
     /*!
      * \brief getCorrespondences Returns the correspondences maintained by this manager.
      * \return the list of correspondences maintained by this manager
      */
-    list<ObjectImageCorrespondence>* getCorrespondences();
+    vector<ObjectImageCorrespondence>* getCorrespondences();
 
     /*!
      * \brief getCorrespondencesForImageAndObjectModel Returns all correspondences for the given image and object model.
@@ -73,7 +73,7 @@ public:
      * \param objectModelPath the object model
      * \return all correspondences of the given image and given object model
      */
-    list<ObjectImageCorrespondence*> getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath);
+    vector<ObjectImageCorrespondence*> getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath);
 
     /*!
      * \brief addObjectImageCorrespondence Adds a new ObjectImageCorrespondence to the correspondences managed by this manager.
@@ -97,7 +97,7 @@ public:
     bool updateObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence);
 
     /*!
-     * \brief removeObjectImageCorrespondence Removes the given ObjectImageCorrespondence if it is present in the list
+     * \brief removeObjectImageCorrespondence Removes the given ObjectImageCorrespondence if it is present in the vector
      * of correspondences mainainted by this manager.
      * \param objectImageCorrespondence the correspondence to be removed
      * \return true if the correspondence was present and removing it, i.e. also removing it from the filesystem was

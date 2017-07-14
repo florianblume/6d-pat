@@ -23,8 +23,8 @@ public:
     TextFileLoadAndStoreStrategy(const path _imagesPath, const path _objectModelsPath, const path _correspondencesPath);
     ~TextFileLoadAndStoreStrategy();
     bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence);
-    list<Image> loadImages();
-    list<ObjectModel> loadObjectModels();
+    vector<Image> loadImages();
+    vector<ObjectModel> loadObjectModels();
 
     /*!
      * \brief loadCorrespondences Loads the correspondences at the given path. How the correspondences are stored depends on the
@@ -38,7 +38,7 @@ public:
      * \return the list of all stored correspondences
      * \throws an exception if the path to the folder that should hold the correspondences has not been set previously
      */
-    list<ObjectImageCorrespondence> loadCorrespondences(list<Image>* images, list<ObjectModel>* objectModels);
+    vector<ObjectImageCorrespondence> loadCorrespondences(vector<Image>* images, vector<ObjectModel>* objectModels);
 
     /*!
      * \brief setImagesPath Sets the path to the folder where the images that are to be annotated are located. After setting the

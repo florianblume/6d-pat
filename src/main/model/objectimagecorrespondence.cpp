@@ -1,7 +1,7 @@
 #include "objectimagecorrespondence.hpp"
 
 ObjectImageCorrespondence::ObjectImageCorrespondence(string _id, int x, int y, int z, int r1, int r2, int r3,
-                                                     const Image* _image, const ObjectModel* _objectModel)
+                                                     Image* _image, ObjectModel* _objectModel)
     : image(_image), objectModel(_objectModel), id(_id) {
     position = {x, y, z};
     rotation = {r1, r2, r3};

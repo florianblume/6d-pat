@@ -19,11 +19,11 @@ private:
     //! The indicator whether the user is confident in the correspondence.
     bool accepted;
     //! The image associated with this corresopndence.
-    const Image* const image;
+    Image* image;
     //! The object model associated with this correspondence.
-    const ObjectModel* const objectModel;
+    ObjectModel* objectModel;
     //! The ID of the correspondence. This is necessary becuase images might contain some objects multiple times.
-    const string id;
+    string id;
 
 public:
     //! Constructor of class ObjectImageCorrespondence.
@@ -39,7 +39,7 @@ public:
      * \param _image the associated image
      * \param _objectModel the associated object model
      */
-    ObjectImageCorrespondence(string _id, int x, int y, int z, int r1, int r2, int r3, const Image* _image, const ObjectModel* _objectModel);
+    ObjectImageCorrespondence(string _id, int x, int y, int z, int r1, int r2, int r3, Image* _image, ObjectModel* _objectModel);
 
     /*!
      * \brief getPosition Returns the position of the object on the image. The value z of the position determines the depth,
