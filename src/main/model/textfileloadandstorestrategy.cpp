@@ -47,6 +47,8 @@ static vector<string> getFilesAtPath(const path _path, const string extension) {
 static void persistCorrespondenceToFile(ifstream *inFile, ofstream *outFile,
                                         const ObjectImageCorrespondence* correspondence, bool deleteCorrespondence) {
     bool correspondenceFound = false;
+    //! count how many lines are not this correspondence, if there aren't any other and this correspondence is to be deleted, remove the file
+    uint foreignLinesCount = 0;
     for (string line; getline(*inFile, line);) {
         std::vector<std::string> results;
         //! split the read line at the delimiter to obtain the ID of the correspondence and see if this is the line we need to update
@@ -59,12 +61,16 @@ static void persistCorrespondenceToFile(ifstream *inFile, ofstream *outFile,
                 *outFile << correspondence->toString() << endl;
         } else {
             *outFile << line << endl;
+            foreignLinesCount++;
         }
     }
-    if (!correspondenceFound && !deleteCorrespondence)
+    if (!correspondenceFound && !deleteCorrespondence) {
         //! since we didn't find the correspondence it must be a new one and we add it at the end of the file
         //! but only if the delete flag isn't set to true
         *outFile << correspondence->toString();
+    } else if (foreignLinesCount == 0 && deleteCorrespondence) {
+        //TODO: remove file
+    }
 }
 
 bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(
