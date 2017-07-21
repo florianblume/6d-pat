@@ -184,9 +184,14 @@ void loadCorrespondencesFromFile(ifstream* inFile, vector<ObjectImageCorresponde
             //! split the read line at the delimiter and parse the results
             boost::split(results, line, [](char c){return c == correspondenceFormatDelimiter;});
             //! add the correspondence parsed from the line of the file to the list of correspondences
-            correspondences->push_back(ObjectImageCorrespondence(results[0], stoi(results[3]), stoi(results[4]),
-                    stoi(results[5]), stoi(results[6]), stoi(results[7]), stoi(results[8]), (*imageMap)[results[1]],
-                    (*objectModelMap)[results[2]]));
+            Image* image = (*imageMap)[results[1]];
+            ObjectModel* objectModel = (*objectModelMap)[results[2]];
+            if (image && objectModel) {
+                correspondences->push_back(ObjectImageCorrespondence(results[0], stoi(results[3]), stoi(results[4]),
+                    stoi(results[5]), stoi(results[6]), stoi(results[7]), stoi(results[8]), image, objectModel));
+            } else {
+                throw "Could not find corresponding image or object model within the given entity-lists.";
+            }
         }
     }
 }

@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 #include <QSettings>
 #include <QCloseEvent>
+#include <QLayout>
+#include "breadcrumb/breadcrumbview.h"
 
 //! The main window of the application that holds the individual components.
 MainWindow::MainWindow(QWidget *parent) :
@@ -9,6 +11,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow) {
     ui->setupUi(this);
     readSettings();
+    //this->setStyleSheet("background-color:white;");
+    boost::filesystem::path test("home/flo/ownCloud/Dokumente/SDAJ");
+    //sBreadcrumbView* breadcrumbView = new BreadcrumbView(this, test, 12);
+    //setCentralWidget(breadcrumbView);
+    statusBar()->showMessage(QString("Ready"));
 }
 
 //! This function persistently stores settings of the application.

@@ -6,7 +6,8 @@ SOURCES += $$PWD/src/main/mainwindow.cpp \
     $$PWD/src/main/model/loadandstorestrategy.cpp \
     $$PWD/src/main/model/textfileloadandstorestrategy.cpp \
     $$PWD/src/main/model/cachingmodelmanager.cpp \
-    $$PWD/src/main/model/modelmanager.cpp
+    $$PWD/src/main/model/modelmanager.cpp \
+    $$PWD/src/main/breadcrumb/breadcrumbview.cpp
 
 HEADERS  += \
     $$PWD/src/main/objectimagecorrespondence.h \
@@ -22,4 +23,7 @@ HEADERS  += \
     $$PWD/src/main/model/textfileloadandstorestrategy.hpp \
     $$PWD/src/main/maincontroller.hpp \
     $$PWD/src/main/mainwindow.hpp \
-    $$PWD/src/main/misc/otiathelper.h
+    $$PWD/src/main/misc/otiathelper.h \
+    $$PWD/src/main/breadcrumb/breadcrumbview.h
+
+DISTFILES +=
