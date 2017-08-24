@@ -49,9 +49,17 @@ vector<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesForIma
     return correspondencesForImageAndObject;
 }
 
-bool CachingModelManager::addObjectImageCorrespondence(Image* image, ObjectModel* objectModel, Point position, Point rotation) {
+bool CachingModelManager::addObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) {
+    const Point* position = objectImageCorrespondence.getPosition();
+    const Point* rotation = objectImageCorrespondence.getRotation();
+    float articulation = objectImageCorrespondence.getArticulation();
+    const Image* image = objectImageCorrespondence.getImage();
+    const ObjectModel* model = objectImageCorrespondence.getObjectModel();
     boost::uuids::uuid uuid = boost::uuids::random_generator()();
-    ObjectImageCorrespondence correspondence(boost::uuids::to_string(uuid), position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, image, objectModel);
+    ObjectImageCorrespondence correspondence(boost::uuids::to_string(uuid),
+                                             position->x, position->y, position->z, rotation->x, rotation->y, rotation->z,
+                                             articulation,
+                                             image, model);
 
     if (!loadAndStoreStrategy->persistObjectImageCorrespondence(correspondence, false)) {
         //! if there is an error persisting the correspondence for any reason we should not add the correspondence to this manager
@@ -97,6 +105,7 @@ bool CachingModelManager::updateObjectImageCorrespondence(ObjectImageCorresponde
     const Point* rotation = objectImageCorrespondence.getRotation();
     (*it).setPosition(position->x, position->y, position->z);
     (*it).setRotation(rotation->x, rotation->y, rotation->z);
+    (*it).setArticulation(objectImageCorrespondence.getArticulation());
 
     return true;
 }

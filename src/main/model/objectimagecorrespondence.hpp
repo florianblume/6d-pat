@@ -16,12 +16,14 @@ private:
     Point position;
     //! The rotation of the object on the image.
     Point rotation;
+    //! The atriculation of the object
+    float articulation;
     //! The indicator whether the user is confident in the correspondence.
     bool accepted;
     //! The image associated with this corresopndence.
-    Image* image;
+    const Image* image;
     //! The object model associated with this correspondence.
-    ObjectModel* objectModel;
+    const ObjectModel* objectModel;
     //! The ID of the correspondence. This is necessary becuase images might contain some objects multiple times.
     string id;
 
@@ -39,7 +41,8 @@ public:
      * \param _image the associated image
      * \param _objectModel the associated object model
      */
-    ObjectImageCorrespondence(string _id, int x, int y, int z, int r1, int r2, int r3, Image* _image, ObjectModel* _objectModel);
+    ObjectImageCorrespondence(string _id, int x, int y, int z, int r1, int r2, int r3, float articulation,
+                              const Image* _image, const ObjectModel* _objectModel);
 
     /*!
      * \brief getPosition Returns the position of the object on the image. The value z of the position determines the depth,
@@ -53,6 +56,11 @@ public:
      * \return the rotation of the image
      */
     const Point* getRotation() const;
+    /*!
+     * \brief getArticulation Returns the articulatoin of the object on the image.
+     * \return the articulation of the object
+     */
+    float getArticulation() const;
     /*!
      * \brief getImage Returns the image associated with this correspondence.
      * \return the image associated with this correspondence
@@ -77,7 +85,11 @@ public:
      * \param r3 the rotation of the z-axis of the object
      */
     void setRotation(int r1, int r2, int r3);
-
+    /*!
+     * \brief setArticulation Sets the articulation of the object on the image.
+     * \param articulation the articulation of the object
+     */
+    void setArticulation(float articulation);
     /*!
      * \brief getID Returns the unique ID of this correspondence.
      * \return the unique ID of this correspondence

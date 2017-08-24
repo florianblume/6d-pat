@@ -3,7 +3,6 @@
 #include <QSettings>
 #include <QCloseEvent>
 #include <QLayout>
-#include "breadcrumb/breadcrumbview.h"
 
 //! The main window of the application that holds the individual components.
 MainWindow::MainWindow(QWidget *parent) :
@@ -11,10 +10,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow) {
     ui->setupUi(this);
     readSettings();
-    //this->setStyleSheet("background-color:white;");
-    boost::filesystem::path test("home/flo/ownCloud/Dokumente/SDAJ");
-    //sBreadcrumbView* breadcrumbView = new BreadcrumbView(this, test, 12);
-    //setCentralWidget(breadcrumbView);
     statusBar()->showMessage(QString("Ready"));
 }
 
@@ -22,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::writeSettings() {
     QSettings settings("FlorettiKonfetti Inc.", "Otiat");
 
-    settings.beginGroup("MainWindow");
+    settings.beginGroup("mainwindow");
     settings.setValue("size", size());
     settings.setValue("pos", pos());
     settings.endGroup();
@@ -32,7 +27,7 @@ void MainWindow::writeSettings() {
 void MainWindow::readSettings() {
     QSettings settings("FlorettiKonfetti Inc.", "Otiat");
 
-    settings.beginGroup("MainWindow");
+    settings.beginGroup("mainwindow");
     resize(settings.value("size", QSize(600, 400)).toSize());
     move(settings.value("pos", QPoint(200, 200)).toPoint());
     settings.endGroup();
@@ -45,4 +40,20 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 MainWindow::~MainWindow() {
     delete ui;
+}
+
+void MainWindow::setPathOnLeftBreadcrumbView(boost::filesystem::path pathToShow) {
+    ui->widgetBreadcrumbLeft->setPathToShow(pathToShow);
+}
+
+void MainWindow::setPathOnRightBreadcrumbView(boost::filesystem::path pathToShow) {
+    ui->widgetBreadcrumbRight->setPathToShow(pathToShow);
+}
+
+void MainWindow::addListenerToLeftNavigationControls(NavigationControlsListener listener) {
+    ui->widgetNavigationLeft->addListener(listener);
+}
+
+void MainWindow::addListenerToRightNavigationControls(NavigationControlsListener listener) {
+    ui->widgetNavigationRight->addListener(listener);
 }

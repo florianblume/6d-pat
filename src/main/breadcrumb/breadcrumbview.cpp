@@ -1,6 +1,4 @@
 #include "breadcrumbview.h"
-#include <vector>
-#include <QLabel>
 
 static vector<string> splitPath(boost::filesystem::path pathToSplit) {
     vector<string> result;
@@ -10,10 +8,11 @@ static vector<string> splitPath(boost::filesystem::path pathToSplit) {
     return result;
 }
 
-BreadcrumbView::BreadcrumbView(QWidget *parent, boost::filesystem::path _pathToShow, uint _fontSize)
-    : QWidget(parent), pathToShow(_pathToShow), fontSize(_fontSize)
-{
-    //layout = new QHBoxLayout(this);
+BreadcrumbView::BreadcrumbView(QWidget *parent, boost::filesystem::path _pathToShow)
+    : QWidget(parent), pathToShow(_pathToShow)
+{;
+    layout = new QHBoxLayout();
+    this->setLayout(layout);
     updateView();
 }
 
@@ -30,21 +29,33 @@ boost::filesystem::path BreadcrumbView::getPathTowShow() {
     return pathToShow;
 }
 
-void BreadcrumbView::setFontSize(uint _fontSize) {
-    fontSize = _fontSize;
-    updateView();
-}
-
-uint BreadcrumbView::getFontSize() {
-    return fontSize;
-}
-
 void BreadcrumbView::updateView() {
     vector<string> pathParts = splitPath(pathToShow);
     // TODO: calculate correct position
+    uint i = 0;
     for (string part : pathParts) {
-        //QLabel* label = new QLabel(QString(part.c_str()), this);
-        //label->setAlignment(Qt::AlignCenter);
-        //layout->addWidget(label);
+        // reuse labels
+        QLabel* label;
+        if (i < labels.size()) {
+            label = labels[i];
+            label->setText(part.c_str());
+        } else {
+            label = new QLabel(QString(part.c_str()), this);
+            label->setAlignment(Qt::AlignCenter);
+            layout->addWidget(label);
+            labels.push_back(label);
+        }
+        i++;
     }
+
+    // save state of i, e.g. when we only need 4 labels but have 6 in the list, so that we are able to delete the excess ones
+    uint j = i;
+
+    while (i < labels.size()) {
+        layout->removeWidget(labels[i]);
+        delete labels[i];
+        i++;
+    }
+
+    labels.erase(labels.begin() + j, labels.end());
 }

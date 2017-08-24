@@ -7,10 +7,12 @@ SOURCES += $$PWD/src/main/mainwindow.cpp \
     $$PWD/src/main/model/textfileloadandstorestrategy.cpp \
     $$PWD/src/main/model/cachingmodelmanager.cpp \
     $$PWD/src/main/model/modelmanager.cpp \
-    $$PWD/src/main/breadcrumb/breadcrumbview.cpp
+    $$PWD/src/main/breadcrumb/breadcrumbview.cpp \
+    $$PWD/src/main/navigationcontrols/navigationcontrols.cpp \
+    $$PWD/src/main/imagegallery/imagegallery.cpp
 
 HEADERS  += \
-    $$PWD/src/main/objectimagecorrespondence.h \
+    $$PWD/src/main/objectimagecorrespondence.hpp \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
     $$PWD/src/main/model/image.hpp \
     $$PWD/src/main/model/loadandstorestrategy.hpp \
@@ -24,6 +26,11 @@ HEADERS  += \
     $$PWD/src/main/maincontroller.hpp \
     $$PWD/src/main/mainwindow.hpp \
     $$PWD/src/main/misc/otiathelper.h \
-    $$PWD/src/main/breadcrumb/breadcrumbview.h
+    $$PWD/src/main/breadcrumb/breadcrumbview.h \
+    $$PWD/src/main/navigationcontrols/navigationcontrols.h \
+    $$PWD/src/main/imagegallery/imagegallery.h
 
-DISTFILES +=
+FORMS    += \
+    $$PWD/resources/mainwindow.ui \
+    $$PWD/src/main/navigationcontrols/navigationcontrols.ui \
+    $$PWD/src/main/imagegallery/imagegallery.ui

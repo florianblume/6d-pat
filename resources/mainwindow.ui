@@ -471,6 +471,9 @@
     </property>
     <item>
      <widget class="QSplitter" name="splitterMain">
+      <property name="midLineWidth">
+       <number>1</number>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -607,10 +610,13 @@
             </size>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
+           </property>
+           <property name="lineWidth">
+            <number>0</number>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <property name="spacing">
@@ -629,7 +635,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QWidget" name="widgetBreadcrumbLeft" native="true">
+             <widget class="BreadcrumbView" name="widgetBreadcrumbLeft" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -657,9 +663,9 @@
                  <colorrole role="Window">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>193</red>
+                    <red>255</red>
                     <green>255</green>
-                    <blue>121</blue>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -677,9 +683,9 @@
                  <colorrole role="Window">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>193</red>
+                    <red>255</red>
                     <green>255</green>
-                    <blue>121</blue>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -688,18 +694,18 @@
                  <colorrole role="Base">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>193</red>
+                    <red>255</red>
                     <green>255</green>
-                    <blue>121</blue>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
                  <colorrole role="Window">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>193</red>
+                    <red>255</red>
                     <green>255</green>
-                    <blue>121</blue>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -712,7 +718,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QWidget" name="widgetImagesLeft" native="true">
+             <widget class="ImageGallery" name="widgetImagesLeft" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -734,8 +740,8 @@
                  <colorrole role="Window">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>213</red>
-                    <green>188</green>
+                    <red>255</red>
+                    <green>255</green>
                     <blue>255</blue>
                    </color>
                   </brush>
@@ -754,8 +760,8 @@
                  <colorrole role="Window">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>213</red>
-                    <green>188</green>
+                    <red>255</red>
+                    <green>255</green>
                     <blue>255</blue>
                    </color>
                   </brush>
@@ -765,8 +771,8 @@
                  <colorrole role="Base">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>213</red>
-                    <green>188</green>
+                    <red>255</red>
+                    <green>255</green>
                     <blue>255</blue>
                    </color>
                   </brush>
@@ -774,8 +780,8 @@
                  <colorrole role="Window">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>213</red>
-                    <green>188</green>
+                    <red>255</red>
+                    <green>255</green>
                     <blue>255</blue>
                    </color>
                   </brush>
@@ -789,7 +795,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QWidget" name="widgetNavigationLeft" native="true">
+             <widget class="NavigationControls" name="widgetNavigationLeft" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -818,8 +824,8 @@
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
                     <red>255</red>
-                    <green>167</green>
-                    <blue>194</blue>
+                    <green>255</green>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -838,8 +844,8 @@
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
                     <red>255</red>
-                    <green>167</green>
-                    <blue>194</blue>
+                    <green>255</green>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -849,8 +855,8 @@
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
                     <red>255</red>
-                    <green>167</green>
-                    <blue>194</blue>
+                    <green>255</green>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -858,8 +864,8 @@
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
                     <red>255</red>
-                    <green>167</green>
-                    <blue>194</blue>
+                    <green>255</green>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -901,9 +907,9 @@
               <colorrole role="Window">
                <brush brushstyle="SolidPattern">
                 <color alpha="255">
-                 <red>239</red>
+                 <red>255</red>
                  <green>255</green>
-                 <blue>60</blue>
+                 <blue>255</blue>
                 </color>
                </brush>
               </colorrole>
@@ -921,9 +927,9 @@
               <colorrole role="Window">
                <brush brushstyle="SolidPattern">
                 <color alpha="255">
-                 <red>239</red>
+                 <red>255</red>
                  <green>255</green>
-                 <blue>60</blue>
+                 <blue>255</blue>
                 </color>
                </brush>
               </colorrole>
@@ -932,18 +938,18 @@
               <colorrole role="Base">
                <brush brushstyle="SolidPattern">
                 <color alpha="255">
-                 <red>239</red>
+                 <red>255</red>
                  <green>255</green>
-                 <blue>60</blue>
+                 <blue>255</blue>
                 </color>
                </brush>
               </colorrole>
               <colorrole role="Window">
                <brush brushstyle="SolidPattern">
                 <color alpha="255">
-                 <red>239</red>
+                 <red>255</red>
                  <green>255</green>
-                 <blue>60</blue>
+                 <blue>255</blue>
                 </color>
                </brush>
               </colorrole>
@@ -1088,10 +1094,13 @@
             </size>
            </property>
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
+            <enum>QFrame::Plain</enum>
+           </property>
+           <property name="lineWidth">
+            <number>0</number>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <property name="spacing">
@@ -1110,7 +1119,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QWidget" name="widgetBreadcrumbRight" native="true">
+             <widget class="BreadcrumbView" name="widgetBreadcrumbRight" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -1138,9 +1147,9 @@
                  <colorrole role="Window">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>193</red>
+                    <red>255</red>
                     <green>255</green>
-                    <blue>121</blue>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -1158,9 +1167,9 @@
                  <colorrole role="Window">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>193</red>
+                    <red>255</red>
                     <green>255</green>
-                    <blue>121</blue>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -1169,18 +1178,18 @@
                  <colorrole role="Base">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>193</red>
+                    <red>255</red>
                     <green>255</green>
-                    <blue>121</blue>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
                  <colorrole role="Window">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>193</red>
+                    <red>255</red>
                     <green>255</green>
-                    <blue>121</blue>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -1193,7 +1202,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QWidget" name="widgetImagesRight" native="true">
+             <widget class="ImageGallery" name="widgetImagesRight" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -1215,8 +1224,8 @@
                  <colorrole role="Window">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>213</red>
-                    <green>188</green>
+                    <red>255</red>
+                    <green>255</green>
                     <blue>255</blue>
                    </color>
                   </brush>
@@ -1235,8 +1244,8 @@
                  <colorrole role="Window">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>213</red>
-                    <green>188</green>
+                    <red>255</red>
+                    <green>255</green>
                     <blue>255</blue>
                    </color>
                   </brush>
@@ -1246,8 +1255,8 @@
                  <colorrole role="Base">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>213</red>
-                    <green>188</green>
+                    <red>255</red>
+                    <green>255</green>
                     <blue>255</blue>
                    </color>
                   </brush>
@@ -1255,8 +1264,8 @@
                  <colorrole role="Window">
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
-                    <red>213</red>
-                    <green>188</green>
+                    <red>255</red>
+                    <green>255</green>
                     <blue>255</blue>
                    </color>
                   </brush>
@@ -1270,7 +1279,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QWidget" name="widgetNavigationRight" native="true">
+             <widget class="NavigationControls" name="widgetNavigationRight" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -1299,8 +1308,8 @@
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
                     <red>255</red>
-                    <green>167</green>
-                    <blue>194</blue>
+                    <green>255</green>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -1319,8 +1328,8 @@
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
                     <red>255</red>
-                    <green>167</green>
-                    <blue>194</blue>
+                    <green>255</green>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -1330,8 +1339,8 @@
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
                     <red>255</red>
-                    <green>167</green>
-                    <blue>194</blue>
+                    <green>255</green>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -1339,8 +1348,8 @@
                   <brush brushstyle="SolidPattern">
                    <color alpha="255">
                     <red>255</red>
-                    <green>167</green>
-                    <blue>194</blue>
+                    <green>255</green>
+                    <blue>255</blue>
                    </color>
                   </brush>
                  </colorrole>
@@ -1382,9 +1391,9 @@
               <colorrole role="Window">
                <brush brushstyle="SolidPattern">
                 <color alpha="255">
-                 <red>239</red>
+                 <red>255</red>
                  <green>255</green>
-                 <blue>60</blue>
+                 <blue>255</blue>
                 </color>
                </brush>
               </colorrole>
@@ -1402,9 +1411,9 @@
               <colorrole role="Window">
                <brush brushstyle="SolidPattern">
                 <color alpha="255">
-                 <red>239</red>
+                 <red>255</red>
                  <green>255</green>
-                 <blue>60</blue>
+                 <blue>255</blue>
                 </color>
                </brush>
               </colorrole>
@@ -1413,18 +1422,18 @@
               <colorrole role="Base">
                <brush brushstyle="SolidPattern">
                 <color alpha="255">
-                 <red>239</red>
+                 <red>255</red>
                  <green>255</green>
-                 <blue>60</blue>
+                 <blue>255</blue>
                 </color>
                </brush>
               </colorrole>
               <colorrole role="Window">
                <brush brushstyle="SolidPattern">
                 <color alpha="255">
-                 <red>239</red>
+                 <red>255</red>
                  <green>255</green>
-                 <blue>60</blue>
+                 <blue>255</blue>
                 </color>
                </brush>
               </colorrole>
@@ -1523,6 +1532,67 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>BreadcrumbView</class>
+   <extends>QWidget</extends>
+   <header>src/main/breadcrumb/breadcrumbview.h</header>
+   <container>1</container>
+   <slots>
+    <slot>setPathToShow(boost::filesystem::path)</slot>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>NavigationControls</class>
+   <extends>QWidget</extends>
+   <header>src/main/navigationcontrols/navigationcontrols.h</header>
+   <container>1</container>
+   <slots>
+    <signal>navigateLeft()</signal>
+    <signal>pathChanged(boost::filesystem::path)</signal>
+    <signal>navigateRight()</signal>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>ImageGallery</class>
+   <extends>QWidget</extends>
+   <header>src/main/imagegallery/imagegallery.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>widgetNavigationLeft</sender>
+   <signal>pathChanged(boost::filesystem::path)</signal>
+   <receiver>widgetBreadcrumbLeft</receiver>
+   <slot>setPathToShow(boost::filesystem::path)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>193</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>43</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetNavigationRight</sender>
+   <signal>pathChanged(boost::filesystem::path)</signal>
+   <receiver>widgetBreadcrumbRight</receiver>
+   <slot>setPathToShow(boost::filesystem::path)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>193</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>43</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

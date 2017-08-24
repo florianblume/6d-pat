@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QLayout>
+#include <vector>
+#include <QLabel>
 #include <boost/filesystem.hpp>
 
 using namespace std;
@@ -11,23 +13,21 @@ class BreadcrumbView : public QWidget
 {
 private:
     boost::filesystem::path pathToShow;
-    uint fontSize;
     uint leftBorderOffset = 5;
-    void updateView();
     QHBoxLayout* layout;
+    vector<QLabel*> labels;
+
+    void updateView();
 
     Q_OBJECT
 public:
-    explicit BreadcrumbView(QWidget *parent = 0, boost::filesystem::path _pathToShow = "", uint _fontSize = 16);
+    explicit BreadcrumbView(QWidget *parent = 0, boost::filesystem::path _pathToShow = "");
     ~BreadcrumbView();
-    void setPathToShow(boost::filesystem::path newPathToShow);
     boost::filesystem::path getPathTowShow();
-    void setFontSize(uint _fontSize);
     uint getFontSize();
 
-signals:
-
 public slots:
+    void setPathToShow(boost::filesystem::path newPathToShow);
 };
 
 #endif // BREADCRUMBVIEW_H

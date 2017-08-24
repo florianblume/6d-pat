@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <boost/filesystem.hpp>
+#include "navigationcontrols/navigationcontrols.h"
 
 namespace Ui {
 class MainWindow;
@@ -18,6 +20,10 @@ public:
     */
     virtual void closeEvent(QCloseEvent *event);
     ~MainWindow();
+    void setPathOnLeftBreadcrumbView(boost::filesystem::path pathToShow);
+    void setPathOnRightBreadcrumbView(boost::filesystem::path pathToShow);
+    void addListenerToLeftNavigationControls(NavigationControlsListener listener);
+    void addListenerToRightNavigationControls(NavigationControlsListener listener);
 
 private:
     Ui::MainWindow *ui;

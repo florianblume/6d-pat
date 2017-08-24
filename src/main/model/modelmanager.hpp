@@ -85,13 +85,11 @@ public:
     /*!
      * \brief addObjectImageCorrespondence Adds a new ObjectImageCorrespondence to the correspondences managed by this manager.
      * The method will return true if creating the correspondence was successful and persisting it as well.
-     * \param image the image of the new correspondence
-     * \param objectModel the object model of the new correspondence
-     * \param position the position of the object model on the image
-     * \param rotation the rotation of the object model on the image
+     * \param objectImageCorrespondence the correspondence that stores all the values for the correspondence that will be created by
+     * this manager and added to the list of managed correspondences
      * \return true if creating and persisting the correspondence was successful
      */
-    virtual bool addObjectImageCorrespondence(Image* image, ObjectModel* objectModel, Point position, Point rotation) = 0;
+    virtual bool addObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorespondence) = 0;
 
     /*!
      * \brief addObjectImageCorrespondence Updates the given ObjectImageCorrespondence and automatically persists it according to the

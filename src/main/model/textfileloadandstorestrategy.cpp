@@ -186,9 +186,9 @@ void loadCorrespondencesFromFile(ifstream* inFile, vector<ObjectImageCorresponde
             //! add the correspondence parsed from the line of the file to the list of correspondences
             Image* image = (*imageMap)[results[1]];
             ObjectModel* objectModel = (*objectModelMap)[results[2]];
-            if (image && objectModel) {
+            if (image && objectModel && results.size() == 10) {
                 correspondences->push_back(ObjectImageCorrespondence(results[0], stoi(results[3]), stoi(results[4]),
-                    stoi(results[5]), stoi(results[6]), stoi(results[7]), stoi(results[8]), image, objectModel));
+                    stoi(results[5]), stoi(results[6]), stoi(results[7]), stoi(results[8]), stof(results[9]), image, objectModel));
             } else {
                 throw "Could not find corresponding image or object model within the given entity-lists.";
             }
