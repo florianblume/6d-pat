@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow) {
     ui->setupUi(this);
     readSettings();
-    statusBar()->showMessage(QString("Ready"));
+    statusBar()->showMessage(QString("Loading..."));
 }
 
 //! This function persistently stores settings of the application.
@@ -40,6 +40,10 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 MainWindow::~MainWindow() {
     delete ui;
+}
+
+void MainWindow::showStatusMessage(string message) {
+    this->statusBar()->showMessage(QString(message.c_str()));
 }
 
 void MainWindow::setPathOnLeftBreadcrumbView(boost::filesystem::path pathToShow) {

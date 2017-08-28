@@ -20,10 +20,26 @@ private:
     path correspondencesPath;
 
 public:
+    /*!
+     * \brief TextFileLoadAndStoreStrategy Constructor of this strategy. The paths MUST be set aferwards to use it
+     * properly, otherwise the strategy won't deliver any content.
+     */
+    TextFileLoadAndStoreStrategy();
+
+    /*!
+     * \brief TextFileLoadAndStoreStrategy Convenience constructor setting the paths already.
+     * \param _imagesPath
+     * \param _objectModelsPath
+     * \param _correspondencesPath
+     */
     TextFileLoadAndStoreStrategy(const path _imagesPath, const path _objectModelsPath, const path _correspondencesPath);
+
     ~TextFileLoadAndStoreStrategy();
+
     bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence);
+
     vector<Image> loadImages();
+
     vector<ObjectModel> loadObjectModels();
 
     /*!

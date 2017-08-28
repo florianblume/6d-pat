@@ -103,6 +103,20 @@ public:
      */
     bool removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence);
 
+
+    /*!
+     * \brief addListener Adds a listener to this manager. The listener will be notified if e.g. the images change,
+     * or correspondences or models.
+     * \param listener the listener to add
+     */
+    void addListener(ModelManagerListener* listener);
+
+    /*!
+     * \brief removeListener Removes the given listener from the list of listeners of this model manager.
+     * \param listener the listener to remove
+     */
+    void removeListener(ModelManagerListener* listener);
+
     void imagesChanged();
 
     void objectModelsChanged();

@@ -15,7 +15,7 @@ TARGET = Otiat
 TEMPLATE = app
 
 SOURCES += \
-    src/main/main.cpp \
+    src/main/main.cpp
 
 LIBS += \
        -lboost_system\

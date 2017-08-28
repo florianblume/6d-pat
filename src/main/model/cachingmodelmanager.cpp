@@ -82,6 +82,9 @@ bool CachingModelManager::addObjectImageCorrespondence(ObjectImageCorrespondence
     newCorrespondencesForObjectModelList.push_back(&correspondences.front());
     correspondencesForObjectModels[objectModelPath] = newCorrespondencesForObjectModelList;
 
+    for (auto listener : listeners)
+        listener->correspondenceAdded(objectImageCorrespondence.getID());
+
     return true;
 }
 
@@ -106,6 +109,9 @@ bool CachingModelManager::updateObjectImageCorrespondence(ObjectImageCorresponde
     (*it).setPosition(position->x, position->y, position->z);
     (*it).setRotation(rotation->x, rotation->y, rotation->z);
     (*it).setArticulation(objectImageCorrespondence.getArticulation());
+
+    for (auto listener : listeners)
+        listener->correspondenceUpdated(objectImageCorrespondence.getID());
 
     return true;
 }
@@ -145,17 +151,38 @@ bool CachingModelManager::removeObjectImageCorrespondence(ObjectImageCorresponde
         }
     }
 
+    for (auto listener : listeners)
+        listener->correspondenceDeleted(objectImageCorrespondence.getID());
+
     return true;
+}
+
+void CachingModelManager::addListener(ModelManagerListener* listener) {
+    listeners.push_back(listener);
+}
+
+void CachingModelManager::removeListener(ModelManagerListener* listener) {
+    for (uint i = 0; i < listeners.size(); i++) {
+        if (listeners[i] == listener) {
+            listeners.erase(listeners.begin() + i);
+        }
+    }
 }
 
 void CachingModelManager::imagesChanged() {
     images = loadAndStoreStrategy->loadImages();
+    for (auto listener : listeners)
+        listener->imagesChanged();
 }
 
 void CachingModelManager::objectModelsChanged() {
     objectModels = loadAndStoreStrategy->loadObjectModels();
+    for (auto listener : listeners)
+        listener->objectModelsChanged();
 }
 
 void CachingModelManager::corresopndencesChanged() {
     correspondences = loadAndStoreStrategy->loadCorrespondences(&images, &objectModels);
+    for (auto listener : listeners)
+        listener->correspondencesChanged();
 }

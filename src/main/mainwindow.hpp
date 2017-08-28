@@ -20,6 +20,7 @@ public:
     */
     virtual void closeEvent(QCloseEvent *event);
     ~MainWindow();
+    void showStatusMessage(string message);
     void setPathOnLeftBreadcrumbView(boost::filesystem::path pathToShow);
     void setPathOnRightBreadcrumbView(boost::filesystem::path pathToShow);
     void addListenerToLeftNavigationControls(NavigationControlsListener listener);

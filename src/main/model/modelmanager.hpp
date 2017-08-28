@@ -5,6 +5,7 @@
 #include "image.hpp"
 #include "loadandstorestrategy.hpp"
 #include "loadandstorestrategylistener.hpp"
+#include "modelmanagerlistener.hpp"
 #include <string>
 #include <vector>
 #include <map>
@@ -28,6 +29,8 @@ class ModelManager : LoadAndStoreStrategyListener
 protected:
     //! The strategy that is used to persist and also to load entities
     LoadAndStoreStrategy* loadAndStoreStrategy;
+    //! The listeners that will be notified by this manager of any changes
+    vector<ModelManagerListener*> listeners;
 
 public:
 
@@ -109,6 +112,19 @@ public:
      * successful
      */
     virtual bool removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) = 0;
+
+    /*!
+     * \brief addListener Adds a listener to this manager. The listener will be notified if e.g. the images change,
+     * or correspondences or models.
+     * \param listener the listener to add
+     */
+    virtual void addListener(ModelManagerListener* listener) = 0;
+
+    /*!
+     * \brief removeListener Removes the given listener from the list of listeners of this model manager.
+     * \param listener the listener to remove
+     */
+    virtual void removeListener(ModelManagerListener* listener) = 0;
 
     /**
       ######################################

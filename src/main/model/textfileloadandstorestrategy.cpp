@@ -9,6 +9,10 @@ const string imageFilesExtension = ".png";
 const string objectModelFilesExtension = "";
 const string segmentationImageFilesSuffix = "_GT";
 
+TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy() {
+    // nothing to do here
+}
+
 TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy(const path _imagesPath, const path _objectModelsPath,
                                                            const path _correspondencesPath)
     : imagesPath(_imagesPath), objectModelsPath(_objectModelsPath), correspondencesPath(_correspondencesPath) {
@@ -75,31 +79,33 @@ static void persistCorrespondenceToFile(ifstream *inFile, ofstream *outFile,
 
 bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(
         const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence) {
+    // no need to check whether paths exist because setters do so already
+
     boost::filesystem::path imagePath(objectImageCorrespondence.getImage()->getImagePath());
     boost::filesystem::path correspondenceFileName = convertPathToSuffxFileName(imagePath,
                                                                               correspondenceFilesNameSuffix,
                                                                               correspondenceFilesExtension);
-    boost::filesystem::path corresopndenceFilePath = absolute(correspondenceFileName, correspondencesPath);
+    boost::filesystem::path correspondenceFilePath = absolute(correspondenceFileName, correspondencesPath);
 
-    if (boost::filesystem::exists(corresopndenceFilePath) && boost::filesystem::is_regular_file(corresopndenceFilePath)) {
+    if (boost::filesystem::exists(correspondenceFilePath) && boost::filesystem::is_regular_file(correspondenceFilePath)) {
         //! remove an already existing temp files
         boost::filesystem::path tempPath("./tmp");
         if (boost::filesystem::exists(tempPath))
             boost::filesystem::remove(tempPath);
 
         //! file exists already we need to update it
-        ifstream inFile(corresopndenceFilePath.string());
+        ifstream inFile(correspondenceFilePath.string());
         //! we need to create a temproary file and replace the old version with the new one at the end
         ofstream outFile("./tmp");
         persistCorrespondenceToFile(&inFile, &outFile, &objectImageCorrespondence, deleteCorrespondence);
         //! remove the old file and copy the content of the temporary file at the same location
-        boost::filesystem::remove(corresopndenceFilePath);
-        boost::filesystem::copy_file(tempPath, corresopndenceFilePath);
+        boost::filesystem::remove(correspondenceFilePath);
+        boost::filesystem::copy_file(tempPath, correspondenceFilePath);
         inFile.close();
         outFile.close();
     } else {
         //! no file there yet so we have to create it
-        ofstream outFile(corresopndenceFilePath.string());
+        ofstream outFile(correspondenceFilePath.string());
         outFile << objectImageCorrespondence.toString();
         outFile.close();
     }
@@ -108,9 +114,7 @@ bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(
 }
 
 vector<Image> TextFileLoadAndStoreStrategy::loadImages() {
-    if (!pathExists(imagesPath)) {
-        throw "Images path does not exist";
-    }
+    // no need to check whether paths exist because setters do so already
 
     vector<Image> images;
     vector<string> filesAtPath = getFilesAtPath(imagesPath, imageFilesExtension);
@@ -198,10 +202,7 @@ void loadCorrespondencesFromFile(ifstream* inFile, vector<ObjectImageCorresponde
 
 vector<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondences(
         vector<Image>* images, vector<ObjectModel>* objectModels) {
-    if (!pathExists(correspondencesPath)) {
-        throw "Correspondences path does not exist";
-    }
-
+    // no need to check whether paths exist because setters do so already
     map<string, Image*> imageMap = createImageMap(images);
     map<string, ObjectModel*> objectModelMap = createObjectModelMap(objectModels);
 
@@ -222,13 +223,14 @@ vector<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorresponden
 
 bool TextFileLoadAndStoreStrategy::setImagesPath(path path) {
     if (!this->pathExists(path))
-        return false;
+        throw "Images path does not exist";
     if (imagesPath == path)
         return true;
 
     imagesPath = path;
     for (LoadAndStoreStrategyListener *listener : listeners) {
-        listener->imagesChanged();
+        if (listener)
+            listener->imagesChanged();
     }
     return true;
 }
@@ -239,13 +241,14 @@ path TextFileLoadAndStoreStrategy::getImagesPath() const {
 
 bool TextFileLoadAndStoreStrategy::setObjectModelsPath(path path) {
     if (!this->pathExists(path))
-        return false;
+        throw "Object models path does not exist";
     if (objectModelsPath == path)
         return true;
 
     objectModelsPath = path;
     for (LoadAndStoreStrategyListener *listener : listeners) {
-        listener->objectModelsChanged();
+        if (listener)
+            listener->objectModelsChanged();
     }
     return true;
 }
@@ -256,13 +259,14 @@ path TextFileLoadAndStoreStrategy::getObjectModelsPath() const {
 
 bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(path path) {
     if (!this->pathExists(path))
-        return false;
+        throw "Correspondences path does not exist";
     if (correspondencesPath == path)
         return true;
 
     correspondencesPath = path;
     for (LoadAndStoreStrategyListener *listener : listeners) {
-        listener->corresopndencesChanged();
+        if (listener)
+            listener->corresopndencesChanged();
     }
     return true;
 }

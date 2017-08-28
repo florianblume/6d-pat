@@ -18,6 +18,7 @@ private:
 public:
     MainController(int &argc, char *argv[]);
     ~MainController();
+    void initialize();
     void showView();
 };
 

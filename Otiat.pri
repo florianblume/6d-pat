@@ -9,7 +9,7 @@ SOURCES += $$PWD/src/main/mainwindow.cpp \
     $$PWD/src/main/model/modelmanager.cpp \
     $$PWD/src/main/breadcrumb/breadcrumbview.cpp \
     $$PWD/src/main/navigationcontrols/navigationcontrols.cpp \
-    $$PWD/src/main/imagegallery/imagegallery.cpp
+    $$PWD/src/main/gallery/gallery.cpp
 
 HEADERS  += \
     $$PWD/src/main/objectimagecorrespondence.hpp \
@@ -28,9 +28,9 @@ HEADERS  += \
     $$PWD/src/main/misc/otiathelper.h \
     $$PWD/src/main/breadcrumb/breadcrumbview.h \
     $$PWD/src/main/navigationcontrols/navigationcontrols.h \
-    $$PWD/src/main/imagegallery/imagegallery.h
+    $$PWD/src/main/gallery/gallery.h
 
 FORMS    += \
     $$PWD/resources/mainwindow.ui \
     $$PWD/src/main/navigationcontrols/navigationcontrols.ui \
-    $$PWD/src/main/imagegallery/imagegallery.ui
+    $$PWD/src/main/gallery/gallery.ui

@@ -718,7 +718,7 @@
              </widget>
             </item>
             <item>
-             <widget class="ImageGallery" name="widgetImagesLeft" native="true">
+             <widget class="Gallery" name="widgetImagesLeft" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -1202,7 +1202,7 @@
              </widget>
             </item>
             <item>
-             <widget class="ImageGallery" name="widgetImagesRight" native="true">
+             <widget class="Gallery" name="widgetImagesRight" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -1554,9 +1554,9 @@
    </slots>
   </customwidget>
   <customwidget>
-   <class>ImageGallery</class>
+   <class>Gallery</class>
    <extends>QWidget</extends>
-   <header>src/main/imagegallery/imagegallery.h</header>
+   <header>src/main/gallery/gallery.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -22,7 +22,7 @@ public:
      * \brief correspondenceAdded Will be called whenever a ObjectImageCorrespondence is updated by the manager.
      * \param id the ID of the correspondence that was updated
      */
-    virtual void objectImageCorrespondenceUpdated(string id) = 0;
+    virtual void correspondenceUpdated(string id) = 0;
 
     /*!
      * \brief correspondenceAdded Will be called whenever a ObjectImageCorrespondence is deleted from the manager.
