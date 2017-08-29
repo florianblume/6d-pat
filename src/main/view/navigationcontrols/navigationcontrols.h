@@ -17,17 +17,24 @@ namespace Ui {
 class NavigationControls;
 }
 
+/*!
+ * \brief The NavigationControls class provide navigational controls for the list views, as well as
+ * the option to set the current operational folder for images and object models.
+ */
 class NavigationControls : public QWidget
 {
     Q_OBJECT
 
 private:
     vector<NavigationControlsListener> listeners;
+    string currentPath = "";
+    Ui::NavigationControls *ui;
 
 public:
     explicit NavigationControls(QWidget *parent = 0);
     ~NavigationControls();
     void addListener(NavigationControlsListener listener);
+    void setPathToOpen(string path);
 
 public slots:
     void folderButtonClicked();
@@ -36,9 +43,6 @@ signals:
     void navigateLeft();
     void navigateRight();
     void pathChanged(boost::filesystem::path newPath);
-
-private:
-    Ui::NavigationControls *ui;
 };
 
 #endif // NAVIGATIONCONTROLS_H

@@ -7,9 +7,13 @@ SOURCES += $$PWD/src/main/mainwindow.cpp \
     $$PWD/src/main/model/textfileloadandstorestrategy.cpp \
     $$PWD/src/main/model/cachingmodelmanager.cpp \
     $$PWD/src/main/model/modelmanager.cpp \
-    $$PWD/src/main/breadcrumb/breadcrumbview.cpp \
-    $$PWD/src/main/navigationcontrols/navigationcontrols.cpp \
-    $$PWD/src/main/gallery/gallery.cpp
+    $$PWD/src/main/view/breadcrumb/breadcrumbview.cpp \
+    $$PWD/src/main/view/navigationcontrols/navigationcontrols.cpp \
+    $$PWD/src/main/view/gallery/gallery.cpp \
+    $$PWD/src/main/view/gallery/galleryimagemodel.cpp \
+    $$PWD/src/main/view/gallery/galleryobjectmodelmodel.cpp \
+    $$PWD/src/main/view/gallery/iconexpandinglistview.cpp \
+    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.cpp
 
 HEADERS  += \
     $$PWD/src/main/objectimagecorrespondence.hpp \
@@ -26,11 +30,23 @@ HEADERS  += \
     $$PWD/src/main/maincontroller.hpp \
     $$PWD/src/main/mainwindow.hpp \
     $$PWD/src/main/misc/otiathelper.h \
-    $$PWD/src/main/breadcrumb/breadcrumbview.h \
-    $$PWD/src/main/navigationcontrols/navigationcontrols.h \
-    $$PWD/src/main/gallery/gallery.h
+    $$PWD/src/main/view/breadcrumb/breadcrumbview.h \
+    $$PWD/src/main/view/navigationcontrols/navigationcontrols.h \
+    $$PWD/src/main/view/gallery/gallery.h \
+    $$PWD/src/main/view/gallery/galleryimagemodel.h \
+    $$PWD/src/main/view/gallery/galleryobjectmodelmodel.h \
+    $$PWD/src/main/view/gallery/iconexpandinglistview.h \
+    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.hpp
 
 FORMS    += \
-    $$PWD/resources/mainwindow.ui \
-    $$PWD/src/main/navigationcontrols/navigationcontrols.ui \
-    $$PWD/src/main/gallery/gallery.ui
+    $$PWD/src/main/view/mainwindow.ui \
+    $$PWD/src/main/view/navigationcontrols/navigationcontrols.ui \
+    $$PWD/src/main/view/gallery/gallery.ui \
+    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.ui
+
+INCLUDEPATH += \
+    $$PWD/src/main/view/breadcrumb \
+    $$PWD/src/main/view/navigationcontrols \
+    $$PWD/src/main/view/gallery \
+    $$PWD/src/main \
+    $$PWD/src/main/misc

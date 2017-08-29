@@ -718,7 +718,7 @@
              </widget>
             </item>
             <item>
-             <widget class="Gallery" name="widgetImagesLeft" native="true">
+             <widget class="Gallery" name="widgetGalleryLeft" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -879,7 +879,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="widgetLeftBottom" native="true">
+          <widget class="CorrespondenceEditor" name="widgetLeftBottom" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -889,7 +889,7 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>400</height>
+             <height>300</height>
             </size>
            </property>
            <property name="palette">
@@ -1202,7 +1202,7 @@
              </widget>
             </item>
             <item>
-             <widget class="Gallery" name="widgetImagesRight" native="true">
+             <widget class="Gallery" name="widgetGalleryRight" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -1373,7 +1373,7 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>400</height>
+             <height>300</height>
             </size>
            </property>
            <property name="palette">
@@ -1536,7 +1536,7 @@
   <customwidget>
    <class>BreadcrumbView</class>
    <extends>QWidget</extends>
-   <header>src/main/breadcrumb/breadcrumbview.h</header>
+   <header>view/breadcrumb/breadcrumbview.h</header>
    <container>1</container>
    <slots>
     <slot>setPathToShow(boost::filesystem::path)</slot>
@@ -1545,7 +1545,7 @@
   <customwidget>
    <class>NavigationControls</class>
    <extends>QWidget</extends>
-   <header>src/main/navigationcontrols/navigationcontrols.h</header>
+   <header>view/navigationcontrols/navigationcontrols.h</header>
    <container>1</container>
    <slots>
     <signal>navigateLeft()</signal>
@@ -1556,7 +1556,13 @@
   <customwidget>
    <class>Gallery</class>
    <extends>QWidget</extends>
-   <header>src/main/gallery/gallery.h</header>
+   <header>view/gallery/gallery.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CorrespondenceEditor</class>
+   <extends>QWidget</extends>
+   <header>view/correspondenceeditor/correspondenceeditor.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

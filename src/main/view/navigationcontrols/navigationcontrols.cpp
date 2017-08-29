@@ -24,18 +24,25 @@ NavigationControls::~NavigationControls()
     delete ui;
 }
 
+void NavigationControls::setPathToOpen(string path) {
+    if (path.compare("") != 0) {
+        currentPath = path;
+    }
+}
+
 void NavigationControls::addListener(NavigationControlsListener listener) {
     listeners.push_back(listener);
 }
 
 void NavigationControls::folderButtonClicked() {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                "/home",
+                                                currentPath.c_str(),
                                                 QFileDialog::ShowDirsOnly
                                                 | QFileDialog::DontResolveSymlinks);
     if (dir == "") {
         return;
     }
+    currentPath = dir.toStdString();
     boost::filesystem::path newPath = boost::filesystem::path(dir.toStdString().c_str());
     emit pathChanged(newPath);
     for (NavigationControlsListener listener : listeners) {

@@ -1,0 +1,48 @@
+#ifndef GALLERY_H
+#define GALLERY_H
+
+#include "model/image.hpp"
+#include <QWidget>
+#include <QAbstractListModel>
+#include <QItemSelection>
+
+namespace Ui {
+class Gallery;
+}
+
+class Gallery : public QWidget
+{
+    Q_OBJECT
+
+private:
+    Ui::Gallery *ui;
+    //! The members below are there for the buttons left and right of the scroll view to smoothly scroll through the objects
+    bool scrollDirection = true;
+    bool scrollButtonDown = false;
+    QTimer* scrollTimer;
+    static const int SCROLL_INCREMENT_RATE;
+    static const int SCROLL_TIMER_REFRESH_RATE;
+
+public:
+    explicit Gallery(QWidget *parent = 0);
+    ~Gallery();
+    void setAllowFreeSelection(bool allowFreeSelection);
+    void setModel(QAbstractListModel* model);
+
+public slots:
+    void selectNext();
+    void beginScrollLeft();
+    void beginScrollRight();
+    void endScroll();
+    void reset();
+
+private slots:
+    void performScroll();
+    void startScrollTimer();
+    void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+
+signals:
+    void selectedItemChanged(int index);
+};
+
+#endif // GALLERY_H

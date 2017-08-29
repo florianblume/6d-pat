@@ -81,6 +81,13 @@ bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(
         const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence) {
     // no need to check whether paths exist because setters do so already
 
+    //! we do not need to throw an exception here, the only time the path cannot exist
+    //! is if this strategy was constructed with an empty path, all other methods of
+    //! setting the path check if the path exists
+    if (!pathExists(correspondencesPath)) {
+        return false;
+    }
+
     boost::filesystem::path imagePath(objectImageCorrespondence.getImage()->getImagePath());
     boost::filesystem::path correspondenceFileName = convertPathToSuffxFileName(imagePath,
                                                                               correspondenceFilesNameSuffix,
@@ -114,9 +121,14 @@ bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(
 }
 
 vector<Image> TextFileLoadAndStoreStrategy::loadImages() {
-    // no need to check whether paths exist because setters do so already
-
     vector<Image> images;
+    //! we do not need to throw an exception here, the only time the path cannot exist
+    //! is if this strategy was constructed with an empty path, all other methods of
+    //! setting the path check if the path exists
+    if (!pathExists(imagesPath)) {
+        return images;
+    }
+
     vector<string> filesAtPath = getFilesAtPath(imagesPath, imageFilesExtension);
     for (vector<string>::iterator itr = filesAtPath.begin(); itr != filesAtPath.end(); ++itr) {
         //! read in every second image as segmentation image
@@ -147,11 +159,12 @@ vector<Image> TextFileLoadAndStoreStrategy::loadImages() {
 }
 
 vector<ObjectModel> TextFileLoadAndStoreStrategy::loadObjectModels() {
+    vector<ObjectModel> objectModels;
+    //! See explanation under loadImages for why we don't throw an exception here
     if (!pathExists(objectModelsPath)) {
-        throw "Object models path does not exist";
+        return objectModels;
     }
 
-    vector<ObjectModel> objectModels;
     for (auto file : getFilesAtPath(objectModelsPath, objectModelFilesExtension)) {
         boost::filesystem::path _file(file);
         objectModels.push_back(ObjectModel(_file.filename(), objectModelsPath));
@@ -202,12 +215,16 @@ void loadCorrespondencesFromFile(ifstream* inFile, vector<ObjectImageCorresponde
 
 vector<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondences(
         vector<Image>* images, vector<ObjectModel>* objectModels) {
-    // no need to check whether paths exist because setters do so already
+    vector<ObjectImageCorrespondence> correspondences;
+    //! See loadImages for why we don't throw an exception here
+    if (!pathExists(correspondencesPath)) {
+        return correspondences;
+    }
+
     map<string, Image*> imageMap = createImageMap(images);
     map<string, ObjectModel*> objectModelMap = createObjectModelMap(objectModels);
 
 
-    vector<ObjectImageCorrespondence> correspondences;
     ifstream inFile;
     for (auto file : getFilesAtPath(correspondencesPath, correspondenceFilesExtension)) {
         string _file = file;
