@@ -6,19 +6,21 @@
 #include <model/point.hpp>
 #include <QOpenGLWidget>
 #include <QOpenGLBuffer>
-#include <QOpenGLVertexArrayObject>
-#include <QOpenGLShader>
-#include <QOpenGLShaderProgram>
-#include <QOpenGLTexture>
+#include <QOpenGLFunctions>
 
-class CorrespondenceEditorGraphicsWidget : public QOpenGLWidget
+QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram);
+QT_FORWARD_DECLARE_CLASS(QOpenGLTexture);
+
+class CorrespondenceEditorGraphicsWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
 private:
-    QOpenGLVertexArrayObject vertexArrayObject;
     QOpenGLBuffer buffer;
-    QOpenGLShaderProgram *shaderProgram;
-    QOpenGLShader *shader;
-    QOpenGLTexture *texture;
+    QOpenGLShaderProgram *program;
+    QOpenGLTexture *imageTexture;
+    QColor clearColor;
+    Image* image;
+
+    void createImageVertices();
 
 public:
     CorrespondenceEditorGraphicsWidget(QWidget *parent = 0);
@@ -27,7 +29,7 @@ public:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
 
-    void setImage(Image* image);
+    void setImage(Image* imageTexture);
     void setObjectModel(ObjectModel* objectModel, Point* position, Point* rotation);
 };
 

@@ -231,7 +231,7 @@
          <bool>true</bool>
         </property>
         <property name="dragDropMode">
-         <enum>QAbstractItemView::DragDrop</enum>
+         <enum>QAbstractItemView::NoDragDrop</enum>
         </property>
         <property name="defaultDropAction">
          <enum>Qt::CopyAction</enum>
@@ -264,7 +264,7 @@
          <enum>QListView::Batched</enum>
         </property>
         <property name="viewMode">
-         <enum>QListView::IconMode</enum>
+         <enum>QListView::ListMode</enum>
         </property>
         <property name="batchSize">
          <number>3</number>
