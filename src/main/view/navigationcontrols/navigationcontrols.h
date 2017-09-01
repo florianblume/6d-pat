@@ -6,12 +6,12 @@
 #include <boost/filesystem.hpp>
 #include <functional>
 
+using namespace std;
+
 //! some weird C++ hack because it can't take anonymous implementations of listeners
 //! but we need to distinguish between who send the path update but don't want to include
 //! the sender of the event
 typedef std::function<void (boost::filesystem::path)> NavigationControlsListener;
-
-using namespace std;
 
 namespace Ui {
 class NavigationControls;

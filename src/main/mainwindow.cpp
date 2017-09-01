@@ -23,7 +23,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     readSettings();
     statusBar()->showMessage(QString("Loading..."));
-    connect(ui->widgetGalleryLeft, &Gallery::selectedItemChanged, ui->widgetLeftBottom, &CorrespondenceEditor::setImage);
 }
 
 //! This function persistently stores settings of the application.
@@ -118,4 +117,8 @@ void MainWindow::setGalleryObjectModelModel(GalleryObjectModelModel* model) {
     //! To update the listview of the 3D models we call the reset method when the model receives the signal
     //! that the selection of images on the left has been changed
     connect(model, &GalleryObjectModelModel::displayedObjectModelsChanged, ui->widgetGalleryRight, &Gallery::reset);
+}
+
+void MainWindow::setModelManagerForCorrespondenceEditor(ModelManager* modelManager) {
+    ui->widgetLeftBottom->setModelManager(modelManager);
 }

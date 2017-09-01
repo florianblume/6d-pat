@@ -13,7 +13,7 @@ class IconExpandingListView : public QListView
 
 public:
     explicit IconExpandingListView(QWidget *parent = Q_NULLPTR);
-    void paintEvent(QPaintEvent * event);
+    void paintEvent(QPaintEvent * event) override;
 };
 
 #endif // ICONEXPANDINGLISTVIEW_H

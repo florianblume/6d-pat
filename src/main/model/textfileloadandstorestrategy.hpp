@@ -36,11 +36,11 @@ public:
 
     ~TextFileLoadAndStoreStrategy();
 
-    bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence);
+    bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence) override;
 
-    vector<Image> loadImages();
+    vector<Image> loadImages() override;
 
-    vector<ObjectModel> loadObjectModels();
+    vector<ObjectModel> loadObjectModels() override;
 
     /*!
      * \brief loadCorrespondences Loads the correspondences at the given path. How the correspondences are stored depends on the

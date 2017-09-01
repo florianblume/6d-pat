@@ -1,6 +1,7 @@
 #include "correspondenceeditor.hpp"
 #include "ui_correspondenceeditor.h"
 #include <QOpenGLWidget>
+#include <QtAwesome/QtAwesome.h>
 
 
 CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager* modelManager) :
@@ -8,7 +9,16 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager* modelM
     ui(new Ui::CorrespondenceEditor),
     modelManager(modelManager)
 {
+    QtAwesome* awesome = new QtAwesome( qApp );
+    awesome->initFontAwesome();
     ui->setupUi(this);
+    //buttonAccept = new QPushButton("buttontext");
+    //buttonAccept->setFlat(true);
+    //buttonAccept->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    //buttonAccept->setMinimumSize(QSize(20, 20));
+    //buttonAccept->setGeometry(0, 0, 30, 30);
+    //buttonAccept->setFont(awesome->font(20));
+    //buttonAccept->setIcon(awesome->icon(fa::check));
 }
 
 CorrespondenceEditor::~CorrespondenceEditor()
@@ -18,12 +28,18 @@ CorrespondenceEditor::~CorrespondenceEditor()
 
 void CorrespondenceEditor::setModelManager(ModelManager* modelManager) {
     this->modelManager = modelManager;
+    //buttonAccept->setParent(ui->openGLWidget);
+    //ui->openGLWidget->layout()->addWidget(buttonAccept);
+    //buttonAccept->raise();
+    //buttonAccept->setGeometry(20, 20, 20, 20);
+
 }
 
 void CorrespondenceEditor::setImage(int index) {
     if (modelManager) {
-        Image& image = modelManager->getImages()->at(index);
-        ui->switchViewButton->setEnabled(!strcmp(image.getSegmentationImagePath().c_str(), ""));
+        Image* image = &modelManager->getImages()->at(index);
+        ui->graphicsWidget->setImage(image);
+        //ui->buttonShowSegmentation->setEnabled(!strcmp(image.getSegmentationImagePath().c_str(), ""));
     }
 }
 

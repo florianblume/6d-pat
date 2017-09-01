@@ -1558,12 +1558,18 @@
    <extends>QWidget</extends>
    <header>view/gallery/gallery.h</header>
    <container>1</container>
+   <slots>
+    <signal>selectedItemChanged(int)</signal>
+   </slots>
   </customwidget>
   <customwidget>
    <class>CorrespondenceEditor</class>
    <extends>QWidget</extends>
-   <header>view/correspondenceeditor/correspondenceeditor.h</header>
+   <header>view/correspondenceeditor/correspondenceeditor.hpp</header>
    <container>1</container>
+   <slots>
+    <slot>setImage(int)</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -1597,6 +1603,22 @@
     <hint type="destinationlabel">
      <x>675</x>
      <y>43</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetGalleryLeft</sender>
+   <signal>selectedItemChanged(int)</signal>
+   <receiver>widgetLeftBottom</receiver>
+   <slot>setImage(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>118</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>400</y>
     </hint>
    </hints>
   </connection>

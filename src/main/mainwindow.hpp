@@ -43,6 +43,8 @@ public:
      */
     void setGalleryObjectModelModel(GalleryObjectModelModel* model);
 
+    void setModelManagerForCorrespondenceEditor(ModelManager* modelManager);
+
 private:
     Ui::MainWindow *ui;
     void writeSettings();

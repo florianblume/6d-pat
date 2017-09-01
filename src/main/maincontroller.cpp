@@ -56,6 +56,8 @@ void MainController::initialize() {
 
     mainWindow.setGalleryImageModel(new GalleryImageModel(&modelManager));
     mainWindow.setGalleryObjectModelModel(new GalleryObjectModelModel(&modelManager));
+
+    mainWindow.setModelManagerForCorrespondenceEditor(&modelManager);
 }
 
 void MainController::showView() {

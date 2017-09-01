@@ -6,6 +6,7 @@
 #include "model/objectimagecorrespondence.hpp"
 #include "model/modelmanager.hpp"
 #include <QWidget>
+#include <QPushButton>
 
 namespace Ui {
 class CorrespondenceEditor;
@@ -18,6 +19,8 @@ class CorrespondenceEditor : public QWidget
 private:
     Ui::CorrespondenceEditor *ui;
     ModelManager* modelManager;
+    QPushButton* buttonAccept;
+    QPushButton* buttonShowSegmentation;
 
 public:
     explicit CorrespondenceEditor(QWidget *parent = 0, ModelManager* modelManager = 0);

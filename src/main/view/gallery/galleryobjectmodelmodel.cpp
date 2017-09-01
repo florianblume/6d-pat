@@ -1,7 +1,6 @@
 #include "galleryobjectmodelmodel.h"
 
 GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager) : modelManager(modelManager) {
-    "test";
 }
 
 //! Implementations of QAbstractListModel
@@ -17,7 +16,8 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
 
 int GalleryObjectModelModel::rowCount(const QModelIndex &parent) const {
     if (modelManager) {
-        return modelManager->getObjectModels()->size();
+        int size = modelManager->getObjectModels()->size();
+        return size;
     }
     return 0;
 }

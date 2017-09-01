@@ -39,33 +39,33 @@ public:
      * \brief getImages Returns the list of all images loaded by this manager.
      * \return the list of all images loaded by this manager
      */
-    vector<Image>* getImages();
+    vector<Image>* getImages() override;
 
     /*!
      * \brief getCorrespondencesForImage Returns all ObjectImageCorrespondences for the image at the given path.
      * \param imagePath the path of the image
      * \return the list of correspondences of the image at the given path
      */
-    vector<ObjectImageCorrespondence*> getCorrespondencesForImage(string imagePath);
+    vector<ObjectImageCorrespondence*> getCorrespondencesForImage(string imagePath) override;
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
      * \return the list of all objects models loaded by this manager
      */
-    vector<ObjectModel>* getObjectModels();
+    vector<ObjectModel>* getObjectModels() override;
 
     /*!
      * \brief getCorrespondencesForObjectModels Returns all ObjectImageCorrespondences for the object model at the given path.
      * \param objectModelPath the path of the object model
      * \return the list of correspondences of the object model at the given path
      */
-    vector<ObjectImageCorrespondence*> getCorrespondencesForObjectModel(string objectModelPath);
+    vector<ObjectImageCorrespondence*> getCorrespondencesForObjectModel(string objectModelPath) override;
 
     /*!
      * \brief getCorrespondences Returns the correspondences maintained by this manager.
      * \return the list of correspondences maintained by this manager
      */
-    vector<ObjectImageCorrespondence>* getCorrespondences();
+    vector<ObjectImageCorrespondence>* getCorrespondences() override;
 
     /*!
      * \brief getCorrespondencesForImageAndObjectModel Returns all correspondences for the given image and object model.
@@ -73,7 +73,7 @@ public:
      * \param objectModelPath the object model
      * \return all correspondences of the given image and given object model
      */
-    vector<ObjectImageCorrespondence*> getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath);
+    vector<ObjectImageCorrespondence*> getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath) override;
 
     /*!
      * \brief addObjectImageCorrespondence Adds a new ObjectImageCorrespondence to the correspondences managed by this manager.
@@ -82,7 +82,7 @@ public:
      * this manager and added to the list of managed correspondences
      * \return true if creating and persisting the correspondence was successful
      */
-    bool addObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence);
+    bool addObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) override;
 
     /*!
      * \brief addObjectImageCorrespondence Updates the given ObjectImageCorrespondence and automatically persists it according to the
@@ -92,7 +92,7 @@ public:
      * \return true if updating  and also persisting the correspondence was successful, false if this manager does not manage the given
      * correspondence or persisting it has failed
      */
-    bool updateObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence);
+    bool updateObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) override;
 
     /*!
      * \brief removeObjectImageCorrespondence Removes the given ObjectImageCorrespondence if it is present in the vector
@@ -101,7 +101,7 @@ public:
      * \return true if the correspondence was present and removing it, i.e. also removing it from the filesystem was
      * successful
      */
-    bool removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence);
+    bool removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) override;
 
 
     /*!
@@ -109,19 +109,19 @@ public:
      * or correspondences or models.
      * \param listener the listener to add
      */
-    void addListener(ModelManagerListener* listener);
+    void addListener(ModelManagerListener* listener) override;
 
     /*!
      * \brief removeListener Removes the given listener from the list of listeners of this model manager.
      * \param listener the listener to remove
      */
-    void removeListener(ModelManagerListener* listener);
+    void removeListener(ModelManagerListener* listener) override;
 
-    void imagesChanged();
+    void imagesChanged() override;
 
-    void objectModelsChanged();
+    void objectModelsChanged() override;
 
-    void corresopndencesChanged() ;
+    void corresopndencesChanged()  override;
 };
 
 #endif // CACHINGMODELMANAGER_H

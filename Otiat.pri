@@ -13,7 +13,8 @@ SOURCES += $$PWD/src/main/mainwindow.cpp \
     $$PWD/src/main/view/gallery/galleryimagemodel.cpp \
     $$PWD/src/main/view/gallery/galleryobjectmodelmodel.cpp \
     $$PWD/src/main/view/gallery/iconexpandinglistview.cpp \
-    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.cpp
+    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.cpp \
+    $$PWD/src/main/view/correspondenceeditor/correspondenceeditorgraphicswidget.cpp
 
 HEADERS  += \
     $$PWD/src/main/objectimagecorrespondence.hpp \
@@ -36,7 +37,8 @@ HEADERS  += \
     $$PWD/src/main/view/gallery/galleryimagemodel.h \
     $$PWD/src/main/view/gallery/galleryobjectmodelmodel.h \
     $$PWD/src/main/view/gallery/iconexpandinglistview.h \
-    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.hpp
+    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.hpp \
+    $$PWD/src/main/view/correspondenceeditor/correspondenceeditorgraphicswidget.h
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \
@@ -48,5 +50,6 @@ INCLUDEPATH += \
     $$PWD/src/main/view/breadcrumb \
     $$PWD/src/main/view/navigationcontrols \
     $$PWD/src/main/view/gallery \
+    $$PWD/src/main/view/correspondenceeditor \
     $$PWD/src/main \
     $$PWD/src/main/misc
