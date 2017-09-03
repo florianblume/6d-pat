@@ -1,122 +1,157 @@
 #include "correspondenceeditorgraphicswidget.h"
+#include "misc/otiathelper.h"
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include <QMouseEvent>
+
+#ifdef WIN32
+    #include <GL/glext.h>
+    PFNGLACTIVETEXTUREPROC pGlActiveTexture = NULL;
+    #define glActiveTexture pGlActiveTexture
+#endif //WIN32
 
 CorrespondenceEditorGraphicsWidget::CorrespondenceEditorGraphicsWidget(QWidget *parent)
-    : QOpenGLWidget (parent),
-    program(0),
-    imageTexture(0),
-    image(0) {
-    clearColor.setHsv(100, 255, 63);
+    : QOpenGLWidget (parent) {
+    alpha = 25;
+    beta = -25;
+    distance = 2.8;
 }
 
 CorrespondenceEditorGraphicsWidget::~CorrespondenceEditorGraphicsWidget() {
     makeCurrent();
-
-    buffer.destroy();
-    delete imageTexture;
-    delete program;
-
     doneCurrent();
 }
 
 void CorrespondenceEditorGraphicsWidget::initializeGL() {
     initializeOpenGLFunctions();
-
-    createImageVertices();
+    //! [1]
+    //! [2]
+    #ifdef WIN32
+        glActiveTexture = (PFNGLACTIVETEXTUREPROC) wglGetProcAddress((LPCSTR) "glActiveTexture");
+    #endif
+    //! [2]
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
 
-#define PROGRAM_VERTEX_ATTRIBUTE 0
-#define PROGRAM_TEXCOORD_ATTRIBUTE 1
+    //QSurfaceFormat::defaultFormat().setSamples(4);
 
-    QOpenGLShader *vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
-    const char *vsrc =
-        "attribute highp vec4 vertex;\n"
-        "attribute mediump vec4 texCoord;\n"
-        "varying mediump vec4 texc;\n"
-        "uniform mediump mat4 matrix;\n"
-        "void main(void)\n"
-        "{\n"
-        "    gl_Position = matrix * vertex;\n"
-        "    texc = texCoord;\n"
-        "}\n";
-    vshader->compileSourceCode(vsrc);
+    glClearColor(255, 255, 255, 0);
 
-    QOpenGLShader *fshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
-    const char *fsrc =
-        "uniform sampler2D texture;\n"
-        "varying mediump vec4 texc;\n"
-        "void main(void)\n"
-        "{\n"
-        "    gl_FragColor = texture2D(texture, texc.st);\n"
-        "}\n";
-    fshader->compileSourceCode(fsrc);
+    shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "/home/flo/git/Otiat/src/main/view/correspondenceeditor/vertexShader.vsh");
+    shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "/home/flo/git/Otiat/src/main/view/correspondenceeditor/fragmentShader.fsh");
+    shaderProgram.link();
 
-    program = new QOpenGLShaderProgram;
-    program->addShader(vshader);
-    program->addShader(fshader);
-    program->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
-    program->bindAttributeLocation("texCoord", PROGRAM_TEXCOORD_ATTRIBUTE);
-    program->link();
-
-    program->bind();
-    program->setUniformValue("texture", 0);
+    imageVertices << createImageVertices();
+    //! [3]
+    imageTextureCoordinates << QVector2D(0, 0) << QVector2D(1, 0) << QVector2D(1, 1) // Front
+                       << QVector2D(1, 1) << QVector2D(0, 1) << QVector2D(0, 0);
 }
 
 void CorrespondenceEditorGraphicsWidget::resizeGL(int w, int h) {
+    if (h == 0) {
+        h = 1;
+    }
 
+    pMatrix.setToIdentity();
+    pMatrix.perspective(60.0, (float) w / (float) h, 0.0001, 1000);
+
+    glViewport(0, 0, w, h);
 }
 
 void CorrespondenceEditorGraphicsWidget::paintGL() {
-    glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    QMatrix4x4 m;
-    m.ortho(-0.5f, +0.5f, +0.5f, -0.5f, 4.0f, 15.0f);
-    m.translate(0.0f, 0.0f, -10.0f);
+    if (imageSet) {
+        QMatrix4x4 mMatrix;
+        mMatrix.translate(globalTranslation);
 
-    program->setUniformValue("matrix", m);
-    program->enableAttributeArray(PROGRAM_VERTEX_ATTRIBUTE);
-    program->enableAttributeArray(PROGRAM_TEXCOORD_ATTRIBUTE);
-    program->setAttributeBuffer(PROGRAM_VERTEX_ATTRIBUTE, GL_FLOAT, 0, 3, 5 * sizeof(GLfloat));
-    program->setAttributeBuffer(PROGRAM_TEXCOORD_ATTRIBUTE, GL_FLOAT, 3 * sizeof(GLfloat), 2, 5 * sizeof(GLfloat));
+        QMatrix4x4 vMatrix;
 
-    if (image)
+        QMatrix4x4 cameraTransformation;
+
+        QVector3D cameraPosition = cameraTransformation * QVector3D(0, 0, distance);
+        QVector3D cameraUpDirection = cameraTransformation * QVector3D(0, 1, 0);
+
+        vMatrix.lookAt(cameraPosition, QVector3D(0, 0, 0), cameraUpDirection);
+
+        shaderProgram.bind();
+
+        shaderProgram.setUniformValue("mvpMatrix", pMatrix * vMatrix * mMatrix);
+
+        shaderProgram.setUniformValue("texture", 0);
+
         imageTexture->bind();
 
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        shaderProgram.setAttributeArray("vertex", imageVertices.constData());
+        shaderProgram.enableAttributeArray("vertex");
+
+        shaderProgram.setAttributeArray("textureCoordinate", imageTextureCoordinates.constData());
+        shaderProgram.enableAttributeArray("textureCoordinate");
+
+        glDrawArrays(GL_TRIANGLES, 0, imageVertices.size());
+
+        shaderProgram.disableAttributeArray("vertex");
+
+        shaderProgram.disableAttributeArray("textureCoordinate");
+
+        shaderProgram.release();
+    }
+}
+
+void CorrespondenceEditorGraphicsWidget::mousePressEvent(QMouseEvent *event) {
+    mouseDown = true;
+    lastMousePosition = event->pos();
+}
+
+void CorrespondenceEditorGraphicsWidget::mouseMoveEvent(QMouseEvent *event) {
+    if (mouseDown) {
+        QPoint newPosition = event->pos();
+        int differenceX = newPosition.x() - lastMousePosition.x();
+        int differenceY = newPosition.y() - lastMousePosition.y();
+        globalTranslation.setX(globalTranslation.x() + differenceX * 0.003201f);
+        globalTranslation.setY(globalTranslation.y() - differenceY * 0.003201f);
+        lastMousePosition = newPosition;
+        update();
+    }
+}
+
+void CorrespondenceEditorGraphicsWidget::mouseReleaseEvent(QMouseEvent *event) {
+    mouseDown = false;
 }
 
 void CorrespondenceEditorGraphicsWidget::setImage(Image* image) {
-    delete imageTexture;
-    imageTexture = new QOpenGLTexture(QImage(image->getAbsoluteImagePath().c_str()).mirrored());
-    this->image = image;
-    update();
-}
-
-void CorrespondenceEditorGraphicsWidget::setObjectModel(ObjectModel* objectModel, Point* position, Point* rotation) {
-
-}
-
-void CorrespondenceEditorGraphicsWidget::createImageVertices() {
-    static const int coords[4][3] = {
-        { +1, -1, -1 }, { -1, -1, -1 }, { -1, +1, -1 }, { +1, +1, -1 }
-    };
-
-    QVector<GLfloat> vertData;
-    for (int i = 0; i < 4; i++) {
-        // vertex position
-        vertData.append(0.5 * coords[i][0]);
-        vertData.append(0.5 * coords[i][1]);
-        vertData.append(0.5 *coords[i][2]);
-        // texture coordinate
-        vertData.append(i == 0 || i == 3);
-        vertData.append(i == 0 || i == 1);
+    if (image) {
+        if (imageSet) {
+            delete imageTexture;
+        }
+        imageTexture = new QOpenGLTexture(QImage(QString(image->getAbsoluteImagePath().c_str())).mirrored());
+        imageSet = true;
+        update();
     }
+}
 
-    buffer.create();
-    buffer.bind();
-    buffer.allocate(vertData.constData(), vertData.count() * sizeof(GLfloat));
+void CorrespondenceEditorGraphicsWidget::addObjectModel(ObjectModel* objectModel, Point* position, Point* rotation) {
+
+}
+
+void CorrespondenceEditorGraphicsWidget::updateObjectModel(ObjectModel* objectModel, Point* position, Point* rotation) {
+
+}
+
+void CorrespondenceEditorGraphicsWidget::removeObjectModel(ObjectModel* objectModel) {
+
+}
+
+QVector<QVector3D> CorrespondenceEditorGraphicsWidget::createImageVertices() {
+    QVector<QVector3D> vertices;
+    //! Create a plane that displays the selected image
+    vertices << QVector3D(-1, -1,  1) << QVector3D( 1, -1,  1) << QVector3D( 1,  1,  1)
+             << QVector3D( 1,  1,  1) << QVector3D(-1,  1,  1) << QVector3D(-1, -1,  1);
+    return vertices;
+}
+
+void CorrespondenceEditorGraphicsWidget::setZoomFactor(float zoomFactor) {
+
 }

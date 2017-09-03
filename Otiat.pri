@@ -53,3 +53,7 @@ INCLUDEPATH += \
     $$PWD/src/main/view/correspondenceeditor \
     $$PWD/src/main \
     $$PWD/src/main/misc
+
+DISTFILES += \
+    $$PWD/src/main/view/correspondenceeditor/fragmentShader.fsh \
+    $$PWD/src/main/view/correspondenceeditor/vertexShader.vsh
