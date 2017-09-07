@@ -18,6 +18,10 @@ private:
     path objectModelsPath;
     //! Stores the path to the already created correspondences
     path correspondencesPath;
+    //! Stores the suffix that is used to try to load segmentation images
+    string segmentationImageFilesSuffix = "_GT";
+    //! Stores the extension of the image files that are to be loaded
+    string imageFilesExtension = ".png";
 
 public:
     /*!
@@ -100,6 +104,34 @@ public:
      * \return the path that this manager uses to store and load correspondences
      */
     path getCorrespondencesPath() const;
+
+    /*!
+     * \brief setSegmentationImageFilesSuffix sets the given suffix as the suffix to be used
+     * when loading segmentation images. Segmentation images have to be in the same folder as
+     * the actual images.
+     * \param suffix the suffix to be used for segmentation images
+     */
+    void setSegmentationImageFilesSuffix(string suffix);
+
+    /*!
+     * \brief getSegmentationImageFilesSuffix returns the suffix that is used to load
+     * segementation images from the folder of images.
+     * \return the suffix that is used to load segmentation images
+     */
+    string getSegmentationImageFilesSuffix();
+
+    /*!
+     * \brief setImageFilesExtension sets the extension to be used to load images.
+     * \param extension the extension to be used to load images.
+     */
+    void setImageFilesExtension(string extension);
+
+    /*!
+     * \brief getImageFilesExtension returns the currently set extension of the image files
+     * that are to be loaded.
+     * \return the extension of the image files
+     */
+    string getImageFilesExtension();
 };
 
 #endif // TEXTFILELOADANDSTORESTRATEGY_H

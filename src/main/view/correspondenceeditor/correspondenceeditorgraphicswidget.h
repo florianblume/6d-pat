@@ -17,7 +17,10 @@
 class CorrespondenceEditorGraphicsWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
 private:
+    //! constants
+    const double DEFAULT_ZOOM = 2.5f;
 
+    //! graphics
     QMatrix4x4 pMatrix;
     QOpenGLShaderProgram shaderProgram;
     QVector<QVector3D> imageVertices;
@@ -35,7 +38,7 @@ private:
     bool mouseDown = false;
     QList<ObjectImageCorrespondence*> correspondences;
 
-    QVector<QVector3D> createImageVertices();
+    QVector<QVector3D> createImageVertices(int width, int height);
     QVector<QVector3D> createObjectModelVertices(ObjectModel* objectModel);
 
 public:
@@ -47,12 +50,14 @@ public:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
     void setImage(Image* imageTexture);
     void addObjectModel(ObjectModel* objectModel, Point* position, Point* rotation);
     void updateObjectModel(ObjectModel* objectModel, Point* position, Point* rotation);
     void removeObjectModel(ObjectModel* objectModel);
     void setZoomFactor(float zoomFactor);
+    void reset();
 };
 
 #endif // CORRESPONDENCEEDITORGARPHICSVIEW_H

@@ -1,5 +1,7 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
+#include "view/aboutdialog/aboutdialog.h"
+#include "view/settings/settingsdialog.h"
 #include <QSettings>
 #include <QCloseEvent>
 #include <QLayout>
@@ -16,7 +18,7 @@ const char* MainWindow::SPLITTER_LEFT_SIZE_BOTTOM_KEY = "splitterLeftRightSize";
 const char* MainWindow::SPLITTER_RIGHT_SIZE_TOP_KEY = "splitterRightLeftSize";
 const char* MainWindow::SPLITTER_RIGHT_SIZE_BOTTOM_KEY = "splitterRightRightSize";
 
-//! The main window of the application that holds the individual components.
+//! The main window of the application that holds the individual components.<
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow) {
@@ -121,4 +123,35 @@ void MainWindow::setGalleryObjectModelModel(GalleryObjectModelModel* model) {
 
 void MainWindow::setModelManagerForCorrespondenceEditor(ModelManager* modelManager) {
     ui->widgetLeftBottom->setModelManager(modelManager);
+}
+
+void MainWindow::resetCorrespondenceEditor() {
+    ui->widgetLeftBottom->reset();
+}
+
+void MainWindow::setSettingsItem(SettingsItem* settingsItem) {
+    this->settingsItem = settingsItem;
+}
+
+void MainWindow::setSettingsDialogDelegate(SettingsDialogDelegate* delegate) {
+    settingsDialogDelegate = delegate;
+}
+
+void MainWindow::onActionAboutTriggered()
+{
+    AboutDialog* aboutDialog = new AboutDialog(this);
+    aboutDialog->show();
+}
+
+void MainWindow::onActionExitTriggered()
+{
+    QApplication::quit();
+}
+
+void MainWindow::onActionSettingsTriggered()
+{
+    SettingsDialog* settingsDialog = new SettingsDialog(this);
+    settingsDialog->setSettingsItem(settingsItem);
+    settingsDialog->setDelegate(settingsDialogDelegate);
+    settingsDialog->show();
 }

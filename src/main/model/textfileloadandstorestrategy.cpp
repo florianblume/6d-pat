@@ -5,9 +5,7 @@
 const char correspondenceFormatDelimiter = ' ';
 const string correspondenceFilesNameSuffix = "_correspondence";
 const string correspondenceFilesExtension = ".txt";
-const string imageFilesExtension = ".png";
-const string objectModelFilesExtension = "";
-const string segmentationImageFilesSuffix = "_GT";
+const string objectModelFilesExtension = ".jpg";
 
 TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy() {
     // nothing to do here
@@ -246,8 +244,13 @@ bool TextFileLoadAndStoreStrategy::setImagesPath(path path) {
 
     imagesPath = path;
     for (LoadAndStoreStrategyListener *listener : listeners) {
-        if (listener)
+        if (listener) {
+            //! When images change the correspondences might change as well.
+            //! At least we have to issue an update so that the view can display
+            //! the new images.
             listener->imagesChanged();
+            listener->corresopndencesChanged();
+        }
     }
     return true;
 }
@@ -264,8 +267,11 @@ bool TextFileLoadAndStoreStrategy::setObjectModelsPath(path path) {
 
     objectModelsPath = path;
     for (LoadAndStoreStrategyListener *listener : listeners) {
-        if (listener)
+        if (listener) {
+            //! When object models are changed the correspondences might change as well.
             listener->objectModelsChanged();
+            listener->corresopndencesChanged();
+        }
     }
     return true;
 }
@@ -290,4 +296,37 @@ bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(path path) {
 
 path TextFileLoadAndStoreStrategy::getCorrespondencesPath() const {
     return correspondencesPath;
+}
+
+void TextFileLoadAndStoreStrategy::setSegmentationImageFilesSuffix(string suffix) {
+    //! Only set suffix if it differs from the suffix before because we then have to reload images
+    if (suffix.compare("") != 0 && this->segmentationImageFilesSuffix.compare("") != 0) {
+        this->segmentationImageFilesSuffix = suffix;
+        for (LoadAndStoreStrategyListener *listener : listeners) {
+            if (listener) {
+                listener->imagesChanged();
+                listener->corresopndencesChanged();
+            }
+        }
+    }
+}
+
+string TextFileLoadAndStoreStrategy::getSegmentationImageFilesSuffix() {
+    return segmentationImageFilesSuffix;
+}
+
+void TextFileLoadAndStoreStrategy::setImageFilesExtension(string extension) {
+    if (extension.compare("") && this->imageFilesExtension.compare(extension) != 0) {
+        this->imageFilesExtension = extension;
+        for (LoadAndStoreStrategyListener *listener : listeners) {
+            if (listener) {
+                listener->imagesChanged();
+                listener->corresopndencesChanged();
+            }
+        }
+    }
+}
+
+string TextFileLoadAndStoreStrategy::getImageFilesExtension() {
+    return imageFilesExtension;
 }

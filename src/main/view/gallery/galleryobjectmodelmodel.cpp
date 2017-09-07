@@ -1,14 +1,16 @@
 #include "galleryobjectmodelmodel.h"
+#include <QIcon>
 
 GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager) : modelManager(modelManager) {
+
 }
 
 //! Implementations of QAbstractListModel
 QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const {
-    if (role == Qt::DisplayRole) {
+    if (role == Qt::DecorationRole) {
         if (currentSelectedImageIndex != -1 && modelManager) {
             vector<ObjectModel>* objectModels = modelManager->getObjectModels();
-            return QString(objectModels->at(index.row()).getPath().c_str());
+            return QIcon(objectModels->at(index.row()).getAbsolutePath().c_str());
         }
     }
     return QVariant();

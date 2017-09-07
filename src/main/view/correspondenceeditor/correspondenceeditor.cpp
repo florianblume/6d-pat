@@ -39,10 +39,14 @@ void CorrespondenceEditor::setImage(int index) {
     if (modelManager) {
         Image* image = &modelManager->getImages()->at(index);
         ui->graphicsWidget->setImage(image);
-        //ui->buttonShowSegmentation->setEnabled(!strcmp(image.getSegmentationImagePath().c_str(), ""));
+        // TODO: add existing correspondences
     }
 }
 
 void CorrespondenceEditor::updateCorrespondence(ObjectImageCorrespondence* correspondence) {
+
+}
+
+void CorrespondenceEditor::reset() {
 
 }

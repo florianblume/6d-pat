@@ -23,3 +23,5 @@ LIBS += \
 
 DISTFILES += \
     Otiat.pri
+
+

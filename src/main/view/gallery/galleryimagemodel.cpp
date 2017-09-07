@@ -13,7 +13,6 @@ QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
         vector<Image>* images = modelManager->getImages();
         return QString((images->at(index.row())).getImagePath().c_str());
     }
-
     return QVariant();
 }
 

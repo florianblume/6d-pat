@@ -10,11 +10,11 @@ NavigationControls::NavigationControls(QWidget *parent) :
     QtAwesome* awesome = new QtAwesome( qApp );
     awesome->initFontAwesome();
     ui->setupUi(this);
-    ui->navigateLeftButton->setFont(awesome->font(16));
+    ui->navigateLeftButton->setFont(awesome->font(18));
     ui->navigateLeftButton->setIcon(awesome->icon(fa::chevronleft));
-    ui->navigateRightButton->setFont(awesome->font(26));
+    ui->navigateRightButton->setFont(awesome->font(18));
     ui->navigateRightButton->setIcon(awesome->icon(fa::chevronright));
-    ui->openFolderButton->setFont(awesome->font(16));
+    ui->openFolderButton->setFont(awesome->font(18));
     ui->openFolderButton->setIcon(awesome->icon(fa::folderopen));
 
 }

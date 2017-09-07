@@ -14,7 +14,7 @@ CorrespondenceEditorGraphicsWidget::CorrespondenceEditorGraphicsWidget(QWidget *
     : QOpenGLWidget (parent) {
     alpha = 25;
     beta = -25;
-    distance = 2.8;
+    distance = DEFAULT_ZOOM;
 }
 
 CorrespondenceEditorGraphicsWidget::~CorrespondenceEditorGraphicsWidget() {
@@ -43,7 +43,6 @@ void CorrespondenceEditorGraphicsWidget::initializeGL() {
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "/home/flo/git/Otiat/src/main/view/correspondenceeditor/fragmentShader.fsh");
     shaderProgram.link();
 
-    imageVertices << createImageVertices();
     //! [3]
     imageTextureCoordinates << QVector2D(0, 0) << QVector2D(1, 0) << QVector2D(1, 1) // Front
                        << QVector2D(1, 1) << QVector2D(0, 1) << QVector2D(0, 0);
@@ -56,7 +55,6 @@ void CorrespondenceEditorGraphicsWidget::resizeGL(int w, int h) {
 
     pMatrix.setToIdentity();
     pMatrix.perspective(60.0, (float) w / (float) h, 0.0001, 1000);
-
     glViewport(0, 0, w, h);
 }
 
@@ -101,8 +99,11 @@ void CorrespondenceEditorGraphicsWidget::paintGL() {
 }
 
 void CorrespondenceEditorGraphicsWidget::mousePressEvent(QMouseEvent *event) {
-    mouseDown = true;
-    lastMousePosition = event->pos();
+    if (event->buttons() & Qt::LeftButton) {
+        mouseDown = true;
+        lastMousePosition = event->pos();
+    }
+    event->accept();
 }
 
 void CorrespondenceEditorGraphicsWidget::mouseMoveEvent(QMouseEvent *event) {
@@ -110,15 +111,35 @@ void CorrespondenceEditorGraphicsWidget::mouseMoveEvent(QMouseEvent *event) {
         QPoint newPosition = event->pos();
         int differenceX = newPosition.x() - lastMousePosition.x();
         int differenceY = newPosition.y() - lastMousePosition.y();
-        globalTranslation.setX(globalTranslation.x() + differenceX * 0.003201f);
-        globalTranslation.setY(globalTranslation.y() - differenceY * 0.003201f);
+        globalTranslation.setX(globalTranslation.x() + differenceX * 0.003201f * ((0.6f * distance) / distance));
+        globalTranslation.setY(globalTranslation.y() - differenceY * 0.003201f * ((0.6f * distance) / distance));
         lastMousePosition = newPosition;
         update();
     }
+
+    event->accept();
 }
 
 void CorrespondenceEditorGraphicsWidget::mouseReleaseEvent(QMouseEvent *event) {
     mouseDown = false;
+    event->accept();
+}
+
+void CorrespondenceEditorGraphicsWidget::wheelEvent(QWheelEvent *event)
+{
+    int delta = event->delta();
+
+    if (event->orientation() == Qt::Vertical) {
+        if (delta < 0 && distance < 3) {
+            distance *= 1.1;
+        } else if (delta > 0 && distance > 1.3) {
+            distance *= 0.9;
+        }
+
+        update();
+    }
+
+    event->accept();
 }
 
 void CorrespondenceEditorGraphicsWidget::setImage(Image* image) {
@@ -126,8 +147,12 @@ void CorrespondenceEditorGraphicsWidget::setImage(Image* image) {
         if (imageSet) {
             delete imageTexture;
         }
+        imageVertices.clear();
         imageTexture = new QOpenGLTexture(QImage(QString(image->getAbsoluteImagePath().c_str())).mirrored());
+        imageVertices << createImageVertices(imageTexture->width(), imageTexture->height());
         imageSet = true;
+        globalTranslation = {0, 0, 0};
+        distance = DEFAULT_ZOOM;
         update();
     }
 }
@@ -144,14 +169,18 @@ void CorrespondenceEditorGraphicsWidget::removeObjectModel(ObjectModel* objectMo
 
 }
 
-QVector<QVector3D> CorrespondenceEditorGraphicsWidget::createImageVertices() {
+QVector<QVector3D> CorrespondenceEditorGraphicsWidget::createImageVertices(int width, int height) {
     QVector<QVector3D> vertices;
     //! Create a plane that displays the selected image
-    vertices << QVector3D(-1, -1,  1) << QVector3D( 1, -1,  1) << QVector3D( 1,  1,  1)
-             << QVector3D( 1,  1,  1) << QVector3D(-1,  1,  1) << QVector3D(-1, -1,  1);
+    //! Take care of image aspect ratios as well to not distort the image
+    float aspect = width / (float) height;
+    vertices << QVector3D(-1, -1 / aspect,  1) << QVector3D( 1, -1 / aspect,  1) << QVector3D( 1,  1 / aspect,  1)
+             << QVector3D( 1,  1 / aspect,  1) << QVector3D(-1,  1 / aspect,  1) << QVector3D(-1, -1 / aspect,  1);
     return vertices;
 }
 
-void CorrespondenceEditorGraphicsWidget::setZoomFactor(float zoomFactor) {
-
+void CorrespondenceEditorGraphicsWidget::reset() {
+    imageVertices.clear();
+    correspondences.clear();
+    update();
 }

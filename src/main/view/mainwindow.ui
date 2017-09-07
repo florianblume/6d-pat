@@ -1363,7 +1363,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="widgetRightBottom" native="true">
+          <widget class="CorrespondenceEditorControls" name="widgetRightBottom" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -1569,7 +1569,14 @@
    <container>1</container>
    <slots>
     <slot>setImage(int)</slot>
+    <slot>reset()</slot>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>CorrespondenceEditorControls</class>
+   <extends>QWidget</extends>
+   <header>view/correspondenceeditorcontrols/correspondenceeditorcontrols.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -1622,5 +1629,90 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionAbout</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onActionAboutTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onActionExitTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onActionSettingsTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetNavigationLeft</sender>
+   <signal>pathChanged(boost::filesystem::path)</signal>
+   <receiver>widgetLeftBottom</receiver>
+   <slot>reset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>193</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>400</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetNavigationRight</sender>
+   <signal>pathChanged(boost::filesystem::path)</signal>
+   <receiver>widgetLeftBottom</receiver>
+   <slot>reset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>193</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>400</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>onActionAboutTriggered()</slot>
+  <slot>onActionExitTriggered()</slot>
+  <slot>onActionSettingsTriggered()</slot>
+ </slots>
 </ui>

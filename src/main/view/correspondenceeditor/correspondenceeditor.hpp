@@ -30,6 +30,7 @@ public:
 public slots:
     void setImage(int index);
     void updateCorrespondence(ObjectImageCorrespondence* correspondence);
+    void reset();
 
 signals:
     void correspondenceChanged(ObjectImageCorrespondence* correspondence);

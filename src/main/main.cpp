@@ -1,4 +1,4 @@
-#include "maincontroller.hpp"
+#include "controller/maincontroller.hpp"
 #include <QSurfaceFormat>
 
 int main(int argc, char *argv[]) {
