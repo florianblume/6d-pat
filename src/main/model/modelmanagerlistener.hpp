@@ -2,7 +2,7 @@
 #define MODELMANAGERLISTENER_H
 
 #include "objectimagecorrespondence.hpp"
-#include <string>
+#include <QString>
 
 /*!
  * \brief The ModelManagerListener class provides and interface for a class that wants to be notified of changes within
@@ -16,19 +16,19 @@ public:
      * \brief correspondenceAdded Will be called whenever a ObjectImageCorrespondence is added to the manager.
      * \param id the ID of the correspondence that was added
      */
-    virtual void correspondenceAdded(string id) = 0;
+    virtual void correspondenceAdded(QString id) = 0;
 
     /*!
      * \brief correspondenceAdded Will be called whenever a ObjectImageCorrespondence is updated by the manager.
      * \param id the ID of the correspondence that was updated
      */
-    virtual void correspondenceUpdated(string id) = 0;
+    virtual void correspondenceUpdated(QString id) = 0;
 
     /*!
      * \brief correspondenceAdded Will be called whenever a ObjectImageCorrespondence is deleted from the manager.
      * \param id the ID of the correspondence that was deleted
      */
-    virtual void correspondenceDeleted(string id) = 0;
+    virtual void correspondenceDeleted(QString id) = 0;
 
     /*!
      * \brief imagesChanged Will be called whenever the list of images changes.

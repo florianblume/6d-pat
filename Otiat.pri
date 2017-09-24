@@ -33,7 +33,6 @@ HEADERS  += \
     $$PWD/src/main/model/modelmanagerlistener.hpp \
     $$PWD/src/main/model/objectimagecorrespondence.hpp \
     $$PWD/src/main/model/objectmodel.hpp \
-    $$PWD/src/main/model/point.hpp \
     $$PWD/src/main/model/textfileloadandstorestrategy.hpp \
     $$PWD/src/main/controller/maincontroller.hpp \
     $$PWD/src/main/view/mainwindow.hpp \

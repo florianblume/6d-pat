@@ -1,16 +1,19 @@
 #include "objectmodel.hpp"
+#include <QDir>
 
-ObjectModel::ObjectModel(path _objectModelPath, path _basePath) : objectModelPath(_objectModelPath), basePath(_basePath) {
+ObjectModel::ObjectModel(const QString& objectModelPath, const QString& basePath)
+    : objectModelPath(objectModelPath),
+      basePath(basePath) {
 }
 
-const path ObjectModel::getPath() const {
+QString ObjectModel::getPath() const {
     return objectModelPath;
 }
 
-const path ObjectModel::getBasePath() const {
+QString ObjectModel::getBasePath() const {
     return basePath;
 }
 
-const path ObjectModel::getAbsolutePath() const {
-    return absolute(objectModelPath, basePath);
+QString ObjectModel::getAbsolutePath() const {
+    return QDir(basePath).filePath(objectModelPath);
 }

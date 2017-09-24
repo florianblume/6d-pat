@@ -2,7 +2,8 @@
 #define TEXTFILELOADANDSTORESTRATEGY_H
 
 #include "loadandstorestrategy.hpp"
-#include <map>
+#include <QDir>
+#include <QString>
 
 /*!
  * \brief The TextFileLoadAndStoreStrategy class is a simple implementation of a LoadAndStoreStrategy that makes no use of
@@ -13,15 +14,15 @@ class TextFileLoadAndStoreStrategy : public LoadAndStoreStrategy
 {
 private:
     //! Stores the path to the folder that holds the images
-    path imagesPath;
+    QDir imagesPath;
     //! Stores the path to the folder that holds the object models
-    path objectModelsPath;
+    QDir objectModelsPath;
     //! Stores the path to the already created correspondences
-    path correspondencesPath;
+    QDir correspondencesPath;
     //! Stores the suffix that is used to try to load segmentation images
-    string segmentationImageFilesSuffix = "_GT";
+    QString segmentationImageFilesSuffix = "_GT";
     //! Stores the extension of the image files that are to be loaded
-    string imageFilesExtension = ".png";
+    QString imageFilesExtension = ".png";
 
 public:
     /*!
@@ -36,15 +37,15 @@ public:
      * \param _objectModelsPath
      * \param _correspondencesPath
      */
-    TextFileLoadAndStoreStrategy(const path _imagesPath, const path _objectModelsPath, const path _correspondencesPath);
+    TextFileLoadAndStoreStrategy(const QDir imagesPath, const QDir objectModelsPath, const QDir correspondencesPath);
 
     ~TextFileLoadAndStoreStrategy();
 
     bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence) override;
 
-    vector<Image> loadImages() override;
+    void loadImages(QList<Image> &images) override;
 
-    vector<ObjectModel> loadObjectModels() override;
+    void loadObjectModels(QList<ObjectModel> &objectModels) override;
 
     /*!
      * \brief loadCorrespondences Loads the correspondences at the given path. How the correspondences are stored depends on the
@@ -55,10 +56,11 @@ public:
      *
      * \param images the images to insert as references into the respective correspondences
      * \param objectModels the object models to insert as reference into the respective correspondence
+     * \param correspondences the list that the corresondences are to be added to
      * \return the list of all stored correspondences
      * \throws an exception if the path to the folder that should hold the correspondences has not been set previously
      */
-    vector<ObjectImageCorrespondence> loadCorrespondences(vector<Image>* images, vector<ObjectModel>* objectModels);
+    void loadCorrespondences(const QList<Image> &images, const QList<ObjectModel> &objectModels, QList<ObjectImageCorrespondence> &corresopndences) override;
 
     /*!
      * \brief setImagesPath Sets the path to the folder where the images that are to be annotated are located. After setting the
@@ -67,13 +69,13 @@ public:
      * \param path the path to the folder where the images are located
      * \return true if the path is a valid path on the filesystem, false otherwise
      */
-    bool setImagesPath(path path);
+    bool setImagesPath(const QString &path);
 
     /*!
      * \brief getImagesPath Returns the path that this manager uses to load images.
      * \return the path that this manager uses to load images
      */
-    path getImagesPath() const;
+    QString getImagesPath() const;
 
     /*!
      * \brief setObjectModelsPath Sets the path to the folder where the object models are located. After setting the path the
@@ -81,13 +83,13 @@ public:
      * \param path the path to the folder where the objects are located
      * \return true if the path is a valid path on the filesystem, false otherwise
      */
-    bool setObjectModelsPath(path path);
+    bool setObjectModelsPath(const QString &path);
 
     /*!
      * \brief getObjectModelsPath Returns the path that this manager uses to load object models.
      * \return the path that this manager uses to load object models
      */
-    path getObjectModelsPath() const;
+    QString getObjectModelsPath() const;
 
     /*!
      * \brief setCorrespondencesPath Sets the path to the folder where object image correspondences are stored at. After setting
@@ -97,13 +99,13 @@ public:
      * are meant to be loaded
      * \return true if the path is a valid path on the filesystem, false otherwise
      */
-    bool setCorrespondencesPath(path path);
+    bool setCorrespondencesPath(const QString &path);
 
     /*!
      * \brief getCorrespondencesPath Returns the path that this manager uses to store and load correspondences.
      * \return the path that this manager uses to store and load correspondences
      */
-    path getCorrespondencesPath() const;
+    QString getCorrespondencesPath() const;
 
     /*!
      * \brief setSegmentationImageFilesSuffix sets the given suffix as the suffix to be used
@@ -111,27 +113,27 @@ public:
      * the actual images.
      * \param suffix the suffix to be used for segmentation images
      */
-    void setSegmentationImageFilesSuffix(string suffix);
+    void setSegmentationImageFilesSuffix(const QString &suffix);
 
     /*!
      * \brief getSegmentationImageFilesSuffix returns the suffix that is used to load
      * segementation images from the folder of images.
      * \return the suffix that is used to load segmentation images
      */
-    string getSegmentationImageFilesSuffix();
+    QString getSegmentationImageFilesSuffix();
 
     /*!
      * \brief setImageFilesExtension sets the extension to be used to load images.
      * \param extension the extension to be used to load images.
      */
-    void setImageFilesExtension(string extension);
+    void setImageFilesExtension(const QString &extension);
 
     /*!
      * \brief getImageFilesExtension returns the currently set extension of the image files
      * that are to be loaded.
      * \return the extension of the image files
      */
-    string getImageFilesExtension();
+    QString getImageFilesExtension();
 };
 
 #endif // TEXTFILELOADANDSTORESTRATEGY_H

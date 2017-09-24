@@ -1,28 +1,34 @@
 #include "image.hpp"
+#include <QDir>
 
-Image::Image(const path _path, const path _basePath) : imagePath(_path), segmentationImagePath(""), basePath(_basePath) {
+Image::Image(const QString& imagePath, const QString& basePath)
+    : imagePath(imagePath),
+      segmentationImagePath(""),
+      basePath(basePath) {
 }
 
-Image::Image(const path _path, const path _basePath, const path _segmentationPath)
-    : imagePath(_path), segmentationImagePath(_segmentationPath), basePath(_basePath) {
+Image::Image(const QString& imagePath, const QString& basePath, const QString& segmentationImagePath)
+    : imagePath(imagePath),
+      segmentationImagePath(segmentationImagePath),
+      basePath(basePath) {
 }
 
-const path Image::getImagePath() const {
+QString Image::getImagePath() const {
     return imagePath;
 }
 
-const path Image::getAbsoluteImagePath() const {
-    return absolute(imagePath, basePath);
+QString Image::getAbsoluteImagePath() const {
+    return QDir(basePath).filePath(imagePath);
 }
 
-const path Image::getSegmentationImagePath() const {
+QString Image::getSegmentationImagePath() const {
     return segmentationImagePath;
 }
 
-const path Image::getAbsoluteSegmentationImagePath() const {
-    return absolute(segmentationImagePath, basePath);
+QString Image::getAbsoluteSegmentationImagePath() const {
+    return QDir(basePath).filePath(segmentationImagePath);
 }
 
-const path Image::getBasePath() const {
+QString Image::getBasePath() const {
     return basePath;
 }

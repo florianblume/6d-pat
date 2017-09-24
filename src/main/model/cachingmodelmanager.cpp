@@ -1,67 +1,71 @@
 #include "cachingmodelmanager.hpp"
-#include "../misc/otiathelper.h"
+#include <QUuid>
 
-CachingModelManager::CachingModelManager(LoadAndStoreStrategy& _loadAndStoreStrategy) : ModelManager (_loadAndStoreStrategy) {
-    images = loadAndStoreStrategy->loadImages();
-    objectModels = loadAndStoreStrategy->loadObjectModels();
-    correspondences = loadAndStoreStrategy->loadCorrespondences(&images, &objectModels);
+CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy) : ModelManager(loadAndStoreStrategy) {
+    loadAndStoreStrategy.loadImages(images);
+    loadAndStoreStrategy.loadObjectModels(objectModels);
+    loadAndStoreStrategy.loadCorrespondences(images, objectModels, correspondences);
 }
 
 CachingModelManager::~CachingModelManager() {
 }
 
-vector<Image>* CachingModelManager::getImages() {
-    return &images;
-}
-
-vector<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesForImage(string imagePath) {
-    if (correspondencesForImages.find(imagePath) == correspondencesForImages.end()) {
-        return vector<ObjectImageCorrespondence*>();
-    } else {
-        return correspondencesForImages.at(imagePath);
+void CachingModelManager::getImages(QList<Image*> &images) {
+    for (Image &image : this->images) {
+        images.append(&image);
     }
 }
 
-vector<ObjectModel>* CachingModelManager::getObjectModels() {
-    return &objectModels;
-}
-
-vector<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesForObjectModel(string objectModelPath) {
-    if (correspondencesForObjectModels.find(objectModelPath) == correspondencesForObjectModels.end()) {
-        return vector<ObjectImageCorrespondence*>();
-    } else {
-        return correspondencesForObjectModels.at(objectModelPath);
+void CachingModelManager::getCorrespondencesForImage(const Image &image, QList<ObjectImageCorrespondence*> &correspondences)  {
+    if (correspondencesForImages.find(image.getImagePath()) != correspondencesForImages.end()) {
+        correspondences.append(correspondencesForImages[image.getImagePath()]);
     }
 }
 
-vector<ObjectImageCorrespondence>* CachingModelManager::getCorrespondences() {
-    return &correspondences;
+void CachingModelManager::getObjectModels(QList<ObjectModel*> &objectModels) {
+    for (ObjectModel &objectModel : this->objectModels) {
+        objectModels.append(&objectModel);
+    }
 }
 
-vector<ObjectImageCorrespondence*> CachingModelManager::getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath) {
-    vector<ObjectImageCorrespondence*> correspondencesForImageAndObject = correspondencesForImages[imagePath];
-    //! the part below removes all correspondences that do not have the given object model path
-    for (uint i = 0; i < correspondencesForImageAndObject.size(); i++) {
-        if (correspondencesForImageAndObject[i]->getObjectModel()->getPath().string().compare(objectModelPath)) {
-            correspondencesForImageAndObject.erase(correspondencesForImageAndObject.begin() + i);
+void CachingModelManager::getCorrespondencesForObjectModel(const ObjectModel &objectModel, QList<ObjectImageCorrespondence*> &corresopndenes) {
+    if (correspondencesForObjectModels.find(objectModel.getPath()) != correspondencesForObjectModels.end()) {
+        corresopndenes.append(correspondencesForObjectModels[objectModel.getPath()]);
+    }
+}
+
+void CachingModelManager::getCorrespondences(QList<ObjectImageCorrespondence*> &correspondences) {
+    for (ObjectImageCorrespondence &correspondence : this->correspondences) {
+        correspondences.append(&correspondence);
+    }
+}
+
+void CachingModelManager::getCorrespondencesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel, QList<ObjectImageCorrespondence*> &correspondences) {
+    for (ObjectImageCorrespondence *correspondence : correspondencesForImages[image.getImagePath()]) {
+        if (correspondence->getObjectModel().getPath().compare(objectModel.getPath()) == 0) {
+           correspondences.append(correspondence);
         }
     }
-    return correspondencesForImageAndObject;
 }
 
 bool CachingModelManager::addObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) {
-    const Point* position = objectImageCorrespondence.getPosition();
-    const Point* rotation = objectImageCorrespondence.getRotation();
+    const QVector3D position = objectImageCorrespondence.getPosition();
+    const QVector3D rotation = objectImageCorrespondence.getRotation();
     float articulation = objectImageCorrespondence.getArticulation();
-    const Image* image = objectImageCorrespondence.getImage();
-    const ObjectModel* model = objectImageCorrespondence.getObjectModel();
-    boost::uuids::uuid uuid = boost::uuids::random_generator()();
-    ObjectImageCorrespondence correspondence(boost::uuids::to_string(uuid),
-                                             position->x, position->y, position->z, rotation->x, rotation->y, rotation->z,
+    const Image& image = objectImageCorrespondence.getImage();
+    const ObjectModel& model = objectImageCorrespondence.getObjectModel();
+    QUuid uuid;
+    ObjectImageCorrespondence correspondence(uuid.toString(),
+                                             position.x(),
+                                             position.y(),
+                                             position.z(),
+                                             rotation.x(),
+                                             rotation.y(),
+                                             rotation.z(),
                                              articulation,
                                              image, model);
 
-    if (!loadAndStoreStrategy->persistObjectImageCorrespondence(correspondence, false)) {
+    if (!loadAndStoreStrategy.persistObjectImageCorrespondence(correspondence, false)) {
         //! if there is an error persisting the correspondence for any reason we should not add the correspondence to this manager
         return false;
     }
@@ -69,16 +73,16 @@ bool CachingModelManager::addObjectImageCorrespondence(ObjectImageCorrespondence
     //! correspondence has not yet been added
     correspondences.push_back(correspondence);
 
-    const string imagePath = correspondence.getImage()->getImagePath().string();
-    const string objectModelPath = correspondence.getObjectModel()->getPath().string();
+    const QString imagePath = correspondence.getImage().getImagePath();
+    const QString objectModelPath = correspondence.getObjectModel().getPath();
 
     //! initialize and add the list of correspondences for an image
-    vector<ObjectImageCorrespondence*> newCorrespondencesForImageList = vector<ObjectImageCorrespondence*>();
+    QList<ObjectImageCorrespondence*> newCorrespondencesForImageList;
     newCorrespondencesForImageList.push_back(&correspondences.front());
     correspondencesForImages[imagePath] = newCorrespondencesForImageList;
 
     //! initialize and add the list of correspondences for an object model
-    vector<ObjectImageCorrespondence*> newCorrespondencesForObjectModelList = vector<ObjectImageCorrespondence*>();
+    QList<ObjectImageCorrespondence*> newCorrespondencesForObjectModelList;
     newCorrespondencesForObjectModelList.push_back(&correspondences.front());
     correspondencesForObjectModels[objectModelPath] = newCorrespondencesForObjectModelList;
 
@@ -89,14 +93,14 @@ bool CachingModelManager::addObjectImageCorrespondence(ObjectImageCorrespondence
 }
 
 bool CachingModelManager::updateObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) {
-    vector<ObjectImageCorrespondence>::iterator it = find(correspondences.begin(), correspondences.end(), objectImageCorrespondence);
+    QList<ObjectImageCorrespondence>::iterator it = find(correspondences.begin(), correspondences.end(), objectImageCorrespondence);
 
     if (it == correspondences.end()) {
         //! this manager does not manager the given correspondence
         return false;
     }
 
-    if (!loadAndStoreStrategy->persistObjectImageCorrespondence(objectImageCorrespondence, false)) {
+    if (!loadAndStoreStrategy.persistObjectImageCorrespondence(objectImageCorrespondence, false)) {
         //! if there is an error persisting the correspondence for any reason we should not add the correspondence to this manager
         return false;
     }
@@ -104,10 +108,10 @@ bool CachingModelManager::updateObjectImageCorrespondence(ObjectImageCorresponde
     //! correspondence already exist so we just have to update it
     //! correspondences in the list of correspondences for image or object models will be updated because they simply
     //! reference the "main" correspondence
-    const Point* position = objectImageCorrespondence.getPosition();
-    const Point* rotation = objectImageCorrespondence.getRotation();
-    (*it).setPosition(position->x, position->y, position->z);
-    (*it).setRotation(rotation->x, rotation->y, rotation->z);
+    const QVector3D position = objectImageCorrespondence.getPosition();
+    const QVector3D rotation = objectImageCorrespondence.getRotation();
+    (*it).setPosition(position.x(), position.y(), position.z());
+    (*it).setRotation(rotation.x(), rotation.y(), rotation.z());
     (*it).setArticulation(objectImageCorrespondence.getArticulation());
 
     for (auto listener : listeners)
@@ -117,7 +121,7 @@ bool CachingModelManager::updateObjectImageCorrespondence(ObjectImageCorresponde
 }
 
 bool CachingModelManager::removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) {
-    if (!loadAndStoreStrategy->persistObjectImageCorrespondence(objectImageCorrespondence, true)) {
+    if (!loadAndStoreStrategy.persistObjectImageCorrespondence(objectImageCorrespondence, true)) {
         //! there was an error persistently removing the corresopndence, maybe wrong folder, maybe the correspondence didn't exist
         //! thus it doesn't make sense to remove the correspondence from this manager
         return false;
@@ -135,18 +139,18 @@ bool CachingModelManager::removeObjectImageCorrespondence(ObjectImageCorresponde
         //! if we didn't find a correspondence there is no need to proceed any further, maybe this manager is not managing the given correspondence
         return false;
 
-    string imagePath = objectImageCorrespondence.getImage()->getImagePath().string();
-    vector<ObjectImageCorrespondence*>& correspondencesForImage = correspondencesForImages[imagePath];
+    QString imagePath = objectImageCorrespondence.getImage().getImagePath();
+    QList<ObjectImageCorrespondence*>& correspondencesForImage = correspondencesForImages[imagePath];
     for (uint i = 0; i < correspondencesForImage.size(); i++) {
-        if (correspondencesForImage[i]->getImage()->getImagePath().string().compare(objectImageCorrespondence.getImage()->getImagePath().string())) {
+        if (correspondencesForImage[i]->getImage().getImagePath().compare(imagePath)) {
             correspondencesForImage.erase(correspondencesForImage.begin() + i);
         }
     }
 
-    string objectModelPath = objectImageCorrespondence.getObjectModel()->getPath().string();
-    vector<ObjectImageCorrespondence*>& correspondencesForObject = correspondencesForObjectModels[objectModelPath];
+    QString objectModelPath = objectImageCorrespondence.getObjectModel().getPath();
+    QList<ObjectImageCorrespondence*>& correspondencesForObject = correspondencesForObjectModels[objectModelPath];
     for (uint i = 0; i < correspondencesForObject.size(); i++) {
-        if (correspondencesForObject[i]->getObjectModel()->getPath().string().compare(objectModelPath)) {
+        if (correspondencesForObject[i]->getObjectModel().getPath().compare(objectModelPath)) {
             correspondencesForObject.erase(correspondencesForObject.begin() + i);
         }
     }
@@ -170,19 +174,19 @@ void CachingModelManager::removeListener(ModelManagerListener* listener) {
 }
 
 void CachingModelManager::imagesChanged() {
-    images = loadAndStoreStrategy->loadImages();
+    loadAndStoreStrategy.loadImages(images);
     for (auto listener : listeners)
         listener->imagesChanged();
 }
 
 void CachingModelManager::objectModelsChanged() {
-    objectModels = loadAndStoreStrategy->loadObjectModels();
+    loadAndStoreStrategy.loadObjectModels(objectModels);
     for (auto listener : listeners)
         listener->objectModelsChanged();
 }
 
 void CachingModelManager::corresopndencesChanged() {
-    correspondences = loadAndStoreStrategy->loadCorrespondences(&images, &objectModels);
+    loadAndStoreStrategy.loadCorrespondences(images, objectModels, correspondences);
     for (auto listener : listeners)
         listener->correspondencesChanged();
 }

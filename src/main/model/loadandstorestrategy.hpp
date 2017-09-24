@@ -5,17 +5,15 @@
 #include "loadandstorestrategylistener.hpp"
 #include "image.hpp"
 #include "objectmodel.hpp"
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
+#include <QString>
+#include <QList>
 
 using namespace std;
 
 class LoadAndStoreStrategy {
 
 protected:
-    vector<LoadAndStoreStrategyListener*> listeners;
+    QList<LoadAndStoreStrategyListener*> listeners;
 
 public:
 
@@ -32,31 +30,34 @@ public:
 
     /*!
      * \brief loadImages Loads the images.
+     * \param images the list that the images are to be added to
      * \return the list of images
      */
-    virtual vector<Image> loadImages() = 0;
+    virtual void loadImages(QList<Image> &images) = 0;
 
     /*!
      * \brief loadObjectModels Loads the object models.
+     * \param objectModels the list that the object models are to be added to
      * \return the list of object models
      */
-    virtual vector<ObjectModel> loadObjectModels() = 0;
+    virtual void loadObjectModels(QList<ObjectModel> &objectModels) = 0;
 
     /*!
      * \brief loadCorrespondences Loads the correspondences at the given path. How the correspondences are stored depends on the
      * strategy.
      * \param images the images to insert as references into the respective correspondences
      * \param objectModels the object models to insert as reference into the respective correspondence
+     * \param correspondences the list that the correspondences are to be added to
      * \return the list of all stored correspondences
      */
-    virtual vector<ObjectImageCorrespondence> loadCorrespondences(vector<Image>* images, vector<ObjectModel>* objectModels) = 0;
+    virtual void loadCorrespondences(const QList<Image> &images, const QList<ObjectModel> &objectModels, QList<ObjectImageCorrespondence> &correspondences) = 0;
 
     /*!
      * \brief pathExists Checks whether the given path exists on the file system and is accessible.
      * \param path the path that is to be checked
      * \return true if the path exists and is accessible, false if not
      */
-    bool pathExists(const path path);
+    bool pathExists(const QString &path);
 
     /*!
      * \brief addListener Adds a listener to this load and store strategy that will be notified if the underlying data changes somehow.

@@ -6,9 +6,8 @@
 #include "loadandstorestrategy.hpp"
 #include "loadandstorestrategylistener.hpp"
 #include "modelmanagerlistener.hpp"
-#include <string>
-#include <vector>
-#include <map>
+#include <QString>
+#include <QList>
 
 using namespace std;
 
@@ -28,9 +27,9 @@ class ModelManager : LoadAndStoreStrategyListener
 
 protected:
     //! The strategy that is used to persist and also to load entities
-    LoadAndStoreStrategy* loadAndStoreStrategy;
+    LoadAndStoreStrategy& loadAndStoreStrategy;
     //! The listeners that will be notified by this manager of any changes
-    vector<ModelManagerListener*> listeners;
+    QList<ModelManagerListener*> listeners;
 
 public:
 
@@ -41,49 +40,57 @@ public:
      *
      * \param _LoadAndStoreStrategy
      */
-    ModelManager(LoadAndStoreStrategy& _LoadAndStoreStrategy);
+    ModelManager(LoadAndStoreStrategy& loadAndStoreStrategy);
 
     virtual ~ModelManager();
 
     /*!
      * \brief getImages Returns the list of all images loaded by this manager.
+     * \param the list that the images are to be added to
      * \return the list of all images loaded by this manager
      */
-   virtual  vector<Image>* getImages() = 0;
+   virtual void getImages(QList<Image*>& images) = 0;
 
     /*!
      * \brief getCorrespondencesForImage Returns all ObjectImageCorrespondences for the image at the given path.
      * \param imagePath the path of the image
+     * \param correspondences the list that the correspondences are to be added to
      * \return the list of correspondences of the image at the given path
      */
-    virtual vector<ObjectImageCorrespondence*> getCorrespondencesForImage(string imagePath) = 0;
+    virtual void getCorrespondencesForImage(const Image& image, QList<ObjectImageCorrespondence*>& correspondences) = 0;
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
+     * \param objectModels the list that the object models are to be added to
      * \return the list of all objects models loaded by this manager
      */
-    virtual vector<ObjectModel>* getObjectModels() = 0;
+    virtual void getObjectModels(QList<ObjectModel*>& objectModels) = 0;
 
     /*!
      * \brief getCorrespondencesForObjectModels Returns all ObjectImageCorrespondences for the object model at the given path.
      * \param objectModelPath the path of the object model
+     * \param correspondences the list that the correspondences are to be added to
      * \return the list of correspondences of the object model at the given path
      */
-    virtual vector<ObjectImageCorrespondence*> getCorrespondencesForObjectModel(string objectModelPath) = 0;
+    virtual void getCorrespondencesForObjectModel(const ObjectModel& objectModel, QList<ObjectImageCorrespondence*>& correspondences) = 0;
 
     /*!
      * \brief getCorrespondences Returns the correspondences maintained by this manager.
+     * \param correspondences the list that the correspondences are to be added to
      * \return the list of correspondences maintained by this manager
      */
-    virtual vector<ObjectImageCorrespondence>* getCorrespondences() = 0;
+    virtual void getCorrespondences(QList<ObjectImageCorrespondence*>& correspondences) = 0;
 
     /*!
      * \brief getCorrespondencesForImageAndObjectModel Returns all correspondences for the given image and object model.
      * \param imagePath the image
      * \param objectModelPath the object model
+     * \param correspondences the list that the correspondences are to be added to
      * \return all correspondences of the given image and given object model
      */
-    virtual vector<ObjectImageCorrespondence*> getCorrespondencesForImageAndObjectModel(string imagePath, string objectModelPath) = 0;
+    virtual void getCorrespondencesForImageAndObjectModel(const Image& image,
+                                                          const ObjectModel& objectModel,
+                                                          QList<ObjectImageCorrespondence*>& correspondences) = 0;
 
     /*!
      * \brief addObjectImageCorrespondence Adds a new ObjectImageCorrespondence to the correspondences managed by this manager.
