@@ -7,7 +7,7 @@
 #include "view/settings/settingsitem.h"
 #include "view/settings/settingsdialogdelegate.h"
 #include <QApplication>
-#include <map>
+#include <QMap>
 
 //! This class is responsible for the overall program to work. It maintains references to all the important parts and
 //! ensures them to work properly and updates or makes update-requests when necessary.
@@ -17,7 +17,7 @@ private:
     TextFileLoadAndStoreStrategy strategy;
     CachingModelManager modelManager;
     MainWindow mainWindow;
-    map<QString, ObjectModel*> segmentationCodes;
+    QMap<QString, ObjectModel*> segmentationCodes;
     SettingsItem* currentSettingsItem;
 
     void initializeSettingsItem();

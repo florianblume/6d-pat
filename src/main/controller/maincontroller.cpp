@@ -29,9 +29,9 @@ MainController::~MainController() {
     QSettings settings("FlorettiKonfetti Inc.", "Otiat");
 
     settings.beginGroup("maincontroller");
-    settings.setValue("imagesPath", strategy.getImagesPath().c_str());
-    settings.setValue("objectModelsPath", strategy.getObjectModelsPath().c_str());
-    settings.setValue("correspondencesPath", strategy.getCorrespondencesPath().c_str());
+    settings.setValue("imagesPath", strategy.getImagesPath().path());
+    settings.setValue("objectModelsPath", strategy.getObjectModelsPath().path());
+    settings.setValue("correspondencesPath", strategy.getCorrespondencesPath().path());
     settings.endGroup();
 
     delete currentSettingsItem;
@@ -39,11 +39,11 @@ MainController::~MainController() {
 
 void MainController::initializeSettingsItem() {
     currentSettingsItem = new SettingsItem("default", &modelManager);
-    currentSettingsItem->setImagesPath(strategy.getImagesPath().c_str());
-    currentSettingsItem->setObjectModelsPath(strategy.getObjectModelsPath().c_str());
-    currentSettingsItem->setCorrespondencesPath(strategy.getCorrespondencesPath().c_str());
-    currentSettingsItem->setSegmentationImageFilesSuffix(strategy.getSegmentationImageFilesSuffix().c_str());
-    currentSettingsItem->setImageFilesExtension(strategy.getImageFilesExtension().c_str());
+    currentSettingsItem->setImagesPath(strategy.getImagesPath().path());
+    currentSettingsItem->setObjectModelsPath(strategy.getObjectModelsPath().path());
+    currentSettingsItem->setCorrespondencesPath(strategy.getCorrespondencesPath().path());
+    currentSettingsItem->setSegmentationImageFilesSuffix(strategy.getSegmentationImageFilesSuffix());
+    currentSettingsItem->setImageFilesExtension(strategy.getImageFilesExtension());
 }
 void MainController::initializeMainWindow() {
     mainWindow.setSettingsItem(currentSettingsItem);
@@ -51,14 +51,14 @@ void MainController::initializeMainWindow() {
 
     //! The reason why the breadcrumbs receive an object of the path type of the boost filesystem library
     //! is because the breadcrumb views have to split the path to show it.
-    mainWindow.setPathOnLeftBreadcrumbView(strategy.getImagesPath());
-    mainWindow.setPathOnRightBreadcrumbView(strategy.getObjectModelsPath());
-    mainWindow.setPathOnLeftNavigationControls(QString(strategy.getImagesPath().c_str()));
-    mainWindow.setPathOnRightNavigationControls(QString(strategy.getObjectModelsPath().c_str()));
+    mainWindow.setPathOnLeftBreadcrumbView(strategy.getImagesPath().path());
+    mainWindow.setPathOnRightBreadcrumbView(strategy.getObjectModelsPath().path());
+    mainWindow.setPathOnLeftNavigationControls(QString(strategy.getImagesPath().path()));
+    mainWindow.setPathOnRightNavigationControls(QString(strategy.getObjectModelsPath().path()));
     //! left navigation selects the images folder
-    mainWindow.addListenerToLeftNavigationControls([this] (boost::filesystem::path newPath) {this->strategy.setImagesPath(newPath);});
+    mainWindow.addListenerToLeftNavigationControls([this] (QString& newPath) {this->strategy.setImagesPath(newPath);});
     //! right navigation selects the object models folder
-    mainWindow.addListenerToRightNavigationControls([this] (boost::filesystem::path newPath) {this->strategy.setObjectModelsPath(newPath);});
+    mainWindow.addListenerToRightNavigationControls([this] (QString& newPath) {this->strategy.setObjectModelsPath(newPath);});
     mainWindow.showStatusMessage("Ready");
 
     //! The models do not need to notify the gallery of any changes on the data because the list view
@@ -74,9 +74,9 @@ void MainController::initialize() {
     QSettings settings("FlorettiKonfetti Inc.", "Otiat");
 
     settings.beginGroup("maincontroller");
-    strategy.setImagesPath(settings.value("imagesPath", QDir::homePath()).toString().toStdString());
-    strategy.setObjectModelsPath(settings.value("objectModelsPath", QDir::homePath()).toString().toStdString());
-    strategy.setCorrespondencesPath(settings.value("correspondencesPath", QDir::homePath()).toString().toStdString());
+    strategy.setImagesPath(settings.value("imagesPath", QDir::homePath()).toString());
+    strategy.setObjectModelsPath(settings.value("objectModelsPath", QDir::homePath()).toString());
+    strategy.setCorrespondencesPath(settings.value("correspondencesPath", QDir::homePath()).toString());
     settings.endGroup();
 
     initializeSettingsItem();
@@ -93,15 +93,15 @@ void MainController::applySettings(const SettingsItem* settingsItem) {
     this->currentSettingsItem = new SettingsItem(*settingsItem);
 
     //! Set the values
-    strategy.setImagesPath(settingsItem->getImagesPath().toStdString());
-    strategy.setObjectModelsPath(settingsItem->getObjectModelsPath().toStdString());
-    strategy.setCorrespondencesPath(settingsItem->getCorrespondencesPath().toStdString());
-    strategy.setImageFilesExtension(settingsItem->getImageFilesExtension().toStdString());
-    strategy.setSegmentationImageFilesSuffix(settingsItem->getSegmentationImageFilesSuffix().toStdString());
+    strategy.setImagesPath(settingsItem->getImagesPath());
+    strategy.setObjectModelsPath(settingsItem->getObjectModelsPath());
+    strategy.setCorrespondencesPath(settingsItem->getCorrespondencesPath());
+    strategy.setImageFilesExtension(settingsItem->getImageFilesExtension());
+    strategy.setSegmentationImageFilesSuffix(settingsItem->getSegmentationImageFilesSuffix());
 
     //! Update view accordingly
-    mainWindow.setPathOnLeftBreadcrumbView(settingsItem->getImagesPath().toStdString());
+    mainWindow.setPathOnLeftBreadcrumbView(settingsItem->getImagesPath());
     mainWindow.setPathOnLeftNavigationControls(settingsItem->getImagesPath());
-    mainWindow.setPathOnRightBreadcrumbView(settingsItem->getObjectModelsPath().toStdString());
+    mainWindow.setPathOnRightBreadcrumbView(settingsItem->getObjectModelsPath());
     mainWindow.setPathOnRightNavigationControls(settingsItem->getObjectModelsPath());
 }

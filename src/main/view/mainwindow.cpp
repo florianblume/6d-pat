@@ -6,17 +6,17 @@
 #include <QCloseEvent>
 #include <QLayout>
 
-const char* MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";
-const char* MainWindow::SETTINGS_PROGRAM_NAME = "Otiat";
-const char* MainWindow::SETTINGS_GROUP_NAME = "mainwindow";
-const char* MainWindow::WINDOW_SIZE_KEY = "windowsize";
-const char* MainWindow::WINDOW_POSITION_KEY = "windowposition";
-const char* MainWindow::SPLITTER_MAIN_SIZE_LEFT_KEY = "splitterMainLeftSize";
-const char* MainWindow::SPLITTER_MAIN_SIZE_RIGHT_KEY = "splitterMainRightSize";
-const char* MainWindow::SPLITTER_LEFT_SIZE_TOP_KEY = "splitterLeftLeftSize";
-const char* MainWindow::SPLITTER_LEFT_SIZE_BOTTOM_KEY = "splitterLeftRightSize";
-const char* MainWindow::SPLITTER_RIGHT_SIZE_TOP_KEY = "splitterRightLeftSize";
-const char* MainWindow::SPLITTER_RIGHT_SIZE_BOTTOM_KEY = "splitterRightRightSize";
+QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";
+QString MainWindow::SETTINGS_PROGRAM_NAME = "Otiat";
+QString MainWindow::SETTINGS_GROUP_NAME = "mainwindow";
+QString MainWindow::WINDOW_SIZE_KEY = "windowsize";
+QString MainWindow::WINDOW_POSITION_KEY = "windowposition";
+QString MainWindow::SPLITTER_MAIN_SIZE_LEFT_KEY = "splitterMainLeftSize";
+QString MainWindow::SPLITTER_MAIN_SIZE_RIGHT_KEY = "splitterMainRightSize";
+QString MainWindow::SPLITTER_LEFT_SIZE_TOP_KEY = "splitterLeftLeftSize";
+QString MainWindow::SPLITTER_LEFT_SIZE_BOTTOM_KEY = "splitterLeftRightSize";
+QString MainWindow::SPLITTER_RIGHT_SIZE_TOP_KEY = "splitterRightLeftSize";
+QString MainWindow::SPLITTER_RIGHT_SIZE_BOTTOM_KEY = "splitterRightRightSize";
 
 //! The main window of the application that holds the individual components.<
 MainWindow::MainWindow(QWidget *parent) :
@@ -79,24 +79,24 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::showStatusMessage(string message) {
-    this->statusBar()->showMessage(QString(message.c_str()));
+void MainWindow::showStatusMessage(const QString &message) {
+    this->statusBar()->showMessage(message);
 }
 
-void MainWindow::setPathOnLeftBreadcrumbView(boost::filesystem::path pathToShow) {
+void MainWindow::setPathOnLeftBreadcrumbView(const QString &pathToShow) {
     ui->widgetBreadcrumbLeft->setPathToShow(pathToShow);
 }
 
-void MainWindow::setPathOnRightBreadcrumbView(boost::filesystem::path pathToShow) {
+void MainWindow::setPathOnRightBreadcrumbView(const QString & pathToShow) {
     ui->widgetBreadcrumbRight->setPathToShow(pathToShow);
 }
 
-void MainWindow::setPathOnLeftNavigationControls(QString path) {
-    ui->widgetNavigationLeft->setPathToOpen(path.toStdString());
+void MainWindow::setPathOnLeftNavigationControls(const QString &path) {
+    ui->widgetNavigationLeft->setPathToOpen(path);
 }
 
-void MainWindow::setPathOnRightNavigationControls(QString path) {
-    ui->widgetNavigationRight->setPathToOpen(path.toStdString());
+void MainWindow::setPathOnRightNavigationControls(const QString &path) {
+    ui->widgetNavigationRight->setPathToOpen(path);
 }
 
 void MainWindow::addListenerToLeftNavigationControls(NavigationControlsListener listener) {

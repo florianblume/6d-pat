@@ -1,15 +1,8 @@
 #include "breadcrumbview.h"
+#include <QDir>
 
-static vector<string> splitPath(boost::filesystem::path pathToSplit) {
-    vector<string> result;
-    for (auto& pathPart : pathToSplit) {
-        result.push_back(pathPart.c_str());
-    }
-    return result;
-}
-
-BreadcrumbView::BreadcrumbView(QWidget *parent, boost::filesystem::path _pathToShow)
-    : QWidget(parent), pathToShow(_pathToShow)
+BreadcrumbView::BreadcrumbView(QWidget *parent, const QString &pathToShow)
+    : QWidget(parent), pathToShow(pathToShow)
 {;
     layout = new QHBoxLayout();
     this->setLayout(layout);
@@ -20,27 +13,27 @@ BreadcrumbView::~BreadcrumbView() {
     delete layout;
 }
 
-void BreadcrumbView::setPathToShow(boost::filesystem::path newPathToShow) {
-    pathToShow = newPathToShow;
+void BreadcrumbView::setPathToShow(const QString &newPathToShow) {
+    this->pathToShow = newPathToShow;
     updateView();
 }
 
-boost::filesystem::path BreadcrumbView::getPathTowShow() {
+QString BreadcrumbView::getPathTowShow() {
     return pathToShow;
 }
 
 void BreadcrumbView::updateView() {
-    vector<string> pathParts = splitPath(pathToShow);
+    QStringList pathParts = pathToShow.split(QDir::separator());
     // TODO: calculate correct position
     uint i = 0;
-    for (string part : pathParts) {
+    for (QString part : pathParts) {
         // reuse labels
         QLabel* label;
         if (i < labels.size()) {
             label = labels[i];
-            label->setText(part.c_str());
+            label->setText(part);
         } else {
-            label = new QLabel(QString(part.c_str()), this);
+            label = new QLabel(QString(part), this);
             label->setAlignment(Qt::AlignCenter);
             layout->addWidget(label);
             labels.push_back(label);

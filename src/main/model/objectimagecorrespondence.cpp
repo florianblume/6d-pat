@@ -55,8 +55,13 @@ bool ObjectImageCorrespondence::operator==(const ObjectImageCorrespondence& obje
     return id.compare(objectImageCorrespondence.getID()) == 0;
 }
 
+ObjectImageCorrespondence& ObjectImageCorrespondence::operator=(ObjectImageCorrespondence other) {
+    std::swap(*this, other);
+    return *this;
+}
+
 QString ObjectImageCorrespondence::toString() const {
-    return id + " " + image->getImagePath() + " " + objectModel->getPath() + " " + QString::number(position.x()) + " " +
+    return id + " " + image.getImagePath() + " " + objectModel.getPath() + " " + QString::number(position.x()) + " " +
             QString::number(position.y()) + " " + QString::number(position.z()) + " " + QString::number(rotation.x()) + " " +
             QString::number(rotation.y()) + " " + QString::number(rotation.z()) + " " + QString::number(articulation);
 }

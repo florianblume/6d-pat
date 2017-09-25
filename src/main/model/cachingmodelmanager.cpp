@@ -16,6 +16,10 @@ void CachingModelManager::getImages(QList<Image*> &images) {
     }
 }
 
+int CachingModelManager::getImagesSize() {
+    return images.size();
+}
+
 void CachingModelManager::getCorrespondencesForImage(const Image &image, QList<ObjectImageCorrespondence*> &correspondences)  {
     if (correspondencesForImages.find(image.getImagePath()) != correspondencesForImages.end()) {
         correspondences.append(correspondencesForImages[image.getImagePath()]);
@@ -26,6 +30,10 @@ void CachingModelManager::getObjectModels(QList<ObjectModel*> &objectModels) {
     for (ObjectModel &objectModel : this->objectModels) {
         objectModels.append(&objectModel);
     }
+}
+
+int CachingModelManager::getObjectModelsSize() {
+    return objectModels.size();
 }
 
 void CachingModelManager::getCorrespondencesForObjectModel(const ObjectModel &objectModel, QList<ObjectImageCorrespondence*> &corresopndenes) {

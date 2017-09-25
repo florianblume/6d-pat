@@ -24,7 +24,7 @@ NavigationControls::~NavigationControls()
     delete ui;
 }
 
-void NavigationControls::setPathToOpen(string path) {
+void NavigationControls::setPathToOpen(const QString &path) {
     if (path.compare("") != 0) {
         currentPath = path;
     }
@@ -36,16 +36,15 @@ void NavigationControls::addListener(NavigationControlsListener listener) {
 
 void NavigationControls::folderButtonClicked() {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                currentPath.c_str(),
+                                                currentPath,
                                                 QFileDialog::ShowDirsOnly
                                                 | QFileDialog::DontResolveSymlinks);
     if (dir == "") {
         return;
     }
-    currentPath = dir.toStdString();
-    boost::filesystem::path newPath = boost::filesystem::path(dir.toStdString().c_str());
-    emit pathChanged(newPath);
+    currentPath = dir;
+    emit pathChanged(dir);
     for (NavigationControlsListener listener : listeners) {
-        listener(newPath);
+        listener(dir);
     }
 }

@@ -7,7 +7,7 @@
 #include "view/gallery/galleryobjectmodelmodel.h"
 #include "view/settings/settingsdialogdelegate.h"
 #include <QMainWindow>
-#include <boost/filesystem.hpp>
+#include <QString>
 
 namespace Ui {
 class MainWindow;
@@ -28,11 +28,11 @@ public:
 
     //! Various functions to initialize or alter the state of the window and its components.
     //! Most should be self-explanatory.
-    void showStatusMessage(string message);
-    void setPathOnLeftBreadcrumbView(boost::filesystem::path pathToShow);
-    void setPathOnRightBreadcrumbView(boost::filesystem::path pathToShow);
-    void setPathOnLeftNavigationControls(QString path);
-    void setPathOnRightNavigationControls(QString path);
+    void showStatusMessage(const QString &message);
+    void setPathOnLeftBreadcrumbView(const QString &pathToShow);
+    void setPathOnRightBreadcrumbView(const QString &pathToShow);
+    void setPathOnLeftNavigationControls(const QString &path);
+    void setPathOnRightNavigationControls(const QString &path);
     void addListenerToLeftNavigationControls(NavigationControlsListener listener);
     void addListenerToRightNavigationControls(NavigationControlsListener listener);
     void resetCorrespondenceEditor();
@@ -89,20 +89,20 @@ private:
     void writeSettings();
     void readSettings();
     //! The name of the settings - QT requests this to store settings "offline"
-    static const char* SETTINGS_NAME;
+    static QString SETTINGS_NAME;
     //! Same as above
-    static const char* SETTINGS_PROGRAM_NAME;
+    static QString SETTINGS_PROGRAM_NAME;
     //! To group settings
-    static const char* SETTINGS_GROUP_NAME;
+    static QString SETTINGS_GROUP_NAME;
     //! The rest should be self explanatory
-    static const char* WINDOW_SIZE_KEY;
-    static const char* WINDOW_POSITION_KEY;
-    static const char* SPLITTER_MAIN_SIZE_LEFT_KEY;
-    static const char* SPLITTER_MAIN_SIZE_RIGHT_KEY;
-    static const char* SPLITTER_LEFT_SIZE_TOP_KEY;
-    static const char* SPLITTER_LEFT_SIZE_BOTTOM_KEY;
-    static const char* SPLITTER_RIGHT_SIZE_TOP_KEY;
-    static const char* SPLITTER_RIGHT_SIZE_BOTTOM_KEY;
+    static QString WINDOW_SIZE_KEY;
+    static QString WINDOW_POSITION_KEY;
+    static QString SPLITTER_MAIN_SIZE_LEFT_KEY;
+    static QString SPLITTER_MAIN_SIZE_RIGHT_KEY;
+    static QString SPLITTER_LEFT_SIZE_TOP_KEY;
+    static QString SPLITTER_LEFT_SIZE_BOTTOM_KEY;
+    static QString SPLITTER_RIGHT_SIZE_TOP_KEY;
+    static QString SPLITTER_RIGHT_SIZE_BOTTOM_KEY;
 };
 
 #endif // MAINWINDOW_H

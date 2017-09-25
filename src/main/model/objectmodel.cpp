@@ -17,3 +17,8 @@ QString ObjectModel::getBasePath() const {
 QString ObjectModel::getAbsolutePath() const {
     return QDir(basePath).filePath(objectModelPath);
 }
+
+ObjectModel& ObjectModel::operator=(ObjectModel other) {
+    std::swap(*this, other);
+    return *this;
+}

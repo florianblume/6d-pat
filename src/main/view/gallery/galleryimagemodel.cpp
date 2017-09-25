@@ -7,18 +7,20 @@ GalleryImageModel::GalleryImageModel(ModelManager* modelManager) {
 
 QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
     if (role == Qt::DecorationRole) {
-        vector<Image>* images = modelManager->getImages();
-        return QIcon(QString((images->at(index.row())).getAbsoluteImagePath().c_str()));
+        QList<Image*> images;
+        modelManager->getImages(images);
+        return QIcon(images.at(index.row())->getAbsoluteImagePath());
     } else if (role == Qt::ToolTipRole) {
-        vector<Image>* images = modelManager->getImages();
-        return QString((images->at(index.row())).getImagePath().c_str());
+        QList<Image*> images;
+        modelManager->getImages(images);
+        return QString((images.at(index.row()))->getImagePath());
     }
     return QVariant();
 }
 
 int GalleryImageModel::rowCount(const QModelIndex &parent) const {
     if (modelManager) {
-        return modelManager->getImages()->size();
+        return modelManager->getImagesSize();
     }
     return 0;
 }

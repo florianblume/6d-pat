@@ -64,6 +64,8 @@ public:
      */
     QString getBasePath() const;
 
+    Image& operator=(Image other);
+
 };
 
 #endif // IMAGE_H

@@ -25,6 +25,13 @@ private:
     QString imageFilesExtension = ".png";
 
 public:
+    //! Unmodifiable constants (i.e. not changable at runtime)
+    static const QString CORRESPONDENCE_FORMAT_DELIMITER;
+    static const QString CORRESPONDENCE_FILES_NAME_SUFFIX;
+    static const QString CORRESPONDENCE_FILES_EXTENSION;
+    static const QString OBJECT_MODEL_FILES_EXTENSION;
+
+public:
     /*!
      * \brief TextFileLoadAndStoreStrategy Constructor of this strategy. The paths MUST be set aferwards to use it
      * properly, otherwise the strategy won't deliver any content.
@@ -37,7 +44,7 @@ public:
      * \param _objectModelsPath
      * \param _correspondencesPath
      */
-    TextFileLoadAndStoreStrategy(const QDir imagesPath, const QDir objectModelsPath, const QDir correspondencesPath);
+    TextFileLoadAndStoreStrategy(const QDir &imagesPath, const QDir &objectModelsPath, const QDir &correspondencesPath);
 
     ~TextFileLoadAndStoreStrategy();
 
@@ -69,13 +76,13 @@ public:
      * \param path the path to the folder where the images are located
      * \return true if the path is a valid path on the filesystem, false otherwise
      */
-    bool setImagesPath(const QString &path);
+    bool setImagesPath(const QDir &path);
 
     /*!
      * \brief getImagesPath Returns the path that this manager uses to load images.
      * \return the path that this manager uses to load images
      */
-    QString getImagesPath() const;
+    QDir getImagesPath() const;
 
     /*!
      * \brief setObjectModelsPath Sets the path to the folder where the object models are located. After setting the path the
@@ -83,13 +90,13 @@ public:
      * \param path the path to the folder where the objects are located
      * \return true if the path is a valid path on the filesystem, false otherwise
      */
-    bool setObjectModelsPath(const QString &path);
+    bool setObjectModelsPath(const QDir &path);
 
     /*!
      * \brief getObjectModelsPath Returns the path that this manager uses to load object models.
      * \return the path that this manager uses to load object models
      */
-    QString getObjectModelsPath() const;
+    QDir getObjectModelsPath() const;
 
     /*!
      * \brief setCorrespondencesPath Sets the path to the folder where object image correspondences are stored at. After setting
@@ -99,13 +106,13 @@ public:
      * are meant to be loaded
      * \return true if the path is a valid path on the filesystem, false otherwise
      */
-    bool setCorrespondencesPath(const QString &path);
+    bool setCorrespondencesPath(const QDir &path);
 
     /*!
      * \brief getCorrespondencesPath Returns the path that this manager uses to store and load correspondences.
      * \return the path that this manager uses to store and load correspondences
      */
-    QString getCorrespondencesPath() const;
+    QDir getCorrespondencesPath() const;
 
     /*!
      * \brief setSegmentationImageFilesSuffix sets the given suffix as the suffix to be used

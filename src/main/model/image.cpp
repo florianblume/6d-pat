@@ -32,3 +32,8 @@ QString Image::getAbsoluteSegmentationImagePath() const {
 QString Image::getBasePath() const {
     return basePath;
 }
+
+Image& Image::operator=(Image other) {
+    std::swap(*this, other);
+    return *this;
+}

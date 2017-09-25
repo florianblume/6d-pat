@@ -9,8 +9,9 @@ GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager) : m
 QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const {
     if (role == Qt::DecorationRole) {
         if (currentSelectedImageIndex != -1 && modelManager) {
-            vector<ObjectModel>* objectModels = modelManager->getObjectModels();
-            return QIcon(objectModels->at(index.row()).getAbsolutePath().c_str());
+            QList<ObjectModel*> objectModels;
+            modelManager->getObjectModels(objectModels);
+            return QIcon(objectModels.at(index.row())->getAbsolutePath());
         }
     }
     return QVariant();
@@ -18,8 +19,7 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
 
 int GalleryObjectModelModel::rowCount(const QModelIndex &parent) const {
     if (modelManager) {
-        int size = modelManager->getObjectModels()->size();
-        return size;
+        return modelManager->getObjectModelsSize();
     }
     return 0;
 }

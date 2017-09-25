@@ -3,7 +3,6 @@
 
 #include <model/image.hpp>
 #include <model/objectmodel.hpp>
-#include <model/point.hpp>
 #include <model/objectimagecorrespondence.hpp>
 #include <QOpenGLWidget>
 #include <QOpenGLBuffer>
@@ -53,8 +52,8 @@ public:
     void wheelEvent(QWheelEvent *event) override;
 
     void setImage(Image* imageTexture);
-    void addObjectModel(ObjectModel* objectModel, Point* position, Point* rotation);
-    void updateObjectModel(ObjectModel* objectModel, Point* position, Point* rotation);
+    void addObjectModel(ObjectModel* objectModel, QVector3D position, QVector3D rotation);
+    void updateObjectModel(ObjectModel* objectModel, QVector3D position, QVector3D rotation);
     void removeObjectModel(ObjectModel* objectModel);
     void setZoomFactor(float zoomFactor);
     void reset();

@@ -148,7 +148,7 @@ void CorrespondenceEditorGraphicsWidget::setImage(Image* image) {
             delete imageTexture;
         }
         imageVertices.clear();
-        imageTexture = new QOpenGLTexture(QImage(QString(image->getAbsoluteImagePath().c_str())).mirrored());
+        imageTexture = new QOpenGLTexture(QImage(image->getAbsoluteImagePath()).mirrored());
         imageVertices << createImageVertices(imageTexture->width(), imageTexture->height());
         imageSet = true;
         globalTranslation = {0, 0, 0};
@@ -157,11 +157,11 @@ void CorrespondenceEditorGraphicsWidget::setImage(Image* image) {
     }
 }
 
-void CorrespondenceEditorGraphicsWidget::addObjectModel(ObjectModel* objectModel, Point* position, Point* rotation) {
+void CorrespondenceEditorGraphicsWidget::addObjectModel(ObjectModel* objectModel, QVector3D position, QVector3D rotation) {
 
 }
 
-void CorrespondenceEditorGraphicsWidget::updateObjectModel(ObjectModel* objectModel, Point* position, Point* rotation) {
+void CorrespondenceEditorGraphicsWidget::updateObjectModel(ObjectModel* objectModel, QVector3D position, QVector3D rotation) {
 
 }
 

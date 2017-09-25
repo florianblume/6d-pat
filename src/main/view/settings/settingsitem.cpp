@@ -14,9 +14,12 @@ SettingsItem::SettingsItem(QString identifier, ModelManager* modelManager) : ide
     imageFilesExtension = settings.value("imageFilesExtension", "").toString();
     */
 
-    for (uint i = 0; i < modelManager->getObjectModels()->size(); i++) {
-        ObjectModel* model = &modelManager->getObjectModels()->at(i);
-        const QString objectModelIdentifier = model->getAbsolutePath().c_str();
+    QList<ObjectModel*> objectModels;
+    modelManager->getObjectModels(objectModels);
+
+    for (uint i = 0; i < objectModels.size(); i++) {
+        ObjectModel* model = objectModels.at(i);
+        const QString objectModelIdentifier = model->getAbsolutePath();
         QString storedCode = settings.value(objectModelIdentifier, "").toString();
         segmentationCodes[storedCode] = model;
         inverseSegmentationCodes[model] = storedCode;
@@ -37,10 +40,13 @@ SettingsItem::~SettingsItem() {
     settings.setValue("imageFilesExtension", imageFilesExtension);
     */
 
-    for (uint i = 0; i < modelManager->getObjectModels()->size(); i++) {
-        ObjectModel* model = &modelManager->getObjectModels()->at(i);
-        const QString objectModelIdentifier = model->getAbsolutePath().c_str();
-        settings.setValue(model->getAbsolutePath().c_str(), getSegmentationCodeForObjectModel(model));
+    QList<ObjectModel*> objectModels;
+    modelManager->getObjectModels(objectModels);
+
+    for (uint i = 0; i < objectModels.size(); i++) {
+        ObjectModel* model = objectModels.at(i);
+        const QString objectModelIdentifier = model->getAbsolutePath();
+        settings.setValue(model->getAbsolutePath(), getSegmentationCodeForObjectModel(model));
     }
 
     settings.endGroup();

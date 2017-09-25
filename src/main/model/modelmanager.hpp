@@ -52,6 +52,11 @@ public:
    virtual void getImages(QList<Image*>& images) = 0;
 
     /*!
+     * \brief getImagesSize returns the number of images managed by this manager
+     */
+    virtual int getImagesSize() = 0;
+
+    /*!
      * \brief getCorrespondencesForImage Returns all ObjectImageCorrespondences for the image at the given path.
      * \param imagePath the path of the image
      * \param correspondences the list that the correspondences are to be added to
@@ -65,6 +70,11 @@ public:
      * \return the list of all objects models loaded by this manager
      */
     virtual void getObjectModels(QList<ObjectModel*>& objectModels) = 0;
+
+    /*!
+     * \brief getObjectModelsCount returns the number of object models managed by this manager
+     */
+    virtual int getObjectModelsSize() = 0;
 
     /*!
      * \brief getCorrespondencesForObjectModels Returns all ObjectImageCorrespondences for the object model at the given path.

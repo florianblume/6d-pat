@@ -5,14 +5,13 @@
 #include <QLayout>
 #include <vector>
 #include <QLabel>
-#include <boost/filesystem.hpp>
 
 using namespace std;
 
 class BreadcrumbView : public QWidget
 {
 private:
-    boost::filesystem::path pathToShow;
+    QString pathToShow;
     uint leftBorderOffset = 5;
     QHBoxLayout* layout;
     vector<QLabel*> labels;
@@ -21,13 +20,13 @@ private:
 
     Q_OBJECT
 public:
-    explicit BreadcrumbView(QWidget *parent = 0, boost::filesystem::path _pathToShow = "");
+    explicit BreadcrumbView(QWidget *parent = 0, const QString &pathToShow = "");
     ~BreadcrumbView();
-    boost::filesystem::path getPathTowShow();
+    QString getPathTowShow();
     uint getFontSize();
 
 public slots:
-    void setPathToShow(boost::filesystem::path newPathToShow);
+    void setPathToShow(const QString &newPathToShow);
 };
 
 #endif // BREADCRUMBVIEW_H

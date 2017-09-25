@@ -103,6 +103,8 @@ public:
      */
     bool operator==(const ObjectImageCorrespondence& objectImageCorrespondence);
 
+    ObjectImageCorrespondence& operator=(ObjectImageCorrespondence other);
+
     /*!
      * \brief toString Converts this correspondence to a string. It will print only the relative paths.
      * \return this correspondence converted to a string

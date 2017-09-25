@@ -1,77 +1,73 @@
 #include "textfileloadandstorestrategy.hpp"
-#include "boost/filesystem.hpp"
-#include "boost/algorithm/string.hpp"
+#include <QDirIterator>
+#include <QTextStream>
+#include <QMap>
 
-const char correspondenceFormatDelimiter = ' ';
-const string correspondenceFilesNameSuffix = "_correspondence";
-const string correspondenceFilesExtension = ".txt";
-const string objectModelFilesExtension = ".jpg";
+const QString TextFileLoadAndStoreStrategy::CORRESPONDENCE_FORMAT_DELIMITER = " ";
+const QString TextFileLoadAndStoreStrategy::CORRESPONDENCE_FILES_NAME_SUFFIX = "_correspondence";
+const QString TextFileLoadAndStoreStrategy::CORRESPONDENCE_FILES_EXTENSION = ".txt";
+const QString TextFileLoadAndStoreStrategy::OBJECT_MODEL_FILES_EXTENSION = ".obj";
 
 TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy() {
     // nothing to do here
 }
 
-TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy(const path _imagesPath, const path _objectModelsPath,
-                                                           const path _correspondencesPath)
-    : imagesPath(_imagesPath), objectModelsPath(_objectModelsPath), correspondencesPath(_correspondencesPath) {
-    if (!pathExists(_imagesPath))
+TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy(const QDir &imagesPath, const QDir &objectModelsPath,
+                                                           const QDir &correspondencesPath)
+    : imagesPath(imagesPath), objectModelsPath(objectModelsPath), correspondencesPath(correspondencesPath) {
+    if (!pathExists(imagesPath))
         throw "Image path does not exist";
-    if (!pathExists(_objectModelsPath))
+    if (!pathExists(objectModelsPath))
         throw "ObjectModels path does not exist";
-    if (!pathExists(_correspondencesPath))
+    if (!pathExists(correspondencesPath))
         throw "Correspondences path does not exist";
 }
 
 TextFileLoadAndStoreStrategy::~TextFileLoadAndStoreStrategy() {
 }
 
-static boost::filesystem::path convertPathToSuffxFileName(const path pathToConvert, const string suffix, const string extension) {
-    return boost::filesystem::path(pathToConvert.stem().string() + suffix + extension);
+static QString convertPathToSuffxFileName(const QString &pathToConvert, const QString &suffix, const QString &extension) {
+    return QFileInfo(pathToConvert).completeBaseName() + suffix + extension;
 }
 
-static vector<string> getFilesAtPath(const path _path, const string extension) {
-    vector<string> files;
-
-    boost::filesystem::directory_iterator end_itr;
-
-    for (boost::filesystem::directory_iterator itr(_path); itr != end_itr; ++itr) {
-        if (is_regular_file(itr->path()) && itr->path().extension() == extension) {
-            string current_file = itr->path().string();
-            files.push_back(current_file);
-        }
-    }
-
-    sort(files.begin(), files.end());
-
-    return files;
-}
-
-static void persistCorrespondenceToFile(ifstream *inFile, ofstream *outFile,
-                                        const ObjectImageCorrespondence* correspondence, bool deleteCorrespondence) {
+static void persistCorrespondenceToFile(QFile &inFile, QFile &outFile,
+                                        const ObjectImageCorrespondence& correspondence,
+                                        bool deleteCorrespondence) {
     bool correspondenceFound = false;
-    //! count how many lines are not this correspondence, if there aren't any other and this correspondence is to be deleted, remove the file
+
+    //! count how many lines are not this correspondence, if there aren't any
+    //! other and this correspondence is to be deleted, remove the file
     uint foreignLinesCount = 0;
-    for (string line; getline(*inFile, line);) {
-        std::vector<std::string> results;
-        //! split the read line at the delimiter to obtain the ID of the correspondence and see if this is the line we need to update
-        boost::split(results, line, [](char c){return c == correspondenceFormatDelimiter;});
-        if (results[0].compare(correspondence->getID()) == 0) {
-            //! we found the correct line
+
+    QTextStream outStream(&outFile);
+
+    QTextStream in(&inFile);
+    while (!in.atEnd())
+    {
+        QString line = in.readLine();
+        QStringList splitLine = line.split(TextFileLoadAndStoreStrategy::CORRESPONDENCE_FORMAT_DELIMITER);
+        //! Check if we found the correspondence that we want to update
+        if (splitLine.size() > 0 && splitLine.at(0).compare(correspondence.getID()) == 0) {
+            //! We did find it
             correspondenceFound = true;
             if (!deleteCorrespondence)
-                //! if we are to delete the correspondence, simply don't write back the line it concerns
-                *outFile << correspondence->toString() << endl;
+                //! if we are to delete the correspondence, simply don't write back the line
+                outStream << correspondence.toString() << endl;
         } else {
-            *outFile << line << endl;
-            foreignLinesCount++;
+                //! Different correspondence, no need to do anything just write the line back
+                outStream << line << endl;
+                foreignLinesCount++;
         }
     }
+
     if (!correspondenceFound && !deleteCorrespondence) {
-        //! since we didn't find the correspondence it must be a new one and we add it at the end of the file
+        //! Since we didn't find the correspondence it must be a new one and we add it at the end of the file
         //! but only if the delete flag isn't set to true
-        *outFile << correspondence->toString();
+        outStream << correspondence.toString();
     } else if (foreignLinesCount == 0 && deleteCorrespondence) {
-        //TODO: remove file
+        //! Remove the file if there is no data stored in it anymore
+        outFile.remove();
+        inFile.remove();
     }
 }
 
@@ -86,158 +82,172 @@ bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(
         return false;
     }
 
-    boost::filesystem::path imagePath(objectImageCorrespondence.getImage()->getImagePath());
-    boost::filesystem::path correspondenceFileName = convertPathToSuffxFileName(imagePath,
-                                                                              correspondenceFilesNameSuffix,
-                                                                              correspondenceFilesExtension);
-    boost::filesystem::path correspondenceFilePath = absolute(correspondenceFileName, correspondencesPath);
-
-    if (boost::filesystem::exists(correspondenceFilePath) && boost::filesystem::is_regular_file(correspondenceFilePath)) {
-        //! remove an already existing temp files
-        boost::filesystem::path tempPath("./tmp");
-        if (boost::filesystem::exists(tempPath))
-            boost::filesystem::remove(tempPath);
-
-        //! file exists already we need to update it
-        ifstream inFile(correspondenceFilePath.string());
-        //! we need to create a temproary file and replace the old version with the new one at the end
-        ofstream outFile("./tmp");
-        persistCorrespondenceToFile(&inFile, &outFile, &objectImageCorrespondence, deleteCorrespondence);
-        //! remove the old file and copy the content of the temporary file at the same location
-        boost::filesystem::remove(correspondenceFilePath);
-        boost::filesystem::copy_file(tempPath, correspondenceFilePath);
-        inFile.close();
-        outFile.close();
+    QDir image = objectImageCorrespondence.getImage().getImagePath();
+    //! Only the filename, e.g. img01_correspondence.txt
+    QDir correspondenceFileName = convertPathToSuffxFileName(image.path(),
+                                                             CORRESPONDENCE_FILES_NAME_SUFFIX,
+                                                             CORRESPONDENCE_FILES_EXTENSION);
+    //! The full path to the correspondence file, e.g. /home/user/documents/img01_correspondence.txt
+    QDir correspondenceFilePath = correspondencesPath.filePath(correspondenceFileName.path());
+    QFileInfo correspondenceFileInfo(correspondenceFilePath.path());
+    if (correspondenceFileInfo.exists() && correspondenceFileInfo.isFile()) {
+        QDir temp("./tmp");
+        QFile tempFile(temp.path());
+        QFile correspondenceFile(correspondenceFilePath.path());
+        if (tempFile.exists()) {
+            tempFile.remove();
+        }
+        if (tempFile.open(QIODevice::ReadWrite) && correspondenceFile.open(QIODevice::ReadWrite)) {
+            persistCorrespondenceToFile(correspondenceFile, tempFile, objectImageCorrespondence, deleteCorrespondence);
+            //! It might be that both files have been deleted when they did not contain any content anymore
+            if (tempFile.exists() && correspondenceFile.exists()) {
+                correspondenceFile.remove();
+                tempFile.copy(correspondenceFilePath.path());
+                tempFile.remove();
+            }
+        } else {
+            throw "Could not create temporary file or could not open/read correspondence file";
+        }
     } else {
-        //! no file there yet so we have to create it
-        ofstream outFile(correspondenceFilePath.string());
-        outFile << objectImageCorrespondence.toString();
-        outFile.close();
+        QFile outFile(correspondenceFilePath.path());
+        if (outFile.open(QIODevice::ReadWrite)) {
+            QTextStream outStream(&outFile);
+            outStream << objectImageCorrespondence.toString();
+            outFile.close();
+        } else {
+            throw "Could not create new correspondence file";
+        }
     }
 
     return true;
 }
 
-vector<Image> TextFileLoadAndStoreStrategy::loadImages() {
-    vector<Image> images;
+void TextFileLoadAndStoreStrategy::loadImages(QList<Image> &images) {
     //! we do not need to throw an exception here, the only time the path cannot exist
     //! is if this strategy was constructed with an empty path, all other methods of
     //! setting the path check if the path exists
     if (!pathExists(imagesPath)) {
-        return images;
+        return;
     }
 
-    vector<string> filesAtPath = getFilesAtPath(imagesPath, imageFilesExtension);
-    for (vector<string>::iterator itr = filesAtPath.begin(); itr != filesAtPath.end(); ++itr) {
-        //! read in every second image as segmentation image
-        string imagePathString = (*itr);
-        boost::filesystem::path imagePath(imagePathString);
-        vector<string>::iterator _itr = itr;
-        //! check if next image complies to pattern of segmentation image
-        ++_itr;
-        string segmentationImagePathString = (*_itr);
-        boost::filesystem::path segmentationImagePath(segmentationImagePathString);
-        //! we only need the filename of the segmentation image not the full path
-        segmentationImagePath = segmentationImagePath.filename();
-        boost::filesystem::path expectedSegmentationImagePath = convertPathToSuffxFileName(
-                    imagePath, segmentationImageFilesSuffix, imageFilesExtension);
-        if (segmentationImagePath.string().compare(expectedSegmentationImagePath.string()) == 0) {
-            //! we found a segmentation image, i.e. the next image complied to the expected pattern
-            //! we need to set forward the iterator to skip the segmentation image that we're going to add here
-            ++itr;
-            images.push_back(Image(imagePath.filename(), imagesPath, segmentationImagePath));
+    QStringList fileFilter("*" + imageFilesExtension);
+    QStringList files = imagesPath.entryList(fileFilter, QDir::Files, QDir::Name);
+
+    for (uint i = 0; i < files.size(); i += 2) {
+        QString image = files[i];
+        QString imageFilename = QFileInfo(image).fileName();
+        //! Check the next image if it is the segmentation image of the currently inspected image
+        uint j = i + 1;
+        if (j < files.size()) {
+            QString secondImage = files[j];
+            QString secondImageFilename = QFileInfo(secondImage).fileName();
+
+            //! This is the filename that the next image would have if it is a segmentation image
+            //! If secondImage doesn't equal segmentationImageFilename then it is not a segmentation image,
+            //! i.e. segmentation images are not provided in this folder or only for some images
+            QString segmentationImageFilename = convertPathToSuffxFileName(image,
+                                                                           segmentationImageFilesSuffix,
+                                                                           imageFilesExtension);
+            if (secondImageFilename.compare(segmentationImageFilename) == 0) {
+                //! Apparently we found a segmentation image, i.e. add the second image as segmentation
+                //! to the first
+                images.push_back(Image(imageFilename, imagesPath.path(), segmentationImageFilename));
+            } else {
+                //! We didn't find a segmentation image, i.e. two separate images have to be added
+                images.push_back(Image(imageFilename, imagesPath.path()));
+                images.push_back(Image(secondImageFilename, imagesPath.path()));
+            }
         } else {
-            //!
-            //! create new image with the filename of the image and the path to it's containing folder
-            images.push_back(Image(imagePath.filename(), imagesPath));
+            images.push_back(Image(imageFilename, imagesPath.path()));
         }
     }
-
-    return images;
 }
 
-vector<ObjectModel> TextFileLoadAndStoreStrategy::loadObjectModels() {
-    vector<ObjectModel> objectModels;
+void TextFileLoadAndStoreStrategy::loadObjectModels(QList<ObjectModel> &objectModels) {
     //! See explanation under loadImages for why we don't throw an exception here
-    if (!pathExists(objectModelsPath)) {
-        return objectModels;
+    if (pathExists(objectModelsPath.path())) {
+        QStringList fileFilter("*" + OBJECT_MODEL_FILES_EXTENSION);
+        for (QString file : objectModelsPath.entryList(fileFilter, QDir::Files, QDir::Name)) {
+            objectModels.push_back(ObjectModel(QFileInfo(file).fileName(), objectModelsPath.path()));
+        }
     }
-
-    for (auto file : getFilesAtPath(objectModelsPath, objectModelFilesExtension)) {
-        boost::filesystem::path _file(file);
-        objectModels.push_back(ObjectModel(_file.filename(), objectModelsPath));
-    }
-    return objectModels;
 }
 
-map<string, Image*> createImageMap(vector<Image>* images) {
-    map<string, Image*> imageMap;
+QMap<QString, const Image*> createImageMap(const QList<Image> &images) {
+    QMap<QString, const Image*> imageMap;
 
-    for (uint i = 0; i < images->size(); i++) {
-        imageMap[images->at(i).getImagePath().string()] = &(images->at(i));
+    for (uint i = 0; i < images.size(); i++) {
+        imageMap[images.at(i).getImagePath()] = &(images.at(i));
     }
 
     return imageMap;
 }
 
-map<string, ObjectModel*> createObjectModelMap(vector<ObjectModel>* objectModels) {
-    map<string, ObjectModel*> objectModelMap;
+QMap<QString,const ObjectModel*> createObjectModelMap(const QList<ObjectModel> &objectModels) {
+    QMap<QString, const ObjectModel*> objectModelMap;
 
-    for (uint i = 0; i < objectModels->size(); i++) {
-        objectModelMap[objectModels->at(i).getPath().string()] = &(objectModels->at(i));
+    for (uint i = 0; i < objectModels.size(); i++) {
+        objectModelMap[objectModels.at(i).getPath()] = &(objectModels.at(i));
     }
 
     return objectModelMap;
 }
 
-void loadCorrespondencesFromFile(ifstream* inFile, vector<ObjectImageCorrespondence> *correspondences,
-                       map<string, Image*>* imageMap, map<string, ObjectModel*> *objectModelMap) {
-    if (inFile->is_open()) {
-        //! read every line
-        for (string line; getline(*inFile, line);) {
-            std::vector<std::string> results;
-            //! split the read line at the delimiter and parse the results
-            boost::split(results, line, [](char c){return c == correspondenceFormatDelimiter;});
-            //! add the correspondence parsed from the line of the file to the list of correspondences
-            Image* image = (*imageMap)[results[1]];
-            ObjectModel* objectModel = (*objectModelMap)[results[2]];
-            if (image && objectModel && results.size() == 10) {
-                correspondences->push_back(ObjectImageCorrespondence(results[0], stoi(results[3]), stoi(results[4]),
-                    stoi(results[5]), stoi(results[6]), stoi(results[7]), stoi(results[8]), stof(results[9]), image, objectModel));
-            } else {
-                throw "Could not find corresponding image or object model within the given entity-lists.";
+void loadCorrespondencesFromFile(const QString &inFilePath, QList<ObjectImageCorrespondence> &correspondences,
+                       QMap<QString, const Image*> &imageMap, QMap<QString, const ObjectModel*> &objectModelMap) {
+    QFile inFile(inFilePath);
+    if (inFile.open(QIODevice::ReadOnly)) {
+        //! Read every line
+        QTextStream in(&inFile);
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+            QStringList splitLine = line.split(TextFileLoadAndStoreStrategy::CORRESPONDENCE_FORMAT_DELIMITER);
+            if (splitLine.size() != 10) {
+                throw "Correspondences in wrong format.";
+            }
+            //! Re-construct the correspondence from the line
+            const Image *image = imageMap[splitLine[1]];
+            const ObjectModel *objectModel = objectModelMap[splitLine[2]];
+
+            if (image && objectModel) {
+                //! We only load correspondences if the image and object model is found
+                //! Do not throw an exception here, maybe the path is not correctly set
+                //! but instead simply don't load correspondences that don't find their
+                //! entities
+                correspondences.push_back(ObjectImageCorrespondence(
+                                          splitLine[0], // ID
+                                          splitLine[3].toInt(), splitLine[4].toInt(), splitLine[5].toInt(), // Pos
+                                          splitLine[6].toInt(), splitLine[7].toInt(), splitLine[8].toInt(), // Rot
+                                          splitLine[9].toFloat(), // Articulation
+                                          *image,
+                                          *objectModel));
             }
         }
     }
 }
 
-vector<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondences(
-        vector<Image>* images, vector<ObjectModel>* objectModels) {
-    vector<ObjectImageCorrespondence> correspondences;
+void TextFileLoadAndStoreStrategy::loadCorrespondences(const QList<Image> &images,
+                                                       const QList<ObjectModel> &objectModels,
+                                                       QList<ObjectImageCorrespondence> & correspondences) {
     //! See loadImages for why we don't throw an exception here
-    if (!pathExists(correspondencesPath)) {
-        return correspondences;
+    if (pathExists(correspondencesPath)) {
+        QMap<QString, const Image*> imageMap = createImageMap(images);
+        QMap<QString,const ObjectModel*> objectModelMap = createObjectModelMap(objectModels);
+
+        QStringList fileFilter("*" + TextFileLoadAndStoreStrategy::CORRESPONDENCE_FILES_EXTENSION);
+        QDirIterator it(correspondencesPath.path(), fileFilter, QDir::Files);
+
+        while (it.hasNext()) {
+            QString file = it.next();
+            loadCorrespondencesFromFile(file, correspondences, imageMap, objectModelMap);
+        }
     }
-
-    map<string, Image*> imageMap = createImageMap(images);
-    map<string, ObjectModel*> objectModelMap = createObjectModelMap(objectModels);
-
-
-    ifstream inFile;
-    for (auto file : getFilesAtPath(correspondencesPath, correspondenceFilesExtension)) {
-        string _file = file;
-        inFile.open(_file);
-        loadCorrespondencesFromFile(&inFile, &correspondences, &imageMap, &objectModelMap);
-        inFile.close();
-    }
-
-    return correspondences;
 }
 
 
 
-bool TextFileLoadAndStoreStrategy::setImagesPath(path path) {
-    if (!this->pathExists(path))
+bool TextFileLoadAndStoreStrategy::setImagesPath(const QDir &path) {
+    if (!pathExists(path))
         throw "Images path does not exist";
     if (imagesPath == path)
         return true;
@@ -255,12 +265,12 @@ bool TextFileLoadAndStoreStrategy::setImagesPath(path path) {
     return true;
 }
 
-path TextFileLoadAndStoreStrategy::getImagesPath() const {
-    return  imagesPath;
+QDir TextFileLoadAndStoreStrategy::getImagesPath() const {
+    return  imagesPath.path();
 }
 
-bool TextFileLoadAndStoreStrategy::setObjectModelsPath(path path) {
-    if (!this->pathExists(path))
+bool TextFileLoadAndStoreStrategy::setObjectModelsPath(const QDir &path) {
+    if (!pathExists(path))
         throw "Object models path does not exist";
     if (objectModelsPath == path)
         return true;
@@ -276,12 +286,12 @@ bool TextFileLoadAndStoreStrategy::setObjectModelsPath(path path) {
     return true;
 }
 
-path TextFileLoadAndStoreStrategy::getObjectModelsPath() const {
+QDir TextFileLoadAndStoreStrategy::getObjectModelsPath() const {
     return objectModelsPath;
 }
 
-bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(path path) {
-    if (!this->pathExists(path))
+bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(const QDir &path) {
+    if (!pathExists(path))
         throw "Correspondences path does not exist";
     if (correspondencesPath == path)
         return true;
@@ -294,14 +304,14 @@ bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(path path) {
     return true;
 }
 
-path TextFileLoadAndStoreStrategy::getCorrespondencesPath() const {
-    return correspondencesPath;
+QDir TextFileLoadAndStoreStrategy::getCorrespondencesPath() const {
+    return correspondencesPath.path();
 }
 
-void TextFileLoadAndStoreStrategy::setSegmentationImageFilesSuffix(string suffix) {
+void TextFileLoadAndStoreStrategy::setSegmentationImageFilesSuffix(const QString &suffix) {
     //! Only set suffix if it differs from the suffix before because we then have to reload images
-    if (suffix.compare("") != 0 && this->segmentationImageFilesSuffix.compare("") != 0) {
-        this->segmentationImageFilesSuffix = suffix;
+    if (suffix.compare("") != 0 && segmentationImageFilesSuffix.compare("") != 0) {
+        segmentationImageFilesSuffix = suffix;
         for (LoadAndStoreStrategyListener *listener : listeners) {
             if (listener) {
                 listener->imagesChanged();
@@ -311,13 +321,13 @@ void TextFileLoadAndStoreStrategy::setSegmentationImageFilesSuffix(string suffix
     }
 }
 
-string TextFileLoadAndStoreStrategy::getSegmentationImageFilesSuffix() {
+QString TextFileLoadAndStoreStrategy::getSegmentationImageFilesSuffix() {
     return segmentationImageFilesSuffix;
 }
 
-void TextFileLoadAndStoreStrategy::setImageFilesExtension(string extension) {
-    if (extension.compare("") && this->imageFilesExtension.compare(extension) != 0) {
-        this->imageFilesExtension = extension;
+void TextFileLoadAndStoreStrategy::setImageFilesExtension(const QString &extension) {
+    if (extension.compare("") && imageFilesExtension.compare(extension) != 0) {
+        imageFilesExtension = extension;
         for (LoadAndStoreStrategyListener *listener : listeners) {
             if (listener) {
                 listener->imagesChanged();
@@ -327,6 +337,6 @@ void TextFileLoadAndStoreStrategy::setImageFilesExtension(string extension) {
     }
 }
 
-string TextFileLoadAndStoreStrategy::getImageFilesExtension() {
+QString TextFileLoadAndStoreStrategy::getImageFilesExtension() {
     return imageFilesExtension;
 }

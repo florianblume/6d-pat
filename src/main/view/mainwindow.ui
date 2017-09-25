@@ -1539,7 +1539,7 @@
    <header>view/breadcrumb/breadcrumbview.h</header>
    <container>1</container>
    <slots>
-    <slot>setPathToShow(boost::filesystem::path)</slot>
+    <slot>setPathToShow(QString)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1549,7 +1549,7 @@
    <container>1</container>
    <slots>
     <signal>navigateLeft()</signal>
-    <signal>pathChanged(boost::filesystem::path)</signal>
+    <signal>pathChanged(QString)</signal>
     <signal>navigateRight()</signal>
    </slots>
   </customwidget>
@@ -1583,9 +1583,9 @@
  <connections>
   <connection>
    <sender>widgetNavigationLeft</sender>
-   <signal>pathChanged(boost::filesystem::path)</signal>
+   <signal>pathChanged(QString)</signal>
    <receiver>widgetBreadcrumbLeft</receiver>
-   <slot>setPathToShow(boost::filesystem::path)</slot>
+   <slot>setPathToShow(QString)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>223</x>
@@ -1599,9 +1599,9 @@
   </connection>
   <connection>
    <sender>widgetNavigationRight</sender>
-   <signal>pathChanged(boost::filesystem::path)</signal>
+   <signal>pathChanged(QString)</signal>
    <receiver>widgetBreadcrumbRight</receiver>
-   <slot>setPathToShow(boost::filesystem::path)</slot>
+   <slot>setPathToShow(QString)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>675</x>
@@ -1679,7 +1679,7 @@
   </connection>
   <connection>
    <sender>widgetNavigationLeft</sender>
-   <signal>pathChanged(boost::filesystem::path)</signal>
+   <signal>pathChanged(QString)</signal>
    <receiver>widgetLeftBottom</receiver>
    <slot>reset()</slot>
    <hints>
@@ -1695,7 +1695,7 @@
   </connection>
   <connection>
    <sender>widgetNavigationRight</sender>
-   <signal>pathChanged(boost::filesystem::path)</signal>
+   <signal>pathChanged(QString)</signal>
    <receiver>widgetLeftBottom</receiver>
    <slot>reset()</slot>
    <hints>

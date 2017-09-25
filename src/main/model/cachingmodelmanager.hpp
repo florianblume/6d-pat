@@ -34,9 +34,13 @@ public:
 
     void getImages(QList<Image*> &images) override;
 
+    int getImagesSize() override;
+
     void getCorrespondencesForImage(const Image &image, QList<ObjectImageCorrespondence*> &correspondences) override;
 
     void getObjectModels(QList<ObjectModel*> &objectModels) override;
+
+    int getObjectModelsSize() override;
 
     void getCorrespondencesForObjectModel(const ObjectModel &objectModel, QList<ObjectImageCorrespondence*> &correspondences) override;
 

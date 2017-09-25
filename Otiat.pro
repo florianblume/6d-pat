@@ -17,10 +17,6 @@ TEMPLATE = app
 SOURCES += \
     src/main/main.cpp
 
-LIBS += \
-       -lboost_system\
-       -lboost_filesystem\
-
 DISTFILES += \
     Otiat.pri
 

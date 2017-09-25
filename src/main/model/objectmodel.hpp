@@ -36,6 +36,8 @@ public:
      * \return the base path
      */
     QString getBasePath() const;
+
+    ObjectModel& operator=(ObjectModel other);
 };
 
 #endif // OBJECTMODEL_H

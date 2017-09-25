@@ -1,13 +1,12 @@
 #include "loadandstorestrategy.hpp"
-#include "boost/filesystem.hpp"
-#include "boost/algorithm/string.hpp"
 
 LoadAndStoreStrategy::~LoadAndStoreStrategy() {
 
 }
 
-bool LoadAndStoreStrategy::pathExists(const path path) {
-    return boost::filesystem::is_directory(path) || boost::filesystem::is_regular(path);
+bool LoadAndStoreStrategy::pathExists(const QDir &path) {
+    QDir dir(path);
+    return dir.exists();
 }
 
 void LoadAndStoreStrategy::addListener(LoadAndStoreStrategyListener* listener) {

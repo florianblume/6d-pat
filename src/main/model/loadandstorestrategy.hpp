@@ -7,6 +7,7 @@
 #include "objectmodel.hpp"
 #include <QString>
 #include <QList>
+#include <QDir>
 
 using namespace std;
 
@@ -57,7 +58,7 @@ public:
      * \param path the path that is to be checked
      * \return true if the path exists and is accessible, false if not
      */
-    bool pathExists(const QString &path);
+    bool pathExists(const QDir &path);
 
     /*!
      * \brief addListener Adds a listener to this load and store strategy that will be notified if the underlying data changes somehow.

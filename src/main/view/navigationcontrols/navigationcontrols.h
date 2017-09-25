@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <QWidget>
-#include <boost/filesystem.hpp>
 #include <functional>
 
 using namespace std;
@@ -11,7 +10,7 @@ using namespace std;
 //! some weird C++ hack because it can't take anonymous implementations of listeners
 //! but we need to distinguish between who send the path update but don't want to include
 //! the sender of the event
-typedef std::function<void (boost::filesystem::path)> NavigationControlsListener;
+typedef std::function<void (QString&)> NavigationControlsListener;
 
 namespace Ui {
 class NavigationControls;
@@ -27,14 +26,14 @@ class NavigationControls : public QWidget
 
 private:
     vector<NavigationControlsListener> listeners;
-    string currentPath = "";
+    QString currentPath = "";
     Ui::NavigationControls *ui;
 
 public:
     explicit NavigationControls(QWidget *parent = 0);
     ~NavigationControls();
     void addListener(NavigationControlsListener listener);
-    void setPathToOpen(string path);
+    void setPathToOpen(const QString &pathpath);
 
 public slots:
     void folderButtonClicked();
@@ -42,7 +41,7 @@ public slots:
 signals:
     void navigateLeft();
     void navigateRight();
-    void pathChanged(boost::filesystem::path newPath);
+    void pathChanged(const QString &newPath);
 };
 
 #endif // NAVIGATIONCONTROLS_H
