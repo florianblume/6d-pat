@@ -7,6 +7,10 @@ namespace Ui {
 class AboutDialog;
 }
 
+/*!
+ * \brief The AboutDialog class is the about dialog that is opened when the
+ * user clicks on Help -> About.
+ */
 class AboutDialog : public QDialog
 {
     Q_OBJECT

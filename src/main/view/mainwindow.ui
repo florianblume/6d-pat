@@ -1458,7 +1458,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>19</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1577,6 +1577,10 @@
    <extends>QWidget</extends>
    <header>view/correspondenceeditorcontrols/correspondenceeditorcontrols.h</header>
    <container>1</container>
+   <slots>
+    <slot>setObjectModel(int)</slot>
+    <slot>reset()</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -1706,6 +1710,38 @@
     <hint type="destinationlabel">
      <x>223</x>
      <y>400</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetGalleryRight</sender>
+   <signal>selectedItemChanged(int)</signal>
+   <receiver>widgetRightBottom</receiver>
+   <slot>setObjectModel(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetGalleryLeft</sender>
+   <signal>selectedItemChanged(int)</signal>
+   <receiver>widgetRightBottom</receiver>
+   <slot>reset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>401</y>
     </hint>
    </hints>
   </connection>

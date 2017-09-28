@@ -2,15 +2,39 @@
 #define GALLERYOBJECTMODELMODEL_H
 
 #include "model/modelmanager.hpp"
+#include "view/rendering/objectmodelrenderable.h"
 #include <QAbstractListModel>
+#include <Qt3DRender/QRenderCapture>
+#include <Qt3DExtras/Qt3DWindow>
+#include <QPixmap>
+#include <QMap>
+#include <QVector>
+#include <QRgb>
 
+/*!
+ * \brief The GalleryObjectModelModel class provides object model images to the Gallery.
+ * It renders the ObjectModels offline and returns the images of them.
+ */
 class GalleryObjectModelModel : public QAbstractListModel
 {
     Q_OBJECT
 
 private:
     ModelManager* modelManager;
+    QMap<const ObjectModel*, QString> *codes = Q_NULLPTR;
+    QVector<QRgb> colorsOfCurrentImage;
     int currentSelectedImageIndex = -1;
+    //! We need to cache images as well because the rendered image is not ready directly
+    QMap<QString, QPixmap> cachedImages;
+    //! Store the index of the currently rendered image to be able to set the correct image
+    //! when the renderer returns
+    uint currentlyRenderedImageIndex = 0;
+    Qt3DExtras::Qt3DWindow *renderingWindow = new Qt3DExtras::Qt3DWindow();
+    Qt3DRender::QRenderCapture *renderCapture;
+    Qt3DRender::QRenderCaptureReply *renderCaptureReply;
+    ObjectModelRenderable *objectModelRenderable;
+    void renderImage(uint index);
+    QVariant dataForObjectModel(const ObjectModel* objectModel, int role) const;
 
 public:
     explicit GalleryObjectModelModel(ModelManager* modelManager);
@@ -18,9 +42,21 @@ public:
     //! Implementations of QAbstractListModel
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    void setSegmentationCodesForObjectModels(QMap<const ObjectModel*, QString> *codes);
 
 public slots:
+    /*!
+     * \brief onSelectedImageChanged sets the index of the currently selected image on this
+     * model. When the index changes the object models will be reloaded, and if possible,
+     * the segmentation images used to load only the respective models.
+     * \param index
+     */
     void onSelectedImageChanged(int index);
+private slots:
+    /*!
+     * \brief storeRenderedImage is an internal method that is used to store the rendered image.
+     */
+    void storeRenderedImage();
 
 signals:
     void displayedObjectModelsChanged();

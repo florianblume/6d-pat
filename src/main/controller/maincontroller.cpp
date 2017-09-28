@@ -34,6 +34,16 @@ MainController::~MainController() {
     settings.setValue("correspondencesPath", strategy.getCorrespondencesPath().path());
     settings.endGroup();
 
+    //! Persist the object color codes so that the user does not have to enter them at each program start
+    settings.beginGroup("maincontroller-settings");
+    for (uint i = 0; i < modelManager.getObjectModelsSize(); i++) {
+        const ObjectModel* model = modelManager.getObjectModel(i);
+        const QString objectModelIdentifier = model->getAbsolutePath();
+        settings.setValue(model->getAbsolutePath(),
+                                     currentSettingsItem->getSegmentationCodeForObjectModel(model));
+    }
+    settings.endGroup();
+
     delete currentSettingsItem;
 }
 
@@ -44,6 +54,18 @@ void MainController::initializeSettingsItem() {
     currentSettingsItem->setCorrespondencesPath(strategy.getCorrespondencesPath().path());
     currentSettingsItem->setSegmentationImageFilesSuffix(strategy.getSegmentationImageFilesSuffix());
     currentSettingsItem->setImageFilesExtension(strategy.getImageFilesExtension());
+
+    //! Read persisted object color codes
+    QSettings settings("FlorettiKonfetti Inc.", "Otiat");
+    settings.beginGroup("maincontroller-settings");
+    for (uint i = 0; i < modelManager.getObjectModelsSize(); i++) {
+        const ObjectModel* model = modelManager.getObjectModel(i);
+        const QString objectModelIdentifier = model->getAbsolutePath();
+        QString storedCode = settings.value(objectModelIdentifier, "").toString();
+        if (storedCode.compare("") != 0)
+            currentSettingsItem->setSegmentationCodeForObjectModel(model, storedCode);
+    }
+    settings.endGroup();
 }
 void MainController::initializeMainWindow() {
     mainWindow.setSettingsItem(currentSettingsItem);
@@ -64,9 +86,14 @@ void MainController::initializeMainWindow() {
     //! The models do not need to notify the gallery of any changes on the data because the list view
     //! has its own update loop, i.e. automatically fetches new data
     mainWindow.setGalleryImageModel(new GalleryImageModel(&modelManager));
-    mainWindow.setGalleryObjectModelModel(new GalleryObjectModelModel(&modelManager));
 
-    mainWindow.setModelManagerForCorrespondenceEditor(&modelManager);
+    galleryObjectModelModel = new GalleryObjectModelModel(&modelManager);
+    QMap<const ObjectModel*, QString> *codes = new QMap<const ObjectModel*, QString>();
+    currentSettingsItem->getSegmentationCodes(*codes);
+    galleryObjectModelModel->setSegmentationCodesForObjectModels(codes);
+    mainWindow.setGalleryObjectModelModel(galleryObjectModelModel);
+
+    mainWindow.setModelManager(&modelManager);
 }
 
 void MainController::initialize() {
@@ -84,6 +111,7 @@ void MainController::initialize() {
 }
 
 void MainController::showView() {
+    mainWindow.addGraphicsView();
     mainWindow.show();
 }
 

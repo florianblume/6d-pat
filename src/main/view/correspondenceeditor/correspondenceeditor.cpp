@@ -37,15 +37,16 @@ void CorrespondenceEditor::setModelManager(ModelManager* modelManager) {
 
 void CorrespondenceEditor::setImage(int index) {
     if (modelManager) {
-        QList<Image*> images;
-        modelManager->getImages(images);
-        Image *image = images.at(index);
-        ui->graphicsWidget->setImage(image);
+        ui->graphicsWidget->setImage(modelManager->getImage(index));
         // TODO: add existing correspondences
     }
 }
 
 void CorrespondenceEditor::updateCorrespondence(ObjectImageCorrespondence* correspondence) {
+
+}
+
+void CorrespondenceEditor::removeCorrespondence(ObjectImageCorrespondence* correspondence) {
 
 }
 

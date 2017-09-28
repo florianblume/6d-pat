@@ -20,10 +20,12 @@ SettingsDialog::~SettingsDialog()
     delete ui;
 }
 
-void SettingsDialog::setSettingsItem(SettingsItem* settingsItem) {
+void SettingsDialog::setSettingsItemAndObjectModels(SettingsItem* settingsItem, QList<const ObjectModel*> *objectModels) {
     //! copy settings item, we don't want the settings item to be modified if we cancel the settings dialog
     this->settingsItem = new SettingsItem(*settingsItem);
     ui->pageGeneral->setSettingsItem(this->settingsItem);
+    ui->pageSegmentationCodes->setObjectModels(objectModels);
+    ui->pageSegmentationCodes->setSettingsItem(this->settingsItem);
 }
 
 void SettingsDialog::setDelegate(SettingsDialogDelegate* delegate) {

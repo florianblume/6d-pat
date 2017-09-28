@@ -8,6 +8,11 @@
 
 using namespace std;
 
+/*!
+ * \brief The BreadcrumbView class provides a widget that displays a path that is to
+ * be set. The path will be split up into its parts. It is only there to make it easy
+ * for the user to remember what path they have set.
+ */
 class BreadcrumbView : public QWidget
 {
 private:

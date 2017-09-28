@@ -7,13 +7,9 @@ GalleryImageModel::GalleryImageModel(ModelManager* modelManager) {
 
 QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
     if (role == Qt::DecorationRole) {
-        QList<Image*> images;
-        modelManager->getImages(images);
-        return QIcon(images.at(index.row())->getAbsoluteImagePath());
+        return QIcon(modelManager->getImage(index.row())->getAbsoluteImagePath());
     } else if (role == Qt::ToolTipRole) {
-        QList<Image*> images;
-        modelManager->getImages(images);
-        return QString((images.at(index.row()))->getImagePath());
+        return QString(modelManager->getImage(index.row())->getImagePath());
     }
     return QVariant();
 }

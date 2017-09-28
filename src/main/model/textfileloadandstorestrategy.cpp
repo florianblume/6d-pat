@@ -166,9 +166,16 @@ void TextFileLoadAndStoreStrategy::loadImages(QList<Image> &images) {
 void TextFileLoadAndStoreStrategy::loadObjectModels(QList<ObjectModel> &objectModels) {
     //! See explanation under loadImages for why we don't throw an exception here
     if (pathExists(objectModelsPath.path())) {
-        QStringList fileFilter("*" + OBJECT_MODEL_FILES_EXTENSION);
-        for (QString file : objectModelsPath.entryList(fileFilter, QDir::Files, QDir::Name)) {
-            objectModels.push_back(ObjectModel(QFileInfo(file).fileName(), objectModelsPath.path()));
+        for (QString directory : objectModelsPath.entryList(QDir::Dirs, QDir::Name)) {
+            QStringList fileFilter("*" + OBJECT_MODEL_FILES_EXTENSION);
+            for (QString file : QDir(objectModelsPath.filePath(directory)).entryList(fileFilter, QDir::Files, QDir::Name)) {
+                //! We only store the path to the model file that is relative to the object models path
+                //! so that we can modify the object models path and still find the object model
+                QString relativeFilePath = directory + "/" + file;
+                objectModels.push_back(ObjectModel(relativeFilePath, objectModelsPath.path()));
+                //! There should only be one .obj (or other extension) file entry, when found continue
+                continue;
+            }
         }
     }
 }

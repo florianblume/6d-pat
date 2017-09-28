@@ -6,6 +6,7 @@
 #include "view/mainwindow.hpp"
 #include "view/settings/settingsitem.h"
 #include "view/settings/settingsdialogdelegate.h"
+#include "view/gallery/galleryobjectmodelmodel.h"
 #include <QApplication>
 #include <QMap>
 
@@ -19,6 +20,7 @@ private:
     MainWindow mainWindow;
     QMap<QString, ObjectModel*> segmentationCodes;
     SettingsItem* currentSettingsItem;
+    GalleryObjectModelModel *galleryObjectModelModel;
 
     void initializeSettingsItem();
     void initializeMainWindow();

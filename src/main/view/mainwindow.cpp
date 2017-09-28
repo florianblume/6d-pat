@@ -121,8 +121,10 @@ void MainWindow::setGalleryObjectModelModel(GalleryObjectModelModel* model) {
     connect(model, &GalleryObjectModelModel::displayedObjectModelsChanged, ui->widgetGalleryRight, &Gallery::reset);
 }
 
-void MainWindow::setModelManagerForCorrespondenceEditor(ModelManager* modelManager) {
+void MainWindow::setModelManager(ModelManager* modelManager) {
+    this->modelManager = modelManager;
     ui->widgetLeftBottom->setModelManager(modelManager);
+    ui->widgetRightBottom->setModelManager(modelManager);
 }
 
 void MainWindow::resetCorrespondenceEditor() {
@@ -151,7 +153,12 @@ void MainWindow::onActionExitTriggered()
 void MainWindow::onActionSettingsTriggered()
 {
     SettingsDialog* settingsDialog = new SettingsDialog(this);
-    settingsDialog->setSettingsItem(settingsItem);
+    QList<const ObjectModel*> *objectModels = new QList<const ObjectModel*>();
+    modelManager->getObjectModels(*objectModels);
+    settingsDialog->setSettingsItemAndObjectModels(settingsItem, objectModels);
     settingsDialog->setDelegate(settingsDialogDelegate);
     settingsDialog->show();
+}
+
+void MainWindow::addGraphicsView() {
 }

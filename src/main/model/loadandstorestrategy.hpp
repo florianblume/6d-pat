@@ -11,6 +11,11 @@
 
 using namespace std;
 
+/*!
+ * \brief The LoadAndStoreStrategy class provides the actual storing implementation that the model manager
+ * uses to load entities. This way multiple implementations are possible, e.g. one writing to text files
+ * or one wirting to a database.
+ */
 class LoadAndStoreStrategy {
 
 protected:
@@ -27,7 +32,8 @@ public:
      * \param deleteCorrespondence indicates whether the correspondence should be persistently deleted
      * \return true if persisting the object image correspondence was successful, false if not
      */
-    virtual bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence) = 0;
+    virtual bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence,
+                                                  bool deleteCorrespondence) = 0;
 
     /*!
      * \brief loadImages Loads the images.
@@ -44,14 +50,16 @@ public:
     virtual void loadObjectModels(QList<ObjectModel> &objectModels) = 0;
 
     /*!
-     * \brief loadCorrespondences Loads the correspondences at the given path. How the correspondences are stored depends on the
-     * strategy.
+     * \brief loadCorrespondences Loads the correspondences at the given path. How the correspondences
+     * are stored depends on the strategy.
      * \param images the images to insert as references into the respective correspondences
      * \param objectModels the object models to insert as reference into the respective correspondence
      * \param correspondences the list that the correspondences are to be added to
      * \return the list of all stored correspondences
      */
-    virtual void loadCorrespondences(const QList<Image> &images, const QList<ObjectModel> &objectModels, QList<ObjectImageCorrespondence> &correspondences) = 0;
+    virtual void loadCorrespondences(const QList<Image> &images,
+                                     const QList<ObjectModel> &objectModels,
+                                     QList<ObjectImageCorrespondence> &correspondences) = 0;
 
     /*!
      * \brief pathExists Checks whether the given path exists on the file system and is accessible.
@@ -61,7 +69,8 @@ public:
     bool pathExists(const QDir &path);
 
     /*!
-     * \brief addListener Adds a listener to this load and store strategy that will be notified if the underlying data changes somehow.
+     * \brief addListener Adds a listener to this load and store strategy that will be notified if the
+     * underlying data changes somehow.
      * \param listener the listener to be added
      */
     void addListener(LoadAndStoreStrategyListener* listener);

@@ -10,13 +10,18 @@ namespace Ui {
 class Gallery;
 }
 
+/*!
+ * \brief The Gallery class offers a view of items in a vertical manner and provides controls
+ * to scroll left and right. The type of displayed items the depends on the set model.
+ */
 class Gallery : public QWidget
 {
     Q_OBJECT
 
 private:
     Ui::Gallery *ui;
-    //! The members below are there for the buttons left and right of the scroll view to smoothly scroll through the objects
+    //! The members below are there for the buttons left and right of the scroll view to smoothly scroll
+    //! through the objects
     bool scrollDirection = true;
     bool scrollButtonDown = false;
     QTimer* scrollTimer;

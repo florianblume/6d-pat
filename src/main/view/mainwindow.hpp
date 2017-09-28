@@ -56,7 +56,7 @@ public:
      * places making a proxy inbetween to complex.
      * \param modelManager the model manager that the editor uses to load correspondeces, update them, etc...
      */
-    void setModelManagerForCorrespondenceEditor(ModelManager* modelManager);
+    void setModelManager(ModelManager* modelManager);
 
     /*!
      * \brief setSettingsItem sets the settings item that the main controller passes on as to read
@@ -73,6 +73,8 @@ public:
      */
     void setSettingsDialogDelegate(SettingsDialogDelegate* delegate);
 
+    void addGraphicsView();
+
 private slots:
     void onActionAboutTriggered();
     void onActionExitTriggered();
@@ -85,6 +87,7 @@ private:
     //! values to it and the main controller reads from it.
     SettingsItem* settingsItem;
     SettingsDialogDelegate* settingsDialogDelegate;
+    ModelManager* modelManager;
 
     void writeSettings();
     void readSettings();

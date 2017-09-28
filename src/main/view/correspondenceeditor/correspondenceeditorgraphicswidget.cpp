@@ -142,7 +142,7 @@ void CorrespondenceEditorGraphicsWidget::wheelEvent(QWheelEvent *event)
     event->accept();
 }
 
-void CorrespondenceEditorGraphicsWidget::setImage(Image* image) {
+void CorrespondenceEditorGraphicsWidget::setImage(const Image* image) {
     if (image) {
         if (imageSet) {
             delete imageTexture;

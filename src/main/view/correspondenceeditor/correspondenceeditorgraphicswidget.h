@@ -13,6 +13,9 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 
+/*!
+ * \brief The CorrespondenceEditorGraphicsWidget class
+ */
 class CorrespondenceEditorGraphicsWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
 private:
@@ -51,7 +54,7 @@ public:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
-    void setImage(Image* imageTexture);
+    void setImage(const Image* imageTexture);
     void addObjectModel(ObjectModel* objectModel, QVector3D position, QVector3D rotation);
     void updateObjectModel(ObjectModel* objectModel, QVector3D position, QVector3D rotation);
     void removeObjectModel(ObjectModel* objectModel);

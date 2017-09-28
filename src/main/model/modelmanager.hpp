@@ -49,12 +49,18 @@ public:
      * \param the list that the images are to be added to
      * \return the list of all images loaded by this manager
      */
-   virtual void getImages(QList<Image*>& images) = 0;
+   virtual void getImages(QList<const Image*>& images) const = 0;
+
+    /*!
+     * \brief getImage directly returns the image at the given index.
+     * \param index the index of the image to be returned
+     */
+    virtual const Image* getImage(uint index) const = 0;
 
     /*!
      * \brief getImagesSize returns the number of images managed by this manager
      */
-    virtual int getImagesSize() = 0;
+    virtual int getImagesSize() const = 0;
 
     /*!
      * \brief getCorrespondencesForImage Returns all ObjectImageCorrespondences for the image at the given path.
@@ -62,19 +68,25 @@ public:
      * \param correspondences the list that the correspondences are to be added to
      * \return the list of correspondences of the image at the given path
      */
-    virtual void getCorrespondencesForImage(const Image& image, QList<ObjectImageCorrespondence*>& correspondences) = 0;
+    virtual void getCorrespondencesForImage(const Image& image, QList<ObjectImageCorrespondence*>& correspondences) const = 0;
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
      * \param objectModels the list that the object models are to be added to
      * \return the list of all objects models loaded by this manager
      */
-    virtual void getObjectModels(QList<ObjectModel*>& objectModels) = 0;
+    virtual void getObjectModels(QList<const ObjectModel*>& objectModels) const = 0;
+
+    /*!
+     * \brief getObjectModel directly returns the object model at the given index.
+     * \param index the index of the object model to be returned
+     */
+    virtual const ObjectModel* getObjectModel(uint index) const = 0;
 
     /*!
      * \brief getObjectModelsCount returns the number of object models managed by this manager
      */
-    virtual int getObjectModelsSize() = 0;
+    virtual int getObjectModelsSize() const = 0;
 
     /*!
      * \brief getCorrespondencesForObjectModels Returns all ObjectImageCorrespondences for the object model at the given path.

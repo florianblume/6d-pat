@@ -10,29 +10,37 @@ CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrat
 CachingModelManager::~CachingModelManager() {
 }
 
-void CachingModelManager::getImages(QList<Image*> &images) {
-    for (Image &image : this->images) {
+void CachingModelManager::getImages(QList<const Image*> &images) const {
+    for (const Image &image : this->images) {
         images.append(&image);
     }
 }
 
-int CachingModelManager::getImagesSize() {
+const Image* CachingModelManager::getImage(uint index) const {
+    return &images.at(index);
+}
+
+int CachingModelManager::getImagesSize() const {
     return images.size();
 }
 
-void CachingModelManager::getCorrespondencesForImage(const Image &image, QList<ObjectImageCorrespondence*> &correspondences)  {
+void CachingModelManager::getCorrespondencesForImage(const Image &image, QList<ObjectImageCorrespondence*> &correspondences) const  {
     if (correspondencesForImages.find(image.getImagePath()) != correspondencesForImages.end()) {
         correspondences.append(correspondencesForImages[image.getImagePath()]);
     }
 }
 
-void CachingModelManager::getObjectModels(QList<ObjectModel*> &objectModels) {
-    for (ObjectModel &objectModel : this->objectModels) {
+void CachingModelManager::getObjectModels(QList<const ObjectModel*> &objectModels) const {
+    for (const ObjectModel &objectModel : this->objectModels) {
         objectModels.append(&objectModel);
     }
 }
 
-int CachingModelManager::getObjectModelsSize() {
+const ObjectModel* CachingModelManager::getObjectModel(uint index) const {
+    return &objectModels.at(index);
+}
+
+int CachingModelManager::getObjectModelsSize() const {
     return objectModels.size();
 }
 

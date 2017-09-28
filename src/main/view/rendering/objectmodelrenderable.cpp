@@ -1,0 +1,48 @@
+#include "objectmodelrenderable.h"
+#include <Qt3DExtras/QPhongMaterial>
+
+ObjectModelRenderable::ObjectModelRenderable(QNode *parent, const QString &meshPath, const QString &texturePath)
+  : Qt3DCore::QEntity(parent),
+    mesh(new Qt3DRender::QMesh()),
+    transform(new Qt3DCore::QTransform()),
+    material(new Qt3DExtras::QDiffuseMapMaterial()),
+    textureImage(new Qt3DRender::QTextureImage()),
+    texture(material->diffuse()),
+    meshPath(meshPath)
+{
+    addComponent(mesh);
+    addComponent(transform);
+    transform->setScale3D(QVector3D(0.4, 0.4, 0.4));
+    transform->setTranslation(QVector3D(-10, -18, -10));
+    mesh->setSource(QUrl::fromLocalFile(meshPath));
+
+    // TODO: Temporary before loading the actual material works
+    phongMaterial = new Qt3DExtras::QPhongMaterial(this);
+    addComponent(phongMaterial);
+
+    //texture->addTextureImage(textureImage);
+    //textureImage->setSource(QUrl(texturePath));
+    //addComponent(material);
+}
+
+
+ObjectModelRenderable::~ObjectModelRenderable() {
+    delete mesh;
+    delete transform;
+    delete material;
+    delete textureImage;
+    //delete texture;
+    delete phongMaterial;
+}
+
+QString ObjectModelRenderable::getMeshPath() const {
+    return meshPath;
+}
+
+Qt3DRender::QMesh *ObjectModelRenderable::getMesh() const {
+    return mesh;
+}
+
+Qt3DCore::QTransform *ObjectModelRenderable::getTransform() const {
+    return transform;
+}

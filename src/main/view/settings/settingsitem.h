@@ -4,8 +4,7 @@
 #include "model/objectmodel.hpp"
 #include "model/modelmanager.hpp"
 #include <QString>
-#include <QSettings>
-#include <map>
+#include <QMap>
 
 class SettingsItem
 {
@@ -13,12 +12,12 @@ public:
     SettingsItem(QString identifier, ModelManager* modelManager);
     ~SettingsItem();
 
-    void setSegmentationCodeForObjectModel(const QString &code, ObjectModel* forModel);
+    void setSegmentationCodeForObjectModel(const ObjectModel* objectModel, const QString &code);
 
-    map<QString, ObjectModel *> getSegmentationCodes() const;
-    void setSegmentationCodes(const map<QString, ObjectModel *> &value);
+    void getSegmentationCodes(QMap<const ObjectModel*, QString> &codes) const;
+    void setSegmentationCodes(const QMap<const ObjectModel*, QString> codes);
 
-    QString getSegmentationCodeForObjectModel(ObjectModel* objectModel);
+    QString getSegmentationCodeForObjectModel(const ObjectModel* objectModel);
 
     QString getSegmentationImageFilesSuffix() const;
     void setSegmentationImageFilesSuffix(const QString &value);
@@ -37,8 +36,7 @@ public:
 
 private:
     ModelManager* modelManager;
-    map<QString, ObjectModel*> segmentationCodes;
-    map<ObjectModel*, QString> inverseSegmentationCodes;
+    QMap<const ObjectModel*, QString> segmentationCodes;
     QString segmentationImageFilesSuffix;
     QString imageFilesExtension;
     QString imagesPath;

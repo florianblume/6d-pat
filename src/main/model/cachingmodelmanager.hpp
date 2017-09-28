@@ -32,15 +32,19 @@ public:
 
     ~CachingModelManager();
 
-    void getImages(QList<Image*> &images) override;
+    void getImages(QList<const Image*> &images) const override;
 
-    int getImagesSize() override;
+    const Image* getImage(uint index) const override;
 
-    void getCorrespondencesForImage(const Image &image, QList<ObjectImageCorrespondence*> &correspondences) override;
+    int getImagesSize() const override;
 
-    void getObjectModels(QList<ObjectModel*> &objectModels) override;
+    void getCorrespondencesForImage(const Image &image, QList<ObjectImageCorrespondence*> &correspondences) const override;
 
-    int getObjectModelsSize() override;
+    void getObjectModels(QList<const ObjectModel*> &objectModels) const override;
+
+    const ObjectModel* getObjectModel(uint index) const override;
+
+    int getObjectModelsSize() const override;
 
     void getCorrespondencesForObjectModel(const ObjectModel &objectModel, QList<ObjectImageCorrespondence*> &correspondences) override;
 

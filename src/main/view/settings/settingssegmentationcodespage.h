@@ -17,12 +17,12 @@ public:
     explicit SettingsSegmentationCodesPage(QWidget *parent = 0);
     ~SettingsSegmentationCodesPage();
     void setSettingsItem(SettingsItem* settingsItem);
-    void setObjectModels(QList<ObjectModel>* objectModels);
+    void setObjectModels(QList<const ObjectModel*>* objectModels);
 
 private:
     Ui::SettingsSegmentationCodesPage *ui;
     SettingsItem* settingsItem;
-    QList<ObjectModel>* objectModels;
+    QList<const ObjectModel*>* objectModels;
 };
 
 #endif // SETTINGSSEGMENTATIONCODESPAGE_H

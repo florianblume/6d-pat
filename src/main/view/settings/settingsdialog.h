@@ -5,7 +5,7 @@
 #include "settingsdialogdelegate.h"
 #include <QDialog>
 #include <QAbstractButton>
-#include <map>
+#include <QList>
 
 namespace Ui {
 class SettingsDialog;
@@ -18,7 +18,7 @@ class SettingsDialog : public QDialog
 public:
     explicit SettingsDialog(QWidget *parent = 0);
     ~SettingsDialog();
-    void setSettingsItem(SettingsItem* settingsItem);
+    void setSettingsItemAndObjectModels(SettingsItem* settingsItem, QList<const ObjectModel*> *objectModels);
     void setDelegate(SettingsDialogDelegate* delegate);
 
 private:
