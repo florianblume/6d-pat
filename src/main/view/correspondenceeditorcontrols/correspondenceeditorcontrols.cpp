@@ -11,13 +11,13 @@
 
 CorrespondenceEditorControls::CorrespondenceEditorControls(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::CorrespondenceEditorControls)//,
-    //leftWindow(new Qt3DExtras::Qt3DWindow),
-    //rightWindow(new Qt3DExtras::Qt3DWindow)
+    ui(new Ui::CorrespondenceEditorControls),
+    leftWindow(new Qt3DExtras::Qt3DWindow),
+    rightWindow(new Qt3DExtras::Qt3DWindow)
 {
     ui->setupUi(this);
-    //setup3DWindow(leftWindow);
-    //setup3DWindow(rightWindow);
+    setup3DWindow(leftWindow);
+    setup3DWindow(rightWindow);
 }
 
 void CorrespondenceEditorControls::setup3DWindow(Qt3DExtras::Qt3DWindow *window) {
@@ -38,7 +38,7 @@ void CorrespondenceEditorControls::setModelManager(ModelManager *modelManager) {
 void CorrespondenceEditorControls::setObjectModelForWindow(Qt3DExtras::Qt3DWindow *window, const ObjectModel *objectModel) {
     // TODO: add material
     // TODO: make initial rotation settable
-    /*
+
     ObjectModelRenderable *objectModelRenderable = new ObjectModelRenderable(0, objectModel->getAbsolutePath(), "");
     window->setRootEntity(objectModelRenderable);
     Qt3DRender::QCamera *camera = window->camera();
@@ -49,7 +49,6 @@ void CorrespondenceEditorControls::setObjectModelForWindow(Qt3DExtras::Qt3DWindo
     camController->setLinearSpeed( 50.0f );
     camController->setLookSpeed( 180.0f );
     camController->setCamera(camera);
-    */
 }
 
 void CorrespondenceEditorControls::setObjectModel(int index) {
@@ -63,7 +62,7 @@ void CorrespondenceEditorControls::setObjectModel(int index) {
 }
 
 void CorrespondenceEditorControls::reset() {
-    //Qt3DCore::QEntity *node = new Qt3DCore::QEntity();
-    //leftWindow->setRootEntity(node);
-    //rightWindow->setRootEntity(node);
+    Qt3DCore::QEntity *node = new Qt3DCore::QEntity();
+    leftWindow->setRootEntity(node);
+    rightWindow->setRootEntity(node);
 }

@@ -27,7 +27,6 @@ MainController::MainController(int &argc, char *argv[]) : QApplication(argc, arg
 
 MainController::~MainController() {
     QSettings settings("FlorettiKonfetti Inc.", "Otiat");
-
     settings.beginGroup("maincontroller");
     settings.setValue("imagesPath", strategy.getImagesPath().path());
     settings.setValue("objectModelsPath", strategy.getObjectModelsPath().path());

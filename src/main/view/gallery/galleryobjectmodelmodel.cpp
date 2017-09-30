@@ -10,7 +10,6 @@ GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager) : m
 }
 
 GalleryObjectModelModel::~GalleryObjectModelModel() {
-    delete renderingWindow;
 }
 
 QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel* objectModel, int role) const {

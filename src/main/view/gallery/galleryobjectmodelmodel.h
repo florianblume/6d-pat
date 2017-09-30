@@ -29,7 +29,7 @@ private:
     //! Store the index of the currently rendered image to be able to set the correct image
     //! when the renderer returns
     uint currentlyRenderedImageIndex = 0;
-    Qt3DExtras::Qt3DWindow *renderingWindow = new Qt3DExtras::Qt3DWindow();
+    Qt3DExtras::Qt3DWindow *renderingWindow;
     Qt3DRender::QRenderCapture *renderCapture;
     Qt3DRender::QRenderCaptureReply *renderCaptureReply;
     ObjectModelRenderable *objectModelRenderable;
