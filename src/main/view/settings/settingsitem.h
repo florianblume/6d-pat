@@ -13,6 +13,7 @@ public:
     ~SettingsItem();
 
     void setSegmentationCodeForObjectModel(const ObjectModel* objectModel, const QString &code);
+    void removeSegmentationCodeForObjectModel(const ObjectModel* objectModel);
 
     void getSegmentationCodes(QMap<const ObjectModel*, QString> &codes) const;
     void setSegmentationCodes(const QMap<const ObjectModel*, QString> codes);

@@ -165,7 +165,7 @@ public:
 
     virtual void objectModelsChanged() = 0;
 
-    virtual void corresopndencesChanged() = 0;
+    virtual void correspondencesChanged() = 0;
 
 };
 

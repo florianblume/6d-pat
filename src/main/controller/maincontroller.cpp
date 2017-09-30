@@ -35,7 +35,9 @@ MainController::~MainController() {
     settings.endGroup();
 
     //! Persist the object color codes so that the user does not have to enter them at each program start
+    //! But first remove all old entries, in case that the user deleted some codes
     settings.beginGroup("maincontroller-settings");
+    settings.remove("");
     for (uint i = 0; i < modelManager.getObjectModelsSize(); i++) {
         const ObjectModel* model = modelManager.getObjectModel(i);
         const QString objectModelIdentifier = model->getAbsolutePath();
@@ -45,6 +47,7 @@ MainController::~MainController() {
     settings.endGroup();
 
     delete currentSettingsItem;
+    delete galleryObjectModelModel;
 }
 
 void MainController::initializeSettingsItem() {
@@ -86,14 +89,16 @@ void MainController::initializeMainWindow() {
     //! The models do not need to notify the gallery of any changes on the data because the list view
     //! has its own update loop, i.e. automatically fetches new data
     mainWindow.setGalleryImageModel(new GalleryImageModel(&modelManager));
-
     galleryObjectModelModel = new GalleryObjectModelModel(&modelManager);
+    setSegmentationCodesOnGalleryObjectModelModel();
+    mainWindow.setGalleryObjectModelModel(galleryObjectModelModel);
+    mainWindow.setModelManager(&modelManager);
+}
+
+void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
     QMap<const ObjectModel*, QString> *codes = new QMap<const ObjectModel*, QString>();
     currentSettingsItem->getSegmentationCodes(*codes);
     galleryObjectModelModel->setSegmentationCodesForObjectModels(codes);
-    mainWindow.setGalleryObjectModelModel(galleryObjectModelModel);
-
-    mainWindow.setModelManager(&modelManager);
 }
 
 void MainController::initialize() {
@@ -132,4 +137,5 @@ void MainController::applySettings(const SettingsItem* settingsItem) {
     mainWindow.setPathOnLeftNavigationControls(settingsItem->getImagesPath());
     mainWindow.setPathOnRightBreadcrumbView(settingsItem->getObjectModelsPath());
     mainWindow.setPathOnRightNavigationControls(settingsItem->getObjectModelsPath());
+    setSegmentationCodesOnGalleryObjectModelModel();
 }

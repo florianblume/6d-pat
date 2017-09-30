@@ -20,6 +20,7 @@ CorrespondenceEditorGraphicsWidget::CorrespondenceEditorGraphicsWidget(QWidget *
 CorrespondenceEditorGraphicsWidget::~CorrespondenceEditorGraphicsWidget() {
     makeCurrent();
     doneCurrent();
+    delete imageTexture;
 }
 
 void CorrespondenceEditorGraphicsWidget::initializeGL() {
@@ -148,6 +149,7 @@ void CorrespondenceEditorGraphicsWidget::setImage(const Image* image) {
             delete imageTexture;
         }
         imageVertices.clear();
+        delete imageTexture;
         imageTexture = new QOpenGLTexture(QImage(image->getAbsoluteImagePath()).mirrored());
         imageVertices << createImageVertices(imageTexture->width(), imageTexture->height());
         imageSet = true;

@@ -21,10 +21,10 @@ SOURCES += $$PWD/src/main/view/mainwindow.cpp \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.cpp \
     $$PWD/src/main/view/settings/settingsitem.cpp \
     $$PWD/src/main/view/settings/settingsdialogdelegate.cpp \
-    $$PWD/src/main/view/correspondenceeditorcontrols/correspondenceeditorcontrols.cpp
+    $$PWD/src/main/view/correspondenceeditorcontrols/correspondenceeditorcontrols.cpp \
+    $$PWD/src/main/view/rendering/objectmodelrenderable.cpp
 
 HEADERS  += \
-    $$PWD/src/main/objectimagecorrespondence.hpp \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
     $$PWD/src/main/model/image.hpp \
     $$PWD/src/main/model/loadandstorestrategy.hpp \
@@ -51,7 +51,8 @@ HEADERS  += \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.h \
     $$PWD/src/main/view/settings/settingsitem.h \
     $$PWD/src/main/view/settings/settingsdialogdelegate.h \
-    src/main/view/correspondenceeditorcontrols/correspondenceeditorcontrols.h
+    src/main/view/correspondenceeditorcontrols/correspondenceeditorcontrols.h \
+    $$PWD/src/main/view/rendering/objectmodelrenderable.h
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

@@ -266,7 +266,7 @@ bool TextFileLoadAndStoreStrategy::setImagesPath(const QDir &path) {
             //! At least we have to issue an update so that the view can display
             //! the new images.
             listener->imagesChanged();
-            listener->corresopndencesChanged();
+            listener->correspondencesChanged();
         }
     }
     return true;
@@ -287,7 +287,7 @@ bool TextFileLoadAndStoreStrategy::setObjectModelsPath(const QDir &path) {
         if (listener) {
             //! When object models are changed the correspondences might change as well.
             listener->objectModelsChanged();
-            listener->corresopndencesChanged();
+            listener->correspondencesChanged();
         }
     }
     return true;
@@ -306,7 +306,7 @@ bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(const QDir &path) {
     correspondencesPath = path;
     for (LoadAndStoreStrategyListener *listener : listeners) {
         if (listener)
-            listener->corresopndencesChanged();
+            listener->correspondencesChanged();
     }
     return true;
 }
@@ -322,7 +322,7 @@ void TextFileLoadAndStoreStrategy::setSegmentationImageFilesSuffix(const QString
         for (LoadAndStoreStrategyListener *listener : listeners) {
             if (listener) {
                 listener->imagesChanged();
-                listener->corresopndencesChanged();
+                listener->correspondencesChanged();
             }
         }
     }
@@ -338,7 +338,7 @@ void TextFileLoadAndStoreStrategy::setImageFilesExtension(const QString &extensi
         for (LoadAndStoreStrategyListener *listener : listeners) {
             if (listener) {
                 listener->imagesChanged();
-                listener->corresopndencesChanged();
+                listener->correspondencesChanged();
             }
         }
     }

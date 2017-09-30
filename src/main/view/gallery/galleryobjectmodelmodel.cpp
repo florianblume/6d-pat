@@ -3,8 +3,14 @@
 #include "view/rendering/objectmodelrenderable.h"
 #include <QIcon>
 #include <QPainter>
+#include <QDir>
+#include <QtDebug>
 
 GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager) : modelManager(modelManager) {
+}
+
+GalleryObjectModelModel::~GalleryObjectModelModel() {
+    delete renderingWindow;
 }
 
 QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel* objectModel, int role) const {
@@ -32,7 +38,7 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
     } else if (codes->contains(objectModel)) {
         //! If any codes are set only display the appropriate object models
         QString code = (*codes)[objectModel];
-        QRgb color = OtiatHelper::colorFromSegmentationCode(code);
+        QColor color = OtiatHelper::colorFromSegmentationCode(code);
         if (colorsOfCurrentImage.contains(color)) {
             return dataForObjectModel(objectModel, role);
         }
@@ -57,8 +63,11 @@ void GalleryObjectModelModel::onSelectedImageChanged(int index) {
         currentSelectedImageIndex = index;
         cachedImages.clear();
         const Image* image = modelManager->getImage(currentSelectedImageIndex);
-        QImage loadedImage(image->getAbsoluteImagePath());
-        colorsOfCurrentImage = loadedImage.colorTable();
+        colorsOfCurrentImage.clear();
+        QImage loadedImage(image->getAbsoluteSegmentationImagePath());
+        for (QColor color : loadedImage.colorTable()) {
+            colorsOfCurrentImage.push_back(color);
+        }
         renderImage(0);
         emit displayedObjectModelsChanged();
     }

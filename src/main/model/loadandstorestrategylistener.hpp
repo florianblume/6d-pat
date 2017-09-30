@@ -28,7 +28,7 @@ public:
      * \brief corresopndencesChanged Will be called by the LoadAndStoreStrategy that this listener registered with whenever
      * the list of correspondences changes.
      */
-    virtual void corresopndencesChanged() = 0;
+    virtual void correspondencesChanged() = 0;
 };
 
 #endif // LOADANDSTORESTRATEGYLISTENER_H

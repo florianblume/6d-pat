@@ -59,6 +59,10 @@ void SettingsItem::setSegmentationCodes(const QMap<const ObjectModel*, QString> 
     segmentationCodes = codes;
 }
 
+void SettingsItem::removeSegmentationCodeForObjectModel(const ObjectModel* objectModel) {
+    segmentationCodes.remove(objectModel);
+}
+
 void SettingsItem::setSegmentationCodeForObjectModel(const ObjectModel *objectModel, const QString &code) {
     segmentationCodes[objectModel] = code;
 }

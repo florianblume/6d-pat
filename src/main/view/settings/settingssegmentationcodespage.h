@@ -4,6 +4,7 @@
 #include "settingsitem.h"
 #include "model/objectmodel.hpp"
 #include <QWidget>
+#include <QSignalMapper>
 
 namespace Ui {
 class SettingsSegmentationCodesPage;
@@ -23,6 +24,12 @@ private:
     Ui::SettingsSegmentationCodesPage *ui;
     SettingsItem* settingsItem;
     QList<const ObjectModel*>* objectModels;
+    QSignalMapper *signalMapperEdit;
+    QSignalMapper *signalMapperRemove;
+
+private slots:
+    void showColorDialog(int index);
+    void removeColor(int index);
 };
 
 #endif // SETTINGSSEGMENTATIONCODESPAGE_H

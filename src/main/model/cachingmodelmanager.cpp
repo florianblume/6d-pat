@@ -190,18 +190,21 @@ void CachingModelManager::removeListener(ModelManagerListener* listener) {
 }
 
 void CachingModelManager::imagesChanged() {
+    images.clear();
     loadAndStoreStrategy.loadImages(images);
     for (auto listener : listeners)
         listener->imagesChanged();
 }
 
 void CachingModelManager::objectModelsChanged() {
+    objectModels.clear();
     loadAndStoreStrategy.loadObjectModels(objectModels);
     for (auto listener : listeners)
         listener->objectModelsChanged();
 }
 
-void CachingModelManager::corresopndencesChanged() {
+void CachingModelManager::correspondencesChanged() {
+    correspondences.clear();
     loadAndStoreStrategy.loadCorrespondences(images, objectModels, correspondences);
     for (auto listener : listeners)
         listener->correspondencesChanged();

@@ -24,6 +24,7 @@ private:
 
     void initializeSettingsItem();
     void initializeMainWindow();
+    void setSegmentationCodesOnGalleryObjectModelModel();
 
 public:
     MainController(int &argc, char *argv[]);

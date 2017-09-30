@@ -28,6 +28,7 @@ Gallery::Gallery(QWidget *parent) :
 Gallery::~Gallery()
 {
     delete ui;
+    delete scrollTimer;
 }
 
 void Gallery::setAllowFreeSelection(bool allowFreeSelection) {

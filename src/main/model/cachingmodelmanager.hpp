@@ -66,7 +66,7 @@ public:
 
     void objectModelsChanged() override;
 
-    void corresopndencesChanged()  override;
+    void correspondencesChanged()  override;
 };
 
 #endif // CACHINGMODELMANAGER_H
