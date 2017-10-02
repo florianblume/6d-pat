@@ -12,8 +12,7 @@ ObjectModelRenderable::ObjectModelRenderable(QNode *parent, const QString &meshP
 {
     addComponent(mesh);
     addComponent(transform);
-    transform->setScale3D(QVector3D(0.4, 0.4, 0.4));
-    transform->setTranslation(QVector3D(-10, -18, -10));
+    transform->setTranslation(QVector3D(-2, -40, 0));
     mesh->setSource(QUrl::fromLocalFile(meshPath));
 
     // TODO: Temporary before loading the actual material works

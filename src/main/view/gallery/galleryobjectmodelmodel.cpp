@@ -4,7 +4,8 @@
 #include <QIcon>
 #include <QPainter>
 #include <QDir>
-#include <QtDebug>
+#include <QMessageBox>
+#include <QCheckBox>
 
 GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager) : modelManager(modelManager) {
 }
@@ -31,8 +32,12 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     const ObjectModel* objectModel = modelManager->getObjectModel(index.row());
-    if (codes == Q_NULLPTR || codes->size() == 0) {
-        //! If no codes were set simply display all object models, maybe the user wants it that way
+    const Image* currentlySelectedImage = modelManager->getImage(currentSelectedImageIndex);
+    if (codes == Q_NULLPTR
+            || codes->size() == 0
+            || currentlySelectedImage->getSegmentationImagePath().compare("") == 0) {
+        //! If no codes at all were set or if the currently selected image does not provide segmentation images
+        //! simply display all available object models
         return dataForObjectModel(objectModel, role);
     } else if (codes->contains(objectModel)) {
         //! If any codes are set only display the appropriate object models
@@ -57,16 +62,38 @@ void GalleryObjectModelModel::setSegmentationCodesForObjectModels(QMap<const Obj
     this->codes = codes;
 }
 
+bool GalleryObjectModelModel::isNumberOfToolsCorrect() {
+    //! If there are no color keys for object models defined and the total number of object models is less
+    //! than different colors in the segmentation image we definitely have too few object models
+    //!
+    //! Minus 2 because black and white are always in the segmentation images
+    if (codes->keys().size() == 0 && modelManager->getObjectModelsSize() < colorsOfCurrentImage.size() - 2)
+        return false;
+
+    int numberOfMatches = 0;
+    for (QMap<const ObjectModel*, QString>::Iterator it = codes->begin(); it != codes->end(); it++) {
+        QColor color = OtiatHelper::colorFromSegmentationCode(it.value());
+        if (colorsOfCurrentImage.contains(color))
+            numberOfMatches++;
+    }
+    return numberOfMatches == colorsOfCurrentImage.size() - 2;
+}
+
 void GalleryObjectModelModel::onSelectedImageChanged(int index) {
     if (index != currentSelectedImageIndex) {
         currentSelectedImageIndex = index;
         cachedImages.clear();
-        const Image* image = modelManager->getImage(currentSelectedImageIndex);
         colorsOfCurrentImage.clear();
-        QImage loadedImage(image->getAbsoluteSegmentationImagePath());
-        for (QColor color : loadedImage.colorTable()) {
-            colorsOfCurrentImage.push_back(color);
+        const Image* image = modelManager->getImage(currentSelectedImageIndex);
+
+        //! If we find an segmentation image update the colors that are used to filter tools
+        if (image->getSegmentationImagePath().compare("") != 0) {
+            QImage loadedImage(image->getAbsoluteSegmentationImagePath());
+            for (QColor color : loadedImage.colorTable()) {
+                colorsOfCurrentImage.push_back(color);
+            }
         }
+
         renderImage(0);
         emit displayedObjectModelsChanged();
     }

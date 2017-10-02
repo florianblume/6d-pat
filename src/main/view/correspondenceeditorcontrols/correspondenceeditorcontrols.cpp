@@ -17,6 +17,10 @@ CorrespondenceEditorControls::CorrespondenceEditorControls(QWidget *parent) :
 {
     ui->setupUi(this);
     setup3DWindow(leftWindow);
+    QFrame *line = new QFrame(ui->graphicsFrame);
+    line->setFrameShape(QFrame::VLine);
+    line->setFrameShadow(QFrame::Sunken);
+    ui->graphicsFrame->layout()->addWidget(line);
     setup3DWindow(rightWindow);
 }
 
@@ -46,8 +50,8 @@ void CorrespondenceEditorControls::setObjectModelForWindow(Qt3DExtras::Qt3DWindo
     ObjectModelRenderable *objectModelRenderable = new ObjectModelRenderable(0, objectModel->getAbsolutePath(), "");
     window->setRootEntity(objectModelRenderable);
     Qt3DRender::QCamera *camera = window->camera();
-    camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
-    camera->setPosition(QVector3D(0, 0, 40.0f));
+    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
+    camera->setPosition(QVector3D(0.f, 0.f, 100.f));
     camera->setViewCenter(QVector3D(0, 0, 0));
     Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(objectModelRenderable);
     camController->setLinearSpeed( 50.0f );
@@ -63,6 +67,10 @@ void CorrespondenceEditorControls::setObjectModel(int index) {
     const ObjectModel *objectModel = modelManager->getObjectModel(index);
     setObjectModelForWindow(leftWindow, objectModel);
     setObjectModelForWindow(rightWindow, objectModel);
+}
+
+void CorrespondenceEditorControls::setCorrespondenceToEdit(ObjectImageCorrespondence* correspondence) {
+
 }
 
 void CorrespondenceEditorControls::reset() {

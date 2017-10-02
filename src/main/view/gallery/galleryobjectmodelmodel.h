@@ -58,6 +58,7 @@ private slots:
      * \brief storeRenderedImage is an internal method that is used to store the rendered image.
      */
     void storeRenderedImage();
+    bool isNumberOfToolsCorrect();
 
 signals:
     void displayedObjectModelsChanged();

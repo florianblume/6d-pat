@@ -3,23 +3,6 @@
 #include <QSettings>
 #include <QDir>
 
-//! Constant methods to load the paths.
-string getStoredImagesPath() {
-    QSettings settings("FlorettiKonfetti Inc.", "Otiat");
-    string imagesPath = settings.value("maincontroller/imagesPath", QString("/home")).toString().toStdString();
-    return imagesPath;
-}
-
-string getStoredObjectModelsPath() {
-    QSettings settings("FlorettiKonfetti Inc.", "Otiat");
-    return settings.value("maincontroller/objectModelsPath", QString("/home")).toString().toStdString();
-}
-
-string getStoredCorrespondencesPath() {
-    QSettings settings("FlorettiKonfetti Inc.", "Otiat");
-    return settings.value("maincontroller/correspondencesPath", QString("/home")).toString().toStdString();
-}
-
 //! empty initialization of strategy so that we can set the path later and do so in a background thread to keep application reactive
 MainController::MainController(int &argc, char *argv[]) : QApplication(argc, argv), strategy(), modelManager(strategy)
 {
@@ -85,7 +68,6 @@ void MainController::initializeMainWindow() {
     //! right navigation selects the object models folder
     mainWindow.addListenerToRightNavigationControls([this] (QString& newPath) {this->strategy.setObjectModelsPath(newPath);
                                                                               this->currentSettingsItem->setObjectModelsPath(newPath);});
-    mainWindow.showStatusMessage("Ready");
 
     //! The models do not need to notify the gallery of any changes on the data because the list view
     //! has its own update loop, i.e. automatically fetches new data
@@ -94,6 +76,8 @@ void MainController::initializeMainWindow() {
     setSegmentationCodesOnGalleryObjectModelModel();
     mainWindow.setGalleryObjectModelModel(galleryObjectModelModel);
     mainWindow.setModelManager(&modelManager);
+
+    mainWindow.showStatusMessage("Ready");
 }
 
 void MainController::setSegmentationCodesOnGalleryObjectModelModel() {

@@ -34,10 +34,18 @@ public:
 public slots:
     /*!
      * \brief setObjectModel sets the index of the object model that is to be displayed. The object
-     * model will be retrieved from the set model manager.
+     * model will be retrieved from the set model manager. If formerly a correspondence had been set
+     * the controls will be disabled and only the object model will be displayed.
      * \param index the index of the object model
      */
     void setObjectModel(int index);
+    /*!
+     * \brief setCorrespondenceToEdit sets the object image correspondence that is to be edited by
+     * these controls. If formerly an object model had been set it will be removed from displaying
+     * and the object model corresponding to the correspondence will be displayed instead.
+     * \param correspondence the correpondence to be edited
+     */
+    void setCorrespondenceToEdit(ObjectImageCorrespondence* correspondence);
     /*!
      * \brief reset resets this view, i.e. clears the displayed object models
      */
