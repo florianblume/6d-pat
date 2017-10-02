@@ -5,6 +5,8 @@
 #include "model/objectmodel.hpp"
 #include <QWidget>
 #include <QSignalMapper>
+#include <QSharedPointer>
+#include <QScopedPointer>
 
 namespace Ui {
 class SettingsSegmentationCodesPage;
@@ -17,15 +19,15 @@ class SettingsSegmentationCodesPage : public QWidget
 public:
     explicit SettingsSegmentationCodesPage(QWidget *parent = 0);
     ~SettingsSegmentationCodesPage();
-    void setSettingsItem(SettingsItem* settingsItem);
-    void setObjectModels(QList<const ObjectModel*>* objectModels);
+    void setSettingsItemAndObjectModels(SettingsItem* settingsItem,
+                                        const QList<const ObjectModel*> objectModels);
 
 private:
     Ui::SettingsSegmentationCodesPage *ui;
-    SettingsItem* settingsItem;
-    QList<const ObjectModel*>* objectModels;
-    QSignalMapper *signalMapperEdit;
-    QSignalMapper *signalMapperRemove;
+    SettingsItem *settingsItem;
+    QList<const ObjectModel*> objectModels;
+    QScopedPointer<QSignalMapper> signalMapperEdit;
+    QScopedPointer<QSignalMapper> signalMapperRemove;
 
 private slots:
     void showColorDialog(int index);

@@ -25,7 +25,7 @@ SettingsGeneralPage::~SettingsGeneralPage()
     delete ui;
 }
 
-void SettingsGeneralPage::setSettingsItem(SettingsItem* settingsItem) {
+void SettingsGeneralPage::setSettingsItem(SettingsItem *settingsItem) {
     this->settingsItem = settingsItem;
     ui->editImagesPath->setText(settingsItem->getImagesPath());
     ui->editObjectModelsPath->setText(settingsItem->getObjectModelsPath());

@@ -153,9 +153,10 @@ void MainWindow::onActionExitTriggered()
 void MainWindow::onActionSettingsTriggered()
 {
     SettingsDialog* settingsDialog = new SettingsDialog(this);
-    QList<const ObjectModel*> *objectModels = new QList<const ObjectModel*>();
-    modelManager->getObjectModels(*objectModels);
-    settingsDialog->setSettingsItemAndObjectModels(settingsItem, objectModels);
+    QList<const ObjectModel*> objectModels;
+    modelManager->getObjectModels(objectModels);
+    settingsDialog->setSettingsItemAndObjectModels(UniqueSettingsItemPointer(new SettingsItem(*settingsItem)),
+                                                   objectModels);
     settingsDialog->setDelegate(settingsDialogDelegate);
     settingsDialog->show();
 }

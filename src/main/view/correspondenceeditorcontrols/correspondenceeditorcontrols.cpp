@@ -28,6 +28,10 @@ void CorrespondenceEditorControls::setup3DWindow(Qt3DExtras::Qt3DWindow *window)
 
 CorrespondenceEditorControls::~CorrespondenceEditorControls()
 {
+    leftWindow->destroy();
+    rightWindow->destroy();
+    delete leftWindow;
+    delete rightWindow;
     delete ui;
 }
 
@@ -62,7 +66,6 @@ void CorrespondenceEditorControls::setObjectModel(int index) {
 }
 
 void CorrespondenceEditorControls::reset() {
-    Qt3DCore::QEntity *node = new Qt3DCore::QEntity();
-    leftWindow->setRootEntity(node);
-    rightWindow->setRootEntity(node);
+    leftWindow->setRootEntity(0);
+    rightWindow->setRootEntity(0);
 }

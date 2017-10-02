@@ -609,10 +609,13 @@
              <number>0</number>
             </property>
             <property name="bottomMargin">
+             <number>14</number>
+            </property>
+            <property name="horizontalSpacing">
              <number>0</number>
             </property>
-            <property name="spacing">
-             <number>0</number>
+            <property name="verticalSpacing">
+             <number>9</number>
             </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_10">
@@ -650,6 +653,12 @@
                </property>
                <item row="0" column="0">
                 <widget class="QSlider" name="verticalSlider_2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>6</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>
                  </property>
@@ -686,7 +695,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <property name="spacing">
-             <number>0</number>
+             <number>9</number>
             </property>
             <property name="leftMargin">
              <number>0</number>
@@ -698,7 +707,7 @@
              <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>14</number>
             </property>
             <item>
              <widget class="QLabel" name="label_9">
@@ -739,7 +748,7 @@
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                    <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
+                   <verstretch>6</verstretch>
                   </sizepolicy>
                  </property>
                  <property name="tracking">
@@ -760,7 +769,6 @@
           </widget>
          </item>
         </layout>
-        <zorder>frame_6</zorder>
         <zorder>frameTranslation</zorder>
         <zorder>frameRotation</zorder>
         <zorder>frameArticulation</zorder>

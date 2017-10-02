@@ -80,9 +80,11 @@ void MainController::initializeMainWindow() {
     mainWindow.setPathOnLeftNavigationControls(QString(strategy.getImagesPath().path()));
     mainWindow.setPathOnRightNavigationControls(QString(strategy.getObjectModelsPath().path()));
     //! left navigation selects the images folder
-    mainWindow.addListenerToLeftNavigationControls([this] (QString& newPath) {this->strategy.setImagesPath(newPath);});
+    mainWindow.addListenerToLeftNavigationControls([this] (QString& newPath) {this->strategy.setImagesPath(newPath);
+                                                                             this->currentSettingsItem->setImagesPath(newPath);});
     //! right navigation selects the object models folder
-    mainWindow.addListenerToRightNavigationControls([this] (QString& newPath) {this->strategy.setObjectModelsPath(newPath);});
+    mainWindow.addListenerToRightNavigationControls([this] (QString& newPath) {this->strategy.setObjectModelsPath(newPath);
+                                                                              this->currentSettingsItem->setObjectModelsPath(newPath);});
     mainWindow.showStatusMessage("Ready");
 
     //! The models do not need to notify the gallery of any changes on the data because the list view
@@ -137,4 +139,7 @@ void MainController::applySettings(const SettingsItem* settingsItem) {
     mainWindow.setPathOnRightBreadcrumbView(settingsItem->getObjectModelsPath());
     mainWindow.setPathOnRightNavigationControls(settingsItem->getObjectModelsPath());
     setSegmentationCodesOnGalleryObjectModelModel();
+
+    //! And update the settings item on the main window for the settings dialog, etc.
+    mainWindow.setSettingsItem(currentSettingsItem);
 }

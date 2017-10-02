@@ -10,13 +10,14 @@ class SettingsItem
 {
 public:
     SettingsItem(QString identifier, ModelManager* modelManager);
+    SettingsItem(const SettingsItem &settingsItem);
     ~SettingsItem();
 
     void setSegmentationCodeForObjectModel(const ObjectModel* objectModel, const QString &code);
     void removeSegmentationCodeForObjectModel(const ObjectModel* objectModel);
 
     void getSegmentationCodes(QMap<const ObjectModel*, QString> &codes) const;
-    void setSegmentationCodes(const QMap<const ObjectModel*, QString> codes);
+    void setSegmentationCodes(const QMap<const ObjectModel*, QString> &codes);
 
     QString getSegmentationCodeForObjectModel(const ObjectModel* objectModel);
 

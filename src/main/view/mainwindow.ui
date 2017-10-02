@@ -1560,6 +1560,7 @@
    <container>1</container>
    <slots>
     <signal>selectedItemChanged(int)</signal>
+    <slot>reset()</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1742,6 +1743,54 @@
     <hint type="destinationlabel">
      <x>675</x>
      <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetNavigationLeft</sender>
+   <signal>pathChanged(QString)</signal>
+   <receiver>widgetRightBottom</receiver>
+   <slot>reset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>196</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetNavigationRight</sender>
+   <signal>pathChanged(QString)</signal>
+   <receiver>widgetRightBottom</receiver>
+   <slot>reset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>196</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetNavigationLeft</sender>
+   <signal>pathChanged(QString)</signal>
+   <receiver>widgetGalleryRight</receiver>
+   <slot>reset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>196</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>121</y>
     </hint>
    </hints>
   </connection>

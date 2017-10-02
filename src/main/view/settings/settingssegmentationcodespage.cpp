@@ -7,11 +7,11 @@
 
 SettingsSegmentationCodesPage::SettingsSegmentationCodesPage(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::SettingsSegmentationCodesPage)
+    ui(new Ui::SettingsSegmentationCodesPage),
+    signalMapperEdit(new QSignalMapper()),
+    signalMapperRemove(new QSignalMapper())
 {
     ui->setupUi(this);
-    signalMapperEdit = new QSignalMapper();
-    signalMapperRemove = new QSignalMapper();
     QHeaderView *headerView = ui->tableSegmentationCodes->horizontalHeader();
     headerView->setSectionResizeMode(0, QHeaderView::Stretch);
     headerView->setSectionResizeMode(1, QHeaderView::Fixed);
@@ -21,21 +21,21 @@ SettingsSegmentationCodesPage::SettingsSegmentationCodesPage(QWidget *parent) :
 SettingsSegmentationCodesPage::~SettingsSegmentationCodesPage()
 {
     delete ui;
-    delete signalMapperEdit;
-    delete signalMapperRemove;
 }
 
-void SettingsSegmentationCodesPage::setSettingsItem(SettingsItem* settingsItem) {
+void SettingsSegmentationCodesPage::setSettingsItemAndObjectModels(SettingsItem *settingsItem,
+                                                                   const QList<const ObjectModel*> objectModels) {
     this->settingsItem = settingsItem;
+    this->objectModels = std::move(objectModels);
 
-    if (!objectModels)
+    if (!settingsItem)
         return;
 
     QtAwesome* awesome = new QtAwesome( qApp );
     awesome->initFontAwesome();
 
     int i = 0;
-    for(const ObjectModel *objectModel : *objectModels) {
+    for(const ObjectModel *objectModel : objectModels) {
         const QString code = settingsItem->getSegmentationCodeForObjectModel(objectModel);
         ui->tableSegmentationCodes->insertRow(i);
         ui->tableSegmentationCodes->setItem(i, 0, new QTableWidgetItem(objectModel->getPath()));
@@ -61,7 +61,7 @@ void SettingsSegmentationCodesPage::setSettingsItem(SettingsItem* settingsItem) 
         buttonEdit->setIcon(awesome->icon(fa::paintbrush));
         buttonEdit->setFixedSize(QSize(40, 20));
         buttonEdit->setToolTip("Edit color");
-        connect(buttonEdit, SIGNAL(clicked()), signalMapperEdit, SLOT(map()));
+        connect(buttonEdit, SIGNAL(clicked()), &*signalMapperEdit, SLOT(map()));
         signalMapperEdit->setMapping(buttonEdit, i);
         layout->addWidget(buttonEdit);
 
@@ -71,7 +71,7 @@ void SettingsSegmentationCodesPage::setSettingsItem(SettingsItem* settingsItem) 
         buttonUnset->setIcon(awesome->icon(fa::remove));
         buttonUnset->setFixedSize(QSize(40, 20));
         buttonUnset->setToolTip("Remove color");
-        connect(buttonUnset, SIGNAL(clicked()), signalMapperRemove, SLOT(map()));
+        connect(buttonUnset, SIGNAL(clicked()), &*signalMapperRemove, SLOT(map()));
         signalMapperRemove->setMapping(buttonUnset, i);
         layout->addWidget(buttonUnset);
 
@@ -79,14 +79,17 @@ void SettingsSegmentationCodesPage::setSettingsItem(SettingsItem* settingsItem) 
         i++;
     }
 
-    connect(signalMapperEdit, SIGNAL(mapped(int)), this, SLOT(showColorDialog(int)));
-    connect(signalMapperRemove, SIGNAL(mapped(int)), this, SLOT(removeColor(int)));
+    connect(&*signalMapperEdit, SIGNAL(mapped(int)), this, SLOT(showColorDialog(int)));
+    connect(&*signalMapperRemove, SIGNAL(mapped(int)), this, SLOT(removeColor(int)));
 }
 
 void SettingsSegmentationCodesPage::showColorDialog(int index) {
     QColor color = QColorDialog::getColor(Qt::yellow, this );
+    if (!color.isValid())
+        return;
+
     QString colorCode = OtiatHelper::segmentationCodeFromColor(color);
-    const ObjectModel* objectModel = objectModels->at(index);
+    const ObjectModel* objectModel = objectModels.at(index);
     settingsItem->setSegmentationCodeForObjectModel(objectModel, colorCode);
     QTableWidgetItem *item = ui->tableSegmentationCodes->item(index, 1);
     item->setText("");
@@ -94,13 +97,9 @@ void SettingsSegmentationCodesPage::showColorDialog(int index) {
 }
 
 void SettingsSegmentationCodesPage::removeColor(int index) {
-    const ObjectModel* objectModel = objectModels->at(index);
+    const ObjectModel* objectModel = objectModels.at(index);
     settingsItem->removeSegmentationCodeForObjectModel(objectModel);
     QTableWidgetItem *item = ui->tableSegmentationCodes->item(index, 1);
     item->setBackgroundColor(QColor(255, 255, 255));
     item->setText("Undefined");
-}
-
-void SettingsSegmentationCodesPage::setObjectModels(QList<const ObjectModel*>* objectModels) {
-    this->objectModels = objectModels;
 }

@@ -17,7 +17,7 @@ class SettingsGeneralPage : public QWidget
 public:
     explicit SettingsGeneralPage(QWidget *parent = 0);
     ~SettingsGeneralPage();
-    void setSettingsItem(SettingsItem* settingsItem);
+    void setSettingsItem(SettingsItem *settingsItem);
 
 private slots:
     void buttonImagesPathClicked();
@@ -28,7 +28,7 @@ private slots:
 
 private:
     Ui::SettingsGeneralPage *ui;
-    SettingsItem* settingsItem;
+    SettingsItem *settingsItem;
     int imageFilesExtensionToIndex(QString extension);
     QString indexToImageFilesExtension(int index);
     QString openFolderDialogForPath(QString path);

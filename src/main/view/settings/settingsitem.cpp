@@ -5,6 +5,17 @@ SettingsItem::SettingsItem(QString identifier, ModelManager* modelManager) : ide
     this->modelManager = modelManager;
 }
 
+SettingsItem::SettingsItem(const SettingsItem &settingsItem) {
+    this->modelManager = settingsItem.modelManager;
+    this->segmentationCodes = settingsItem.segmentationCodes;
+    this->segmentationImageFilesSuffix = settingsItem.segmentationImageFilesSuffix;
+    this->imageFilesExtension = settingsItem.imageFilesExtension;
+    this->imagesPath = settingsItem.imagesPath;
+    this->objectModelsPath = settingsItem.objectModelsPath;
+    this->correspondencesPath = settingsItem.correspondencesPath;
+    this->identifier = settingsItem.identifier;
+}
+
 SettingsItem::~SettingsItem() {
 }
 
@@ -55,7 +66,7 @@ void SettingsItem::getSegmentationCodes(QMap<const ObjectModel*, QString> &codes
     }
 }
 
-void SettingsItem::setSegmentationCodes(const QMap<const ObjectModel*, QString> codes) {
+void SettingsItem::setSegmentationCodes(const QMap<const ObjectModel*, QString> &codes) {
     segmentationCodes = codes;
 }
 
@@ -68,5 +79,8 @@ void SettingsItem::setSegmentationCodeForObjectModel(const ObjectModel *objectMo
 }
 
 QString SettingsItem::getSegmentationCodeForObjectModel(const ObjectModel* objectModel) {
-    return segmentationCodes[objectModel];
+    if (segmentationCodes.contains(objectModel))
+        return segmentationCodes[objectModel];
+    else
+        return "";
 }

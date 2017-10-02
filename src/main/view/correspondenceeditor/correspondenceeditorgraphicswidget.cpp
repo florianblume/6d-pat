@@ -20,7 +20,6 @@ CorrespondenceEditorGraphicsWidget::CorrespondenceEditorGraphicsWidget(QWidget *
 CorrespondenceEditorGraphicsWidget::~CorrespondenceEditorGraphicsWidget() {
     makeCurrent();
     doneCurrent();
-    delete imageTexture;
 }
 
 void CorrespondenceEditorGraphicsWidget::initializeGL() {
