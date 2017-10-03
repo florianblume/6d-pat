@@ -6,7 +6,8 @@
 #include "model/objectimagecorrespondence.hpp"
 #include "model/modelmanager.hpp"
 #include <QWidget>
-#include <QPushButton>
+#include <Qt3DExtras/Qt3DWindow>
+#include <QtAwesome/QtAwesome.h>
 
 namespace Ui {
 class CorrespondenceEditor;
@@ -23,13 +24,21 @@ class CorrespondenceEditor : public QWidget
 
 private:
     Ui::CorrespondenceEditor *ui;
+    QtAwesome* awesome;
     ModelManager* modelManager;
-    QPushButton* buttonAccept;
-    QPushButton* buttonShowSegmentation;
+    Qt3DExtras::Qt3DWindow *graphicsWindow;
+    int currentlyDisplayedImage = -1;
+    bool showingNormalImage = true;
+    void showImage(const QString &imagePath);
 
 public:
     explicit CorrespondenceEditor(QWidget *parent = 0, ModelManager* modelManager = 0);
     ~CorrespondenceEditor();
+    /*!
+     * \brief setModelManager sets the model manager that this correspondence editor uses.
+     * The model manager is expected to not be null.
+     * \param modelManager the manager to be set, must not be null
+     */
     void setModelManager(ModelManager* modelManager);
 
 public slots:
@@ -53,6 +62,12 @@ public slots:
      * \param correspondence the correspondence to be removed
      */
     void removeCorrespondence(ObjectImageCorrespondence* correspondence);
+
+private slots:
+    /*!
+     * \brief showSegmentationImage is there for the switch view button
+     */
+    void switchImage();
 
 };
 

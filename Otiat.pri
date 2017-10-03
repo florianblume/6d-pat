@@ -14,7 +14,6 @@ SOURCES += $$PWD/src/main/view/mainwindow.cpp \
     $$PWD/src/main/view/gallery/galleryobjectmodelmodel.cpp \
     $$PWD/src/main/view/gallery/iconexpandinglistview.cpp \
     $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.cpp \
-    $$PWD/src/main/view/correspondenceeditor/correspondenceeditorgraphicswidget.cpp \
     $$PWD/src/main/view/aboutdialog/aboutdialog.cpp \
     $$PWD/src/main/view/settings/settingsdialog.cpp \
     $$PWD/src/main/view/settings/settingsgeneralpage.cpp \
@@ -22,7 +21,8 @@ SOURCES += $$PWD/src/main/view/mainwindow.cpp \
     $$PWD/src/main/view/settings/settingsitem.cpp \
     $$PWD/src/main/view/settings/settingsdialogdelegate.cpp \
     $$PWD/src/main/view/correspondenceeditorcontrols/correspondenceeditorcontrols.cpp \
-    $$PWD/src/main/view/rendering/objectmodelrenderable.cpp
+    $$PWD/src/main/view/rendering/objectmodelrenderable.cpp \
+    $$PWD/src/main/view/rendering/imagerenderable.cpp
 
 HEADERS  += \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
@@ -44,7 +44,6 @@ HEADERS  += \
     $$PWD/src/main/view/gallery/galleryobjectmodelmodel.h \
     $$PWD/src/main/view/gallery/iconexpandinglistview.h \
     $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.hpp \
-    $$PWD/src/main/view/correspondenceeditor/correspondenceeditorgraphicswidget.h \
     $$PWD/src/main/view/aboutdialog/aboutdialog.h \
     $$PWD/src/main/view/settings/settingsdialog.h \
     $$PWD/src/main/view/settings/settingsgeneralpage.h \
@@ -52,7 +51,8 @@ HEADERS  += \
     $$PWD/src/main/view/settings/settingsitem.h \
     $$PWD/src/main/view/settings/settingsdialogdelegate.h \
     src/main/view/correspondenceeditorcontrols/correspondenceeditorcontrols.h \
-    $$PWD/src/main/view/rendering/objectmodelrenderable.h
+    $$PWD/src/main/view/rendering/objectmodelrenderable.h \
+    $$PWD/src/main/view/rendering/imagerenderable.h
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

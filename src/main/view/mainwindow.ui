@@ -637,9 +637,9 @@
             <item>
              <widget class="BreadcrumbView" name="widgetBreadcrumbLeft" native="true">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                 <horstretch>0</horstretch>
-                <verstretch>1</verstretch>
+                <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
@@ -647,73 +647,6 @@
                 <width>0</width>
                 <height>50</height>
                </size>
-              </property>
-              <property name="palette">
-               <palette>
-                <active>
-                 <colorrole role="Base">
-                  <brush brushstyle="SolidPattern">
-                   <color alpha="255">
-                    <red>255</red>
-                    <green>255</green>
-                    <blue>255</blue>
-                   </color>
-                  </brush>
-                 </colorrole>
-                 <colorrole role="Window">
-                  <brush brushstyle="SolidPattern">
-                   <color alpha="255">
-                    <red>255</red>
-                    <green>255</green>
-                    <blue>255</blue>
-                   </color>
-                  </brush>
-                 </colorrole>
-                </active>
-                <inactive>
-                 <colorrole role="Base">
-                  <brush brushstyle="SolidPattern">
-                   <color alpha="255">
-                    <red>255</red>
-                    <green>255</green>
-                    <blue>255</blue>
-                   </color>
-                  </brush>
-                 </colorrole>
-                 <colorrole role="Window">
-                  <brush brushstyle="SolidPattern">
-                   <color alpha="255">
-                    <red>255</red>
-                    <green>255</green>
-                    <blue>255</blue>
-                   </color>
-                  </brush>
-                 </colorrole>
-                </inactive>
-                <disabled>
-                 <colorrole role="Base">
-                  <brush brushstyle="SolidPattern">
-                   <color alpha="255">
-                    <red>255</red>
-                    <green>255</green>
-                    <blue>255</blue>
-                   </color>
-                  </brush>
-                 </colorrole>
-                 <colorrole role="Window">
-                  <brush brushstyle="SolidPattern">
-                   <color alpha="255">
-                    <red>255</red>
-                    <green>255</green>
-                    <blue>255</blue>
-                   </color>
-                  </brush>
-                 </colorrole>
-                </disabled>
-               </palette>
-              </property>
-              <property name="autoFillBackground">
-               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -1587,22 +1520,6 @@
  <resources/>
  <connections>
   <connection>
-   <sender>widgetNavigationLeft</sender>
-   <signal>pathChanged(QString)</signal>
-   <receiver>widgetBreadcrumbLeft</receiver>
-   <slot>setPathToShow(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>223</x>
-     <y>193</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
-     <y>43</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>widgetNavigationRight</sender>
    <signal>pathChanged(QString)</signal>
    <receiver>widgetBreadcrumbRight</receiver>
@@ -1791,6 +1708,22 @@
     <hint type="destinationlabel">
      <x>675</x>
      <y>121</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetNavigationLeft</sender>
+   <signal>pathChanged(QString)</signal>
+   <receiver>widgetBreadcrumbLeft</receiver>
+   <slot>setPathToShow(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>196</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>46</y>
     </hint>
    </hints>
   </connection>

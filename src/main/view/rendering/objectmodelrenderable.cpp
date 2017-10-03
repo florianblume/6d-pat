@@ -30,8 +30,8 @@ ObjectModelRenderable::~ObjectModelRenderable() {
     delete transform;
     delete material;
     delete textureImage;
-    //delete texture;
     delete phongMaterial;
+    //! We do not have to delete the rest, apparently the 3D window takes care of that
 }
 
 QString ObjectModelRenderable::getMeshPath() const {
