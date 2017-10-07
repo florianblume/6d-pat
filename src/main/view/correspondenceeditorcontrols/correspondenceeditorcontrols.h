@@ -4,12 +4,18 @@
 #include "model/modelmanager.hpp"
 #include <QWidget>
 #include <QFrame>
-#include <QGraphicsPixmapItem>
+#include <QPointer>
 #include <Qt3DExtras/Qt3DWindow>
+#include <Qt3DRender/QObjectPicker>
+#include <Qt3DRender/QPickEvent>
 
 namespace Ui {
 class CorrespondenceEditorControls;
 }
+
+//! Convencience typdefs
+typedef QPointer<Qt3DRender::QObjectPicker> ObjectPickerPointer;
+typedef QPointer<Qt3DExtras::Qt3DWindow> WindowPointer;
 
 /*!
  * \brief The CorrespondenceEditorControls class is responsible for displaying two views of an
@@ -20,6 +26,25 @@ class CorrespondenceEditorControls;
 class CorrespondenceEditorControls : public QWidget
 {
     Q_OBJECT
+
+private:
+    Ui::CorrespondenceEditorControls *ui;
+    ModelManager *modelManager;
+    int currentObjectModelIndex = -1;
+    //! The left view of the object model, e.g. the front view
+    WindowPointer leftWindow;
+    ObjectPickerPointer leftObjectPicker;
+    //! The right view of the object model, e.g. the back view
+    WindowPointer rightWindow;
+    ObjectPickerPointer rightObjectPicker;
+
+    void setup3DWindow(WindowPointer window);
+    void setObjectModelForWindow(WindowPointer window,
+                                 const ObjectModel *objectModel,
+                                 ObjectPickerPointer &picker);
+
+private slots:
+    void objectPickerClicked(Qt3DRender::QPickEvent *pick);
 
 public:
     explicit CorrespondenceEditorControls(QWidget *parent = 0);
@@ -52,17 +77,9 @@ public slots:
      */
     void reset();
 
-private:
-    Ui::CorrespondenceEditorControls *ui;
-    ModelManager *modelManager;
-    int currentObjectModelIndex = -1;
-    //! The left view of the object model, e.g. the front view
-    Qt3DExtras::Qt3DWindow *leftWindow;
-    //! The right view of the object model, e.g. the back view
-    Qt3DExtras::Qt3DWindow *rightWindow;
+signals:
+    void objectModelClickedAt(int objectModelIndex, QVector3D position);
 
-    void setup3DWindow(Qt3DExtras::Qt3DWindow *window);
-    void setObjectModelForWindow(Qt3DExtras::Qt3DWindow *window, const ObjectModel *objectModel);
 };
 
 #endif // CORRESPONDENCEEDITORCONTROLS_H

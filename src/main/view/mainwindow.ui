@@ -1391,7 +1391,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1502,6 +1502,7 @@
    <header>view/correspondenceeditor/correspondenceeditor.hpp</header>
    <container>1</container>
    <slots>
+    <signal>imageClicked(QPointF)</signal>
     <slot>setImage(int)</slot>
     <slot>reset()</slot>
    </slots>
@@ -1512,6 +1513,7 @@
    <header>view/correspondenceeditorcontrols/correspondenceeditorcontrols.h</header>
    <container>1</container>
    <slots>
+    <signal>objectModelClickedAt(int,QVector3D)</signal>
     <slot>setObjectModel(int)</slot>
     <slot>reset()</slot>
    </slots>
@@ -1727,10 +1729,44 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>widgetLeftBottom</sender>
+   <signal>imageClicked(QPointF)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onImageClicked(QPointF)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>402</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>widgetRightBottom</sender>
+   <signal>objectModelClickedAt(int,QVector3D)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onObjectModelClickedAt(int,QVector3D)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>676</x>
+     <y>402</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onActionAboutTriggered()</slot>
   <slot>onActionExitTriggered()</slot>
   <slot>onActionSettingsTriggered()</slot>
+  <slot>onImageClicked(QPointF)</slot>
+  <slot>onObjectModelClickedAt(int,QVector3D)</slot>
  </slots>
 </ui>

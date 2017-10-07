@@ -10,6 +10,7 @@
 QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";
 QString MainWindow::SETTINGS_PROGRAM_NAME = "Otiat";
 QString MainWindow::SETTINGS_GROUP_NAME = "mainwindow";
+QString MainWindow::WINDOW_IS_FULLSCREEN_KEY = "isfullscreen";
 QString MainWindow::WINDOW_SIZE_KEY = "windowsize";
 QString MainWindow::WINDOW_POSITION_KEY = "windowposition";
 QString MainWindow::SPLITTER_MAIN_SIZE_LEFT_KEY = "splitterMainLeftSize";
@@ -24,7 +25,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow) {
     ui->setupUi(this);
-    connect(ui->widgetLeftBottom, SIGNAL(mousePressed(QPointF)), this, SLOT(onMousePressedOnImage(QPointF)));
     readSettings();
     statusBar()->showMessage(QString("Loading..."));
 }
@@ -38,6 +38,7 @@ void MainWindow::writeSettings() {
     QSettings settings(MainWindow::SETTINGS_NAME, MainWindow::SETTINGS_PROGRAM_NAME);
 
     settings.beginGroup(MainWindow::SETTINGS_GROUP_NAME);
+    settings.setValue(MainWindow::WINDOW_IS_FULLSCREEN_KEY, isMaximized());
     settings.setValue(MainWindow::WINDOW_SIZE_KEY, size());
     settings.setValue(MainWindow::WINDOW_POSITION_KEY, pos());
 
@@ -59,6 +60,9 @@ void MainWindow::readSettings() {
     QSettings settings(MainWindow::SETTINGS_NAME, MainWindow::SETTINGS_PROGRAM_NAME);
 
     settings.beginGroup(MainWindow::SETTINGS_GROUP_NAME);
+    if (settings.value(MainWindow::WINDOW_IS_FULLSCREEN_KEY).toBool()) {
+        showMaximized();
+    }
     resize(settings.value(MainWindow::WINDOW_SIZE_KEY, QSize(600, 400)).toSize());
     move(settings.value(MainWindow::WINDOW_POSITION_KEY, QPoint(200, 200)).toPoint());
     QList<int> splitterMainSizes;
@@ -79,10 +83,6 @@ void MainWindow::readSettings() {
 void MainWindow::closeEvent(QCloseEvent *event) {
     writeSettings();
     event->accept();
-}
-
-void MainWindow::showStatusMessage(const QString &message) {
-    this->statusBar()->showMessage(message);
 }
 
 void MainWindow::setPathOnLeftBreadcrumbView(const QString &pathToShow) {
@@ -164,7 +164,7 @@ void MainWindow::onActionSettingsTriggered()
 }
 
 //! Mouse handling, i.e. clicking in the lower left widget and dragging a line to the lower right widget
-void MainWindow::onMousePressedOnImage(QPointF position) {
+void MainWindow::onImageClicked(QPointF position) {
     //! No need to check for whether the right widget was clicked because the only time this method
     //! will be called is when the object image picker received a click on the image
     if (ui->widgetRightBottom->isDisplayingObjectModel()) {
@@ -174,9 +174,14 @@ void MainWindow::onMousePressedOnImage(QPointF position) {
         clickOverlay->show();
         clickOverlay->raise();
         ui->widgetRightBottom->raise();
+        emit imageClicked(position);
     } else {
         QMessageBox::warning(this, "Select object model first", "Please select an object model from the list\n"
                                                                 "of object models first before trying to create\n"
                                                                 "a new correspondence.");
     }
+}
+
+void MainWindow::onObjectModelClickedAt(int objectModelIndex, QVector3D position) {
+    emit objectModelClickedAt(objectModelIndex, position);
 }

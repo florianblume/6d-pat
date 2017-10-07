@@ -50,7 +50,6 @@ public:
 
     //! Various functions to initialize or alter the state of the window and its components.
     //! Most should be self-explanatory.
-    void showStatusMessage(const QString &message);
     void setPathOnLeftBreadcrumbView(const QString &pathToShow);
     void setPathOnRightBreadcrumbView(const QString &pathToShow);
     void setPathOnLeftNavigationControls(const QString &path);
@@ -95,13 +94,26 @@ public:
      */
     void setSettingsDialogDelegate(SettingsDialogDelegate* delegate);
 
+public slots:
+    //! The slot that catches the emitted signal when the 3D model in the lower right correspondence controls
+    //! is clicked (see CorrespondenceEditorControls)
+    void onObjectModelClickedAt(int objectModelIndex, QVector3D position);
+
+signals:
+    //! Those two methods are fired when the sub-views that display the correspondences fire them
+    //! i.e. when the image in the lower left view is clicked, the first one is emitted, and when
+    //! the 3D model (to create the first 2D to 3D point correspondence) is clicked, the second
+    //! function is emitted.
+    void imageClicked(QPointF position);
+    void objectModelClickedAt(int objectModelIndex, QVector3D position);
+
 private slots:
     void onActionAboutTriggered();
     void onActionExitTriggered();
     void onActionSettingsTriggered();
     //! Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
     //! right clicks in the image to start creating a correspondence
-    void onMousePressedOnImage(QPointF position);
+    void onImageClicked(QPointF position);
 
 private:
     //! The overlay that is shown when the user clicks on a position in the displayed image to start
@@ -127,6 +139,7 @@ private:
     //! To group settings
     static QString SETTINGS_GROUP_NAME;
     //! The following are the keys to store settings persistently by using Qt's own settings system
+    static QString WINDOW_IS_FULLSCREEN_KEY;
     static QString WINDOW_SIZE_KEY;
     static QString WINDOW_POSITION_KEY;
     static QString SPLITTER_MAIN_SIZE_LEFT_KEY;

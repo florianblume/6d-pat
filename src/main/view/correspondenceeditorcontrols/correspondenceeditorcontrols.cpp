@@ -24,7 +24,7 @@ CorrespondenceEditorControls::CorrespondenceEditorControls(QWidget *parent) :
     setup3DWindow(rightWindow);
 }
 
-void CorrespondenceEditorControls::setup3DWindow(Qt3DExtras::Qt3DWindow *window) {
+void CorrespondenceEditorControls::setup3DWindow(WindowPointer window) {
     QWidget *container = QWidget::createWindowContainer(window);
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->graphicsFrame->layout()->addWidget(container);
@@ -34,6 +34,10 @@ CorrespondenceEditorControls::~CorrespondenceEditorControls()
 {
     leftWindow->destroy();
     rightWindow->destroy();
+    if (leftObjectPicker)
+        delete leftObjectPicker;
+    if (rightObjectPicker)
+        delete rightObjectPicker;
     delete leftWindow;
     delete rightWindow;
     delete ui;
@@ -43,10 +47,11 @@ void CorrespondenceEditorControls::setModelManager(ModelManager *modelManager) {
     this->modelManager = modelManager;
 }
 
-void CorrespondenceEditorControls::setObjectModelForWindow(Qt3DExtras::Qt3DWindow *window, const ObjectModel *objectModel) {
+void CorrespondenceEditorControls::setObjectModelForWindow(WindowPointer window,
+                                                           const ObjectModel *objectModel,
+                                                           ObjectPickerPointer &picker) {
     // TODO: add material
     // TODO: make initial rotation settable
-
     ObjectModelRenderable *objectModelRenderable = new ObjectModelRenderable(0, objectModel->getAbsolutePath(), "");
     window->setRootEntity(objectModelRenderable);
     Qt3DRender::QCamera *camera = window->camera();
@@ -57,6 +62,8 @@ void CorrespondenceEditorControls::setObjectModelForWindow(Qt3DExtras::Qt3DWindo
     camController->setLinearSpeed( 50.0f );
     camController->setLookSpeed( 180.0f );
     camController->setCamera(camera);
+    picker = new Qt3DRender::QObjectPicker(objectModelRenderable);
+    connect(picker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
 }
 
 void CorrespondenceEditorControls::setObjectModel(int index) {
@@ -65,12 +72,14 @@ void CorrespondenceEditorControls::setObjectModel(int index) {
         return;
 
     const ObjectModel *objectModel = modelManager->getObjectModel(index);
-    setObjectModelForWindow(leftWindow, objectModel);
-    setObjectModelForWindow(rightWindow, objectModel);
+    setObjectModelForWindow(leftWindow, objectModel, leftObjectPicker);
+    setObjectModelForWindow(rightWindow, objectModel, rightObjectPicker);
+    connect(leftObjectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(leftObjectPickerClicked(Qt3DRender::QPickEvent*)));
+    connect(rightObjectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(rightObjectPickerClicked(Qt3DRender::QPickEvent*)));
 }
 
 void CorrespondenceEditorControls::setCorrespondenceToEdit(ObjectImageCorrespondence* correspondence) {
-
+    // TODO: implement
 }
 
 void CorrespondenceEditorControls::reset() {
@@ -81,4 +90,11 @@ void CorrespondenceEditorControls::reset() {
 
 bool CorrespondenceEditorControls::isDisplayingObjectModel() {
     return currentObjectModelIndex != -1;
+}
+
+void CorrespondenceEditorControls::objectPickerClicked(Qt3DRender::QPickEvent *pick) {
+    emit objectModelClickedAt(currentObjectModelIndex,
+                              QVector3D(pick->localIntersection().x(),
+                                        pick->localIntersection().y(),
+                                        pick->localIntersection().z()));
 }
