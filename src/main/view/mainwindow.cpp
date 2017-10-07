@@ -170,7 +170,11 @@ void MainWindow::onImageClicked(QPointF position) {
     if (ui->widgetRightBottom->isDisplayingObjectModel()) {
         QGuiApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
         clickOverlay = new ClickOverlay(this);
-        clickOverlay->setGeometry(this->geometry());
+        clickOverlay->setGeometry(QRect(this->geometry().x(),
+                                        this->geometry().y(),
+                                        this->geometry().width(),
+                                        this->geometry().height()
+                                            - this->statusBar()->geometry().height()));
         clickOverlay->show();
         clickOverlay->raise();
         ui->widgetRightBottom->raise();
@@ -183,5 +187,6 @@ void MainWindow::onImageClicked(QPointF position) {
 }
 
 void MainWindow::onObjectModelClickedAt(int objectModelIndex, QVector3D position) {
+    QGuiApplication::restoreOverrideCursor();
     emit objectModelClickedAt(objectModelIndex, position);
 }

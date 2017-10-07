@@ -3,10 +3,12 @@
 #include <QSettings>
 #include <QDir>
 
-//! empty initialization of strategy so that we can set the path later and do so in a background thread to keep application reactive
-MainController::MainController(int &argc, char *argv[]) : QApplication(argc, argv), strategy(), modelManager(strategy) {
-    connect(&mainWindow, SIGNAL(imageClicked(QPointF)), this, SLOT(onImageClicked(QPointF)));
-    connect(&mainWindow, SIGNAL(objectModelClickedAt(int, QVector3D)), this, SLOT(onObjectModelClickedAt(int,QVector3D)));
+//! empty initialization of strategy so that we can set the path later and do so
+//! in a background thread to keep application reactive
+MainController::MainController(int &argc, char *argv[]) :
+    QApplication(argc, argv),
+    strategy(),
+    modelManager(strategy) {
 }
 
 MainController::~MainController() {
@@ -96,7 +98,9 @@ void MainController::onImageClicked(QPointF position) {
         delete lastClickedImagePosition;
     lastClickedImagePosition = new QPointF(position);
     // TODO: show how many points are missing until an actual correspondence can be created
-    mainWindow.setStatusTip(QString("Please select a corresponding 3D point [" + correspondingPoints.size()) + " of 4].");
+    mainWindow.setStatusTip("Please select the corresponding 3D point [" +
+                            QString::number(correspondingPoints.size() + 1)
+                            + " of 4].");
 }
 
 void MainController::onObjectModelClickedAt(int objectModelIndex, QVector3D position) {
@@ -105,16 +109,23 @@ void MainController::onObjectModelClickedAt(int objectModelIndex, QVector3D posi
     if (!lastClickedImagePosition)
         return;
 
-    if (correspondingPoints.size() < 4) {
-        correspondingPoints.append(CorrespondingPoints{*lastClickedImagePosition, objectModelIndex, position});
-        delete lastClickedImagePosition;
-        lastClickedImagePosition = Q_NULLPTR;
-        mainWindow.setStatusTip(QString("Please create another correspondence [" + correspondingPoints.size()) + " of 4].");
+    correspondingPoints.append(CorrespondingPoints{*lastClickedImagePosition, objectModelIndex, position});
+
+    if (correspondingPoints.size() < 3) {
+        mainWindow.setStatusTip("Please select another correspondence [" +
+                                QString::number(correspondingPoints.size() + 1)
+                                + " of 4].");
+    } else if (correspondingPoints.size() == 3) {
+        mainWindow.setStatusTip("Please select the last correspondence.");
     } else {
         mainWindow.setStatusTip("Creating correspondence, please wait.");
         // TODO: create correspondence
+        correspondingPoints.clear();
         mainWindow.setStatusTip("Ready.");
     }
+
+    delete lastClickedImagePosition;
+    lastClickedImagePosition = Q_NULLPTR;
 
 }
 
@@ -130,6 +141,11 @@ void MainController::initialize() {
 
     initializeSettingsItem();
     initializeMainWindow();
+
+    connect(&mainWindow, SIGNAL(imageClicked(QPointF)),
+            this, SLOT(onImageClicked(QPointF)));
+    connect(&mainWindow, SIGNAL(objectModelClickedAt(int,QVector3D)),
+            this, SLOT(onObjectModelClickedAt(int,QVector3D)));
 }
 
 void MainController::showView() {

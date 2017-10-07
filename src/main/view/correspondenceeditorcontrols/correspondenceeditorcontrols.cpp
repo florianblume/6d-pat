@@ -63,6 +63,7 @@ void CorrespondenceEditorControls::setObjectModelForWindow(WindowPointer window,
     camController->setLookSpeed( 180.0f );
     camController->setCamera(camera);
     picker = new Qt3DRender::QObjectPicker(objectModelRenderable);
+    objectModelRenderable->addComponent(picker);
     connect(picker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
 }
 
@@ -74,8 +75,6 @@ void CorrespondenceEditorControls::setObjectModel(int index) {
     const ObjectModel *objectModel = modelManager->getObjectModel(index);
     setObjectModelForWindow(leftWindow, objectModel, leftObjectPicker);
     setObjectModelForWindow(rightWindow, objectModel, rightObjectPicker);
-    connect(leftObjectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(leftObjectPickerClicked(Qt3DRender::QPickEvent*)));
-    connect(rightObjectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(rightObjectPickerClicked(Qt3DRender::QPickEvent*)));
 }
 
 void CorrespondenceEditorControls::setCorrespondenceToEdit(ObjectImageCorrespondence* correspondence) {

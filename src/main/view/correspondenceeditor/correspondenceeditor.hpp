@@ -52,8 +52,6 @@ private:
     ModelManager* modelManager;
     Qt3DExtras::Qt3DWindow *graphicsWindow;
 
-    //! We don't need a parent for the root entity that's why we can create it here
-    EntityPointer rootEntity;
     //! We need to disable the depth test so that the object model is always infront of the iamge
     DepthTestPointer depthTest;
     ImageRenderablePointer imageRenderable;

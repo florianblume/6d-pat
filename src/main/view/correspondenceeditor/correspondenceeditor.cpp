@@ -2,6 +2,7 @@
 #include "ui_correspondenceeditor.h"
 #include "view/rendering/imagerenderable.h"
 #include "view/rendering/objectmodelrenderable.h"
+#include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DRender/QCamera>
 
 CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager* modelManager) :
@@ -52,9 +53,8 @@ CorrespondenceEditor::~CorrespondenceEditor()
 }
 
 void CorrespondenceEditor::setupRootEntity() {
-    rootEntity = new Qt3DCore::QEntity();
-    depthTest = new Qt3DRender::QDepthTest(rootEntity);
-    graphicsWindow->setRootEntity(rootEntity);
+    graphicsWindow->setRootEntity(new Qt3DCore::QEntity());
+    depthTest = new Qt3DRender::QDepthTest(graphicsWindow->activeFrameGraph());
     //! Always pass depth test i.e. objects will be visible above other objects
     depthTest->setDepthFunction(Qt3DRender::QDepthTest::Always);
 }
@@ -70,8 +70,6 @@ void CorrespondenceEditor::deleteObjects() {
     //! is null and thus we should not try to delet it
     if (depthTest)
         delete depthTest;
-    if (rootEntity)
-        delete rootEntity;
     if (imageRenderable)
         delete imageRenderable;
     if (imageObjectPicker)
@@ -90,7 +88,7 @@ void CorrespondenceEditor::showImage(const QString &imagePath) {
     //! Set root entity here as parent so that image is a child of it
     deleteObjects();
     setupRootEntity();
-    imageRenderable = new ImageRenderable(rootEntity, imagePath);
+    imageRenderable = new ImageRenderable(graphicsWindow->activeFrameGraph(), imagePath);
     imageObjectPicker = new Qt3DRender::QObjectPicker(imageRenderable);
     imageRenderable->addComponent(imageObjectPicker);
 
@@ -113,7 +111,8 @@ void CorrespondenceEditor::addObjectModelRenderable(const ObjectModel* objectMod
     //! We do not need to take care of deleting the renderables, the destructor of this class
     //! or the start of this function will do this
     ObjectModelRenderable *newRenderable =
-            new ObjectModelRenderable(rootEntity, objectModel->getAbsolutePath(), "");
+            new ObjectModelRenderable(graphicsWindow->activeFrameGraph(),
+                                      objectModel->getAbsolutePath(), "");
     objectModelRenderables.push_back(newRenderable);
 
     //! We do this so that wenn someone calls the update correspondence or remove correspondence
