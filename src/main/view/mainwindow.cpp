@@ -4,6 +4,7 @@
 #include "view/settings/settingsdialog.h"
 #include <QSettings>
 #include <QCloseEvent>
+#include <QMessageBox>
 #include <QLayout>
 
 QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";
@@ -23,8 +24,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow) {
     ui->setupUi(this);
+    connect(ui->widgetLeftBottom, SIGNAL(mousePressed(QPointF)), this, SLOT(onMousePressedOnImage(QPointF)));
     readSettings();
     statusBar()->showMessage(QString("Loading..."));
+}
+
+MainWindow::~MainWindow() {
+    delete ui;
 }
 
 //! This function persistently stores settings of the application.
@@ -73,10 +79,6 @@ void MainWindow::readSettings() {
 void MainWindow::closeEvent(QCloseEvent *event) {
     writeSettings();
     event->accept();
-}
-
-MainWindow::~MainWindow() {
-    delete ui;
 }
 
 void MainWindow::showStatusMessage(const QString &message) {
@@ -161,5 +163,20 @@ void MainWindow::onActionSettingsTriggered()
     settingsDialog->show();
 }
 
-void MainWindow::addGraphicsView() {
+//! Mouse handling, i.e. clicking in the lower left widget and dragging a line to the lower right widget
+void MainWindow::onMousePressedOnImage(QPointF position) {
+    //! No need to check for whether the right widget was clicked because the only time this method
+    //! will be called is when the object image picker received a click on the image
+    if (ui->widgetRightBottom->isDisplayingObjectModel()) {
+        QGuiApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
+        clickOverlay = new ClickOverlay(this);
+        clickOverlay->setGeometry(this->geometry());
+        clickOverlay->show();
+        clickOverlay->raise();
+        ui->widgetRightBottom->raise();
+    } else {
+        QMessageBox::warning(this, "Select object model first", "Please select an object model from the list\n"
+                                                                "of object models first before trying to create\n"
+                                                                "a new correspondence.");
+    }
 }

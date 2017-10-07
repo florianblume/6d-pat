@@ -21,7 +21,7 @@ class GalleryObjectModelModel : public QAbstractListModel
 
 private:
     ModelManager* modelManager;
-    QMap<const ObjectModel*, QString> *codes = Q_NULLPTR;
+    QMap<const ObjectModel*, QString> codes;
     QVector<QColor> colorsOfCurrentImage;
     int currentSelectedImageIndex = -1;
     //! We need to cache images as well because the rendered image is not ready directly
@@ -43,7 +43,7 @@ public:
     //! Implementations of QAbstractListModel
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    void setSegmentationCodesForObjectModels(QMap<const ObjectModel*, QString> *codes);
+    void setSegmentationCodesForObjectModels(QMap<const ObjectModel*, QString> &codes);
 
 public slots:
     /*!

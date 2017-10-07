@@ -5,13 +5,37 @@
 #include "model/objectmodel.hpp"
 #include "model/objectimagecorrespondence.hpp"
 #include "model/modelmanager.hpp"
+#include "view/rendering/imagerenderable.h"
+#include "view/rendering/objectmodelrenderable.h"
+#include <QPointer>
+#include <QList>
+#include <QMap>
 #include <QWidget>
+#include <QSignalMapper>
+#include <QScopedPointer>
+#include <Qt3DCore/QEntity>
 #include <Qt3DExtras/Qt3DWindow>
+#include <Qt3DRender/QObjectPicker>
+#include <Qt3DRender/QPickEvent>
 #include <QtAwesome/QtAwesome.h>
+#include <Qt3DRender/QDepthTest>
 
 namespace Ui {
 class CorrespondenceEditor;
 }
+
+//! Convenience typdefs
+//! See the destructor implementation of this class to understand why we use QPointer class here
+typedef QPointer<Qt3DCore::QEntity> EntityPointer;
+typedef QPointer<Qt3DRender::QDepthTest> DepthTestPointer;
+typedef QPointer<ImageRenderable> ImageRenderablePointer;
+typedef QList<QPointer<ObjectModelRenderable>> ObjectModelRenderablePointerList;
+//! We need this so we can update positions of already displayed object models when we receive a call
+//! to update a correspondence
+typedef QMap<const ObjectModel*, QPointer<ObjectModelRenderable>> ObjectModelToRenderablePointerMap;
+typedef QList<QPointer<Qt3DRender::QObjectPicker>> ObjectPickerPointerList;
+typedef QPointer<Qt3DRender::QObjectPicker> ObjectPickerPointer;
+typedef QScopedPointer<QSignalMapper> SignalMapperPointer;
 
 /*!
  * \brief The CorrespondenceEditor class holds the image that is to be annotated and allows
@@ -27,9 +51,31 @@ private:
     QtAwesome* awesome;
     ModelManager* modelManager;
     Qt3DExtras::Qt3DWindow *graphicsWindow;
+
+    //! We don't need a parent for the root entity that's why we can create it here
+    EntityPointer rootEntity;
+    //! We need to disable the depth test so that the object model is always infront of the iamge
+    DepthTestPointer depthTest;
+    ImageRenderablePointer imageRenderable;
+    ObjectPickerPointer imageObjectPicker;
+    ObjectModelRenderablePointerList objectModelRenderables;
+    ObjectModelToRenderablePointerMap objectModelToRenderablePointerMap;
+    ObjectPickerPointerList objectModelsPickers;
+    SignalMapperPointer objectModelPickerSignalMapper{new QSignalMapper};
+    //! Because a object model can be added through the updateCorrespondence method, we need to keep
+    //! track of the indeces to corretly link the object pickers
+    int currentSignalMapperIndex = 0;
+
+    //! The index of the image that is currently selected in the gallery and displayed here
     int currentlyDisplayedImage = -1;
+    //! Stores, whether we are currently looking at the "normal" image, or the (maybe present)
+    //! segmentation image
     bool showingNormalImage = true;
     void showImage(const QString &imagePath);
+    void addObjectModelRenderable(const ObjectModel* objectModel,
+                                  int objectModelIndex);
+    void setupRootEntity();
+    void deleteObjects();
 
 public:
     explicit CorrespondenceEditor(QWidget *parent = 0, ModelManager* modelManager = 0);
@@ -41,34 +87,49 @@ public:
      */
     void setModelManager(ModelManager* modelManager);
 
+signals:
+    void imageClicked(QPointF position);
+    void objectModelClicked(const ObjectModel *objectModel);
+
 public slots:
     /*!
      * \brief setImage sets the image that this CorrespondenceEditor displays.
      * \param index the index of the image to be displayed
      */
     void setImage(int index);
+
     /*!
      * \brief reset resets the view to display nothing.
      */
     void reset();
+
     /*!
      * \brief correspondenceChanged updates the displayed correspondence. If it does not
      * exist it will be added.
      * \param correspondence the correspondence to be updated
      */
     void updateCorrespondence(ObjectImageCorrespondence* correspondence);
+
     /*!
      * \brief removeCorrespondence removes the given correspondence
      * \param correspondence the correspondence to be removed
      */
     void removeCorrespondence(ObjectImageCorrespondence* correspondence);
 
+    /*!
+     * \brief reload reloads this correspondence editor and thus forces it to load
+     * all data related to the currently selected image. If the view should be reset,
+     * i.e. all objects should be removed, call the reset() function.
+     */
+    void reload();
+
 private slots:
     /*!
      * \brief showSegmentationImage is there for the switch view button
      */
     void switchImage();
-
+    void imageObjectPickerPressed(Qt3DRender::QPickEvent *pick);
+    void objectModelObjectPickerPressed(int index);
 };
 
 #endif // CORRESPONDENCEEDITOR_H

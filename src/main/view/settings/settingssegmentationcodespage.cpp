@@ -61,7 +61,7 @@ void SettingsSegmentationCodesPage::setSettingsItemAndObjectModels(SettingsItem 
         buttonEdit->setIcon(awesome->icon(fa::paintbrush));
         buttonEdit->setFixedSize(QSize(40, 20));
         buttonEdit->setToolTip("Edit color");
-        connect(buttonEdit, SIGNAL(clicked()), &*signalMapperEdit, SLOT(map()));
+        connect(buttonEdit, SIGNAL(clicked()), signalMapperEdit.data(), SLOT(map()));
         signalMapperEdit->setMapping(buttonEdit, i);
         layout->addWidget(buttonEdit);
 
@@ -71,7 +71,7 @@ void SettingsSegmentationCodesPage::setSettingsItemAndObjectModels(SettingsItem 
         buttonUnset->setIcon(awesome->icon(fa::remove));
         buttonUnset->setFixedSize(QSize(40, 20));
         buttonUnset->setToolTip("Remove color");
-        connect(buttonUnset, SIGNAL(clicked()), &*signalMapperRemove, SLOT(map()));
+        connect(buttonUnset, SIGNAL(clicked()), signalMapperRemove.data(), SLOT(map()));
         signalMapperRemove->setMapping(buttonUnset, i);
         layout->addWidget(buttonUnset);
 
@@ -79,8 +79,8 @@ void SettingsSegmentationCodesPage::setSettingsItemAndObjectModels(SettingsItem 
         i++;
     }
 
-    connect(&*signalMapperEdit, SIGNAL(mapped(int)), this, SLOT(showColorDialog(int)));
-    connect(&*signalMapperRemove, SIGNAL(mapped(int)), this, SLOT(removeColor(int)));
+    connect(signalMapperEdit.data(), SIGNAL(mapped(int)), this, SLOT(showColorDialog(int)));
+    connect(signalMapperRemove.data(), SIGNAL(mapped(int)), this, SLOT(removeColor(int)));
 }
 
 void SettingsSegmentationCodesPage::showColorDialog(int index) {

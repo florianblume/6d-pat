@@ -30,6 +30,7 @@ public:
      * \param modelManager the model manager from which the object models are loaded from
      */
     void setModelManager(ModelManager* modelManager);
+    bool isDisplayingObjectModel();
 
 public slots:
     /*!

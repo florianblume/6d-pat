@@ -33,15 +33,14 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
 
     const ObjectModel* objectModel = modelManager->getObjectModel(index.row());
     const Image* currentlySelectedImage = modelManager->getImage(currentSelectedImageIndex);
-    if (codes == Q_NULLPTR
-            || codes->size() == 0
-            || currentlySelectedImage->getSegmentationImagePath().compare("") == 0) {
+    if (codes.size() == 0
+            || currentlySelectedImage->getSegmentationImagePath().isEmpty()) {
         //! If no codes at all were set or if the currently selected image does not provide segmentation images
         //! simply display all available object models
         return dataForObjectModel(objectModel, role);
-    } else if (codes->contains(objectModel)) {
+    } else if (codes.contains(objectModel)) {
         //! If any codes are set only display the appropriate object models
-        QString code = (*codes)[objectModel];
+        QString code = codes[objectModel];
         QColor color = OtiatHelper::colorFromSegmentationCode(code);
         if (colorsOfCurrentImage.contains(color)) {
             return dataForObjectModel(objectModel, role);
@@ -58,7 +57,7 @@ int GalleryObjectModelModel::rowCount(const QModelIndex &parent) const {
     return 0;
 }
 
-void GalleryObjectModelModel::setSegmentationCodesForObjectModels(QMap<const ObjectModel*, QString> *codes) {
+void GalleryObjectModelModel::setSegmentationCodesForObjectModels(QMap<const ObjectModel*, QString> &codes) {
     this->codes = codes;
 }
 
@@ -67,11 +66,11 @@ bool GalleryObjectModelModel::isNumberOfToolsCorrect() {
     //! than different colors in the segmentation image we definitely have too few object models
     //!
     //! Minus 2 because black and white are always in the segmentation images
-    if (codes->keys().size() == 0 && modelManager->getObjectModelsSize() < colorsOfCurrentImage.size() - 2)
+    if (codes.keys().size() == 0 && modelManager->getObjectModelsSize() < colorsOfCurrentImage.size() - 2)
         return false;
 
     int numberOfMatches = 0;
-    for (QMap<const ObjectModel*, QString>::Iterator it = codes->begin(); it != codes->end(); it++) {
+    for (QMap<const ObjectModel*, QString>::Iterator it = codes.begin(); it != codes.end(); it++) {
         QColor color = OtiatHelper::colorFromSegmentationCode(it.value());
         if (colorsOfCurrentImage.contains(color))
             numberOfMatches++;

@@ -5,6 +5,7 @@ BreadcrumbView::BreadcrumbView(QWidget *parent, const QString &pathToShow)
     : QWidget(parent), pathToShow(pathToShow)
 {;
     layout = new QHBoxLayout();
+    layout->setSpacing(0);
     this->setLayout(layout);
     updateView();
 }
@@ -24,8 +25,8 @@ QString BreadcrumbView::getPathTowShow() {
 
 void BreadcrumbView::updateView() {
     QStringList pathParts = pathToShow.split(QDir::separator());
-    // TODO: calculate correct position
     uint i = 0;
+
     for (QString part : pathParts) {
         // reuse labels
         QLabel* label;
@@ -35,13 +36,17 @@ void BreadcrumbView::updateView() {
         } else {
             label = new QLabel(QString(part), this);
             label->setAlignment(Qt::AlignCenter);
+            label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+            //label->setStyleSheet("border: 1px solid;");
+            label->setMargin(5);
             layout->addWidget(label);
             labels.push_back(label);
         }
         i++;
     }
 
-    // save state of i, e.g. when we only need 4 labels but have 6 in the list, so that we are able to delete the excess ones
+    //! save state of i, e.g. when we only need 4 labels but have 6 in the list,
+    //! so that we are able to delete the excess ones
     uint j = i;
 
     while (i < labels.size()) {

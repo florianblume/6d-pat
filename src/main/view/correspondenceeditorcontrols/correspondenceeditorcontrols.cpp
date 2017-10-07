@@ -74,6 +74,11 @@ void CorrespondenceEditorControls::setCorrespondenceToEdit(ObjectImageCorrespond
 }
 
 void CorrespondenceEditorControls::reset() {
+    currentObjectModelIndex = -1;
     leftWindow->setRootEntity(0);
     rightWindow->setRootEntity(0);
+}
+
+bool CorrespondenceEditorControls::isDisplayingObjectModel() {
+    return currentObjectModelIndex != -1;
 }

@@ -6,12 +6,34 @@
 #include "view/gallery/galleryimagemodel.h"
 #include "view/gallery/galleryobjectmodelmodel.h"
 #include "view/settings/settingsdialogdelegate.h"
+#include <QGuiApplication>
+#include <QScopedPointer>
 #include <QMainWindow>
+#include <QMouseEvent>
+#include <QFrame>
 #include <QString>
 
 namespace Ui {
 class MainWindow;
 }
+
+/*!
+ * \brief The ClickOverlay class is there to intercept clicks anywhere (except for the 3D models)
+ *  on the UI after the user clicked on a position in the image. This is to change back the cursor
+ * to normal appearance.
+ */
+class ClickOverlay : public QFrame {
+public:
+    ClickOverlay(QWidget* parent) : QFrame(parent) {
+    }
+
+    void mousePressEvent(QMouseEvent *event)  {
+        QGuiApplication::restoreOverrideCursor();
+        event->accept();
+        hide();
+        // TODO: Propagate click to main controller to not further track mouse movements
+    }
+};
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -73,14 +95,21 @@ public:
      */
     void setSettingsDialogDelegate(SettingsDialogDelegate* delegate);
 
-    void addGraphicsView();
-
 private slots:
     void onActionAboutTriggered();
     void onActionExitTriggered();
     void onActionSettingsTriggered();
+    //! Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
+    //! right clicks in the image to start creating a correspondence
+    void onMousePressedOnImage(QPointF position);
 
 private:
+    //! The overlay that is shown when the user clicks on a position in the displayed image to start
+    //! to create a correspondence. When they then click anywhere except for the 3D model on the right
+    //! the formerly changed curser (crosshair) will change back to normal, i.e. the correspondence
+    //! will not be created.
+    ClickOverlay *clickOverlay;
+
     Ui::MainWindow *ui;
 
     //! The settings item that is used to store values intermediatly. The settings dialog writes
@@ -97,7 +126,7 @@ private:
     static QString SETTINGS_PROGRAM_NAME;
     //! To group settings
     static QString SETTINGS_GROUP_NAME;
-    //! The rest should be self explanatory
+    //! The following are the keys to store settings persistently by using Qt's own settings system
     static QString WINDOW_SIZE_KEY;
     static QString WINDOW_POSITION_KEY;
     static QString SPLITTER_MAIN_SIZE_LEFT_KEY;

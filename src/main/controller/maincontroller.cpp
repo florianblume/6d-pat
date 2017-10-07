@@ -29,6 +29,7 @@ MainController::~MainController() {
     settings.endGroup();
 
     delete currentSettingsItem;
+    delete galleryImageModel;
     delete galleryObjectModelModel;
 }
 
@@ -71,7 +72,8 @@ void MainController::initializeMainWindow() {
 
     //! The models do not need to notify the gallery of any changes on the data because the list view
     //! has its own update loop, i.e. automatically fetches new data
-    mainWindow.setGalleryImageModel(new GalleryImageModel(&modelManager));
+    galleryImageModel = new GalleryImageModel(&modelManager);
+    mainWindow.setGalleryImageModel(galleryImageModel);
     galleryObjectModelModel = new GalleryObjectModelModel(&modelManager);
     setSegmentationCodesOnGalleryObjectModelModel();
     mainWindow.setGalleryObjectModelModel(galleryObjectModelModel);
@@ -81,8 +83,8 @@ void MainController::initializeMainWindow() {
 }
 
 void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
-    QMap<const ObjectModel*, QString> *codes = new QMap<const ObjectModel*, QString>();
-    currentSettingsItem->getSegmentationCodes(*codes);
+    QMap<const ObjectModel*, QString> codes;
+    currentSettingsItem->getSegmentationCodes(codes);
     galleryObjectModelModel->setSegmentationCodesForObjectModels(codes);
 }
 
@@ -101,7 +103,6 @@ void MainController::initialize() {
 }
 
 void MainController::showView() {
-    mainWindow.addGraphicsView();
     mainWindow.show();
 }
 
