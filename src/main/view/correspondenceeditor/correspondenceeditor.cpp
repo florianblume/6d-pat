@@ -30,6 +30,9 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager* modelM
     camera->setPosition(QVector3D(0.f, 0.f, 1.5f));
     camera->setViewCenter(QVector3D(0, 0, 0));
 
+    Qt3DExtras::QFirstPersonCameraController *firstPerson = new Qt3DExtras::QFirstPersonCameraController(graphicsWindow->activeFrameGraph());
+    firstPerson->setCamera(camera);
+
     setupRootEntity();
 
     awesome->initFontAwesome();
@@ -56,12 +59,10 @@ CorrespondenceEditor::~CorrespondenceEditor()
 void CorrespondenceEditor::setupRootEntity() {
     Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
     graphicsWindow->setRootEntity(rootEntity);
-    depthTest = new Qt3DRender::QDepthTest(graphicsWindow->activeFrameGraph());
-    //! Always pass depth test i.e. objects will be visible above other objects
-    depthTest->setDepthFunction(Qt3DRender::QDepthTest::Always);
-    Qt3DExtras::QFirstPersonCameraController *cameraController
-            = new Qt3DExtras::QFirstPersonCameraController(graphicsWindow->activeFrameGraph());
-    cameraController->setCamera(graphicsWindow->camera());
+    renderStateSet = new Qt3DRender::QRenderStateSet(rootEntity);
+    depthTest = new Qt3DRender::QDepthTest();
+    depthTest->setDepthFunction(Qt3DRender::QDepthTest::Never);
+    renderStateSet->addRenderState(depthTest);
 }
 
 void CorrespondenceEditor::setModelManager(ModelManager* modelManager) {
@@ -79,6 +80,8 @@ void CorrespondenceEditor::deleteObjects() {
         delete imageRenderable;
     if (imageObjectPicker)
         delete imageObjectPicker;
+    if (renderStateSet)
+        delete renderStateSet;
     for (ObjectModelRenderable* renderable : objectModelRenderables) {
         if (renderable)
             delete renderable;
@@ -93,8 +96,10 @@ void CorrespondenceEditor::showImage(const QString &imagePath) {
     //! Set root entity here as parent so that image is a child of it
     deleteObjects();
     setupRootEntity();
+
+    //! Create the image plane that displays the image
     imageRenderable = new ImageRenderable(graphicsWindow->activeFrameGraph(), imagePath);
-    imageObjectPicker = new Qt3DRender::QObjectPicker(imageRenderable);
+    imageObjectPicker = new Qt3DRender::QObjectPicker();
     imageRenderable->addComponent(imageObjectPicker);
 
     //! We want to catch picking events to pass on to the main window to be able to detect
@@ -118,13 +123,23 @@ void CorrespondenceEditor::addObjectModelRenderable(const ObjectModel* objectMod
     ObjectModelRenderable *newRenderable =
             new ObjectModelRenderable(graphicsWindow->activeFrameGraph(),
                                       objectModel->getAbsolutePath(), "");
-    newRenderable->getTransform()->setTranslation(QVector3D(0, 0, 0.5));
+
+    //
+    //
+    // For testing only!
+    // TODO: Get real scaling/rotation
+    //
+    //
+    newRenderable->getTransform()->setTranslation(QVector3D(0, 0, -0.1));
+    newRenderable->getTransform()->setScale(0.01);
+
     objectModelRenderables.push_back(newRenderable);
 
     //! We do this so that wenn someone calls the update correspondence or remove correspondence
     //! function we are able to retrieve the 3D model and adjust it
     objectModelToRenderablePointerMap.insert(objectModel, newRenderable);
     Qt3DRender::QObjectPicker *picker = new Qt3DRender::QObjectPicker(newRenderable);
+    newRenderable->addComponent(picker);
     objectModelsPickers.push_back(picker);
 
     //! Map the picking event to the respective index
@@ -190,10 +205,11 @@ void CorrespondenceEditor::switchImage() {
 }
 
 void CorrespondenceEditor::imageObjectPickerPressed(Qt3DRender::QPickEvent *pick) {
-    QPointF position = pick->position();
-    position.setX(position.x() + graphicsWindow->geometry().x());
-    position.setY(position.y() + graphicsWindow->geometry().y());
-    emit imageClicked(position);
+    QVector3D intersection = pick->worldIntersection();
+    const Image* image = modelManager->getImage(currentlyDisplayedImage);
+    QImage loadedImage(image->getAbsoluteImagePath());
+    emit imageClicked(QPointF(intersection.x() * loadedImage.width(),
+                              (intersection.y() - 1) * loadedImage.height()));
 }
 
 void CorrespondenceEditor::objectModelObjectPickerPressed(int index) {

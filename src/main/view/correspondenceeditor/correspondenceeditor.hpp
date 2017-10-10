@@ -19,6 +19,7 @@
 #include <Qt3DRender/QPickEvent>
 #include <QtAwesome/QtAwesome.h>
 #include <Qt3DRender/QDepthTest>
+#include <Qt3DRender/QRenderStateSet>
 
 namespace Ui {
 class CorrespondenceEditor;
@@ -28,6 +29,7 @@ class CorrespondenceEditor;
 //! See the destructor implementation of this class to understand why we use QPointer class here
 typedef QPointer<Qt3DCore::QEntity> EntityPointer;
 typedef QPointer<Qt3DRender::QDepthTest> DepthTestPointer;
+typedef QPointer<Qt3DRender::QRenderStateSet> RenderStateSetPointer;
 typedef QPointer<ImageRenderable> ImageRenderablePointer;
 typedef QList<QPointer<ObjectModelRenderable>> ObjectModelRenderablePointerList;
 //! We need this so we can update positions of already displayed object models when we receive a call
@@ -52,13 +54,18 @@ private:
     ModelManager* modelManager;
     Qt3DExtras::Qt3DWindow *graphicsWindow;
 
-    //! We need to disable the depth test so that the object model is always infront of the iamge
+    //!All necessary stuff for 3D
+    //!
+    //! We need to disable the depth test so that the object model is always
+    //! infront of the iamge
     DepthTestPointer depthTest;
+    RenderStateSetPointer renderStateSet;
     ImageRenderablePointer imageRenderable;
     ObjectPickerPointer imageObjectPicker;
     ObjectModelRenderablePointerList objectModelRenderables;
     ObjectModelToRenderablePointerMap objectModelToRenderablePointerMap;
     ObjectPickerPointerList objectModelsPickers;
+
     SignalMapperPointer objectModelPickerSignalMapper{new QSignalMapper};
     //! Because a object model can be added through the updateCorrespondence method, we need to keep
     //! track of the indeces to corretly link the object pickers
