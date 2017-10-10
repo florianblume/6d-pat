@@ -82,7 +82,7 @@ bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(
         return false;
     }
 
-    QDir image = objectImageCorrespondence.getImage().getImagePath();
+    QDir image = objectImageCorrespondence.getImage()->getImagePath();
     //! Only the filename, e.g. img01_correspondence.txt
     QDir correspondenceFileName = convertPathToSuffxFileName(image.path(),
                                                              CORRESPONDENCE_FILES_NAME_SUFFIX,
@@ -221,13 +221,13 @@ void loadCorrespondencesFromFile(const QString &inFilePath, QList<ObjectImageCor
                 //! Do not throw an exception here, maybe the path is not correctly set
                 //! but instead simply don't load correspondences that don't find their
                 //! entities
-                correspondences.push_back(ObjectImageCorrespondence(
-                                          splitLine[0], // ID
-                                          splitLine[3].toInt(), splitLine[4].toInt(), splitLine[5].toInt(), // Pos
-                                          splitLine[6].toInt(), splitLine[7].toInt(), splitLine[8].toInt(), // Rot
-                                          splitLine[9].toFloat(), // Articulation
-                                          *image,
-                                          *objectModel));
+                ObjectImageCorrespondence correspondence(splitLine[0], // ID
+                                                      splitLine[3].toInt(), splitLine[4].toInt(), splitLine[5].toInt(), // Pos
+                                                      splitLine[6].toInt(), splitLine[7].toInt(), splitLine[8].toInt(), // Rot
+                                                      splitLine[9].toFloat(), // Articulation
+                                                      image,
+                                                      objectModel);
+                correspondences.push_back(correspondence);
             }
         }
     }

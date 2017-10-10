@@ -4,6 +4,7 @@
 #include "view/rendering/objectmodelrenderable.h"
 #include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DRender/QCamera>
+#include <Qt3DExtras/QFirstPersonCameraController>
 
 CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager* modelManager) :
     QWidget(parent),
@@ -53,10 +54,14 @@ CorrespondenceEditor::~CorrespondenceEditor()
 }
 
 void CorrespondenceEditor::setupRootEntity() {
-    graphicsWindow->setRootEntity(new Qt3DCore::QEntity());
+    Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
+    graphicsWindow->setRootEntity(rootEntity);
     depthTest = new Qt3DRender::QDepthTest(graphicsWindow->activeFrameGraph());
     //! Always pass depth test i.e. objects will be visible above other objects
     depthTest->setDepthFunction(Qt3DRender::QDepthTest::Always);
+    Qt3DExtras::QFirstPersonCameraController *cameraController
+            = new Qt3DExtras::QFirstPersonCameraController(graphicsWindow->activeFrameGraph());
+    cameraController->setCamera(graphicsWindow->camera());
 }
 
 void CorrespondenceEditor::setModelManager(ModelManager* modelManager) {
@@ -101,7 +106,7 @@ void CorrespondenceEditor::showImage(const QString &imagePath) {
                                              correspondencesForImage);
     int i = 0;
     for (ObjectImageCorrespondence* correspondence : correspondencesForImage) {
-        addObjectModelRenderable(&correspondence->getObjectModel(), i);
+        addObjectModelRenderable(correspondence->getObjectModel(), i);
         i++;
     }
 }
@@ -113,6 +118,7 @@ void CorrespondenceEditor::addObjectModelRenderable(const ObjectModel* objectMod
     ObjectModelRenderable *newRenderable =
             new ObjectModelRenderable(graphicsWindow->activeFrameGraph(),
                                       objectModel->getAbsolutePath(), "");
+    newRenderable->getTransform()->setTranslation(QVector3D(0, 0, 0.5));
     objectModelRenderables.push_back(newRenderable);
 
     //! We do this so that wenn someone calls the update correspondence or remove correspondence
@@ -148,7 +154,7 @@ void CorrespondenceEditor::setImage(int index) {
 }
 
 void CorrespondenceEditor::updateCorrespondence(ObjectImageCorrespondence* correspondence) {
-    if (objectModelToRenderablePointerMap.contains(&correspondence->getObjectModel())) {
+    if (objectModelToRenderablePointerMap.contains(correspondence->getObjectModel())) {
         //! Object model is already displayed, we only need to update it
         // TODO: Update the object model
     } else {

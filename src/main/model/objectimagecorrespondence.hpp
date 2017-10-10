@@ -6,8 +6,6 @@
 #include <QVector3D>
 #include <QString>
 
-using namespace std;
-
 //! This class represents a match between an object model and an image, i.e. stores where the object is located on the image and
 //! how it is rotated.
 class ObjectImageCorrespondence {
@@ -21,9 +19,9 @@ private:
     //! The indicator whether the user is confident in the correspondence.
     bool accepted;
     //! The image associated with this corresopndence.
-    const Image& image;
+    const Image* image;
     //! The object model associated with this correspondence.
-    const ObjectModel& objectModel;
+    const ObjectModel* objectModel;
     //! The ID of the correspondence. This is necessary becuase images might contain some objects multiple times.
     QString id;
 
@@ -42,7 +40,13 @@ public:
      * \param _objectModel the associated object model
      */
     ObjectImageCorrespondence(QString id, float x, float y, float z, float r1, float r2, float r3, float articulation,
-                              const Image& image, const ObjectModel& objectModel);
+                              const Image* image, const ObjectModel* objectModel);
+
+    /*!
+     * \brief ObjectImageCorrespondence copy constructor for class ObjectImageCorrespondence.
+     * \param other the correspondence to copy from
+     */
+    ObjectImageCorrespondence(const ObjectImageCorrespondence &other);
 
     /*!
      * \brief getPosition Returns the position of the object on the image. The value z of the position determines the depth,
@@ -65,12 +69,12 @@ public:
      * \brief getImage Returns the image associated with this correspondence.
      * \return the image associated with this correspondence
      */
-    const Image& getImage() const;
+    const Image* getImage() const;
     /*!
      * \brief getObjectModel Returns the object model associated with this correspondence.
      * \return the object model associated with this correspondence
      */
-    const ObjectModel& getObjectModel() const;
+    const ObjectModel* getObjectModel() const;
     /*!
      * \brief setPosition Sets the position of the object on the image.
      * \param x the x position of the object

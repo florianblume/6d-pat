@@ -26,6 +26,11 @@ private:
     QMap<QString, QList<ObjectImageCorrespondence*>> correspondencesForObjectModels;
     //! The list of the object image correspondences
     QList<ObjectImageCorrespondence> correspondences;
+    /*!
+     * \brief createConditionalCache sets up the cache of correspondences that
+     * can be retrieved for an image or for an object model.
+     */
+    void createConditionalCache();
 
 public:
     CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy);

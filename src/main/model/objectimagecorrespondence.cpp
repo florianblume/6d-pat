@@ -4,8 +4,8 @@ ObjectImageCorrespondence::ObjectImageCorrespondence(QString id,
                                                      float x, float y, float z,
                                                      float r1, float r2, float r3,
                                                      float articulation,
-                                                     const Image& image,
-                                                     const ObjectModel& objectModel)
+                                                     const Image* image,
+                                                     const ObjectModel* objectModel)
     : image(image),
       objectModel(objectModel),
       id(id) {
@@ -13,6 +13,17 @@ ObjectImageCorrespondence::ObjectImageCorrespondence(QString id,
     rotation = {r1, r2, r3};
     this->articulation = articulation;
     accepted = false;
+}
+
+ObjectImageCorrespondence::ObjectImageCorrespondence(const ObjectImageCorrespondence &other)
+    : position(other.position),
+      rotation(other.rotation),
+      articulation(other.articulation),
+      accepted(other.accepted),
+      image(other.image),
+      objectModel(other.objectModel),
+      id(other.id) {
+
 }
 
 QVector3D ObjectImageCorrespondence::getPosition() const {
@@ -27,11 +38,11 @@ float ObjectImageCorrespondence::getArticulation() const {
     return articulation;
 }
 
-const Image& ObjectImageCorrespondence::getImage() const {
+const Image* ObjectImageCorrespondence::getImage() const {
     return image;
 }
 
-const ObjectModel& ObjectImageCorrespondence::getObjectModel() const {
+const ObjectModel* ObjectImageCorrespondence::getObjectModel() const {
     return objectModel;
 }
 
@@ -61,7 +72,7 @@ ObjectImageCorrespondence& ObjectImageCorrespondence::operator=(ObjectImageCorre
 }
 
 QString ObjectImageCorrespondence::toString() const {
-    return id + " " + image.getImagePath() + " " + objectModel.getPath() + " " + QString::number(position.x()) + " " +
+    return id + " " + image->getImagePath() + " " + objectModel->getPath() + " " + QString::number(position.x()) + " " +
             QString::number(position.y()) + " " + QString::number(position.z()) + " " + QString::number(rotation.x()) + " " +
             QString::number(rotation.y()) + " " + QString::number(rotation.z()) + " " + QString::number(articulation);
 }
