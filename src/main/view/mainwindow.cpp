@@ -126,7 +126,6 @@ void MainWindow::setGalleryObjectModelModel(GalleryObjectModelModel* model) {
 void MainWindow::setModelManager(ModelManager* modelManager) {
     this->modelManager = modelManager;
     ui->widgetLeftBottom->setModelManager(modelManager);
-    ui->widgetRightBottom->setModelManager(modelManager);
 }
 
 void MainWindow::resetCorrespondenceEditor() {
@@ -186,7 +185,12 @@ void MainWindow::onImageClicked(QPointF position) {
     }
 }
 
-void MainWindow::onObjectModelClickedAt(int objectModelIndex, QVector3D position) {
+void MainWindow::onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position) {
     QGuiApplication::restoreOverrideCursor();
-    emit objectModelClickedAt(objectModelIndex, position);
+    emit objectModelClickedAt(objectModel, position);
+}
+
+void MainWindow::onSelectedObjectModelChanged(int index) {
+    Q_ASSERT(index >= 0 && index < modelManager->getObjectModelsSize());
+    emit selectedObjectModelChanged(modelManager->getObjectModel(index));
 }

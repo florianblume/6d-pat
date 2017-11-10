@@ -17,7 +17,7 @@
  */
 struct CorrespondingPoints {
     QPointF pointIn2D;
-    int objectModelIndex;
+    const ObjectModel* objectModel;
     QVector3D pointIn3D;
 };
 
@@ -45,7 +45,7 @@ private:
 
 private slots:
     void onImageClicked(QPointF position);
-    void onObjectModelClickedAt(int objectModelIndex, QVector3D position);
+    void onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position);
 
 public:
     MainController(int &argc, char *argv[]);

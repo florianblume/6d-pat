@@ -97,7 +97,13 @@ public:
 public slots:
     //! The slot that catches the emitted signal when the 3D model in the lower right correspondence controls
     //! is clicked (see CorrespondenceEditorControls)
-    void onObjectModelClickedAt(int objectModelIndex, QVector3D position);
+    void onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position);
+    /*!
+     * \brief onSelectedObjectModelChanged will be called from the right gallery that displays
+     * objects models so that the main view can retrieve the actual object model an pass it on
+     * to the correspondence editor controls.
+     */
+    void onSelectedObjectModelChanged(int index);
 
 signals:
     //! Those two methods are fired when the sub-views that display the correspondences fire them
@@ -105,7 +111,8 @@ signals:
     //! the 3D model (to create the first 2D to 3D point correspondence) is clicked, the second
     //! function is emitted.
     void imageClicked(QPointF position);
-    void objectModelClickedAt(int objectModelIndex, QVector3D position);
+    void objectModelClickedAt(const ObjectModel* objectModel, QVector3D position);
+    void selectedObjectModelChanged(const ObjectModel* objectModel);
 
 private slots:
     void onActionAboutTriggered();

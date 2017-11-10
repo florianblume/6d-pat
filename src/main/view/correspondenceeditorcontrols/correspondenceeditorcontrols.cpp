@@ -24,12 +24,6 @@ CorrespondenceEditorControls::CorrespondenceEditorControls(QWidget *parent) :
     setup3DWindow(rightWindow);
 }
 
-void CorrespondenceEditorControls::setup3DWindow(WindowPointer window) {
-    QWidget *container = QWidget::createWindowContainer(window);
-    container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->graphicsFrame->layout()->addWidget(container);
-}
-
 CorrespondenceEditorControls::~CorrespondenceEditorControls()
 {
     leftWindow->destroy();
@@ -43,8 +37,72 @@ CorrespondenceEditorControls::~CorrespondenceEditorControls()
     delete ui;
 }
 
-void CorrespondenceEditorControls::setModelManager(ModelManager *modelManager) {
-    this->modelManager = modelManager;
+void CorrespondenceEditorControls::setEnabledCorrespondenceEditorControls(bool enabled) {
+    ui->spinBoxTranslationX->setEnabled(enabled);
+    ui->spinBoxTranslationY->setEnabled(enabled);
+    ui->spinBoxTranslationZ->setEnabled(enabled);
+    ui->spinBoxRotationX->setEnabled(enabled);
+    ui->spinBoxRotationY->setEnabled(enabled);
+    ui->spinBoxRotationZ->setEnabled(enabled);
+    ui->sliderArticulation->setEnabled(enabled);
+    ui->sliderOpacity->setEnabled(enabled);
+    ui->buttonPredict->setEnabled(!enabled);
+    ui->buttonRemove->setEnabled(enabled);
+}
+
+void CorrespondenceEditorControls::setEnabledAllControls(bool enabled) {
+    ui->spinBoxTranslationX->setEnabled(enabled);
+    ui->spinBoxTranslationY->setEnabled(enabled);
+    ui->spinBoxTranslationZ->setEnabled(enabled);
+    ui->spinBoxRotationX->setEnabled(enabled);
+    ui->spinBoxRotationY->setEnabled(enabled);
+    ui->spinBoxRotationZ->setEnabled(enabled);
+    ui->sliderArticulation->setEnabled(enabled);
+    ui->sliderOpacity->setEnabled(enabled);
+    ui->buttonPredict->setEnabled(enabled);
+    ui->buttonRemove->setEnabled(enabled);
+}
+
+void CorrespondenceEditorControls::resetControlsValues() {
+    ui->spinBoxTranslationX->setValue(0);
+    ui->spinBoxTranslationY->setValue(0);
+    ui->spinBoxTranslationZ->setValue(0);
+    ui->spinBoxRotationX->setValue(0);
+    ui->spinBoxRotationY->setValue(0);
+    ui->spinBoxRotationZ->setValue(0);
+    ui->sliderArticulation->setValue(0);
+}
+
+void CorrespondenceEditorControls::setup3DWindow(WindowPointer window) {
+    QWidget *container = QWidget::createWindowContainer(window);
+    container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->graphicsFrame->layout()->addWidget(container);
+}
+
+void CorrespondenceEditorControls::updateCurrentlyEditedCorrespondence() {
+    currentCorrespondence->setPosition(ui->spinBoxTranslationX->value(),
+                                       ui->spinBoxTranslationY->value(),
+                                       ui->spinBoxTranslationZ->value());
+    currentCorrespondence->setRotation(ui->spinBoxRotationX->value(),
+                                       ui->spinBoxRotationY->value(),
+                                       ui->spinBoxRotationZ->value());
+    currentCorrespondence->setArticulation(ui->sliderArticulation->value());
+    emit correspondenceUpdated(currentCorrespondence);
+}
+
+void CorrespondenceEditorControls::setOpacityOfObjectModel(int opacity) {
+    // TODO: implement
+}
+
+void CorrespondenceEditorControls::removeCurrentlyEditedCorrespondence() {
+    setEnabledAllControls(false);
+    resetControlsValues();
+    emit correspondenceRemoved(currentCorrespondence);
+    currentCorrespondence = NULL;
+}
+
+void CorrespondenceEditorControls::predictPositionOfObjectModels() {
+    // TODO: implement
 }
 
 void CorrespondenceEditorControls::setObjectModelForWindow(WindowPointer window,
@@ -67,32 +125,47 @@ void CorrespondenceEditorControls::setObjectModelForWindow(WindowPointer window,
     connect(picker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
 }
 
-void CorrespondenceEditorControls::setObjectModel(int index) {
-    currentObjectModelIndex = index;
-    if (!modelManager)
-        return;
-
-    const ObjectModel *objectModel = modelManager->getObjectModel(index);
-    setObjectModelForWindow(leftWindow, objectModel, leftObjectPicker);
-    setObjectModelForWindow(rightWindow, objectModel, rightObjectPicker);
+void CorrespondenceEditorControls::setObjectModel(const ObjectModel* objectModel) {
+    setEnabledCorrespondenceEditorControls(false);
+    currentCorrespondence = NULL;
+    resetControlsValues();
+    currentObjectModel = objectModel;
+    setObjectModelForWindow(leftWindow, currentObjectModel, leftObjectPicker);
+    setObjectModelForWindow(rightWindow, currentObjectModel, rightObjectPicker);
 }
 
 void CorrespondenceEditorControls::setCorrespondenceToEdit(ObjectImageCorrespondence* correspondence) {
-    // TODO: implement
+    currentCorrespondence = correspondence;
+    setEnabledCorrespondenceEditorControls(true);
+    QVector3D position = currentCorrespondence->getPosition();
+    QVector3D rotation = currentCorrespondence->getRotation();
+    float articulation = currentCorrespondence->getArticulation();
+    ui->spinBoxTranslationX->setValue(position.x());
+    ui->spinBoxTranslationY->setValue(position.y());
+    ui->spinBoxTranslationZ->setValue(position.z());
+    ui->spinBoxRotationX->setValue(rotation.x());
+    ui->spinBoxRotationY->setValue(rotation.y());
+    ui->spinBoxRotationZ->setValue(rotation.z());
+    ui->sliderArticulation->setValue(articulation);
+    setObjectModelForWindow(leftWindow, currentCorrespondence->getObjectModel(), leftObjectPicker);
+    setObjectModelForWindow(rightWindow, currentCorrespondence->getObjectModel(), rightObjectPicker);
 }
 
 void CorrespondenceEditorControls::reset() {
-    currentObjectModelIndex = -1;
+    setEnabledAllControls(false);
+    currentObjectModel = NULL;
+    currentCorrespondence = NULL;
     leftWindow->setRootEntity(0);
     rightWindow->setRootEntity(0);
+    resetControlsValues();
 }
 
 bool CorrespondenceEditorControls::isDisplayingObjectModel() {
-    return currentObjectModelIndex != -1;
+    return currentObjectModel != NULL;
 }
 
 void CorrespondenceEditorControls::objectPickerClicked(Qt3DRender::QPickEvent *pick) {
-    emit objectModelClickedAt(currentObjectModelIndex,
+    emit objectModelClickedAt(currentObjectModel,
                               QVector3D(pick->localIntersection().x(),
                                         pick->localIntersection().y(),
                                         pick->localIntersection().z()));

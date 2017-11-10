@@ -440,6 +440,10 @@
   <property name="windowTitle">
    <string>Otiat</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../../../../Pictures/Otiat Icon.png</normaloff>../../../../../Pictures/Otiat Icon.png</iconset>
+  </property>
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>
@@ -1391,7 +1395,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1513,9 +1517,10 @@
    <header>view/correspondenceeditorcontrols/correspondenceeditorcontrols.h</header>
    <container>1</container>
    <slots>
-    <signal>objectModelClickedAt(int,QVector3D)</signal>
-    <slot>setObjectModel(int)</slot>
+    <signal>objectModelClickedAt(ObjectModel*,QVector3D)</signal>
     <slot>reset()</slot>
+    <slot>setObjectModel(ObjectModel*)</slot>
+    <slot>setObjectModel(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -1634,22 +1639,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>widgetGalleryRight</sender>
-   <signal>selectedItemChanged(int)</signal>
-   <receiver>widgetRightBottom</receiver>
-   <slot>setObjectModel(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>675</x>
-     <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>widgetGalleryLeft</sender>
    <signal>selectedItemChanged(int)</signal>
    <receiver>widgetRightBottom</receiver>
@@ -1747,9 +1736,9 @@
   </connection>
   <connection>
    <sender>widgetRightBottom</sender>
-   <signal>objectModelClickedAt(int,QVector3D)</signal>
+   <signal>objectModelClickedAt(ObjectModel*,QVector3D)</signal>
    <receiver>MainWindow</receiver>
-   <slot>onObjectModelClickedAt(int,QVector3D)</slot>
+   <slot>onObjectModelClickedAt(ObjectModel*,QVector3D)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>676</x>
@@ -1761,12 +1750,46 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>widgetGalleryRight</sender>
+   <signal>selectedItemChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onSelectedObjectModelChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MainWindow</sender>
+   <signal>selectedObjectModelChanged(ObjectModel*)</signal>
+   <receiver>widgetRightBottom</receiver>
+   <slot>setObjectModel(ObjectModel*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
+  <signal>selectedObjectModelChanged(ObjectModel*)</signal>
   <slot>onActionAboutTriggered()</slot>
   <slot>onActionExitTriggered()</slot>
   <slot>onActionSettingsTriggered()</slot>
   <slot>onImageClicked(QPointF)</slot>
-  <slot>onObjectModelClickedAt(int,QVector3D)</slot>
+  <slot>onObjectModelClickedAt(ObjectModel*,QVector3D)</slot>
+  <slot>onSelectedObjectModelChanged(int)</slot>
  </slots>
 </ui>

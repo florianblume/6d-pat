@@ -36,6 +36,20 @@ MainController::~MainController() {
     delete galleryObjectModelModel;
 }
 
+void MainController::initialize() {
+    // TODO: initalization in background thread, only disable UI until loading has finished
+    QSettings settings("FlorettiKonfetti Inc.", "Otiat");
+
+    settings.beginGroup("maincontroller");
+    strategy.setImagesPath(settings.value("imagesPath", QDir::homePath()).toString());
+    strategy.setObjectModelsPath(settings.value("objectModelsPath", QDir::homePath()).toString());
+    strategy.setCorrespondencesPath(settings.value("correspondencesPath", QDir::homePath()).toString());
+    settings.endGroup();
+
+    initializeSettingsItem();
+    initializeMainWindow();
+}
+
 void MainController::initializeSettingsItem() {
     currentSettingsItem = new SettingsItem("default", &modelManager);
     currentSettingsItem->setImagesPath(strategy.getImagesPath().path());
@@ -83,6 +97,11 @@ void MainController::initializeMainWindow() {
     mainWindow.setModelManager(&modelManager);
 
     mainWindow.setStatusTip("Ready");
+
+    connect(&mainWindow, SIGNAL(imageClicked(QPointF)),
+            this, SLOT(onImageClicked(QPointF)));
+    connect(&mainWindow, SIGNAL(objectModelClickedAt(ObjectModel*,QVector3D)),
+            this, SLOT(onObjectModelClickedAt(ObjectModel*,QVector3D)));
 }
 
 void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
@@ -103,13 +122,13 @@ void MainController::onImageClicked(QPointF position) {
                             + " of 4].");
 }
 
-void MainController::onObjectModelClickedAt(int objectModelIndex, QVector3D position) {
+void MainController::onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position) {
     //! If we can't find a previously clicked position on the image just return, the user has to select a 2D
     //! point on the image first
     if (!lastClickedImagePosition)
         return;
 
-    correspondingPoints.append(CorrespondingPoints{*lastClickedImagePosition, objectModelIndex, position});
+    correspondingPoints.append(CorrespondingPoints{*lastClickedImagePosition, objectModel, position});
 
     if (correspondingPoints.size() < 3) {
         mainWindow.setStatusTip("Please select another correspondence [" +
@@ -127,25 +146,6 @@ void MainController::onObjectModelClickedAt(int objectModelIndex, QVector3D posi
     delete lastClickedImagePosition;
     lastClickedImagePosition = Q_NULLPTR;
 
-}
-
-void MainController::initialize() {
-    // TODO: initalization in background thread, only disable UI until loading has finished
-    QSettings settings("FlorettiKonfetti Inc.", "Otiat");
-
-    settings.beginGroup("maincontroller");
-    strategy.setImagesPath(settings.value("imagesPath", QDir::homePath()).toString());
-    strategy.setObjectModelsPath(settings.value("objectModelsPath", QDir::homePath()).toString());
-    strategy.setCorrespondencesPath(settings.value("correspondencesPath", QDir::homePath()).toString());
-    settings.endGroup();
-
-    initializeSettingsItem();
-    initializeMainWindow();
-
-    connect(&mainWindow, SIGNAL(imageClicked(QPointF)),
-            this, SLOT(onImageClicked(QPointF)));
-    connect(&mainWindow, SIGNAL(objectModelClickedAt(int,QVector3D)),
-            this, SLOT(onObjectModelClickedAt(int,QVector3D)));
 }
 
 void MainController::showView() {
