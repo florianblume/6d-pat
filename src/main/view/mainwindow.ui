@@ -1735,22 +1735,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>widgetRightBottom</sender>
-   <signal>objectModelClickedAt(ObjectModel*,QVector3D)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>onObjectModelClickedAt(ObjectModel*,QVector3D)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>676</x>
-     <y>402</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>widgetGalleryRight</sender>
    <signal>selectedItemChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -1763,22 +1747,6 @@
     <hint type="destinationlabel">
      <x>449</x>
      <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>MainWindow</sender>
-   <signal>selectedObjectModelChanged(ObjectModel*)</signal>
-   <receiver>widgetRightBottom</receiver>
-   <slot>setObjectModel(ObjectModel*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>675</x>
-     <y>401</y>
     </hint>
    </hints>
   </connection>

@@ -98,10 +98,12 @@ void MainController::initializeMainWindow() {
 
     mainWindow.setStatusTip("Ready");
 
+    //! Connect the main window's reactions to the user clicking on a displayed image or on an object
+    //! model to delegate any further computation to this controller
     connect(&mainWindow, SIGNAL(imageClicked(QPointF)),
             this, SLOT(onImageClicked(QPointF)));
-    connect(&mainWindow, SIGNAL(objectModelClickedAt(ObjectModel*,QVector3D)),
-            this, SLOT(onObjectModelClickedAt(ObjectModel*,QVector3D)));
+    connect(&mainWindow, SIGNAL(objectModelClickedAt(const ObjectModel*,QVector3D)),
+            this, SLOT(onObjectModelClickedAt(const ObjectModel*,QVector3D)));
 }
 
 void MainController::setSegmentationCodesOnGalleryObjectModelModel() {

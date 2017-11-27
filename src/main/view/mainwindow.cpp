@@ -27,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     readSettings();
     statusBar()->showMessage(QString("Loading..."));
+    connect(ui->widgetGalleryRight, SIGNAL(selectedItemChanged(int)),
+            this, SLOT(onSelectedObjectModelChanged(int)));
 }
 
 MainWindow::~MainWindow() {

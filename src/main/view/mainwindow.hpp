@@ -112,6 +112,10 @@ signals:
     //! function is emitted.
     void imageClicked(QPointF position);
     void objectModelClickedAt(const ObjectModel* objectModel, QVector3D position);
+    /*!
+     * \brief selectedObjectModelChanged is triggered after the index of the object model is received.
+     * \param objectModel the actual object model retrieved from the index
+     */
     void selectedObjectModelChanged(const ObjectModel* objectModel);
 
 private slots:
