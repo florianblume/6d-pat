@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     readSettings();
     statusBar()->showMessage(QString("Loading..."));
-    connect(ui->widgetGalleryRight, SIGNAL(selectedItemChanged(int)),
+    connect(ui->galleryRight, SIGNAL(selectedItemChanged(int)),
             this, SLOT(onSelectedObjectModelChanged(int)));
 }
 
@@ -88,50 +88,50 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 }
 
 void MainWindow::setPathOnLeftBreadcrumbView(const QString &pathToShow) {
-    ui->widgetBreadcrumbLeft->setPathToShow(pathToShow);
+    ui->breadcrumbLeft->setPathToShow(pathToShow);
 }
 
 void MainWindow::setPathOnRightBreadcrumbView(const QString & pathToShow) {
-    ui->widgetBreadcrumbRight->setPathToShow(pathToShow);
+    ui->breadcrumbRight->setPathToShow(pathToShow);
 }
 
 void MainWindow::setPathOnLeftNavigationControls(const QString &path) {
-    ui->widgetNavigationLeft->setPathToOpen(path);
+    ui->navigationLeft->setPathToOpen(path);
 }
 
 void MainWindow::setPathOnRightNavigationControls(const QString &path) {
-    ui->widgetNavigationRight->setPathToOpen(path);
+    ui->navigationRight->setPathToOpen(path);
 }
 
 void MainWindow::addListenerToLeftNavigationControls(NavigationControlsListener listener) {
-    ui->widgetNavigationLeft->addListener(listener);
+    ui->navigationLeft->addListener(listener);
 }
 
 void MainWindow::addListenerToRightNavigationControls(NavigationControlsListener listener) {
-    ui->widgetNavigationRight->addListener(listener);
+    ui->navigationRight->addListener(listener);
 }
 
 void MainWindow::setGalleryImageModel(GalleryImageModel* model) {
-    this->ui->widgetGalleryLeft->setModel(model);
+    this->ui->galleryLeft->setModel(model);
 }
 
 void MainWindow::setGalleryObjectModelModel(GalleryObjectModelModel* model) {
-    this->ui->widgetGalleryRight->setModel(model);
+    this->ui->galleryRight->setModel(model);
     //! We connect the model that displays the 3D model objects to the selected image so that the model
     //! can display the respective models
-    connect(ui->widgetGalleryLeft, &Gallery::selectedItemChanged, model, &GalleryObjectModelModel::onSelectedImageChanged);
+    connect(ui->galleryLeft, &Gallery::selectedItemChanged, model, &GalleryObjectModelModel::onSelectedImageChanged);
     //! To update the listview of the 3D models we call the reset method when the model receives the signal
     //! that the selection of images on the left has been changed
-    connect(model, &GalleryObjectModelModel::displayedObjectModelsChanged, ui->widgetGalleryRight, &Gallery::reset);
+    connect(model, &GalleryObjectModelModel::displayedObjectModelsChanged, ui->galleryRight, &Gallery::reset);
 }
 
 void MainWindow::setModelManager(ModelManager* modelManager) {
     this->modelManager = modelManager;
-    ui->widgetLeftBottom->setModelManager(modelManager);
+    ui->correspondenceViewer->setModelManager(modelManager);
 }
 
 void MainWindow::resetCorrespondenceEditor() {
-    ui->widgetLeftBottom->reset();
+    ui->correspondenceViewer->reset();
 }
 
 void MainWindow::setSettingsItem(SettingsItem* settingsItem) {
@@ -168,6 +168,7 @@ void MainWindow::onActionSettingsTriggered()
 void MainWindow::onImageClicked(QPointF position) {
     //! No need to check for whether the right widget was clicked because the only time this method
     //! will be called is when the object image picker received a click on the image
+    /*
     if (ui->widgetRightBottom->isDisplayingObjectModel()) {
         QGuiApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
         clickOverlay = new ClickOverlay(this);
@@ -185,6 +186,7 @@ void MainWindow::onImageClicked(QPointF position) {
                                                                 "of object models first before trying to create\n"
                                                                 "a new correspondence.");
     }
+    */
 }
 
 void MainWindow::onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position) {

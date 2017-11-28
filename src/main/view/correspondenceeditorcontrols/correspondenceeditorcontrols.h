@@ -41,7 +41,8 @@ private:
     void setEnabledCorrespondenceEditorControls(bool enabled);
     void setEnabledAllControls(bool enabled);
     void resetControlsValues();
-    void setup3DWindow(WindowPointer window);
+    void setupView();
+    void setup3DWindow(WindowPointer& window);
     void setObjectModelForWindow(WindowPointer window,
                                  const ObjectModel *objectModel,
                                  ObjectPickerPointer &picker);

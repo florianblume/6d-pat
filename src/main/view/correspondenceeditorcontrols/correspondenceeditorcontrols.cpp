@@ -7,27 +7,22 @@
 #include <Qt3DRender/QMesh>
 #include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DExtras/QOrbitCameraController>
+#include <Qt3DRender/QRenderSettings>
 #include <QUrl>
 
 CorrespondenceEditorControls::CorrespondenceEditorControls(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::CorrespondenceEditorControls),
-    leftWindow(new Qt3DExtras::Qt3DWindow),
-    rightWindow(new Qt3DExtras::Qt3DWindow)
+    ui(new Ui::CorrespondenceEditorControls)
 {
     ui->setupUi(this);
-    setup3DWindow(leftWindow);
-    QFrame *line = new QFrame(ui->graphicsFrame);
-    line->setFrameShape(QFrame::VLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ui->graphicsFrame->layout()->addWidget(line);
-    setup3DWindow(rightWindow);
 }
 
 CorrespondenceEditorControls::~CorrespondenceEditorControls()
 {
-    leftWindow->destroy();
-    rightWindow->destroy();
+    if (leftWindow)
+        leftWindow->destroy();
+    if (rightWindow)
+        rightWindow->destroy();
     if (leftObjectPicker)
         delete leftObjectPicker;
     if (rightObjectPicker)
@@ -46,6 +41,7 @@ void CorrespondenceEditorControls::setEnabledCorrespondenceEditorControls(bool e
     ui->spinBoxRotationZ->setEnabled(enabled);
     ui->sliderArticulation->setEnabled(enabled);
     ui->sliderOpacity->setEnabled(enabled);
+    // The next line is the difference to setEnabledAllControls
     ui->buttonPredict->setEnabled(!enabled);
     ui->buttonRemove->setEnabled(enabled);
 }
@@ -73,7 +69,18 @@ void CorrespondenceEditorControls::resetControlsValues() {
     ui->sliderArticulation->setValue(0);
 }
 
-void CorrespondenceEditorControls::setup3DWindow(WindowPointer window) {
+void CorrespondenceEditorControls::setupView() {
+    setup3DWindow(leftWindow);
+    // Separator between the views
+    QFrame *line = new QFrame(ui->graphicsFrame);
+    line->setFrameShape(QFrame::VLine);
+    line->setFrameShadow(QFrame::Sunken);
+    ui->graphicsFrame->layout()->addWidget(line);
+    setup3DWindow(rightWindow);
+}
+
+void CorrespondenceEditorControls::setup3DWindow(WindowPointer& window) {
+    window = new Qt3DExtras::Qt3DWindow;
     QWidget *container = QWidget::createWindowContainer(window);
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->graphicsFrame->layout()->addWidget(container);
@@ -110,8 +117,14 @@ void CorrespondenceEditorControls::setObjectModelForWindow(WindowPointer window,
                                                            ObjectPickerPointer &picker) {
     // TODO: add material
     // TODO: make initial rotation settable
-    ObjectModelRenderable *objectModelRenderable = new ObjectModelRenderable(0, objectModel->getAbsolutePath(), "");
-    window->setRootEntity(objectModelRenderable);
+    Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity;
+    window->setRootEntity(rootEntity);
+    Qt3DRender::QRenderSettings *renderSettings = new Qt3DRender::QRenderSettings;
+    renderSettings->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    rootEntity->addComponent(renderSettings);
+    ObjectModelRenderable *objectModelRenderable = new ObjectModelRenderable(renderSettings,
+                                                                             objectModel->getAbsolutePath(),
+                                                                             "");
     Qt3DRender::QCamera *camera = window->camera();
     camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
     camera->setPosition(QVector3D(0.f, 0.f, 100.f));
@@ -155,8 +168,10 @@ void CorrespondenceEditorControls::reset() {
     setEnabledAllControls(false);
     currentObjectModel = NULL;
     currentCorrespondence = NULL;
-    leftWindow->setRootEntity(0);
-    rightWindow->setRootEntity(0);
+    if (leftWindow)
+        leftWindow->setRootEntity(0);
+    if (rightWindow)
+        rightWindow->setRootEntity(0);
     resetControlsValues();
 }
 

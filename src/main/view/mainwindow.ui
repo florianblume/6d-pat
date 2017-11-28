@@ -639,7 +639,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="BreadcrumbView" name="widgetBreadcrumbLeft" native="true">
+             <widget class="BreadcrumbView" name="breadcrumbLeft" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -655,7 +655,7 @@
              </widget>
             </item>
             <item>
-             <widget class="Gallery" name="widgetGalleryLeft" native="true">
+             <widget class="Gallery" name="galleryLeft" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -732,7 +732,7 @@
              </widget>
             </item>
             <item>
-             <widget class="NavigationControls" name="widgetNavigationLeft" native="true">
+             <widget class="NavigationControls" name="navigationLeft" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -816,7 +816,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="CorrespondenceEditor" name="widgetLeftBottom" native="true">
+          <widget class="CorrespondenceEditor" name="correspondenceViewer" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -1056,7 +1056,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="BreadcrumbView" name="widgetBreadcrumbRight" native="true">
+             <widget class="BreadcrumbView" name="breadcrumbRight" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -1139,7 +1139,7 @@
              </widget>
             </item>
             <item>
-             <widget class="Gallery" name="widgetGalleryRight" native="true">
+             <widget class="Gallery" name="galleryRight" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -1216,7 +1216,7 @@
              </widget>
             </item>
             <item>
-             <widget class="NavigationControls" name="widgetNavigationRight" native="true">
+             <widget class="NavigationControls" name="navigationRight" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -1300,7 +1300,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="CorrespondenceEditorControls" name="widgetRightBottom" native="true">
+          <widget class="CorrespondenceEditorControls" name="correspondenceEditor" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -1527,9 +1527,9 @@
  <resources/>
  <connections>
   <connection>
-   <sender>widgetNavigationRight</sender>
+   <sender>navigationRight</sender>
    <signal>pathChanged(QString)</signal>
-   <receiver>widgetBreadcrumbRight</receiver>
+   <receiver>breadcrumbRight</receiver>
    <slot>setPathToShow(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1543,9 +1543,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>widgetGalleryLeft</sender>
+   <sender>galleryLeft</sender>
    <signal>selectedItemChanged(int)</signal>
-   <receiver>widgetLeftBottom</receiver>
+   <receiver>correspondenceViewer</receiver>
    <slot>setImage(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1607,9 +1607,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>widgetNavigationLeft</sender>
+   <sender>navigationLeft</sender>
    <signal>pathChanged(QString)</signal>
-   <receiver>widgetLeftBottom</receiver>
+   <receiver>correspondenceViewer</receiver>
    <slot>reset()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1623,9 +1623,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>widgetNavigationRight</sender>
+   <sender>navigationRight</sender>
    <signal>pathChanged(QString)</signal>
-   <receiver>widgetLeftBottom</receiver>
+   <receiver>correspondenceViewer</receiver>
    <slot>reset()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1639,9 +1639,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>widgetGalleryLeft</sender>
+   <sender>galleryLeft</sender>
    <signal>selectedItemChanged(int)</signal>
-   <receiver>widgetRightBottom</receiver>
+   <receiver>correspondenceEditor</receiver>
    <slot>reset()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1655,9 +1655,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>widgetNavigationLeft</sender>
+   <sender>navigationLeft</sender>
    <signal>pathChanged(QString)</signal>
-   <receiver>widgetRightBottom</receiver>
+   <receiver>correspondenceEditor</receiver>
    <slot>reset()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1671,9 +1671,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>widgetNavigationRight</sender>
+   <sender>navigationRight</sender>
    <signal>pathChanged(QString)</signal>
-   <receiver>widgetRightBottom</receiver>
+   <receiver>correspondenceEditor</receiver>
    <slot>reset()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1687,9 +1687,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>widgetNavigationLeft</sender>
+   <sender>navigationLeft</sender>
    <signal>pathChanged(QString)</signal>
-   <receiver>widgetGalleryRight</receiver>
+   <receiver>galleryRight</receiver>
    <slot>reset()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1703,9 +1703,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>widgetNavigationLeft</sender>
+   <sender>navigationLeft</sender>
    <signal>pathChanged(QString)</signal>
-   <receiver>widgetBreadcrumbLeft</receiver>
+   <receiver>breadcrumbLeft</receiver>
    <slot>setPathToShow(QString)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1719,7 +1719,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>widgetLeftBottom</sender>
+   <sender>correspondenceViewer</sender>
    <signal>imageClicked(QPointF)</signal>
    <receiver>MainWindow</receiver>
    <slot>onImageClicked(QPointF)</slot>
@@ -1735,7 +1735,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>widgetGalleryRight</sender>
+   <sender>galleryRight</sender>
    <signal>selectedItemChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>onSelectedObjectModelChanged(int)</slot>

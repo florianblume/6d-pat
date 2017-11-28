@@ -52,7 +52,7 @@ private:
     Ui::CorrespondenceEditor *ui;
     QtAwesome* awesome;
     ModelManager* modelManager;
-    Qt3DExtras::Qt3DWindow *graphicsWindow;
+    Qt3DExtras::Qt3DWindow *graphicsWindow = NULL;
 
     //!All necessary stuff for 3D
     //!
@@ -79,6 +79,7 @@ private:
     void showImage(const QString &imagePath);
     void addObjectModelRenderable(const ObjectModel* objectModel,
                                   int objectModelIndex);
+    void setupGraphicsWindow();
     void setupRootEntity();
     void deleteObjects();
 

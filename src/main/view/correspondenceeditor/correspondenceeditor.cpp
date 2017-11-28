@@ -10,8 +10,7 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager* modelM
     QWidget(parent),
     ui(new Ui::CorrespondenceEditor),
     awesome(new QtAwesome( qApp )),
-    modelManager(modelManager),
-    graphicsWindow(new Qt3DExtras::Qt3DWindow)
+    modelManager(modelManager)
 {
     ui->setupUi(this);
 
@@ -19,21 +18,6 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager* modelM
     //! to the index function to be able to determine which picker was clicked
     connect(objectModelPickerSignalMapper.data(), SIGNAL(mapped(int)),
             this, SLOT(objectModelObjectPickerPressed(int)));
-
-    //! Create the container for our 3D window that is going to display the image and objects
-    QWidget* containerWidget = QWidget::createWindowContainer(graphicsWindow);
-    containerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->frameGraphics->layout()->addWidget(containerWidget);
-
-    Qt3DRender::QCamera *camera = graphicsWindow->camera();
-    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
-    camera->setPosition(QVector3D(0.f, 0.f, 1.5f));
-    camera->setViewCenter(QVector3D(0, 0, 0));
-
-    Qt3DExtras::QFirstPersonCameraController *firstPerson = new Qt3DExtras::QFirstPersonCameraController(graphicsWindow->activeFrameGraph());
-    firstPerson->setCamera(camera);
-
-    setupRootEntity();
 
     awesome->initFontAwesome();
     ui->buttonAccept->setFont(awesome->font(18));
@@ -56,7 +40,25 @@ CorrespondenceEditor::~CorrespondenceEditor()
     delete ui;
 }
 
+void CorrespondenceEditor::setupGraphicsWindow() {
+    //! Create the container for our 3D window that is going to display the image and objects
+    graphicsWindow = new Qt3DExtras::Qt3DWindow;
+    QWidget* containerWidget = QWidget::createWindowContainer(graphicsWindow);
+    containerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->frameGraphics->layout()->addWidget(containerWidget);
+
+    Qt3DRender::QCamera *camera = graphicsWindow->camera();
+    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
+    camera->setPosition(QVector3D(0.f, 0.f, 1.5f));
+    camera->setViewCenter(QVector3D(0, 0, 0));
+
+    Qt3DExtras::QFirstPersonCameraController *firstPerson = new Qt3DExtras::QFirstPersonCameraController(graphicsWindow->activeFrameGraph());
+    firstPerson->setCamera(camera);
+}
+
 void CorrespondenceEditor::setupRootEntity() {
+    if (graphicsWindow == NULL)
+        setupGraphicsWindow();
     Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
     graphicsWindow->setRootEntity(rootEntity);
     renderStateSet = new Qt3DRender::QRenderStateSet(rootEntity);
