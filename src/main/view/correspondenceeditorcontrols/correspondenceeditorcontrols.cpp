@@ -189,14 +189,11 @@ void CorrespondenceEditorControls::setCorrespondenceToEdit(ObjectImageCorrespond
 }
 
 void CorrespondenceEditorControls::reset() {
-    return;
     setEnabledAllControls(false);
     currentObjectModel = NULL;
     currentCorrespondence = NULL;
     if (leftWindow) {
         delete leftSceneEntity;
-        leftSceneEntity = new Qt3DCore::QEntity(leftRootEntity);
-        leftWindow->setRootEntity(leftRootEntity);
     }
     if (rightWindow) {
         delete rightSceneEntity;
