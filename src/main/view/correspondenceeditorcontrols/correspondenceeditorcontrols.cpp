@@ -2,8 +2,10 @@
 #include "ui_correspondenceeditorcontrols.h"
 #include "view/rendering/objectmodelrenderable.h"
 #include <Qt3DRender/QCamera>
+#include <Qt3DRender/QDepthTest>
 #include <Qt3DExtras/QTorusMesh>
 #include <Qt3DExtras/QPhongMaterial>
+#include <Qt3DExtras/QForwardRenderer>
 #include <Qt3DRender/QMesh>
 #include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DExtras/QOrbitCameraController>
@@ -15,6 +17,7 @@ CorrespondenceEditorControls::CorrespondenceEditorControls(QWidget *parent) :
     ui(new Ui::CorrespondenceEditorControls)
 {
     ui->setupUi(this);
+    setupView();
 }
 
 CorrespondenceEditorControls::~CorrespondenceEditorControls()
@@ -113,26 +116,38 @@ void CorrespondenceEditorControls::predictPositionOfObjectModels() {
 }
 
 void CorrespondenceEditorControls::setObjectModelForWindow(WindowPointer window,
+                                                           EntityPointer& rootEntity,
+                                                           RenderSettingsPointer& framegraphEntity,
                                                            const ObjectModel *objectModel,
                                                            ObjectPickerPointer &picker) {
     // TODO: add material
     // TODO: make initial rotation settable
-    Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity;
-    window->setRootEntity(rootEntity);
-    Qt3DRender::QRenderSettings *renderSettings = new Qt3DRender::QRenderSettings;
-    renderSettings->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
-    rootEntity->addComponent(renderSettings);
-    ObjectModelRenderable *objectModelRenderable = new ObjectModelRenderable(renderSettings,
+
+    rootEntity = new Qt3DCore::QEntity();
+    // Setup the framegraph that holds the render settings
+    framegraphEntity = new Qt3DRender::QRenderSettings(rootEntity);
+    framegraphEntity->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    rootEntity->addComponent(framegraphEntity);
+    framegraphEntity->setActiveFrameGraph(window->activeFrameGraph());
+
+    ObjectModelRenderable *objectModelRenderable = new ObjectModelRenderable(rootEntity,
                                                                              objectModel->getAbsolutePath(),
                                                                              "");
+    window->setRootEntity(rootEntity);
+
+    // Camera re-initialization
     Qt3DRender::QCamera *camera = window->camera();
     camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
     camera->setPosition(QVector3D(0.f, 0.f, 100.f));
     camera->setViewCenter(QVector3D(0, 0, 0));
+
+    // Orbit controller
     Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(objectModelRenderable);
     camController->setLinearSpeed( 50.0f );
     camController->setLookSpeed( 180.0f );
     camController->setCamera(camera);
+
+    // Picker to enable the user to select points on the object
     picker = new Qt3DRender::QObjectPicker(objectModelRenderable);
     objectModelRenderable->addComponent(picker);
     connect(picker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
@@ -143,8 +158,10 @@ void CorrespondenceEditorControls::setObjectModel(const ObjectModel* objectModel
     currentCorrespondence = NULL;
     resetControlsValues();
     currentObjectModel = objectModel;
-    setObjectModelForWindow(leftWindow, currentObjectModel, leftObjectPicker);
-    setObjectModelForWindow(rightWindow, currentObjectModel, rightObjectPicker);
+    setObjectModelForWindow(leftWindow, leftRootEntity,
+                            leftFramegraphEntity, currentObjectModel, leftObjectPicker);
+    setObjectModelForWindow(rightWindow, rightRootEntity,
+                            rightFramegraphEntity, currentObjectModel, rightObjectPicker);
 }
 
 void CorrespondenceEditorControls::setCorrespondenceToEdit(ObjectImageCorrespondence* correspondence) {
@@ -160,8 +177,10 @@ void CorrespondenceEditorControls::setCorrespondenceToEdit(ObjectImageCorrespond
     ui->spinBoxRotationY->setValue(rotation.y());
     ui->spinBoxRotationZ->setValue(rotation.z());
     ui->sliderArticulation->setValue(articulation);
-    setObjectModelForWindow(leftWindow, currentCorrespondence->getObjectModel(), leftObjectPicker);
-    setObjectModelForWindow(rightWindow, currentCorrespondence->getObjectModel(), rightObjectPicker);
+    setObjectModelForWindow(leftWindow, leftRootEntity,
+                            leftFramegraphEntity, currentCorrespondence->getObjectModel(), leftObjectPicker);
+    setObjectModelForWindow(rightWindow,rightRootEntity,
+                            rightFramegraphEntity, currentCorrespondence->getObjectModel(), rightObjectPicker);
 }
 
 void CorrespondenceEditorControls::reset() {

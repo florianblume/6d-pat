@@ -30,6 +30,8 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager* modelM
     ui->buttonSwitchView->setToolTip("Click to switch views between segmentation \n"
                                      "image (if available) and normal image.");
     ui->buttonSwitchView->setEnabled(false);
+
+    setupGraphicsWindow();
 }
 
 CorrespondenceEditor::~CorrespondenceEditor()

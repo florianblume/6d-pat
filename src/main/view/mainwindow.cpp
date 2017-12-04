@@ -27,8 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     readSettings();
     statusBar()->showMessage(QString("Loading..."));
-    connect(ui->galleryRight, SIGNAL(selectedItemChanged(int)),
-            this, SLOT(onSelectedObjectModelChanged(int)));
+    connect(this, SIGNAL(selectedObjectModelChanged(const ObjectModel*)), ui->correspondenceEditor, SLOT(setObjectModel(const ObjectModel*)));
 }
 
 MainWindow::~MainWindow() {

@@ -15,6 +15,8 @@ class CorrespondenceEditorControls;
 
 //! Convencience typdefs
 typedef QPointer<Qt3DRender::QObjectPicker> ObjectPickerPointer;
+typedef QPointer<Qt3DCore::QEntity> EntityPointer;
+typedef QPointer<Qt3DRender::QRenderSettings> RenderSettingsPointer;
 typedef QPointer<Qt3DExtras::Qt3DWindow> WindowPointer;
 
 /*!
@@ -31,12 +33,18 @@ private:
     Ui::CorrespondenceEditorControls *ui;
     const ObjectModel *currentObjectModel;
     ObjectImageCorrespondence *currentCorrespondence;
+
     //! The left view of the object model, e.g. the front view
     WindowPointer leftWindow;
     ObjectPickerPointer leftObjectPicker;
+    EntityPointer leftRootEntity;
+    RenderSettingsPointer leftFramegraphEntity;
+
     //! The right view of the object model, e.g. the back view
     WindowPointer rightWindow;
     ObjectPickerPointer rightObjectPicker;
+    EntityPointer rightRootEntity;
+    RenderSettingsPointer rightFramegraphEntity;
 
     void setEnabledCorrespondenceEditorControls(bool enabled);
     void setEnabledAllControls(bool enabled);
@@ -44,6 +52,8 @@ private:
     void setupView();
     void setup3DWindow(WindowPointer& window);
     void setObjectModelForWindow(WindowPointer window,
+                                 EntityPointer& rootEntity,
+                                 RenderSettingsPointer& framegraphEntity,
                                  const ObjectModel *objectModel,
                                  ObjectPickerPointer &picker);
 
