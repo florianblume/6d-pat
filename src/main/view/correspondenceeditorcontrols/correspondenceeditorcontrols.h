@@ -38,23 +38,28 @@ private:
     WindowPointer leftWindow;
     ObjectPickerPointer leftObjectPicker;
     EntityPointer leftRootEntity;
+    EntityPointer leftSceneEntity;
     RenderSettingsPointer leftFramegraphEntity;
 
     //! The right view of the object model, e.g. the back view
     WindowPointer rightWindow;
     ObjectPickerPointer rightObjectPicker;
     EntityPointer rightRootEntity;
+    EntityPointer rightSceneEntity;
     RenderSettingsPointer rightFramegraphEntity;
 
     void setEnabledCorrespondenceEditorControls(bool enabled);
     void setEnabledAllControls(bool enabled);
     void resetControlsValues();
     void setupView();
-    void setup3DWindow(WindowPointer& window);
+    void setup3DWindow(WindowPointer& window,
+                       EntityPointer& rootEntity,
+                       EntityPointer& sceneEntity,
+                       RenderSettingsPointer& framegraphEntity);
     void setObjectModelForWindow(WindowPointer window,
-                                 EntityPointer& rootEntity,
-                                 RenderSettingsPointer& framegraphEntity,
-                                 const ObjectModel *objectModel,
+                                 EntityPointer rootEntity,
+                                 EntityPointer& sceneEntity,
+                                 const QString &objectModel,
                                  ObjectPickerPointer &picker);
 
 private slots:
