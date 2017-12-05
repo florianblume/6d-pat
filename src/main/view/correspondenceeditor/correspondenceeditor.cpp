@@ -42,50 +42,14 @@ CorrespondenceEditor::~CorrespondenceEditor()
     delete ui;
 }
 
-void CorrespondenceEditor::setupGraphicsWindow() {
-    //! Create the container for our 3D window that is going to display the image and objects
-    graphicsWindow = new Qt3DExtras::Qt3DWindow;
-    QWidget* containerWidget = QWidget::createWindowContainer(graphicsWindow);
-    containerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->frameGraphics->layout()->addWidget(containerWidget);
-
-    Qt3DRender::QCamera *camera = graphicsWindow->camera();
-    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
-    camera->setPosition(QVector3D(0.f, 0.f, 1.5f));
-    camera->setViewCenter(QVector3D(0, 0, 0));
-
-    Qt3DExtras::QFirstPersonCameraController *firstPerson = new Qt3DExtras::QFirstPersonCameraController(graphicsWindow->activeFrameGraph());
-    firstPerson->setCamera(camera);
-}
-
-void CorrespondenceEditor::setupRootEntity() {
-    if (graphicsWindow == NULL)
-        setupGraphicsWindow();
-    Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
-    graphicsWindow->setRootEntity(rootEntity);
-    renderStateSet = new Qt3DRender::QRenderStateSet(rootEntity);
-    depthTest = new Qt3DRender::QDepthTest();
-    depthTest->setDepthFunction(Qt3DRender::QDepthTest::Never);
-    renderStateSet->addRenderState(depthTest);
-}
-
-void CorrespondenceEditor::setModelManager(ModelManager* modelManager) {
-    Q_ASSERT(modelManager != Q_NULLPTR);
-    this->modelManager = modelManager;
-}
-
 void CorrespondenceEditor::deleteObjects() {
     //! It's a bit confusing of what the 3D window takes ownership and of what not...
     //! This is why we use the QPointer class to be able to surely tell when a pointer
     //! is null and thus we should not try to delet it
-    if (depthTest)
-        delete depthTest;
     if (imageRenderable)
         delete imageRenderable;
     if (imageObjectPicker)
         delete imageObjectPicker;
-    if (renderStateSet)
-        delete renderStateSet;
     for (ObjectModelRenderable* renderable : objectModelRenderables) {
         if (renderable)
             delete renderable;
@@ -96,13 +60,52 @@ void CorrespondenceEditor::deleteObjects() {
     }
 }
 
+void CorrespondenceEditor::setupGraphicsWindow() {
+    // Create the container for our 3D window that is going to display the image and objects
+    graphicsWindow = new Qt3DExtras::Qt3DWindow;
+    QWidget* containerWidget = QWidget::createWindowContainer(graphicsWindow);
+    containerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->frameGraphics->layout()->addWidget(containerWidget);
+
+    // Setup camera
+    Qt3DRender::QCamera *camera = graphicsWindow->camera();
+    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
+    camera->setPosition(QVector3D(0.f, 0.f, 1.5f));
+    camera->setViewCenter(QVector3D(0, 0, 0));
+
+    // Setup camera control -> Remove later!
+    Qt3DExtras::QFirstPersonCameraController *firstPerson = new Qt3DExtras::QFirstPersonCameraController(graphicsWindow->activeFrameGraph());
+    firstPerson->setCamera(camera);
+
+    // Setup root node
+    rootEntity = new Qt3DCore::QEntity();
+    sceneEntity = new Qt3DCore::QEntity(rootEntity);
+    frameGraph = new Qt3DRender::QRenderSettings();
+    frameGraph->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    rootEntity->addComponent(frameGraph);
+    depthTest = new Qt3DRender::QDepthTest(frameGraph);
+    depthTest->setDepthFunction(Qt3DRender::QDepthTest::Always);
+    frameGraph->setActiveFrameGraph(graphicsWindow->activeFrameGraph());
+    graphicsWindow->setRootEntity(rootEntity);
+}
+
+void CorrespondenceEditor::setupSceneRoot() {
+    delete sceneEntity;
+    sceneEntity = new Qt3DCore::QEntity(rootEntity);
+}
+
+void CorrespondenceEditor::setModelManager(ModelManager* modelManager) {
+    Q_ASSERT(modelManager != Q_NULLPTR);
+    this->modelManager = modelManager;
+}
+
 void CorrespondenceEditor::showImage(const QString &imagePath) {
     //! Set root entity here as parent so that image is a child of it
     deleteObjects();
-    setupRootEntity();
+    setupSceneRoot();
 
     //! Create the image plane that displays the image
-    imageRenderable = new ImageRenderable(graphicsWindow->activeFrameGraph(), imagePath);
+    imageRenderable = new ImageRenderable(sceneEntity, imagePath);
     imageObjectPicker = new Qt3DRender::QObjectPicker();
     imageRenderable->addComponent(imageObjectPicker);
 
@@ -125,7 +128,7 @@ void CorrespondenceEditor::addObjectModelRenderable(const ObjectModel* objectMod
     //! We do not need to take care of deleting the renderables, the destructor of this class
     //! or the start of this function will do this
     ObjectModelRenderable *newRenderable =
-            new ObjectModelRenderable(graphicsWindow->activeFrameGraph(),
+            new ObjectModelRenderable(sceneEntity,
                                       objectModel->getAbsolutePath(), "");
 
     //
@@ -192,7 +195,7 @@ void CorrespondenceEditor::removeCorrespondence(ObjectImageCorrespondence* corre
 
 void CorrespondenceEditor::reset() {
     deleteObjects();
-    setupRootEntity();
+    setupSceneRoot();
 }
 
 void CorrespondenceEditor::reload() {
@@ -212,8 +215,9 @@ void CorrespondenceEditor::imageObjectPickerPressed(Qt3DRender::QPickEvent *pick
     QVector3D intersection = pick->worldIntersection();
     const Image* image = modelManager->getImage(currentlyDisplayedImage);
     QImage loadedImage(image->getAbsoluteImagePath());
-    emit imageClicked(QPointF(intersection.x() * loadedImage.width(),
-                              (intersection.y() - 1) * loadedImage.height()));
+    QPointF point = QPointF(intersection.x() * loadedImage.width(),
+                            intersection.y() * loadedImage.height());
+    emit imageClicked(image, point);
 }
 
 void CorrespondenceEditor::objectModelObjectPickerPressed(int index) {

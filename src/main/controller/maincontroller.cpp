@@ -1,7 +1,11 @@
 #include "maincontroller.hpp"
 #include "view/gallery/galleryimagemodel.h"
+#include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <QSettings>
 #include <QDir>
+#include <iostream>
 
 //! empty initialization of strategy so that we can set the path later and do so
 //! in a background thread to keep application reactive
@@ -100,8 +104,8 @@ void MainController::initializeMainWindow() {
 
     //! Connect the main window's reactions to the user clicking on a displayed image or on an object
     //! model to delegate any further computation to this controller
-    connect(&mainWindow, SIGNAL(imageClicked(QPointF)),
-            this, SLOT(onImageClicked(QPointF)));
+    connect(&mainWindow, SIGNAL(imageClicked(const Image*,QPointF)),
+            this, SLOT(onImageClicked(const Image*,QPointF)));
     connect(&mainWindow, SIGNAL(objectModelClickedAt(const ObjectModel*,QVector3D)),
             this, SLOT(onObjectModelClickedAt(const ObjectModel*,QVector3D)));
 }
@@ -112,11 +116,12 @@ void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
     galleryObjectModelModel->setSegmentationCodesForObjectModels(codes);
 }
 
-void MainController::onImageClicked(QPointF position) {
+void MainController::onImageClicked(const Image* image, QPointF position) {
     //! Delete the last clicked position if it still exists, this may be because the user clicked again on the image
     //! withtout clicking a 3D correspondence next
     if (lastClickedImagePosition)
         delete lastClickedImagePosition;
+    lastClickedImage = image;
     lastClickedImagePosition = new QPointF(position);
     // TODO: show how many points are missing until an actual correspondence can be created
     mainWindow.setStatusTip("Please select the corresponding 3D point [" +
@@ -140,7 +145,28 @@ void MainController::onObjectModelClickedAt(const ObjectModel* objectModel, QVec
         mainWindow.setStatusTip("Please select the last correspondence.");
     } else {
         mainWindow.setStatusTip("Creating correspondence, please wait.");
-        // TODO: create correspondence
+        std::vector<cv::Point3d> objectPoints;
+        std::vector<cv::Point2d> imagePoints;
+        for (CorrespondingPoints &point : correspondingPoints) {
+            objectPoints.push_back(cv::Point3d(point.pointIn3D.x(), point.pointIn3D.y(), point.pointIn3D.z()));
+            imagePoints.push_back(cv::Point2d(point.pointIn2D.x(), point.pointIn2D.y()));
+        }
+
+        QImage loadedImage = QImage(lastClickedImage->getAbsoluteImagePath());
+        double focal_length = loadedImage.size().width(); // Approximate focal length.
+        cv::Point2d center = cv::Point2d(loadedImage.size().width()/2,loadedImage.size().height()/2);
+        cv::Mat camera_matrix = (cv::Mat_<double>(3,3) << focal_length, 0, center.x, 0 , focal_length, center.y, 0, 0, 1);
+        cv::Mat dist_coeffs = cv::Mat::zeros(4,1,cv::DataType<double>::type);
+
+        cv::Mat rotation_vector;
+        cv::Mat translation_vector;
+
+        // Solve for pose
+        cv::solvePnP(objectPoints, imagePoints, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+
+        std::cout << rotation_vector << endl;
+        std::cout << translation_vector << endl;
+
         correspondingPoints.clear();
         mainWindow.setStatusTip("Ready.");
     }
@@ -148,6 +174,14 @@ void MainController::onObjectModelClickedAt(const ObjectModel* objectModel, QVec
     delete lastClickedImagePosition;
     lastClickedImagePosition = Q_NULLPTR;
 
+}
+
+
+void MainController::onSelectedItemChanged() {
+    mainWindow.setStatusTip("Ready");
+    delete lastClickedImagePosition;
+    lastClickedImage = Q_NULLPTR;
+    correspondingPoints.clear();
 }
 
 void MainController::showView() {

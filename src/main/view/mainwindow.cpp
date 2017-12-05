@@ -27,6 +27,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     readSettings();
     statusBar()->showMessage(QString("Loading..."));
+    connect(ui->galleryLeft, SIGNAL(selectedItemChanged(int)),
+            this, SIGNAL(selectedItemChanged(int)));
+    connect(ui->correspondenceViewer, SIGNAL(imageClicked(const Image*,QPointF)),
+            this, SLOT(onImageClicked(const Image*,QPointF)));
     connect(this, SIGNAL(selectedObjectModelChanged(const ObjectModel*)),
             ui->correspondenceEditor, SLOT(setObjectModel(const ObjectModel*)));
     connect(ui->correspondenceEditor, SIGNAL(objectModelClickedAt(const ObjectModel*,QVector3D)),
@@ -167,7 +171,7 @@ void MainWindow::onActionSettingsTriggered()
 }
 
 //! Mouse handling, i.e. clicking in the lower left widget and dragging a line to the lower right widget
-void MainWindow::onImageClicked(QPointF position) {
+void MainWindow::onImageClicked(const Image* image, QPointF position) {
     //! No need to check for whether the right widget was clicked because the only time this method
     //! will be called is when the object image picker received a click on the image
     if (ui->correspondenceEditor->isDisplayingObjectModel()) {
@@ -181,7 +185,7 @@ void MainWindow::onImageClicked(QPointF position) {
         clickOverlay->show();
         clickOverlay->raise();
         ui->correspondenceEditor->raise();
-        emit imageClicked(position);
+        emit imageClicked(image, position);
     } else {
         QMessageBox::warning(this, "Select object model first", "Please select an object model from the list\n"
                                                                 "of object models first before trying to create\n"

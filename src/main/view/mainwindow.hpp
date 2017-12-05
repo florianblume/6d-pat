@@ -110,13 +110,14 @@ signals:
     //! i.e. when the image in the lower left view is clicked, the first one is emitted, and when
     //! the 3D model (to create the first 2D to 3D point correspondence) is clicked, the second
     //! function is emitted.
-    void imageClicked(QPointF position);
+    void imageClicked(const Image* image, QPointF position);
     void objectModelClickedAt(const ObjectModel* objectModel, QVector3D position);
     /*!
      * \brief selectedObjectModelChanged is triggered after the index of the object model is received.
      * \param objectModel the actual object model retrieved from the index
      */
     void selectedObjectModelChanged(const ObjectModel* objectModel);
+    void selectedItemChanged(int index);
 
 private slots:
     void onActionAboutTriggered();
@@ -124,7 +125,7 @@ private slots:
     void onActionSettingsTriggered();
     //! Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
     //! right clicks in the image to start creating a correspondence
-    void onImageClicked(QPointF position);
+    void onImageClicked(const Image* image, QPointF position);
 
 private:
     //! The overlay that is shown when the user clicks on a position in the displayed image to start

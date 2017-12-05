@@ -19,7 +19,7 @@
 #include <Qt3DRender/QPickEvent>
 #include <QtAwesome/QtAwesome.h>
 #include <Qt3DRender/QDepthTest>
-#include <Qt3DRender/QRenderStateSet>
+#include <Qt3DRender/QRenderSettings>
 
 namespace Ui {
 class CorrespondenceEditor;
@@ -28,8 +28,8 @@ class CorrespondenceEditor;
 //! Convenience typdefs
 //! See the destructor implementation of this class to understand why we use QPointer class here
 typedef QPointer<Qt3DCore::QEntity> EntityPointer;
+typedef QPointer<Qt3DRender::QRenderSettings> RenderSettingsPointer;
 typedef QPointer<Qt3DRender::QDepthTest> DepthTestPointer;
-typedef QPointer<Qt3DRender::QRenderStateSet> RenderStateSetPointer;
 typedef QPointer<ImageRenderable> ImageRenderablePointer;
 typedef QList<QPointer<ObjectModelRenderable>> ObjectModelRenderablePointerList;
 //! We need this so we can update positions of already displayed object models when we receive a call
@@ -58,8 +58,10 @@ private:
     //!
     //! We need to disable the depth test so that the object model is always
     //! infront of the iamge
+    EntityPointer rootEntity;
+    EntityPointer sceneEntity;
+    RenderSettingsPointer frameGraph;
     DepthTestPointer depthTest;
-    RenderStateSetPointer renderStateSet;
     ImageRenderablePointer imageRenderable;
     ObjectPickerPointer imageObjectPicker;
     ObjectModelRenderablePointerList objectModelRenderables;
@@ -80,7 +82,7 @@ private:
     void addObjectModelRenderable(const ObjectModel* objectModel,
                                   int objectModelIndex);
     void setupGraphicsWindow();
-    void setupRootEntity();
+    void setupSceneRoot();
     void deleteObjects();
 
 public:
@@ -94,7 +96,7 @@ public:
     void setModelManager(ModelManager* modelManager);
 
 signals:
-    void imageClicked(QPointF position);
+    void imageClicked(const Image* image, QPointF position);
     void objectModelClicked(const ObjectModel *objectModel);
 
 public slots:

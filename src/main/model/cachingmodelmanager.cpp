@@ -210,7 +210,9 @@ void CachingModelManager::removeListener(ModelManagerListener* listener) {
 
 void CachingModelManager::imagesChanged() {
     images.clear();
+    correspondences.clear();
     loadAndStoreStrategy.loadImages(images);
+    loadAndStoreStrategy.loadCorrespondences(images, objectModels, correspondences);
     createConditionalCache();
     for (auto listener : listeners) {
         listener->imagesChanged();
@@ -220,7 +222,9 @@ void CachingModelManager::imagesChanged() {
 
 void CachingModelManager::objectModelsChanged() {
     objectModels.clear();
+    correspondences.clear();
     loadAndStoreStrategy.loadObjectModels(objectModels);
+    loadAndStoreStrategy.loadCorrespondences(images, objectModels, correspondences);
     createConditionalCache();
     for (auto listener : listeners) {
         listener->objectModelsChanged();
