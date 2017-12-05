@@ -37,12 +37,12 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager* modelM
 CorrespondenceEditor::~CorrespondenceEditor()
 {
     graphicsWindow->destroy();
-    deleteObjects();
+    deleteSceneObjects();
     delete graphicsWindow;
     delete ui;
 }
 
-void CorrespondenceEditor::deleteObjects() {
+void CorrespondenceEditor::deleteSceneObjects() {
     //! It's a bit confusing of what the 3D window takes ownership and of what not...
     //! This is why we use the QPointer class to be able to surely tell when a pointer
     //! is null and thus we should not try to delet it
@@ -61,6 +61,7 @@ void CorrespondenceEditor::deleteObjects() {
 }
 
 void CorrespondenceEditor::setupGraphicsWindow() {
+    qDebug() << "Setting up graphics window.";
     // Create the container for our 3D window that is going to display the image and objects
     graphicsWindow = new Qt3DExtras::Qt3DWindow;
     QWidget* containerWidget = QWidget::createWindowContainer(graphicsWindow);
@@ -101,7 +102,8 @@ void CorrespondenceEditor::setModelManager(ModelManager* modelManager) {
 
 void CorrespondenceEditor::showImage(const QString &imagePath) {
     //! Set root entity here as parent so that image is a child of it
-    deleteObjects();
+    qDebug() << "Displaying image (" + imagePath + ").";
+    deleteSceneObjects();
     setupSceneRoot();
 
     //! Create the image plane that displays the image
@@ -137,6 +139,7 @@ void CorrespondenceEditor::addObjectModelRenderable(const ObjectModel* objectMod
     // TODO: Get real scaling/rotation
     //
     //
+    qDebug() << "Adding object model (" + objectModel->getPath() + ") to display.";
     newRenderable->getTransform()->setTranslation(QVector3D(0, 0, -0.1));
     newRenderable->getTransform()->setScale(0.01);
 
@@ -160,6 +163,7 @@ void CorrespondenceEditor::setImage(int index) {
     Q_ASSERT(index >= 0);
     currentlyDisplayedImage = index;
     const Image* image = modelManager->getImage(index);
+    qDebug() << "Setting image (" + image->getImagePath() + ") to display.";
 
     //! Enable/disable functionality to show only segmentation image instead of normal image
     if (image->getSegmentationImagePath().isEmpty()) {
@@ -176,15 +180,7 @@ void CorrespondenceEditor::setImage(int index) {
 }
 
 void CorrespondenceEditor::updateCorrespondence(ObjectImageCorrespondence* correspondence) {
-    if (objectModelToRenderablePointerMap.contains(correspondence->getObjectModel())) {
-        //! Object model is already displayed, we only need to update it
-        // TODO: Update the object model
-    } else {
-        //! Oops, we didn't find the related object model, thus reload the complete view
-        //! This is easier than keeping track of the objects... Maybe we will implement
-        //! the simple addition later...
-        reload();
-    }
+    reload();
 }
 
 void CorrespondenceEditor::removeCorrespondence(ObjectImageCorrespondence* correspondence) {
@@ -194,7 +190,8 @@ void CorrespondenceEditor::removeCorrespondence(ObjectImageCorrespondence* corre
 }
 
 void CorrespondenceEditor::reset() {
-    deleteObjects();
+    qDebug() << "Resetting correspondence viewer.";
+    deleteSceneObjects();
     setupSceneRoot();
 }
 
@@ -209,18 +206,26 @@ void CorrespondenceEditor::switchImage() {
     const Image* image = modelManager->getImage(currentlyDisplayedImage);
     showImage(showingNormalImage ? image->getAbsoluteSegmentationImagePath() : image->getAbsoluteImagePath());
     showingNormalImage = !showingNormalImage;
+    if (showingNormalImage)
+        qDebug() << "Setting viewer to display normal image.";
+    else
+        qDebug() << "Setting viewer to display segmentation image.";
+
 }
 
 void CorrespondenceEditor::imageObjectPickerPressed(Qt3DRender::QPickEvent *pick) {
     QVector3D intersection = pick->worldIntersection();
     const Image* image = modelManager->getImage(currentlyDisplayedImage);
     QImage loadedImage(image->getAbsoluteImagePath());
-    QPointF point = QPointF(intersection.x() * loadedImage.width(),
-                            intersection.y() * loadedImage.height());
+    QPointF point = QPointF(intersection.x(), intersection.y());
+    qDebug() << "Image (" + image->getImagePath() + ") clicked at position: ("
+                + QString::number(point.x()) + ", "
+                + QString::number(point.y()) + ")";
     emit imageClicked(image, point);
 }
 
 void CorrespondenceEditor::objectModelObjectPickerPressed(int index) {
     const ObjectModel *model = modelManager->getObjectModel(index);
+    qDebug() << "Object model (" + model->getPath() + ") clicked.";
     emit objectModelClicked(model);
 }

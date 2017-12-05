@@ -74,7 +74,10 @@ INCLUDEPATH += \
     $$PWD/src/main/misc \
     $$PWD/src/main/controller \
     $$PWD/src/main/view/settings \
+    /usr/local/include/opencv
 
 DISTFILES += \
     $$PWD/src/main/view/correspondenceeditor/fragmentShader.fsh \
     $$PWD/src/main/view/correspondenceeditor/vertexShader.vsh
+
+LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d

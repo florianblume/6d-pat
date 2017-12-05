@@ -49,6 +49,7 @@ class CorrespondenceEditor : public QWidget
     Q_OBJECT
 
 private:
+
     Ui::CorrespondenceEditor *ui;
     QtAwesome* awesome;
     ModelManager* modelManager;
@@ -71,7 +72,7 @@ private:
     SignalMapperPointer objectModelPickerSignalMapper{new QSignalMapper};
     //! Because a object model can be added through the updateCorrespondence method, we need to keep
     //! track of the indeces to corretly link the object pickers
-    int currentSignalMapperIndex = 0;
+    int currentObjectModelSignalMapperIndex = 0;
 
     //! The index of the image that is currently selected in the gallery and displayed here
     int currentlyDisplayedImage = -1;
@@ -83,7 +84,7 @@ private:
                                   int objectModelIndex);
     void setupGraphicsWindow();
     void setupSceneRoot();
-    void deleteObjects();
+    void deleteSceneObjects();
 
 public:
     explicit CorrespondenceEditor(QWidget *parent = 0, ModelManager* modelManager = 0);
@@ -96,7 +97,13 @@ public:
     void setModelManager(ModelManager* modelManager);
 
 signals:
+    /*!
+     * \brief imageClicked emitted when the displayed image is clicked anywhere
+     */
     void imageClicked(const Image* image, QPointF position);
+    /*!
+     * \brief objectModelClicked emitted when a displayed object model is clicked
+     */
     void objectModelClicked(const ObjectModel *objectModel);
 
 public slots:

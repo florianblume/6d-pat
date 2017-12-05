@@ -164,8 +164,14 @@ void MainController::onObjectModelClickedAt(const ObjectModel* objectModel, QVec
         // Solve for pose
         cv::solvePnP(objectPoints, imagePoints, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
 
-        std::cout << rotation_vector << endl;
-        std::cout << translation_vector << endl;
+        ObjectImageCorrespondence correspondence = ObjectImageCorrespondence("", 0, 0, 0,
+                                  rotation_vector.at<float>(0, 0),
+                                  rotation_vector.at<float>(0, 1),
+                                  rotation_vector.at<float>(0, 2),
+                                  0,
+                                  lastClickedImage,
+                                  objectModel);
+        modelManager.addObjectImageCorrespondence(correspondence);
 
         correspondingPoints.clear();
         mainWindow.setStatusTip("Ready.");

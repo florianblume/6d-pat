@@ -74,6 +74,7 @@ void CorrespondenceEditorControls::resetControlsValues() {
 }
 
 void CorrespondenceEditorControls::setupView() {
+    qDebug() << "Setting up 3D views.";
     setup3DWindow(leftWindow, leftRootEntity, leftSceneEntity, leftFramegraphEntity);
     // Separator between the views
     QFrame *line = new QFrame(ui->graphicsFrame);
@@ -163,15 +164,20 @@ void CorrespondenceEditorControls::setObjectModelForWindow(WindowPointer window,
 }
 
 void CorrespondenceEditorControls::setObjectModel(const ObjectModel* objectModel) {
+    qDebug() << "Setting object model (" + objectModel->getPath() + ") to display.";
     setEnabledCorrespondenceEditorControls(false);
     currentCorrespondence = NULL;
     resetControlsValues();
     currentObjectModel = objectModel;
-    setObjectModelForWindow(leftWindow, leftRootEntity, leftSceneEntity, currentObjectModel->getAbsolutePath(), leftObjectPicker);
-    setObjectModelForWindow(rightWindow, rightRootEntity, rightSceneEntity, currentObjectModel->getAbsolutePath(), rightObjectPicker);
+    setObjectModelForWindow(leftWindow, leftRootEntity, leftSceneEntity,
+                            currentObjectModel->getAbsolutePath(), leftObjectPicker);
+    setObjectModelForWindow(rightWindow, rightRootEntity, rightSceneEntity,
+                            currentObjectModel->getAbsolutePath(), rightObjectPicker);
 }
 
 void CorrespondenceEditorControls::setCorrespondenceToEdit(ObjectImageCorrespondence* correspondence) {
+    qDebug() << "Setting correspondence (" + correspondence->getID() + ", " + correspondence->getImage()->getImagePath()
+                + ", " + correspondence->getObjectModel()->getPath() + ") to display.";
     currentCorrespondence = correspondence;
     setEnabledCorrespondenceEditorControls(true);
     QVector3D position = currentCorrespondence->getPosition();
@@ -184,8 +190,10 @@ void CorrespondenceEditorControls::setCorrespondenceToEdit(ObjectImageCorrespond
     ui->spinBoxRotationY->setValue(rotation.y());
     ui->spinBoxRotationZ->setValue(rotation.z());
     ui->sliderArticulation->setValue(articulation);
-    setObjectModelForWindow(leftWindow, leftRootEntity, leftSceneEntity, currentCorrespondence->getObjectModel()->getAbsolutePath(), leftObjectPicker);
-    setObjectModelForWindow(rightWindow,rightRootEntity, rightSceneEntity, currentCorrespondence->getObjectModel()->getAbsolutePath(), rightObjectPicker);
+    setObjectModelForWindow(leftWindow, leftRootEntity, leftSceneEntity,
+                            currentCorrespondence->getObjectModel()->getAbsolutePath(), leftObjectPicker);
+    setObjectModelForWindow(rightWindow,rightRootEntity, rightSceneEntity,
+                            currentCorrespondence->getObjectModel()->getAbsolutePath(), rightObjectPicker);
 }
 
 void CorrespondenceEditorControls::reset() {
@@ -206,8 +214,12 @@ bool CorrespondenceEditorControls::isDisplayingObjectModel() {
 }
 
 void CorrespondenceEditorControls::objectPickerClicked(Qt3DRender::QPickEvent *pick) {
-    emit objectModelClickedAt(currentObjectModel,
-                              QVector3D(pick->localIntersection().x(),
-                                        pick->localIntersection().y(),
-                                        pick->localIntersection().z()));
+    QVector3D point = QVector3D(pick->localIntersection().x(),
+                                pick->localIntersection().y(),
+                                pick->localIntersection().z());
+    qDebug() << "Object model (" + currentObjectModel->getPath() + ") clicked at: ("
+                + QString::number(point.x()) + ", "
+                + QString::number(point.y()) + ", "
+                + QString::number(point.z()) + ").";
+    emit objectModelClickedAt(currentObjectModel, point);
 }

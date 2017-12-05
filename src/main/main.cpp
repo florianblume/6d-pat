@@ -2,6 +2,7 @@
 #include <QSurfaceFormat>
 
 int main(int argc, char *argv[]) {
+    qSetMessagePattern("[%{function}] (%{type}): %{message}");
     MainController m(argc, argv);
 
     QSurfaceFormat format;
