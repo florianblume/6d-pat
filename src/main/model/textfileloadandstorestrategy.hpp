@@ -4,6 +4,7 @@
 #include "loadandstorestrategy.hpp"
 #include <QDir>
 #include <QString>
+#include <QList>
 
 /*!
  * \brief The TextFileLoadAndStoreStrategy class is a simple implementation of a LoadAndStoreStrategy that makes no use of
@@ -25,11 +26,11 @@ private:
     QString imageFilesExtension = ".png";
 
 public:
-    //! Unmodifiable constants (i.e. not changable at runtime)
+    //! Unmodifiable constants (i.e. not changable by the user at runtime)
     static const QString CORRESPONDENCE_FORMAT_DELIMITER;
     static const QString CORRESPONDENCE_FILES_NAME_SUFFIX;
     static const QString CORRESPONDENCE_FILES_EXTENSION;
-    static const QString OBJECT_MODEL_FILES_EXTENSION;
+    static const QList<QString> OBJECT_MODEL_FILES_EXTENSIONS;
 
 public:
     /*!

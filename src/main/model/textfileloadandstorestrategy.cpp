@@ -6,7 +6,7 @@
 const QString TextFileLoadAndStoreStrategy::CORRESPONDENCE_FORMAT_DELIMITER = " ";
 const QString TextFileLoadAndStoreStrategy::CORRESPONDENCE_FILES_NAME_SUFFIX = "_correspondence";
 const QString TextFileLoadAndStoreStrategy::CORRESPONDENCE_FILES_EXTENSION = ".txt";
-const QString TextFileLoadAndStoreStrategy::OBJECT_MODEL_FILES_EXTENSION = ".obj";
+const QList<QString> TextFileLoadAndStoreStrategy::OBJECT_MODEL_FILES_EXTENSIONS = {".obj", ".ply"};
 
 TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy() {
     // nothing to do here
@@ -167,7 +167,10 @@ void TextFileLoadAndStoreStrategy::loadObjectModels(QList<ObjectModel> &objectMo
     //! See explanation under loadImages for why we don't throw an exception here
     if (pathExists(objectModelsPath.path())) {
         for (QString directory : objectModelsPath.entryList(QDir::Dirs, QDir::Name)) {
-            QStringList fileFilter("*" + OBJECT_MODEL_FILES_EXTENSION);
+            QStringList fileFilter;
+            for (const QString& extension : OBJECT_MODEL_FILES_EXTENSIONS) {
+                fileFilter << ("*" + extension);
+            }
             for (QString file : QDir(objectModelsPath.filePath(directory)).entryList(fileFilter, QDir::Files, QDir::Name)) {
                 //! We only store the path to the model file that is relative to the object models path
                 //! so that we can modify the object models path and still find the object model

@@ -27,7 +27,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     readSettings();
     statusBar()->showMessage(QString("Loading..."));
-    connect(this, SIGNAL(selectedObjectModelChanged(const ObjectModel*)), ui->correspondenceEditor, SLOT(setObjectModel(const ObjectModel*)));
+    connect(this, SIGNAL(selectedObjectModelChanged(const ObjectModel*)),
+            ui->correspondenceEditor, SLOT(setObjectModel(const ObjectModel*)));
+    connect(ui->correspondenceEditor, SIGNAL(objectModelClickedAt(const ObjectModel*,QVector3D)),
+            this, SLOT(onObjectModelClickedAt(const ObjectModel*,QVector3D)));
 }
 
 MainWindow::~MainWindow() {
@@ -167,8 +170,7 @@ void MainWindow::onActionSettingsTriggered()
 void MainWindow::onImageClicked(QPointF position) {
     //! No need to check for whether the right widget was clicked because the only time this method
     //! will be called is when the object image picker received a click on the image
-    /*
-    if (ui->widgetRightBottom->isDisplayingObjectModel()) {
+    if (ui->correspondenceEditor->isDisplayingObjectModel()) {
         QGuiApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
         clickOverlay = new ClickOverlay(this);
         clickOverlay->setGeometry(QRect(this->geometry().x(),
@@ -178,14 +180,13 @@ void MainWindow::onImageClicked(QPointF position) {
                                             - this->statusBar()->geometry().height()));
         clickOverlay->show();
         clickOverlay->raise();
-        ui->widgetRightBottom->raise();
+        ui->correspondenceEditor->raise();
         emit imageClicked(position);
     } else {
         QMessageBox::warning(this, "Select object model first", "Please select an object model from the list\n"
                                                                 "of object models first before trying to create\n"
                                                                 "a new correspondence.");
     }
-    */
 }
 
 void MainWindow::onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position) {
