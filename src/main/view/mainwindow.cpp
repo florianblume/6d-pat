@@ -26,9 +26,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow) {
     ui->setupUi(this);
     readSettings();
-    statusBar()->showMessage(QString("Loading..."));
+    statusBar()->addPermanentWidget(statusBarLabel, 1);
+    setStatusBarText(QString("Loading..."));
     connect(ui->galleryLeft, SIGNAL(selectedItemChanged(int)),
             this, SIGNAL(selectedItemChanged(int)));
+    // If the selected image changes, we also need to cancel any started creation of a correspondence
+    connect(ui->galleryLeft, SIGNAL(selectedItemChanged(int)),
+            this, SIGNAL(correspondenceCreationAborted()));
+    connect(ui->galleryRight, SIGNAL(selectedItemChanged(int)),
+            this, SIGNAL(correspondenceCreationAborted()));
     connect(ui->correspondenceViewer, SIGNAL(imageClicked(const Image*,QPointF)),
             this, SLOT(onImageClicked(const Image*,QPointF)));
     connect(this, SIGNAL(selectedObjectModelChanged(const ObjectModel*)),
@@ -148,6 +154,10 @@ void MainWindow::setSettingsDialogDelegate(SettingsDialogDelegate* delegate) {
     settingsDialogDelegate = delegate;
 }
 
+void MainWindow::setStatusBarText(const QString& text) {
+    statusBarLabel->setText(text);
+}
+
 void MainWindow::onActionAboutTriggered()
 {
     AboutDialog* aboutDialog = new AboutDialog(this);
@@ -176,7 +186,12 @@ void MainWindow::onImageClicked(const Image* image, QPointF position) {
     //! will be called is when the object image picker received a click on the image
     if (ui->correspondenceEditor->isDisplayingObjectModel()) {
         QGuiApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
-        clickOverlay = new ClickOverlay(this);
+
+        if (clickOverlay == Q_NULLPTR) {
+            clickOverlay = new ClickOverlay(this);
+            connect(clickOverlay, SIGNAL(clickedAnywhere()), this, SLOT(onOverlayClickedAnywhere()));
+        }
+
         clickOverlay->setGeometry(QRect(this->geometry().x(),
                                         this->geometry().y(),
                                         this->geometry().width(),
@@ -191,6 +206,12 @@ void MainWindow::onImageClicked(const Image* image, QPointF position) {
                                                                 "of object models first before trying to create\n"
                                                                 "a new correspondence.");
     }
+}
+
+void MainWindow::onOverlayClickedAnywhere() {
+    QGuiApplication::restoreOverrideCursor();
+    clickOverlay->hide();
+    emit correspondenceCreationAborted();
 }
 
 void MainWindow::onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position) {

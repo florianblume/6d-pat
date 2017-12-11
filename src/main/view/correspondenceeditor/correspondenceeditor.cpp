@@ -127,21 +127,13 @@ void CorrespondenceEditor::showImage(const QString &imagePath) {
 
 void CorrespondenceEditor::addObjectModelRenderable(const ObjectModel* objectModel,
                                                     int objectModelIndex) {
-    //! We do not need to take care of deleting the renderables, the destructor of this class
-    //! or the start of this function will do this
+    // We do not need to take care of deleting the renderables, the destructor of this class
+    // or the start of this function will do this
     ObjectModelRenderable *newRenderable =
             new ObjectModelRenderable(sceneEntity,
                                       objectModel->getAbsolutePath(), "");
 
-    //
-    //
-    // For testing only!
-    // TODO: Get real scaling/rotation
-    //
-    //
     qDebug() << "Adding object model (" + objectModel->getPath() + ") to display.";
-    newRenderable->getTransform()->setTranslation(QVector3D(0, 0, -0.1));
-    newRenderable->getTransform()->setScale(0.01);
 
     objectModelRenderables.push_back(newRenderable);
 
@@ -214,9 +206,11 @@ void CorrespondenceEditor::switchImage() {
 }
 
 void CorrespondenceEditor::imageObjectPickerPressed(Qt3DRender::QPickEvent *pick) {
+    if (pick->button() != Qt::LeftButton)
+        return;
+
     QVector3D intersection = pick->worldIntersection();
     const Image* image = modelManager->getImage(currentlyDisplayedImage);
-    QImage loadedImage(image->getAbsoluteImagePath());
     QPointF point = QPointF(intersection.x(), intersection.y());
     qDebug() << "Image (" + image->getImagePath() + ") clicked at position: ("
                 + QString::number(point.x()) + ", "

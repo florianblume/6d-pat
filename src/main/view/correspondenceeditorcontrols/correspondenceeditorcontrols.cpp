@@ -214,6 +214,9 @@ bool CorrespondenceEditorControls::isDisplayingObjectModel() {
 }
 
 void CorrespondenceEditorControls::objectPickerClicked(Qt3DRender::QPickEvent *pick) {
+    if (pick->button() != Qt::LeftButton)
+        return;
+
     QVector3D point = QVector3D(pick->localIntersection().x(),
                                 pick->localIntersection().y(),
                                 pick->localIntersection().z());

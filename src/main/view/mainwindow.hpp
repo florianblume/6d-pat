@@ -11,6 +11,7 @@
 #include <QMainWindow>
 #include <QMouseEvent>
 #include <QFrame>
+#include <QLabel>
 #include <QString>
 
 namespace Ui {
@@ -23,16 +24,20 @@ class MainWindow;
  * to normal appearance.
  */
 class ClickOverlay : public QFrame {
+
+    Q_OBJECT
+
 public:
     ClickOverlay(QWidget* parent) : QFrame(parent) {
     }
 
     void mousePressEvent(QMouseEvent *event)  {
-        QGuiApplication::restoreOverrideCursor();
         event->accept();
-        hide();
-        // TODO: Propagate click to main controller to not further track mouse movements
+        emit clickedAnywhere();
     }
+
+signals:
+    void clickedAnywhere();
 };
 
 class MainWindow : public QMainWindow {
@@ -57,6 +62,8 @@ public:
     void addListenerToLeftNavigationControls(NavigationControlsListener listener);
     void addListenerToRightNavigationControls(NavigationControlsListener listener);
     void resetCorrespondenceEditor();
+
+    void setStatusBarText(const QString& text);
 
     /*!
      * \brief setGalleryImageModel Sets the model for the gallery view of images on the left side.
@@ -118,6 +125,7 @@ signals:
      */
     void selectedObjectModelChanged(const ObjectModel* objectModel);
     void selectedItemChanged(int index);
+    void correspondenceCreationAborted();
 
 private slots:
     void onActionAboutTriggered();
@@ -126,15 +134,17 @@ private slots:
     //! Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
     //! right clicks in the image to start creating a correspondence
     void onImageClicked(const Image* image, QPointF position);
+    void onOverlayClickedAnywhere();
 
 private:
     //! The overlay that is shown when the user clicks on a position in the displayed image to start
     //! to create a correspondence. When they then click anywhere except for the 3D model on the right
     //! the formerly changed curser (crosshair) will change back to normal, i.e. the correspondence
     //! will not be created.
-    ClickOverlay *clickOverlay;
+    ClickOverlay *clickOverlay = Q_NULLPTR;
 
     Ui::MainWindow *ui;
+    QLabel *statusBarLabel = new QLabel();
 
     //! The settings item that is used to store values intermediatly. The settings dialog writes
     //! values to it and the main controller reads from it.

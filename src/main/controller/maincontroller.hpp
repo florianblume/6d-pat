@@ -36,7 +36,7 @@ private:
     GalleryObjectModelModel *galleryObjectModelModel;
     //! Stores the position that was last clicked on a displayed image so that we can create a 2D to 3D correspondence
     //! when a 3D point on an object model is clicked
-    QPointF *lastClickedImagePosition = Q_NULLPTR;
+    QPointF lastClickedImagePosition;
     const Image* lastClickedImage = Q_NULLPTR;
     QList<CorrespondingPoints> correspondingPoints;
 
@@ -47,8 +47,7 @@ private:
 private slots:
     void onImageClicked(const Image* image, QPointF position);
     void onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position);
-    //! Catches when either gallery changes selection and we should delete already defined corresponding points
-    void onSelectedItemChanged();
+    void onCorrespondenceCreationAborted();
 
 public:
     MainController(int &argc, char *argv[]);
