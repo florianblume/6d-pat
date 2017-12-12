@@ -3,8 +3,11 @@
 #include "view/rendering/imagerenderable.h"
 #include "view/rendering/objectmodelrenderable.h"
 #include <Qt3DRender/QFrameGraphNode>
+#include <Qt3DRender/QRenderSurfaceSelector>
+#include <Qt3DRender/QRenderTargetSelector>
 #include <Qt3DRender/QCamera>
 #include <Qt3DExtras/QFirstPersonCameraController>
+#include <QOffscreenSurface>
 
 CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelManager) :
     QWidget(parent),
@@ -58,6 +61,10 @@ void CorrespondenceViewer::deleteSceneObjects() {
         if (picker)
             delete picker;
     }
+    if (sceneEntity)
+        delete sceneEntity;
+    if (rootEntity)
+        delete rootEntity;
 }
 
 void CorrespondenceViewer::setupGraphicsWindow() {
@@ -74,20 +81,17 @@ void CorrespondenceViewer::setupGraphicsWindow() {
     camera->setPosition(QVector3D(0.f, 0.f, 1.5f));
     camera->setViewCenter(QVector3D(0, 0, 0));
 
-    // Setup camera control -> Remove later!
-    Qt3DExtras::QFirstPersonCameraController *firstPerson =
-            new Qt3DExtras::QFirstPersonCameraController(graphicsWindow->activeFrameGraph());
-    firstPerson->setCamera(camera);
-
     // Setup root node
     rootEntity = new Qt3DCore::QEntity();
+
     sceneEntity = new Qt3DCore::QEntity(rootEntity);
+
     frameGraph = new Qt3DRender::QRenderSettings();
     frameGraph->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
-    rootEntity->addComponent(frameGraph);
-    depthTest = new Qt3DRender::QDepthTest(frameGraph);
-    depthTest->setDepthFunction(Qt3DRender::QDepthTest::Always);
     frameGraph->setActiveFrameGraph(graphicsWindow->activeFrameGraph());
+
+    rootEntity->addComponent(frameGraph);
+
     graphicsWindow->setRootEntity(rootEntity);
 }
 

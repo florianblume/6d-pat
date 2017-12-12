@@ -8,7 +8,7 @@ QT       += core gui 3dcore 3drender 3dinput 3dextras
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-include(./Otiat.pri)
+include(./OtiatProgram.pro)
 include(QtAwesome/QtAwesome.pri)
 
 CONFIG += c++11
