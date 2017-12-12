@@ -8,16 +8,12 @@
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DRender/QObjectPicker>
 #include <Qt3DRender/QPickEvent>
+#include <Qt3DExtras/QOrbitCameraController>
+#include <Qt3DRender/QCamera>
 
 namespace Ui {
 class CorrespondenceEditor;
 }
-
-//! Convencience typdefs
-typedef QPointer<Qt3DRender::QObjectPicker> ObjectPickerPointer;
-typedef QPointer<Qt3DCore::QEntity> EntityPointer;
-typedef QPointer<Qt3DRender::QRenderSettings> RenderSettingsPointer;
-typedef QPointer<Qt3DExtras::Qt3DWindow> WindowPointer;
 
 /*!
  * \brief The CorrespondenceEditorControls class is responsible for displaying two views of an
@@ -65,32 +61,21 @@ private:
     ObjectImageCorrespondence *currentCorrespondence;
 
     //! The left view of the object model, e.g. the front view
-    WindowPointer leftWindow;
-    ObjectPickerPointer leftObjectPicker;
-    EntityPointer leftRootEntity;
-    EntityPointer leftSceneEntity;
-    RenderSettingsPointer leftFramegraphEntity;
-
-    //! The right view of the object model, e.g. the back view
-    WindowPointer rightWindow;
-    ObjectPickerPointer rightObjectPicker;
-    EntityPointer rightRootEntity;
-    EntityPointer rightSceneEntity;
-    RenderSettingsPointer rightFramegraphEntity;
+    Qt3DExtras::Qt3DWindow *graphicsWindow;
+    Qt3DRender::QObjectPicker *objectPicker;
+    Qt3DCore::QEntity *rootEntity;
+    Qt3DCore::QEntity *sceneEntity;
+    Qt3DRender::QRenderSettings *framegraphEntity;
+    Qt3DRender::QCamera *leftCamera;
+    Qt3DExtras::QOrbitCameraController *leftCameraController;
+    Qt3DRender::QCamera *rightCamera;
+    Qt3DExtras::QOrbitCameraController *rightCameraController;
 
     void setEnabledCorrespondenceEditorControls(bool enabled);
     void setEnabledAllControls(bool enabled);
     void resetControlsValues();
-    void setupView();
-    void setup3DWindow(WindowPointer& window,
-                       EntityPointer& rootEntity,
-                       EntityPointer& sceneEntity,
-                       RenderSettingsPointer& framegraphEntity);
-    void setObjectModelForWindow(WindowPointer window,
-                                 EntityPointer rootEntity,
-                                 EntityPointer& sceneEntity,
-                                 const QString &objectModel,
-                                 ObjectPickerPointer &picker);
+    void setup3DView();
+    void setObjectModelOnGraphicsWindow(const QString &objectModel);
 
 private slots:
     void objectPickerClicked(Qt3DRender::QPickEvent *pick);

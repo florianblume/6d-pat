@@ -1,16 +1,12 @@
 #include "correspondenceeditor.h"
 #include "ui_correspondenceeditor.h"
 #include "view/rendering/objectmodelrenderable.h"
-#include <Qt3DRender/QCamera>
-#include <Qt3DRender/QDepthTest>
-#include <Qt3DExtras/QTorusMesh>
-#include <Qt3DExtras/QPhongMaterial>
-#include <Qt3DExtras/QForwardRenderer>
+#include <Qt3DRender/QRenderSurfaceSelector>
 #include <Qt3DRender/QClearBuffers>
-#include <Qt3DRender/QMesh>
 #include <Qt3DRender/QFrameGraphNode>
-#include <Qt3DExtras/QOrbitCameraController>
 #include <Qt3DRender/QRenderSettings>
+#include <Qt3DRender/QCameraSelector>
+#include <Qt3DRender/QViewport>
 #include <QUrl>
 
 CorrespondenceEditor::CorrespondenceEditor(QWidget *parent) :
@@ -18,21 +14,14 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent) :
     ui(new Ui::CorrespondenceEditor)
 {
     ui->setupUi(this);
-    setupView();
+    setup3DView();
 }
 
 CorrespondenceEditor::~CorrespondenceEditor()
 {
-    if (leftWindow)
-        leftWindow->destroy();
-    if (rightWindow)
-        rightWindow->destroy();
-    if (leftObjectPicker)
-        delete leftObjectPicker;
-    if (rightObjectPicker)
-        delete rightObjectPicker;
-    delete leftWindow;
-    delete rightWindow;
+    if (graphicsWindow)
+        graphicsWindow->destroy();
+    delete graphicsWindow;
     delete ui;
 }
 
@@ -73,35 +62,53 @@ void CorrespondenceEditor::resetControlsValues() {
     ui->sliderArticulation->setValue(0);
 }
 
-void CorrespondenceEditor::setupView() {
-    qDebug() << "Setting up 3D views.";
-    setup3DWindow(leftWindow, leftRootEntity, leftSceneEntity, leftFramegraphEntity);
-    // Separator between the views
-    QFrame *line = new QFrame(ui->graphicsFrame);
-    line->setFrameShape(QFrame::VLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ui->graphicsFrame->layout()->addWidget(line);
-    setup3DWindow(rightWindow, rightRootEntity, rightSceneEntity, rightFramegraphEntity);
-}
-
-void CorrespondenceEditor::setup3DWindow(WindowPointer& window,
-                                                 EntityPointer& rootEntity,
-                                                 EntityPointer& sceneEntity,
-                                                 RenderSettingsPointer& framegraphEntity) {
-    window = new Qt3DExtras::Qt3DWindow;
-    QWidget *container = QWidget::createWindowContainer(window);
+void CorrespondenceEditor::setup3DView() {
+    graphicsWindow = new Qt3DExtras::Qt3DWindow;
+    QWidget *container = QWidget::createWindowContainer(graphicsWindow);
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->graphicsFrame->layout()->addWidget(container);
 
     rootEntity = new Qt3DCore::QEntity();
-    // Setup the framegraph that holds the render settings
-    framegraphEntity = new Qt3DRender::QRenderSettings();
-    framegraphEntity->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
-    rootEntity->addComponent(framegraphEntity);
-    framegraphEntity->setActiveFrameGraph(window->activeFrameGraph());
 
+    // Setup the framegraph that holds the render settings
+    framegraphEntity = new Qt3DRender::QRenderSettings(rootEntity);
+    //framegraphEntity->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    rootEntity->addComponent(framegraphEntity);
+
+    Qt3DRender::QRenderSurfaceSelector *renderSurfaceSelector = new Qt3DRender::QRenderSurfaceSelector;
+    framegraphEntity->setActiveFrameGraph(renderSurfaceSelector);
+    Qt3DRender::QViewport *mainViewport = new Qt3DRender::QViewport(renderSurfaceSelector);
+    mainViewport->setNormalizedRect(QRectF(0.0, 0.0, 1.0, 1.0));
+
+    // First branch to be executed
+    Qt3DRender::QClearBuffers *clearBuffers = new Qt3DRender::QClearBuffers(mainViewport);
+    clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthBuffer);
+    clearBuffers->setClearColor(QColor(1.0, 0.0, 0.0, 1.0));
+
+    // Second branch holding the viewport of the front facing view
+    leftCamera = new Qt3DRender::QCamera(rootEntity);
+    leftCamera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
+    leftCamera->setPosition(QVector3D(0.f, 0.f, 100.f));
+    leftCamera->setViewCenter(QVector3D(0, 0, 0));
+    Qt3DRender::QViewport *leftViewport = new Qt3DRender::QViewport(mainViewport);
+    leftViewport->setNormalizedRect(QRectF(0.0, 0.0, 0.5, 1.0));
+    Qt3DRender::QCameraSelector *leftCameraSelector = new Qt3DRender::QCameraSelector(leftViewport);
+    leftCameraSelector->setCamera(leftCamera);
+
+    // Third branch holding the viewport of the back facing view
+    rightCamera = new Qt3DRender::QCamera(rootEntity);
+    rightCamera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
+    rightCamera->setPosition(QVector3D(0.f, 0.f, -100.f));
+    rightCamera->setViewCenter(QVector3D(0, 0, 0));
+    Qt3DRender::QViewport *rightViewport = new Qt3DRender::QViewport(mainViewport);
+    rightViewport->setNormalizedRect(QRectF(0.5, 0.0, 0.5, 1.0));
+    Qt3DRender::QCameraSelector *rightCameraSelector = new Qt3DRender::QCameraSelector(rightViewport);
+    rightCameraSelector->setCamera(rightCamera);
+
+    // Setup scene root that is to hold all actual objects of the scene
     sceneEntity = new Qt3DCore::QEntity(rootEntity);
-    window->setRootEntity(rootEntity);
+    graphicsWindow->setActiveFrameGraph(framegraphEntity->activeFrameGraph());
+    graphicsWindow->setRootEntity(rootEntity);
 }
 
 void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
@@ -130,37 +137,20 @@ void CorrespondenceEditor::predictPositionOfObjectModels() {
     // TODO: implement
 }
 
-void CorrespondenceEditor::setObjectModelForWindow(WindowPointer window,
-                                                           EntityPointer rootEntity,
-                                                           EntityPointer& sceneEntity,
-                                                           const QString &objectModel,
-                                                           ObjectPickerPointer &picker) {
-    // TODO: add material
-    // TODO: make initial rotation settable
+void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectModel) {
+    if (sceneEntity)
+        delete sceneEntity;
 
-    delete sceneEntity;
     sceneEntity = new Qt3DCore::QEntity(rootEntity);
     ObjectModelRenderable *objectModelRenderable = new ObjectModelRenderable(sceneEntity,
                                                                              objectModel,
                                                                              "");
 
-    // Camera re-initialization
-    Qt3DRender::QCamera *camera = window->camera();
-    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
-    camera->setPosition(QVector3D(0.f, 0.f, 100.f));
-    camera->setViewCenter(QVector3D(0, 0, 0));
-
-    // Orbit controller
-    Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(objectModelRenderable);
-    camController->setLinearSpeed( 50.0f );
-    camController->setLookSpeed( 180.0f );
-    camController->setCamera(camera);
-
     // Picker to enable the user to select points on the object
-    delete picker;
-    picker = new Qt3DRender::QObjectPicker(objectModelRenderable);
-    objectModelRenderable->addComponent(picker);
-    connect(picker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
+
+    objectPicker = new Qt3DRender::QObjectPicker(objectModelRenderable);
+    objectModelRenderable->addComponent(objectPicker);
+    connect(objectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
 }
 
 void CorrespondenceEditor::setObjectModel(const ObjectModel* objectModel) {
@@ -169,10 +159,8 @@ void CorrespondenceEditor::setObjectModel(const ObjectModel* objectModel) {
     currentCorrespondence = NULL;
     resetControlsValues();
     currentObjectModel = objectModel;
-    setObjectModelForWindow(leftWindow, leftRootEntity, leftSceneEntity,
-                            currentObjectModel->getAbsolutePath(), leftObjectPicker);
-    setObjectModelForWindow(rightWindow, rightRootEntity, rightSceneEntity,
-                            currentObjectModel->getAbsolutePath(), rightObjectPicker);
+    setObjectModelOnGraphicsWindow(currentObjectModel->getAbsolutePath());
+    setObjectModelOnGraphicsWindow(currentObjectModel->getAbsolutePath());
 }
 
 void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence* correspondence) {
@@ -190,21 +178,16 @@ void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence* co
     ui->spinBoxRotationY->setValue(rotation.y());
     ui->spinBoxRotationZ->setValue(rotation.z());
     ui->sliderArticulation->setValue(articulation);
-    setObjectModelForWindow(leftWindow, leftRootEntity, leftSceneEntity,
-                            currentCorrespondence->getObjectModel()->getAbsolutePath(), leftObjectPicker);
-    setObjectModelForWindow(rightWindow,rightRootEntity, rightSceneEntity,
-                            currentCorrespondence->getObjectModel()->getAbsolutePath(), rightObjectPicker);
+    setObjectModelOnGraphicsWindow(currentCorrespondence->getObjectModel()->getAbsolutePath());
+    setObjectModelOnGraphicsWindow(currentCorrespondence->getObjectModel()->getAbsolutePath());
 }
 
 void CorrespondenceEditor::reset() {
     setEnabledAllControls(false);
     currentObjectModel = NULL;
     currentCorrespondence = NULL;
-    if (leftWindow) {
-        delete leftSceneEntity;
-    }
-    if (rightWindow) {
-        delete rightSceneEntity;
+    if (graphicsWindow) {
+        delete sceneEntity;
     }
     resetControlsValues();
 }
