@@ -75,7 +75,8 @@ void CorrespondenceViewer::setupGraphicsWindow() {
     camera->setViewCenter(QVector3D(0, 0, 0));
 
     // Setup camera control -> Remove later!
-    Qt3DExtras::QFirstPersonCameraController *firstPerson = new Qt3DExtras::QFirstPersonCameraController(graphicsWindow->activeFrameGraph());
+    Qt3DExtras::QFirstPersonCameraController *firstPerson =
+            new Qt3DExtras::QFirstPersonCameraController(graphicsWindow->activeFrameGraph());
     firstPerson->setCamera(camera);
 
     // Setup root node
@@ -101,10 +102,9 @@ void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
 }
 
 void CorrespondenceViewer::showImage(const QString &imagePath) {
+    reset();
     // Set root entity here as parent so that image is a child of it
     qDebug() << "Displaying image (" + imagePath + ").";
-    deleteSceneObjects();
-    setupSceneRoot();
 
     // Clear the correspondences
     correspondences.clear();
