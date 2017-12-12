@@ -131,6 +131,7 @@ private slots:
     void onActionAboutTriggered();
     void onActionExitTriggered();
     void onActionSettingsTriggered();
+    void onActionAbortCreationTriggered();
     //! Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
     //! right clicks in the image to start creating a correspondence
     void onImageClicked(const Image* image, QPointF position);

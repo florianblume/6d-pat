@@ -27,7 +27,7 @@ MainController::~MainController() {
     //! But first remove all old entries, in case that the user deleted some codes
     settings.beginGroup("maincontroller-settings");
     settings.remove("");
-    for (uint i = 0; i < modelManager.getObjectModelsSize(); i++) {
+    for (int i = 0; i < modelManager.getObjectModelsSize(); i++) {
         const ObjectModel* model = modelManager.getObjectModel(i);
         const QString objectModelIdentifier = model->getAbsolutePath();
         settings.setValue(model->getAbsolutePath(),
@@ -65,7 +65,7 @@ void MainController::initializeSettingsItem() {
     //! Read persisted object color codes
     QSettings settings("FlorettiKonfetti Inc.", "Otiat");
     settings.beginGroup("maincontroller-settings");
-    for (uint i = 0; i < modelManager.getObjectModelsSize(); i++) {
+    for (int i = 0; i < modelManager.getObjectModelsSize(); i++) {
         const ObjectModel* model = modelManager.getObjectModel(i);
         const QString objectModelIdentifier = model->getAbsolutePath();
         QString storedCode = settings.value(objectModelIdentifier, "").toString();

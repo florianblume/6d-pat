@@ -133,11 +133,11 @@ void TextFileLoadAndStoreStrategy::loadImages(QList<Image> &images) {
     QStringList fileFilter("*" + imageFilesExtension);
     QStringList files = imagesPath.entryList(fileFilter, QDir::Files, QDir::Name);
 
-    for (uint i = 0; i < files.size(); i += 2) {
+    for (int i = 0; i < files.size(); i += 2) {
         QString image = files[i];
         QString imageFilename = QFileInfo(image).fileName();
         //! Check the next image if it is the segmentation image of the currently inspected image
-        uint j = i + 1;
+        int j = i + 1;
         if (j < files.size()) {
             QString secondImage = files[j];
             QString secondImageFilename = QFileInfo(secondImage).fileName();
@@ -186,7 +186,7 @@ void TextFileLoadAndStoreStrategy::loadObjectModels(QList<ObjectModel> &objectMo
 QMap<QString, const Image*> createImageMap(const QList<Image> &images) {
     QMap<QString, const Image*> imageMap;
 
-    for (uint i = 0; i < images.size(); i++) {
+    for (int i = 0; i < images.size(); i++) {
         imageMap[images.at(i).getImagePath()] = &(images.at(i));
     }
 
@@ -196,7 +196,7 @@ QMap<QString, const Image*> createImageMap(const QList<Image> &images) {
 QMap<QString,const ObjectModel*> createObjectModelMap(const QList<ObjectModel> &objectModels) {
     QMap<QString, const ObjectModel*> objectModelMap;
 
-    for (uint i = 0; i < objectModels.size(); i++) {
+    for (int i = 0; i < objectModels.size(); i++) {
         objectModelMap[objectModels.at(i).getPath()] = &(objectModels.at(i));
     }
 

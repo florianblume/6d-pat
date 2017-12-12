@@ -19,23 +19,6 @@ class GalleryObjectModelModel : public QAbstractListModel
 {
     Q_OBJECT
 
-private:
-    ModelManager* modelManager;
-    QMap<const ObjectModel*, QString> codes;
-    QVector<QColor> colorsOfCurrentImage;
-    int currentSelectedImageIndex = -1;
-    //! We need to cache images as well because the rendered image is not ready directly
-    QMap<QString, QPixmap> cachedImages;
-    //! Store the index of the currently rendered image to be able to set the correct image
-    //! when the renderer returns
-    uint currentlyRenderedImageIndex = 0;
-    Qt3DExtras::Qt3DWindow *renderingWindow;
-    Qt3DRender::QRenderCapture *renderCapture;
-    Qt3DRender::QRenderCaptureReply *renderCaptureReply;
-    ObjectModelRenderable *objectModelRenderable;
-    void renderImage(uint index);
-    QVariant dataForObjectModel(const ObjectModel* objectModel, int role) const;
-
 public:
     explicit GalleryObjectModelModel(ModelManager* modelManager);
     ~GalleryObjectModelModel();
@@ -53,6 +36,27 @@ public slots:
      * \param index
      */
     void onSelectedImageChanged(int index);
+
+signals:
+    void displayedObjectModelsChanged();
+
+private:
+    ModelManager* modelManager;
+    QMap<const ObjectModel*, QString> codes;
+    QVector<QColor> colorsOfCurrentImage;
+    int currentSelectedImageIndex = -1;
+    //! We need to cache images as well because the rendered image is not ready directly
+    QMap<QString, QPixmap> cachedImages;
+    //! Store the index of the currently rendered image to be able to set the correct image
+    //! when the renderer returns
+    uint currentlyRenderedImageIndex = 0;
+    Qt3DExtras::Qt3DWindow *renderingWindow;
+    Qt3DRender::QRenderCapture *renderCapture;
+    Qt3DRender::QRenderCaptureReply *renderCaptureReply;
+    ObjectModelRenderable *objectModelRenderable;
+    void renderImage(int index);
+    QVariant dataForObjectModel(const ObjectModel* objectModel, int role) const;
+
 private slots:
     /*!
      * \brief storeRenderedImage is an internal method that is used to store the rendered image.
@@ -60,8 +64,6 @@ private slots:
     void storeRenderedImage();
     bool isNumberOfToolsCorrect();
 
-signals:
-    void displayedObjectModelsChanged();
 };
 
 #endif // GALLERYOBJECTMODELMODEL_H

@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->correspondenceEditor, SLOT(setObjectModel(const ObjectModel*)));
     connect(ui->correspondenceEditor, SIGNAL(objectModelClickedAt(const ObjectModel*,QVector3D)),
             this, SLOT(onObjectModelClickedAt(const ObjectModel*,QVector3D)));
+
 }
 
 MainWindow::~MainWindow() {
@@ -178,6 +179,10 @@ void MainWindow::onActionSettingsTriggered()
                                                    objectModels);
     settingsDialog->setDelegate(settingsDialogDelegate);
     settingsDialog->show();
+}
+
+void MainWindow::onActionAbortCreationTriggered() {
+    emit correspondenceCreationAborted();
 }
 
 //! Mouse handling, i.e. clicking in the lower left widget and dragging a line to the lower right widget

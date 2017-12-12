@@ -105,7 +105,7 @@ void GalleryObjectModelModel::storeRenderedImage() {
     renderImage(++currentlyRenderedImageIndex);
 }
 
-void GalleryObjectModelModel::renderImage(uint index) {
+void GalleryObjectModelModel::renderImage(int index) {
     if (index < modelManager->getObjectModelsSize()) {
         const ObjectModel* objectModel = modelManager->getObjectModel(index);
         if (renderCapture) {

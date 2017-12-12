@@ -163,7 +163,7 @@ bool CachingModelManager::removeObjectImageCorrespondence(ObjectImageCorresponde
     }
 
     bool correspondenceFound = false;
-    for (uint i = 0; i < correspondences.size(); i++) {
+    for (int i = 0; i < correspondences.size(); i++) {
         if (correspondences[i].getID().compare(objectImageCorrespondence.getID()) == 0) {
             correspondences.erase(correspondences.begin() + i);
             correspondenceFound = true;
@@ -176,7 +176,7 @@ bool CachingModelManager::removeObjectImageCorrespondence(ObjectImageCorresponde
 
     QString imagePath = objectImageCorrespondence.getImage()->getImagePath();
     QList<ObjectImageCorrespondence*>& correspondencesForImage = correspondencesForImages[imagePath];
-    for (uint i = 0; i < correspondencesForImage.size(); i++) {
+    for (int i = 0; i < correspondencesForImage.size(); i++) {
         if (correspondencesForImage[i]->getImage()->getImagePath().compare(imagePath)) {
             correspondencesForImage.erase(correspondencesForImage.begin() + i);
         }
@@ -184,7 +184,7 @@ bool CachingModelManager::removeObjectImageCorrespondence(ObjectImageCorresponde
 
     QString objectModelPath = objectImageCorrespondence.getObjectModel()->getPath();
     QList<ObjectImageCorrespondence*>& correspondencesForObject = correspondencesForObjectModels[objectModelPath];
-    for (uint i = 0; i < correspondencesForObject.size(); i++) {
+    for (int i = 0; i < correspondencesForObject.size(); i++) {
         if (correspondencesForObject[i]->getObjectModel()->getPath().compare(objectModelPath)) {
             correspondencesForObject.erase(correspondencesForObject.begin() + i);
         }

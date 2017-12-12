@@ -22,7 +22,7 @@
 #include <Qt3DRender/QRenderSettings>
 
 namespace Ui {
-class CorrespondenceEditor;
+class CorrespondenceViewer;
 }
 
 //! Convenience typdefs
@@ -39,56 +39,20 @@ typedef QList<QPointer<Qt3DRender::QObjectPicker>> ObjectPickerPointerList;
 typedef QPointer<Qt3DRender::QObjectPicker> ObjectPickerPointer;
 typedef QScopedPointer<QSignalMapper> SignalMapperPointer;
 
+typedef QList<QPointer<ObjectImageCorrespondence>> CorrespondencesList;
+
 /*!
  * \brief The CorrespondenceEditor class holds the image that is to be annotated and allows
  * adding ObjectModels and place them at specific spots. It does NOT allow diret editing.
  * This is what the CorrespondenceEditorControls are for.
  */
-class CorrespondenceEditor : public QWidget
+class CorrespondenceViewer : public QWidget
 {
     Q_OBJECT
 
-private:
-
-    Ui::CorrespondenceEditor *ui;
-    QtAwesome* awesome;
-    ModelManager* modelManager;
-    Qt3DExtras::Qt3DWindow *graphicsWindow = NULL;
-
-    //!All necessary stuff for 3D
-    //!
-    //! We need to disable the depth test so that the object model is always
-    //! infront of the iamge
-    EntityPointer rootEntity;
-    EntityPointer sceneEntity;
-    RenderSettingsPointer frameGraph;
-    DepthTestPointer depthTest;
-    ImageRenderablePointer imageRenderable;
-    ObjectPickerPointer imageObjectPicker;
-    ObjectModelRenderablePointerList objectModelRenderables;
-    ObjectModelToRenderablePointerMap objectModelToRenderablePointerMap;
-    ObjectPickerPointerList objectModelsPickers;
-
-    SignalMapperPointer objectModelPickerSignalMapper{new QSignalMapper};
-    //! Because a object model can be added through the updateCorrespondence method, we need to keep
-    //! track of the indeces to corretly link the object pickers
-    int currentObjectModelSignalMapperIndex = 0;
-
-    //! The index of the image that is currently selected in the gallery and displayed here
-    int currentlyDisplayedImage = -1;
-    //! Stores, whether we are currently looking at the "normal" image, or the (maybe present)
-    //! segmentation image
-    bool showingNormalImage = true;
-    void showImage(const QString &imagePath);
-    void addObjectModelRenderable(const ObjectModel* objectModel,
-                                  int objectModelIndex);
-    void setupGraphicsWindow();
-    void setupSceneRoot();
-    void deleteSceneObjects();
-
 public:
-    explicit CorrespondenceEditor(QWidget *parent = 0, ModelManager* modelManager = 0);
-    ~CorrespondenceEditor();
+    explicit CorrespondenceViewer(QWidget *parent = 0, ModelManager* modelManager = 0);
+    ~CorrespondenceViewer();
     /*!
      * \brief setModelManager sets the model manager that this correspondence editor uses.
      * The model manager is expected to not be null.
@@ -102,9 +66,9 @@ signals:
      */
     void imageClicked(const Image* image, QPointF position);
     /*!
-     * \brief objectModelClicked emitted when a displayed object model is clicked
+     * \brief correspondenceClicked emitted when a displayed object model is clicked
      */
-    void objectModelClicked(const ObjectModel *objectModel);
+    void correspondenceClicked(const ObjectImageCorrespondence *correspondence);
 
 public slots:
     /*!
@@ -137,6 +101,43 @@ public slots:
      * i.e. all objects should be removed, call the reset() function.
      */
     void reload();
+
+private:
+
+    Ui::CorrespondenceViewer *ui;
+    QtAwesome* awesome;
+    ModelManager* modelManager;
+    Qt3DExtras::Qt3DWindow *graphicsWindow = NULL;
+
+    // All necessary stuff for 3D
+    EntityPointer rootEntity;
+    EntityPointer sceneEntity;
+    RenderSettingsPointer frameGraph;
+    DepthTestPointer depthTest;
+    ImageRenderablePointer imageRenderable;
+    ObjectPickerPointer imageObjectPicker;
+    ObjectModelRenderablePointerList objectModelRenderables;
+    ObjectModelToRenderablePointerMap objectModelToRenderablePointerMap;
+    ObjectPickerPointerList objectModelsPickers;
+
+    CorrespondencesList correspondences;
+
+    SignalMapperPointer objectModelPickerSignalMapper{new QSignalMapper};
+    // Because a object model can be added through the updateCorrespondence method, we need to keep
+    // track of the indeces to corretly link the object pickers
+    int currentObjectModelSignalMapperIndex = 0;
+
+    // The index of the image that is currently selected in the gallery and displayed here
+    int currentlyDisplayedImage = -1;
+    // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
+    // segmentation image
+    bool showingNormalImage = true;
+    void showImage(const QString &imagePath);
+    void addObjectModelRenderable(ObjectImageCorrespondence *correspondence,
+                                  int objectModelIndex);
+    void setupGraphicsWindow();
+    void setupSceneRoot();
+    void deleteSceneObjects();
 
 private slots:
     /*!
