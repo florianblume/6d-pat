@@ -1,4 +1,11 @@
-SOURCES += $$PWD/src/main/view/mainwindow.cpp \
+QT       += core gui 3dcore 3drender 3dinput 3dextras
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+include(./QtAwesome/QtAwesome.pri)
+
+SOURCES += \
+    $$PWD/src/main/view/mainwindow.cpp \
     $$PWD/src/main/controller/maincontroller.cpp \
     $$PWD/src/main/model/objectimagecorrespondence.cpp \
     $$PWD/src/main/model/image.cpp \
@@ -75,9 +82,5 @@ INCLUDEPATH += \
     $$PWD/src/main/controller \
     $$PWD/src/main/view/settings \
     /usr/local/include/opencv
-
-DISTFILES += \
-    $$PWD/src/main/view/correspondenceviewer/fragmentShader.fsh \
-    $$PWD/src/main/view/correspondenceviewer/vertexShader.vsh
 
 LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d

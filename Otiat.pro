@@ -4,22 +4,19 @@
 #
 #-------------------------------------------------
 
-QT       += core gui 3dcore 3drender 3dinput 3dextras
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
-include(./OtiatProgram.pro)
-include(QtAwesome/QtAwesome.pri)
-
-CONFIG += c++11
-
-TARGET = Otiat
 TEMPLATE = app
+TARGET = Otiat
+
+include(./OtiatSources.pri)
+
+DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
-    src/main/main.cpp
-
-DISTFILES += \
-    Otiat.pri
+    $$PWD/src/main/main.cpp
 
 
+DISTFILES = \
+    OtiatSources.pri
+
+HEADERS += \
+    src/test/testmain.h
