@@ -59,28 +59,25 @@ void SettingsItem::setCorrespondencesPath(const QString &value) {
     correspondencesPath = value;
 }
 
-void SettingsItem::getSegmentationCodes(QMap<const ObjectModel*, QString> &codes) const {
-    QMap<const ObjectModel*, QString>::ConstIterator it(segmentationCodes.begin());
-    for (; it != segmentationCodes.end(); it++) {
-        codes[it.key()] = it.value();
-    }
+QMap<QString, QString> SettingsItem::getSegmentationCodes() const {
+    return segmentationCodes;
 }
 
-void SettingsItem::setSegmentationCodes(const QMap<const ObjectModel*, QString> &codes) {
-    segmentationCodes = codes;
+void SettingsItem::setSegmentationCodes(const QMap<QString, QString> codes) {
+    segmentationCodes = std::move(codes);
 }
 
-void SettingsItem::removeSegmentationCodeForObjectModel(const ObjectModel* objectModel) {
-    segmentationCodes.remove(objectModel);
+void SettingsItem::removeSegmentationCodeForObjectModel(const QString &identifier) {
+    segmentationCodes.remove(identifier);
 }
 
-void SettingsItem::setSegmentationCodeForObjectModel(const ObjectModel *objectModel, const QString &code) {
-    segmentationCodes[objectModel] = code;
+void SettingsItem::setSegmentationCodeForObjectModel(const QString &identifier, const QString &code) {
+    segmentationCodes[identifier] = code;
 }
 
-QString SettingsItem::getSegmentationCodeForObjectModel(const ObjectModel* objectModel) {
-    if (segmentationCodes.contains(objectModel))
-        return segmentationCodes[objectModel];
+QString SettingsItem::getSegmentationCodeForObjectModel(const QString &identifier) {
+    if (segmentationCodes.contains(identifier))
+        return segmentationCodes[identifier];
     else
         return "";
 }

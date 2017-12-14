@@ -30,10 +30,6 @@ void NavigationControls::setPathToOpen(const QString &path) {
     }
 }
 
-void NavigationControls::addListener(NavigationControlsListener listener) {
-    listeners.push_back(listener);
-}
-
 void NavigationControls::folderButtonClicked() {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
                                                 currentPath,
@@ -44,7 +40,4 @@ void NavigationControls::folderButtonClicked() {
     }
     currentPath = dir;
     emit pathChanged(dir);
-    for (NavigationControlsListener listener : listeners) {
-        listener(dir);
-    }
 }

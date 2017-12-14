@@ -122,19 +122,18 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
     // when the user wants to create a new correspondence
     connect(imageObjectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)),
             this, SLOT(imageObjectPickerPressed(Qt3DRender::QPickEvent*)));
-    QList<ObjectImageCorrespondence*> correspondencesForImage;
-    modelManager->getCorrespondencesForImage(*modelManager->getImage(currentlyDisplayedImage),
-                                             correspondencesForImage);
+    QList<ObjectImageCorrespondence> correspondencesForImage =
+            modelManager->getCorrespondencesForImage(modelManager->getImages().at(currentlyDisplayedImage));
     int i = 0;
-    for (ObjectImageCorrespondence* correspondence : correspondencesForImage) {
+    for (ObjectImageCorrespondence &correspondence : correspondencesForImage) {
         addObjectModelRenderable(correspondence, i);
         i++;
     }
 }
 
-void CorrespondenceViewer::addObjectModelRenderable(ObjectImageCorrespondence *correspondence,
+void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
                                                     int objectModelIndex) {
-    const ObjectModel* objectModel = correspondence->getObjectModel();
+    const ObjectModel* objectModel = correspondence.getObjectModel();
     // We do not need to take care of deleting the renderables, the destructor of this class
     // or the start of this function will do this
     ObjectModelRenderable *newRenderable =
@@ -162,14 +161,15 @@ void CorrespondenceViewer::addObjectModelRenderable(ObjectImageCorrespondence *c
 }
 
 void CorrespondenceViewer::setImage(int index) {
-    Q_ASSERT(index < modelManager->getImagesSize());
+    const QList<Image> &images = modelManager->getImages();
+    Q_ASSERT(index < images.size());
     Q_ASSERT(index >= 0);
     currentlyDisplayedImage = index;
-    const Image* image = modelManager->getImage(index);
-    qDebug() << "Setting image (" + image->getImagePath() + ") to display.";
+    const Image &image = images.at(index);
+    qDebug() << "Setting image (" + image.getImagePath() + ") to display.";
 
     // Enable/disable functionality to show only segmentation image instead of normal image
-    if (image->getSegmentationImagePath().isEmpty()) {
+    if (image.getSegmentationImagePath().isEmpty()) {
         ui->buttonSwitchView->setEnabled(false);
 
         // If we don't find a segmentation image, set that we will now display the normal image
@@ -179,14 +179,14 @@ void CorrespondenceViewer::setImage(int index) {
     } else {
         ui->buttonSwitchView->setEnabled(true);
     }
-    showImage(showingNormalImage ?  image->getAbsoluteImagePath() : image->getAbsoluteSegmentationImagePath());
+    showImage(showingNormalImage ?  image.getAbsoluteImagePath() : image.getAbsoluteSegmentationImagePath());
 }
 
-void CorrespondenceViewer::updateCorrespondence(ObjectImageCorrespondence* correspondence) {
+void CorrespondenceViewer::updateCorrespondence(ObjectImageCorrespondence correspondence) {
     reload();
 }
 
-void CorrespondenceViewer::removeCorrespondence(ObjectImageCorrespondence* correspondence) {
+void CorrespondenceViewer::removeCorrespondence(ObjectImageCorrespondence correspondence) {
     // This is easier than removing the correspondence and updating all the indeces that
     // correspond to the models
     reload();
@@ -203,11 +203,12 @@ void CorrespondenceViewer::reload() {
 }
 
 void CorrespondenceViewer::switchImage() {
-    Q_ASSERT(currentlyDisplayedImage < modelManager->getImagesSize());
+    const QList<Image> &images = modelManager->getImages();
+    Q_ASSERT(currentlyDisplayedImage < images.size());
     Q_ASSERT(currentlyDisplayedImage >= 0);
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
-    const Image* image = modelManager->getImage(currentlyDisplayedImage);
-    showImage(showingNormalImage ? image->getAbsoluteSegmentationImagePath() : image->getAbsoluteImagePath());
+    const Image &image = images.at(currentlyDisplayedImage);
+    showImage(showingNormalImage ? image.getAbsoluteSegmentationImagePath() : image.getAbsoluteImagePath());
     showingNormalImage = !showingNormalImage;
     if (showingNormalImage)
         qDebug() << "Setting viewer to display normal image.";
@@ -221,9 +222,10 @@ void CorrespondenceViewer::imageObjectPickerPressed(Qt3DRender::QPickEvent *pick
         return;
 
     QVector3D intersection = pick->worldIntersection();
-    const Image* image = modelManager->getImage(currentlyDisplayedImage);
+    const QList<Image> &images = modelManager->getImages();
+    const Image &image = images.at(currentlyDisplayedImage);
     QPointF point = QPointF(intersection.x(), intersection.y());
-    qDebug() << "Image (" + image->getImagePath() + ") clicked at position: ("
+    qDebug() << "Image (" + image.getImagePath() + ") clicked at position: ("
                 + QString::number(point.x()) + ", "
                 + QString::number(point.y()) + ")";
     emit imageClicked(image, point);

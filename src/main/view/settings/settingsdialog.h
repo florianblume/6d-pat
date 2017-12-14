@@ -26,16 +26,17 @@ public:
     explicit SettingsDialog(QWidget *parent = 0);
     ~SettingsDialog();
     void setSettingsItemAndObjectModels(UniqueSettingsItemPointer settingsItem,
-                                        const QList<const ObjectModel*> objectModels);
+                                        QList<ObjectModel> objectModels);
     void setDelegate(SettingsDialogDelegate *delegate);
+
+public slots:
+    void onAccepted(QAbstractButton* button);
 
 private:
     Ui::SettingsDialog *ui;
     UniqueSettingsItemPointer settingsItem;
     SettingsDialogDelegate *delegate;
 
-public slots:
-    void onAccepted(QAbstractButton* button);
 private slots:
     void onListWidgetClicked(const QModelIndex &index);
 };

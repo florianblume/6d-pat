@@ -48,6 +48,8 @@ private slots:
     void onImageClicked(const Image* image, QPointF position);
     void onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position);
     void onCorrespondenceCreationAborted();
+    void onImagePathChanged(const QString &newPath);
+    void onObjectModelsPathChanged(const QString &newPath);
 
 public:
     MainController(int &argc, char *argv[]);

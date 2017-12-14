@@ -143,14 +143,14 @@ float CorrespondenceEditor::cameraFieldOfView() {
 }
 
 void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
-    currentCorrespondence->setPosition(ui->spinBoxTranslationX->value(),
+    currentCorrespondence.setPosition(ui->spinBoxTranslationX->value(),
                                        ui->spinBoxTranslationY->value(),
                                        ui->spinBoxTranslationZ->value());
-    currentCorrespondence->setRotation(ui->spinBoxRotationX->value(),
+    currentCorrespondence.setRotation(ui->spinBoxRotationX->value(),
                                        ui->spinBoxRotationY->value(),
                                        ui->spinBoxRotationZ->value());
-    currentCorrespondence->setArticulation(ui->sliderArticulation->value());
-    emit correspondenceUpdated(currentCorrespondence);
+    currentCorrespondence.setArticulation(ui->sliderArticulation->value());
+    emit correspondenceUpdated(&currentCorrespondence);
 }
 
 void CorrespondenceEditor::setOpacityOfObjectModel(int opacity) {
@@ -160,7 +160,7 @@ void CorrespondenceEditor::setOpacityOfObjectModel(int opacity) {
 void CorrespondenceEditor::removeCurrentlyEditedCorrespondence() {
     setEnabledAllControls(false);
     resetControlsValues();
-    emit correspondenceRemoved(currentCorrespondence);
+    emit correspondenceRemoved(&currentCorrespondence);
     currentCorrespondence = NULL;
 }
 
@@ -184,20 +184,20 @@ void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectM
     connect(objectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
 }
 
-void CorrespondenceEditor::setObjectModel(const ObjectModel* objectModel) {
+void CorrespondenceEditor::setObjectModel(const ObjectModel objectModel) {
     qDebug() << "Setting object model (" + objectModel->getPath() + ") to display.";
     setEnabledCorrespondenceEditorControls(false);
     currentCorrespondence = NULL;
     resetControlsValues();
-    currentObjectModel = objectModel;
+    currentObjectModel = std::move(objectModel);
     setObjectModelOnGraphicsWindow(currentObjectModel->getAbsolutePath());
     resetCameras();
 }
 
-void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence* correspondence) {
+void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence correspondence) {
     qDebug() << "Setting correspondence (" + correspondence->getID() + ", " + correspondence->getImage()->getImagePath()
                 + ", " + correspondence->getObjectModel()->getPath() + ") to display.";
-    currentCorrespondence = correspondence;
+    currentCorrespondence = std::move(correspondence);
     setEnabledCorrespondenceEditorControls(true);
     QVector3D position = currentCorrespondence->getPosition();
     QVector3D rotation = currentCorrespondence->getRotation();

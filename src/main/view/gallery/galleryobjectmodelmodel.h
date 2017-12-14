@@ -26,7 +26,7 @@ public:
     //! Implementations of QAbstractListModel
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    void setSegmentationCodesForObjectModels(QMap<const ObjectModel*, QString> &codes);
+    void setSegmentationCodesForObjectModels(QMap<QString, QString> codes);
 
 public slots:
     /*!
@@ -42,7 +42,7 @@ signals:
 
 private:
     ModelManager* modelManager;
-    QMap<const ObjectModel*, QString> codes;
+    QMap<QString, QString> codes;
     QVector<QColor> colorsOfCurrentImage;
     int currentSelectedImageIndex = -1;
     //! We need to cache images as well because the rendered image is not ready directly
@@ -55,7 +55,7 @@ private:
     Qt3DRender::QRenderCaptureReply *renderCaptureReply;
     ObjectModelRenderable *objectModelRenderable;
     void renderImage(int index);
-    QVariant dataForObjectModel(const ObjectModel* objectModel, int role) const;
+    QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
 
 private slots:
     /*!

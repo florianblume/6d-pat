@@ -104,7 +104,7 @@ void MainWindow::setPathOnLeftBreadcrumbView(const QString &pathToShow) {
     ui->breadcrumbLeft->setPathToShow(pathToShow);
 }
 
-void MainWindow::setPathOnRightBreadcrumbView(const QString & pathToShow) {
+void MainWindow::setPathOnRightBreadcrumbView(const QString &pathToShow) {
     ui->breadcrumbRight->setPathToShow(pathToShow);
 }
 
@@ -114,14 +114,6 @@ void MainWindow::setPathOnLeftNavigationControls(const QString &path) {
 
 void MainWindow::setPathOnRightNavigationControls(const QString &path) {
     ui->navigationRight->setPathToOpen(path);
-}
-
-void MainWindow::addListenerToLeftNavigationControls(NavigationControlsListener listener) {
-    ui->navigationLeft->addListener(listener);
-}
-
-void MainWindow::addListenerToRightNavigationControls(NavigationControlsListener listener) {
-    ui->navigationRight->addListener(listener);
 }
 
 void MainWindow::setGalleryImageModel(GalleryImageModel* model) {
@@ -173,10 +165,8 @@ void MainWindow::onActionExitTriggered()
 void MainWindow::onActionSettingsTriggered()
 {
     SettingsDialog* settingsDialog = new SettingsDialog(this);
-    QList<const ObjectModel*> objectModels;
-    modelManager->getObjectModels(objectModels);
     settingsDialog->setSettingsItemAndObjectModels(UniqueSettingsItemPointer(new SettingsItem(*settingsItem)),
-                                                   objectModels);
+                                                   modelManager->getObjectModels());
     settingsDialog->setDelegate(settingsDialogDelegate);
     settingsDialog->show();
 }
@@ -225,6 +215,7 @@ void MainWindow::onObjectModelClickedAt(const ObjectModel* objectModel, QVector3
 }
 
 void MainWindow::onSelectedObjectModelChanged(int index) {
-    Q_ASSERT(index >= 0 && index < modelManager->getObjectModelsSize());
-    emit selectedObjectModelChanged(modelManager->getObjectModel(index));
+    QList<ObjectModel> objectModels = modelManager->getObjectModels();
+    Q_ASSERT(index >= 0 && index < objectModels.size());
+    emit selectedObjectModelChanged(objectModels.at(index));
 }

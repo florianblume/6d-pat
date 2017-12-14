@@ -38,28 +38,28 @@ public slots:
      * i.e. the controls cannot be used until an actual correspondence has been created.
      * \param objectModel the object model to be displayed
      */
-    void setObjectModel(const ObjectModel* objectModel);
+    void setObjectModel(const ObjectModel objectModel);
     /*!
      * \brief setCorrespondenceToEdit sets the object image correspondence that is to be edited by
      * these controls. If formerly an object model had been set it will be removed from displaying
      * and the object model corresponding to the correspondence will be displayed instead.
      * \param correspondence the correpondence to be edited
      */
-    void setCorrespondenceToEdit(ObjectImageCorrespondence* correspondence);
+    void setCorrespondenceToEdit(ObjectImageCorrespondence correspondence);
     /*!
      * \brief reset resets this view, i.e. clears the displayed object models
      */
     void reset();
 
 signals:
-    void objectModelClickedAt(const ObjectModel* objectModel, QVector3D position);
+    void objectModelClickedAt(const ObjectModel &objectModel, QVector3D position);
     void correspondenceUpdated(ObjectImageCorrespondence* correspondence);
     void correspondenceRemoved(ObjectImageCorrespondence* correspondence);
 
 private:
     Ui::CorrespondenceEditor *ui;
-    const ObjectModel *currentObjectModel;
-    ObjectImageCorrespondence *currentCorrespondence;
+    const ObjectModel currentObjectModel;
+    ObjectImageCorrespondence currentCorrespondence;
 
     //! The left view of the object model, e.g. the front view
     Qt3DExtras::Qt3DWindow *graphicsWindow = Q_NULLPTR;

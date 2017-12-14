@@ -64,11 +64,11 @@ signals:
     /*!
      * \brief imageClicked emitted when the displayed image is clicked anywhere
      */
-    void imageClicked(const Image* image, QPointF position);
+    void imageClicked(Image image, QPointF position);
     /*!
      * \brief correspondenceClicked emitted when a displayed object model is clicked
      */
-    void correspondenceClicked(const ObjectImageCorrespondence *correspondence);
+    void correspondenceClicked(ObjectImageCorrespondence *correspondence);
 
 public slots:
     /*!
@@ -87,13 +87,13 @@ public slots:
      * exist it will be added.
      * \param correspondence the correspondence to be updated
      */
-    void updateCorrespondence(ObjectImageCorrespondence* correspondence);
+    void updateCorrespondence(ObjectImageCorrespondence correspondence);
 
     /*!
      * \brief removeCorrespondence removes the given correspondence
      * \param correspondence the correspondence to be removed
      */
-    void removeCorrespondence(ObjectImageCorrespondence* correspondence);
+    void removeCorrespondence(ObjectImageCorrespondence correspondence);
 
     /*!
      * \brief reload reloads this correspondence editor and thus forces it to load
@@ -133,7 +133,7 @@ private:
     // segmentation image
     bool showingNormalImage = true;
     void showImage(const QString &imagePath);
-    void addObjectModelRenderable(ObjectImageCorrespondence *correspondence,
+    void addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
                                   int objectModelIndex);
     void setupGraphicsWindow();
     void setupSceneRoot();

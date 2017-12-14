@@ -21,7 +21,7 @@ SettingsDialog::~SettingsDialog()
 }
 
 void SettingsDialog::setSettingsItemAndObjectModels(UniqueSettingsItemPointer settingsItem,
-                                                    const QList<const ObjectModel*> objectModels) {
+                                                    QList<ObjectModel> objectModels) {
     //! copy settings item, we don't want the settings item to be modified if we cancel the settings dialog
     this->settingsItem = std::move(settingsItem);
     ui->pageGeneral->setSettingsItem(this->settingsItem.get());

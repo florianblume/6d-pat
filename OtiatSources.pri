@@ -35,9 +35,7 @@ HEADERS  += \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
     $$PWD/src/main/model/image.hpp \
     $$PWD/src/main/model/loadandstorestrategy.hpp \
-    $$PWD/src/main/model/loadandstorestrategylistener.hpp \
     $$PWD/src/main/model/modelmanager.hpp \
-    $$PWD/src/main/model/modelmanagerlistener.hpp \
     $$PWD/src/main/model/objectimagecorrespondence.hpp \
     $$PWD/src/main/model/objectmodel.hpp \
     $$PWD/src/main/model/textfileloadandstorestrategy.hpp \

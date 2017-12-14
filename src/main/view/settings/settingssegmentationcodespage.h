@@ -20,12 +20,12 @@ public:
     explicit SettingsSegmentationCodesPage(QWidget *parent = 0);
     ~SettingsSegmentationCodesPage();
     void setSettingsItemAndObjectModels(SettingsItem* settingsItem,
-                                        const QList<const ObjectModel*> objectModels);
+                                        QList<ObjectModel> objectModels);
 
 private:
     Ui::SettingsSegmentationCodesPage *ui;
     SettingsItem *settingsItem;
-    QList<const ObjectModel*> objectModels;
+    QList<ObjectModel> objectModels;
     QScopedPointer<QSignalMapper> signalMapperEdit;
     QScopedPointer<QSignalMapper> signalMapperRemove;
 

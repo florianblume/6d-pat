@@ -41,6 +41,7 @@ signals:
 };
 
 class MainWindow : public QMainWindow {
+
     Q_OBJECT
 
 public:
@@ -59,8 +60,6 @@ public:
     void setPathOnRightBreadcrumbView(const QString &pathToShow);
     void setPathOnLeftNavigationControls(const QString &path);
     void setPathOnRightNavigationControls(const QString &path);
-    void addListenerToLeftNavigationControls(NavigationControlsListener listener);
-    void addListenerToRightNavigationControls(NavigationControlsListener listener);
     void resetCorrespondenceEditor();
 
     void setStatusBarText(const QString& text);
@@ -123,9 +122,11 @@ signals:
      * \brief selectedObjectModelChanged is triggered after the index of the object model is received.
      * \param objectModel the actual object model retrieved from the index
      */
-    void selectedObjectModelChanged(const ObjectModel* objectModel);
+    void selectedObjectModelChanged(const ObjectModel objectModel);
     void selectedItemChanged(int index);
     void correspondenceCreationAborted();
+    void imagePathChanged(const QString& newPath);
+    void objectModelsPathChanged(const QString &newPath);
 
 private slots:
     void onActionAboutTriggered();

@@ -27,11 +27,12 @@ MainController::~MainController() {
     //! But first remove all old entries, in case that the user deleted some codes
     settings.beginGroup("maincontroller-settings");
     settings.remove("");
-    for (int i = 0; i < modelManager.getObjectModelsSize(); i++) {
-        const ObjectModel* model = modelManager.getObjectModel(i);
-        const QString objectModelIdentifier = model->getAbsolutePath();
-        settings.setValue(model->getAbsolutePath(),
-                                     currentSettingsItem->getSegmentationCodeForObjectModel(model));
+    QList<ObjectModel> objectModels = modelManager.getObjectModels();
+    for (int i = 0; i < objectModels.size(); i++) {
+        const ObjectModel &model = objectModels.at(i);
+        const QString objectModelIdentifier = model.getAbsolutePath();
+        settings.setValue(objectModelIdentifier,
+                                     currentSettingsItem->getSegmentationCodeForObjectModel(objectModelIdentifier));
     }
     settings.endGroup();
 
@@ -65,12 +66,13 @@ void MainController::initializeSettingsItem() {
     //! Read persisted object color codes
     QSettings settings("FlorettiKonfetti Inc.", "Otiat");
     settings.beginGroup("maincontroller-settings");
-    for (int i = 0; i < modelManager.getObjectModelsSize(); i++) {
-        const ObjectModel* model = modelManager.getObjectModel(i);
-        const QString objectModelIdentifier = model->getAbsolutePath();
+    QList<ObjectModel> objectModels = modelManager.getObjectModels();
+    for (int i = 0; i < objectModels.size(); i++) {
+        const ObjectModel &model = objectModels.at(i);
+        const QString objectModelIdentifier = model.getAbsolutePath();
         QString storedCode = settings.value(objectModelIdentifier, "").toString();
         if (storedCode.compare("") != 0)
-            currentSettingsItem->setSegmentationCodeForObjectModel(model, storedCode);
+            currentSettingsItem->setSegmentationCodeForObjectModel(objectModelIdentifier, storedCode);
     }
     settings.endGroup();
 }
@@ -84,12 +86,6 @@ void MainController::initializeMainWindow() {
     mainWindow.setPathOnRightBreadcrumbView(strategy.getObjectModelsPath().path());
     mainWindow.setPathOnLeftNavigationControls(QString(strategy.getImagesPath().path()));
     mainWindow.setPathOnRightNavigationControls(QString(strategy.getObjectModelsPath().path()));
-    //! left navigation selects the images folder
-    mainWindow.addListenerToLeftNavigationControls([this] (QString& newPath) {this->strategy.setImagesPath(newPath);
-                                                                             this->currentSettingsItem->setImagesPath(newPath);});
-    //! right navigation selects the object models folder
-    mainWindow.addListenerToRightNavigationControls([this] (QString& newPath) {this->strategy.setObjectModelsPath(newPath);
-                                                                              this->currentSettingsItem->setObjectModelsPath(newPath);});
 
     //! The models do not need to notify the gallery of any changes on the data because the list view
     //! has its own update loop, i.e. automatically fetches new data
@@ -109,11 +105,16 @@ void MainController::initializeMainWindow() {
     connect(&mainWindow, SIGNAL(objectModelClickedAt(const ObjectModel*,QVector3D)),
             this, SLOT(onObjectModelClickedAt(const ObjectModel*,QVector3D)));
     connect(&mainWindow, SIGNAL(correspondenceCreationAborted()), this, SLOT(onCorrespondenceCreationAborted()));
+
+    connect(&mainWindow, SIGNAL(imagePathChanged(QString)),
+            this, SLOT(onImagePathChanged(QString)));
+    connect(&mainWindow, SIGNAL(objectModelsPathChanged(QString)),
+            this, SLOT(onObjectModelsPathChanged(QString)));
 }
 
 void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
-    QMap<const ObjectModel*, QString> codes;
-    currentSettingsItem->getSegmentationCodes(codes);
+    QMap<QString, QString> codes;
+    codes = currentSettingsItem->getSegmentationCodes();
     galleryObjectModelModel->setSegmentationCodesForObjectModels(codes);
 }
 
@@ -184,6 +185,16 @@ void MainController::onCorrespondenceCreationAborted() {
     mainWindow.setStatusBarText("Ready");
     lastClickedImage = Q_NULLPTR;
     correspondingPoints.clear();
+}
+
+void MainController::onImagePathChanged(const QString &newPath) {
+    this->strategy.setImagesPath(newPath);
+    this->currentSettingsItem->setImagesPath(newPath);
+}
+
+void MainController::onObjectModelsPathChanged(const QString &newPath) {
+    this->strategy.setObjectModelsPath(newPath);
+    this->currentSettingsItem->setObjectModelsPath(newPath);
 }
 
 void MainController::showView() {

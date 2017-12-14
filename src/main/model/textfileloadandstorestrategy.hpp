@@ -13,17 +13,6 @@
  */
 class TextFileLoadAndStoreStrategy : public LoadAndStoreStrategy
 {
-private:
-    //! Stores the path to the folder that holds the images
-    QDir imagesPath;
-    //! Stores the path to the folder that holds the object models
-    QDir objectModelsPath;
-    //! Stores the path to the already created correspondences
-    QDir correspondencesPath;
-    //! Stores the suffix that is used to try to load segmentation images
-    QString segmentationImageFilesSuffix = "_GT";
-    //! Stores the extension of the image files that are to be loaded
-    QString imageFilesExtension = ".png";
 
 public:
     //! Unmodifiable constants (i.e. not changable by the user at runtime)
@@ -51,9 +40,9 @@ public:
 
     bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence) override;
 
-    void loadImages(QList<Image> &images) override;
+    QList<Image> loadImages() override;
 
-    void loadObjectModels(QList<ObjectModel> &objectModels) override;
+    QList<ObjectModel> loadObjectModels() override;
 
     /*!
      * \brief loadCorrespondences Loads the correspondences at the given path. How the correspondences are stored depends on the
@@ -68,7 +57,7 @@ public:
      * \return the list of all stored correspondences
      * \throws an exception if the path to the folder that should hold the correspondences has not been set previously
      */
-    void loadCorrespondences(const QList<Image> &images, const QList<ObjectModel> &objectModels, QList<ObjectImageCorrespondence> &corresopndences) override;
+    QList<ObjectImageCorrespondence> loadCorrespondences() override;
 
     /*!
      * \brief setImagesPath Sets the path to the folder where the images that are to be annotated are located. After setting the
@@ -142,6 +131,19 @@ public:
      * \return the extension of the image files
      */
     QString getImageFilesExtension();
+
+private:
+
+    //! Stores the path to the folder that holds the images
+    QDir imagesPath;
+    //! Stores the path to the folder that holds the object models
+    QDir objectModelsPath;
+    //! Stores the path to the already created correspondences
+    QDir correspondencesPath;
+    //! Stores the suffix that is used to try to load segmentation images
+    QString segmentationImageFilesSuffix = "_GT";
+    //! Stores the extension of the image files that are to be loaded
+    QString imageFilesExtension = ".png";
 };
 
 #endif // TEXTFILELOADANDSTORESTRATEGY_H

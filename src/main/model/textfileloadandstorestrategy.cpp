@@ -122,12 +122,14 @@ bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(
     return true;
 }
 
-void TextFileLoadAndStoreStrategy::loadImages(QList<Image> &images) {
+QList<Image> TextFileLoadAndStoreStrategy::loadImages() {
+    QList<Image> images;
+
     //! we do not need to throw an exception here, the only time the path cannot exist
     //! is if this strategy was constructed with an empty path, all other methods of
     //! setting the path check if the path exists
     if (!pathExists(imagesPath)) {
-        return;
+        return images;
     }
 
     QStringList fileFilter("*" + imageFilesExtension);
@@ -161,26 +163,34 @@ void TextFileLoadAndStoreStrategy::loadImages(QList<Image> &images) {
             images.push_back(Image(imageFilename, imagesPath.path()));
         }
     }
+
+    return images;
 }
 
-void TextFileLoadAndStoreStrategy::loadObjectModels(QList<ObjectModel> &objectModels) {
+QList<ObjectModel> TextFileLoadAndStoreStrategy::loadObjectModels() {
+    QList<ObjectModel> objectModels;
+
     //! See explanation under loadImages for why we don't throw an exception here
-    if (pathExists(objectModelsPath.path())) {
-        for (QString directory : objectModelsPath.entryList(QDir::Dirs, QDir::Name)) {
-            QStringList fileFilter;
-            for (const QString& extension : OBJECT_MODEL_FILES_EXTENSIONS) {
-                fileFilter << ("*" + extension);
-            }
-            for (QString file : QDir(objectModelsPath.filePath(directory)).entryList(fileFilter, QDir::Files, QDir::Name)) {
-                //! We only store the path to the model file that is relative to the object models path
-                //! so that we can modify the object models path and still find the object model
-                QString relativeFilePath = directory + "/" + file;
-                objectModels.push_back(ObjectModel(relativeFilePath, objectModelsPath.path()));
-                //! There should only be one .obj (or other extension) file entry, when found continue
-                continue;
-            }
+    if (!pathExists(objectModelsPath.path())) {
+        return objectModels;
+    }
+
+    for (QString directory : objectModelsPath.entryList(QDir::Dirs, QDir::Name)) {
+        QStringList fileFilter;
+        for (const QString& extension : OBJECT_MODEL_FILES_EXTENSIONS) {
+            fileFilter << ("*" + extension);
+        }
+        for (QString file : QDir(objectModelsPath.filePath(directory)).entryList(fileFilter, QDir::Files, QDir::Name)) {
+            //! We only store the path to the model file that is relative to the object models path
+            //! so that we can modify the object models path and still find the object model
+            QString relativeFilePath = directory + "/" + file;
+            objectModels.push_back(ObjectModel(relativeFilePath, objectModelsPath.path()));
+            //! There should only be one .obj (or other extension) file entry, when found continue
+            continue;
         }
     }
+
+    return objectModels;
 }
 
 QMap<QString, const Image*> createImageMap(const QList<Image> &images) {
@@ -236,22 +246,26 @@ void loadCorrespondencesFromFile(const QString &inFilePath, QList<ObjectImageCor
     }
 }
 
-void TextFileLoadAndStoreStrategy::loadCorrespondences(const QList<Image> &images,
-                                                       const QList<ObjectModel> &objectModels,
-                                                       QList<ObjectImageCorrespondence> & correspondences) {
+QList<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondences() {
+    QList<ObjectImageCorrespondence> correspondences;
+
     //! See loadImages for why we don't throw an exception here
-    if (pathExists(correspondencesPath)) {
-        QMap<QString, const Image*> imageMap = createImageMap(images);
-        QMap<QString,const ObjectModel*> objectModelMap = createObjectModelMap(objectModels);
-
-        QStringList fileFilter("*" + TextFileLoadAndStoreStrategy::CORRESPONDENCE_FILES_EXTENSION);
-        QDirIterator it(correspondencesPath.path(), fileFilter, QDir::Files);
-
-        while (it.hasNext()) {
-            QString file = it.next();
-            loadCorrespondencesFromFile(file, correspondences, imageMap, objectModelMap);
-        }
+    if (!pathExists(correspondencesPath)) {
+        return correspondences;
     }
+
+    QMap<QString, const Image*> imageMap = createImageMap(loadImages());
+    QMap<QString,const ObjectModel*> objectModelMap = createObjectModelMap(loadObjectModels());
+
+    QStringList fileFilter("*" + TextFileLoadAndStoreStrategy::CORRESPONDENCE_FILES_EXTENSION);
+    QDirIterator it(correspondencesPath.path(), fileFilter, QDir::Files);
+
+    while (it.hasNext()) {
+        QString file = it.next();
+        loadCorrespondencesFromFile(file, correspondences, imageMap, objectModelMap);
+    }
+
+    return correspondences;
 }
 
 
@@ -263,15 +277,9 @@ bool TextFileLoadAndStoreStrategy::setImagesPath(const QDir &path) {
         return true;
 
     imagesPath = path;
-    for (LoadAndStoreStrategyListener *listener : listeners) {
-        if (listener) {
-            //! When images change the correspondences might change as well.
-            //! At least we have to issue an update so that the view can display
-            //! the new images.
-            listener->imagesChanged();
-            listener->correspondencesChanged();
-        }
-    }
+
+    emit imagesPathChanged();
+
     return true;
 }
 
@@ -286,13 +294,9 @@ bool TextFileLoadAndStoreStrategy::setObjectModelsPath(const QDir &path) {
         return true;
 
     objectModelsPath = path;
-    for (LoadAndStoreStrategyListener *listener : listeners) {
-        if (listener) {
-            //! When object models are changed the correspondences might change as well.
-            listener->objectModelsChanged();
-            listener->correspondencesChanged();
-        }
-    }
+
+    emit objectModelsPathChanged();
+
     return true;
 }
 
@@ -306,11 +310,8 @@ bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(const QDir &path) {
     if (correspondencesPath == path)
         return true;
 
-    correspondencesPath = path;
-    for (LoadAndStoreStrategyListener *listener : listeners) {
-        if (listener)
-            listener->correspondencesChanged();
-    }
+    emit correspondencesPathChanged();
+
     return true;
 }
 
@@ -322,12 +323,7 @@ void TextFileLoadAndStoreStrategy::setSegmentationImageFilesSuffix(const QString
     //! Only set suffix if it differs from the suffix before because we then have to reload images
     if (suffix.compare("") != 0 && segmentationImageFilesSuffix.compare("") != 0) {
         segmentationImageFilesSuffix = suffix;
-        for (LoadAndStoreStrategyListener *listener : listeners) {
-            if (listener) {
-                listener->imagesChanged();
-                listener->correspondencesChanged();
-            }
-        }
+        emit imagesChanged();
     }
 }
 
@@ -338,12 +334,7 @@ QString TextFileLoadAndStoreStrategy::getSegmentationImageFilesSuffix() {
 void TextFileLoadAndStoreStrategy::setImageFilesExtension(const QString &extension) {
     if (extension.compare("") && imageFilesExtension.compare(extension) != 0) {
         imageFilesExtension = extension;
-        for (LoadAndStoreStrategyListener *listener : listeners) {
-            if (listener) {
-                listener->imagesChanged();
-                listener->correspondencesChanged();
-            }
-        }
+        emit imagesChanged();
     }
 }
 

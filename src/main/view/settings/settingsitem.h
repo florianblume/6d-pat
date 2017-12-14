@@ -13,13 +13,13 @@ public:
     SettingsItem(const SettingsItem &settingsItem);
     ~SettingsItem();
 
-    void setSegmentationCodeForObjectModel(const ObjectModel* objectModel, const QString &code);
-    void removeSegmentationCodeForObjectModel(const ObjectModel* objectModel);
+    void setSegmentationCodeForObjectModel(const QString &identifier, const QString &code);
+    void removeSegmentationCodeForObjectModel(const QString &identifier);
 
-    void getSegmentationCodes(QMap<const ObjectModel*, QString> &codes) const;
-    void setSegmentationCodes(const QMap<const ObjectModel*, QString> &codes);
+    QMap<QString, QString> getSegmentationCodes() const;
+    void setSegmentationCodes(const QMap<QString, QString> codes);
 
-    QString getSegmentationCodeForObjectModel(const ObjectModel* objectModel);
+    QString getSegmentationCodeForObjectModel(const QString &identifier);
 
     QString getSegmentationImageFilesSuffix() const;
     void setSegmentationImageFilesSuffix(const QString &value);
@@ -38,7 +38,7 @@ public:
 
 private:
     ModelManager* modelManager;
-    QMap<const ObjectModel*, QString> segmentationCodes;
+    QMap<QString, QString> segmentationCodes;
     QString segmentationImageFilesSuffix;
     QString imageFilesExtension;
     QString imagesPath;
