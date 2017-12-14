@@ -57,7 +57,8 @@ HEADERS  += \
     $$PWD/src/main/view/rendering/objectmodelrenderable.h \
     $$PWD/src/main/view/rendering/imagerenderable.h \
     $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.hpp \
-    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.h
+    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.h \
+    $$PWD/src/main/misc/globaltypedefs.h
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

@@ -20,12 +20,12 @@ SettingsDialog::~SettingsDialog()
     delete ui;
 }
 
-void SettingsDialog::setSettingsItemAndObjectModels(UniqueSettingsItemPointer settingsItem,
-                                                    QList<ObjectModel> objectModels) {
+void SettingsDialog::setSettingsItemAndObjectModels(SettingsItem *settingsItem,
+                                                    const QList<ObjectModel> &objectModels) {
     //! copy settings item, we don't want the settings item to be modified if we cancel the settings dialog
-    this->settingsItem = std::move(settingsItem);
-    ui->pageGeneral->setSettingsItem(this->settingsItem.get());
-    ui->pageSegmentationCodes->setSettingsItemAndObjectModels(this->settingsItem.get(), objectModels);
+    this->settingsItem = settingsItem;
+    ui->pageGeneral->setSettingsItem(this->settingsItem);
+    ui->pageSegmentationCodes->setSettingsItemAndObjectModels(this->settingsItem, objectModels);
 }
 
 void SettingsDialog::setDelegate(SettingsDialogDelegate *delegate) {
@@ -36,7 +36,7 @@ void SettingsDialog::setDelegate(SettingsDialogDelegate *delegate) {
 //! comes from that the dialog somehow doesn't fire its accepted() method...
 void SettingsDialog::onAccepted(QAbstractButton* button) {
     if (ui->buttonBox->buttonRole(button) == QDialogButtonBox::ApplyRole) {
-        this->delegate->applySettings(settingsItem.get());
+        this->delegate->applySettings(settingsItem);
         close();
     }
 }

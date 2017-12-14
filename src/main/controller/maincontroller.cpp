@@ -27,7 +27,7 @@ MainController::~MainController() {
     //! But first remove all old entries, in case that the user deleted some codes
     settings.beginGroup("maincontroller-settings");
     settings.remove("");
-    QList<ObjectModel> objectModels = modelManager.getObjectModels();
+    const QList<ObjectModel> &objectModels = modelManager.getObjectModels();
     for (int i = 0; i < objectModels.size(); i++) {
         const ObjectModel &model = objectModels.at(i);
         const QString objectModelIdentifier = model.getAbsolutePath();
@@ -35,8 +35,6 @@ MainController::~MainController() {
                                      currentSettingsItem->getSegmentationCodeForObjectModel(objectModelIdentifier));
     }
     settings.endGroup();
-
-    delete currentSettingsItem;
     delete galleryImageModel;
     delete galleryObjectModelModel;
 }
@@ -56,7 +54,7 @@ void MainController::initialize() {
 }
 
 void MainController::initializeSettingsItem() {
-    currentSettingsItem = new SettingsItem("default", &modelManager);
+    currentSettingsItem.reset(new SettingsItem("default", &modelManager));
     currentSettingsItem->setImagesPath(strategy.getImagesPath().path());
     currentSettingsItem->setObjectModelsPath(strategy.getObjectModelsPath().path());
     currentSettingsItem->setCorrespondencesPath(strategy.getCorrespondencesPath().path());
@@ -77,7 +75,7 @@ void MainController::initializeSettingsItem() {
     settings.endGroup();
 }
 void MainController::initializeMainWindow() {
-    mainWindow.setSettingsItem(currentSettingsItem);
+    mainWindow.setSettingsItem(currentSettingsItem.get());
     mainWindow.setSettingsDialogDelegate(this);
 
     //! The reason why the breadcrumbs receive an object of the path type of the boost filesystem library
@@ -113,8 +111,7 @@ void MainController::initializeMainWindow() {
 }
 
 void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
-    QMap<QString, QString> codes;
-    codes = currentSettingsItem->getSegmentationCodes();
+    const QMap<QString, QString> &codes = currentSettingsItem->getSegmentationCodes();
     galleryObjectModelModel->setSegmentationCodesForObjectModels(codes);
 }
 
@@ -202,24 +199,25 @@ void MainController::showView() {
 }
 
 void MainController::applySettings(const SettingsItem* settingsItem) {
-    //! Save the settings item to be set
-    delete currentSettingsItem;
-    this->currentSettingsItem = new SettingsItem(*settingsItem);
+    // Save the settings item to be set
+    this->currentSettingsItem.reset(new SettingsItem(*settingsItem));
 
-    //! Set the values
+    // Set the values
     strategy.setImagesPath(settingsItem->getImagesPath());
     strategy.setObjectModelsPath(settingsItem->getObjectModelsPath());
     strategy.setCorrespondencesPath(settingsItem->getCorrespondencesPath());
     strategy.setImageFilesExtension(settingsItem->getImageFilesExtension());
     strategy.setSegmentationImageFilesSuffix(settingsItem->getSegmentationImageFilesSuffix());
 
-    //! Update view accordingly
+    // Update view accordingly
     mainWindow.setPathOnLeftBreadcrumbView(settingsItem->getImagesPath());
     mainWindow.setPathOnLeftNavigationControls(settingsItem->getImagesPath());
     mainWindow.setPathOnRightBreadcrumbView(settingsItem->getObjectModelsPath());
     mainWindow.setPathOnRightNavigationControls(settingsItem->getObjectModelsPath());
     setSegmentationCodesOnGalleryObjectModelModel();
 
-    //! And update the settings item on the main window for the settings dialog, etc.
-    mainWindow.setSettingsItem(currentSettingsItem);
+    // And update the settings item on the main window for the settings dialog, etc.
+    // But pass a new instance so that the settings dialog cannot mangle with our
+    // actual settings.
+    mainWindow.setSettingsItem(new SettingsItem(*settingsItem));
 }

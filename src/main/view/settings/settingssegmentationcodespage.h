@@ -19,7 +19,7 @@ class SettingsSegmentationCodesPage : public QWidget
 public:
     explicit SettingsSegmentationCodesPage(QWidget *parent = 0);
     ~SettingsSegmentationCodesPage();
-    void setSettingsItemAndObjectModels(SettingsItem* settingsItem,
+    void setSettingsItemAndObjectModels(SettingsItem *settingsItem,
                                         QList<ObjectModel> objectModels);
 
 private:

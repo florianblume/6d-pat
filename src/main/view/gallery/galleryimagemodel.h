@@ -12,9 +12,6 @@ class GalleryImageModel : public QAbstractListModel
 {
     Q_OBJECT
 
-private:
-    ModelManager *modelManager;
-
 public:
     /*!
      * \brief GalleryImageModel constructor.
@@ -25,6 +22,10 @@ public:
     //! Implementations of QAbstractListModel
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
+private:
+    ModelManager *modelManager;
+
 };
 
 #endif // GALLERYIMAGEMODEL_H

@@ -165,7 +165,7 @@ void MainWindow::onActionExitTriggered()
 void MainWindow::onActionSettingsTriggered()
 {
     SettingsDialog* settingsDialog = new SettingsDialog(this);
-    settingsDialog->setSettingsItemAndObjectModels(UniqueSettingsItemPointer(new SettingsItem(*settingsItem)),
+    settingsDialog->setSettingsItemAndObjectModels(settingsItem,
                                                    modelManager->getObjectModels());
     settingsDialog->setDelegate(settingsDialogDelegate);
     settingsDialog->show();
@@ -215,7 +215,7 @@ void MainWindow::onObjectModelClickedAt(const ObjectModel* objectModel, QVector3
 }
 
 void MainWindow::onSelectedObjectModelChanged(int index) {
-    QList<ObjectModel> objectModels = modelManager->getObjectModels();
+    const QList<ObjectModel> &objectModels = modelManager->getObjectModels();
     Q_ASSERT(index >= 0 && index < objectModels.size());
-    emit selectedObjectModelChanged(objectModels.at(index));
+    emit selectedObjectModelChanged(new ObjectModel(objectModels.at(index)));
 }

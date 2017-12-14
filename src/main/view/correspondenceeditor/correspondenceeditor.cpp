@@ -143,14 +143,14 @@ float CorrespondenceEditor::cameraFieldOfView() {
 }
 
 void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
-    currentCorrespondence.setPosition(ui->spinBoxTranslationX->value(),
+    currentCorrespondence->setPosition(ui->spinBoxTranslationX->value(),
                                        ui->spinBoxTranslationY->value(),
                                        ui->spinBoxTranslationZ->value());
-    currentCorrespondence.setRotation(ui->spinBoxRotationX->value(),
+    currentCorrespondence->setRotation(ui->spinBoxRotationX->value(),
                                        ui->spinBoxRotationY->value(),
                                        ui->spinBoxRotationZ->value());
-    currentCorrespondence.setArticulation(ui->sliderArticulation->value());
-    emit correspondenceUpdated(&currentCorrespondence);
+    currentCorrespondence->setArticulation(ui->sliderArticulation->value());
+    emit correspondenceUpdated(currentCorrespondence.data());
 }
 
 void CorrespondenceEditor::setOpacityOfObjectModel(int opacity) {
@@ -160,8 +160,8 @@ void CorrespondenceEditor::setOpacityOfObjectModel(int opacity) {
 void CorrespondenceEditor::removeCurrentlyEditedCorrespondence() {
     setEnabledAllControls(false);
     resetControlsValues();
-    emit correspondenceRemoved(&currentCorrespondence);
-    currentCorrespondence = NULL;
+    emit correspondenceRemoved(currentCorrespondence.data());
+    currentCorrespondence.reset();
 }
 
 void CorrespondenceEditor::predictPositionOfObjectModels() {
@@ -184,20 +184,20 @@ void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectM
     connect(objectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
 }
 
-void CorrespondenceEditor::setObjectModel(const ObjectModel objectModel) {
-    qDebug() << "Setting object model (" + objectModel->getPath() + ") to display.";
+void CorrespondenceEditor::setObjectModel(const ObjectModel &objectModel) {
+    qDebug() << "Setting object model (" + objectModel.getPath() + ") to display.";
     setEnabledCorrespondenceEditorControls(false);
-    currentCorrespondence = NULL;
+    currentCorrespondence.reset();
     resetControlsValues();
-    currentObjectModel = std::move(objectModel);
+    currentObjectModel.reset(new ObjectModel(objectModel));
     setObjectModelOnGraphicsWindow(currentObjectModel->getAbsolutePath());
     resetCameras();
 }
 
-void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence correspondence) {
-    qDebug() << "Setting correspondence (" + correspondence->getID() + ", " + correspondence->getImage()->getImagePath()
-                + ", " + correspondence->getObjectModel()->getPath() + ") to display.";
-    currentCorrespondence = std::move(correspondence);
+void CorrespondenceEditor::setCorrespondenceToEdit(const ObjectImageCorrespondence &correspondence) {
+    qDebug() << "Setting correspondence (" + correspondence.getID() + ", " + correspondence.getImage()->getImagePath()
+                + ", " + correspondence.getObjectModel()->getPath() + ") to display.";
+    currentCorrespondence.reset(new ObjectImageCorrespondence(correspondence));
     setEnabledCorrespondenceEditorControls(true);
     QVector3D position = currentCorrespondence->getPosition();
     QVector3D rotation = currentCorrespondence->getRotation();
@@ -216,17 +216,17 @@ void CorrespondenceEditor::reset() {
     // Deleting the scene entity before setting an object model causes the program to crash,
     // even if a null check is employed. But we can check whether the object model has been
     // set before and only then delete the scene entity.
-    if (currentObjectModel != Q_NULLPTR)
+    if (currentObjectModel.isNull())
         delete sceneEntity;
 
     setEnabledAllControls(false);
-    currentObjectModel = Q_NULLPTR;
-    currentCorrespondence = Q_NULLPTR;
+    currentObjectModel.reset();
+    currentCorrespondence.reset();
     resetControlsValues();
 }
 
 bool CorrespondenceEditor::isDisplayingObjectModel() {
-    return currentObjectModel != NULL;
+    return !currentObjectModel.isNull();
 }
 
 void CorrespondenceEditor::resizeEvent(QResizeEvent* event) {
@@ -244,5 +244,5 @@ void CorrespondenceEditor::objectPickerClicked(Qt3DRender::QPickEvent *pick) {
                 + QString::number(point.x()) + ", "
                 + QString::number(point.y()) + ", "
                 + QString::number(point.z()) + ").";
-    emit objectModelClickedAt(currentObjectModel, point);
+    emit objectModelClickedAt(currentObjectModel.data(), point);
 }

@@ -6,13 +6,6 @@
 #include <QDialog>
 #include <QAbstractButton>
 #include <QList>
-#include <QScopedPointer>
-#include <QSharedPointer>
-#include <memory>
-
-using namespace std;
-
-typedef unique_ptr<SettingsItem> UniqueSettingsItemPointer;
 
 namespace Ui {
 class SettingsDialog;
@@ -25,8 +18,8 @@ class SettingsDialog : public QDialog
 public:
     explicit SettingsDialog(QWidget *parent = 0);
     ~SettingsDialog();
-    void setSettingsItemAndObjectModels(UniqueSettingsItemPointer settingsItem,
-                                        QList<ObjectModel> objectModels);
+    void setSettingsItemAndObjectModels(SettingsItem *settingsItem,
+                                        const QList<ObjectModel> &objectModels);
     void setDelegate(SettingsDialogDelegate *delegate);
 
 public slots:
@@ -34,7 +27,7 @@ public slots:
 
 private:
     Ui::SettingsDialog *ui;
-    UniqueSettingsItemPointer settingsItem;
+    SettingsItem *settingsItem;
     SettingsDialogDelegate *delegate;
 
 private slots:

@@ -8,6 +8,7 @@
 #include "view/settings/settingsdialogdelegate.h"
 #include "view/gallery/galleryobjectmodelmodel.h"
 #include "view/gallery/galleryimagemodel.h"
+#include "misc/globaltypedefs.h"
 #include <QApplication>
 #include <QMap>
 #include <QList>
@@ -31,11 +32,13 @@ private:
     CachingModelManager modelManager;
     MainWindow mainWindow;
     QMap<QString, ObjectModel*> segmentationCodes;
-    SettingsItem* currentSettingsItem;
+
+    UniquePointer<SettingsItem> currentSettingsItem;
     GalleryImageModel *galleryImageModel;
     GalleryObjectModelModel *galleryObjectModelModel;
-    //! Stores the position that was last clicked on a displayed image so that we can create a 2D to 3D correspondence
-    //! when a 3D point on an object model is clicked
+
+    // Stores the position that was last clicked on a displayed image so that we can create a 2D to 3D correspondence
+    // when a 3D point on an object model is clicked
     QPointF lastClickedImagePosition;
     const Image* lastClickedImage = Q_NULLPTR;
     QList<CorrespondingPoints> correspondingPoints;

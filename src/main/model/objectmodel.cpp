@@ -6,6 +6,11 @@ ObjectModel::ObjectModel(const QString& objectModelPath, const QString& basePath
       basePath(basePath) {
 }
 
+ObjectModel::ObjectModel(const ObjectModel &other) {
+    objectModelPath = other.objectModelPath;
+    basePath = other.basePath;
+}
+
 QString ObjectModel::getPath() const {
     return objectModelPath;
 }

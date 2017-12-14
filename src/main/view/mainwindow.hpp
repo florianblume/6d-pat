@@ -7,7 +7,6 @@
 #include "view/gallery/galleryobjectmodelmodel.h"
 #include "view/settings/settingsdialogdelegate.h"
 #include <QGuiApplication>
-#include <QScopedPointer>
 #include <QMainWindow>
 #include <QMouseEvent>
 #include <QFrame>
@@ -122,7 +121,7 @@ signals:
      * \brief selectedObjectModelChanged is triggered after the index of the object model is received.
      * \param objectModel the actual object model retrieved from the index
      */
-    void selectedObjectModelChanged(const ObjectModel objectModel);
+    void selectedObjectModelChanged(ObjectModel *objectModel);
     void selectedItemChanged(int index);
     void correspondenceCreationAborted();
     void imagePathChanged(const QString& newPath);
@@ -150,7 +149,7 @@ private:
 
     //! The settings item that is used to store values intermediatly. The settings dialog writes
     //! values to it and the main controller reads from it.
-    SettingsItem* settingsItem;
+    SettingsItem *settingsItem;
     SettingsDialogDelegate* settingsDialogDelegate;
     ModelManager* modelManager;
 
