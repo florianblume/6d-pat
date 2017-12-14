@@ -29,6 +29,7 @@ public:
     explicit CorrespondenceEditor(QWidget *parent = 0);
     ~CorrespondenceEditor();
     bool isDisplayingObjectModel();
+    void resizeEvent(QResizeEvent* event);
 
 public slots:
     /*!
@@ -61,10 +62,10 @@ private:
     ObjectImageCorrespondence *currentCorrespondence;
 
     //! The left view of the object model, e.g. the front view
-    Qt3DExtras::Qt3DWindow *graphicsWindow;
-    Qt3DRender::QObjectPicker *objectPicker;
-    Qt3DCore::QEntity *rootEntity;
-    Qt3DCore::QEntity *sceneEntity;
+    Qt3DExtras::Qt3DWindow *graphicsWindow = Q_NULLPTR;
+    Qt3DRender::QObjectPicker *objectPicker = Q_NULLPTR;
+    Qt3DCore::QEntity *rootEntity = Q_NULLPTR;
+    Qt3DCore::QEntity *sceneEntity = Q_NULLPTR;
     Qt3DRender::QRenderSettings *framegraphEntity;
     Qt3DRender::QCamera *leftCamera;
     Qt3DExtras::QOrbitCameraController *leftCameraController;
@@ -76,6 +77,9 @@ private:
     void resetControlsValues();
     void setup3DView();
     void setObjectModelOnGraphicsWindow(const QString &objectModel);
+    void updateCameraLenses();
+    void resetCameras();
+    float cameraFieldOfView();
 
 private slots:
     void objectPickerClicked(Qt3DRender::QPickEvent *pick);
