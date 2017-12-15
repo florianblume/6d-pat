@@ -19,22 +19,24 @@ class NavigationControls : public QWidget
 {
     Q_OBJECT
 
-private:
-    QString currentPath = "";
-    Ui::NavigationControls *ui;
-
 public:
     explicit NavigationControls(QWidget *parent = 0);
     ~NavigationControls();
     void setPathToOpen(const QString &pathpath);
 
-public slots:
-    void folderButtonClicked();
-
 signals:
     void navigateLeft();
     void navigateRight();
     void pathChanged(const QString &newPath);
+
+private:
+    QString currentPath = "";
+    Ui::NavigationControls *ui;
+
+public slots:
+    void folderButtonClicked();
+    void buttonNavigateLeftClicked();
+    void buttonNavigateRightClicked();
 };
 
 #endif // NAVIGATIONCONTROLS_H

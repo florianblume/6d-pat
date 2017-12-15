@@ -44,7 +44,11 @@ void Gallery::setModel(QAbstractListModel* model) {
 }
 
 void Gallery::selectNext() {
+    ui->listView->selectNext();
+}
 
+void Gallery::selectPrevious() {
+    ui->listView->selectPrevious();
 }
 
 void Gallery::beginScrollLeft() {

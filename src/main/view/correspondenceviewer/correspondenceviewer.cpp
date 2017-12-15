@@ -19,7 +19,7 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
 
     //! Connect the mapper that is going to map the signals of the object models pickers
     //! to the index function to be able to determine which picker was clicked
-    connect(objectModelPickerSignalMapper.data(), SIGNAL(mapped(int)),
+    connect(objectModelPickerSignalMapper.get(), SIGNAL(mapped(int)),
             this, SLOT(objectModelObjectPickerPressed(int)));
 
     awesome->initFontAwesome();
@@ -49,22 +49,14 @@ void CorrespondenceViewer::deleteSceneObjects() {
     // It's a bit confusing of what the 3D window takes ownership and of what not...
     // This is why we use the QPointer class to be able to surely tell when a pointer
     // is null and thus we should not try to delet it
-    if (imageRenderable)
-        delete imageRenderable;
-    if (imageObjectPicker)
-        delete imageObjectPicker;
-    for (ObjectModelRenderable* renderable : objectModelRenderables) {
-        if (renderable)
-            delete renderable;
-    }
     for (Qt3DRender::QObjectPicker *picker : objectModelsPickers) {
         if (picker)
             delete picker;
     }
-    if (sceneEntity)
+    if (sceneEntity) {
         delete sceneEntity;
-    if (rootEntity)
-        delete rootEntity;
+        sceneEntity = Q_NULLPTR;
+    }
 }
 
 void CorrespondenceViewer::setupGraphicsWindow() {
@@ -123,7 +115,7 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
     connect(imageObjectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)),
             this, SLOT(imageObjectPickerPressed(Qt3DRender::QPickEvent*)));
     QList<ObjectImageCorrespondence> correspondencesForImage =
-            modelManager->getCorrespondencesForImage(modelManager->getImages().at(currentlyDisplayedImage));
+            modelManager->getCorrespondencesForImage(modelManager->getImages().at(currentlyDisplayedImageIndex));
     int i = 0;
     for (ObjectImageCorrespondence &correspondence : correspondencesForImage) {
         addObjectModelRenderable(correspondence, i);
@@ -149,14 +141,14 @@ void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorresponde
 
     // We do this so that wenn someone calls the update correspondence or remove correspondence
     // function we are able to retrieve the 3D model and adjust it
-    objectModelToRenderablePointerMap.insert(objectModel, newRenderable);
+    objectModelToRenderablePointerMap.insert(objectModel->getAbsolutePath(), newRenderable);
     Qt3DRender::QObjectPicker *picker = new Qt3DRender::QObjectPicker(newRenderable);
     newRenderable->addComponent(picker);
     objectModelsPickers.push_back(picker);
 
     // Map the picking event to the respective index
     connect(picker, SIGNAL(pressed(Qt3DRender::QPickEvent*)),
-            objectModelPickerSignalMapper.data(), SLOT(map()));
+            objectModelPickerSignalMapper.get(), SLOT(map()));
     objectModelPickerSignalMapper->setMapping(picker, objectModelIndex);
 }
 
@@ -164,12 +156,12 @@ void CorrespondenceViewer::setImage(int index) {
     const QList<Image> &images = modelManager->getImages();
     Q_ASSERT(index < images.size());
     Q_ASSERT(index >= 0);
-    currentlyDisplayedImage = index;
-    const Image &image = images.at(index);
-    qDebug() << "Setting image (" + image.getImagePath() + ") to display.";
+    currentlyDisplayedImageIndex = index;
+    currentlyDisplayedImage.reset(new Image(images.at(index)));
+    qDebug() << "Setting image (" + currentlyDisplayedImage->getImagePath() + ") to display.";
 
     // Enable/disable functionality to show only segmentation image instead of normal image
-    if (image.getSegmentationImagePath().isEmpty()) {
+    if (currentlyDisplayedImage->getSegmentationImagePath().isEmpty()) {
         ui->buttonSwitchView->setEnabled(false);
 
         // If we don't find a segmentation image, set that we will now display the normal image
@@ -179,7 +171,8 @@ void CorrespondenceViewer::setImage(int index) {
     } else {
         ui->buttonSwitchView->setEnabled(true);
     }
-    showImage(showingNormalImage ?  image.getAbsoluteImagePath() : image.getAbsoluteSegmentationImagePath());
+    showImage(showingNormalImage ?  currentlyDisplayedImage->getAbsoluteImagePath() :
+                                    currentlyDisplayedImage->getAbsoluteSegmentationImagePath());
 }
 
 void CorrespondenceViewer::updateCorrespondence(ObjectImageCorrespondence correspondence) {
@@ -199,15 +192,15 @@ void CorrespondenceViewer::reset() {
 }
 
 void CorrespondenceViewer::reload() {
-    setImage(currentlyDisplayedImage);
+    setImage(currentlyDisplayedImageIndex);
 }
 
 void CorrespondenceViewer::switchImage() {
     const QList<Image> &images = modelManager->getImages();
-    Q_ASSERT(currentlyDisplayedImage < images.size());
-    Q_ASSERT(currentlyDisplayedImage >= 0);
+    Q_ASSERT(currentlyDisplayedImageIndex < images.size());
+    Q_ASSERT(currentlyDisplayedImageIndex >= 0);
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
-    const Image &image = images.at(currentlyDisplayedImage);
+    const Image &image = images.at(currentlyDisplayedImageIndex);
     showImage(showingNormalImage ? image.getAbsoluteSegmentationImagePath() : image.getAbsoluteImagePath());
     showingNormalImage = !showingNormalImage;
     if (showingNormalImage)
@@ -222,13 +215,11 @@ void CorrespondenceViewer::imageObjectPickerPressed(Qt3DRender::QPickEvent *pick
         return;
 
     QVector3D intersection = pick->worldIntersection();
-    const QList<Image> &images = modelManager->getImages();
-    const Image &image = images.at(currentlyDisplayedImage);
     QPointF point = QPointF(intersection.x(), intersection.y());
-    qDebug() << "Image (" + image.getImagePath() + ") clicked at position: ("
+    qDebug() << "Image (" + currentlyDisplayedImage->getImagePath() + ") clicked at position: ("
                 + QString::number(point.x()) + ", "
                 + QString::number(point.y()) + ")";
-    emit imageClicked(new Image(image), point);
+    emit imageClicked(currentlyDisplayedImage.get(), point);
 }
 
 void CorrespondenceViewer::objectModelObjectPickerPressed(int index) {

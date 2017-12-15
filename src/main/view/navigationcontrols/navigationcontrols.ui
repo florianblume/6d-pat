@@ -119,7 +119,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="navigateLeftButton">
+       <widget class="QPushButton" name="buttonNavigateLeft">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -147,7 +147,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="navigateRightButton">
+       <widget class="QPushButton" name="buttonNavigateRight">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -224,8 +224,42 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonNavigateLeft</sender>
+   <signal>clicked()</signal>
+   <receiver>NavigationControls</receiver>
+   <slot>buttonNavigateLeftClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>190</x>
+     <y>33</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>190</x>
+     <y>33</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonNavigateRight</sender>
+   <signal>clicked()</signal>
+   <receiver>NavigationControls</receiver>
+   <slot>buttonNavigateRightClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>274</x>
+     <y>33</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>190</x>
+     <y>33</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>folderButtonClicked()</slot>
+  <slot>buttonNavigateLeftClicked()</slot>
+  <slot>buttonNavigateRightClicked()</slot>
  </slots>
 </ui>
