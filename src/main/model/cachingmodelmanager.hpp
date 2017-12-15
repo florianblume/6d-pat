@@ -14,6 +14,8 @@
 class CachingModelManager : public ModelManager
 {
 
+    Q_OBJECT
+
 public:
 
     CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy);

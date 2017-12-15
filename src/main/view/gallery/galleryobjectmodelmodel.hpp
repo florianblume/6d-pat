@@ -2,10 +2,8 @@
 #define GALLERYOBJECTMODELMODEL_H
 
 #include "model/modelmanager.hpp"
-#include "view/rendering/objectmodelrenderable.h"
+#include "view/rendering/objectmodelrenderable.hpp"
 #include <QAbstractListModel>
-#include <Qt3DRender/QRenderCapture>
-#include <Qt3DExtras/Qt3DWindow>
 #include <QPixmap>
 #include <QMap>
 #include <QVector>
@@ -20,6 +18,7 @@ class GalleryObjectModelModel : public QAbstractListModel
     Q_OBJECT
 
 public:
+
     explicit GalleryObjectModelModel(ModelManager* modelManager);
     ~GalleryObjectModelModel();
 
@@ -29,6 +28,7 @@ public:
     void setSegmentationCodesForObjectModels(QMap<QString, QString> codes);
 
 public slots:
+
     /*!
      * \brief onSelectedImageChanged sets the index of the currently selected image on this
      * model. When the index changes the object models will be reloaded, and if possible,
@@ -38,10 +38,17 @@ public slots:
     void onSelectedImageChanged(int index);
 
 signals:
+
+    //!
+    //! \brief displayedObjectModelsChanged this signal is emitted, whenever the object models
+    //! to display change, e.g. because the user clicked a different image.
+    //!
     void displayedObjectModelsChanged();
 
 private:
+
     ModelManager* modelManager;
+    QList<ObjectModel> objectModelsCache;
     QMap<QString, QString> codes;
     QVector<QColor> colorsOfCurrentImage;
     int currentSelectedImageIndex = -1;
@@ -50,19 +57,13 @@ private:
     //! Store the index of the currently rendered image to be able to set the correct image
     //! when the renderer returns
     uint currentlyRenderedImageIndex = 0;
-    Qt3DExtras::Qt3DWindow *renderingWindow;
-    Qt3DRender::QRenderCapture *renderCapture;
-    Qt3DRender::QRenderCaptureReply *renderCaptureReply;
-    ObjectModelRenderable *objectModelRenderable;
-    void renderImage(int index);
     QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
 
 private slots:
-    /*!
-     * \brief storeRenderedImage is an internal method that is used to store the rendered image.
-     */
-    void storeRenderedImage();
+
     bool isNumberOfToolsCorrect();
+    void onObjectModelsChanged();
+    void onImagesChanged();
 
 };
 

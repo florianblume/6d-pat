@@ -1,7 +1,7 @@
 #ifndef SETTINGSSEGMENTATIONCODESPAGE_H
 #define SETTINGSSEGMENTATIONCODESPAGE_H
 
-#include "settingsitem.h"
+#include "settingsitem.hpp"
 #include "model/objectmodel.hpp"
 #include <QWidget>
 #include <QSignalMapper>

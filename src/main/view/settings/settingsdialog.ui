@@ -271,13 +271,13 @@
   <customwidget>
    <class>SettingsGeneralPage</class>
    <extends>QWidget</extends>
-   <header>view/settings/settingsgeneralpage.h</header>
+   <header>view/settings/settingsgeneralpage.hpp</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>SettingsSegmentationCodesPage</class>
    <extends>QWidget</extends>
-   <header>view/settings/settingssegmentationcodespage.h</header>
+   <header>view/settings/settingssegmentationcodespage.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

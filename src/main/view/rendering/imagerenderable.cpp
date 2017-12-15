@@ -1,4 +1,4 @@
-#include "imagerenderable.h"
+#include "imagerenderable.hpp"
 #include <QImage>
 
 ImageRenderable::ImageRenderable(Qt3DCore::QNode *parent, const QString &imagePath) :

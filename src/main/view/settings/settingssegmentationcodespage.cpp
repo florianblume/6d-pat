@@ -1,4 +1,4 @@
-#include "settingssegmentationcodespage.h"
+#include "settingssegmentationcodespage.hpp"
 #include "ui_settingssegmentationcodespage.h"
 #include "otiathelper.h"
 #include <QPushButton>

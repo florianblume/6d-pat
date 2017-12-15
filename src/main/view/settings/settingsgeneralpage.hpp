@@ -1,7 +1,7 @@
 #ifndef SETTINGSGENERALPAGE_H
 #define SETTINGSGENERALPAGE_H
 
-#include "settingsitem.h"
+#include "settingsitem.hpp"
 #include <QWidget>
 
 using namespace std;

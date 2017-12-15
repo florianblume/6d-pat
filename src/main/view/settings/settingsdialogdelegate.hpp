@@ -1,7 +1,7 @@
 #ifndef SETTINGSDIALOGDELEGATE_H
 #define SETTINGSDIALOGDELEGATE_H
 
-#include "settingsitem.h"
+#include "settingsitem.hpp"
 
 class SettingsDialogDelegate
 {

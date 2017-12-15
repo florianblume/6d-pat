@@ -1479,7 +1479,7 @@
   <customwidget>
    <class>BreadcrumbView</class>
    <extends>QWidget</extends>
-   <header>view/breadcrumb/breadcrumbview.h</header>
+   <header>view/breadcrumb/breadcrumbview.hpp</header>
    <container>1</container>
    <slots>
     <slot>setPathToShow(QString)</slot>
@@ -1488,7 +1488,7 @@
   <customwidget>
    <class>NavigationControls</class>
    <extends>QWidget</extends>
-   <header>view/navigationcontrols/navigationcontrols.h</header>
+   <header>view/navigationcontrols/navigationcontrols.hpp</header>
    <container>1</container>
    <slots>
     <signal>navigateLeft()</signal>
@@ -1499,7 +1499,7 @@
   <customwidget>
    <class>Gallery</class>
    <extends>QWidget</extends>
-   <header>view/gallery/gallery.h</header>
+   <header>view/gallery/gallery.hpp</header>
    <container>1</container>
    <slots>
     <signal>selectedItemChanged(int)</signal>
@@ -1520,7 +1520,7 @@
   <customwidget>
    <class>CorrespondenceEditor</class>
    <extends>QWidget</extends>
-   <header>view/correspondenceeditor/correspondenceeditor.h</header>
+   <header>view/correspondenceeditor/correspondenceeditor.hpp</header>
    <container>1</container>
    <slots>
     <signal>objectModelClickedAt(ObjectModel*,QVector3D)</signal>
@@ -1721,6 +1721,54 @@
     <hint type="destinationlabel">
      <x>223</x>
      <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>correspondenceViewer</sender>
+   <signal>imageClicked(Image*,QPointF)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onImageClicked(Image*,QPointF)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>401</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MainWindow</sender>
+   <signal>selectedObjectModelChanged(ObjectModel*)</signal>
+   <receiver>correspondenceEditor</receiver>
+   <slot>setObjectModel(ObjectModel*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>correspondenceEditor</sender>
+   <signal>objectModelClickedAt(ObjectModel*,QVector3D)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onObjectModelClickedAt(ObjectModel*,QVector3D)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
     </hint>
    </hints>
   </connection>

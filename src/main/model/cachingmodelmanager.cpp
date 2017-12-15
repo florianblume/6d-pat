@@ -6,16 +6,15 @@ CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrat
     objectModels = loadAndStoreStrategy.loadObjectModels();
     correspondences = loadAndStoreStrategy.loadCorrespondences();
     createConditionalCache();
-    /*
-    connect(loadAndStoreStrategy, SIGNAL(imagesChanged()),
+
+    connect(&loadAndStoreStrategy, SIGNAL(imagesChanged()),
             this, SLOT(onImagesChanged()));
-    connect(loadAndStoreStrategy, SIGNAL(imagesPathChanged()),
+    connect(&loadAndStoreStrategy, SIGNAL(imagesPathChanged()),
             this, SLOT(onImagesChanged()));
-    connect(loadAndStoreStrategy, SIGNAL(objectModelsPathChanged()),
+    connect(&loadAndStoreStrategy, SIGNAL(objectModelsPathChanged()),
             this, SLOT(onObjectModelsChanged()));
-    connect(loadAndStoreStrategy, SIGNAL(correspondencesPathChanged()),
+    connect(&loadAndStoreStrategy, SIGNAL(correspondencesPathChanged()),
             this, SLOT(onCorrespondencesChanged()));
-            */
 }
 
 CachingModelManager::~CachingModelManager() {

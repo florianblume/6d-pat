@@ -1,8 +1,8 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-#include "settingsitem.h"
-#include "settingsdialogdelegate.h"
+#include "settingsitem.hpp"
+#include "settingsdialogdelegate.hpp"
 #include <QDialog>
 #include <QAbstractButton>
 #include <QList>

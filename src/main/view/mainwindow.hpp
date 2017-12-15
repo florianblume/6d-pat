@@ -1,11 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "view/navigationcontrols/navigationcontrols.h"
-#include "settings/settingsitem.h"
-#include "view/gallery/galleryimagemodel.h"
-#include "view/gallery/galleryobjectmodelmodel.h"
-#include "view/settings/settingsdialogdelegate.h"
+#include "view/navigationcontrols/navigationcontrols.hpp"
+#include "settings/settingsitem.hpp"
+#include "view/gallery/galleryimagemodel.hpp"
+#include "view/gallery/galleryobjectmodelmodel.hpp"
+#include "view/settings/settingsdialogdelegate.hpp"
 #include <QGuiApplication>
 #include <QMainWindow>
 #include <QMouseEvent>
@@ -102,7 +102,7 @@ public:
 public slots:
     //! The slot that catches the emitted signal when the 3D model in the lower right correspondence controls
     //! is clicked (see CorrespondenceEditorControls)
-    void onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position);
+    void onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position);
     /*!
      * \brief onSelectedObjectModelChanged will be called from the right gallery that displays
      * objects models so that the main view can retrieve the actual object model an pass it on
@@ -115,8 +115,8 @@ signals:
     //! i.e. when the image in the lower left view is clicked, the first one is emitted, and when
     //! the 3D model (to create the first 2D to 3D point correspondence) is clicked, the second
     //! function is emitted.
-    void imageClicked(const Image* image, QPointF position);
-    void objectModelClickedAt(const ObjectModel* objectModel, QVector3D position);
+    void imageClicked(Image* image, QPointF position);
+    void objectModelClickedAt(ObjectModel* objectModel, QVector3D position);
     /*!
      * \brief selectedObjectModelChanged is triggered after the index of the object model is received.
      * \param objectModel the actual object model retrieved from the index
@@ -134,7 +134,7 @@ private slots:
     void onActionAbortCreationTriggered();
     //! Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
     //! right clicks in the image to start creating a correspondence
-    void onImageClicked(const Image* image, QPointF position);
+    void onImageClicked(Image* image, QPointF position);
     void onOverlayClickedAnywhere();
 
 private:

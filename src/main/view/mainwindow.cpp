@@ -1,7 +1,7 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
-#include "view/aboutdialog/aboutdialog.h"
-#include "view/settings/settingsdialog.h"
+#include "view/aboutdialog/aboutdialog.hpp"
+#include "view/settings/settingsdialog.hpp"
 #include <QSettings>
 #include <QCloseEvent>
 #include <QMessageBox>
@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
     readSettings();
     statusBar()->addPermanentWidget(statusBarLabel, 1);
     setStatusBarText(QString("Loading..."));
+
+    // Cannot define signal to signal mapping in the designer, thus the connections are defined here
     connect(ui->galleryLeft, SIGNAL(selectedItemChanged(int)),
             this, SIGNAL(selectedItemChanged(int)));
     // If the selected image changes, we also need to cancel any started creation of a correspondence
@@ -35,12 +37,6 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SIGNAL(correspondenceCreationAborted()));
     connect(ui->galleryRight, SIGNAL(selectedItemChanged(int)),
             this, SIGNAL(correspondenceCreationAborted()));
-    connect(ui->correspondenceViewer, SIGNAL(imageClicked(const Image*,QPointF)),
-            this, SLOT(onImageClicked(const Image*,QPointF)));
-    connect(this, SIGNAL(selectedObjectModelChanged(const ObjectModel*)),
-            ui->correspondenceEditor, SLOT(setObjectModel(const ObjectModel*)));
-    connect(ui->correspondenceEditor, SIGNAL(objectModelClickedAt(const ObjectModel*,QVector3D)),
-            this, SLOT(onObjectModelClickedAt(const ObjectModel*,QVector3D)));
 
 }
 
@@ -176,7 +172,7 @@ void MainWindow::onActionAbortCreationTriggered() {
 }
 
 //! Mouse handling, i.e. clicking in the lower left widget and dragging a line to the lower right widget
-void MainWindow::onImageClicked(const Image* image, QPointF position) {
+void MainWindow::onImageClicked(Image* image, QPointF position) {
     //! No need to check for whether the right widget was clicked because the only time this method
     //! will be called is when the object image picker received a click on the image
     if (ui->correspondenceEditor->isDisplayingObjectModel()) {
@@ -209,7 +205,7 @@ void MainWindow::onOverlayClickedAnywhere() {
     emit correspondenceCreationAborted();
 }
 
-void MainWindow::onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position) {
+void MainWindow::onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position) {
     QGuiApplication::restoreOverrideCursor();
     emit objectModelClickedAt(objectModel, position);
 }

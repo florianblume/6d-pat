@@ -5,8 +5,8 @@
 #include "model/objectmodel.hpp"
 #include "model/objectimagecorrespondence.hpp"
 #include "model/modelmanager.hpp"
-#include "view/rendering/imagerenderable.h"
-#include "view/rendering/objectmodelrenderable.h"
+#include "view/rendering/imagerenderable.hpp"
+#include "view/rendering/objectmodelrenderable.hpp"
 #include <QPointer>
 #include <QList>
 #include <QMap>
@@ -60,16 +60,6 @@ public:
      */
     void setModelManager(ModelManager* modelManager);
 
-signals:
-    /*!
-     * \brief imageClicked emitted when the displayed image is clicked anywhere
-     */
-    void imageClicked(Image image, QPointF position);
-    /*!
-     * \brief correspondenceClicked emitted when a displayed object model is clicked
-     */
-    void correspondenceClicked(ObjectImageCorrespondence *correspondence);
-
 public slots:
     /*!
      * \brief setImage sets the image that this CorrespondenceEditor displays.
@@ -101,6 +91,16 @@ public slots:
      * i.e. all objects should be removed, call the reset() function.
      */
     void reload();
+
+signals:
+    /*!
+     * \brief imageClicked emitted when the displayed image is clicked anywhere
+     */
+    void imageClicked(Image *image, QPointF position);
+    /*!
+     * \brief correspondenceClicked emitted when a displayed object model is clicked
+     */
+    void correspondenceClicked(ObjectImageCorrespondence *correspondence);
 
 private:
 

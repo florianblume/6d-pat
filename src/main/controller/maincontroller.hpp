@@ -4,10 +4,10 @@
 #include "model/cachingmodelmanager.hpp"
 #include "model/textfileloadandstorestrategy.hpp"
 #include "view/mainwindow.hpp"
-#include "view/settings/settingsitem.h"
-#include "view/settings/settingsdialogdelegate.h"
-#include "view/gallery/galleryobjectmodelmodel.h"
-#include "view/gallery/galleryimagemodel.h"
+#include "view/settings/settingsitem.hpp"
+#include "view/settings/settingsdialogdelegate.hpp"
+#include "view/gallery/galleryobjectmodelmodel.hpp"
+#include "view/gallery/galleryimagemodel.hpp"
 #include "misc/globaltypedefs.h"
 #include <QApplication>
 #include <QMap>
@@ -48,8 +48,8 @@ private:
     void setSegmentationCodesOnGalleryObjectModelModel();
 
 private slots:
-    void onImageClicked(const Image* image, QPointF position);
-    void onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position);
+    void onImageClicked(Image* image, QPointF position);
+    void onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position);
     void onCorrespondenceCreationAborted();
     void onImagePathChanged(const QString &newPath);
     void onObjectModelsPathChanged(const QString &newPath);

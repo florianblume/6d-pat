@@ -1,4 +1,4 @@
-#include "settingsdialogdelegate.h"
+#include "settingsdialogdelegate.hpp"
 
 SettingsDialogDelegate::SettingsDialogDelegate()
 {

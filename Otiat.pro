@@ -17,6 +17,3 @@ SOURCES += \
 
 DISTFILES = \
     OtiatSources.pri
-
-HEADERS += \
-    src/test/testmain.h

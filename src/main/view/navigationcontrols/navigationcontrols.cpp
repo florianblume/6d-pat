@@ -1,4 +1,4 @@
-#include "navigationcontrols.h"
+#include "navigationcontrols.hpp"
 #include "ui_navigationcontrols.h"
 #include <QtAwesome/QtAwesome.h>
 #include <QFileDialog>

@@ -1,6 +1,6 @@
-#include "galleryobjectmodelmodel.h"
+#include "galleryobjectmodelmodel.hpp"
 #include "misc/otiathelper.h"
-#include "view/rendering/objectmodelrenderable.h"
+#include "view/rendering/objectmodelrenderable.hpp"
 #include <QIcon>
 #include <QPainter>
 #include <QDir>
@@ -8,6 +8,11 @@
 #include <QCheckBox>
 
 GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager) : modelManager(modelManager) {
+    objectModelsCache = std::move(modelManager->getObjectModels());
+    connect(modelManager, SIGNAL(objectModelsChanged()),
+            this, SLOT(onObjectModelsChanged()));
+    connect(modelManager, SIGNAL(imagesChanged()),
+            this, SLOT(onImagesChanged()));
 }
 
 GalleryObjectModelModel::~GalleryObjectModelModel() {
@@ -25,15 +30,14 @@ QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectMo
 
 //! Implementations of QAbstractListModel
 QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const {
-    QList<Image> images = modelManager->getImages();
+    const QList<Image> &images = modelManager->getImages();
     //! If for some weird coincidence (maybe deletion of a object model on the filesystem) the passed index
     //! is out of bounds simply return a QVariant, the next time the data method is called everything should
     //! be finde again
     if (currentSelectedImageIndex == -1 || !modelManager || index.row() >= images.size())
         return QVariant();
 
-    QList<ObjectModel> objectModels = modelManager->getObjectModels();
-    const ObjectModel& objectModel = objectModels.at(index.row());
+    const ObjectModel& objectModel = objectModelsCache.at(index.row());
     const Image& currentlySelectedImage = images.at(currentSelectedImageIndex);
     if (codes.size() == 0
             || currentlySelectedImage.getSegmentationImagePath().isEmpty()) {
@@ -53,10 +57,7 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
 }
 
 int GalleryObjectModelModel::rowCount(const QModelIndex &parent) const {
-    if (modelManager) {
-        return modelManager->getObjectModels().size();
-    }
-    return 0;
+    return objectModelsCache.size();
 }
 
 void GalleryObjectModelModel::setSegmentationCodesForObjectModels(QMap<QString, QString> codes) {
@@ -100,12 +101,15 @@ void GalleryObjectModelModel::onSelectedImageChanged(int index) {
     }
 }
 
-void GalleryObjectModelModel::storeRenderedImage() {
-    //! Rendering is now finished, we need to cache the image and check if we need to render another one
-    QString path = objectModelRenderable->getMeshPath();
-    cachedImages[path] = QPixmap::fromImage(renderCaptureReply->image());
-    renderImage(++currentlyRenderedImageIndex);
+void GalleryObjectModelModel::onObjectModelsChanged() {
+    if (modelManager)
+        objectModelsCache = std::move(modelManager->getObjectModels());
+    else
+        objectModelsCache.clear();
 }
 
-void GalleryObjectModelModel::renderImage(int index) {
+void GalleryObjectModelModel::onImagesChanged() {
+    // When the images change, the last selected image gets deselected
+    // This means we have to reset the index
+    currentSelectedImageIndex = -1;
 }

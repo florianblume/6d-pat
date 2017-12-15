@@ -14,6 +14,8 @@
 class TextFileLoadAndStoreStrategy : public LoadAndStoreStrategy
 {
 
+    Q_OBJECT
+
 public:
     //! Unmodifiable constants (i.e. not changable by the user at runtime)
     static const QString CORRESPONDENCE_FORMAT_DELIMITER;

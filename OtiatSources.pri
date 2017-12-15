@@ -42,23 +42,23 @@ HEADERS  += \
     $$PWD/src/main/controller/maincontroller.hpp \
     $$PWD/src/main/view/mainwindow.hpp \
     $$PWD/src/main/misc/otiathelper.h \
-    $$PWD/src/main/view/breadcrumb/breadcrumbview.h \
-    $$PWD/src/main/view/navigationcontrols/navigationcontrols.h \
-    $$PWD/src/main/view/gallery/gallery.h \
-    $$PWD/src/main/view/gallery/galleryimagemodel.h \
-    $$PWD/src/main/view/gallery/galleryobjectmodelmodel.h \
-    $$PWD/src/main/view/gallery/iconexpandinglistview.h \
-    $$PWD/src/main/view/aboutdialog/aboutdialog.h \
-    $$PWD/src/main/view/settings/settingsdialog.h \
-    $$PWD/src/main/view/settings/settingsgeneralpage.h \
-    $$PWD/src/main/view/settings/settingssegmentationcodespage.h \
-    $$PWD/src/main/view/settings/settingsitem.h \
-    $$PWD/src/main/view/settings/settingsdialogdelegate.h \
-    $$PWD/src/main/view/rendering/objectmodelrenderable.h \
-    $$PWD/src/main/view/rendering/imagerenderable.h \
     $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.hpp \
-    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.h \
-    $$PWD/src/main/misc/globaltypedefs.h
+    $$PWD/src/main/misc/globaltypedefs.h \
+    $$PWD/src/main/view/aboutdialog/aboutdialog.hpp \
+    $$PWD/src/main/view/breadcrumb/breadcrumbview.hpp \
+    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.hpp \
+    $$PWD/src/main/view/gallery/gallery.hpp \
+    $$PWD/src/main/view/gallery/galleryimagemodel.hpp \
+    $$PWD/src/main/view/gallery/galleryobjectmodelmodel.hpp \
+    $$PWD/src/main/view/gallery/iconexpandinglistview.hpp \
+    $$PWD/src/main/view/navigationcontrols/navigationcontrols.hpp \
+    $$PWD/src/main/view/rendering/imagerenderable.hpp \
+    $$PWD/src/main/view/rendering/objectmodelrenderable.hpp \
+    $$PWD/src/main/view/settings/settingsdialog.hpp \
+    $$PWD/src/main/view/settings/settingsdialogdelegate.hpp \
+    $$PWD/src/main/view/settings/settingsgeneralpage.hpp \
+    $$PWD/src/main/view/settings/settingsitem.hpp \
+    $$PWD/src/main/view/settings/settingssegmentationcodespage.hpp
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

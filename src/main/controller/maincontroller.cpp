@@ -1,5 +1,5 @@
 #include "maincontroller.hpp"
-#include "view/gallery/galleryimagemodel.h"
+#include "view/gallery/galleryimagemodel.hpp"
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -98,10 +98,10 @@ void MainController::initializeMainWindow() {
 
     //! Connect the main window's reactions to the user clicking on a displayed image or on an object
     //! model to delegate any further computation to this controller
-    connect(&mainWindow, SIGNAL(imageClicked(const Image*,QPointF)),
-            this, SLOT(onImageClicked(const Image*,QPointF)));
-    connect(&mainWindow, SIGNAL(objectModelClickedAt(const ObjectModel*,QVector3D)),
-            this, SLOT(onObjectModelClickedAt(const ObjectModel*,QVector3D)));
+    connect(&mainWindow, SIGNAL(imageClicked(Image*,QPointF)),
+            this, SLOT(onImageClicked(Image*,QPointF)));
+    connect(&mainWindow, SIGNAL(objectModelClickedAt(ObjectModel*,QVector3D)),
+            this, SLOT(onObjectModelClickedAt(ObjectModel*,QVector3D)));
     connect(&mainWindow, SIGNAL(correspondenceCreationAborted()), this, SLOT(onCorrespondenceCreationAborted()));
 
     connect(&mainWindow, SIGNAL(imagePathChanged(QString)),
@@ -115,7 +115,7 @@ void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
     galleryObjectModelModel->setSegmentationCodesForObjectModels(codes);
 }
 
-void MainController::onImageClicked(const Image* image, QPointF position) {
+void MainController::onImageClicked(Image* image, QPointF position) {
     if (lastClickedImage != image)
         correspondingPoints.clear();
 
@@ -127,7 +127,7 @@ void MainController::onImageClicked(const Image* image, QPointF position) {
                             + " of 4].");
 }
 
-void MainController::onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position) {
+void MainController::onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position) {
     //! If we can't find a previously clicked position on the image just return, the user has to select a 2D
     //! point on the image first
     if (!lastClickedImage)

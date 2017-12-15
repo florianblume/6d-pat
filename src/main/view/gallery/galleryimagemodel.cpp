@@ -1,4 +1,4 @@
-#include "galleryimagemodel.h"
+#include "galleryimagemodel.hpp"
 #include <QIcon>
 
 GalleryImageModel::GalleryImageModel(ModelManager* modelManager) {

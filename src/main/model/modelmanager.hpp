@@ -4,9 +4,9 @@
 #include "objectimagecorrespondence.hpp"
 #include "image.hpp"
 #include "loadandstorestrategy.hpp"
+#include <QObject>
 #include <QString>
 #include <QList>
-#include <QObject>
 
 using namespace std;
 

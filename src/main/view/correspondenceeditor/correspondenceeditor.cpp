@@ -1,6 +1,6 @@
-#include "correspondenceeditor.h"
+#include "correspondenceeditor.hpp"
 #include "ui_correspondenceeditor.h"
-#include "view/rendering/objectmodelrenderable.h"
+#include "view/rendering/objectmodelrenderable.hpp"
 #include <Qt3DRender/QRenderSurfaceSelector>
 #include <Qt3DExtras/QOrbitCameraController>
 #include <Qt3DRender/QClearBuffers>
@@ -184,20 +184,32 @@ void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectM
     connect(objectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
 }
 
-void CorrespondenceEditor::setObjectModel(const ObjectModel &objectModel) {
-    qDebug() << "Setting object model (" + objectModel.getPath() + ") to display.";
+void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
+    if (objectModel == Q_NULLPTR) {
+        qDebug() << "Object model to set was null. Restting view.";
+        reset();
+        return;
+    }
+
+    qDebug() << "Setting object model (" + objectModel->getPath() + ") to display.";
     setEnabledCorrespondenceEditorControls(false);
     currentCorrespondence.reset();
     resetControlsValues();
-    currentObjectModel.reset(new ObjectModel(objectModel));
+    currentObjectModel.reset(new ObjectModel(*objectModel));
     setObjectModelOnGraphicsWindow(currentObjectModel->getAbsolutePath());
     resetCameras();
 }
 
-void CorrespondenceEditor::setCorrespondenceToEdit(const ObjectImageCorrespondence &correspondence) {
-    qDebug() << "Setting correspondence (" + correspondence.getID() + ", " + correspondence.getImage()->getImagePath()
-                + ", " + correspondence.getObjectModel()->getPath() + ") to display.";
-    currentCorrespondence.reset(new ObjectImageCorrespondence(correspondence));
+void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence *correspondence) {
+    if (correspondence == Q_NULLPTR) {
+        qDebug() << "Correspondence to set was null. Restting view.";
+        reset();
+        return;
+    }
+
+    qDebug() << "Setting correspondence (" + correspondence->getID() + ", " + correspondence->getImage()->getImagePath()
+                + ", " + correspondence->getObjectModel()->getPath() + ") to display.";
+    currentCorrespondence.reset(new ObjectImageCorrespondence(*correspondence));
     setEnabledCorrespondenceEditorControls(true);
     QVector3D position = currentCorrespondence->getPosition();
     QVector3D rotation = currentCorrespondence->getRotation();

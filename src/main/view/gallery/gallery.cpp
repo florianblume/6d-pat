@@ -1,4 +1,4 @@
-#include "gallery.h"
+#include "gallery.hpp"
 #include "ui_gallery.h"
 #include "otiathelper.h"
 #include <QtAwesome/QtAwesome.h>

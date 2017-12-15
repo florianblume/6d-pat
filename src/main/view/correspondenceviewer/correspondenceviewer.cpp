@@ -1,7 +1,7 @@
 #include "correspondenceviewer.hpp"
 #include "ui_correspondenceviewer.h"
-#include "view/rendering/imagerenderable.h"
-#include "view/rendering/objectmodelrenderable.h"
+#include "view/rendering/imagerenderable.hpp"
+#include "view/rendering/objectmodelrenderable.hpp"
 #include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DRender/QRenderSurfaceSelector>
 #include <Qt3DRender/QRenderTargetSelector>
@@ -228,7 +228,7 @@ void CorrespondenceViewer::imageObjectPickerPressed(Qt3DRender::QPickEvent *pick
     qDebug() << "Image (" + image.getImagePath() + ") clicked at position: ("
                 + QString::number(point.x()) + ", "
                 + QString::number(point.y()) + ")";
-    emit imageClicked(image, point);
+    emit imageClicked(new Image(image), point);
 }
 
 void CorrespondenceViewer::objectModelObjectPickerPressed(int index) {

@@ -351,7 +351,7 @@
   <customwidget>
    <class>IconExpandingListView</class>
    <extends>QListView</extends>
-   <header>view/gallery/iconexpandinglistview.h</header>
+   <header>view/gallery/iconexpandinglistview.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>

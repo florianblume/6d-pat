@@ -1,4 +1,4 @@
-#include "iconexpandinglistview.h"
+#include "iconexpandinglistview.hpp"
 #include <QPaintEvent>
 
 IconExpandingListView::IconExpandingListView(QWidget *parent) : QListView(parent) {

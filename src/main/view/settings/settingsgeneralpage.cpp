@@ -1,4 +1,4 @@
-#include "settingsgeneralpage.h"
+#include "settingsgeneralpage.hpp"
 #include "ui_settingsgeneralpage.h"
 #include <QtAwesome/QtAwesome.h>
 #include <QFileDialog>

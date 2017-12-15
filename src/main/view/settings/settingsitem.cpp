@@ -1,4 +1,4 @@
-#include "settingsitem.h"
+#include "settingsitem.hpp"
 
 
 SettingsItem::SettingsItem(QString identifier, ModelManager* modelManager) : identifier(identifier) {

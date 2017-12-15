@@ -19,6 +19,10 @@ public:
     */
     ObjectModel(const QString& objectModelPath, const QString& basePath);
 
+    /*!
+     * \brief ObjectModel copy constructor
+     * \param other
+     */
     ObjectModel(const ObjectModel &other);
 
     //! Returns the path to the object model.
