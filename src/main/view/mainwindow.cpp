@@ -37,7 +37,10 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SIGNAL(correspondenceCreationAborted()));
     connect(ui->galleryRight, SIGNAL(selectedItemChanged(int)),
             this, SIGNAL(correspondenceCreationAborted()));
-
+    connect(ui->navigationLeft, SIGNAL(pathChanged(QString)),
+            this, SIGNAL(imagesPathChanged(QString)));
+    connect(ui->navigationRight, SIGNAL(pathChanged(QString)),
+            this, SIGNAL(objectModelsPathChanged(QString)));
 }
 
 MainWindow::~MainWindow() {

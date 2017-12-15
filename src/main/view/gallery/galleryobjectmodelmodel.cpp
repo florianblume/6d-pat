@@ -8,11 +8,15 @@
 #include <QCheckBox>
 
 GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager) : modelManager(modelManager) {
+    Q_ASSERT(modelManager != Q_NULLPTR);
     objectModelsCache = std::move(modelManager->getObjectModels());
+    imagesCache = std::move(modelManager->getImages());
     connect(modelManager, SIGNAL(objectModelsChanged()),
             this, SLOT(onObjectModelsChanged()));
     connect(modelManager, SIGNAL(imagesChanged()),
             this, SLOT(onImagesChanged()));
+    connect(modelManager, SIGNAL(imagesChanged()),
+            this, SLOT(onObjectModelsChanged()));
 }
 
 GalleryObjectModelModel::~GalleryObjectModelModel() {
@@ -30,15 +34,14 @@ QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectMo
 
 //! Implementations of QAbstractListModel
 QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const {
-    const QList<Image> &images = modelManager->getImages();
     //! If for some weird coincidence (maybe deletion of a object model on the filesystem) the passed index
     //! is out of bounds simply return a QVariant, the next time the data method is called everything should
     //! be finde again
-    if (currentSelectedImageIndex == -1 || !modelManager || index.row() >= images.size())
+    if (currentSelectedImageIndex == -1 || !modelManager || index.row() >= imagesCache.size())
         return QVariant();
 
     const ObjectModel& objectModel = objectModelsCache.at(index.row());
-    const Image& currentlySelectedImage = images.at(currentSelectedImageIndex);
+    const Image& currentlySelectedImage = imagesCache.at(currentSelectedImageIndex);
     if (codes.size() == 0
             || currentlySelectedImage.getSegmentationImagePath().isEmpty()) {
         //! If no codes at all were set or if the currently selected image does not provide segmentation images
@@ -69,8 +72,7 @@ bool GalleryObjectModelModel::isNumberOfToolsCorrect() {
     //! than different colors in the segmentation image we definitely have too few object models
     //!
     //! Minus 2 because black and white are always in the segmentation images
-    const QList<ObjectModel> &objectModels = modelManager->getObjectModels();
-    if (codes.keys().size() == 0 && objectModels.size() < colorsOfCurrentImage.size() - 2)
+    if (codes.keys().size() == 0 && objectModelsCache.size() < colorsOfCurrentImage.size() - 2)
         return false;
 
     int numberOfMatches = 0;

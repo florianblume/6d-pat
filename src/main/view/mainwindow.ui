@@ -1772,6 +1772,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>galleryLeft</sender>
+   <signal>selectedItemChanged(int)</signal>
+   <receiver>correspondenceEditor</receiver>
+   <slot>reset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>selectedObjectModelChanged(ObjectModel*)</signal>

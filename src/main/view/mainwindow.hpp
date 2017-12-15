@@ -124,7 +124,7 @@ signals:
     void selectedObjectModelChanged(ObjectModel *objectModel);
     void selectedItemChanged(int index);
     void correspondenceCreationAborted();
-    void imagePathChanged(const QString& newPath);
+    void imagesPathChanged(const QString& newPath);
     void objectModelsPathChanged(const QString &newPath);
 
 private slots:

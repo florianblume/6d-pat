@@ -21,9 +21,10 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent) :
 
 CorrespondenceEditor::~CorrespondenceEditor()
 {
-    if (graphicsWindow != Q_NULLPTR)
+    if (graphicsWindow) {
         graphicsWindow->destroy();
-    delete graphicsWindow;
+        delete graphicsWindow;
+    }
     delete ui;
 }
 
@@ -65,7 +66,7 @@ void CorrespondenceEditor::resetControlsValues() {
 }
 
 void CorrespondenceEditor::setup3DView() {
-    graphicsWindow = new Qt3DExtras::Qt3DWindow;
+    graphicsWindow = new Qt3DExtras::Qt3DWindow();
     QWidget *container = QWidget::createWindowContainer(graphicsWindow);
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->graphicsFrame->layout()->addWidget(container);
@@ -126,8 +127,9 @@ void CorrespondenceEditor::setup3DView() {
 }
 
 void CorrespondenceEditor::updateCameraLenses() {
-    leftCamera->lens()->setPerspectiveProjection(cameraFieldOfView(), ((this->width() / (float) this->height()) * 0.65), 0.1f, 1000.0f);
-    rightCamera->lens()->setPerspectiveProjection(cameraFieldOfView(), ((this->width() / (float) this->height() * 0.65)), 0.1f, 1000.0f);
+    float aspectRatio = this->width() / (float) this->height();
+    leftCamera->lens()->setPerspectiveProjection(cameraFieldOfView() * aspectRatio, aspectRatio, 0.1f, 1000.0f);
+    rightCamera->lens()->setPerspectiveProjection(cameraFieldOfView() * aspectRatio, aspectRatio, 0.1f, 1000.0f);
 }
 
 void CorrespondenceEditor::resetCameras() {
@@ -150,7 +152,7 @@ void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
                                        ui->spinBoxRotationY->value(),
                                        ui->spinBoxRotationZ->value());
     currentCorrespondence->setArticulation(ui->sliderArticulation->value());
-    emit correspondenceUpdated(currentCorrespondence.data());
+    emit correspondenceUpdated(currentCorrespondence.get());
 }
 
 void CorrespondenceEditor::setOpacityOfObjectModel(int opacity) {
@@ -160,7 +162,7 @@ void CorrespondenceEditor::setOpacityOfObjectModel(int opacity) {
 void CorrespondenceEditor::removeCurrentlyEditedCorrespondence() {
     setEnabledAllControls(false);
     resetControlsValues();
-    emit correspondenceRemoved(currentCorrespondence.data());
+    emit correspondenceRemoved(currentCorrespondence.get());
     currentCorrespondence.reset();
 }
 
@@ -169,8 +171,10 @@ void CorrespondenceEditor::predictPositionOfObjectModels() {
 }
 
 void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectModel) {
-    if (sceneEntity)
+    if (sceneEntity != Q_NULLPTR) {
         delete sceneEntity;
+        sceneEntity = Q_NULLPTR;
+    }
 
     sceneEntity = new Qt3DCore::QEntity(rootEntity);
     ObjectModelRenderable *objectModelRenderable = new ObjectModelRenderable(sceneEntity,
@@ -228,8 +232,10 @@ void CorrespondenceEditor::reset() {
     // Deleting the scene entity before setting an object model causes the program to crash,
     // even if a null check is employed. But we can check whether the object model has been
     // set before and only then delete the scene entity.
-    if (currentObjectModel.isNull())
+    if (currentObjectModel) {
         delete sceneEntity;
+        sceneEntity = Q_NULLPTR;
+    }
 
     setEnabledAllControls(false);
     currentObjectModel.reset();
@@ -238,7 +244,7 @@ void CorrespondenceEditor::reset() {
 }
 
 bool CorrespondenceEditor::isDisplayingObjectModel() {
-    return !currentObjectModel.isNull();
+    return currentObjectModel != Q_NULLPTR;
 }
 
 void CorrespondenceEditor::resizeEvent(QResizeEvent* event) {
@@ -256,5 +262,5 @@ void CorrespondenceEditor::objectPickerClicked(Qt3DRender::QPickEvent *pick) {
                 + QString::number(point.x()) + ", "
                 + QString::number(point.y()) + ", "
                 + QString::number(point.z()) + ").";
-    emit objectModelClickedAt(currentObjectModel.data(), point);
+    emit objectModelClickedAt(currentObjectModel.get(), point);
 }

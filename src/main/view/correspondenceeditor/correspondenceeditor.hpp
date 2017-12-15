@@ -2,9 +2,9 @@
 #define CORRESPONDENCEEDITORCONTROLS_H
 
 #include "model/modelmanager.hpp"
+#include "misc/globaltypedefs.h"
 #include <QWidget>
 #include <QFrame>
-#include <QScopedPointer>
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DRender/QObjectPicker>
 #include <Qt3DRender/QPickEvent>
@@ -58,19 +58,21 @@ signals:
 
 private:
     Ui::CorrespondenceEditor *ui;
-    QScopedPointer<ObjectModel> currentObjectModel;
-    QScopedPointer<ObjectImageCorrespondence> currentCorrespondence;
+    UniquePointer<ObjectModel> currentObjectModel;
+    UniquePointer<ObjectImageCorrespondence> currentCorrespondence;
 
-    //! The left view of the object model, e.g. the front view
-    Qt3DExtras::Qt3DWindow *graphicsWindow = Q_NULLPTR;
-    Qt3DRender::QObjectPicker *objectPicker = Q_NULLPTR;
-    Qt3DCore::QEntity *rootEntity = Q_NULLPTR;
-    Qt3DCore::QEntity *sceneEntity = Q_NULLPTR;
-    Qt3DRender::QRenderSettings *framegraphEntity;
-    Qt3DRender::QCamera *leftCamera;
-    Qt3DExtras::QOrbitCameraController *leftCameraController;
-    Qt3DRender::QCamera *rightCamera;
-    Qt3DExtras::QOrbitCameraController *rightCameraController;
+    // The left view of the object model, e.g. the front view
+    Qt3DExtras::Qt3DWindow *graphicsWindow{};
+    Qt3DRender::QObjectPicker *objectPicker = Q_NULLPTR;        // created but not owned later
+    Qt3DCore::QEntity *rootEntity = Q_NULLPTR;                  // created but not owned later
+    Qt3DCore::QEntity *sceneEntity = Q_NULLPTR;                 // created but not owned later,
+                                                                    // i.e. only need to delete
+                                                                    // when resetting the scene
+    Qt3DRender::QRenderSettings *framegraphEntity;              // created but not owned later
+    Qt3DRender::QCamera *leftCamera;                            // created but not owned later
+    Qt3DExtras::QOrbitCameraController *leftCameraController;   // created but not owned later
+    Qt3DRender::QCamera *rightCamera;                           // created but not owned later
+    Qt3DExtras::QOrbitCameraController *rightCameraController;  // created but not owned later
 
     void setEnabledCorrespondenceEditorControls(bool enabled);
     void setEnabledAllControls(bool enabled);

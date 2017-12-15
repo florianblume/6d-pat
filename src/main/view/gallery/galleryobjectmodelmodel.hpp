@@ -49,6 +49,7 @@ private:
 
     ModelManager* modelManager;
     QList<ObjectModel> objectModelsCache;
+    QList<Image> imagesCache;
     QMap<QString, QString> codes;
     QVector<QColor> colorsOfCurrentImage;
     int currentSelectedImageIndex = -1;

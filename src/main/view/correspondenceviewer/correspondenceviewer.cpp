@@ -39,9 +39,9 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
 
 CorrespondenceViewer::~CorrespondenceViewer()
 {
-    graphicsWindow->destroy();
+    //graphicsWindow->destroy();
     deleteSceneObjects();
-    delete graphicsWindow;
+    //delete graphicsWindow;
     delete ui;
 }
 
@@ -70,16 +70,16 @@ void CorrespondenceViewer::deleteSceneObjects() {
 void CorrespondenceViewer::setupGraphicsWindow() {
     qDebug() << "Setting up graphics window.";
     // Create the container for our 3D window that is going to display the image and objects
-    graphicsWindow = new Qt3DExtras::Qt3DWindow;
-    QWidget* containerWidget = QWidget::createWindowContainer(graphicsWindow);
-    containerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->frameGraphics->layout()->addWidget(containerWidget);
+    //graphicsWindow = new Qt3DExtras::Qt3DWindow;
+    //QWidget* containerWidget = QWidget::createWindowContainer(graphicsWindow);
+    //containerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    //ui->frameGraphics->layout()->addWidget(containerWidget);
 
     // Setup camera
-    Qt3DRender::QCamera *camera = graphicsWindow->camera();
-    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
-    camera->setPosition(QVector3D(0.f, 0.f, 1.5f));
-    camera->setViewCenter(QVector3D(0, 0, 0));
+    //Qt3DRender::QCamera *camera = graphicsWindow->camera();
+    //camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
+    //camera->setPosition(QVector3D(0.f, 0.f, 1.5f));
+    //camera->setViewCenter(QVector3D(0, 0, 0));
 
     // Setup root node
     rootEntity = new Qt3DCore::QEntity();
@@ -88,11 +88,11 @@ void CorrespondenceViewer::setupGraphicsWindow() {
 
     frameGraph = new Qt3DRender::QRenderSettings();
     frameGraph->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
-    frameGraph->setActiveFrameGraph(graphicsWindow->activeFrameGraph());
+    //frameGraph->setActiveFrameGraph(graphicsWindow->activeFrameGraph());
 
     rootEntity->addComponent(frameGraph);
 
-    graphicsWindow->setRootEntity(rootEntity);
+    //graphicsWindow->setRootEntity(rootEntity);
 }
 
 void CorrespondenceViewer::setupSceneRoot() {

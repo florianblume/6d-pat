@@ -104,7 +104,7 @@ void MainController::initializeMainWindow() {
             this, SLOT(onObjectModelClickedAt(ObjectModel*,QVector3D)));
     connect(&mainWindow, SIGNAL(correspondenceCreationAborted()), this, SLOT(onCorrespondenceCreationAborted()));
 
-    connect(&mainWindow, SIGNAL(imagePathChanged(QString)),
+    connect(&mainWindow, SIGNAL(imagesPathChanged(QString)),
             this, SLOT(onImagePathChanged(QString)));
     connect(&mainWindow, SIGNAL(objectModelsPathChanged(QString)),
             this, SLOT(onObjectModelsPathChanged(QString)));

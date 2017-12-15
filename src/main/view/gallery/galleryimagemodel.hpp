@@ -25,6 +25,10 @@ public:
 
 private:
     ModelManager *modelManager;
+    QList<Image> imagesCache;
+
+private slots:
+    void onImagesChanged();
 
 };
 
