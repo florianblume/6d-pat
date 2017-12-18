@@ -13,17 +13,45 @@
  */
 class CachingModelManager : public ModelManager
 {
+
+    Q_OBJECT
+
+public:
+
+    CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy);
+
+    ~CachingModelManager();
+
+    QList<Image> getImages() const override;
+
+    QList<ObjectImageCorrespondence> getCorrespondencesForImage(const Image &image) const override;
+
+    QList<ObjectModel> getObjectModels() const override;
+
+    QList<ObjectImageCorrespondence> getCorrespondencesForObjectModel(const ObjectModel &objectModel) override;
+
+    QList<ObjectImageCorrespondence> getCorrespondences() override;
+
+    QList<ObjectImageCorrespondence> getCorrespondencesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) override;
+
+    bool addObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) override;
+
+    bool updateObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) override;
+
+    bool removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) override;
+
 private:
+
     //! The pattern that is used to load maybe existing segmentation images
     QString segmentationImagePattern;
     //! The list of the loaded images
     QList<Image> images;
     //! Convenience map to store correspondences for images
-    QMap<QString, QList<ObjectImageCorrespondence*>> correspondencesForImages;
+    QMap<QString, QList<ObjectImageCorrespondence>> correspondencesForImages;
     //! The list of the loaded object models
     QList<ObjectModel> objectModels;
     //! Convenience map to store correspondences for object models
-    QMap<QString, QList<ObjectImageCorrespondence*>> correspondencesForObjectModels;
+    QMap<QString, QList<ObjectImageCorrespondence>> correspondencesForObjectModels;
     //! The list of the object image correspondences
     QList<ObjectImageCorrespondence> correspondences;
     /*!
@@ -32,46 +60,12 @@ private:
      */
     void createConditionalCache();
 
-public:
-    CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy);
+private slots:
 
-    ~CachingModelManager();
+    void onImagesChanged();
+    void onObjectModelsChanged();
+    void onCorrespondencesChanged();
 
-    void getImages(QList<const Image*> &images) const override;
-
-    const Image* getImage(uint index) const override;
-
-    int getImagesSize() const override;
-
-    void getCorrespondencesForImage(const Image &image, QList<ObjectImageCorrespondence*> &correspondences) const override;
-
-    void getObjectModels(QList<const ObjectModel*> &objectModels) const override;
-
-    const ObjectModel* getObjectModel(uint index) const override;
-
-    int getObjectModelsSize() const override;
-
-    void getCorrespondencesForObjectModel(const ObjectModel &objectModel, QList<ObjectImageCorrespondence*> &correspondences) override;
-
-    void getCorrespondences(QList<ObjectImageCorrespondence*> &correspondences) override;
-
-    void getCorrespondencesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel, QList<ObjectImageCorrespondence*> &correspondences) override;
-
-    bool addObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) override;
-
-    bool updateObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) override;
-
-    bool removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) override;
-
-    void addListener(ModelManagerListener* listener) override;
-
-    void removeListener(ModelManagerListener* listener) override;
-
-    void imagesChanged() override;
-
-    void objectModelsChanged() override;
-
-    void correspondencesChanged()  override;
 };
 
 #endif // CACHINGMODELMANAGER_H

@@ -1,13 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "view/navigationcontrols/navigationcontrols.h"
-#include "settings/settingsitem.h"
-#include "view/gallery/galleryimagemodel.h"
-#include "view/gallery/galleryobjectmodelmodel.h"
-#include "view/settings/settingsdialogdelegate.h"
+#include "view/navigationcontrols/navigationcontrols.hpp"
+#include "misc/preferences/preferencesstore.hpp"
+#include "view/gallery/galleryimagemodel.hpp"
+#include "view/gallery/galleryobjectmodelmodel.hpp"
 #include <QGuiApplication>
-#include <QScopedPointer>
 #include <QMainWindow>
 #include <QMouseEvent>
 #include <QFrame>
@@ -41,6 +39,7 @@ signals:
 };
 
 class MainWindow : public QMainWindow {
+
     Q_OBJECT
 
 public:
@@ -59,8 +58,6 @@ public:
     void setPathOnRightBreadcrumbView(const QString &pathToShow);
     void setPathOnLeftNavigationControls(const QString &path);
     void setPathOnRightNavigationControls(const QString &path);
-    void addListenerToLeftNavigationControls(NavigationControlsListener listener);
-    void addListenerToRightNavigationControls(NavigationControlsListener listener);
     void resetCorrespondenceEditor();
 
     void setStatusBarText(const QString& text);
@@ -86,25 +83,12 @@ public:
      */
     void setModelManager(ModelManager* modelManager);
 
-    /*!
-     * \brief setSettingsItem sets the settings item that the main controller passes on as to read
-     * the set values later on. The controller will be notified whether the settings were applied
-     * through the delegate interface.
-     * \param settingsItem the item that is to be used to store values intermediately
-     */
-    void setSettingsItem(SettingsItem* settingsItem);
-
-    /*!
-     * \brief setSettingsDialogDelegate stores the delegate that is to be set on the settings dialog
-     * whenever the dialog is opened.
-     * \param delegate the delegate to be set
-     */
-    void setSettingsDialogDelegate(SettingsDialogDelegate* delegate);
+    void setPreferencesStore(PreferencesStore *preferencesStore);
 
 public slots:
     //! The slot that catches the emitted signal when the 3D model in the lower right correspondence controls
     //! is clicked (see CorrespondenceEditorControls)
-    void onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position);
+    void onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position);
     /*!
      * \brief onSelectedObjectModelChanged will be called from the right gallery that displays
      * objects models so that the main view can retrieve the actual object model an pass it on
@@ -117,15 +101,17 @@ signals:
     //! i.e. when the image in the lower left view is clicked, the first one is emitted, and when
     //! the 3D model (to create the first 2D to 3D point correspondence) is clicked, the second
     //! function is emitted.
-    void imageClicked(const Image* image, QPointF position);
-    void objectModelClickedAt(const ObjectModel* objectModel, QVector3D position);
+    void imageClicked(Image* image, QPointF position);
+    void objectModelClickedAt(ObjectModel* objectModel, QVector3D position);
     /*!
      * \brief selectedObjectModelChanged is triggered after the index of the object model is received.
      * \param objectModel the actual object model retrieved from the index
      */
-    void selectedObjectModelChanged(const ObjectModel* objectModel);
+    void selectedObjectModelChanged(ObjectModel *objectModel);
     void selectedItemChanged(int index);
     void correspondenceCreationAborted();
+    void imagesPathChanged(const QString& newPath);
+    void objectModelsPathChanged(const QString &newPath);
 
 private slots:
     void onActionAboutTriggered();
@@ -134,8 +120,9 @@ private slots:
     void onActionAbortCreationTriggered();
     //! Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
     //! right clicks in the image to start creating a correspondence
-    void onImageClicked(const Image* image, QPointF position);
+    void onImageClicked(Image* image, QPointF position);
     void onOverlayClickedAnywhere();
+    void onPreferencesChanged(const QString &identifier);
 
 private:
     //! The overlay that is shown when the user clicks on a position in the displayed image to start
@@ -147,10 +134,7 @@ private:
     Ui::MainWindow *ui;
     QLabel *statusBarLabel = new QLabel();
 
-    //! The settings item that is used to store values intermediatly. The settings dialog writes
-    //! values to it and the main controller reads from it.
-    SettingsItem* settingsItem;
-    SettingsDialogDelegate* settingsDialogDelegate;
+    PreferencesStore *preferencesStore = Q_NULLPTR;
     ModelManager* modelManager;
 
     void writeSettings();

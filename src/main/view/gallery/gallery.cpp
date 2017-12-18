@@ -1,4 +1,4 @@
-#include "gallery.h"
+#include "gallery.hpp"
 #include "ui_gallery.h"
 #include "otiathelper.h"
 #include <QtAwesome/QtAwesome.h>
@@ -44,7 +44,11 @@ void Gallery::setModel(QAbstractListModel* model) {
 }
 
 void Gallery::selectNext() {
+    ui->listView->selectNext();
+}
 
+void Gallery::selectPrevious() {
+    ui->listView->selectPrevious();
 }
 
 void Gallery::beginScrollLeft() {

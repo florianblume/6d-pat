@@ -1,7 +1,7 @@
 #ifndef SETTINGSSEGMENTATIONCODESPAGE_H
 #define SETTINGSSEGMENTATIONCODESPAGE_H
 
-#include "settingsitem.h"
+#include "misc/preferences/preferences.hpp"
 #include "model/objectmodel.hpp"
 #include <QWidget>
 #include <QSignalMapper>
@@ -19,13 +19,13 @@ class SettingsSegmentationCodesPage : public QWidget
 public:
     explicit SettingsSegmentationCodesPage(QWidget *parent = 0);
     ~SettingsSegmentationCodesPage();
-    void setSettingsItemAndObjectModels(SettingsItem* settingsItem,
-                                        const QList<const ObjectModel*> objectModels);
+    void setPreferencesAndObjectModels(Preferences *preferences,
+                                        QList<ObjectModel> objectModels);
 
 private:
     Ui::SettingsSegmentationCodesPage *ui;
-    SettingsItem *settingsItem;
-    QList<const ObjectModel*> objectModels;
+    Preferences *preferences;
+    QList<ObjectModel> objectModels;
     QScopedPointer<QSignalMapper> signalMapperEdit;
     QScopedPointer<QSignalMapper> signalMapperRemove;
 

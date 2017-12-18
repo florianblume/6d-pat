@@ -4,8 +4,7 @@
 #include "objectimagecorrespondence.hpp"
 #include "image.hpp"
 #include "loadandstorestrategy.hpp"
-#include "loadandstorestrategylistener.hpp"
-#include "modelmanagerlistener.hpp"
+#include <QObject>
 #include <QString>
 #include <QList>
 
@@ -22,14 +21,15 @@ using namespace std;
  * Attention: To persist modified correspondences they have to be updated through the update method of the manager, otherwise the changes
  * will be lost on program restart.
 */
-class ModelManager : LoadAndStoreStrategyListener
+class ModelManager : public QObject
 {
 
+    Q_OBJECT
+
 protected:
+
     //! The strategy that is used to persist and also to load entities
     LoadAndStoreStrategy& loadAndStoreStrategy;
-    //! The listeners that will be notified by this manager of any changes
-    QList<ModelManagerListener*> listeners;
 
 public:
 
@@ -46,47 +46,23 @@ public:
 
     /*!
      * \brief getImages Returns the list of all images loaded by this manager.
-     * \param the list that the images are to be added to
      * \return the list of all images loaded by this manager
      */
-   virtual void getImages(QList<const Image*>& images) const = 0;
-
-    /*!
-     * \brief getImage directly returns the image at the given index.
-     * \param index the index of the image to be returned
-     */
-    virtual const Image* getImage(uint index) const = 0;
-
-    /*!
-     * \brief getImagesSize returns the number of images managed by this manager
-     */
-    virtual int getImagesSize() const = 0;
+   virtual QList<Image> getImages() const = 0;
 
     /*!
      * \brief getCorrespondencesForImage Returns all ObjectImageCorrespondences for the image at the given path.
      * \param imagePath the path of the image
-     * \param correspondences the list that the correspondences are to be added to
      * \return the list of correspondences of the image at the given path
      */
-    virtual void getCorrespondencesForImage(const Image& image, QList<ObjectImageCorrespondence*>& correspondences) const = 0;
+    virtual QList<ObjectImageCorrespondence> getCorrespondencesForImage(const Image& image) const = 0;
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
      * \param objectModels the list that the object models are to be added to
      * \return the list of all objects models loaded by this manager
      */
-    virtual void getObjectModels(QList<const ObjectModel*>& objectModels) const = 0;
-
-    /*!
-     * \brief getObjectModel directly returns the object model at the given index.
-     * \param index the index of the object model to be returned
-     */
-    virtual const ObjectModel* getObjectModel(uint index) const = 0;
-
-    /*!
-     * \brief getObjectModelsCount returns the number of object models managed by this manager
-     */
-    virtual int getObjectModelsSize() const = 0;
+    virtual QList<ObjectModel> getObjectModels() const = 0;
 
     /*!
      * \brief getCorrespondencesForObjectModels Returns all ObjectImageCorrespondences for the object model at the given path.
@@ -94,14 +70,14 @@ public:
      * \param correspondences the list that the correspondences are to be added to
      * \return the list of correspondences of the object model at the given path
      */
-    virtual void getCorrespondencesForObjectModel(const ObjectModel& objectModel, QList<ObjectImageCorrespondence*>& correspondences) = 0;
+    virtual QList<ObjectImageCorrespondence> getCorrespondencesForObjectModel(const ObjectModel& objectModel) = 0;
 
     /*!
      * \brief getCorrespondences Returns the correspondences maintained by this manager.
      * \param correspondences the list that the correspondences are to be added to
      * \return the list of correspondences maintained by this manager
      */
-    virtual void getCorrespondences(QList<ObjectImageCorrespondence*>& correspondences) = 0;
+    virtual QList<ObjectImageCorrespondence> getCorrespondences() = 0;
 
     /*!
      * \brief getCorrespondencesForImageAndObjectModel Returns all correspondences for the given image and object model.
@@ -110,9 +86,8 @@ public:
      * \param correspondences the list that the correspondences are to be added to
      * \return all correspondences of the given image and given object model
      */
-    virtual void getCorrespondencesForImageAndObjectModel(const Image& image,
-                                                          const ObjectModel& objectModel,
-                                                          QList<ObjectImageCorrespondence*>& correspondences) = 0;
+    virtual QList<ObjectImageCorrespondence> getCorrespondencesForImageAndObjectModel(const Image& image,
+                                                          const ObjectModel& objectModel) = 0;
 
     /*!
      * \brief addObjectImageCorrespondence Adds a new ObjectImageCorrespondence to the correspondences managed by this manager.
@@ -142,30 +117,11 @@ public:
      */
     virtual bool removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) = 0;
 
-    /*!
-     * \brief addListener Adds a listener to this manager. The listener will be notified if e.g. the images change,
-     * or correspondences or models.
-     * \param listener the listener to add
-     */
-    virtual void addListener(ModelManagerListener* listener) = 0;
+signals:
 
-    /*!
-     * \brief removeListener Removes the given listener from the list of listeners of this model manager.
-     * \param listener the listener to remove
-     */
-    virtual void removeListener(ModelManagerListener* listener) = 0;
-
-    /**
-      ######################################
-      Interface LoadAndStoreStrategyListener
-      ######################################
-    */
-
-    virtual void imagesChanged() = 0;
-
-    virtual void objectModelsChanged() = 0;
-
-    virtual void correspondencesChanged() = 0;
+    void imagesChanged();
+    void objectModelsChanged();
+    void correspondencesChanged();
 
 };
 

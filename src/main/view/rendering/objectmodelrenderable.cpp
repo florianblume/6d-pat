@@ -1,4 +1,4 @@
-#include "objectmodelrenderable.h"
+#include "objectmodelrenderable.hpp"
 #include <Qt3DExtras/QPhongMaterial>
 
 ObjectModelRenderable::ObjectModelRenderable(QNode *parent, const QString &meshPath, const QString &texturePath)

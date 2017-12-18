@@ -1,7 +1,7 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
-#include "view/aboutdialog/aboutdialog.h"
-#include "view/settings/settingsdialog.h"
+#include "view/aboutdialog/aboutdialog.hpp"
+#include "view/settings/settingsdialog.hpp"
 #include <QSettings>
 #include <QCloseEvent>
 #include <QMessageBox>
@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
     readSettings();
     statusBar()->addPermanentWidget(statusBarLabel, 1);
     setStatusBarText(QString("Loading..."));
+
+    // Cannot define signal to signal mapping in the designer, thus the connections are defined here
     connect(ui->galleryLeft, SIGNAL(selectedItemChanged(int)),
             this, SIGNAL(selectedItemChanged(int)));
     // If the selected image changes, we also need to cancel any started creation of a correspondence
@@ -35,13 +37,10 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SIGNAL(correspondenceCreationAborted()));
     connect(ui->galleryRight, SIGNAL(selectedItemChanged(int)),
             this, SIGNAL(correspondenceCreationAborted()));
-    connect(ui->correspondenceViewer, SIGNAL(imageClicked(const Image*,QPointF)),
-            this, SLOT(onImageClicked(const Image*,QPointF)));
-    connect(this, SIGNAL(selectedObjectModelChanged(const ObjectModel*)),
-            ui->correspondenceEditor, SLOT(setObjectModel(const ObjectModel*)));
-    connect(ui->correspondenceEditor, SIGNAL(objectModelClickedAt(const ObjectModel*,QVector3D)),
-            this, SLOT(onObjectModelClickedAt(const ObjectModel*,QVector3D)));
-
+    connect(ui->navigationLeft, SIGNAL(pathChanged(QString)),
+            this, SIGNAL(imagesPathChanged(QString)));
+    connect(ui->navigationRight, SIGNAL(pathChanged(QString)),
+            this, SIGNAL(objectModelsPathChanged(QString)));
 }
 
 MainWindow::~MainWindow() {
@@ -104,7 +103,7 @@ void MainWindow::setPathOnLeftBreadcrumbView(const QString &pathToShow) {
     ui->breadcrumbLeft->setPathToShow(pathToShow);
 }
 
-void MainWindow::setPathOnRightBreadcrumbView(const QString & pathToShow) {
+void MainWindow::setPathOnRightBreadcrumbView(const QString &pathToShow) {
     ui->breadcrumbRight->setPathToShow(pathToShow);
 }
 
@@ -114,14 +113,6 @@ void MainWindow::setPathOnLeftNavigationControls(const QString &path) {
 
 void MainWindow::setPathOnRightNavigationControls(const QString &path) {
     ui->navigationRight->setPathToOpen(path);
-}
-
-void MainWindow::addListenerToLeftNavigationControls(NavigationControlsListener listener) {
-    ui->navigationLeft->addListener(listener);
-}
-
-void MainWindow::addListenerToRightNavigationControls(NavigationControlsListener listener) {
-    ui->navigationRight->addListener(listener);
 }
 
 void MainWindow::setGalleryImageModel(GalleryImageModel* model) {
@@ -147,12 +138,14 @@ void MainWindow::resetCorrespondenceEditor() {
     ui->correspondenceViewer->reset();
 }
 
-void MainWindow::setSettingsItem(SettingsItem* settingsItem) {
-    this->settingsItem = settingsItem;
-}
-
-void MainWindow::setSettingsDialogDelegate(SettingsDialogDelegate* delegate) {
-    settingsDialogDelegate = delegate;
+void MainWindow::setPreferencesStore(PreferencesStore *preferencesStore) {
+    if (this->preferencesStore) {
+        disconnect(this->preferencesStore, SIGNAL(preferencesChanged(QString)),
+                   this, SLOT(onPreferencesChanged(QString)));
+    }
+    this->preferencesStore = preferencesStore;
+    connect(preferencesStore, SIGNAL(preferencesChanged(QString)),
+            this, SLOT(onPreferencesChanged(QString)));
 }
 
 void MainWindow::setStatusBarText(const QString& text) {
@@ -173,11 +166,9 @@ void MainWindow::onActionExitTriggered()
 void MainWindow::onActionSettingsTriggered()
 {
     SettingsDialog* settingsDialog = new SettingsDialog(this);
-    QList<const ObjectModel*> objectModels;
-    modelManager->getObjectModels(objectModels);
-    settingsDialog->setSettingsItemAndObjectModels(UniqueSettingsItemPointer(new SettingsItem(*settingsItem)),
-                                                   objectModels);
-    settingsDialog->setDelegate(settingsDialogDelegate);
+    settingsDialog->setPreferencesStoreAndObjectModels(preferencesStore,
+                                                   "default",
+                                                   modelManager->getObjectModels());
     settingsDialog->show();
 }
 
@@ -186,7 +177,7 @@ void MainWindow::onActionAbortCreationTriggered() {
 }
 
 //! Mouse handling, i.e. clicking in the lower left widget and dragging a line to the lower right widget
-void MainWindow::onImageClicked(const Image* image, QPointF position) {
+void MainWindow::onImageClicked(Image* image, QPointF position) {
     //! No need to check for whether the right widget was clicked because the only time this method
     //! will be called is when the object image picker received a click on the image
     if (ui->correspondenceEditor->isDisplayingObjectModel()) {
@@ -219,12 +210,21 @@ void MainWindow::onOverlayClickedAnywhere() {
     emit correspondenceCreationAborted();
 }
 
-void MainWindow::onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position) {
+void MainWindow::onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position) {
     QGuiApplication::restoreOverrideCursor();
     emit objectModelClickedAt(objectModel, position);
 }
 
 void MainWindow::onSelectedObjectModelChanged(int index) {
-    Q_ASSERT(index >= 0 && index < modelManager->getObjectModelsSize());
-    emit selectedObjectModelChanged(modelManager->getObjectModel(index));
+    const QList<ObjectModel> &objectModels = modelManager->getObjectModels();
+    Q_ASSERT(index >= 0 && index < objectModels.size());
+    emit selectedObjectModelChanged(new ObjectModel(objectModels.at(index)));
+}
+
+void MainWindow::onPreferencesChanged(const QString &identifier) {
+    UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier(identifier);
+    setPathOnLeftBreadcrumbView(preferences->getImagesPath());
+    setPathOnRightBreadcrumbView(preferences->getObjectModelsPath());
+    ui->correspondenceEditor->reset();
+    ui->correspondenceViewer->reset();
 }

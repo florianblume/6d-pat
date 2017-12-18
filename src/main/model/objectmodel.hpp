@@ -6,8 +6,8 @@
 //! Class ObjectModel stores the URL to the 3D model of the object.
 class ObjectModel {
 private:
-    const QString objectModelPath;
-    const QString basePath;
+    QString objectModelPath;
+    QString basePath;
 
 public:
     //! Constructor of class ObjectModel.
@@ -18,6 +18,12 @@ public:
       the object model lies
     */
     ObjectModel(const QString& objectModelPath, const QString& basePath);
+
+    /*!
+     * \brief ObjectModel copy constructor
+     * \param other
+     */
+    ObjectModel(const ObjectModel &other);
 
     //! Returns the path to the object model.
     /*!

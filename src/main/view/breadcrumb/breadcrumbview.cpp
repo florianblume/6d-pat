@@ -1,4 +1,4 @@
-#include "breadcrumbview.h"
+#include "breadcrumbview.hpp"
 #include <QDir>
 
 BreadcrumbView::BreadcrumbView(QWidget *parent, const QString &pathToShow)

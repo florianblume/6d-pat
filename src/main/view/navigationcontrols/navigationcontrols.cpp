@@ -1,4 +1,4 @@
-#include "navigationcontrols.h"
+#include "navigationcontrols.hpp"
 #include "ui_navigationcontrols.h"
 #include <QtAwesome/QtAwesome.h>
 #include <QFileDialog>
@@ -10,10 +10,10 @@ NavigationControls::NavigationControls(QWidget *parent) :
     QtAwesome* awesome = new QtAwesome( qApp );
     awesome->initFontAwesome();
     ui->setupUi(this);
-    ui->navigateLeftButton->setFont(awesome->font(18));
-    ui->navigateLeftButton->setIcon(awesome->icon(fa::chevronleft));
-    ui->navigateRightButton->setFont(awesome->font(18));
-    ui->navigateRightButton->setIcon(awesome->icon(fa::chevronright));
+    ui->buttonNavigateLeft->setFont(awesome->font(18));
+    ui->buttonNavigateLeft->setIcon(awesome->icon(fa::chevronleft));
+    ui->buttonNavigateRight->setFont(awesome->font(18));
+    ui->buttonNavigateRight->setIcon(awesome->icon(fa::chevronright));
     ui->openFolderButton->setFont(awesome->font(18));
     ui->openFolderButton->setIcon(awesome->icon(fa::folderopen));
 
@@ -30,10 +30,6 @@ void NavigationControls::setPathToOpen(const QString &path) {
     }
 }
 
-void NavigationControls::addListener(NavigationControlsListener listener) {
-    listeners.push_back(listener);
-}
-
 void NavigationControls::folderButtonClicked() {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
                                                 currentPath,
@@ -44,7 +40,12 @@ void NavigationControls::folderButtonClicked() {
     }
     currentPath = dir;
     emit pathChanged(dir);
-    for (NavigationControlsListener listener : listeners) {
-        listener(dir);
-    }
+}
+
+void NavigationControls::buttonNavigateLeftClicked() {
+    emit navigateLeft();
+}
+
+void NavigationControls::buttonNavigateRightClicked() {
+    emit navigateRight();
 }

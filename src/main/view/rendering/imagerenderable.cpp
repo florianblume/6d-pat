@@ -1,4 +1,4 @@
-#include "imagerenderable.h"
+#include "imagerenderable.hpp"
 #include <QImage>
 
 ImageRenderable::ImageRenderable(Qt3DCore::QNode *parent, const QString &imagePath) :
@@ -17,7 +17,6 @@ ImageRenderable::ImageRenderable(Qt3DCore::QNode *parent, const QString &imagePa
     QImage image(imagePath);
     mesh->setWidth(1 * (image.size().width() / (float) image.size().height()));
     mesh->setHeight(1);
-    //mesh->setMeshResolution(QSize(20, 20));
     addComponent(mesh);
     transform->setRotationX(90.f);
     addComponent(transform);

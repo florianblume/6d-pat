@@ -5,9 +5,9 @@
 #include "model/objectmodel.hpp"
 #include "model/objectimagecorrespondence.hpp"
 #include "model/modelmanager.hpp"
-#include "view/rendering/imagerenderable.h"
-#include "view/rendering/objectmodelrenderable.h"
-#include <QPointer>
+#include "view/rendering/imagerenderable.hpp"
+#include "view/rendering/objectmodelrenderable.hpp"
+#include "misc/globaltypedefs.h"
 #include <QList>
 #include <QMap>
 #include <QWidget>
@@ -24,22 +24,6 @@
 namespace Ui {
 class CorrespondenceViewer;
 }
-
-//! Convenience typdefs
-//! See the destructor implementation of this class to understand why we use QPointer class here
-typedef QPointer<Qt3DCore::QEntity> EntityPointer;
-typedef QPointer<Qt3DRender::QRenderSettings> RenderSettingsPointer;
-typedef QPointer<Qt3DRender::QDepthTest> DepthTestPointer;
-typedef QPointer<ImageRenderable> ImageRenderablePointer;
-typedef QList<QPointer<ObjectModelRenderable>> ObjectModelRenderablePointerList;
-//! We need this so we can update positions of already displayed object models when we receive a call
-//! to update a correspondence
-typedef QMap<const ObjectModel*, QPointer<ObjectModelRenderable>> ObjectModelToRenderablePointerMap;
-typedef QList<QPointer<Qt3DRender::QObjectPicker>> ObjectPickerPointerList;
-typedef QPointer<Qt3DRender::QObjectPicker> ObjectPickerPointer;
-typedef QScopedPointer<QSignalMapper> SignalMapperPointer;
-
-typedef QList<QPointer<ObjectImageCorrespondence>> CorrespondencesList;
 
 /*!
  * \brief The CorrespondenceEditor class holds the image that is to be annotated and allows
@@ -60,16 +44,6 @@ public:
      */
     void setModelManager(ModelManager* modelManager);
 
-signals:
-    /*!
-     * \brief imageClicked emitted when the displayed image is clicked anywhere
-     */
-    void imageClicked(const Image* image, QPointF position);
-    /*!
-     * \brief correspondenceClicked emitted when a displayed object model is clicked
-     */
-    void correspondenceClicked(const ObjectImageCorrespondence *correspondence);
-
 public slots:
     /*!
      * \brief setImage sets the image that this CorrespondenceEditor displays.
@@ -87,13 +61,13 @@ public slots:
      * exist it will be added.
      * \param correspondence the correspondence to be updated
      */
-    void updateCorrespondence(ObjectImageCorrespondence* correspondence);
+    void updateCorrespondence(ObjectImageCorrespondence correspondence);
 
     /*!
      * \brief removeCorrespondence removes the given correspondence
      * \param correspondence the correspondence to be removed
      */
-    void removeCorrespondence(ObjectImageCorrespondence* correspondence);
+    void removeCorrespondence(ObjectImageCorrespondence correspondence);
 
     /*!
      * \brief reload reloads this correspondence editor and thus forces it to load
@@ -101,6 +75,16 @@ public slots:
      * i.e. all objects should be removed, call the reset() function.
      */
     void reload();
+
+signals:
+    /*!
+     * \brief imageClicked emitted when the displayed image is clicked anywhere
+     */
+    void imageClicked(Image *image, QPointF position);
+    /*!
+     * \brief correspondenceClicked emitted when a displayed object model is clicked
+     */
+    void correspondenceClicked(ObjectImageCorrespondence *correspondence);
 
 private:
 
@@ -110,30 +94,32 @@ private:
     Qt3DExtras::Qt3DWindow *graphicsWindow = NULL;
 
     // All necessary stuff for 3D
-    EntityPointer rootEntity;
-    EntityPointer sceneEntity;
-    RenderSettingsPointer frameGraph;
-    DepthTestPointer depthTest;
-    ImageRenderablePointer imageRenderable;
-    ObjectPickerPointer imageObjectPicker;
-    ObjectModelRenderablePointerList objectModelRenderables;
-    ObjectModelToRenderablePointerMap objectModelToRenderablePointerMap;
-    ObjectPickerPointerList objectModelsPickers;
+    Qt3DCore::QEntity *rootEntity;                                              // not owned later anymore
+    Qt3DCore::QEntity *sceneEntity;                                             // not owned later anymore
+    Qt3DRender::QRenderSettings *frameGraph;                                    // not owned later anymore
+    ImageRenderable *imageRenderable;                                           // not owned later anymore
+    Qt3DRender::QObjectPicker *imageObjectPicker;                               // not owned later anymore
+    QList<ObjectModelRenderable*> objectModelRenderables;
+    QMap<QString, ObjectModelRenderable*> objectModelToRenderablePointerMap;
+    QList<Qt3DRender::QObjectPicker*> objectModelsPickers;
 
-    CorrespondencesList correspondences;
+    QList<ObjectImageCorrespondence*> correspondences;
 
-    SignalMapperPointer objectModelPickerSignalMapper{new QSignalMapper};
+    // Maps the picking signals from our object pickers to the respective object model
+    UniquePointer<QSignalMapper> objectModelPickerSignalMapper{new QSignalMapper};
+
     // Because a object model can be added through the updateCorrespondence method, we need to keep
     // track of the indeces to corretly link the object pickers
     int currentObjectModelSignalMapperIndex = 0;
 
     // The index of the image that is currently selected in the gallery and displayed here
-    int currentlyDisplayedImage = -1;
+    int currentlyDisplayedImageIndex = -1;
+    UniquePointer<Image> currentlyDisplayedImage;
     // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
     // segmentation image
     bool showingNormalImage = true;
     void showImage(const QString &imagePath);
-    void addObjectModelRenderable(ObjectImageCorrespondence *correspondence,
+    void addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
                                   int objectModelIndex);
     void setupGraphicsWindow();
     void setupSceneRoot();

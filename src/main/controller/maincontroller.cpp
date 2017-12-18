@@ -1,5 +1,5 @@
 #include "maincontroller.hpp"
-#include "view/gallery/galleryimagemodel.h"
+#include "view/gallery/galleryimagemodel.hpp"
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -13,70 +13,28 @@ MainController::MainController(int &argc, char *argv[]) :
     QApplication(argc, argv),
     strategy(),
     modelManager(strategy) {
+    connect(preferencesStore.get(), SIGNAL(preferencesChanged(QString)),
+            this, SLOT(onPreferencesChanged(QString)));
 }
 
 MainController::~MainController() {
-    QSettings settings("FlorettiKonfetti Inc.", "Otiat");
-    settings.beginGroup("maincontroller");
-    settings.setValue("imagesPath", strategy.getImagesPath().path());
-    settings.setValue("objectModelsPath", strategy.getObjectModelsPath().path());
-    settings.setValue("correspondencesPath", strategy.getCorrespondencesPath().path());
-    settings.endGroup();
-
-    //! Persist the object color codes so that the user does not have to enter them at each program start
-    //! But first remove all old entries, in case that the user deleted some codes
-    settings.beginGroup("maincontroller-settings");
-    settings.remove("");
-    for (int i = 0; i < modelManager.getObjectModelsSize(); i++) {
-        const ObjectModel* model = modelManager.getObjectModel(i);
-        const QString objectModelIdentifier = model->getAbsolutePath();
-        settings.setValue(model->getAbsolutePath(),
-                                     currentSettingsItem->getSegmentationCodeForObjectModel(model));
-    }
-    settings.endGroup();
-
-    delete currentSettingsItem;
+    preferencesStore->savePreferences(currentPreferences.get());
     delete galleryImageModel;
     delete galleryObjectModelModel;
 }
 
 void MainController::initialize() {
-    // TODO: initalization in background thread, only disable UI until loading has finished
-    QSettings settings("FlorettiKonfetti Inc.", "Otiat");
-
-    settings.beginGroup("maincontroller");
-    strategy.setImagesPath(settings.value("imagesPath", QDir::homePath()).toString());
-    strategy.setObjectModelsPath(settings.value("objectModelsPath", QDir::homePath()).toString());
-    strategy.setCorrespondencesPath(settings.value("correspondencesPath", QDir::homePath()).toString());
-    settings.endGroup();
-
-    initializeSettingsItem();
+    currentPreferences = std::move(preferencesStore->loadPreferencesByIdentifier("default"));
+    strategy.setImagesPath(currentPreferences->getImagesPath());
+    strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
+    strategy.setCorrespondencesPath(currentPreferences->getCorrespondencesPath());
+    strategy.setImageFilesExtension(currentPreferences->getImageFilesExtension());
+    strategy.setSegmentationImageFilesSuffix(currentPreferences->getSegmentationImageFilesSuffix());
     initializeMainWindow();
 }
 
-void MainController::initializeSettingsItem() {
-    currentSettingsItem = new SettingsItem("default", &modelManager);
-    currentSettingsItem->setImagesPath(strategy.getImagesPath().path());
-    currentSettingsItem->setObjectModelsPath(strategy.getObjectModelsPath().path());
-    currentSettingsItem->setCorrespondencesPath(strategy.getCorrespondencesPath().path());
-    currentSettingsItem->setSegmentationImageFilesSuffix(strategy.getSegmentationImageFilesSuffix());
-    currentSettingsItem->setImageFilesExtension(strategy.getImageFilesExtension());
-
-    //! Read persisted object color codes
-    QSettings settings("FlorettiKonfetti Inc.", "Otiat");
-    settings.beginGroup("maincontroller-settings");
-    for (int i = 0; i < modelManager.getObjectModelsSize(); i++) {
-        const ObjectModel* model = modelManager.getObjectModel(i);
-        const QString objectModelIdentifier = model->getAbsolutePath();
-        QString storedCode = settings.value(objectModelIdentifier, "").toString();
-        if (storedCode.compare("") != 0)
-            currentSettingsItem->setSegmentationCodeForObjectModel(model, storedCode);
-    }
-    settings.endGroup();
-}
 void MainController::initializeMainWindow() {
-    mainWindow.setSettingsItem(currentSettingsItem);
-    mainWindow.setSettingsDialogDelegate(this);
+    mainWindow.setPreferencesStore(preferencesStore.get());
 
     //! The reason why the breadcrumbs receive an object of the path type of the boost filesystem library
     //! is because the breadcrumb views have to split the path to show it.
@@ -84,12 +42,6 @@ void MainController::initializeMainWindow() {
     mainWindow.setPathOnRightBreadcrumbView(strategy.getObjectModelsPath().path());
     mainWindow.setPathOnLeftNavigationControls(QString(strategy.getImagesPath().path()));
     mainWindow.setPathOnRightNavigationControls(QString(strategy.getObjectModelsPath().path()));
-    //! left navigation selects the images folder
-    mainWindow.addListenerToLeftNavigationControls([this] (QString& newPath) {this->strategy.setImagesPath(newPath);
-                                                                             this->currentSettingsItem->setImagesPath(newPath);});
-    //! right navigation selects the object models folder
-    mainWindow.addListenerToRightNavigationControls([this] (QString& newPath) {this->strategy.setObjectModelsPath(newPath);
-                                                                              this->currentSettingsItem->setObjectModelsPath(newPath);});
 
     //! The models do not need to notify the gallery of any changes on the data because the list view
     //! has its own update loop, i.e. automatically fetches new data
@@ -104,20 +56,23 @@ void MainController::initializeMainWindow() {
 
     //! Connect the main window's reactions to the user clicking on a displayed image or on an object
     //! model to delegate any further computation to this controller
-    connect(&mainWindow, SIGNAL(imageClicked(const Image*,QPointF)),
-            this, SLOT(onImageClicked(const Image*,QPointF)));
-    connect(&mainWindow, SIGNAL(objectModelClickedAt(const ObjectModel*,QVector3D)),
-            this, SLOT(onObjectModelClickedAt(const ObjectModel*,QVector3D)));
+    connect(&mainWindow, SIGNAL(imageClicked(Image*,QPointF)),
+            this, SLOT(onImageClicked(Image*,QPointF)));
+    connect(&mainWindow, SIGNAL(objectModelClickedAt(ObjectModel*,QVector3D)),
+            this, SLOT(onObjectModelClickedAt(ObjectModel*,QVector3D)));
     connect(&mainWindow, SIGNAL(correspondenceCreationAborted()), this, SLOT(onCorrespondenceCreationAborted()));
+
+    connect(&mainWindow, SIGNAL(imagesPathChanged(QString)),
+            this, SLOT(onImagePathChanged(QString)));
+    connect(&mainWindow, SIGNAL(objectModelsPathChanged(QString)),
+            this, SLOT(onObjectModelsPathChanged(QString)));
 }
 
 void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
-    QMap<const ObjectModel*, QString> codes;
-    currentSettingsItem->getSegmentationCodes(codes);
-    galleryObjectModelModel->setSegmentationCodesForObjectModels(codes);
+    galleryObjectModelModel->setSegmentationCodesForObjectModels(currentPreferences->getSegmentationCodes());
 }
 
-void MainController::onImageClicked(const Image* image, QPointF position) {
+void MainController::onImageClicked(Image* image, QPointF position) {
     if (lastClickedImage != image)
         correspondingPoints.clear();
 
@@ -129,7 +84,7 @@ void MainController::onImageClicked(const Image* image, QPointF position) {
                             + " of 4].");
 }
 
-void MainController::onObjectModelClickedAt(const ObjectModel* objectModel, QVector3D position) {
+void MainController::onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position) {
     //! If we can't find a previously clicked position on the image just return, the user has to select a 2D
     //! point on the image first
     if (!lastClickedImage)
@@ -186,29 +141,32 @@ void MainController::onCorrespondenceCreationAborted() {
     correspondingPoints.clear();
 }
 
+void MainController::onImagePathChanged(const QString &newPath) {
+    this->strategy.setImagesPath(newPath);
+    this->currentPreferences->setImagesPath(newPath);
+}
+
+void MainController::onObjectModelsPathChanged(const QString &newPath) {
+    this->strategy.setObjectModelsPath(newPath);
+    this->currentPreferences->setObjectModelsPath(newPath);
+}
+
 void MainController::showView() {
     mainWindow.show();
 }
 
-void MainController::applySettings(const SettingsItem* settingsItem) {
-    //! Save the settings item to be set
-    delete currentSettingsItem;
-    this->currentSettingsItem = new SettingsItem(*settingsItem);
-
-    //! Set the values
-    strategy.setImagesPath(settingsItem->getImagesPath());
-    strategy.setObjectModelsPath(settingsItem->getObjectModelsPath());
-    strategy.setCorrespondencesPath(settingsItem->getCorrespondencesPath());
-    strategy.setImageFilesExtension(settingsItem->getImageFilesExtension());
-    strategy.setSegmentationImageFilesSuffix(settingsItem->getSegmentationImageFilesSuffix());
-
-    //! Update view accordingly
-    mainWindow.setPathOnLeftBreadcrumbView(settingsItem->getImagesPath());
-    mainWindow.setPathOnLeftNavigationControls(settingsItem->getImagesPath());
-    mainWindow.setPathOnRightBreadcrumbView(settingsItem->getObjectModelsPath());
-    mainWindow.setPathOnRightNavigationControls(settingsItem->getObjectModelsPath());
+void MainController::onPreferencesChanged(const QString &identifier) {
+    currentPreferences = std::move(preferencesStore->loadPreferencesByIdentifier(identifier));
+    // Do checks to avoid unnecessary reloads
+    if (currentPreferences->getImagesPath().compare(strategy.getImagesPath().path()) != 0)
+        strategy.setImagesPath(currentPreferences->getImagesPath());
+    if (currentPreferences->getObjectModelsPath().compare(strategy.getObjectModelsPath().path()) != 0)
+        strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
+    if (currentPreferences->getCorrespondencesPath().compare(strategy.getCorrespondencesPath().path()) != 0)
+        strategy.setCorrespondencesPath(currentPreferences->getCorrespondencesPath());
+    if (currentPreferences->getImageFilesExtension().compare(strategy.getImageFilesExtension()) != 0)
+        strategy.setImageFilesExtension(currentPreferences->getImageFilesExtension());
+    if (currentPreferences->getSegmentationImageFilesSuffix().compare(strategy.getSegmentationImageFilesSuffix()) != 0)
+        strategy.setSegmentationImageFilesSuffix(currentPreferences->getSegmentationImageFilesSuffix());
     setSegmentationCodesOnGalleryObjectModelModel();
-
-    //! And update the settings item on the main window for the settings dialog, etc.
-    mainWindow.setSettingsItem(currentSettingsItem);
 }

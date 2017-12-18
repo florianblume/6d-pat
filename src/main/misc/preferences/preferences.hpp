@@ -2,24 +2,23 @@
 #define SETTINGSITEM_H
 
 #include "model/objectmodel.hpp"
-#include "model/modelmanager.hpp"
 #include <QString>
 #include <QMap>
 
-class SettingsItem
+class Preferences
 {
 public:
-    SettingsItem(QString identifier, ModelManager* modelManager);
-    SettingsItem(const SettingsItem &settingsItem);
-    ~SettingsItem();
+    Preferences(QString identifier);
+    Preferences(const Preferences &settingsItem);
+    ~Preferences();
 
-    void setSegmentationCodeForObjectModel(const ObjectModel* objectModel, const QString &code);
-    void removeSegmentationCodeForObjectModel(const ObjectModel* objectModel);
+    void setSegmentationCodeForObjectModel(const QString &identifier, const QString &code);
+    void removeSegmentationCodeForObjectModel(const QString &identifier);
 
-    void getSegmentationCodes(QMap<const ObjectModel*, QString> &codes) const;
-    void setSegmentationCodes(const QMap<const ObjectModel*, QString> &codes);
+    QMap<QString, QString> getSegmentationCodes() const;
+    void setSegmentationCodes(const QMap<QString, QString> codes);
 
-    QString getSegmentationCodeForObjectModel(const ObjectModel* objectModel);
+    QString getSegmentationCodeForObjectModel(const QString &identifier);
 
     QString getSegmentationImageFilesSuffix() const;
     void setSegmentationImageFilesSuffix(const QString &value);
@@ -36,9 +35,10 @@ public:
     QString getCorrespondencesPath() const;
     void setCorrespondencesPath(const QString &value);
 
+    QString getIdentifier();
+
 private:
-    ModelManager* modelManager;
-    QMap<const ObjectModel*, QString> segmentationCodes;
+    QMap<QString, QString> segmentationCodes;
     QString segmentationImageFilesSuffix;
     QString imageFilesExtension;
     QString imagesPath;
