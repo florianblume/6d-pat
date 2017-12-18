@@ -13,70 +13,28 @@ MainController::MainController(int &argc, char *argv[]) :
     QApplication(argc, argv),
     strategy(),
     modelManager(strategy) {
+    connect(preferencesStore.get(), SIGNAL(preferencesChanged(QString)),
+            this, SLOT(onPreferencesChanged(QString)));
 }
 
 MainController::~MainController() {
-    QSettings settings("FlorettiKonfetti Inc.", "Otiat");
-    settings.beginGroup("maincontroller");
-    settings.setValue("imagesPath", strategy.getImagesPath().path());
-    settings.setValue("objectModelsPath", strategy.getObjectModelsPath().path());
-    settings.setValue("correspondencesPath", strategy.getCorrespondencesPath().path());
-    settings.endGroup();
-
-    //! Persist the object color codes so that the user does not have to enter them at each program start
-    //! But first remove all old entries, in case that the user deleted some codes
-    settings.beginGroup("maincontroller-settings");
-    settings.remove("");
-    const QList<ObjectModel> &objectModels = modelManager.getObjectModels();
-    for (int i = 0; i < objectModels.size(); i++) {
-        const ObjectModel &model = objectModels.at(i);
-        const QString objectModelIdentifier = model.getAbsolutePath();
-        settings.setValue(objectModelIdentifier,
-                                     currentSettingsItem->getSegmentationCodeForObjectModel(objectModelIdentifier));
-    }
-    settings.endGroup();
+    preferencesStore->savePreferences(currentPreferences.get());
     delete galleryImageModel;
     delete galleryObjectModelModel;
 }
 
 void MainController::initialize() {
-    // TODO: initalization in background thread, only disable UI until loading has finished
-    QSettings settings("FlorettiKonfetti Inc.", "Otiat");
-
-    settings.beginGroup("maincontroller");
-    strategy.setImagesPath(settings.value("imagesPath", QDir::homePath()).toString());
-    strategy.setObjectModelsPath(settings.value("objectModelsPath", QDir::homePath()).toString());
-    strategy.setCorrespondencesPath(settings.value("correspondencesPath", QDir::homePath()).toString());
-    settings.endGroup();
-
-    initializeSettingsItem();
+    currentPreferences = std::move(preferencesStore->loadPreferencesByIdentifier("default"));
+    strategy.setImagesPath(currentPreferences->getImagesPath());
+    strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
+    strategy.setCorrespondencesPath(currentPreferences->getCorrespondencesPath());
+    strategy.setImageFilesExtension(currentPreferences->getImageFilesExtension());
+    strategy.setSegmentationImageFilesSuffix(currentPreferences->getSegmentationImageFilesSuffix());
     initializeMainWindow();
 }
 
-void MainController::initializeSettingsItem() {
-    currentSettingsItem.reset(new SettingsItem("default", &modelManager));
-    currentSettingsItem->setImagesPath(strategy.getImagesPath().path());
-    currentSettingsItem->setObjectModelsPath(strategy.getObjectModelsPath().path());
-    currentSettingsItem->setCorrespondencesPath(strategy.getCorrespondencesPath().path());
-    currentSettingsItem->setSegmentationImageFilesSuffix(strategy.getSegmentationImageFilesSuffix());
-    currentSettingsItem->setImageFilesExtension(strategy.getImageFilesExtension());
-
-    //! Read persisted object color codes
-    QSettings settings("FlorettiKonfetti Inc.", "Otiat");
-    settings.beginGroup("maincontroller-settings");
-    QList<ObjectModel> objectModels = modelManager.getObjectModels();
-    for (int i = 0; i < objectModels.size(); i++) {
-        const ObjectModel &model = objectModels.at(i);
-        const QString objectModelIdentifier = model.getAbsolutePath();
-        QString storedCode = settings.value(objectModelIdentifier, "").toString();
-        if (storedCode.compare("") != 0)
-            currentSettingsItem->setSegmentationCodeForObjectModel(objectModelIdentifier, storedCode);
-    }
-    settings.endGroup();
-}
 void MainController::initializeMainWindow() {
-    mainWindow.setSettingsItem(currentSettingsItem.get());
-    mainWindow.setSettingsDialogDelegate(this);
+    mainWindow.setPreferencesStore(preferencesStore.get());
 
     //! The reason why the breadcrumbs receive an object of the path type of the boost filesystem library
     //! is because the breadcrumb views have to split the path to show it.
@@ -111,8 +69,7 @@ void MainController::initializeMainWindow() {
 }
 
 void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
-    const QMap<QString, QString> &codes = currentSettingsItem->getSegmentationCodes();
-    galleryObjectModelModel->setSegmentationCodesForObjectModels(codes);
+    galleryObjectModelModel->setSegmentationCodesForObjectModels(currentPreferences->getSegmentationCodes());
 }
 
 void MainController::onImageClicked(Image* image, QPointF position) {
@@ -186,38 +143,30 @@ void MainController::onCorrespondenceCreationAborted() {
 
 void MainController::onImagePathChanged(const QString &newPath) {
     this->strategy.setImagesPath(newPath);
-    this->currentSettingsItem->setImagesPath(newPath);
+    this->currentPreferences->setImagesPath(newPath);
 }
 
 void MainController::onObjectModelsPathChanged(const QString &newPath) {
     this->strategy.setObjectModelsPath(newPath);
-    this->currentSettingsItem->setObjectModelsPath(newPath);
+    this->currentPreferences->setObjectModelsPath(newPath);
 }
 
 void MainController::showView() {
     mainWindow.show();
 }
 
-void MainController::applySettings(const SettingsItem* settingsItem) {
-    // Save the settings item to be set
-    this->currentSettingsItem.reset(new SettingsItem(*settingsItem));
-
-    // Set the values
-    strategy.setImagesPath(settingsItem->getImagesPath());
-    strategy.setObjectModelsPath(settingsItem->getObjectModelsPath());
-    strategy.setCorrespondencesPath(settingsItem->getCorrespondencesPath());
-    strategy.setImageFilesExtension(settingsItem->getImageFilesExtension());
-    strategy.setSegmentationImageFilesSuffix(settingsItem->getSegmentationImageFilesSuffix());
-
-    // Update view accordingly
-    mainWindow.setPathOnLeftBreadcrumbView(settingsItem->getImagesPath());
-    mainWindow.setPathOnLeftNavigationControls(settingsItem->getImagesPath());
-    mainWindow.setPathOnRightBreadcrumbView(settingsItem->getObjectModelsPath());
-    mainWindow.setPathOnRightNavigationControls(settingsItem->getObjectModelsPath());
+void MainController::onPreferencesChanged(const QString &identifier) {
+    currentPreferences = std::move(preferencesStore->loadPreferencesByIdentifier(identifier));
+    // Do checks to avoid unnecessary reloads
+    if (currentPreferences->getImagesPath().compare(strategy.getImagesPath().path()) != 0)
+        strategy.setImagesPath(currentPreferences->getImagesPath());
+    if (currentPreferences->getObjectModelsPath().compare(strategy.getObjectModelsPath().path()) != 0)
+        strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
+    if (currentPreferences->getCorrespondencesPath().compare(strategy.getCorrespondencesPath().path()) != 0)
+        strategy.setCorrespondencesPath(currentPreferences->getCorrespondencesPath());
+    if (currentPreferences->getImageFilesExtension().compare(strategy.getImageFilesExtension()) != 0)
+        strategy.setImageFilesExtension(currentPreferences->getImageFilesExtension());
+    if (currentPreferences->getSegmentationImageFilesSuffix().compare(strategy.getSegmentationImageFilesSuffix()) != 0)
+        strategy.setSegmentationImageFilesSuffix(currentPreferences->getSegmentationImageFilesSuffix());
     setSegmentationCodesOnGalleryObjectModelModel();
-
-    // And update the settings item on the main window for the settings dialog, etc.
-    // But pass a new instance so that the settings dialog cannot mangle with our
-    // actual settings.
-    mainWindow.setSettingsItem(new SettingsItem(*settingsItem));
 }

@@ -88,7 +88,7 @@ void CorrespondenceEditor::setup3DView() {
      */
     Qt3DRender::QClearBuffers *clearBuffers = new Qt3DRender::QClearBuffers(mainViewport);
     clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthBuffer);
-    clearBuffers->setClearColor(QColor(255, 255, 255, 255));
+    clearBuffers->setClearColor(QColor(220, 220, 220, 255));
 
     /*
      * Second branch holding the viewport of the front facing view

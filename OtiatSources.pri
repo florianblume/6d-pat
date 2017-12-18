@@ -24,12 +24,12 @@ SOURCES += \
     $$PWD/src/main/view/settings/settingsdialog.cpp \
     $$PWD/src/main/view/settings/settingsgeneralpage.cpp \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.cpp \
-    $$PWD/src/main/view/settings/settingsitem.cpp \
-    $$PWD/src/main/view/settings/settingsdialogdelegate.cpp \
     $$PWD/src/main/view/rendering/objectmodelrenderable.cpp \
     $$PWD/src/main/view/rendering/imagerenderable.cpp \
     $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.cpp \
-    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.cpp
+    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.cpp \
+    $$PWD/src/main/misc/preferences/preferencesstore.cpp\
+    $$PWD/src/main/misc/preferences/preferences.cpp
 
 HEADERS  += \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
@@ -55,10 +55,10 @@ HEADERS  += \
     $$PWD/src/main/view/rendering/imagerenderable.hpp \
     $$PWD/src/main/view/rendering/objectmodelrenderable.hpp \
     $$PWD/src/main/view/settings/settingsdialog.hpp \
-    $$PWD/src/main/view/settings/settingsdialogdelegate.hpp \
     $$PWD/src/main/view/settings/settingsgeneralpage.hpp \
-    $$PWD/src/main/view/settings/settingsitem.hpp \
-    $$PWD/src/main/view/settings/settingssegmentationcodespage.hpp
+    $$PWD/src/main/view/settings/settingssegmentationcodespage.hpp \
+    $$PWD/src/main/misc/preferences/preferences.hpp \
+    $$PWD/src/main/misc/preferences/preferencesstore.hpp
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

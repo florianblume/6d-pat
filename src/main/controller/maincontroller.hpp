@@ -3,9 +3,8 @@
 
 #include "model/cachingmodelmanager.hpp"
 #include "model/textfileloadandstorestrategy.hpp"
+#include "misc/preferences/preferencesstore.hpp"
 #include "view/mainwindow.hpp"
-#include "view/settings/settingsitem.hpp"
-#include "view/settings/settingsdialogdelegate.hpp"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
 #include "misc/globaltypedefs.h"
@@ -24,7 +23,7 @@ struct CorrespondingPoints {
 
 //! This class is responsible for the overall program to work. It maintains references to all the important parts and
 //! ensures them to work properly and updates or makes update-requests when necessary.
-class MainController : public QApplication, public SettingsDialogDelegate {
+class MainController : public QApplication {
     Q_OBJECT
 
 private:
@@ -33,9 +32,10 @@ private:
     MainWindow mainWindow;
     QMap<QString, ObjectModel*> segmentationCodes;
 
-    UniquePointer<SettingsItem> currentSettingsItem;
-    GalleryImageModel *galleryImageModel;
-    GalleryObjectModelModel *galleryObjectModelModel;
+    UniquePointer<PreferencesStore> preferencesStore{ new PreferencesStore() };
+    UniquePointer<Preferences> currentPreferences;
+    GalleryImageModel *galleryImageModel = Q_NULLPTR;
+    GalleryObjectModelModel *galleryObjectModelModel = Q_NULLPTR;
 
     // Stores the position that was last clicked on a displayed image so that we can create a 2D to 3D correspondence
     // when a 3D point on an object model is clicked
@@ -53,6 +53,7 @@ private slots:
     void onCorrespondenceCreationAborted();
     void onImagePathChanged(const QString &newPath);
     void onObjectModelsPathChanged(const QString &newPath);
+    void onPreferencesChanged(const QString &identifier);
 
 public:
     MainController(int &argc, char *argv[]);
@@ -67,8 +68,6 @@ public:
      * \brief showView shows the view of this controller.
      */
     void showView();
-
-    void applySettings(const SettingsItem* currentSettingsItem);
 };
 
 #endif // MAINCONTROLLER_H

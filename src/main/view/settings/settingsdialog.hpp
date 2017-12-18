@@ -1,8 +1,7 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-#include "settingsitem.hpp"
-#include "settingsdialogdelegate.hpp"
+#include "misc/preferences/preferencesstore.hpp"
 #include <QDialog>
 #include <QAbstractButton>
 #include <QList>
@@ -18,17 +17,18 @@ class SettingsDialog : public QDialog
 public:
     explicit SettingsDialog(QWidget *parent = 0);
     ~SettingsDialog();
-    void setSettingsItemAndObjectModels(SettingsItem *settingsItem,
+    void setPreferencesStoreAndObjectModels(PreferencesStore *preferencesStore,
+                                        const QString &currentPreferencesIdentifier,
                                         const QList<ObjectModel> &objectModels);
-    void setDelegate(SettingsDialogDelegate *delegate);
 
 public slots:
     void onAccepted(QAbstractButton* button);
 
 private:
     Ui::SettingsDialog *ui;
-    SettingsItem *settingsItem;
-    SettingsDialogDelegate *delegate;
+    PreferencesStore *preferencesStore;
+    UniquePointer<Preferences> preferences;
+    QString currentPreferencesIdentifier;
 
 private slots:
     void onListWidgetClicked(const QModelIndex &index);

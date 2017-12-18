@@ -64,7 +64,10 @@ int GalleryObjectModelModel::rowCount(const QModelIndex &parent) const {
 }
 
 void GalleryObjectModelModel::setSegmentationCodesForObjectModels(QMap<QString, QString> codes) {
-    this->codes = std::move(codes);
+    for (const QString &key : this->codes.keys()) {
+        codes[key] = "test";
+    }
+    //this->codes = codes;
 }
 
 bool GalleryObjectModelModel::isNumberOfToolsCorrect() {

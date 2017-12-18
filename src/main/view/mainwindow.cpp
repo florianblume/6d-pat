@@ -138,12 +138,14 @@ void MainWindow::resetCorrespondenceEditor() {
     ui->correspondenceViewer->reset();
 }
 
-void MainWindow::setSettingsItem(SettingsItem* settingsItem) {
-    this->settingsItem = settingsItem;
-}
-
-void MainWindow::setSettingsDialogDelegate(SettingsDialogDelegate* delegate) {
-    settingsDialogDelegate = delegate;
+void MainWindow::setPreferencesStore(PreferencesStore *preferencesStore) {
+    if (this->preferencesStore) {
+        disconnect(this->preferencesStore, SIGNAL(preferencesChanged(QString)),
+                   this, SLOT(onPreferencesChanged(QString)));
+    }
+    this->preferencesStore = preferencesStore;
+    connect(preferencesStore, SIGNAL(preferencesChanged(QString)),
+            this, SLOT(onPreferencesChanged(QString)));
 }
 
 void MainWindow::setStatusBarText(const QString& text) {
@@ -164,9 +166,9 @@ void MainWindow::onActionExitTriggered()
 void MainWindow::onActionSettingsTriggered()
 {
     SettingsDialog* settingsDialog = new SettingsDialog(this);
-    settingsDialog->setSettingsItemAndObjectModels(settingsItem,
+    settingsDialog->setPreferencesStoreAndObjectModels(preferencesStore,
+                                                   "default",
                                                    modelManager->getObjectModels());
-    settingsDialog->setDelegate(settingsDialogDelegate);
     settingsDialog->show();
 }
 
@@ -217,4 +219,12 @@ void MainWindow::onSelectedObjectModelChanged(int index) {
     const QList<ObjectModel> &objectModels = modelManager->getObjectModels();
     Q_ASSERT(index >= 0 && index < objectModels.size());
     emit selectedObjectModelChanged(new ObjectModel(objectModels.at(index)));
+}
+
+void MainWindow::onPreferencesChanged(const QString &identifier) {
+    UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier(identifier);
+    setPathOnLeftBreadcrumbView(preferences->getImagesPath());
+    setPathOnRightBreadcrumbView(preferences->getObjectModelsPath());
+    ui->correspondenceEditor->reset();
+    ui->correspondenceViewer->reset();
 }

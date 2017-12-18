@@ -2,16 +2,15 @@
 #define SETTINGSITEM_H
 
 #include "model/objectmodel.hpp"
-#include "model/modelmanager.hpp"
 #include <QString>
 #include <QMap>
 
-class SettingsItem
+class Preferences
 {
 public:
-    SettingsItem(QString identifier, ModelManager* modelManager);
-    SettingsItem(const SettingsItem &settingsItem);
-    ~SettingsItem();
+    Preferences(QString identifier);
+    Preferences(const Preferences &settingsItem);
+    ~Preferences();
 
     void setSegmentationCodeForObjectModel(const QString &identifier, const QString &code);
     void removeSegmentationCodeForObjectModel(const QString &identifier);
@@ -36,8 +35,9 @@ public:
     QString getCorrespondencesPath() const;
     void setCorrespondencesPath(const QString &value);
 
+    QString getIdentifier();
+
 private:
-    ModelManager* modelManager;
     QMap<QString, QString> segmentationCodes;
     QString segmentationImageFilesSuffix;
     QString imageFilesExtension;

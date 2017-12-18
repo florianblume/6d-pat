@@ -25,13 +25,13 @@ SettingsGeneralPage::~SettingsGeneralPage()
     delete ui;
 }
 
-void SettingsGeneralPage::setSettingsItem(SettingsItem *settingsItem) {
-    this->settingsItem = settingsItem;
-    ui->editImagesPath->setText(settingsItem->getImagesPath());
-    ui->editObjectModelsPath->setText(settingsItem->getObjectModelsPath());
-    ui->editCorrespondencesPath->setText(settingsItem->getCorrespondencesPath());
-    ui->editSegmentationImageSuffix->setText(settingsItem->getSegmentationImageFilesSuffix());
-    int boxIndex = imageFilesExtensionToIndex(settingsItem->getImageFilesExtension());
+void SettingsGeneralPage::setPreferences(Preferences *preferences) {
+    this->preferences = preferences;
+    ui->editImagesPath->setText(preferences->getImagesPath());
+    ui->editObjectModelsPath->setText(preferences->getObjectModelsPath());
+    ui->editCorrespondencesPath->setText(preferences->getCorrespondencesPath());
+    ui->editSegmentationImageSuffix->setText(preferences->getSegmentationImageFilesSuffix());
+    int boxIndex = imageFilesExtensionToIndex(preferences->getImageFilesExtension());
     ui->comboBoxImageFilesExtension->setCurrentIndex(boxIndex);
 }
 
@@ -69,7 +69,7 @@ void SettingsGeneralPage::buttonImagesPathClicked() {
     QString newPath = openFolderDialogForPath(ui->editImagesPath->text());
     if (newPath.compare("") != 0) {
         ui->editImagesPath->setText(newPath);
-        settingsItem->setImagesPath(newPath);
+        preferences->setImagesPath(newPath);
     }
 }
 
@@ -77,7 +77,7 @@ void SettingsGeneralPage::buttonObjectModelsPathClicked() {
     QString newPath = openFolderDialogForPath(ui->editObjectModelsPath->text());
     if (newPath.compare("") != 0) {
         ui->editObjectModelsPath->setText(newPath);
-        settingsItem->setObjectModelsPath(newPath);
+        preferences->setObjectModelsPath(newPath);
     }
 }
 
@@ -85,15 +85,15 @@ void SettingsGeneralPage::buttonCorrespondencesPathClicked() {
     QString newPath = openFolderDialogForPath(ui->editCorrespondencesPath->text());
     if (newPath.compare("") != 0) {
         ui->editCorrespondencesPath->setText(newPath);
-        settingsItem->setCorrespondencesPath(newPath);
+        preferences->setCorrespondencesPath(newPath);
     }
 }
 
 void SettingsGeneralPage::onComboBoxImageFilesExtensionCurrentIndexChanged(int index) {
-    settingsItem->setImageFilesExtension(indexToImageFilesExtension(index));
+    preferences->setImageFilesExtension(indexToImageFilesExtension(index));
 }
 
 void SettingsGeneralPage::onEditSegmentationImageSuffixTextEdited(const QString &arg1)
 {
-    settingsItem->setSegmentationImageFilesSuffix(arg1);
+    preferences->setSegmentationImageFilesSuffix(arg1);
 }

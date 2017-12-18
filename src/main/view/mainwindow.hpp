@@ -2,10 +2,9 @@
 #define MAINWINDOW_H
 
 #include "view/navigationcontrols/navigationcontrols.hpp"
-#include "settings/settingsitem.hpp"
+#include "misc/preferences/preferencesstore.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
-#include "view/settings/settingsdialogdelegate.hpp"
 #include <QGuiApplication>
 #include <QMainWindow>
 #include <QMouseEvent>
@@ -84,20 +83,7 @@ public:
      */
     void setModelManager(ModelManager* modelManager);
 
-    /*!
-     * \brief setSettingsItem sets the settings item that the main controller passes on as to read
-     * the set values later on. The controller will be notified whether the settings were applied
-     * through the delegate interface.
-     * \param settingsItem the item that is to be used to store values intermediately
-     */
-    void setSettingsItem(SettingsItem* settingsItem);
-
-    /*!
-     * \brief setSettingsDialogDelegate stores the delegate that is to be set on the settings dialog
-     * whenever the dialog is opened.
-     * \param delegate the delegate to be set
-     */
-    void setSettingsDialogDelegate(SettingsDialogDelegate* delegate);
+    void setPreferencesStore(PreferencesStore *preferencesStore);
 
 public slots:
     //! The slot that catches the emitted signal when the 3D model in the lower right correspondence controls
@@ -136,6 +122,7 @@ private slots:
     //! right clicks in the image to start creating a correspondence
     void onImageClicked(Image* image, QPointF position);
     void onOverlayClickedAnywhere();
+    void onPreferencesChanged(const QString &identifier);
 
 private:
     //! The overlay that is shown when the user clicks on a position in the displayed image to start
@@ -147,10 +134,7 @@ private:
     Ui::MainWindow *ui;
     QLabel *statusBarLabel = new QLabel();
 
-    //! The settings item that is used to store values intermediatly. The settings dialog writes
-    //! values to it and the main controller reads from it.
-    SettingsItem *settingsItem;
-    SettingsDialogDelegate* settingsDialogDelegate;
+    PreferencesStore *preferencesStore = Q_NULLPTR;
     ModelManager* modelManager;
 
     void writeSettings();
