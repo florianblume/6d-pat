@@ -29,7 +29,10 @@ SOURCES += \
     $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.cpp \
     $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.cpp \
     $$PWD/src/main/misc/preferences/preferencesstore.cpp\
-    $$PWD/src/main/misc/preferences/preferences.cpp
+    $$PWD/src/main/misc/preferences/preferences.cpp \
+    $$PWD/src/main/view/correspondenceviewer/texturerendertarget.cpp \
+    $$PWD/src/main/view/correspondenceviewer/offscreensurfaceframegraph.cpp \
+    $$PWD/src/main/view/correspondenceviewer/offscreenengine.cpp
 
 HEADERS  += \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
@@ -58,7 +61,10 @@ HEADERS  += \
     $$PWD/src/main/view/settings/settingsgeneralpage.hpp \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.hpp \
     $$PWD/src/main/misc/preferences/preferences.hpp \
-    $$PWD/src/main/misc/preferences/preferencesstore.hpp
+    $$PWD/src/main/misc/preferences/preferencesstore.hpp \
+    $$PWD/src/main/view/correspondenceviewer/texturerendertarget.h \
+    $$PWD/src/main/view/correspondenceviewer/offscreensurfaceframegraph.h \
+    $$PWD/src/main/view/correspondenceviewer/offscreenengine.h
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \
