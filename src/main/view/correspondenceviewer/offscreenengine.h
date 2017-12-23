@@ -19,6 +19,7 @@ public:
     OffscreenEngine(Qt3DRender::QCamera *camera, const QSize &size);
     void setSceneRoot(Qt3DCore::QNode *sceneRoot);
     Qt3DRender::QRenderCapture *getRenderCapture();
+    void setSize(const QSize &size);
 
 private:
     Qt3DCore::QAspectEngine *aspectEngine;

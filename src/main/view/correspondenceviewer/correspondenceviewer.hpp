@@ -113,6 +113,7 @@ private:
     void setupRenderingPipeline();
     void setupSceneRoot();
     void deleteSceneObjects();
+    QImage createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage);
 
 private slots:
     /*!

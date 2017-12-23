@@ -59,7 +59,7 @@ void CorrespondenceViewer::setupRenderingPipeline() {
     // Setup camera
     camera = new Qt3DRender::QCamera();
     camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
-    camera->setPosition(QVector3D(0.f, 0.f, 1.5f));
+    camera->setPosition(QVector3D(0.f, 0.f, 0.f));
     camera->setViewCenter(QVector3D(0, 0, 0));
 
     offscreenEngine = new OffscreenEngine(camera, QSize(500, 500));
@@ -93,6 +93,8 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
         addObjectModelRenderable(correspondence, i);
         i++;
     }
+    QImage image(imagePath);
+    offscreenEngine->setSize(QSize(image.width(), image.height()));
     renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
     connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
 }
@@ -135,8 +137,26 @@ void CorrespondenceViewer::setImage(int index) {
 }
 
 void CorrespondenceViewer::imageCaptured() {
-    renderCaptureReply->image().save("test.png");
+    createImageWithOverlay(QImage(currentlyDisplayedImage->getAbsoluteImagePath()), renderCaptureReply->image()).save("test.png");
     delete renderCaptureReply;
+}
+
+QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage) {
+    QImage imageWithOverlay = QImage(baseImage.size(), QImage::Format_ARGB32_Premultiplied);
+    QPainter painter(&imageWithOverlay);
+
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.fillRect(imageWithOverlay.rect(), Qt::transparent);
+
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    painter.drawImage(0, 0, baseImage);
+
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    painter.drawImage(0, 0, overlayImage);
+
+    painter.end();
+
+    return imageWithOverlay;
 }
 
 void CorrespondenceViewer::updateCorrespondence(ObjectImageCorrespondence correspondence) {

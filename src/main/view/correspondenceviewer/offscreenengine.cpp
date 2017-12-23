@@ -23,3 +23,7 @@ void OffscreenEngine::setSceneRoot(Qt3DCore::QNode *sceneRoot) {
 Qt3DRender::QRenderCapture* OffscreenEngine::getRenderCapture() {
     return renderCapture;
 }
+
+void OffscreenEngine::setSize(const QSize &size) {
+    offscreenFrameGraph->setSize(size);
+}
