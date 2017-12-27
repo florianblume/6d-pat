@@ -1,4 +1,5 @@
 #include "galleryimagemodel.hpp"
+#include <QDebug>
 #include <QIcon>
 
 GalleryImageModel::GalleryImageModel(ModelManager* modelManager) {
@@ -31,5 +32,6 @@ void GalleryImageModel::onImagesChanged() {
     imagesCache = modelManager->getImages();
     QModelIndex top = index(0, 0);
     QModelIndex bottom = index(imagesCache.size() - 1, 0);
-    emit dataChanged(top, bottom);
+    emit layoutChanged();
+    //emit dataChanged(top, bottom);
 }
