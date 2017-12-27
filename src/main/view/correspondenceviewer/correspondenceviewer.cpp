@@ -29,16 +29,12 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
                                      "image (if available) and normal image.");
     ui->buttonSwitchView->setEnabled(false);
 
-    //connect(ui->labelGraphics, SIGNAL(imageClicked(QPoint)), this, SIGNAL(imageClicked(Image*,QPoint)));
-
     setupRenderingPipeline();
 }
 
 CorrespondenceViewer::~CorrespondenceViewer()
 {
-    //graphicsWindow->destroy();
     deleteSceneObjects();
-    //delete graphicsWindow;
     delete ui;
 }
 
@@ -201,4 +197,8 @@ void CorrespondenceViewer::switchImage() {
     else
         qDebug() << "Setting viewer to display segmentation image.";
 
+}
+
+void CorrespondenceViewer::imageClicked(QPoint point) {
+    emit imageClicked(currentlyDisplayedImage.get(), point);
 }

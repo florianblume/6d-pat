@@ -4,14 +4,14 @@
 Preferences::Preferences(QString identifier) : identifier(identifier) {
 }
 
-Preferences::Preferences(const Preferences &settingsItem) {
-    this->segmentationCodes = settingsItem.segmentationCodes;
-    this->segmentationImageFilesSuffix = settingsItem.segmentationImageFilesSuffix;
-    this->imageFilesExtension = settingsItem.imageFilesExtension;
-    this->imagesPath = settingsItem.imagesPath;
-    this->objectModelsPath = settingsItem.objectModelsPath;
-    this->correspondencesPath = settingsItem.correspondencesPath;
-    this->identifier = settingsItem.identifier;
+Preferences::Preferences(const Preferences &preferences) {
+    this->segmentationCodes = preferences.segmentationCodes;
+    this->segmentationImageFilesSuffix = preferences.segmentationImageFilesSuffix;
+    this->imageFilesExtension = preferences.imageFilesExtension;
+    this->imagesPath = preferences.imagesPath;
+    this->objectModelsPath = preferences.objectModelsPath;
+    this->correspondencesPath = preferences.correspondencesPath;
+    this->identifier = preferences.identifier;
 }
 
 Preferences::~Preferences() {

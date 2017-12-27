@@ -9,7 +9,7 @@ class Preferences
 {
 public:
     Preferences(QString identifier);
-    Preferences(const Preferences &settingsItem);
+    Preferences(const Preferences &preferences);
     ~Preferences();
 
     void setSegmentationCodeForObjectModel(const QString &identifier, const QString &code);
