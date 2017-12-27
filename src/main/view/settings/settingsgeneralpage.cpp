@@ -40,6 +40,8 @@ int SettingsGeneralPage::imageFilesExtensionToIndex(QString extension) {
         return 0;
     } else if (extension.compare(".jpeg") == 0) {
         return 1;
+    } else if (extension.compare(".jpg") == 0) {
+        return 2;
     }
 
     return 0;
@@ -51,6 +53,8 @@ QString SettingsGeneralPage::indexToImageFilesExtension(int index) {
         return ".png";
     case 1:
         return ".jpeg";
+    case 2:
+        return ".jpg";
     default:
         return "";
     }

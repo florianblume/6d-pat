@@ -15,12 +15,6 @@ TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy() {
 TextFileLoadAndStoreStrategy::TextFileLoadAndStoreStrategy(const QDir &imagesPath, const QDir &objectModelsPath,
                                                            const QDir &correspondencesPath)
     : imagesPath(imagesPath), objectModelsPath(objectModelsPath), correspondencesPath(correspondencesPath) {
-    if (!pathExists(imagesPath))
-        throw "Image path does not exist";
-    if (!pathExists(objectModelsPath))
-        throw "ObjectModels path does not exist";
-    if (!pathExists(correspondencesPath))
-        throw "Correspondences path does not exist";
 }
 
 TextFileLoadAndStoreStrategy::~TextFileLoadAndStoreStrategy() {
@@ -272,7 +266,7 @@ QList<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondenc
 
 bool TextFileLoadAndStoreStrategy::setImagesPath(const QDir &path) {
     if (!pathExists(path))
-        throw "Images path does not exist";
+        return false;
     if (imagesPath == path)
         return true;
 
@@ -289,7 +283,7 @@ QDir TextFileLoadAndStoreStrategy::getImagesPath() const {
 
 bool TextFileLoadAndStoreStrategy::setObjectModelsPath(const QDir &path) {
     if (!pathExists(path))
-        throw "Object models path does not exist";
+        return false;
     if (objectModelsPath == path)
         return true;
 
@@ -306,7 +300,7 @@ QDir TextFileLoadAndStoreStrategy::getObjectModelsPath() const {
 
 bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(const QDir &path) {
     if (!pathExists(path))
-        throw "Correspondences path does not exist";
+        return false;
     if (correspondencesPath == path)
         return true;
 

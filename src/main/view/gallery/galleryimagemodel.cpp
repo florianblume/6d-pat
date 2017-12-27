@@ -24,12 +24,12 @@ QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
 }
 
 int GalleryImageModel::rowCount(const QModelIndex &parent) const {
-    if (modelManager) {
-        return imagesCache.size();
-    }
-    return 0;
+    return imagesCache.size();
 }
 
 void GalleryImageModel::onImagesChanged() {
     imagesCache = modelManager->getImages();
+    QModelIndex top = index(0, 0);
+    QModelIndex bottom = index(imagesCache.size() - 1, 0);
+    emit dataChanged(top, bottom);
 }

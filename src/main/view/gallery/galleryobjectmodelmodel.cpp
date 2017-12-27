@@ -111,10 +111,18 @@ void GalleryObjectModelModel::onObjectModelsChanged() {
         objectModelsCache = std::move(modelManager->getObjectModels());
     else
         objectModelsCache.clear();
+
+    QModelIndex top = index(0, 0);
+    QModelIndex bottom = index(objectModelsCache.size() - 1, 0);
+    emit dataChanged(top, bottom);
 }
 
 void GalleryObjectModelModel::onImagesChanged() {
     // When the images change, the last selected image gets deselected
     // This means we have to reset the index
     currentSelectedImageIndex = -1;
+
+    QModelIndex top = index(0, 0);
+    QModelIndex bottom = index(objectModelsCache.size() - 1, 0);
+    emit dataChanged(top, bottom);
 }
