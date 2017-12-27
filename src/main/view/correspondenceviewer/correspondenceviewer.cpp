@@ -29,6 +29,8 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
                                      "image (if available) and normal image.");
     ui->buttonSwitchView->setEnabled(false);
 
+    //connect(ui->labelGraphics, SIGNAL(imageClicked(QPoint)), this, SIGNAL(imageClicked(Image*,QPoint)));
+
     setupRenderingPipeline();
 }
 
@@ -94,6 +96,7 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
         i++;
     }
     QImage image(imagePath);
+    ui->labelGraphics->setFixedSize(image.size());
     offscreenEngine->setSize(QSize(image.width(), image.height()));
     renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
     connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
@@ -109,8 +112,6 @@ void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorresponde
                                       objectModel->getAbsolutePath(), "");
 
     qDebug() << "Adding object model (" + objectModel->getPath() + ") to display.";
-
-    objectModelRenderables.push_back(newRenderable);
 }
 
 void CorrespondenceViewer::setImage(int index) {
@@ -137,7 +138,8 @@ void CorrespondenceViewer::setImage(int index) {
 }
 
 void CorrespondenceViewer::imageCaptured() {
-    createImageWithOverlay(QImage(currentlyDisplayedImage->getAbsoluteImagePath()), renderCaptureReply->image()).save("test.png");
+    renderedImage = renderCaptureReply->image();
+    updateDisplayedImage();
     delete renderCaptureReply;
 }
 
@@ -157,6 +159,14 @@ QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, con
     painter.end();
 
     return imageWithOverlay;
+}
+
+void CorrespondenceViewer::updateDisplayedImage() {
+    QString baseImage = showingNormalImage ?
+                                  currentlyDisplayedImage->getAbsoluteImagePath() :
+                                  currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
+    QImage image = createImageWithOverlay(QImage(baseImage), renderedImage);
+    ui->labelGraphics->setPixmap(QPixmap::fromImage(image));
 }
 
 void CorrespondenceViewer::updateCorrespondence(ObjectImageCorrespondence correspondence) {
@@ -184,9 +194,8 @@ void CorrespondenceViewer::switchImage() {
     Q_ASSERT(currentlyDisplayedImageIndex < images.size());
     Q_ASSERT(currentlyDisplayedImageIndex >= 0);
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
-    const Image &image = images.at(currentlyDisplayedImageIndex);
-    showImage(showingNormalImage ? image.getAbsoluteSegmentationImagePath() : image.getAbsoluteImagePath());
     showingNormalImage = !showingNormalImage;
+    updateDisplayedImage();
     if (showingNormalImage)
         qDebug() << "Setting viewer to display normal image.";
     else

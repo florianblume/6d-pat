@@ -59,7 +59,7 @@ public:
      * \return the list of all stored correspondences
      * \throws an exception if the path to the folder that should hold the correspondences has not been set previously
      */
-    QList<ObjectImageCorrespondence> loadCorrespondences() override;
+    QList<ObjectImageCorrespondence> loadCorrespondences(const QList<Image> &images, const QList<ObjectModel> &objectModels) override;
 
     /*!
      * \brief setImagesPath Sets the path to the folder where the images that are to be annotated are located. After setting the

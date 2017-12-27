@@ -95,13 +95,15 @@ public slots:
      * to the correspondence editor controls.
      */
     void onSelectedObjectModelChanged(int index);
+    void onImagesPathChangedByNavigation(const QString &path);
+    void onObjectModelsPathChangedByNavigation(const QString &path);
 
 signals:
     //! Those two methods are fired when the sub-views that display the correspondences fire them
     //! i.e. when the image in the lower left view is clicked, the first one is emitted, and when
     //! the 3D model (to create the first 2D to 3D point correspondence) is clicked, the second
     //! function is emitted.
-    void imageClicked(Image* image, QPointF position);
+    void imageClicked(Image* image, QPoint position);
     void objectModelClickedAt(ObjectModel* objectModel, QVector3D position);
     /*!
      * \brief selectedObjectModelChanged is triggered after the index of the object model is received.
@@ -120,7 +122,7 @@ private slots:
     void onActionAbortCreationTriggered();
     //! Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
     //! right clicks in the image to start creating a correspondence
-    void onImageClicked(Image* image, QPointF position);
+    void onImageClicked(Image* image, QPoint position);
     void onOverlayClickedAnywhere();
     void onPreferencesChanged(const QString &identifier);
 

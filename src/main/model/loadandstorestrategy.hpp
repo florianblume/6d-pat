@@ -51,7 +51,7 @@ public:
      * are stored depends on the strategy.
      * \return the list of all stored correspondences
      */
-    virtual QList<ObjectImageCorrespondence> loadCorrespondences() = 0;
+    virtual QList<ObjectImageCorrespondence> loadCorrespondences(const QList<Image> &images, const QList<ObjectModel> &objectModels) = 0;
 
     /*!
      * \brief pathExists Checks whether the given path exists on the file system and is accessible.

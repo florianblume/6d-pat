@@ -4,7 +4,7 @@
 CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy) : ModelManager(loadAndStoreStrategy) {
     images = loadAndStoreStrategy.loadImages();
     objectModels = loadAndStoreStrategy.loadObjectModels();
-    correspondences = loadAndStoreStrategy.loadCorrespondences();
+    correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
     createConditionalCache();
 
     connect(&loadAndStoreStrategy, SIGNAL(imagesChanged()),
@@ -187,7 +187,7 @@ bool CachingModelManager::removeObjectImageCorrespondence(ObjectImageCorresponde
 
 void CachingModelManager::onImagesChanged() {
     images = loadAndStoreStrategy.loadImages();
-    correspondences = loadAndStoreStrategy.loadCorrespondences();
+    correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
     createConditionalCache();
     emit imagesChanged();
     emit correspondencesChanged();
@@ -195,14 +195,14 @@ void CachingModelManager::onImagesChanged() {
 
 void CachingModelManager::onObjectModelsChanged() {
     objectModels = loadAndStoreStrategy.loadObjectModels();
-    correspondences = loadAndStoreStrategy.loadCorrespondences();
+    correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
     createConditionalCache();
     emit objectModelsChanged();
     emit correspondencesChanged();
 }
 
 void CachingModelManager::onCorrespondencesChanged() {
-    correspondences = loadAndStoreStrategy.loadCorrespondences();
+    correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
     createConditionalCache();
     emit correspondencesChanged();
 }

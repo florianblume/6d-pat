@@ -79,7 +79,7 @@ signals:
     /*!
      * \brief imageClicked emitted when the displayed image is clicked anywhere
      */
-    void imageClicked(Image *image, QPointF position);
+    void imageClicked(Image *image, QPoint position);
     /*!
      * \brief correspondenceClicked emitted when a displayed object model is clicked
      */
@@ -98,6 +98,7 @@ private:
     Qt3DRender::QRenderCaptureReply *renderCaptureReply;
     ImageRenderable *imageRenderable;                                           // not owned later anymore
     QList<ObjectModelRenderable*> objectModelRenderables;
+    QImage renderedImage;
 
     // The index of the image that is currently selected in the gallery and displayed here
     int currentlyDisplayedImageIndex = -1;
@@ -114,6 +115,7 @@ private:
     void setupSceneRoot();
     void deleteSceneObjects();
     QImage createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage);
+    void updateDisplayedImage();
 
 private slots:
     /*!
@@ -121,6 +123,7 @@ private slots:
      */
     void switchImage();
     void imageCaptured();
+    void imageClicked(QPoint point);
 };
 
 #endif // CORRESPONDENCEEDITOR_H

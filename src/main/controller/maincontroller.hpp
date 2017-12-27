@@ -8,18 +8,11 @@
 #include "view/gallery/galleryobjectmodelmodel.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
 #include "misc/globaltypedefs.h"
+#include "controller/correspondencecreator.h"
+
 #include <QApplication>
 #include <QMap>
 #include <QList>
-
-/*!
- * \brief The CorrespondingPoints struct a small helpful structure to temporary store the 2D - 3D correspondences
- */
-struct CorrespondingPoints {
-    QPointF pointIn2D;
-    const ObjectModel* objectModel;
-    QVector3D pointIn3D;
-};
 
 //! This class is responsible for the overall program to work. It maintains references to all the important parts and
 //! ensures them to work properly and updates or makes update-requests when necessary.
@@ -29,6 +22,7 @@ class MainController : public QApplication {
 private:
     TextFileLoadAndStoreStrategy strategy;
     CachingModelManager modelManager;
+    UniquePointer<CorrespondenceCreator> correspondenceCreator;
     MainWindow mainWindow;
     QMap<QString, ObjectModel*> segmentationCodes;
 
@@ -48,7 +42,7 @@ private:
     void setSegmentationCodesOnGalleryObjectModelModel();
 
 private slots:
-    void onImageClicked(Image* image, QPointF position);
+    void onImageClicked(Image* image, QPoint position);
     void onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position);
     void onCorrespondenceCreationAborted();
     void onImagePathChanged(const QString &newPath);

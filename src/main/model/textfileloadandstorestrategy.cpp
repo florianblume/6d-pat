@@ -246,7 +246,7 @@ void loadCorrespondencesFromFile(const QString &inFilePath, QList<ObjectImageCor
     }
 }
 
-QList<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondences() {
+QList<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondences(const QList<Image> &images, const QList<ObjectModel> &objectModels) {
     QList<ObjectImageCorrespondence> correspondences;
 
     //! See loadImages for why we don't throw an exception here
@@ -254,8 +254,8 @@ QList<ObjectImageCorrespondence> TextFileLoadAndStoreStrategy::loadCorrespondenc
         return correspondences;
     }
 
-    QMap<QString, const Image*> imageMap = createImageMap(loadImages());
-    QMap<QString,const ObjectModel*> objectModelMap = createObjectModelMap(loadObjectModels());
+    QMap<QString, const Image*> imageMap = createImageMap(images);
+    QMap<QString,const ObjectModel*> objectModelMap = createObjectModelMap(objectModels);
 
     QStringList fileFilter("*" + TextFileLoadAndStoreStrategy::CORRESPONDENCE_FILES_EXTENSION);
     QDirIterator it(correspondencesPath.path(), fileFilter, QDir::Files);
@@ -309,6 +309,8 @@ bool TextFileLoadAndStoreStrategy::setCorrespondencesPath(const QDir &path) {
         throw "Correspondences path does not exist";
     if (correspondencesPath == path)
         return true;
+
+    correspondencesPath = path;
 
     emit correspondencesPathChanged();
 
