@@ -20,7 +20,6 @@ SOURCES += \
     $$PWD/src/main/view/gallery/galleryimagemodel.cpp \
     $$PWD/src/main/view/gallery/galleryobjectmodelmodel.cpp \
     $$PWD/src/main/view/gallery/iconexpandinglistview.cpp \
-    $$PWD/src/main/view/aboutdialog/aboutdialog.cpp \
     $$PWD/src/main/view/settings/settingsdialog.cpp \
     $$PWD/src/main/view/settings/settingsgeneralpage.cpp \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.cpp \
@@ -29,7 +28,12 @@ SOURCES += \
     $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.cpp \
     $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.cpp \
     $$PWD/src/main/misc/preferences/preferencesstore.cpp\
-    $$PWD/src/main/misc/preferences/preferences.cpp
+    $$PWD/src/main/misc/preferences/preferences.cpp \
+    $$PWD/src/main/view/correspondenceviewer/texturerendertarget.cpp \
+    $$PWD/src/main/view/correspondenceviewer/offscreensurfaceframegraph.cpp \
+    $$PWD/src/main/view/correspondenceviewer/offscreenengine.cpp \
+    $$PWD/src/main/view/correspondenceviewer/imageviewlabel.cpp \
+    $$PWD/src/main/controller/correspondencecreator.cpp
 
 HEADERS  += \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
@@ -44,7 +48,6 @@ HEADERS  += \
     $$PWD/src/main/misc/otiathelper.h \
     $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.hpp \
     $$PWD/src/main/misc/globaltypedefs.h \
-    $$PWD/src/main/view/aboutdialog/aboutdialog.hpp \
     $$PWD/src/main/view/breadcrumb/breadcrumbview.hpp \
     $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.hpp \
     $$PWD/src/main/view/gallery/gallery.hpp \
@@ -58,13 +61,17 @@ HEADERS  += \
     $$PWD/src/main/view/settings/settingsgeneralpage.hpp \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.hpp \
     $$PWD/src/main/misc/preferences/preferences.hpp \
-    $$PWD/src/main/misc/preferences/preferencesstore.hpp
+    $$PWD/src/main/misc/preferences/preferencesstore.hpp \
+    $$PWD/src/main/view/correspondenceviewer/texturerendertarget.h \
+    $$PWD/src/main/view/correspondenceviewer/offscreensurfaceframegraph.h \
+    $$PWD/src/main/view/correspondenceviewer/offscreenengine.h \
+    $$PWD/src/main/view/correspondenceviewer/imageviewlabel.h \
+    $$PWD/src/main/controller/correspondencecreator.h
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \
     $$PWD/src/main/view/navigationcontrols/navigationcontrols.ui \
     $$PWD/src/main/view/gallery/gallery.ui \
-    $$PWD/src/main/view/aboutdialog/aboutdialog.ui \
     $$PWD/src/main/view/settings/settingsdialog.ui \
     $$PWD/src/main/view/settings/settingsgeneralpage.ui \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.ui \

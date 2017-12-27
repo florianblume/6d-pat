@@ -15,7 +15,7 @@ ImageRenderable::ImageRenderable(Qt3DCore::QNode *parent, const QString &imagePa
     textureMaterial->setTexture(texture);
     addComponent(textureMaterial);
     QImage image(imagePath);
-    mesh->setWidth(1 * (image.size().width() / (float) image.size().height()));
+    mesh->setWidth(1);
     mesh->setHeight(1);
     addComponent(mesh);
     transform->setRotationX(90.f);

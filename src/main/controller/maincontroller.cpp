@@ -15,6 +15,7 @@ MainController::MainController(int &argc, char *argv[]) :
     modelManager(strategy) {
     connect(preferencesStore.get(), SIGNAL(preferencesChanged(QString)),
             this, SLOT(onPreferencesChanged(QString)));
+    correspondenceCreator.reset(new CorrespondenceCreator(0, &modelManager));
 }
 
 MainController::~MainController() {
@@ -56,8 +57,8 @@ void MainController::initializeMainWindow() {
 
     //! Connect the main window's reactions to the user clicking on a displayed image or on an object
     //! model to delegate any further computation to this controller
-    connect(&mainWindow, SIGNAL(imageClicked(Image*,QPointF)),
-            this, SLOT(onImageClicked(Image*,QPointF)));
+    connect(&mainWindow, SIGNAL(imageClicked(Image*,QPoint)),
+            this, SLOT(onImageClicked(Image*,QPoint)));
     connect(&mainWindow, SIGNAL(objectModelClickedAt(ObjectModel*,QVector3D)),
             this, SLOT(onObjectModelClickedAt(ObjectModel*,QVector3D)));
     connect(&mainWindow, SIGNAL(correspondenceCreationAborted()), this, SLOT(onCorrespondenceCreationAborted()));
@@ -72,12 +73,10 @@ void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
     galleryObjectModelModel->setSegmentationCodesForObjectModels(currentPreferences->getSegmentationCodes());
 }
 
-void MainController::onImageClicked(Image* image, QPointF position) {
-    if (lastClickedImage != image)
-        correspondingPoints.clear();
-
-    lastClickedImage = image;
+void MainController::onImageClicked(Image* image, QPoint position) {
+    correspondenceCreator->addPointForImage(image, position);
     lastClickedImagePosition = position;
+
     // TODO: show how many points are missing until an actual correspondence can be created
     mainWindow.setStatusBarText("Please select the corresponding 3D point [" +
                             QString::number(correspondingPoints.size() + 1)
@@ -85,52 +84,16 @@ void MainController::onImageClicked(Image* image, QPointF position) {
 }
 
 void MainController::onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position) {
-    //! If we can't find a previously clicked position on the image just return, the user has to select a 2D
-    //! point on the image first
-    if (!lastClickedImage)
-        return;
-
-    correspondingPoints.append(CorrespondingPoints{lastClickedImagePosition, objectModel, position});
-
-    if (correspondingPoints.size() < 3) {
-        mainWindow.setStatusBarText("Please select another correspondence [" +
-                                QString::number(correspondingPoints.size() + 1)
-                                + " of 4].");
-    } else if (correspondingPoints.size() == 3) {
-        mainWindow.setStatusBarText("Please select the last correspondence.");
-    } else {
-        mainWindow.setStatusBarText("Creating correspondence, please wait.");
-        std::vector<cv::Point3d> objectPoints;
-        std::vector<cv::Point2d> imagePoints;
-        for (CorrespondingPoints &point : correspondingPoints) {
-            objectPoints.push_back(cv::Point3d(point.pointIn3D.x(), point.pointIn3D.y(), point.pointIn3D.z()));
-            imagePoints.push_back(cv::Point2d(point.pointIn2D.x(), point.pointIn2D.y()));
+    if (correspondenceCreator->hasImagePresent()) {
+        correspondenceCreator->addPointForObjectModel(objectModel, position);
+        int points = correspondenceCreator->numberOfCorrespondencePoints();
+        if (points < 4) {
+            mainWindow.setStatusBarText("Please select another correspondence [" +
+                                    QString::number( + 1)
+                                    + " of 4].");
+        } else {
+            mainWindow.setStatusBarText("Ready.");
         }
-
-        QImage loadedImage = QImage(lastClickedImage->getAbsoluteImagePath());
-        double focalLength = loadedImage.size().width(); // Approximate focal length.
-        cv::Point2d center = cv::Point2d(loadedImage.size().width()/2,loadedImage.size().height()/2);
-        cv::Mat cameraMatrix = (cv::Mat_<double>(3,3) << focalLength, 0, center.x, 0 , focalLength, center.y, 0, 0, 1);
-        cv::Mat coefficient = cv::Mat::zeros(4,1,cv::DataType<double>::type);
-
-        cv::Mat resultRotation;
-        cv::Mat resultTranslation;
-
-        cv::solvePnP(objectPoints, imagePoints, cameraMatrix, coefficient, resultRotation, resultTranslation);
-
-        // TODO: use translation values
-        ObjectImageCorrespondence correspondence = ObjectImageCorrespondence("", 0, 0, 0,
-                                  resultRotation.at<float>(0, 0),
-                                  resultRotation.at<float>(0, 1),
-                                  resultRotation.at<float>(0, 2),
-                                  0,
-                                  lastClickedImage,
-                                  objectModel);
-        modelManager.addObjectImageCorrespondence(correspondence);
-
-        correspondingPoints.clear();
-        lastClickedImage = Q_NULLPTR;
-        mainWindow.setStatusBarText("Ready.");
     }
 }
 

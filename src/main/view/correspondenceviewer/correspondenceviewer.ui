@@ -37,6 +37,12 @@
    </property>
    <item>
     <widget class="QFrame" name="frameGraphics">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
@@ -59,6 +65,35 @@
       <property name="spacing">
        <number>0</number>
       </property>
+      <item row="0" column="0">
+       <widget class="QFrame" name="frame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <widget class="ImageViewLabel" name="labelGraphics">
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>90</y>
+           <width>281</width>
+           <height>171</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -225,6 +260,16 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ImageViewLabel</class>
+   <extends>QLabel</extends>
+   <header>view/correspondenceviewer/imageviewlabel.h</header>
+   <slots>
+    <signal>imageClicked(QPoint)</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -243,8 +288,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>labelGraphics</sender>
+   <signal>imageClicked(QPoint)</signal>
+   <receiver>CorrespondenceViewer</receiver>
+   <slot>imageClicked(QPoint)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>230</x>
+     <y>175</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
+  <signal>imageClicked(Image*,QPoint)</signal>
   <slot>switchImage()</slot>
+  <slot>imageClicked(QPoint)</slot>
  </slots>
 </ui>

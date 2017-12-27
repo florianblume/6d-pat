@@ -7,19 +7,18 @@
 #include "model/modelmanager.hpp"
 #include "view/rendering/imagerenderable.hpp"
 #include "view/rendering/objectmodelrenderable.hpp"
+#include "offscreenengine.h"
 #include "misc/globaltypedefs.h"
+
 #include <QList>
 #include <QMap>
 #include <QWidget>
 #include <QSignalMapper>
 #include <QScopedPointer>
 #include <Qt3DCore/QEntity>
-#include <Qt3DExtras/Qt3DWindow>
-#include <Qt3DRender/QObjectPicker>
-#include <Qt3DRender/QPickEvent>
+#include <Qt3DRender/QCamera>
+#include <Qt3DRender/QRenderCaptureReply>
 #include <QtAwesome/QtAwesome.h>
-#include <Qt3DRender/QDepthTest>
-#include <Qt3DRender/QRenderSettings>
 
 namespace Ui {
 class CorrespondenceViewer;
@@ -80,7 +79,7 @@ signals:
     /*!
      * \brief imageClicked emitted when the displayed image is clicked anywhere
      */
-    void imageClicked(Image *image, QPointF position);
+    void imageClicked(Image *image, QPoint position);
     /*!
      * \brief correspondenceClicked emitted when a displayed object model is clicked
      */
@@ -91,26 +90,15 @@ private:
     Ui::CorrespondenceViewer *ui;
     QtAwesome* awesome;
     ModelManager* modelManager;
-    Qt3DExtras::Qt3DWindow *graphicsWindow = NULL;
 
     // All necessary stuff for 3D
-    Qt3DCore::QEntity *rootEntity;                                              // not owned later anymore
-    Qt3DCore::QEntity *sceneEntity;                                             // not owned later anymore
-    Qt3DRender::QRenderSettings *frameGraph;                                    // not owned later anymore
+    OffscreenEngine *offscreenEngine;
+    Qt3DRender::QCamera *camera;
+    Qt3DCore::QEntity *sceneEntity;
+    Qt3DRender::QRenderCaptureReply *renderCaptureReply;
     ImageRenderable *imageRenderable;                                           // not owned later anymore
-    Qt3DRender::QObjectPicker *imageObjectPicker;                               // not owned later anymore
     QList<ObjectModelRenderable*> objectModelRenderables;
-    QMap<QString, ObjectModelRenderable*> objectModelToRenderablePointerMap;
-    QList<Qt3DRender::QObjectPicker*> objectModelsPickers;
-
-    QList<ObjectImageCorrespondence*> correspondences;
-
-    // Maps the picking signals from our object pickers to the respective object model
-    UniquePointer<QSignalMapper> objectModelPickerSignalMapper{new QSignalMapper};
-
-    // Because a object model can be added through the updateCorrespondence method, we need to keep
-    // track of the indeces to corretly link the object pickers
-    int currentObjectModelSignalMapperIndex = 0;
+    QImage renderedImage;
 
     // The index of the image that is currently selected in the gallery and displayed here
     int currentlyDisplayedImageIndex = -1;
@@ -118,20 +106,24 @@ private:
     // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
     // segmentation image
     bool showingNormalImage = true;
+
     void showImage(const QString &imagePath);
     void addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
                                   int objectModelIndex);
-    void setupGraphicsWindow();
+
+    void setupRenderingPipeline();
     void setupSceneRoot();
     void deleteSceneObjects();
+    QImage createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage);
+    void updateDisplayedImage();
 
 private slots:
     /*!
      * \brief showSegmentationImage is there for the switch view button
      */
     void switchImage();
-    void imageObjectPickerPressed(Qt3DRender::QPickEvent *pick);
-    void objectModelObjectPickerPressed(int index);
+    void imageCaptured();
+    void imageClicked(QPoint point);
 };
 
 #endif // CORRESPONDENCEEDITOR_H

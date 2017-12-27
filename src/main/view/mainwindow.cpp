@@ -1,6 +1,5 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
-#include "view/aboutdialog/aboutdialog.hpp"
 #include "view/settings/settingsdialog.hpp"
 #include <QSettings>
 #include <QCloseEvent>
@@ -154,8 +153,17 @@ void MainWindow::setStatusBarText(const QString& text) {
 
 void MainWindow::onActionAboutTriggered()
 {
-    AboutDialog* aboutDialog = new AboutDialog(this);
-    aboutDialog->show();
+    QMessageBox::about(this, tr("About Otiat"), tr("Object to image annotator, "
+                                                   "or shorter Otiat, is a tool "
+                                                   "that allows users to drag and "
+                                                   "position 3D models of objects "
+                                                   "on images. Depending on the "
+                                                   "selected storage options the "
+                                                   "position and rotation are "
+                                                   "persisted for later use. "
+                                                   "The so annotated images can "
+                                                   "be used to e.g. train a neural "
+                                                   "network."));
 }
 
 void MainWindow::onActionExitTriggered()
@@ -177,7 +185,7 @@ void MainWindow::onActionAbortCreationTriggered() {
 }
 
 //! Mouse handling, i.e. clicking in the lower left widget and dragging a line to the lower right widget
-void MainWindow::onImageClicked(Image* image, QPointF position) {
+void MainWindow::onImageClicked(Image* image, QPoint position) {
     //! No need to check for whether the right widget was clicked because the only time this method
     //! will be called is when the object image picker received a click on the image
     if (ui->correspondenceEditor->isDisplayingObjectModel()) {
@@ -219,6 +227,18 @@ void MainWindow::onSelectedObjectModelChanged(int index) {
     const QList<ObjectModel> &objectModels = modelManager->getObjectModels();
     Q_ASSERT(index >= 0 && index < objectModels.size());
     emit selectedObjectModelChanged(new ObjectModel(objectModels.at(index)));
+}
+
+void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
+    UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier("default");
+    preferences->setImagesPath(path);
+    preferencesStore->savePreferences(preferences.get());
+}
+
+void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
+    UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier("default");
+    preferences->setObjectModelsPath(path);
+    preferencesStore->savePreferences(preferences.get());
 }
 
 void MainWindow::onPreferencesChanged(const QString &identifier) {

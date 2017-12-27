@@ -24,6 +24,11 @@ public:
     ~NavigationControls();
     void setPathToOpen(const QString &pathpath);
 
+public slots:
+    void folderButtonClicked();
+    void buttonNavigateLeftClicked();
+    void buttonNavigateRightClicked();
+
 signals:
     void navigateLeft();
     void navigateRight();
@@ -32,11 +37,6 @@ signals:
 private:
     QString currentPath = "";
     Ui::NavigationControls *ui;
-
-public slots:
-    void folderButtonClicked();
-    void buttonNavigateLeftClicked();
-    void buttonNavigateRightClicked();
 };
 
 #endif // NAVIGATIONCONTROLS_H
