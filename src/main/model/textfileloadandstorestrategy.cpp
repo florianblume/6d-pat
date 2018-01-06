@@ -229,8 +229,8 @@ void loadCorrespondencesFromFile(const QString &inFilePath, QList<ObjectImageCor
                 //! but instead simply don't load correspondences that don't find their
                 //! entities
                 ObjectImageCorrespondence correspondence(splitLine[0], // ID
-                                                      splitLine[3].toInt(), splitLine[4].toInt(), splitLine[5].toInt(), // Pos
-                                                      splitLine[6].toInt(), splitLine[7].toInt(), splitLine[8].toInt(), // Rot
+                                                      splitLine[3].toFloat(), splitLine[4].toFloat(), splitLine[5].toFloat(), // Pos
+                                                      splitLine[6].toFloat(), splitLine[7].toFloat(), splitLine[8].toFloat(), // Rot
                                                       splitLine[9].toFloat(), // Articulation
                                                       image,
                                                       objectModel);

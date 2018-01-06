@@ -9,9 +9,9 @@ OffscreenEngine::OffscreenEngine(Qt3DRender::QCamera *camera, const QSize &size)
     root.reset(new Qt3DCore::QEntity());
     renderSettings = new Qt3DRender::QRenderSettings(root.data());
     root->addComponent(renderSettings);
-    renderCapture = new Qt3DRender::QRenderCapture(renderSettings);
-    renderSettings->setActiveFrameGraph(renderCapture);
-    offscreenFrameGraph = new OffscreenSurfaceFrameGraph(renderCapture, camera, size);
+    offscreenFrameGraph = new OffscreenSurfaceFrameGraph(renderSettings, camera, size);
+    renderSettings->setActiveFrameGraph(offscreenFrameGraph);
+    renderCapture = new Qt3DRender::QRenderCapture(offscreenFrameGraph->getLastNode());
     aspectEngine->setRootEntity(root);
 }
 

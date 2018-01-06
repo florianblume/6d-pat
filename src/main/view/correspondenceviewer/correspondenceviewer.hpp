@@ -94,11 +94,18 @@ private:
     // All necessary stuff for 3D
     OffscreenEngine *offscreenEngine;
     Qt3DRender::QCamera *camera;
-    Qt3DCore::QEntity *sceneEntity;
+    // This is the total scene root entity that will hold the camera and the sceneObjectsEntity
+    // We have this entity because to delete the objects in the scene we have to delete the
+    // entity that is the parent of all objects. If we had placed the camera as a child of said
+    // entity it would get deleted on scene reset. This is why we have the root as well as the
+    // entity that "holds" the actual objects.
+    Qt3DCore::QEntity *sceneRoot = Q_NULLPTR;
+    Qt3DCore::QEntity *sceneObjectsEntity = Q_NULLPTR;
     Qt3DRender::QRenderCaptureReply *renderCaptureReply;
-    ImageRenderable *imageRenderable;                                           // not owned later anymore
+    ImageRenderable *imageRenderable;
     QList<ObjectModelRenderable*> objectModelRenderables;
     QImage renderedImage;
+    bool imageReady = false;
 
     // The index of the image that is currently selected in the gallery and displayed here
     int currentlyDisplayedImageIndex = -1;

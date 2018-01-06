@@ -8,6 +8,9 @@
 #include <Qt3DRender/QCamera>
 #include <Qt3DExtras/QFirstPersonCameraController>
 #include <QOffscreenSurface>
+#include <Qt3DExtras/QTorusMesh>
+#include <Qt3DExtras/QPhongMaterial>
+#include <Qt3DCore/QTransform>
 
 CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelManager) :
     QWidget(parent),
@@ -42,32 +45,36 @@ void CorrespondenceViewer::deleteSceneObjects() {
     // It's a bit confusing of what the 3D window takes ownership and of what not...
     // This is why we use the QPointer class to be able to surely tell when a pointer
     // is null and thus we should not try to delet it
-    if (sceneEntity) {
-        delete sceneEntity;
-        sceneEntity = Q_NULLPTR;
+    if (sceneObjectsEntity) {
+        //delete sceneObjectsEntity;
+        //sceneObjectsEntity = Q_NULLPTR;
     }
 }
 
 void CorrespondenceViewer::setupRenderingPipeline() {
     qDebug() << "Setting up rendering pipeline.";
 
-    // Setup root node
-    sceneEntity = new Qt3DCore::QEntity();
+    sceneRoot = new Qt3DCore::QEntity();
+
+    sceneObjectsEntity = new Qt3DCore::QEntity(sceneRoot);
 
     // Setup camera
-    camera = new Qt3DRender::QCamera();
-    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
-    camera->setPosition(QVector3D(0.f, 0.f, 0.f));
-    camera->setViewCenter(QVector3D(0, 0, 0));
+    camera = new Qt3DRender::QCamera(sceneRoot);
+    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.01f, 1000.0f);
+    camera->setPosition(QVector3D(0.f, 0.f, 100.f));
+    camera->setUpVector(QVector3D(0.f, 1.f, 0.f));
+    camera->setViewCenter(QVector3D(0.f, 0.f, 0.f));
 
     offscreenEngine = new OffscreenEngine(camera, QSize(500, 500));
-    offscreenEngine->setSceneRoot(sceneEntity);
+    offscreenEngine->setSceneRoot(sceneRoot);
 }
 
 void CorrespondenceViewer::setupSceneRoot() {
-    delete sceneEntity;
-    sceneEntity = new Qt3DCore::QEntity();
-    offscreenEngine->setSceneRoot(sceneEntity);
+    // This recursively deletes all objects that are children of the entity
+    if (sceneObjectsEntity) {
+        delete sceneObjectsEntity;
+        sceneObjectsEntity = new Qt3DCore::QEntity(sceneRoot);
+    }
 }
 
 void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
@@ -80,8 +87,21 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
     // Set root entity here as parent so that image is a child of it
     qDebug() << "Displaying image (" + imagePath + ").";
 
-    // Create the image plane that displays the image
-    imageRenderable = new ImageRenderable(sceneEntity, imagePath);
+    Qt3DCore::QEntity *torusEntity = new Qt3DCore::QEntity(sceneObjectsEntity);
+
+    Qt3DExtras::QTorusMesh *torus = new Qt3DExtras::QTorusMesh(torusEntity);
+    torus->setMinorRadius(0.4f);
+    torus->setRadius(1.9f);
+    torus->setSlices(30);
+    torus->setRings(30);
+    Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial(torus);
+    material->setAmbient(QColor(155, 255, 155, 255));
+    Qt3DCore::QTransform *torusTranform = new Qt3DCore::QTransform(torus);
+    //torusTranform->setScale(0.4f);
+    torusTranform->setTranslation(QVector3D(0, 0, 0));
+    torusEntity->addComponent(torus);
+    torusEntity->addComponent(material);
+    torusEntity->addComponent(torusTranform);
 
     QList<ObjectImageCorrespondence> correspondencesForImage =
             modelManager->getCorrespondencesForImage(modelManager->getImages().at(currentlyDisplayedImageIndex));
@@ -104,8 +124,9 @@ void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorresponde
     // We do not need to take care of deleting the renderables, the destructor of this class
     // or the start of this function will do this
     ObjectModelRenderable *newRenderable =
-            new ObjectModelRenderable(sceneEntity,
+            new ObjectModelRenderable(sceneObjectsEntity,
                                       objectModel->getAbsolutePath(), "");
+    newRenderable->getTransform()->setScale(0.4f);
 
     qDebug() << "Adding object model (" + objectModel->getPath() + ") to display.";
 }
@@ -134,9 +155,22 @@ void CorrespondenceViewer::setImage(int index) {
 }
 
 void CorrespondenceViewer::imageCaptured() {
-    renderedImage = renderCaptureReply->image();
-    updateDisplayedImage();
-    delete renderCaptureReply;
+    // The first image is somehow always empty, so request another capture and save that
+
+    if (!imageReady) {
+        disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
+        delete renderCaptureReply;
+        renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
+        connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
+        imageReady = true;
+    } else {
+        renderedImage = renderCaptureReply->image();
+        renderedImage.save("test.png");
+        updateDisplayedImage();
+        disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
+        delete renderCaptureReply;
+        imageReady = false;
+    }
 }
 
 QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage) {
@@ -161,7 +195,7 @@ void CorrespondenceViewer::updateDisplayedImage() {
     QString baseImage = showingNormalImage ?
                                   currentlyDisplayedImage->getAbsoluteImagePath() :
                                   currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
-    QImage image = createImageWithOverlay(QImage(baseImage), renderedImage);
+    QImage image =  createImageWithOverlay(QImage(baseImage), renderedImage);
     ui->labelGraphics->setPixmap(QPixmap::fromImage(image));
 }
 
@@ -191,7 +225,7 @@ void CorrespondenceViewer::switchImage() {
     Q_ASSERT(currentlyDisplayedImageIndex >= 0);
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
     showingNormalImage = !showingNormalImage;
-    updateDisplayedImage();
+    //updateDisplayedImage();
     if (showingNormalImage)
         qDebug() << "Setting viewer to display normal image.";
     else

@@ -25,7 +25,7 @@ void CorrespondenceCreator::abortCreation() {
 
 void CorrespondenceCreator::addPointForImage(Image *image, QPoint point2D) {
     Q_ASSERT(image);
-    if (image != image) {
+    if (this->image != image) {
         points.clear();
         objectModel = Q_NULLPTR;
         this->image = image;
@@ -37,8 +37,8 @@ void CorrespondenceCreator::addPointForObjectModel(ObjectModel *objectModel, QVe
     Q_ASSERT(objectModel);
     Q_ASSERT(image);
 
-    if (objectModel != objectModel) {
-        points.clear();;
+    if (this->objectModel != objectModel) {
+        points.clear();
         this->objectModel = objectModel;
     }
 
@@ -82,11 +82,11 @@ void CorrespondenceCreator::addPointForObjectModel(ObjectModel *objectModel, QVe
 }
 
 bool CorrespondenceCreator::hasImagePresent() {
-    return objectModel != Q_NULLPTR;
+    return image != Q_NULLPTR;
 }
 
 bool CorrespondenceCreator::hasObjectModelPresent() {
-    return image != Q_NULLPTR;
+    return objectModel != Q_NULLPTR;
 }
 
 int CorrespondenceCreator::numberOfCorrespondencePoints() {

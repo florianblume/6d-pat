@@ -9,12 +9,15 @@
 #include <Qt3DRender/QClearBuffers>
 #include <Qt3DRender/QCameraSelector>
 #include <Qt3DRender/QCamera>
+#include <Qt3DRender/QRenderStateSet>
+#include <Qt3DRender/QMultiSampleAntiAliasing>
 
 class OffscreenSurfaceFrameGraph : public Qt3DRender::QRenderSurfaceSelector
 {
 public:
     OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent = nullptr, Qt3DRender::QCamera *camera = nullptr, const QSize &size = QSize(500, 500));
     void setSize(const QSize &size);
+    Qt3DCore::QNode *getLastNode();
 
 private:
     TextureRenderTarget *textureTarget;
@@ -24,6 +27,8 @@ private:
     Qt3DRender::QClearBuffers *clearBuffers;
     Qt3DRender::QCameraSelector *cameraSelector;
     Qt3DRender::QCamera *camera;
+    Qt3DRender::QRenderStateSet *renderStateSet;
+    Qt3DRender::QMultiSampleAntiAliasing *multiSample;
 
 };
 

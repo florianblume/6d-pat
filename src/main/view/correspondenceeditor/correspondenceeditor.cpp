@@ -88,7 +88,7 @@ void CorrespondenceEditor::setup3DView() {
      */
     Qt3DRender::QClearBuffers *clearBuffers = new Qt3DRender::QClearBuffers(mainViewport);
     clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthBuffer);
-    clearBuffers->setClearColor(QColor(220, 220, 220, 255));
+    clearBuffers->setClearColor(QColor(255, 255, 255, 255));
 
     /*
      * Second branch holding the viewport of the front facing view
@@ -127,9 +127,9 @@ void CorrespondenceEditor::setup3DView() {
 }
 
 void CorrespondenceEditor::updateCameraLenses() {
-    float aspectRatio = this->width() / (float) this->height();
-    leftCamera->lens()->setPerspectiveProjection(cameraFieldOfView() * aspectRatio, aspectRatio, 0.1f, 1000.0f);
-    rightCamera->lens()->setPerspectiveProjection(cameraFieldOfView() * aspectRatio, aspectRatio, 0.1f, 1000.0f);
+    float aspectRatio = this->width() / ((float) this->height() * 1.5f);
+    leftCamera->setAspectRatio(aspectRatio);
+    rightCamera->setAspectRatio(aspectRatio);
 }
 
 void CorrespondenceEditor::resetCameras() {
@@ -255,9 +255,7 @@ void CorrespondenceEditor::objectPickerClicked(Qt3DRender::QPickEvent *pick) {
     if (pick->button() != Qt::LeftButton)
         return;
 
-    QVector3D point = QVector3D(pick->localIntersection().x(),
-                                pick->localIntersection().y(),
-                                pick->localIntersection().z());
+    QVector3D point = pick->localIntersection();
     qDebug() << "Object model (" + currentObjectModel->getPath() + ") clicked at: ("
                 + QString::number(point.x()) + ", "
                 + QString::number(point.y()) + ", "

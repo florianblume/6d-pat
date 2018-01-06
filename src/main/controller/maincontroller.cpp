@@ -89,7 +89,7 @@ void MainController::onObjectModelClickedAt(ObjectModel* objectModel, QVector3D 
         int points = correspondenceCreator->numberOfCorrespondencePoints();
         if (points < 4) {
             mainWindow.setStatusBarText("Please select another correspondence [" +
-                                    QString::number( + 1)
+                                    QString::number(points)
                                     + " of 4].");
         } else {
             mainWindow.setStatusBarText("Ready.");

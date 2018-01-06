@@ -19,19 +19,23 @@ OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent, 
     textureTarget = new TextureRenderTarget(renderTargetSelector, size);
     renderTargetSelector->setTarget(textureTarget);
 
-    // Set the viewport for the render target selector so that it knows
-    // what to draw
-    viewport = new Qt3DRender::QViewport(this);
+    clearBuffers = new Qt3DRender::QClearBuffers(renderTargetSelector);
+    // Does not matter, as we draw the image over the whole background anyway
+    clearBuffers->setClearColor(QColor(255, 255, 255, 0));
+    clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthBuffer);
+
+    viewport = new Qt3DRender::QViewport(renderTargetSelector);
     viewport->setNormalizedRect(QRectF(0.0, 0.0, 1.0, 1.0));
+
     cameraSelector = new Qt3DRender::QCameraSelector(viewport);
     cameraSelector->setCamera(camera);
-    clearBuffers = new Qt3DRender::QClearBuffers(cameraSelector);
-    // Does not matter, as we draw the image over the whole background anyway
-    clearBuffers->setClearColor(QColor(255, 255, 255, 255));
-    clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthBuffer);
 }
 
 void OffscreenSurfaceFrameGraph::setSize(const QSize &size) {
     textureTarget->setSize(size);
     setExternalRenderTargetSize(size);
+}
+
+Qt3DCore::QNode *OffscreenSurfaceFrameGraph::getLastNode() {
+    return cameraSelector;
 }
