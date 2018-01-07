@@ -43,9 +43,6 @@ CorrespondenceViewer::~CorrespondenceViewer()
 }
 
 void CorrespondenceViewer::deleteSceneObjects() {
-    // It's a bit confusing of what the 3D window takes ownership and of what not...
-    // This is why we use the QPointer class to be able to surely tell when a pointer
-    // is null and thus we should not try to delet it
     if (sceneObjectsEntity) {
         //delete sceneObjectsEntity;
         //sceneObjectsEntity = Q_NULLPTR;
@@ -106,6 +103,7 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
         i++;
     }
 
+    // This is just to retrieve the size of the set image
     QImage image(imagePath);
     ui->labelGraphics->setFixedSize(image.size());
     offscreenEngine->setSize(QSize(image.width(), image.height()));
