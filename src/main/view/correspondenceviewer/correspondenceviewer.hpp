@@ -7,7 +7,7 @@
 #include "model/modelmanager.hpp"
 #include "view/rendering/imagerenderable.hpp"
 #include "view/rendering/objectmodelrenderable.hpp"
-#include "offscreenengine.h"
+#include "view/rendering/offscreenengine.h"
 #include "misc/globaltypedefs.h"
 
 #include <QList>
@@ -94,6 +94,7 @@ private:
     // All necessary stuff for 3D
     OffscreenEngine *offscreenEngine;
     Qt3DRender::QCamera *camera;
+    Qt3DCore::QEntity *lightEntity;
     // This is the total scene root entity that will hold the camera and the sceneObjectsEntity
     // We have this entity because to delete the objects in the scene we have to delete the
     // entity that is the parent of all objects. If we had placed the camera as a child of said

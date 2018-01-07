@@ -5,6 +5,7 @@
 #include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DRender/QRenderSurfaceSelector>
 #include <Qt3DRender/QRenderTargetSelector>
+#include <Qt3DRender/QPointLight>
 #include <Qt3DRender/QCamera>
 #include <Qt3DExtras/QFirstPersonCameraController>
 #include <QOffscreenSurface>
@@ -61,9 +62,18 @@ void CorrespondenceViewer::setupRenderingPipeline() {
     // Setup camera
     camera = new Qt3DRender::QCamera(sceneRoot);
     camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.01f, 1000.0f);
-    camera->setPosition(QVector3D(0.f, 0.f, 100.f));
+    camera->setPosition(QVector3D(-300.f, 10.f, -200.f));
     camera->setUpVector(QVector3D(0.f, 1.f, 0.f));
     camera->setViewCenter(QVector3D(0.f, 0.f, 0.f));
+
+    lightEntity = new Qt3DCore::QEntity(sceneRoot);
+    Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
+    light->setColor("white");
+    light->setIntensity(1);
+    lightEntity->addComponent(light);
+    Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
+    lightTransform->setTranslation(camera->position());
+    lightEntity->addComponent(lightTransform);
 
     offscreenEngine = new OffscreenEngine(camera, QSize(500, 500));
     offscreenEngine->setSceneRoot(sceneRoot);
@@ -87,22 +97,6 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
     // Set root entity here as parent so that image is a child of it
     qDebug() << "Displaying image (" + imagePath + ").";
 
-    Qt3DCore::QEntity *torusEntity = new Qt3DCore::QEntity(sceneObjectsEntity);
-
-    Qt3DExtras::QTorusMesh *torus = new Qt3DExtras::QTorusMesh(torusEntity);
-    torus->setMinorRadius(0.4f);
-    torus->setRadius(1.9f);
-    torus->setSlices(30);
-    torus->setRings(30);
-    Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial(torus);
-    material->setAmbient(QColor(155, 255, 155, 255));
-    Qt3DCore::QTransform *torusTranform = new Qt3DCore::QTransform(torus);
-    //torusTranform->setScale(0.4f);
-    torusTranform->setTranslation(QVector3D(0, 0, 0));
-    torusEntity->addComponent(torus);
-    torusEntity->addComponent(material);
-    torusEntity->addComponent(torusTranform);
-
     QList<ObjectImageCorrespondence> correspondencesForImage =
             modelManager->getCorrespondencesForImage(modelManager->getImages().at(currentlyDisplayedImageIndex));
 
@@ -111,6 +105,7 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
         addObjectModelRenderable(correspondence, i);
         i++;
     }
+
     QImage image(imagePath);
     ui->labelGraphics->setFixedSize(image.size());
     offscreenEngine->setSize(QSize(image.width(), image.height()));
@@ -126,7 +121,6 @@ void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorresponde
     ObjectModelRenderable *newRenderable =
             new ObjectModelRenderable(sceneObjectsEntity,
                                       objectModel->getAbsolutePath(), "");
-    newRenderable->getTransform()->setScale(0.4f);
 
     qDebug() << "Adding object model (" + objectModel->getPath() + ") to display.";
 }
@@ -165,7 +159,6 @@ void CorrespondenceViewer::imageCaptured() {
         imageReady = true;
     } else {
         renderedImage = renderCaptureReply->image();
-        renderedImage.save("test.png");
         updateDisplayedImage();
         disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
         delete renderCaptureReply;

@@ -16,6 +16,7 @@ ObjectModelRenderable::ObjectModelRenderable(QNode *parent, const QString &meshP
 
     // TODO: Temporary before loading the actual material works
     phongMaterial = new Qt3DExtras::QPhongMaterial(this);
+    phongMaterial->setDiffuse(QColor(QRgb(0xbeb32b)));
     addComponent(phongMaterial);
 
     //texture->addTextureImage(textureImage);

@@ -29,9 +29,9 @@ SOURCES += \
     $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.cpp \
     $$PWD/src/main/misc/preferences/preferencesstore.cpp\
     $$PWD/src/main/misc/preferences/preferences.cpp \
-    $$PWD/src/main/view/correspondenceviewer/texturerendertarget.cpp \
-    $$PWD/src/main/view/correspondenceviewer/offscreensurfaceframegraph.cpp \
-    $$PWD/src/main/view/correspondenceviewer/offscreenengine.cpp \
+    $$PWD/src/main/view/rendering/texturerendertarget.cpp \
+    $$PWD/src/main/view/rendering/offscreensurfaceframegraph.cpp \
+    $$PWD/src/main/view/rendering/offscreenengine.cpp \
     $$PWD/src/main/view/correspondenceviewer/imageviewlabel.cpp \
     $$PWD/src/main/controller/correspondencecreator.cpp
 
@@ -62,9 +62,9 @@ HEADERS  += \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.hpp \
     $$PWD/src/main/misc/preferences/preferences.hpp \
     $$PWD/src/main/misc/preferences/preferencesstore.hpp \
-    $$PWD/src/main/view/correspondenceviewer/texturerendertarget.h \
-    $$PWD/src/main/view/correspondenceviewer/offscreensurfaceframegraph.h \
-    $$PWD/src/main/view/correspondenceviewer/offscreenengine.h \
+    $$PWD/src/main/view/rendering/texturerendertarget.h \
+    $$PWD/src/main/view/rendering/offscreensurfaceframegraph.h \
+    $$PWD/src/main/view/rendering/offscreenengine.h \
     $$PWD/src/main/view/correspondenceviewer/imageviewlabel.h \
     $$PWD/src/main/controller/correspondencecreator.h
 
