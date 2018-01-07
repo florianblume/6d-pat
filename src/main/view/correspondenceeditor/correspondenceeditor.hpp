@@ -8,6 +8,7 @@
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DRender/QObjectPicker>
 #include <Qt3DRender/QPickEvent>
+#include <Qt3DRender/QViewport>
 #include <Qt3DExtras/QOrbitCameraController>
 #include <Qt3DRender/QCamera>
 
@@ -78,6 +79,11 @@ private:
     void setEnabledAllControls(bool enabled);
     void resetControlsValues();
     void setup3DView();
+    void setupCamera(Qt3DRender::QCamera *&camera,
+                     QVector3D position,
+                     QVector3D lightPosition,
+                     Qt3DRender::QViewport *mainViewport,
+                     QRectF viewportRect);
     void setObjectModelOnGraphicsWindow(const QString &objectModel);
     void updateCameraLenses();
     void resetCameras();

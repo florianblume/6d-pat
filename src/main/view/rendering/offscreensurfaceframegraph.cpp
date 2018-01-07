@@ -29,6 +29,13 @@ OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent, 
 
     cameraSelector = new Qt3DRender::QCameraSelector(viewport);
     cameraSelector->setCamera(camera);
+
+    renderStateSet = new Qt3DRender::QRenderStateSet(cameraSelector);
+    //multiSample = new Qt3DRender::QMultiSampleAntiAliasing(renderStateSet);
+    depthTest = new Qt3DRender::QDepthTest(renderStateSet);
+    depthTest->setDepthFunction(Qt3DRender::QDepthTest::Less);
+    //renderStateSet->addRenderState(multiSample);
+    renderStateSet->addRenderState(depthTest);
 }
 
 void OffscreenSurfaceFrameGraph::setSize(const QSize &size) {

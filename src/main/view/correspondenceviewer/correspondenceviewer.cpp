@@ -44,8 +44,8 @@ CorrespondenceViewer::~CorrespondenceViewer()
 
 void CorrespondenceViewer::deleteSceneObjects() {
     if (sceneObjectsEntity) {
-        //delete sceneObjectsEntity;
-        //sceneObjectsEntity = Q_NULLPTR;
+        delete sceneObjectsEntity;
+        sceneObjectsEntity = Q_NULLPTR;
     }
 }
 
@@ -80,8 +80,8 @@ void CorrespondenceViewer::setupSceneRoot() {
     // This recursively deletes all objects that are children of the entity
     if (sceneObjectsEntity) {
         delete sceneObjectsEntity;
-        sceneObjectsEntity = new Qt3DCore::QEntity(sceneRoot);
     }
+    sceneObjectsEntity = new Qt3DCore::QEntity(sceneRoot);
 }
 
 void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
@@ -106,6 +106,7 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
     // This is just to retrieve the size of the set image
     QImage image(imagePath);
     ui->labelGraphics->setFixedSize(image.size());
+    // Not necessary to set size first but can't hurt
     offscreenEngine->setSize(QSize(image.width(), image.height()));
     renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
     connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));

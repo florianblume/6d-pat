@@ -7,7 +7,8 @@
 #include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DRender/QRenderSettings>
 #include <Qt3DRender/QCameraSelector>
-#include <Qt3DRender/QViewport>
+#include <Qt3DRender/QPointLight>
+#include <Qt3DCore/QTransform>
 #include <QUrl>
 #include <QThread>
 
@@ -76,6 +77,7 @@ void CorrespondenceEditor::setup3DView() {
     // Setup the framegraph that holds the render settings
     framegraphEntity = new Qt3DRender::QRenderSettings(rootEntity);
     framegraphEntity->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    framegraphEntity->setRenderPolicy(Qt3DRender::QRenderSettings::OnDemand);
     rootEntity->addComponent(framegraphEntity);
 
     Qt3DRender::QRenderSurfaceSelector *renderSurfaceSelector = new Qt3DRender::QRenderSurfaceSelector;
@@ -93,30 +95,14 @@ void CorrespondenceEditor::setup3DView() {
     /*
      * Second branch holding the viewport of the front facing view
      */
-    leftCamera = new Qt3DRender::QCamera(rootEntity);
-    leftCamera->setPosition(QVector3D(0.f, 0.f, 100.f));
-    leftCamera->setViewCenter(QVector3D(0, 0, 0));
-
-    Qt3DExtras::QOrbitCameraController *leftOrbitController = new Qt3DExtras::QOrbitCameraController(leftCamera);
-    leftOrbitController->setCamera(leftCamera);
-    Qt3DRender::QViewport *leftViewport = new Qt3DRender::QViewport(mainViewport);
-    leftViewport->setNormalizedRect(QRectF(0.0, 0.0, 0.5, 1.0));
-    Qt3DRender::QCameraSelector *leftCameraSelector = new Qt3DRender::QCameraSelector(leftViewport);
-    leftCameraSelector->setCamera(leftCamera);
+    setupCamera(leftCamera, QVector3D(0.f, 0.f, 100.f), QVector3D(0.f, 0.f, 100.f),
+                mainViewport, QRectF(0.0, 0.0, 0.5, 1.0));
 
     /*
      * Third branch holding the viewport of the back facing view
      */
-    rightCamera = new Qt3DRender::QCamera(rootEntity);
-    rightCamera->setNearPlane(0.01f);
-    rightCamera->setFarPlane(1000.f);
-
-    Qt3DExtras::QOrbitCameraController *rightOrbitController = new Qt3DExtras::QOrbitCameraController(rightCamera);
-    rightOrbitController->setCamera(rightCamera);
-    Qt3DRender::QViewport *rightViewport = new Qt3DRender::QViewport(mainViewport);
-    rightViewport->setNormalizedRect(QRectF(0.5, 0.0, 0.5, 1.0));
-    Qt3DRender::QCameraSelector *rightCameraSelector = new Qt3DRender::QCameraSelector(rightViewport);
-    rightCameraSelector->setCamera(rightCamera);
+    setupCamera(rightCamera, QVector3D(0.f, 0.f, -100.f), QVector3D(0.f, 0.f, -100.f),
+                mainViewport, QRectF(0.5, 0.0, 0.5, 1.0));
 
     resetCameras();
 
@@ -124,6 +110,34 @@ void CorrespondenceEditor::setup3DView() {
     sceneEntity = new Qt3DCore::QEntity(rootEntity);
     graphicsWindow->setActiveFrameGraph(framegraphEntity->activeFrameGraph());
     graphicsWindow->setRootEntity(rootEntity);
+}
+
+void CorrespondenceEditor::setupCamera(Qt3DRender::QCamera *&camera,
+                                       QVector3D position,
+                                       QVector3D lightPosition,
+                                       Qt3DRender::QViewport *mainViewport,
+                                       QRectF viewportRect) {
+    camera = new Qt3DRender::QCamera(rootEntity);
+    camera->setNearPlane(0.001f);
+    camera->setFarPlane(5000.f);
+    camera->setPosition(position);
+    camera->setViewCenter(QVector3D(0, 0, 0));
+
+    Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
+    Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
+    light->setIntensity(1);
+    light->setColor("white");
+    Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
+    lightTransform->setTranslation(lightPosition);
+    lightEntity->addComponent(light);
+    lightEntity->addComponent(lightTransform);
+
+    Qt3DExtras::QOrbitCameraController *orbitController = new Qt3DExtras::QOrbitCameraController(camera);
+    orbitController->setCamera(camera);
+    Qt3DRender::QViewport *viewport = new Qt3DRender::QViewport(mainViewport);
+    viewport->setNormalizedRect(viewportRect);
+    Qt3DRender::QCameraSelector *cameraSelector = new Qt3DRender::QCameraSelector(viewport);
+    cameraSelector->setCamera(camera);
 }
 
 void CorrespondenceEditor::updateCameraLenses() {

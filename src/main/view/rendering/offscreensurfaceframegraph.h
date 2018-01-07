@@ -10,6 +10,7 @@
 #include <Qt3DRender/QCameraSelector>
 #include <Qt3DRender/QCamera>
 #include <Qt3DRender/QRenderStateSet>
+#include <Qt3DRender/QDepthTest>
 #include <Qt3DRender/QMultiSampleAntiAliasing>
 
 class OffscreenSurfaceFrameGraph : public Qt3DRender::QRenderSurfaceSelector
@@ -29,6 +30,7 @@ private:
     Qt3DRender::QCamera *camera;
     Qt3DRender::QRenderStateSet *renderStateSet;
     Qt3DRender::QMultiSampleAntiAliasing *multiSample;
+    Qt3DRender::QDepthTest *depthTest;
 
 };
 

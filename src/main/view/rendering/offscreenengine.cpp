@@ -27,12 +27,3 @@ Qt3DRender::QRenderCapture* OffscreenEngine::getRenderCapture() {
 void OffscreenEngine::setSize(const QSize &size) {
     offscreenFrameGraph->setSize(size);
 }
-
-void OffscreenEngine::start() {
-    // This starts the graphics loop
-    //aspectEngine->setRootEntity(root);
-}
-
-void OffscreenEngine::stop() {
-    //aspectEngine->setRootEntity(Qt3DCore::QEntityPtr());
-}

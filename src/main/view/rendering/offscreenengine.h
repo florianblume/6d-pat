@@ -20,8 +20,6 @@ public:
     void setSceneRoot(Qt3DCore::QNode *sceneRoot);
     Qt3DRender::QRenderCapture *getRenderCapture();
     void setSize(const QSize &size);
-    void start();
-    void stop();
 
 private:
     Qt3DCore::QAspectEngine *aspectEngine;
