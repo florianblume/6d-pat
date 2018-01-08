@@ -6,7 +6,7 @@ OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent, 
 {
     offscreenSurface = new QOffscreenSurface();
     QSurfaceFormat format;
-    format.setDepthBufferSize(32);
+    format.setDepthBufferSize(16);
     format.setSamples(8);
     QSurfaceFormat::setDefaultFormat(format);
     offscreenSurface->setFormat(format);
@@ -22,7 +22,7 @@ OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent, 
     clearBuffers = new Qt3DRender::QClearBuffers(renderTargetSelector);
     // Does not matter, as we draw the image over the whole background anyway
     clearBuffers->setClearColor(QColor(255, 255, 255, 0));
-    clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthBuffer);
+    clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthStencilBuffer);
 
     viewport = new Qt3DRender::QViewport(renderTargetSelector);
     viewport->setNormalizedRect(QRectF(0.0, 0.0, 1.0, 1.0));

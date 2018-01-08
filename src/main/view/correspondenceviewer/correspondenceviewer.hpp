@@ -115,9 +115,10 @@ private:
     // segmentation image
     bool showingNormalImage = true;
 
-    void showImage(const QString &imagePath);
     void addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
                                   int objectModelIndex);
+    void updateCameraProjectionMatrixForImage(QImage *image);
+    void showImage(const QString &imagePath);
 
     void setupRenderingPipeline();
     void setupSceneRoot();

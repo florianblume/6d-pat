@@ -58,19 +58,20 @@ void CorrespondenceViewer::setupRenderingPipeline() {
 
     // Setup camera
     camera = new Qt3DRender::QCamera(sceneRoot);
+    // Initial projection matrix, the matrix will be updated as soon as an image is set
     camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.01f, 1000.0f);
-    camera->setPosition(QVector3D(-300.f, 10.f, -200.f));
+    camera->setPosition(QVector3D(0.f, 0.f, 0.f));
     camera->setUpVector(QVector3D(0.f, 1.f, 0.f));
-    camera->setViewCenter(QVector3D(0.f, 0.f, 0.f));
+    camera->setViewCenter(QVector3D(0.f, 0.f, 1.f));
 
     lightEntity = new Qt3DCore::QEntity(sceneRoot);
-    Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
-    light->setColor("white");
-    light->setIntensity(1);
-    lightEntity->addComponent(light);
-    Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
-    lightTransform->setTranslation(camera->position());
-    lightEntity->addComponent(lightTransform);
+    //Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
+    //light->setColor("white");
+    //light->setIntensity(1);
+    //lightEntity->addComponent(light);
+    //Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
+    //lightTransform->setTranslation(camera->position());
+    //lightEntity->addComponent(lightTransform);
 
     offscreenEngine = new OffscreenEngine(camera, QSize(500, 500));
     offscreenEngine->setSceneRoot(sceneRoot);
@@ -87,6 +88,51 @@ void CorrespondenceViewer::setupSceneRoot() {
 void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
     this->modelManager = modelManager;
+}
+
+void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
+                                                    int objectModelIndex) {
+    const ObjectModel* objectModel = correspondence.getObjectModel();
+    // We do not need to take care of deleting the renderables, the destructor of this class
+    // or the start of this function will do this
+    ObjectModelRenderable *newRenderable =
+            new ObjectModelRenderable(sceneObjectsEntity,
+                                      objectModel->getAbsolutePath(), "");
+
+    newRenderable->getTransform()->setTranslation(QVector3D(correspondence.getPosition().x(),
+                                                       correspondence.getPosition().y(),
+                                                       correspondence.getPosition().z()));
+    newRenderable->getTransform()->setRotationX(correspondence.getRotation().x());
+    newRenderable->getTransform()->setRotationY(correspondence.getRotation().y());
+    newRenderable->getTransform()->setRotationZ(correspondence.getRotation().z());
+
+    qDebug() << "Adding object model (" + objectModel->getPath() + ") to display.";
+}
+
+void CorrespondenceViewer::updateCameraProjectionMatrixForImage(QImage *image) {
+    float w = image->width();
+    float h = image->height();
+    // Origin in image
+    float x0 = 0;
+    float y0 = 0;
+    float nearPlane = camera->nearPlane();
+    float farPlane = camera->farPlane();
+    float depth = nearPlane - farPlane;
+    float q = -(farPlane + nearPlane) / depth;
+    float qn = -2 * (farPlane * nearPlane) / depth;
+    // Camera Matrix
+    QMatrix3x3 k(new float[9]{4781.91740099f,            0.f, 973.66974847f,
+                                         0.f, 4778.72123643f, 502.86220751f,
+                                         0.f,            0.f,           1.f});
+    /*
+    camera->setProjectionMatrix(
+                QMatrix4x4(
+                    new float[16]{2 * k(0, 0) / w, -2 * k(0, 1) / w, (-2 * k(0, 2) + w + 2 * x0) / w, 0.f,
+                                              0.f,  -2 * k(1, 1) / h,  (-2 * k(1, 2) + h + 2 * y0) / h, 0.f,
+                                              0.f,              0.f,                               q,  qn,
+                                              0.f,              0.f,                            -1.f,  0.f})
+            );
+            */
 }
 
 void CorrespondenceViewer::showImage(const QString &imagePath) {
@@ -106,22 +152,11 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
     // This is just to retrieve the size of the set image
     QImage image(imagePath);
     ui->labelGraphics->setFixedSize(image.size());
+    updateCameraProjectionMatrixForImage(&image);
     // Not necessary to set size first but can't hurt
     offscreenEngine->setSize(QSize(image.width(), image.height()));
     renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
     connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
-}
-
-void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
-                                                    int objectModelIndex) {
-    const ObjectModel* objectModel = correspondence.getObjectModel();
-    // We do not need to take care of deleting the renderables, the destructor of this class
-    // or the start of this function will do this
-    ObjectModelRenderable *newRenderable =
-            new ObjectModelRenderable(sceneObjectsEntity,
-                                      objectModel->getAbsolutePath(), "");
-
-    qDebug() << "Adding object model (" + objectModel->getPath() + ") to display.";
 }
 
 void CorrespondenceViewer::setImage(int index) {

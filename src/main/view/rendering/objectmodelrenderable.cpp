@@ -15,7 +15,8 @@ ObjectModelRenderable::ObjectModelRenderable(QNode *parent, const QString &meshP
     mesh->setSource(QUrl::fromLocalFile(meshPath));
 
     phongMaterial = new Qt3DExtras::QPhongMaterial(this);
-    phongMaterial->setDiffuse(QColor(QRgb(0xbeb32b)));
+    phongMaterial->setDiffuse(QColor(100, 100, 100, 255));
+    phongMaterial->setAmbient(QColor(50, 50, 50, 255));
     addComponent(phongMaterial);
 }
 
