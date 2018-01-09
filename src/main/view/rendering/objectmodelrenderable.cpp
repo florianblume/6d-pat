@@ -5,28 +5,25 @@ ObjectModelRenderable::ObjectModelRenderable(QNode *parent, const QString &meshP
   : Qt3DCore::QEntity(parent),
     mesh(new Qt3DRender::QMesh()),
     transform(new Qt3DCore::QTransform()),
-    material(new Qt3DExtras::QDiffuseMapMaterial()),
     textureImage(new Qt3DRender::QTextureImage()),
-    texture(material->diffuse()),
     meshPath(meshPath)
 {
     addComponent(mesh);
     addComponent(transform);
     mesh->setSource(QUrl::fromLocalFile(meshPath));
 
-    phongMaterial = new Qt3DExtras::QPhongMaterial(this);
-    phongMaterial->setDiffuse(QColor(100, 100, 100, 255));
-    phongMaterial->setAmbient(QColor(50, 50, 50, 255));
-    addComponent(phongMaterial);
+    material = new Qt3DExtras::QPhongMaterial(this);
+    material->setAmbient(QColor(50, 50, 50, 255));
+    material->setDiffuse(QColor(200, 200, 200, 255));
+    addComponent(material);
 }
 
 
 ObjectModelRenderable::~ObjectModelRenderable() {
     delete mesh;
     delete transform;
-    delete material;
     delete textureImage;
-    delete phongMaterial;
+    delete material;
     //! We do not have to delete the rest, apparently the 3D window takes care of that
 }
 

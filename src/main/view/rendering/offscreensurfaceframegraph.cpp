@@ -1,5 +1,7 @@
 #include "offscreensurfaceframegraph.h"
 
+#include <Qt3DRender/QNoDraw>
+
 OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent, Qt3DRender::QCamera *camera, const QSize &size) :
     Qt3DRender::QRenderSurfaceSelector(parent),
     camera(camera)
@@ -24,6 +26,9 @@ OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent, 
     clearBuffers->setClearColor(QColor(255, 255, 255, 0));
     clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthStencilBuffer);
 
+    // We don't want any drawing at this end
+    Qt3DRender::QNoDraw *noDraw = new Qt3DRender::QNoDraw(clearBuffers);
+
     viewport = new Qt3DRender::QViewport(renderTargetSelector);
     viewport->setNormalizedRect(QRectF(0.0, 0.0, 1.0, 1.0));
 
@@ -31,10 +36,8 @@ OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent, 
     cameraSelector->setCamera(camera);
 
     renderStateSet = new Qt3DRender::QRenderStateSet(cameraSelector);
-    //multiSample = new Qt3DRender::QMultiSampleAntiAliasing(renderStateSet);
     depthTest = new Qt3DRender::QDepthTest(renderStateSet);
     depthTest->setDepthFunction(Qt3DRender::QDepthTest::Less);
-    //renderStateSet->addRenderState(multiSample);
     renderStateSet->addRenderState(depthTest);
 }
 

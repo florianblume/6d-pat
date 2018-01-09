@@ -1,4 +1,5 @@
 #include "textfileloadandstorestrategy.hpp"
+
 #include <QDirIterator>
 #include <QTextStream>
 #include <QMap>
@@ -147,14 +148,14 @@ QList<Image> TextFileLoadAndStoreStrategy::loadImages() {
             if (secondImageFilename.compare(segmentationImageFilename) == 0) {
                 //! Apparently we found a segmentation image, i.e. add the second image as segmentation
                 //! to the first
-                images.push_back(Image(imageFilename, imagesPath.path(), segmentationImageFilename));
+                images.push_back(Image(imageFilename, imagesPath.path(), segmentationImageFilename, 4781.91740099, 4778.72123643, 973.66974847f, 502.86220751f));
             } else {
                 //! We didn't find a segmentation image, i.e. two separate images have to be added
-                images.push_back(Image(imageFilename, imagesPath.path()));
-                images.push_back(Image(secondImageFilename, imagesPath.path()));
+                images.push_back(Image(imageFilename, imagesPath.path(), 4781.91740099, 4778.72123643, 973.66974847f, 502.86220751f));
+                images.push_back(Image(secondImageFilename, imagesPath.path(), 4781.91740099, 4778.72123643, 973.66974847f, 502.86220751f));
             }
         } else {
-            images.push_back(Image(imageFilename, imagesPath.path()));
+            images.push_back(Image(imageFilename, imagesPath.path(), 4781.91740099, 4778.72123643, 973.66974847f, 502.86220751f));
         }
     }
 

@@ -1,7 +1,7 @@
 #include "correspondenceviewer.hpp"
 #include "ui_correspondenceviewer.h"
-#include "view/rendering/imagerenderable.hpp"
 #include "view/rendering/objectmodelrenderable.hpp"
+
 #include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DRender/QRenderSurfaceSelector>
 #include <Qt3DRender/QRenderTargetSelector>
@@ -12,6 +12,8 @@
 #include <Qt3DExtras/QTorusMesh>
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DCore/QTransform>
+
+#include "math.h"
 
 CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelManager) :
     QWidget(parent),
@@ -65,13 +67,13 @@ void CorrespondenceViewer::setupRenderingPipeline() {
     camera->setViewCenter(QVector3D(0.f, 0.f, 1.f));
 
     lightEntity = new Qt3DCore::QEntity(sceneRoot);
-    //Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
-    //light->setColor("white");
-    //light->setIntensity(1);
-    //lightEntity->addComponent(light);
-    //Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
-    //lightTransform->setTranslation(camera->position());
-    //lightEntity->addComponent(lightTransform);
+    Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
+    light->setColor("white");
+    light->setIntensity(1);
+    lightEntity->addComponent(light);
+    Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
+    lightTransform->setTranslation(camera->position());
+    lightEntity->addComponent(lightTransform);
 
     offscreenEngine = new OffscreenEngine(camera, QSize(500, 500));
     offscreenEngine->setSceneRoot(sceneRoot);
@@ -109,33 +111,8 @@ void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorresponde
     qDebug() << "Adding object model (" + objectModel->getPath() + ") to display.";
 }
 
-void CorrespondenceViewer::updateCameraProjectionMatrixForImage(QImage *image) {
-    float w = image->width();
-    float h = image->height();
-    // Origin in image
-    float x0 = 0;
-    float y0 = 0;
-    float nearPlane = camera->nearPlane();
-    float farPlane = camera->farPlane();
-    float depth = nearPlane - farPlane;
-    float q = -(farPlane + nearPlane) / depth;
-    float qn = -2 * (farPlane * nearPlane) / depth;
-    // Camera Matrix
-    QMatrix3x3 k(new float[9]{4781.91740099f,            0.f, 973.66974847f,
-                                         0.f, 4778.72123643f, 502.86220751f,
-                                         0.f,            0.f,           1.f});
-    /*
-    camera->setProjectionMatrix(
-                QMatrix4x4(
-                    new float[16]{2 * k(0, 0) / w, -2 * k(0, 1) / w, (-2 * k(0, 2) + w + 2 * x0) / w, 0.f,
-                                              0.f,  -2 * k(1, 1) / h,  (-2 * k(1, 2) + h + 2 * y0) / h, 0.f,
-                                              0.f,              0.f,                               q,  qn,
-                                              0.f,              0.f,                            -1.f,  0.f})
-            );
-            */
-}
-
 void CorrespondenceViewer::showImage(const QString &imagePath) {
+    setupRenderingPipeline();
     reset();
     // Set root entity here as parent so that image is a child of it
     qDebug() << "Displaying image (" + imagePath + ").";
@@ -152,7 +129,8 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
     // This is just to retrieve the size of the set image
     QImage image(imagePath);
     ui->labelGraphics->setFixedSize(image.size());
-    updateCameraProjectionMatrixForImage(&image);
+    // Relation between camera matrix and field of view implies the following computation
+    camera->setFieldOfView(2.f * std::atan(image.height() / (2.f * currentlyDisplayedImage->getFocalLengthX())) * (180.0f / M_PI));
     // Not necessary to set size first but can't hurt
     offscreenEngine->setSize(QSize(image.width(), image.height()));
     renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
@@ -192,7 +170,7 @@ void CorrespondenceViewer::imageCaptured() {
         connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
         imageReady = true;
     } else {
-        renderedImage = renderCaptureReply->image();
+        renderedImage = renderCaptureReply->image().mirrored(true, true);
         updateDisplayedImage();
         disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
         delete renderCaptureReply;
@@ -211,7 +189,9 @@ QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, con
     painter.drawImage(0, 0, baseImage);
 
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    painter.drawImage(0, 0, overlayImage);
+    painter.drawImage(currentlyDisplayedImage->getFocalPointX() - (overlayImage.width() / 2.f) + 21.f,
+                      currentlyDisplayedImage->getFocalPointY() - (overlayImage.height() / 2.f),
+                      overlayImage);
 
     painter.end();
 

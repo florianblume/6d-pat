@@ -37,9 +37,7 @@ void CorrespondenceEditor::setEnabledCorrespondenceEditorControls(bool enabled) 
     ui->spinBoxRotationY->setEnabled(enabled);
     ui->spinBoxRotationZ->setEnabled(enabled);
     ui->sliderArticulation->setEnabled(enabled);
-    ui->sliderOpacity->setEnabled(enabled);
     // The next line is the difference to setEnabledAllControls
-    ui->buttonPredict->setEnabled(!enabled);
     ui->buttonRemove->setEnabled(enabled);
 }
 
@@ -51,8 +49,6 @@ void CorrespondenceEditor::setEnabledAllControls(bool enabled) {
     ui->spinBoxRotationY->setEnabled(enabled);
     ui->spinBoxRotationZ->setEnabled(enabled);
     ui->sliderArticulation->setEnabled(enabled);
-    ui->sliderOpacity->setEnabled(enabled);
-    ui->buttonPredict->setEnabled(enabled);
     ui->buttonRemove->setEnabled(enabled);
 }
 
@@ -122,15 +118,6 @@ void CorrespondenceEditor::setupCamera(Qt3DRender::QCamera *&camera,
     camera->setFarPlane(5000.f);
     camera->setPosition(position);
     camera->setViewCenter(QVector3D(0, 0, 0));
-
-    Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
-    Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
-    light->setIntensity(1);
-    light->setColor("white");
-    Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
-    lightTransform->setTranslation(lightPosition);
-    lightEntity->addComponent(light);
-    lightEntity->addComponent(lightTransform);
 
     Qt3DExtras::QOrbitCameraController *orbitController = new Qt3DExtras::QOrbitCameraController(camera);
     orbitController->setCamera(camera);

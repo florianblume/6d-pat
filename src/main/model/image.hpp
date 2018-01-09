@@ -9,10 +9,6 @@
  * at. This means that the path to the image has to be relative to the base path.
  */
 class Image {
-private:
-    const QString imagePath;
-    const QString segmentationImagePath;
-    const QString basePath;
 
 public:
     //! Constructor of class Image.
@@ -21,7 +17,8 @@ public:
       \param imagePath the path to the image relative to the base path
       \param basePath the base path to the folder where this image is directly located or within a subfolder
     */
-    Image(const QString& imagePath, const QString& basePath);
+    Image(const QString& imagePath, const QString& basePath,
+          float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY);
 
     //! Constructor of class Image.
     /*!
@@ -30,7 +27,8 @@ public:
       \param basePath the base path to the folder where the image is either directly located or located within a subfolder
       \param segmentationImagePath the path to the segmentation image
     */
-    Image(const QString& imagePath, const QString& basePath, const QString& segmentationImagePath);
+    Image(const QString& imagePath, const QString& basePath, const QString& segmentationImagePath,
+          float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY);
 
     //! Returns the path to the actual image relative to the base path.
     /*!
@@ -64,7 +62,24 @@ public:
      */
     QString getBasePath() const;
 
+    float getFocalLengthX();
+
+    float getFocalLengthY();
+
+    float getFocalPointX();
+
+    float getFocalPointY();
+
     Image& operator=(Image other);
+
+private:
+    const QString imagePath;
+    const QString segmentationImagePath;
+    const QString basePath;
+    const float focalLenghtX;
+    const float focalLenghtY;
+    const float focalPointX;
+    const float focalPointY;
 
 };
 

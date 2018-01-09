@@ -5,7 +5,6 @@
 #include "model/objectmodel.hpp"
 #include "model/objectimagecorrespondence.hpp"
 #include "model/modelmanager.hpp"
-#include "view/rendering/imagerenderable.hpp"
 #include "view/rendering/objectmodelrenderable.hpp"
 #include "view/rendering/offscreenengine.h"
 #include "misc/globaltypedefs.h"
@@ -103,7 +102,6 @@ private:
     Qt3DCore::QEntity *sceneRoot = Q_NULLPTR;
     Qt3DCore::QEntity *sceneObjectsEntity = Q_NULLPTR;
     Qt3DRender::QRenderCaptureReply *renderCaptureReply;
-    ImageRenderable *imageRenderable;
     QList<ObjectModelRenderable*> objectModelRenderables;
     QImage renderedImage;
     bool imageReady = false;
@@ -117,7 +115,6 @@ private:
 
     void addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
                                   int objectModelIndex);
-    void updateCameraProjectionMatrixForImage(QImage *image);
     void showImage(const QString &imagePath);
 
     void setupRenderingPipeline();

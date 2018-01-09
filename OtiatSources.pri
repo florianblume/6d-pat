@@ -24,7 +24,6 @@ SOURCES += \
     $$PWD/src/main/view/settings/settingsgeneralpage.cpp \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.cpp \
     $$PWD/src/main/view/rendering/objectmodelrenderable.cpp \
-    $$PWD/src/main/view/rendering/imagerenderable.cpp \
     $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.cpp \
     $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.cpp \
     $$PWD/src/main/misc/preferences/preferencesstore.cpp\
@@ -33,7 +32,8 @@ SOURCES += \
     $$PWD/src/main/view/rendering/offscreensurfaceframegraph.cpp \
     $$PWD/src/main/view/rendering/offscreenengine.cpp \
     $$PWD/src/main/view/correspondenceviewer/imageviewlabel.cpp \
-    $$PWD/src/main/controller/correspondencecreator.cpp
+    $$PWD/src/main/controller/correspondencecreator.cpp \
+    $$PWD/src/main/misc/scripting/pythonscriptingengine.cpp
 
 HEADERS  += \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
@@ -55,7 +55,6 @@ HEADERS  += \
     $$PWD/src/main/view/gallery/galleryobjectmodelmodel.hpp \
     $$PWD/src/main/view/gallery/iconexpandinglistview.hpp \
     $$PWD/src/main/view/navigationcontrols/navigationcontrols.hpp \
-    $$PWD/src/main/view/rendering/imagerenderable.hpp \
     $$PWD/src/main/view/rendering/objectmodelrenderable.hpp \
     $$PWD/src/main/view/settings/settingsdialog.hpp \
     $$PWD/src/main/view/settings/settingsgeneralpage.hpp \
@@ -66,7 +65,8 @@ HEADERS  += \
     $$PWD/src/main/view/rendering/offscreensurfaceframegraph.h \
     $$PWD/src/main/view/rendering/offscreenengine.h \
     $$PWD/src/main/view/correspondenceviewer/imageviewlabel.h \
-    $$PWD/src/main/controller/correspondencecreator.h
+    $$PWD/src/main/controller/correspondencecreator.h \
+    $$PWD/src/main/misc/scripting/pythonscriptingengine.h
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \
@@ -89,4 +89,10 @@ INCLUDEPATH += \
     $$PWD/src/main/view/settings \
     /usr/local/include/opencv
 
-LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d
+LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d \
+        -L/home/floretti/anaconda3/lib/python3.6
+
+INCLUDEPATH += /home/floretti/anaconda3/include/python3.6m
+
+DISTFILES += \
+    $$PWD/src/main/misc/scripting/imageinfoloader.py

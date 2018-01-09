@@ -1,16 +1,26 @@
 #include "image.hpp"
 #include <QDir>
 
-Image::Image(const QString& imagePath, const QString& basePath)
+Image::Image(const QString& imagePath, const QString& basePath,
+             float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY)
     : imagePath(imagePath),
       segmentationImagePath(""),
-      basePath(basePath) {
+      basePath(basePath),
+      focalLenghtX(focalLenghtX),
+      focalLenghtY(focalLenghtY),
+      focalPointX(focalPointX),
+      focalPointY(focalPointY) {
 }
 
-Image::Image(const QString& imagePath, const QString& basePath, const QString& segmentationImagePath)
+Image::Image(const QString& imagePath, const QString& basePath, const QString& segmentationImagePath,
+             float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY)
     : imagePath(imagePath),
       segmentationImagePath(segmentationImagePath),
-      basePath(basePath) {
+      basePath(basePath),
+      focalLenghtX(focalLenghtX),
+      focalLenghtY(focalLenghtY),
+      focalPointX(focalPointX),
+      focalPointY(focalPointY) {
 }
 
 QString Image::getImagePath() const {
@@ -31,6 +41,22 @@ QString Image::getAbsoluteSegmentationImagePath() const {
 
 QString Image::getBasePath() const {
     return basePath;
+}
+
+float Image::getFocalLengthX() {
+    return focalLenghtX;
+}
+
+float Image::getFocalLengthY() {
+    return focalLenghtY;
+}
+
+float Image::getFocalPointX() {
+    return focalPointX;
+}
+
+float Image::getFocalPointY() {
+    return focalPointY;
 }
 
 Image& Image::operator=(Image other) {
