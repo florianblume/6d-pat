@@ -6,19 +6,6 @@
 #include <QMessageBox>
 #include <QLayout>
 
-QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";
-QString MainWindow::SETTINGS_PROGRAM_NAME = "Otiat";
-QString MainWindow::SETTINGS_GROUP_NAME = "mainwindow";
-QString MainWindow::WINDOW_IS_FULLSCREEN_KEY = "isfullscreen";
-QString MainWindow::WINDOW_SIZE_KEY = "windowsize";
-QString MainWindow::WINDOW_POSITION_KEY = "windowposition";
-QString MainWindow::SPLITTER_MAIN_SIZE_LEFT_KEY = "splitterMainLeftSize";
-QString MainWindow::SPLITTER_MAIN_SIZE_RIGHT_KEY = "splitterMainRightSize";
-QString MainWindow::SPLITTER_LEFT_SIZE_TOP_KEY = "splitterLeftLeftSize";
-QString MainWindow::SPLITTER_LEFT_SIZE_BOTTOM_KEY = "splitterLeftRightSize";
-QString MainWindow::SPLITTER_RIGHT_SIZE_TOP_KEY = "splitterRightLeftSize";
-QString MainWindow::SPLITTER_RIGHT_SIZE_BOTTOM_KEY = "splitterRightRightSize";
-
 //! The main window of the application that holds the individual components.<
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -30,12 +17,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Cannot define signal to signal mapping in the designer, thus the connections are defined here
     connect(ui->galleryLeft, SIGNAL(selectedItemChanged(int)),
-            this, SIGNAL(selectedItemChanged(int)));
+            this, SIGNAL(selectedImageChanged(int)));
     // If the selected image changes, we also need to cancel any started creation of a correspondence
     connect(ui->galleryLeft, SIGNAL(selectedItemChanged(int)),
-            this, SIGNAL(correspondenceCreationAborted()));
+            this, SIGNAL(correspondenceCreationInterrupted()));
     connect(ui->galleryRight, SIGNAL(selectedItemChanged(int)),
-            this, SIGNAL(correspondenceCreationAborted()));
+            this, SIGNAL(correspondenceCreationInterrupted()));
     connect(ui->navigationLeft, SIGNAL(pathChanged(QString)),
             this, SIGNAL(imagesPathChanged(QString)));
     connect(ui->navigationRight, SIGNAL(pathChanged(QString)),
@@ -203,6 +190,7 @@ void MainWindow::onImageClicked(Image* image, QPoint position) {
                                             - this->statusBar()->geometry().height()));
         clickOverlay->show();
         clickOverlay->raise();
+        // Raise the Editor above the overlay, to enable the user to still click the 3D model
         ui->correspondenceEditor->raise();
         emit imageClicked(image, position);
     } else {
@@ -215,12 +203,18 @@ void MainWindow::onImageClicked(Image* image, QPoint position) {
 void MainWindow::onOverlayClickedAnywhere() {
     QGuiApplication::restoreOverrideCursor();
     clickOverlay->hide();
-    emit correspondenceCreationAborted();
+    emit correspondenceCreationInterrupted();
 }
 
-void MainWindow::onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position) {
+void MainWindow::onObjectModelClicked(ObjectModel* objectModel, QVector3D position) {
     QGuiApplication::restoreOverrideCursor();
-    emit objectModelClickedAt(objectModel, position);
+    // The user might click on the overlay before he starts to create a correspondence,
+    // i.e. the overlay is not visible yet and not created. But as soon as the user clicks
+    // the image and then the object, this adds a correspondence point and the overlay
+    // should be hidden.
+    if (clickOverlay)
+        clickOverlay->hide();
+    emit objectModelClicked(objectModel, position);
 }
 
 void MainWindow::onSelectedObjectModelChanged(int index) {
@@ -241,6 +235,10 @@ void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
     preferencesStore->savePreferences(preferences.get());
 }
 
+void MainWindow::displayWarning(const QString &title, const QString &text) {
+    QMessageBox::warning(this, title, text);
+}
+
 void MainWindow::onPreferencesChanged(const QString &identifier) {
     UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier(identifier);
     setPathOnLeftBreadcrumbView(preferences->getImagesPath());
@@ -248,3 +246,16 @@ void MainWindow::onPreferencesChanged(const QString &identifier) {
     ui->correspondenceEditor->reset();
     ui->correspondenceViewer->reset();
 }
+
+QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";
+QString MainWindow::SETTINGS_PROGRAM_NAME = "Otiat";
+QString MainWindow::SETTINGS_GROUP_NAME = "mainwindow";
+QString MainWindow::WINDOW_IS_FULLSCREEN_KEY = "isfullscreen";
+QString MainWindow::WINDOW_SIZE_KEY = "windowsize";
+QString MainWindow::WINDOW_POSITION_KEY = "windowposition";
+QString MainWindow::SPLITTER_MAIN_SIZE_LEFT_KEY = "splitterMainLeftSize";
+QString MainWindow::SPLITTER_MAIN_SIZE_RIGHT_KEY = "splitterMainRightSize";
+QString MainWindow::SPLITTER_LEFT_SIZE_TOP_KEY = "splitterLeftLeftSize";
+QString MainWindow::SPLITTER_LEFT_SIZE_BOTTOM_KEY = "splitterLeftRightSize";
+QString MainWindow::SPLITTER_RIGHT_SIZE_TOP_KEY = "splitterRightLeftSize";
+QString MainWindow::SPLITTER_RIGHT_SIZE_BOTTOM_KEY = "splitterRightRightSize";

@@ -55,24 +55,11 @@ public slots:
     void reset();
 
     /*!
-     * \brief correspondenceChanged updates the displayed correspondence. If it does not
-     * exist it will be added.
-     * \param correspondence the correspondence to be updated
+     * \brief update updates the view. There are no more fine-grained update methods
+     * (like delete, update only the parameters etc.), because the image is rendered
+     * offscreen and has to be completely re-rendered anyway.
      */
-    void updateCorrespondence(ObjectImageCorrespondence correspondence);
-
-    /*!
-     * \brief removeCorrespondence removes the given correspondence
-     * \param correspondence the correspondence to be removed
-     */
-    void removeCorrespondence(ObjectImageCorrespondence correspondence);
-
-    /*!
-     * \brief reload reloads this correspondence editor and thus forces it to load
-     * all data related to the currently selected image. If the view should be reset,
-     * i.e. all objects should be removed, call the reset() function.
-     */
-    void reload();
+    void update();
 
 signals:
     /*!
@@ -115,12 +102,17 @@ private:
 
     void addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
                                   int objectModelIndex);
+    // The method that receives the retrieved image (e.g. from setImage(index)) and initiates
+    // rendering
     void showImage(const QString &imagePath);
 
     void setupRenderingPipeline();
     void setupSceneRoot();
     void deleteSceneObjects();
+    // Helper method to overlay the rendered image with the actual image
     QImage createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage);
+    // Uses the createImageWithOverlay method to overlay the actual (normal/segmentation) image
+    // with the rendered image
     void updateDisplayedImage();
 
 private slots:

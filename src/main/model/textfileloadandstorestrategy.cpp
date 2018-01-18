@@ -135,6 +135,11 @@ QList<Image> TextFileLoadAndStoreStrategy::loadImages() {
         QString imageFilename = QFileInfo(image).fileName();
         //! Check the next image if it is the segmentation image of the currently inspected image
         int j = i + 1;
+        float focalLengthX = 4781.91740099f;
+        float focalLengthY = 4778.72123643f;
+        float focalPointX = 973.66974847f;
+        float focalPointY = 502.86220751f;
+
         if (j < files.size()) {
             QString secondImage = files[j];
             QString secondImageFilename = QFileInfo(secondImage).fileName();
@@ -148,14 +153,14 @@ QList<Image> TextFileLoadAndStoreStrategy::loadImages() {
             if (secondImageFilename.compare(segmentationImageFilename) == 0) {
                 //! Apparently we found a segmentation image, i.e. add the second image as segmentation
                 //! to the first
-                images.push_back(Image(imageFilename, imagesPath.path(), segmentationImageFilename, 4781.91740099, 4778.72123643, 973.66974847f, 502.86220751f));
+                images.push_back(Image(imageFilename, imagesPath.path(), segmentationImageFilename, focalLengthX, focalLengthY, focalPointX, focalPointY));
             } else {
                 //! We didn't find a segmentation image, i.e. two separate images have to be added
-                images.push_back(Image(imageFilename, imagesPath.path(), 4781.91740099, 4778.72123643, 973.66974847f, 502.86220751f));
-                images.push_back(Image(secondImageFilename, imagesPath.path(), 4781.91740099, 4778.72123643, 973.66974847f, 502.86220751f));
+                images.push_back(Image(imageFilename, imagesPath.path(), focalLengthX, focalLengthY, focalPointX, focalPointY));
+                images.push_back(Image(secondImageFilename, imagesPath.path(), focalLengthX, focalLengthY, focalPointX, focalPointY));
             }
         } else {
-            images.push_back(Image(imageFilename, imagesPath.path(), 4781.91740099, 4778.72123643, 973.66974847f, 502.86220751f));
+            images.push_back(Image(imageFilename, imagesPath.path(), focalLengthX, focalLengthY, focalPointX, focalPointY));
         }
     }
 

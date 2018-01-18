@@ -44,8 +44,8 @@ void MainController::initializeMainWindow() {
     mainWindow.setPathOnLeftNavigationControls(QString(strategy.getImagesPath().path()));
     mainWindow.setPathOnRightNavigationControls(QString(strategy.getObjectModelsPath().path()));
 
-    //! The models do not need to notify the gallery of any changes on the data because the list view
-    //! has its own update loop, i.e. automatically fetches new data
+    // The models do not need to notify the gallery of any changes on the data because the list view
+    // has its own update loop, i.e. automatically fetches new data
     galleryImageModel = new GalleryImageModel(&modelManager);
     mainWindow.setGalleryImageModel(galleryImageModel);
     galleryObjectModelModel = new GalleryObjectModelModel(&modelManager);
@@ -55,13 +55,16 @@ void MainController::initializeMainWindow() {
 
     mainWindow.setStatusBarText("Ready");
 
-    //! Connect the main window's reactions to the user clicking on a displayed image or on an object
-    //! model to delegate any further computation to this controller
+    // Connect the main window's reactions to the user clicking on a displayed image or on an object
+    // model to delegate any further computation to this controller
     connect(&mainWindow, SIGNAL(imageClicked(Image*,QPoint)),
             this, SLOT(onImageClicked(Image*,QPoint)));
     connect(&mainWindow, SIGNAL(objectModelClickedAt(ObjectModel*,QVector3D)),
             this, SLOT(onObjectModelClickedAt(ObjectModel*,QVector3D)));
-    connect(&mainWindow, SIGNAL(correspondenceCreationAborted()), this, SLOT(onCorrespondenceCreationAborted()));
+    connect(&mainWindow, SIGNAL(correspondenceCreationInterrupted()),
+            this, SLOT(onCorrespondenceCreationInterrupted()));
+    connect(&mainWindow, SIGNAL(correspondenceCreationAborted()),
+            this, SLOT(onCorrespondenceCreationAborted()));
 
     connect(&mainWindow, SIGNAL(imagesPathChanged(QString)),
             this, SLOT(onImagePathChanged(QString)));
@@ -74,48 +77,67 @@ void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
 }
 
 void MainController::onImageClicked(Image* image, QPoint position) {
-    correspondenceCreator->addPointForImage(image, position);
+    correspondenceCreator->setImage(image);
     lastClickedImagePosition = position;
+    correspondenceCreationSate = CorrespondenceCreationState::ImageClicked;
 
     // TODO: show how many points are missing until an actual correspondence can be created
     mainWindow.setStatusBarText("Please select the corresponding 3D point [" +
-                            QString::number(correspondingPoints.size() + 1)
+                            QString::number(correspondenceCreator->numberOfCorrespondencePoints() + 1)
                             + " of 4].");
 }
 
 void MainController::onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position) {
-    if (correspondenceCreator->hasImagePresent()) {
-        correspondenceCreator->addPointForObjectModel(objectModel, position);
+    // Check whether the correspondencePointCompleted flag is set, so that the point is only
+    // added when the user clicked the image somewhere previously
+    if (correspondenceCreator->isImageSet() &&
+            correspondenceCreationSate == CorrespondenceCreationState::ImageClicked) {
+        correspondenceCreationSate = CorrespondenceCreationState::ObjectClicked;
+        correspondenceCreator->setObjectModel(objectModel);
+        correspondenceCreator->addCorrespondencePoint(lastClickedImagePosition, position);
         int points = correspondenceCreator->numberOfCorrespondencePoints();
-        if (points < 4) {
-            mainWindow.setStatusBarText("Please select another correspondence [" +
-                                    QString::number(points)
-                                    + " of 4].");
+        if (points == 0) {
+            // If the number of points is 0, although we just added a point, the correspondence
+            // creation has been completed and the points cleared
+            resetCorrespondenceCreation();
         } else {
-            mainWindow.setStatusBarText("Ready.");
+            mainWindow.setStatusBarText("Please select another correspondence [" +
+                                    QString::number(points + 1)
+                                    + " of 4].");
         }
     }
 }
 
 
+void MainController::onCorrespondenceCreationInterrupted() {
+    // nothing to do here
+}
+
 void MainController::onCorrespondenceCreationAborted() {
-    mainWindow.setStatusBarText("Ready");
-    lastClickedImage = Q_NULLPTR;
-    correspondingPoints.clear();
+    resetCorrespondenceCreation();
 }
 
 void MainController::onImagePathChanged(const QString &newPath) {
     this->strategy.setImagesPath(newPath);
     this->currentPreferences->setImagesPath(newPath);
+    resetCorrespondenceCreation();
 }
 
 void MainController::onObjectModelsPathChanged(const QString &newPath) {
     this->strategy.setObjectModelsPath(newPath);
     this->currentPreferences->setObjectModelsPath(newPath);
+    resetCorrespondenceCreation();
 }
 
 void MainController::showView() {
     mainWindow.show();
+}
+
+void MainController::resetCorrespondenceCreation() {
+    correspondenceCreator->abortCreation();
+    correspondenceCreationSate = CorrespondenceCreationState::Empty;
+    mainWindow.setStatusBarText("Ready.");
+
 }
 
 void MainController::onPreferencesChanged(const QString &identifier) {
@@ -132,4 +154,5 @@ void MainController::onPreferencesChanged(const QString &identifier) {
     if (currentPreferences->getSegmentationImageFilesSuffix().compare(strategy.getSegmentationImageFilesSuffix()) != 0)
         strategy.setSegmentationImageFilesSuffix(currentPreferences->getSegmentationImageFilesSuffix());
     setSegmentationCodesOnGalleryObjectModelModel();
+    correspondenceCreator->abortCreation();
 }

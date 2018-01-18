@@ -4,6 +4,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <QImage>
+#include <QDebug>
 
 CorrespondenceCreator::CorrespondenceCreator(QObject *parent, ModelManager *modelManager) :
     QObject(parent),
@@ -23,17 +24,16 @@ void CorrespondenceCreator::abortCreation() {
     emit correspondenceCreationAborted();
 }
 
-void CorrespondenceCreator::addPointForImage(Image *image, QPoint point2D) {
+void CorrespondenceCreator::setImage(Image *image) {
     Q_ASSERT(image);
     if (this->image != image) {
         points.clear();
         objectModel = Q_NULLPTR;
         this->image = image;
     }
-    imagePoint = point2D;
 }
 
-void CorrespondenceCreator::addPointForObjectModel(ObjectModel *objectModel, QVector3D point3D) {
+void CorrespondenceCreator::setObjectModel(ObjectModel *objectModel) {
     Q_ASSERT(objectModel);
     Q_ASSERT(image);
 
@@ -41,35 +41,69 @@ void CorrespondenceCreator::addPointForObjectModel(ObjectModel *objectModel, QVe
         points.clear();
         this->objectModel = objectModel;
     }
+}
 
-    points.push_back(CorrespondingPoints{imagePoint, point3D});
+void CorrespondenceCreator::addCorrespondencePoint(QPoint imagePoint, QVector3D objectModelPoint) {
+    Q_ASSERT(objectModel);
+    Q_ASSERT(image);
+
+    points.push_back(CorrespondingPoints{imagePoint, objectModelPoint});
+    qDebug() << "Added corresponding point for image (" + image->getImagePath() + ") and object (" +
+                objectModel->getPath() + "): " + correspondingPointsToString(points.last());
 
     if (points.size() == 4) {
-        std::vector<cv::Point3d> objectPoints;
-        std::vector<cv::Point2d> imagePoints;
-        for (CorrespondingPoints &point : points) {
-            objectPoints.push_back(cv::Point3d(point.pointIn3D.x(), point.pointIn3D.y(), point.pointIn3D.z()));
-            imagePoints.push_back(cv::Point2d(point.pointIn2D.x(), point.pointIn2D.y()));
-        }
+        qDebug() << "Creating correspondence for the following points:" << endl
+                 << correspondingPointsToString(points.at(0)) << endl
+                 << correspondingPointsToString(points.at(1)) << endl
+                 << correspondingPointsToString(points.at(2)) << endl
+                 << correspondingPointsToString(points.at(3)) << endl;
+
+        std::vector<cv::Point3f> objectPoints;
+        std::vector<cv::Point2f> imagePoints;
 
         QImage loadedImage = QImage(image->getAbsoluteImagePath());
-        double focalLength = loadedImage.size().width(); // Approximate focal length.
-        cv::Point2d center = cv::Point2d(loadedImage.size().width()/2,loadedImage.size().height()/2);
-        cv::Mat cameraMatrix = (cv::Mat_<double>(3,3) << focalLength, 0, center.x, 0 , focalLength, center.y, 0, 0, 1);
-        cv::Mat coefficient = cv::Mat::zeros(4,1,cv::DataType<double>::type);
+
+        for (CorrespondingPoints &point : points) {
+            objectPoints.push_back(cv::Point3f(point.pointIn3D.x(), point.pointIn3D.y(), point.pointIn3D.z()));
+            // We need to mirror the clicked points, as we mirror the rendered image
+            imagePoints.push_back(cv::Point2f(loadedImage.size().width() - point.pointIn2D.x(),
+                                              loadedImage.size().height() - point.pointIn2D.y()));
+        }
+
+        cv::Mat cameraMatrix = (cv::Mat_<float>(3,3) << image->getFocalLengthX(), 0, image->getFocalPointX(),
+                                                         0 , image->getFocalLengthY(), image->getFocalPointY(),
+                                                         0, 0, 1);
+        cv::Mat coefficient = cv::Mat::zeros(4,1,cv::DataType<float>::type);
 
         cv::Mat resultRotation;
         cv::Mat resultTranslation;
 
         cv::solvePnP(objectPoints, imagePoints, cameraMatrix, coefficient, resultRotation, resultTranslation);
 
+        for (int i = 0; i < resultTranslation.size[0]; i++) {
+            for (int j = 0; j < resultTranslation.size[1]; j++) {
+                qDebug() << "Result translation [" + QString::number(i) + ", " +
+                                                    QString::number(j) + "]: " +
+                                                    QString::number(resultTranslation.at<float>(i, j));
+            }
+        }
+
+        for (int i = 0; i < resultRotation.size[0]; i++) {
+            for (int j = 0; j < resultRotation.size[1]; j++) {
+                qDebug() << "Result rotation [" + QString::number(i) + ", " +
+                                                  QString::number(j) + "]: " +
+                                                  QString::number(resultRotation.at<float>(i, j));
+            }
+        }
+
         ObjectImageCorrespondence correspondence = ObjectImageCorrespondence("",
                                   resultTranslation.at<float>(0, 0),
-                                  resultTranslation.at<float>(0, 1),
-                                  resultTranslation.at<float>(0, 2),
-                                  resultRotation.at<float>(0, 0),
-                                  resultRotation.at<float>(0, 1),
-                                  resultRotation.at<float>(0, 2),
+                                  resultTranslation.at<float>(1, 0),
+                                  resultTranslation.at<float>(2, 0),
+                                  // Conversion from radians to degrees
+                                  resultRotation.at<float>(0, 0) * (180.0f / M_PI),
+                                  resultRotation.at<float>(1, 0) * (180.0f / M_PI),
+                                  resultRotation.at<float>(2, 0) * (180.0f / M_PI),
                                   0,
                                   image,
                                   objectModel);
@@ -81,14 +115,24 @@ void CorrespondenceCreator::addPointForObjectModel(ObjectModel *objectModel, QVe
     }
 }
 
-bool CorrespondenceCreator::hasImagePresent() {
+bool CorrespondenceCreator::isImageSet() {
     return image != Q_NULLPTR;
 }
 
-bool CorrespondenceCreator::hasObjectModelPresent() {
+bool CorrespondenceCreator::isObjectModelSet() {
     return objectModel != Q_NULLPTR;
 }
 
 int CorrespondenceCreator::numberOfCorrespondencePoints() {
     return points.size();
+}
+
+QString CorrespondenceCreator::correspondingPointsToString(const CorrespondingPoints& points) {
+    return "("
+            + QString::number(points.pointIn2D.x()) + ", "
+            + QString::number(points.pointIn2D.y())
+            + ") - ("
+            + QString::number(points.pointIn3D.x()) + ", "
+            + QString::number(points.pointIn3D.y()) + ", "
+            + QString::number(points.pointIn3D.z()) + ")";
 }

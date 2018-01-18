@@ -9,7 +9,6 @@
 #include <Qt3DRender/QCamera>
 #include <Qt3DExtras/QFirstPersonCameraController>
 #include <QOffscreenSurface>
-#include <Qt3DExtras/QTorusMesh>
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DCore/QTransform>
 
@@ -36,11 +35,14 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
     ui->buttonSwitchView->setEnabled(false);
 
     setupRenderingPipeline();
+
+    connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(update()));
 }
 
 CorrespondenceViewer::~CorrespondenceViewer()
 {
     deleteSceneObjects();
+    delete offscreenEngine;
     delete ui;
 }
 
@@ -64,6 +66,7 @@ void CorrespondenceViewer::setupRenderingPipeline() {
     camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.01f, 1000.0f);
     camera->setPosition(QVector3D(0.f, 0.f, 0.f));
     camera->setUpVector(QVector3D(0.f, 1.f, 0.f));
+    // Set view center z coordinate to 1.f to make the camera look along the z axis
     camera->setViewCenter(QVector3D(0.f, 0.f, 1.f));
 
     lightEntity = new Qt3DCore::QEntity(sceneRoot);
@@ -85,6 +88,7 @@ void CorrespondenceViewer::setupSceneRoot() {
         delete sceneObjectsEntity;
     }
     sceneObjectsEntity = new Qt3DCore::QEntity(sceneRoot);
+
 }
 
 void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
@@ -112,7 +116,6 @@ void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorresponde
 }
 
 void CorrespondenceViewer::showImage(const QString &imagePath) {
-    setupRenderingPipeline();
     reset();
     // Set root entity here as parent so that image is a child of it
     qDebug() << "Displaying image (" + imagePath + ").";
@@ -130,7 +133,9 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
     QImage image(imagePath);
     ui->labelGraphics->setFixedSize(image.size());
     // Relation between camera matrix and field of view implies the following computation
-    camera->setFieldOfView(2.f * std::atan(image.height() / (2.f * currentlyDisplayedImage->getFocalLengthX())) * (180.0f / M_PI));
+    // 180.f / M_PI is conversion from radians to degrees
+    camera->setFieldOfView(2.f * std::atan(image.height() /
+                                           (2.f * currentlyDisplayedImage->getFocalLengthX())) * (180.0f / M_PI));
     // Not necessary to set size first but can't hurt
     offscreenEngine->setSize(QSize(image.width(), image.height()));
     renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
@@ -139,8 +144,10 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
 
 void CorrespondenceViewer::setImage(int index) {
     const QList<Image> &images = modelManager->getImages();
+
     Q_ASSERT(index < images.size());
     Q_ASSERT(index >= 0);
+
     currentlyDisplayedImageIndex = index;
     currentlyDisplayedImage.reset(new Image(images.at(index)));
     qDebug() << "Setting image (" + currentlyDisplayedImage->getImagePath() + ") to display.";
@@ -171,6 +178,7 @@ void CorrespondenceViewer::imageCaptured() {
         imageReady = true;
     } else {
         renderedImage = renderCaptureReply->image().mirrored(true, true);
+        renderedImage.save("test.png");
         updateDisplayedImage();
         disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
         delete renderCaptureReply;
@@ -206,30 +214,22 @@ void CorrespondenceViewer::updateDisplayedImage() {
     ui->labelGraphics->setPixmap(QPixmap::fromImage(image));
 }
 
-void CorrespondenceViewer::updateCorrespondence(ObjectImageCorrespondence correspondence) {
-    reload();
-}
-
-void CorrespondenceViewer::removeCorrespondence(ObjectImageCorrespondence correspondence) {
-    // This is easier than removing the correspondence and updating all the indeces that
-    // correspond to the models
-    reload();
-}
-
 void CorrespondenceViewer::reset() {
     qDebug() << "Resetting correspondence viewer.";
     deleteSceneObjects();
     setupSceneRoot();
 }
 
-void CorrespondenceViewer::reload() {
+void CorrespondenceViewer::update() {
     setImage(currentlyDisplayedImageIndex);
 }
 
 void CorrespondenceViewer::switchImage() {
     const QList<Image> &images = modelManager->getImages();
+
     Q_ASSERT(currentlyDisplayedImageIndex < images.size());
     Q_ASSERT(currentlyDisplayedImageIndex >= 0);
+
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
     showingNormalImage = !showingNormalImage;
     //updateDisplayedImage();

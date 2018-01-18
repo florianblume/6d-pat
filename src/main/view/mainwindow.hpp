@@ -86,33 +86,75 @@ public:
     void setPreferencesStore(PreferencesStore *preferencesStore);
 
 public slots:
+
     //! The slot that catches the emitted signal when the 3D model in the lower right correspondence controls
     //! is clicked (see CorrespondenceEditorControls)
-    void onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position);
+    void onObjectModelClicked(ObjectModel* objectModel, QVector3D position);
+
     /*!
      * \brief onSelectedObjectModelChanged will be called from the right gallery that displays
      * objects models so that the main view can retrieve the actual object model an pass it on
      * to the correspondence editor controls.
      */
     void onSelectedObjectModelChanged(int index);
+
     void onImagesPathChangedByNavigation(const QString &path);
     void onObjectModelsPathChangedByNavigation(const QString &path);
+    void displayWarning(const QString &title, const QString& text);
 
 signals:
-    //! Those two methods are fired when the sub-views that display the correspondences fire them
-    //! i.e. when the image in the lower left view is clicked, the first one is emitted, and when
-    //! the 3D model (to create the first 2D to 3D point correspondence) is clicked, the second
-    //! function is emitted.
+    /*!
+     * \brief imageClicked emitted when the image in the correspondence viewer is clicked.
+     * \param image the image that was clicked
+     * \param position the position where it was clicked
+     */
     void imageClicked(Image* image, QPoint position);
-    void objectModelClickedAt(ObjectModel* objectModel, QVector3D position);
+
+    /*!
+     * \brief objectModelClicked emitted when the object model displayed in the correspondence editor
+     * is clicked.
+     * \param objectModel the object model that was clicked
+     * \param position the position where it was clicked
+     */
+    void objectModelClicked(ObjectModel* objectModel, QVector3D position);
     /*!
      * \brief selectedObjectModelChanged is triggered after the index of the object model is received.
      * \param objectModel the actual object model retrieved from the index
      */
     void selectedObjectModelChanged(ObjectModel *objectModel);
-    void selectedItemChanged(int index);
+    /*!
+     * \brief selectedImageChanged is emitted when the image selected in the gallery changes.
+     * \param index the index of the new image
+     */
+    void selectedImageChanged(int index);
+
+    /*!
+     * \brief correspondenceCreationInterrupted this signal is emitted when the user clicks the
+     * overlay that is being added to the view as soon as the image is clicked anywhere. Clicking
+     * the overlay can be an accident or because the image was clicked at the wrong position.
+     * Thus we assume that the user only interrupted the creation, not aborted it. The user
+     * can abort the creation from the menu.
+     */
+    void correspondenceCreationInterrupted();
+
+    /*!
+     * \brief correspondenceCreationAborted is emitted when the user clicks the abort creation
+     * button
+     */
     void correspondenceCreationAborted();
+
+    /*!
+     * \brief imagesPathChanged emitted when the images path changes because the user used the
+     * navigation controls to change it
+     * \param newPath the new images path that was set
+     */
     void imagesPathChanged(const QString& newPath);
+
+    /*!
+     * \brief objectModelsPathChanged emitted when object models path changes because the user
+     * used the navigation controls to change it
+     * \param newPath the new object models path that was set
+     */
     void objectModelsPathChanged(const QString &newPath);
 
 private slots:
@@ -120,20 +162,30 @@ private slots:
     void onActionExitTriggered();
     void onActionSettingsTriggered();
     void onActionAbortCreationTriggered();
+
     //! Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
     //! right clicks in the image to start creating a correspondence
     void onImageClicked(Image* image, QPoint position);
+
+    /*!
+     * \brief onOverlayClickedAnywhere is called when the user clicks the overlay. This means
+     * he did not proceed to click the object model after clicking the image, which would have
+     * added a correspondence point to the correspondence creator.
+     */
     void onOverlayClickedAnywhere();
     void onPreferencesChanged(const QString &identifier);
 
 private:
-    //! The overlay that is shown when the user clicks on a position in the displayed image to start
-    //! to create a correspondence. When they then click anywhere except for the 3D model on the right
-    //! the formerly changed curser (crosshair) will change back to normal, i.e. the correspondence
-    //! will not be created.
+    // The overlay that is shown when the user clicks on a position in the displayed image to start
+    // to create a correspondence. When they then click anywhere except for the 3D model on the right
+    // the formerly changed curser (crosshair) will change back to normal, i.e. the correspondence
+    // will not be created.
     ClickOverlay *clickOverlay = Q_NULLPTR;
 
     Ui::MainWindow *ui;
+
+    // The label that displays the status of the program, like how many correspondence points have
+    // been added, etc.
     QLabel *statusBarLabel = new QLabel();
 
     PreferencesStore *preferencesStore = Q_NULLPTR;

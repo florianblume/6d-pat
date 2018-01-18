@@ -1,6 +1,7 @@
 #include "correspondenceeditor.hpp"
 #include "ui_correspondenceeditor.h"
 #include "view/rendering/objectmodelrenderable.hpp"
+
 #include <Qt3DRender/QRenderSurfaceSelector>
 #include <Qt3DExtras/QOrbitCameraController>
 #include <Qt3DRender/QClearBuffers>
@@ -91,13 +92,13 @@ void CorrespondenceEditor::setup3DView() {
     /*
      * Second branch holding the viewport of the front facing view
      */
-    setupCamera(leftCamera, QVector3D(0.f, 0.f, 100.f), QVector3D(0.f, 0.f, 100.f),
+    setupCamera(leftCamera, QVector3D(0.f, 0.f, 100.f), QVector3D(0.f, 0.f, 300.f),
                 mainViewport, QRectF(0.0, 0.0, 0.5, 1.0));
 
     /*
      * Third branch holding the viewport of the back facing view
      */
-    setupCamera(rightCamera, QVector3D(0.f, 0.f, -100.f), QVector3D(0.f, 0.f, -100.f),
+    setupCamera(rightCamera, QVector3D(0.f, 0.f, -100.f), QVector3D(0.f, 0.f, -300.f),
                 mainViewport, QRectF(0.5, 0.0, 0.5, 1.0));
 
     resetCameras();
@@ -118,6 +119,15 @@ void CorrespondenceEditor::setupCamera(Qt3DRender::QCamera *&camera,
     camera->setFarPlane(5000.f);
     camera->setPosition(position);
     camera->setViewCenter(QVector3D(0, 0, 0));
+    camera->setUpVector(QVector3D(0.f, 1.f, 0.f));
+
+    Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(camera);
+    Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
+    light->setIntensity(0.5f);
+    Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
+    lightTransform->setTranslation(lightPosition);
+    lightEntity->addComponent(light);
+    lightEntity->addComponent(lightTransform);
 
     Qt3DExtras::QOrbitCameraController *orbitController = new Qt3DExtras::QOrbitCameraController(camera);
     orbitController->setCamera(camera);
@@ -136,8 +146,10 @@ void CorrespondenceEditor::updateCameraLenses() {
 void CorrespondenceEditor::resetCameras() {
     leftCamera->setPosition(QVector3D(0.f, 0.f, 100.f));
     leftCamera->setViewCenter(QVector3D(0, 0, 0));
+    leftCamera->setUpVector(QVector3D(0.f, 1.f, 0.f));
     rightCamera->setPosition(QVector3D(0.f, 0.f, -100.f));
     rightCamera->setViewCenter(QVector3D(0, 0, 0));
+    rightCamera->setUpVector(QVector3D(0.f, 1.f, 0.f));
     updateCameraLenses();
 }
 
@@ -181,6 +193,8 @@ void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectM
     ObjectModelRenderable *objectModelRenderable = new ObjectModelRenderable(sceneEntity,
                                                                              objectModel,
                                                                              "");
+    //leftCamera->viewEntity(objectModelRenderable);
+    //rightCamera->viewEntity(objectModelRenderable);
 
     // Picker to enable the user to select points on the object
 
@@ -202,7 +216,7 @@ void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
     resetControlsValues();
     currentObjectModel.reset(new ObjectModel(*objectModel));
     setObjectModelOnGraphicsWindow(currentObjectModel->getAbsolutePath());
-    resetCameras();
+    //resetCameras();
 }
 
 void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence *correspondence) {
@@ -253,7 +267,7 @@ void CorrespondenceEditor::resizeEvent(QResizeEvent* event) {
 }
 
 void CorrespondenceEditor::objectPickerClicked(Qt3DRender::QPickEvent *pick) {
-    if (pick->button() != Qt::LeftButton)
+    if (pick->button() != Qt3DRender::QPickEvent::LeftButton)
         return;
 
     QVector3D point = pick->localIntersection();

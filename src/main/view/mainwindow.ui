@@ -1762,7 +1762,7 @@
    <sender>correspondenceEditor</sender>
    <signal>objectModelClickedAt(ObjectModel*,QVector3D)</signal>
    <receiver>MainWindow</receiver>
-   <slot>onObjectModelClickedAt(ObjectModel*,QVector3D)</slot>
+   <slot>onObjectModelClicked(ObjectModel*,QVector3D)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>675</x>
@@ -1886,6 +1886,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionAbort_Correspondence_Creation</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onActionAbortCreationTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>selectedObjectModelChanged(ObjectModel*)</signal>
@@ -1894,9 +1910,10 @@
   <slot>onActionExitTriggered()</slot>
   <slot>onActionSettingsTriggered()</slot>
   <slot>onImageClicked(Image*,QPoint)</slot>
-  <slot>onObjectModelClickedAt(ObjectModel*,QVector3D)</slot>
+  <slot>onObjectModelClicked(ObjectModel*,QVector3D)</slot>
   <slot>onSelectedObjectModelChanged(int)</slot>
   <slot>onImagesPathChangedByNavigation(QString)</slot>
   <slot>onObjectModelsPathChangedByNavigation(QString)</slot>
+  <slot>onActionAbortCreationTriggered()</slot>
  </slots>
 </ui>

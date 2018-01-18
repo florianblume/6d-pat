@@ -63,7 +63,7 @@ private:
     UniquePointer<ObjectImageCorrespondence> currentCorrespondence;
 
     // The left view of the object model, e.g. the front view
-    Qt3DExtras::Qt3DWindow *graphicsWindow{};
+    Qt3DExtras::Qt3DWindow *graphicsWindow = Q_NULLPTR;
     Qt3DRender::QObjectPicker *objectPicker = Q_NULLPTR;        // created but not owned later
     Qt3DCore::QEntity *rootEntity = Q_NULLPTR;                  // created but not owned later
     Qt3DCore::QEntity *sceneEntity = Q_NULLPTR;                 // created but not owned later,

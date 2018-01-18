@@ -87,12 +87,10 @@ INCLUDEPATH += \
     $$PWD/src/main/misc \
     $$PWD/src/main/controller \
     $$PWD/src/main/view/settings \
-    /usr/local/include/opencv
+    /usr/local/include/opencv \
+    /home/floretti/anaconda3/include/python3.6m
 
 LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d \
-        -L/home/floretti/anaconda3/lib/python3.6
-
-INCLUDEPATH += /home/floretti/anaconda3/include/python3.6m
 
 DISTFILES += \
     $$PWD/src/main/misc/scripting/imageinfoloader.py
