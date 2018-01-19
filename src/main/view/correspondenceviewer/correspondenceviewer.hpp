@@ -119,6 +119,7 @@ private slots:
      * \brief showSegmentationImage is there for the switch view button
      */
     void switchImage();
+    void resetPositionOfImage();
     void imageCaptured();
     void imageClicked(QPoint point);
 };

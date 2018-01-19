@@ -23,16 +23,23 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
     ui->setupUi(this);
 
     awesome->initFontAwesome();
+
     ui->buttonAccept->setFont(awesome->font(18));
     ui->buttonAccept->setIcon(awesome->icon(fa::check));
     ui->buttonAccept->setToolTip("Click to accept the correspondences.\n"
                                  "They will be taken into account when updating the neural network.");
     ui->buttonAccept->setEnabled(false);
+
     ui->buttonSwitchView->setFont(awesome->font(18));
     ui->buttonSwitchView->setIcon(awesome->icon(fa::toggleoff));
     ui->buttonSwitchView->setToolTip("Click to switch views between segmentation \n"
                                      "image (if available) and normal image.");
     ui->buttonSwitchView->setEnabled(false);
+
+    ui->buttonResetPosition->setFont(awesome->font(18));
+    ui->buttonResetPosition->setIcon(awesome->icon(fa::arrows));
+    ui->buttonResetPosition->setToolTip("Click to reset the position of the image.");
+    ui->buttonResetPosition->setEnabled(false);
 
     setupRenderingPipeline();
 
@@ -110,6 +117,8 @@ void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
 
 void CorrespondenceViewer::setImage(Image *image) {
     currentlyDisplayedImage.reset(new Image(*image));
+
+    ui->buttonResetPosition->setEnabled(true);
 
     qDebug() << "Setting image (" + currentlyDisplayedImage->getImagePath() + ") to display.";
 
@@ -236,6 +245,9 @@ void CorrespondenceViewer::reset() {
     setupSceneRoot();
     currentlyDisplayedImage.release();
     ui->labelGraphics->setPixmap(QPixmap(0, 0));
+    ui->buttonResetPosition->setEnabled(false);
+    ui->buttonAccept->setEnabled(false);
+    ui->buttonSwitchView->setEnabled(false);
 }
 
 void CorrespondenceViewer::update() {
@@ -254,6 +266,12 @@ void CorrespondenceViewer::switchImage() {
     else
         qDebug() << "Setting viewer to display segmentation image.";
 
+}
+
+void CorrespondenceViewer::resetPositionOfImage() {
+    ui->labelGraphics->setGeometry(0, 0,
+                                   ui->labelGraphics->geometry().width(),
+                                   ui->labelGraphics->geometry().height());
 }
 
 void CorrespondenceViewer::imageClicked(QPoint point) {

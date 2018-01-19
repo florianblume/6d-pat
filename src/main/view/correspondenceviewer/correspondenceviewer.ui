@@ -255,6 +255,56 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="buttonResetPosition">
+        <property name="palette">
+         <palette>
+          <active>
+           <colorrole role="Button">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>227</red>
+              <green>227</green>
+              <blue>227</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </active>
+          <inactive>
+           <colorrole role="Button">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>227</red>
+              <green>227</green>
+              <blue>227</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </inactive>
+          <disabled>
+           <colorrole role="Button">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>227</red>
+              <green>227</green>
+              <blue>227</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </disabled>
+         </palette>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -304,10 +354,27 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonResetPosition</sender>
+   <signal>clicked()</signal>
+   <receiver>CorrespondenceViewer</receiver>
+   <slot>resetPositionOfImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>414</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>imageClicked(Image*,QPoint)</signal>
   <slot>switchImage()</slot>
   <slot>imageClicked(QPoint)</slot>
+  <slot>resetPositionOfImage()</slot>
  </slots>
 </ui>
