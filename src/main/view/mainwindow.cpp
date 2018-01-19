@@ -15,9 +15,6 @@ MainWindow::MainWindow(QWidget *parent) :
     statusBar()->addPermanentWidget(statusBarLabel, 1);
     setStatusBarText(QString("Loading..."));
 
-    // Cannot define signal to signal mapping in the designer, thus the connections are defined here
-    connect(ui->galleryLeft, SIGNAL(selectedItemChanged(int)),
-            this, SIGNAL(selectedImageChanged(int)));
     // If the selected image changes, we also need to cancel any started creation of a correspondence
     connect(ui->galleryLeft, SIGNAL(selectedItemChanged(int)),
             this, SIGNAL(correspondenceCreationAborted()));
@@ -226,9 +223,21 @@ void MainWindow::onObjectModelClicked(ObjectModel* objectModel, QVector3D positi
 }
 
 void MainWindow::onSelectedObjectModelChanged(int index) {
-    const QList<ObjectModel> &objectModels = modelManager->getObjectModels();
+    QList<ObjectModel> objectModels = modelManager->getObjectModels();
     Q_ASSERT(index >= 0 && index < objectModels.size());
-    emit selectedObjectModelChanged(new ObjectModel(objectModels.at(index)));
+    // Ok as long as the addressees are in the same thread and directly process the event.
+    ObjectModel *model = new ObjectModel(objectModels.at(index));
+    emit selectedObjectModelChanged(model);
+    delete model;
+}
+
+void MainWindow::onSelectedImageChanged(int index) {
+    QList<Image> images = modelManager->getImages();
+    Q_ASSERT(index >= 0 && index < images.size());
+    // Ok as long as the addressees are in the same thread and directly process the event.
+    Image *image = new Image(images.at(index));
+    emit selectedImageChanged(image);
+    delete image;
 }
 
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
@@ -275,6 +284,8 @@ void MainWindow::onPreferencesChanged(const QString &identifier) {
     UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier(identifier);
     setPathOnLeftBreadcrumbView(preferences->getImagesPath());
     setPathOnRightBreadcrumbView(preferences->getObjectModelsPath());
+    // Sanity call - the widgets reset themselves when the data changes, i.e. also when the
+    // preferences change, but this can't hurt.
     ui->correspondenceEditor->reset();
     ui->correspondenceViewer->reset();
 }

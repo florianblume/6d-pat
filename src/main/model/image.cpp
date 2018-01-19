@@ -69,6 +69,17 @@ float Image::getFocalPointY() {
     return focalPointY;
 }
 
+bool Image::operator==(const Image &other) {
+    // QString supports standard string comparison ==
+    return basePath == other.basePath &&
+            imagePath == other.imagePath &&
+            segmentationImagePath == other.segmentationImagePath &&
+            focalLenghtX == other.focalLenghtX &&
+            focalLenghtY == other.focalLenghtY &&
+            focalPointX == other.focalPointX &&
+            focalPointY == other.focalPointY;
+}
+
 Image& Image::operator=(const Image &other) {
     basePath = other.basePath;
     imagePath = other.imagePath;

@@ -110,6 +110,14 @@ public slots:
      */
     void onSelectedObjectModelChanged(int index);
 
+    /*!
+     * \brief onSelectedImageChanged will be called from the left gallery that displays
+     * images so that the main view can retrieve the actual image and pass it on to the correspondence
+     * viewer.
+     * \param index the index of the selected image
+     */
+    void onSelectedImageChanged(int index);
+
     void onImagesPathChangedByNavigation(const QString &path);
     void onObjectModelsPathChangedByNavigation(const QString &path);
     void displayWarning(const QString &title, const QString& text);
@@ -167,7 +175,7 @@ signals:
      * \brief selectedImageChanged is emitted when the image selected in the gallery changes.
      * \param index the index of the new image
      */
-    void selectedImageChanged(int index);
+    void selectedImageChanged(Image *image);
 
     /*!
      * \brief correspondenceCreationInterrupted this signal is emitted when the user clicks the

@@ -76,12 +76,23 @@ QList<ObjectImageCorrespondence> CachingModelManager::getCorrespondencesForImage
     return correspondencesForImageAndObjectModel;
 }
 
-bool CachingModelManager::addObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence) {
-    const QVector3D position = objectImageCorrespondence->getPosition();
-    const QVector3D rotation = objectImageCorrespondence->getRotation();
-    float articulation = objectImageCorrespondence->getArticulation();
-    const Image* image = objectImageCorrespondence->getImage();
-    const ObjectModel* model = objectImageCorrespondence->getObjectModel();
+bool CachingModelManager::addObjectImageCorrespondence(Image *image,
+                                                       ObjectModel *objectModel,
+                                                       QVector3D position,
+                                                       QVector3D rotation,
+                                                       float articulation,
+                                                       bool accepted) {
+
+    QList<Image>::iterator imageIterator = find(images.begin(), images.end(), *image);
+    if (imageIterator == images.end())
+        return false;
+
+    QList<ObjectModel>::iterator objectModelIterator = find(objectModels.begin(), objectModels.end(), *objectModel);
+    if (objectModelIterator == objectModels.end())
+        return false;
+
+    // IMPORTANT: Use the iterator values, they return the actually managed image and object model
+    // and not what the user passed (and maybe created somewhere else but with the right paths)
     ObjectImageCorrespondence correspondence(QUuid::createUuid().toString(),
                                              position.x(),
                                              position.y(),
@@ -90,7 +101,9 @@ bool CachingModelManager::addObjectImageCorrespondence(ObjectImageCorrespondence
                                              rotation.y(),
                                              rotation.z(),
                                              articulation,
-                                             image, model);
+                                             &*imageIterator,
+                                             &*objectModelIterator);
+    // TODO: add accepted
 
     if (!loadAndStoreStrategy.persistObjectImageCorrespondence(&correspondence, false)) {
         //! if there is an error persisting the correspondence for any reason we should not add the correspondence to this manager
@@ -100,71 +113,71 @@ bool CachingModelManager::addObjectImageCorrespondence(ObjectImageCorrespondence
     //! correspondence has not yet been added
     correspondences.push_back(correspondence);
 
-    const QString imagePath = correspondence.getImage()->getImagePath();
-    const QString objectModelPath = correspondence.getObjectModel()->getPath();
-
-    //! initialize and add the list of correspondences for an image
-    QList<ObjectImageCorrespondence> newCorrespondencesForImageList;
-    newCorrespondencesForImageList.push_back(correspondences.front());
-    correspondencesForImages[imagePath] = std::move(newCorrespondencesForImageList);
-
-    //! initialize and add the list of correspondences for an object model
-    QList<ObjectImageCorrespondence> newCorrespondencesForObjectModelList;
-    newCorrespondencesForObjectModelList.push_back(correspondences.front());
-    correspondencesForObjectModels[objectModelPath] = std::move(newCorrespondencesForObjectModelList);
+    createConditionalCache();
 
     emit correspondencesChanged();
 
     return true;
 }
 
-bool CachingModelManager::updateObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence) {
-    QList<ObjectImageCorrespondence>::iterator it = find(correspondences.begin(), correspondences.end(), *objectImageCorrespondence);
+bool CachingModelManager::updateObjectImageCorrespondence(const QString &id,
+                                                          QVector3D position,
+                                                          QVector3D rotation,
+                                                          float articulation,
+                                                          bool accepted) {
+    ObjectImageCorrespondence *correspondence = Q_NULLPTR;
+    for (int i = 0; i < correspondences.size(); i++) {
+        if (correspondences[i].getID() == id)
+            correspondence = &correspondences[i];
+    }
 
-    if (it == correspondences.end()) {
+    if (!correspondence) {
         //! this manager does not manager the given correspondence
         return false;
     }
 
-    if (!loadAndStoreStrategy.persistObjectImageCorrespondence(objectImageCorrespondence, false)) {
-        //! if there is an error persisting the correspondence for any reason we should not add the correspondence to this manager
+    QVector3D previousPosition = correspondence->getPosition();
+    QVector3D previousRotation = correspondence->getRotation();
+    float previousArticulation = correspondence->getArticulation();
+
+    correspondence->setPosition(position);
+    correspondence->setRotation(rotation);
+    correspondence->setArticulation(articulation);
+
+    // TODO: set accepted
+
+    if (!loadAndStoreStrategy.persistObjectImageCorrespondence(correspondence, false)) {
+        // if there is an error persisting the correspondence for any reason we should not keep the new values
+        correspondence->setPosition(previousPosition);
+        correspondence->setRotation(previousRotation);
+        correspondence->setArticulation(previousArticulation);
         return false;
     }
-
-    //! correspondence already exist so we just have to update it
-    //! correspondences in the list of correspondences for image or object models will be updated because they simply
-    //! reference the "main" correspondence
-    const QVector3D position = objectImageCorrespondence->getPosition();
-    const QVector3D rotation = objectImageCorrespondence->getRotation();
-    (*it).setPosition(position.x(), position.y(), position.z());
-    (*it).setRotation(rotation.x(), rotation.y(), rotation.z());
-    (*it).setArticulation(objectImageCorrespondence->getArticulation());
 
     emit correspondencesChanged();
 
     return true;
 }
 
-bool CachingModelManager::removeObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence) {
-    if (!loadAndStoreStrategy.persistObjectImageCorrespondence(objectImageCorrespondence, true)) {
+bool CachingModelManager::removeObjectImageCorrespondence(const QString &id) {
+    ObjectImageCorrespondence *correspondence = Q_NULLPTR;
+    for (int i = 0; i < correspondences.size(); i++) {
+        if (correspondences[i].getID() == id)
+            correspondence = &correspondences[i];
+    }
+
+    if (!correspondence) {
+        //! this manager does not manager the given correspondence
+        return false;
+    }
+
+    if (!loadAndStoreStrategy.persistObjectImageCorrespondence(correspondence, true)) {
         //! there was an error persistently removing the corresopndence, maybe wrong folder, maybe the correspondence didn't exist
         //! thus it doesn't make sense to remove the correspondence from this manager
         return false;
     }
 
-    bool correspondenceFound = false;
-    for (int i = 0; i < correspondences.size(); i++) {
-        if (correspondences[i].getID().compare(objectImageCorrespondence->getID()) == 0) {
-            correspondences.erase(correspondences.begin() + i);
-            correspondenceFound = true;
-        }
-    }
-
-    if (!correspondenceFound)
-        //! if we didn't find a correspondence there is no need to proceed any further, maybe this manager is not managing the given correspondence
-        return false;
-
-    QString imagePath = objectImageCorrespondence->getImage()->getImagePath();
+    QString imagePath = correspondence->getImage()->getImagePath();
     QList<ObjectImageCorrespondence>& correspondencesForImage = correspondencesForImages[imagePath];
     for (int i = 0; i < correspondencesForImage.size(); i++) {
         if (correspondencesForImage[i].getImage()->getImagePath().compare(imagePath)) {
@@ -172,7 +185,7 @@ bool CachingModelManager::removeObjectImageCorrespondence(ObjectImageCorresponde
         }
     }
 
-    QString objectModelPath = objectImageCorrespondence->getObjectModel()->getPath();
+    QString objectModelPath = correspondence->getObjectModel()->getPath();
     QList<ObjectImageCorrespondence>& correspondencesForObject = correspondencesForObjectModels[objectModelPath];
     for (int i = 0; i < correspondencesForObject.size(); i++) {
         if (correspondencesForObject[i].getObjectModel()->getPath().compare(objectModelPath)) {

@@ -69,6 +69,7 @@ void Gallery::endScroll() {
 
 void Gallery::reset() {
     ui->listView->reset();
+    ui->listView->clearSelection();
 }
 
 void Gallery::startScrollTimer() {

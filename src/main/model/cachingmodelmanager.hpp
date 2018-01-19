@@ -34,11 +34,20 @@ public:
 
     QList<ObjectImageCorrespondence> getCorrespondencesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) override;
 
-    bool addObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence) override;
+    bool addObjectImageCorrespondence(Image *image,
+                                      ObjectModel *objectModel,
+                                      QVector3D position,
+                                      QVector3D rotation,
+                                      float articulation,
+                                      bool accepted) override;
 
-    bool updateObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence) override;
+    bool updateObjectImageCorrespondence(const QString &id,
+                                         QVector3D position,
+                                         QVector3D rotation,
+                                         float articulation,
+                                         bool accepted) override;
 
-    bool removeObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence) override;
+    bool removeObjectImageCorrespondence(const QString &id) override;
 
 private:
 

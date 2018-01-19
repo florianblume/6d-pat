@@ -23,6 +23,11 @@ QString ObjectModel::getAbsolutePath() const {
     return QDir(basePath).filePath(objectModelPath);
 }
 
+bool ObjectModel::operator==(const ObjectModel &other) {
+    // QString supports standard string comparison ==
+    return basePath == other.basePath && objectModelPath == other.objectModelPath;
+}
+
 ObjectModel& ObjectModel::operator=(const ObjectModel &other) {
     basePath = other.basePath;
     objectModelPath = other.objectModelPath;

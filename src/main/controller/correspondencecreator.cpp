@@ -96,19 +96,20 @@ void CorrespondenceCreator::addCorrespondencePoint(QPoint imagePoint, QVector3D 
             }
         }
 
-        ObjectImageCorrespondence correspondence = ObjectImageCorrespondence("",
-                                  resultTranslation.at<float>(0, 0),
-                                  resultTranslation.at<float>(1, 0),
-                                  resultTranslation.at<float>(2, 0),
-                                  // Conversion from radians to degrees
-                                  resultRotation.at<float>(0, 0) * (180.0f / M_PI),
-                                  resultRotation.at<float>(1, 0) * (180.0f / M_PI),
-                                  resultRotation.at<float>(2, 0) * (180.0f / M_PI),
-                                  0,
-                                  image,
-                                  objectModel);
         // The adding process already notifies observers of the new correspondnece
-        modelManager->addObjectImageCorrespondence(&correspondence);
+        QVector3D position(resultTranslation.at<float>(0, 0),
+                           resultTranslation.at<float>(1, 0),
+                           resultTranslation.at<float>(2, 0));
+        // Conversion from radians to degrees
+        QVector3D rotation(resultRotation.at<float>(0, 0) * (180.0f / M_PI),
+                           resultRotation.at<float>(1, 0) * (180.0f / M_PI),
+                           resultRotation.at<float>(2, 0) * (180.0f / M_PI));
+        modelManager->addObjectImageCorrespondence(image,
+                                                   objectModel,
+                                                   position,
+                                                   rotation,
+                                                   0,
+                                                   false);
 
         points.clear();
         objectModel = Q_NULLPTR;

@@ -47,7 +47,7 @@ public slots:
      * \brief setImage sets the image that this CorrespondenceEditor displays.
      * \param index the index of the image to be displayed
      */
-    void setImage(int index);
+    void setImage(Image *image);
 
     /*!
      * \brief reset resets the view to display nothing.
@@ -93,8 +93,6 @@ private:
     QImage renderedImage;
     bool imageReady = false;
 
-    // The index of the image that is currently selected in the gallery and displayed here
-    int currentlyDisplayedImageIndex = -1;
     UniquePointer<Image> currentlyDisplayedImage;
 
     // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
@@ -103,7 +101,7 @@ private:
 
     void addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
                                   int objectModelIndex);
-    // The method that receives the retrieved image (e.g. from setImage(index)) and initiates
+    // The method that receives the retrieved image (e.g. from setImage(Image*)) and initiates
     // rendering
     void showImage(const QString &imagePath);
 

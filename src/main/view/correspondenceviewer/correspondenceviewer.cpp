@@ -36,22 +36,17 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
 
     setupRenderingPipeline();
 
-    if (modelManager)
+    if (modelManager) {
         connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(update()));
+        connect(modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
+        connect(modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
+    }
 }
 
-CorrespondenceViewer::~CorrespondenceViewer()
-{
+CorrespondenceViewer::~CorrespondenceViewer() {
     deleteSceneObjects();
     delete offscreenEngine;
     delete ui;
-}
-
-void CorrespondenceViewer::deleteSceneObjects() {
-    if (sceneObjectsEntity) {
-        delete sceneObjectsEntity;
-        sceneObjectsEntity = Q_NULLPTR;
-    }
 }
 
 void CorrespondenceViewer::setupRenderingPipeline() {
@@ -83,6 +78,13 @@ void CorrespondenceViewer::setupRenderingPipeline() {
     offscreenEngine->setSceneRoot(sceneRoot);
 }
 
+void CorrespondenceViewer::deleteSceneObjects() {
+    if (sceneObjectsEntity) {
+        delete sceneObjectsEntity;
+        sceneObjectsEntity = Q_NULLPTR;
+    }
+}
+
 void CorrespondenceViewer::setupSceneRoot() {
     // This recursively deletes all objects that are children of the entity
     if (sceneObjectsEntity) {
@@ -94,11 +96,66 @@ void CorrespondenceViewer::setupSceneRoot() {
 
 void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
-    if (this->modelManager)
+    if (this->modelManager) {
         disconnect(this->modelManager, SIGNAL(correspondencesChanged()),
                    this, SLOT(update()));
+        disconnect(modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
+        disconnect(modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
+    }
     this->modelManager = modelManager;
     connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(update()));
+    connect(modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
+    connect(modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
+}
+
+void CorrespondenceViewer::setImage(Image *image) {
+    currentlyDisplayedImage.reset(new Image(*image));
+
+    qDebug() << "Setting image (" + currentlyDisplayedImage->getImagePath() + ") to display.";
+
+    // Enable/disable functionality to show only segmentation image instead of normal image
+    if (currentlyDisplayedImage->getSegmentationImagePath().isEmpty()) {
+        ui->buttonSwitchView->setEnabled(false);
+
+        // If we don't find a segmentation image, set that we will now display the normal image
+        // because the formerly set image could have had a segmentation image and set this value
+        // to false
+        showingNormalImage = true;
+    } else {
+        ui->buttonSwitchView->setEnabled(true);
+    }
+    showImage(showingNormalImage ?  currentlyDisplayedImage->getAbsoluteImagePath() :
+                                    currentlyDisplayedImage->getAbsoluteSegmentationImagePath());
+}
+
+void CorrespondenceViewer::showImage(const QString &imagePath) {
+    deleteSceneObjects();
+    setupSceneRoot();
+
+    // Set root entity here as parent so that image is a child of it
+    qDebug() << "Displaying image (" + imagePath + ").";
+
+    // Do not use the pointer here as getCorrespondencesForImage requires a reference not a pointer
+    QList<ObjectImageCorrespondence> correspondencesForImage =
+            modelManager->getCorrespondencesForImage(*currentlyDisplayedImage.get());
+
+    int i = 0;
+    for (ObjectImageCorrespondence &correspondence : correspondencesForImage) {
+        addObjectModelRenderable(correspondence, i);
+        i++;
+    }
+
+    // This is just to retrieve the size of the set image
+    QImage image(imagePath);
+    ui->labelGraphics->setFixedSize(image.size());
+    // Relation between camera matrix and field of view implies the following computation
+    // 180.f / M_PI is conversion from radians to degrees
+    camera->setFieldOfView(2.f * std::atan(image.height() /
+                                           (2.f * currentlyDisplayedImage->getFocalLengthX())) * (180.0f / M_PI));
+    // Not necessary to set size first but can't hurt
+    offscreenEngine->setSize(QSize(image.width(), image.height()));
+    renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
+    connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
 }
 
 void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
@@ -120,60 +177,6 @@ void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorresponde
     qDebug() << "Adding object model (" + objectModel->getPath() + ") to display.";
 }
 
-void CorrespondenceViewer::showImage(const QString &imagePath) {
-    reset();
-    // Set root entity here as parent so that image is a child of it
-    qDebug() << "Displaying image (" + imagePath + ").";
-
-    // Do not use the pointer here as getCorrespondencesForImage requires a reference not a pointer
-    QList<ObjectImageCorrespondence> correspondencesForImage =
-            modelManager->getCorrespondencesForImage(modelManager->getImages().at(currentlyDisplayedImageIndex));
-
-    int i = 0;
-    for (ObjectImageCorrespondence &correspondence : correspondencesForImage) {
-        addObjectModelRenderable(correspondence, i);
-        i++;
-    }
-
-    // This is just to retrieve the size of the set image
-    QImage image(imagePath);
-    ui->labelGraphics->setFixedSize(image.size());
-    // Relation between camera matrix and field of view implies the following computation
-    // 180.f / M_PI is conversion from radians to degrees
-    camera->setFieldOfView(2.f * std::atan(image.height() /
-                                           (2.f * currentlyDisplayedImage->getFocalLengthX())) * (180.0f / M_PI));
-    // Not necessary to set size first but can't hurt
-    offscreenEngine->setSize(QSize(image.width(), image.height()));
-    renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
-    connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
-}
-
-void CorrespondenceViewer::setImage(int index) {
-    QList<Image> images = modelManager->getImages();
-
-    Q_ASSERT(index < images.size());
-    Q_ASSERT(index >= 0);
-
-    currentlyDisplayedImageIndex = index;
-    currentlyDisplayedImage.reset(new Image(images.at(index)));
-
-    qDebug() << "Setting image (" + currentlyDisplayedImage->getImagePath() + ") to display.";
-
-    // Enable/disable functionality to show only segmentation image instead of normal image
-    if (currentlyDisplayedImage->getSegmentationImagePath().isEmpty()) {
-        ui->buttonSwitchView->setEnabled(false);
-
-        // If we don't find a segmentation image, set that we will now display the normal image
-        // because the formerly set image could have had a segmentation image and set this value
-        // to false
-        showingNormalImage = true;
-    } else {
-        ui->buttonSwitchView->setEnabled(true);
-    }
-    showImage(showingNormalImage ?  currentlyDisplayedImage->getAbsoluteImagePath() :
-                                    currentlyDisplayedImage->getAbsoluteSegmentationImagePath());
-}
-
 void CorrespondenceViewer::imageCaptured() {
     // The first image is somehow always empty, so request another capture and save that
 
@@ -185,12 +188,24 @@ void CorrespondenceViewer::imageCaptured() {
         imageReady = true;
     } else {
         renderedImage = renderCaptureReply->image().mirrored(true, true);
-        renderedImage.save("test.png");
-        updateDisplayedImage();
+        // Sanity check here, because rendering is done asynchronously
+        // There is a case for example, when the user switches the images path, that the image is
+        // rendered. Inbetween, reset() is called from the onPreferencesChanged() method in the
+        // main view. Thus the index has been reset and we should not display the rendered image.
+        if (currentlyDisplayedImage.get() != Q_NULLPTR)
+            updateDisplayedImage();
         disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
         delete renderCaptureReply;
         imageReady = false;
     }
+}
+
+void CorrespondenceViewer::updateDisplayedImage() {
+    QString baseImage = showingNormalImage ?
+                                  currentlyDisplayedImage->getAbsoluteImagePath() :
+                                  currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
+    QImage image =  createImageWithOverlay(QImage(baseImage), renderedImage);
+    ui->labelGraphics->setPixmap(QPixmap::fromImage(image));
 }
 
 QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage) {
@@ -215,32 +230,24 @@ QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, con
     return imageWithOverlay;
 }
 
-void CorrespondenceViewer::updateDisplayedImage() {
-    QString baseImage = showingNormalImage ?
-                                  currentlyDisplayedImage->getAbsoluteImagePath() :
-                                  currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
-    QImage image =  createImageWithOverlay(QImage(baseImage), renderedImage);
-    ui->labelGraphics->setPixmap(QPixmap::fromImage(image));
-}
-
 void CorrespondenceViewer::reset() {
     qDebug() << "Resetting correspondence viewer.";
     deleteSceneObjects();
     setupSceneRoot();
+    currentlyDisplayedImage.release();
+    ui->labelGraphics->setPixmap(QPixmap(0, 0));
 }
 
 void CorrespondenceViewer::update() {
-    setImage(currentlyDisplayedImageIndex);
+    if (currentlyDisplayedImage.get())
+        setImage(currentlyDisplayedImage.get());
 }
 
 void CorrespondenceViewer::switchImage() {
-    QList<Image> images = modelManager->getImages();
-
-    Q_ASSERT(currentlyDisplayedImageIndex < images.size());
-    Q_ASSERT(currentlyDisplayedImageIndex >= 0);
-
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
     showingNormalImage = !showingNormalImage;
+
+    update();
 
     if (showingNormalImage)
         qDebug() << "Setting viewer to display normal image.";
@@ -250,5 +257,7 @@ void CorrespondenceViewer::switchImage() {
 }
 
 void CorrespondenceViewer::imageClicked(QPoint point) {
+    qDebug() << "Image (" + currentlyDisplayedImage->getImagePath() + ") clicked at: (" +
+                QString::number(point.x()) + ", " + QString::number(point.y()) + ").";
     emit imageClicked(currentlyDisplayedImage.get(), point);
 }

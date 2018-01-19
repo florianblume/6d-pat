@@ -50,8 +50,16 @@ void ObjectImageCorrespondence::setPosition(float x, float y, float z) {
     position = {x, y, z};
 }
 
+void ObjectImageCorrespondence::setPosition(QVector3D position) {
+    this->position = std::move(position);
+}
+
 void ObjectImageCorrespondence::setRotation(float r1, float r2, float r3) {
     rotation = {r1, r2, r3};
+}
+
+void ObjectImageCorrespondence::setRotation(QVector3D rotation) {
+    this->rotation = std::move(rotation);
 }
 
 void ObjectImageCorrespondence::setArticulation(float articulation) {

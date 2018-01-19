@@ -82,6 +82,9 @@ public:
      * \param z the z position, i.e. the depth of the object
      */
     void setPosition(float x, float y, float z);
+
+    void setPosition(QVector3D position);
+
     /*!
      * \brief setRotation Sets the rotation of the object on the image.
      * \param r1 the rotation of the x-axis of the object
@@ -89,6 +92,9 @@ public:
      * \param r3 the rotation of the z-axis of the object
      */
     void setRotation(float r1, float r2, float r3);
+
+    void setRotation(QVector3D rotation);
+
     /*!
      * \brief setArticulation Sets the articulation of the object on the image.
      * \param articulation the articulation of the object

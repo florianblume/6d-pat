@@ -72,6 +72,8 @@ public:
 
     float getFocalPointY();
 
+    bool operator==(const Image &other);
+
     Image& operator=(const Image &other);
 
 private:

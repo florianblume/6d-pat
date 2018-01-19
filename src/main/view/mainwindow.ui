@@ -1515,7 +1515,7 @@
    <container>1</container>
    <slots>
     <signal>imageClicked(Image*,QPoint)</signal>
-    <slot>setImage(int)</slot>
+    <slot>setImage(Image*)</slot>
     <slot>reset()</slot>
    </slots>
   </customwidget>
@@ -1547,22 +1547,6 @@
     <hint type="destinationlabel">
      <x>675</x>
      <y>43</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>galleryLeft</sender>
-   <signal>selectedItemChanged(int)</signal>
-   <receiver>correspondenceViewer</receiver>
-   <slot>setImage(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>223</x>
-     <y>118</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
-     <y>400</y>
     </hint>
    </hints>
   </connection>
@@ -1777,16 +1761,16 @@
   <connection>
    <sender>galleryLeft</sender>
    <signal>selectedItemChanged(int)</signal>
-   <receiver>correspondenceEditor</receiver>
-   <slot>reset()</slot>
+   <receiver>MainWindow</receiver>
+   <slot>onSelectedImageChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>223</x>
      <y>121</y>
     </hint>
     <hint type="destinationlabel">
-     <x>675</x>
-     <y>401</y>
+     <x>449</x>
+     <y>299</y>
     </hint>
    </hints>
   </connection>
@@ -1902,10 +1886,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>MainWindow</sender>
+   <signal>selectedImageChanged(Image*)</signal>
+   <receiver>correspondenceViewer</receiver>
+   <slot>setImage(Image*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>selectedObjectModelChanged(ObjectModel*)</signal>
-  <signal>selectedItemChanged(int)</signal>
+  <signal>selectedImageChanged(Image*)</signal>
   <slot>onActionAboutTriggered()</slot>
   <slot>onActionExitTriggered()</slot>
   <slot>onActionSettingsTriggered()</slot>
@@ -1915,5 +1915,6 @@
   <slot>onImagesPathChangedByNavigation(QString)</slot>
   <slot>onObjectModelsPathChangedByNavigation(QString)</slot>
   <slot>onActionAbortCreationTriggered()</slot>
+  <slot>onSelectedImageChanged(int)</slot>
  </slots>
 </ui>

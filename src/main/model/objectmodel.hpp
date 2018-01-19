@@ -43,6 +43,8 @@ public:
      */
     QString getBasePath() const;
 
+    bool operator==(const ObjectModel &other);
+
     ObjectModel& operator=(const ObjectModel &other);
 };
 

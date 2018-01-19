@@ -385,6 +385,18 @@
                  <property name="accelerated">
                   <bool>true</bool>
                  </property>
+                 <property name="decimals">
+                  <number>4</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-50.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.000100000000000</double>
+                 </property>
                 </widget>
                </item>
                <item row="1" column="0">
@@ -424,6 +436,18 @@
                  <property name="accelerated">
                   <bool>true</bool>
                  </property>
+                 <property name="decimals">
+                  <number>4</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-50.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.000100000000000</double>
+                 </property>
                 </widget>
                </item>
                <item row="2" column="1">
@@ -448,6 +472,18 @@
                  </property>
                  <property name="accelerated">
                   <bool>true</bool>
+                 </property>
+                 <property name="decimals">
+                  <number>4</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-50.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.000100000000000</double>
                  </property>
                 </widget>
                </item>
@@ -560,6 +596,18 @@
                  <property name="showGroupSeparator" stdset="0">
                   <bool>false</bool>
                  </property>
+                 <property name="decimals">
+                  <number>4</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-50.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.000100000000000</double>
+                 </property>
                 </widget>
                </item>
                <item row="1" column="0">
@@ -592,6 +640,18 @@
                  <property name="accelerated">
                   <bool>true</bool>
                  </property>
+                 <property name="decimals">
+                  <number>4</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-50.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.000100000000000</double>
+                 </property>
                 </widget>
                </item>
                <item row="2" column="0">
@@ -623,6 +683,18 @@
                  </property>
                  <property name="accelerated">
                   <bool>true</bool>
+                 </property>
+                 <property name="decimals">
+                  <number>4</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-50.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.000100000000000</double>
                  </property>
                 </widget>
                </item>
