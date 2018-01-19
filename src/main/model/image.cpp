@@ -23,6 +23,16 @@ Image::Image(const QString& imagePath, const QString& basePath, const QString& s
       focalPointY(focalPointY) {
 }
 
+Image::Image(const Image &other) {
+    imagePath = other.imagePath;
+    segmentationImagePath = other.segmentationImagePath;
+    basePath = other.basePath;
+    focalLenghtX = other.focalLenghtX;
+    focalLenghtY = other.focalLenghtY;
+    focalPointX = other.focalPointX;
+    focalPointY = other.focalPointY;
+}
+
 QString Image::getImagePath() const {
     return imagePath;
 }
@@ -59,7 +69,9 @@ float Image::getFocalPointY() {
     return focalPointY;
 }
 
-Image& Image::operator=(Image other) {
-    std::swap(*this, other);
+Image& Image::operator=(const Image &other) {
+    basePath = other.basePath;
+    imagePath = other.imagePath;
+    segmentationImagePath = other.segmentationImagePath;
     return *this;
 }

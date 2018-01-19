@@ -43,7 +43,7 @@ public:
      */
     QString getBasePath() const;
 
-    ObjectModel& operator=(ObjectModel other);
+    ObjectModel& operator=(const ObjectModel &other);
 };
 
 #endif // OBJECTMODEL_H

@@ -107,7 +107,8 @@ void CorrespondenceCreator::addCorrespondencePoint(QPoint imagePoint, QVector3D 
                                   0,
                                   image,
                                   objectModel);
-        modelManager->addObjectImageCorrespondence(correspondence);
+        // The adding process already notifies observers of the new correspondnece
+        modelManager->addObjectImageCorrespondence(&correspondence);
 
         points.clear();
         objectModel = Q_NULLPTR;

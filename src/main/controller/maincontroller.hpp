@@ -60,7 +60,6 @@ private:
     // It might be the case that the user clicked the image and then the overlay, which means that
     // they have to click the image again, to proceed with correspondence creation.
    CorrespondenceCreationState correspondenceCreationSate = CorrespondenceCreationState::Empty;
-   void resetCorrespondenceCreation();
 
     void initializeSettingsItem();
     void initializeMainWindow();
@@ -68,12 +67,13 @@ private:
 
 private slots:
     void onImageClicked(Image* image, QPoint position);
-    void onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position);
+    void onObjectModelClicked(ObjectModel* objectModel, QVector3D position);
     void onCorrespondenceCreationInterrupted();
     void onCorrespondenceCreationAborted();
     void onImagePathChanged(const QString &newPath);
     void onObjectModelsPathChanged(const QString &newPath);
     void onPreferencesChanged(const QString &identifier);
+    void resetCorrespondenceCreation();
 };
 
 #endif // MAINCONTROLLER_H

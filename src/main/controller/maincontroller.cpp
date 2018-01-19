@@ -35,6 +35,9 @@ void MainController::initialize() {
 }
 
 void MainController::initializeMainWindow() {
+    // Notifies the main window of the initialization process so that it can display a message etc.
+    mainWindow.onInitializationStarted();
+
     mainWindow.setPreferencesStore(preferencesStore.get());
 
     //! The reason why the breadcrumbs receive an object of the path type of the boost filesystem library
@@ -53,14 +56,12 @@ void MainController::initializeMainWindow() {
     mainWindow.setGalleryObjectModelModel(galleryObjectModelModel);
     mainWindow.setModelManager(&modelManager);
 
-    mainWindow.setStatusBarText("Ready");
-
     // Connect the main window's reactions to the user clicking on a displayed image or on an object
     // model to delegate any further computation to this controller
     connect(&mainWindow, SIGNAL(imageClicked(Image*,QPoint)),
             this, SLOT(onImageClicked(Image*,QPoint)));
-    connect(&mainWindow, SIGNAL(objectModelClickedAt(ObjectModel*,QVector3D)),
-            this, SLOT(onObjectModelClickedAt(ObjectModel*,QVector3D)));
+    connect(&mainWindow, SIGNAL(objectModelClicked(ObjectModel*,QVector3D)),
+            this, SLOT(onObjectModelClicked(ObjectModel*,QVector3D)));
     connect(&mainWindow, SIGNAL(correspondenceCreationInterrupted()),
             this, SLOT(onCorrespondenceCreationInterrupted()));
     connect(&mainWindow, SIGNAL(correspondenceCreationAborted()),
@@ -70,6 +71,8 @@ void MainController::initializeMainWindow() {
             this, SLOT(onImagePathChanged(QString)));
     connect(&mainWindow, SIGNAL(objectModelsPathChanged(QString)),
             this, SLOT(onObjectModelsPathChanged(QString)));
+
+    mainWindow.onInitializationCompleted();
 }
 
 void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
@@ -77,17 +80,16 @@ void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
 }
 
 void MainController::onImageClicked(Image* image, QPoint position) {
+    // We can set the image here everytime, if it differs from the previously one, the creator will
+    // automatically reset the points etc.
     correspondenceCreator->setImage(image);
     lastClickedImagePosition = position;
+    // To keep track whether the user actually clicked an image before clicking an object
     correspondenceCreationSate = CorrespondenceCreationState::ImageClicked;
-
-    // TODO: show how many points are missing until an actual correspondence can be created
-    mainWindow.setStatusBarText("Please select the corresponding 3D point [" +
-                            QString::number(correspondenceCreator->numberOfCorrespondencePoints() + 1)
-                            + " of 4].");
+    mainWindow.onCorrespondencePointCreationInitiated(correspondenceCreator->numberOfCorrespondencePoints() + 1, 4);
 }
 
-void MainController::onObjectModelClickedAt(ObjectModel* objectModel, QVector3D position) {
+void MainController::onObjectModelClicked(ObjectModel* objectModel, QVector3D position) {
     // Check whether the correspondencePointCompleted flag is set, so that the point is only
     // added when the user clicked the image somewhere previously
     if (correspondenceCreator->isImageSet() &&
@@ -100,10 +102,9 @@ void MainController::onObjectModelClickedAt(ObjectModel* objectModel, QVector3D 
             // If the number of points is 0, although we just added a point, the correspondence
             // creation has been completed and the points cleared
             resetCorrespondenceCreation();
+            mainWindow.onCorrespondenceCreated();
         } else {
-            mainWindow.setStatusBarText("Please select another correspondence [" +
-                                    QString::number(points + 1)
-                                    + " of 4].");
+            mainWindow.onCorrespondencePointAdded(correspondenceCreator->numberOfCorrespondencePoints() + 1, 4);
         }
     }
 }
@@ -136,7 +137,7 @@ void MainController::showView() {
 void MainController::resetCorrespondenceCreation() {
     correspondenceCreator->abortCreation();
     correspondenceCreationSate = CorrespondenceCreationState::Empty;
-    mainWindow.setStatusBarText("Ready.");
+    mainWindow.onCorrespondenceCreationReset();
 
 }
 

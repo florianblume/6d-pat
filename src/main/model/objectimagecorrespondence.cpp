@@ -66,8 +66,14 @@ bool ObjectImageCorrespondence::operator==(const ObjectImageCorrespondence& obje
     return id.compare(objectImageCorrespondence.getID()) == 0;
 }
 
-ObjectImageCorrespondence& ObjectImageCorrespondence::operator=(ObjectImageCorrespondence other) {
-    std::swap(*this, other);
+ObjectImageCorrespondence& ObjectImageCorrespondence::operator=(const ObjectImageCorrespondence &other) {
+    id = other.id;
+    image = other.image;
+    objectModel = other.objectModel;
+    position = other.position;
+    rotation = other.rotation;
+    articulation = other.articulation;
+    accepted = other.accepted;
     return *this;
 }
 

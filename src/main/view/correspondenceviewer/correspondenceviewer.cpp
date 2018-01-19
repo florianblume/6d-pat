@@ -36,7 +36,8 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
 
     setupRenderingPipeline();
 
-    connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(update()));
+    if (modelManager)
+        connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(update()));
 }
 
 CorrespondenceViewer::~CorrespondenceViewer()
@@ -93,7 +94,11 @@ void CorrespondenceViewer::setupSceneRoot() {
 
 void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
+    if (this->modelManager)
+        disconnect(this->modelManager, SIGNAL(correspondencesChanged()),
+                   this, SLOT(update()));
     this->modelManager = modelManager;
+    connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(update()));
 }
 
 void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
@@ -120,6 +125,7 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
     // Set root entity here as parent so that image is a child of it
     qDebug() << "Displaying image (" + imagePath + ").";
 
+    // Do not use the pointer here as getCorrespondencesForImage requires a reference not a pointer
     QList<ObjectImageCorrespondence> correspondencesForImage =
             modelManager->getCorrespondencesForImage(modelManager->getImages().at(currentlyDisplayedImageIndex));
 
@@ -143,13 +149,14 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
 }
 
 void CorrespondenceViewer::setImage(int index) {
-    const QList<Image> &images = modelManager->getImages();
+    QList<Image> images = modelManager->getImages();
 
     Q_ASSERT(index < images.size());
     Q_ASSERT(index >= 0);
 
     currentlyDisplayedImageIndex = index;
     currentlyDisplayedImage.reset(new Image(images.at(index)));
+
     qDebug() << "Setting image (" + currentlyDisplayedImage->getImagePath() + ") to display.";
 
     // Enable/disable functionality to show only segmentation image instead of normal image
@@ -197,6 +204,8 @@ QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, con
     painter.drawImage(0, 0, baseImage);
 
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+
+    // Account for the offset of the focal point
     painter.drawImage(currentlyDisplayedImage->getFocalPointX() - (overlayImage.width() / 2.f) + 21.f,
                       currentlyDisplayedImage->getFocalPointY() - (overlayImage.height() / 2.f),
                       overlayImage);
@@ -225,14 +234,14 @@ void CorrespondenceViewer::update() {
 }
 
 void CorrespondenceViewer::switchImage() {
-    const QList<Image> &images = modelManager->getImages();
+    QList<Image> images = modelManager->getImages();
 
     Q_ASSERT(currentlyDisplayedImageIndex < images.size());
     Q_ASSERT(currentlyDisplayedImageIndex >= 0);
 
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
     showingNormalImage = !showingNormalImage;
-    //updateDisplayedImage();
+
     if (showingNormalImage)
         qDebug() << "Setting viewer to display normal image.";
     else

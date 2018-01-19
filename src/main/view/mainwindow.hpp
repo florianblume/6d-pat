@@ -52,13 +52,25 @@ public:
     virtual void closeEvent(QCloseEvent *event);
     ~MainWindow();
 
+    /*!
+     * \brief onInitializationStarted can be called when the external process that initializes this
+     * window has started the initialization process. The initialization can be settings paths, etc.
+     */
+    void onInitializationStarted();
+
+    /*!
+     * \brief onInitializationCompleted can be called when the external process that initializes this
+     * window has finished the initizliation process.
+     */
+    void onInitializationCompleted();
+
     //! Various functions to initialize or alter the state of the window and its components.
     //! Most should be self-explanatory.
     void setPathOnLeftBreadcrumbView(const QString &pathToShow);
     void setPathOnRightBreadcrumbView(const QString &pathToShow);
     void setPathOnLeftNavigationControls(const QString &path);
     void setPathOnRightNavigationControls(const QString &path);
-    void resetCorrespondenceEditor();
+    void resetCorrespondenceViewer();
 
     void setStatusBarText(const QString& text);
 
@@ -101,6 +113,35 @@ public slots:
     void onImagesPathChangedByNavigation(const QString &path);
     void onObjectModelsPathChangedByNavigation(const QString &path);
     void displayWarning(const QString &title, const QString& text);
+
+    /*!
+     * \brief onCorrespondencePointCreationInitiated can be called when the user clicked the image
+     * but not the object model yet, to indicate that the program recieved the click correctly.
+     * \param currentNumberOfPoints the number of currently added correspondence points
+     * \param requiredNumberOfPoints the number of totally required correspondence points to create
+     * a new correspondence
+     */
+    void onCorrespondencePointCreationInitiated(int currentNumberOfPoints, int requiredNumberOfPoints);
+
+    /*!
+     * \brief onCorrespondencePointAdded can be called when the user clicked the image and then
+     * the object and as a result the number of added corresponding points changes.
+     * \param currentNumberOfPoints the number of currently added correspondence points
+     * \param requiredNumberOfPoints the number of totally required correspondence points to create
+     * a new correspondence
+     */
+    void onCorrespondencePointAdded(int currentNumberOfPoints, int requiredNumberOfPoints);
+    /*!
+     * \brief correspondenceCreated can be called when the process of creating a correspondence
+     * finished successfully.
+     */
+    void onCorrespondenceCreated();
+
+    /*!
+     * \brief onCorrespondenceCreationReset can be called when the process of correspondence
+     * creation was reset for whatever reason.
+     */
+    void onCorrespondenceCreationReset();
 
 signals:
     /*!
@@ -163,8 +204,8 @@ private slots:
     void onActionSettingsTriggered();
     void onActionAbortCreationTriggered();
 
-    //! Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
-    //! right clicks in the image to start creating a correspondence
+    // Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
+    // right clicks in the image to start creating a correspondence
     void onImageClicked(Image* image, QPoint position);
 
     /*!
@@ -191,15 +232,17 @@ private:
     PreferencesStore *preferencesStore = Q_NULLPTR;
     ModelManager* modelManager;
 
+    // Used to write and read main view related settings, like position etc.
     void writeSettings();
     void readSettings();
-    //! The name of the settings - QT requests this to store settings "offline"
+
+    // The name of the settings - QT requests this to store settings "offline"
     static QString SETTINGS_NAME;
-    //! Same as above
+    // Same as above
     static QString SETTINGS_PROGRAM_NAME;
-    //! To group settings
+    // To group settings
     static QString SETTINGS_GROUP_NAME;
-    //! The following are the keys to store settings persistently by using Qt's own settings system
+    // The following are the keys to store settings persistently by using Qt's own settings system
     static QString WINDOW_IS_FULLSCREEN_KEY;
     static QString WINDOW_SIZE_KEY;
     static QString WINDOW_POSITION_KEY;

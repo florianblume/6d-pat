@@ -30,6 +30,8 @@ public:
     Image(const QString& imagePath, const QString& basePath, const QString& segmentationImagePath,
           float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY);
 
+    Image(const Image &other);
+
     //! Returns the path to the actual image relative to the base path.
     /*!
       \return the path to the actual image relative to the base path
@@ -70,16 +72,16 @@ public:
 
     float getFocalPointY();
 
-    Image& operator=(Image other);
+    Image& operator=(const Image &other);
 
 private:
-    const QString imagePath;
-    const QString segmentationImagePath;
-    const QString basePath;
-    const float focalLenghtX;
-    const float focalLenghtY;
-    const float focalPointX;
-    const float focalPointY;
+    QString imagePath;
+    QString segmentationImagePath;
+    QString basePath;
+    float focalLenghtX;
+    float focalLenghtY;
+    float focalPointX;
+    float focalPointY;
 
 };
 

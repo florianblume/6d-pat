@@ -96,6 +96,7 @@ private:
     // The index of the image that is currently selected in the gallery and displayed here
     int currentlyDisplayedImageIndex = -1;
     UniquePointer<Image> currentlyDisplayedImage;
+
     // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
     // segmentation image
     bool showingNormalImage = true;

@@ -96,7 +96,7 @@ public:
      * this manager and added to the list of managed correspondences
      * \return true if creating and persisting the correspondence was successful
      */
-    virtual bool addObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorespondence) = 0;
+    virtual bool addObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorespondence) = 0;
 
     /*!
      * \brief addObjectImageCorrespondence Updates the given ObjectImageCorrespondence and automatically persists it according to the
@@ -106,7 +106,7 @@ public:
      * \return true if updating  and also persisting the correspondence was successful, false if this manager does not manage the given
      * correspondence or persisting it has failed
      */
-    virtual bool updateObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) = 0;
+    virtual bool updateObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence) = 0;
 
     /*!
      * \brief removeObjectImageCorrespondence Removes the given ObjectImageCorrespondence if it is present in the list
@@ -115,7 +115,7 @@ public:
      * \return true if the correspondence was present and removing it, i.e. also removing it from the filesystem was
      * successful
      */
-    virtual bool removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) = 0;
+    virtual bool removeObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence) = 0;
 
 signals:
 

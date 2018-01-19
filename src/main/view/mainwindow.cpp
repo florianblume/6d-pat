@@ -20,9 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SIGNAL(selectedImageChanged(int)));
     // If the selected image changes, we also need to cancel any started creation of a correspondence
     connect(ui->galleryLeft, SIGNAL(selectedItemChanged(int)),
-            this, SIGNAL(correspondenceCreationInterrupted()));
+            this, SIGNAL(correspondenceCreationAborted()));
     connect(ui->galleryRight, SIGNAL(selectedItemChanged(int)),
-            this, SIGNAL(correspondenceCreationInterrupted()));
+            this, SIGNAL(correspondenceCreationAborted()));
     connect(ui->navigationLeft, SIGNAL(pathChanged(QString)),
             this, SIGNAL(imagesPathChanged(QString)));
     connect(ui->navigationRight, SIGNAL(pathChanged(QString)),
@@ -31,6 +31,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow() {
     delete ui;
+}
+
+void MainWindow::onInitializationStarted() {
+    setStatusBarText("Initializing...");
+}
+
+void MainWindow::onInitializationCompleted() {
+    setStatusBarText("Ready.");
 }
 
 //! This function persistently stores settings of the application.
@@ -120,7 +128,7 @@ void MainWindow::setModelManager(ModelManager* modelManager) {
     ui->correspondenceViewer->setModelManager(modelManager);
 }
 
-void MainWindow::resetCorrespondenceEditor() {
+void MainWindow::resetCorrespondenceViewer() {
     ui->correspondenceViewer->reset();
 }
 
@@ -237,6 +245,30 @@ void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
 
 void MainWindow::displayWarning(const QString &title, const QString &text) {
     QMessageBox::warning(this, title, text);
+}
+
+void MainWindow::onCorrespondencePointCreationInitiated(int currentNumberOfPoints, int requiredNumberOfPoints) {
+    setStatusBarText("Please select the corresponding 3D point [" +
+                                QString::number(currentNumberOfPoints)
+                                + " of " +
+                                QString::number(requiredNumberOfPoints)
+                     + "].");
+}
+
+void MainWindow::onCorrespondencePointAdded(int currentNumberOfPoints, int requiredNumberOfPoints) {
+    setStatusBarText("Please select another correspondence point [" +
+                                QString::number(currentNumberOfPoints)
+                                + " of " +
+                                QString::number(requiredNumberOfPoints)
+                     + "].");
+}
+
+void MainWindow::onCorrespondenceCreated() {
+    setStatusBarText("Ready.");
+}
+
+void MainWindow::onCorrespondenceCreationReset() {
+    setStatusBarText("Ready.");
 }
 
 void MainWindow::onPreferencesChanged(const QString &identifier) {

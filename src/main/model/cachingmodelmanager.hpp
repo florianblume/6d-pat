@@ -34,11 +34,11 @@ public:
 
     QList<ObjectImageCorrespondence> getCorrespondencesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) override;
 
-    bool addObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) override;
+    bool addObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence) override;
 
-    bool updateObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) override;
+    bool updateObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence) override;
 
-    bool removeObjectImageCorrespondence(ObjectImageCorrespondence& objectImageCorrespondence) override;
+    bool removeObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence) override;
 
 private:
 

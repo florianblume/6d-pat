@@ -26,7 +26,7 @@ static QString convertPathToSuffxFileName(const QString &pathToConvert, const QS
 }
 
 static void persistCorrespondenceToFile(QFile &inFile, QFile &outFile,
-                                        const ObjectImageCorrespondence& correspondence,
+                                        ObjectImageCorrespondence *correspondence,
                                         bool deleteCorrespondence) {
     bool correspondenceFound = false;
 
@@ -42,12 +42,12 @@ static void persistCorrespondenceToFile(QFile &inFile, QFile &outFile,
         QString line = in.readLine();
         QStringList splitLine = line.split(TextFileLoadAndStoreStrategy::CORRESPONDENCE_FORMAT_DELIMITER);
         //! Check if we found the correspondence that we want to update
-        if (splitLine.size() > 0 && splitLine.at(0).compare(correspondence.getID()) == 0) {
+        if (splitLine.size() > 0 && splitLine.at(0).compare(correspondence->getID()) == 0) {
             //! We did find it
             correspondenceFound = true;
             if (!deleteCorrespondence)
                 //! if we are to delete the correspondence, simply don't write back the line
-                outStream << correspondence.toString() << endl;
+                outStream << correspondence->toString() << endl;
         } else {
                 //! Different correspondence, no need to do anything just write the line back
                 outStream << line << endl;
@@ -58,7 +58,7 @@ static void persistCorrespondenceToFile(QFile &inFile, QFile &outFile,
     if (!correspondenceFound && !deleteCorrespondence) {
         //! Since we didn't find the correspondence it must be a new one and we add it at the end of the file
         //! but only if the delete flag isn't set to true
-        outStream << correspondence.toString();
+        outStream << correspondence->toString();
     } else if (foreignLinesCount == 0 && deleteCorrespondence) {
         //! Remove the file if there is no data stored in it anymore
         outFile.remove();
@@ -67,7 +67,7 @@ static void persistCorrespondenceToFile(QFile &inFile, QFile &outFile,
 }
 
 bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(
-        const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence) {
+        ObjectImageCorrespondence *objectImageCorrespondence, bool deleteCorrespondence) {
     // no need to check whether paths exist because setters do so already
 
     //! we do not need to throw an exception here, the only time the path cannot exist
@@ -77,7 +77,7 @@ bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(
         return false;
     }
 
-    QDir image = objectImageCorrespondence.getImage()->getImagePath();
+    QDir image = objectImageCorrespondence->getImage()->getImagePath();
     //! Only the filename, e.g. img01_correspondence.txt
     QDir correspondenceFileName = convertPathToSuffxFileName(image.path(),
                                                              CORRESPONDENCE_FILES_NAME_SUFFIX,
@@ -107,7 +107,7 @@ bool TextFileLoadAndStoreStrategy::persistObjectImageCorrespondence(
         QFile outFile(correspondenceFilePath.path());
         if (outFile.open(QIODevice::ReadWrite)) {
             QTextStream outStream(&outFile);
-            outStream << objectImageCorrespondence.toString();
+            outStream << objectImageCorrespondence->toString();
             outFile.close();
         } else {
             throw "Could not create new correspondence file";

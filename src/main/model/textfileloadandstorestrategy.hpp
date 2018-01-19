@@ -40,7 +40,7 @@ public:
 
     ~TextFileLoadAndStoreStrategy();
 
-    bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence, bool deleteCorrespondence) override;
+    bool persistObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence, bool deleteCorrespondence) override;
 
     QList<Image> loadImages() override;
 

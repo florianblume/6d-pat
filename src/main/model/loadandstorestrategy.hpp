@@ -31,7 +31,7 @@ public:
      * \param deleteCorrespondence indicates whether the correspondence should be persistently deleted
      * \return true if persisting the object image correspondence was successful, false if not
      */
-    virtual bool persistObjectImageCorrespondence(const ObjectImageCorrespondence& objectImageCorrespondence,
+    virtual bool persistObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence,
                                                   bool deleteCorrespondence) = 0;
 
     /*!
