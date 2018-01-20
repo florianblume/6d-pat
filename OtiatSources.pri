@@ -33,7 +33,8 @@ SOURCES += \
     $$PWD/src/main/view/rendering/offscreenengine.cpp \
     $$PWD/src/main/view/correspondenceviewer/imageviewlabel.cpp \
     $$PWD/src/main/controller/correspondencecreator.cpp \
-    $$PWD/src/main/misc/scripting/pythonscriptingengine.cpp
+    $$PWD/src/main/misc/scripting/pythonscriptingengine.cpp \
+    $$PWD/src/main/view/misc/dispalyhelper.cpp
 
 HEADERS  += \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
@@ -66,7 +67,8 @@ HEADERS  += \
     $$PWD/src/main/view/rendering/offscreenengine.h \
     $$PWD/src/main/view/correspondenceviewer/imageviewlabel.h \
     $$PWD/src/main/controller/correspondencecreator.h \
-    $$PWD/src/main/misc/scripting/pythonscriptingengine.h
+    $$PWD/src/main/misc/scripting/pythonscriptingengine.h \
+    $$PWD/src/main/view/misc/dispalyhelper.h
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

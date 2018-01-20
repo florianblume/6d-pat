@@ -50,8 +50,12 @@ void CorrespondenceCreator::addCorrespondencePoint(QPoint imagePoint, QVector3D 
     points.push_back(CorrespondingPoints{imagePoint, objectModelPoint});
     qDebug() << "Added corresponding point for image (" + image->getImagePath() + ") and object (" +
                 objectModel->getPath() + "): " + correspondingPointsToString(points.last());
+}
 
-    if (points.size() == 4) {
+void CorrespondenceCreator::createCorrespondence() {
+    Q_ASSERT(objectModel);
+    Q_ASSERT(image);
+    if (points.size() >= 4) {
         qDebug() << "Creating correspondence for the following points:" << endl
                  << correspondingPointsToString(points.at(0)) << endl
                  << correspondingPointsToString(points.at(1)) << endl

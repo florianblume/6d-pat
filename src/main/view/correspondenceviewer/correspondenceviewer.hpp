@@ -91,6 +91,7 @@ private:
     Qt3DRender::QRenderCaptureReply *renderCaptureReply;
     QList<ObjectModelRenderable*> objectModelRenderables;
     QImage renderedImage;
+    QImage composedImage;
     bool imageReady = false;
 
     UniquePointer<Image> currentlyDisplayedImage;

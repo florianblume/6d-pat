@@ -73,6 +73,12 @@ public:
     void addCorrespondencePoint(QPoint imagePoint, QVector3D objectModelPoint);
 
     /*!
+     * \brief createCorrespondence creates a correspondence for the set image and object model
+     * if the number of points is sufficient (>= 4).
+     */
+    void createCorrespondence();
+
+    /*!
      * \brief numberOfCorrespondencePoints returns the numer of currently added correspondence points
      * \return the number of correspondence points
      */

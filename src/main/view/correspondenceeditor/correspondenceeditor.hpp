@@ -112,6 +112,8 @@ private slots:
      */
     void predictPositionOfObjectModels();
 
+    void buttonCreateClicked();
+
 };
 
 #endif // CORRESPONDENCEEDITORCONTROLS_H

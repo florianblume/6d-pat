@@ -183,6 +183,10 @@ void CorrespondenceEditor::predictPositionOfObjectModels() {
     // TODO: implement
 }
 
+void CorrespondenceEditor::buttonCreateClicked() {
+
+}
+
 void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectModel) {
     if (sceneEntity != Q_NULLPTR) {
         delete sceneEntity;

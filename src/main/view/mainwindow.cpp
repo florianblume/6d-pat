@@ -284,10 +284,6 @@ void MainWindow::onPreferencesChanged(const QString &identifier) {
     UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier(identifier);
     setPathOnLeftBreadcrumbView(preferences->getImagesPath());
     setPathOnRightBreadcrumbView(preferences->getObjectModelsPath());
-    // Sanity call - the widgets reset themselves when the data changes, i.e. also when the
-    // preferences change, but this can't hurt.
-    ui->correspondenceEditor->reset();
-    ui->correspondenceViewer->reset();
 }
 
 QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";

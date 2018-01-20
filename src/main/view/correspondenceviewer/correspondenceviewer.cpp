@@ -213,8 +213,8 @@ void CorrespondenceViewer::updateDisplayedImage() {
     QString baseImage = showingNormalImage ?
                                   currentlyDisplayedImage->getAbsoluteImagePath() :
                                   currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
-    QImage image =  createImageWithOverlay(QImage(baseImage), renderedImage);
-    ui->labelGraphics->setPixmap(QPixmap::fromImage(image));
+    composedImage =  createImageWithOverlay(QImage(baseImage), renderedImage);
+    ui->labelGraphics->setPixmap(QPixmap::fromImage(composedImage));
 }
 
 QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage) {
