@@ -115,7 +115,7 @@ bool CachingModelManager::addObjectImageCorrespondence(Image *image,
 
     createConditionalCache();
 
-    emit correspondencesChanged();
+    emit correspondenceAdded();
 
     return true;
 }
@@ -154,7 +154,7 @@ bool CachingModelManager::updateObjectImageCorrespondence(const QString &id,
         return false;
     }
 
-    emit correspondencesChanged();
+    emit correspondenceUpdated();
 
     return true;
 }
@@ -193,7 +193,7 @@ bool CachingModelManager::removeObjectImageCorrespondence(const QString &id) {
         }
     }
 
-    emit correspondencesChanged();
+    emit correspondenceDeleted();
 
     return true;
 }

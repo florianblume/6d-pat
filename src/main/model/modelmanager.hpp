@@ -130,7 +130,15 @@ signals:
 
     void imagesChanged();
     void objectModelsChanged();
+    /*!
+     * \brief correspondencesChanged called when all the correspondences change, e.g. when the path
+     * to the correspondences is edited, etc. A call to the correspondence update function will result
+     * in the correspondenceUpdated() signal to be emitted. Same holds for adding and deleting correspondences.
+     */
     void correspondencesChanged();
+    void correspondenceAdded();
+    void correspondenceUpdated();
+    void correspondenceDeleted();
 
 };
 

@@ -1,5 +1,6 @@
 #include "correspondenceeditor.hpp"
 #include "ui_correspondenceeditor.h"
+#include "view/misc/displayhelper.h"
 #include "view/rendering/objectmodelrenderable.hpp"
 
 #include <Qt3DRender/QRenderSurfaceSelector>
@@ -10,15 +11,19 @@
 #include <Qt3DRender/QCameraSelector>
 #include <Qt3DRender/QPointLight>
 #include <Qt3DCore/QTransform>
+#include <Qt3DExtras/QSphereMesh>
 #include <QUrl>
 #include <QThread>
 
-CorrespondenceEditor::CorrespondenceEditor(QWidget *parent) :
+CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager *modelManager) :
     QWidget(parent),
+    modelManager(modelManager),
     ui(new Ui::CorrespondenceEditor)
 {
     ui->setupUi(this);
     setup3DView();
+    if (modelManager)
+        connect(modelManager, SIGNAL(correspondenceAdded()), this, SLOT(removePositionVisualizations()));
 }
 
 CorrespondenceEditor::~CorrespondenceEditor()
@@ -28,6 +33,11 @@ CorrespondenceEditor::~CorrespondenceEditor()
         delete graphicsWindow;
     }
     delete ui;
+}
+
+void CorrespondenceEditor::setModelManager(ModelManager *modelManager) {
+    Q_ASSERT(modelManager);
+    this->modelManager = modelManager;
 }
 
 void CorrespondenceEditor::setEnabledCorrespondenceEditorControls(bool enabled) {
@@ -165,7 +175,6 @@ void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
                                        ui->spinBoxRotationY->value(),
                                        ui->spinBoxRotationZ->value());
     currentCorrespondence->setArticulation(ui->sliderArticulation->value());
-    emit correspondenceUpdated(currentCorrespondence.get());
 }
 
 void CorrespondenceEditor::setOpacityOfObjectModel(int opacity) {
@@ -175,7 +184,6 @@ void CorrespondenceEditor::setOpacityOfObjectModel(int opacity) {
 void CorrespondenceEditor::removeCurrentlyEditedCorrespondence() {
     setEnabledAllControls(false);
     resetControlsValues();
-    emit correspondenceRemoved(currentCorrespondence.get());
     currentCorrespondence.reset();
 }
 
@@ -220,7 +228,6 @@ void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
     resetControlsValues();
     currentObjectModel.reset(new ObjectModel(*objectModel));
     setObjectModelOnGraphicsWindow(currentObjectModel->getAbsolutePath());
-    //resetCameras();
 }
 
 void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence *correspondence) {
@@ -247,6 +254,29 @@ void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence *co
     setObjectModelOnGraphicsWindow(currentCorrespondence->getObjectModel()->getAbsolutePath());
 }
 
+void CorrespondenceEditor::visualizeLastClickedPosition(int correspondencePointIndex) {
+    Q_ASSERT(correspondencePointIndex >= 0);
+    Qt3DCore::QEntity *sphereEntity = new Qt3DCore::QEntity(sceneEntity);
+    Qt3DExtras::QSphereMesh *sphereMesh = new Qt3DExtras::QSphereMesh(sphereEntity);
+    sphereMesh->setRadius(2.0f);
+    sphereMesh->setRings(10);
+    sphereMesh->setSlices(10);
+    sphereEntity->addComponent(sphereMesh);
+    Qt3DExtras::QPhongMaterial *phongMaterial = new Qt3DExtras::QPhongMaterial(sphereEntity);
+    phongMaterial->setAmbient(DisplayHelper::colorForCorrespondencePointIndex(correspondencePointIndex));
+    sphereEntity->addComponent(phongMaterial);
+    Qt3DCore::QTransform *sphereTransform = new Qt3DCore::QTransform(sphereEntity);
+    sphereTransform->setTranslation(lastClickedPosition);
+    sphereEntity->addComponent(sphereTransform);
+    positionSpheres.append(sphereEntity);
+}
+
+void CorrespondenceEditor::removePositionVisualizations() {
+    for (Qt3DCore::QEntity *entity : positionSpheres) {
+        delete entity;
+    }
+}
+
 void CorrespondenceEditor::reset() {
     // Deleting the scene entity before setting an object model causes the program to crash,
     // even if a null check is employed. But we can check whether the object model has been
@@ -254,6 +284,7 @@ void CorrespondenceEditor::reset() {
     if (currentObjectModel) {
         delete sceneEntity;
         sceneEntity = Q_NULLPTR;
+        positionSpheres.clear();
     }
 
     setEnabledAllControls(false);
@@ -274,10 +305,10 @@ void CorrespondenceEditor::objectPickerClicked(Qt3DRender::QPickEvent *pick) {
     if (pick->button() != Qt3DRender::QPickEvent::LeftButton)
         return;
 
-    QVector3D point = pick->localIntersection();
+    lastClickedPosition = pick->localIntersection();
     qDebug() << "Object model (" + currentObjectModel->getPath() + ") clicked at: ("
-                + QString::number(point.x()) + ", "
-                + QString::number(point.y()) + ", "
-                + QString::number(point.z()) + ").";
-    emit objectModelClickedAt(currentObjectModel.get(), point);
+                + QString::number(lastClickedPosition.x()) + ", "
+                + QString::number(lastClickedPosition.y()) + ", "
+                + QString::number(lastClickedPosition.z()) + ").";
+    emit objectModelClickedAt(currentObjectModel.get(), lastClickedPosition);
 }

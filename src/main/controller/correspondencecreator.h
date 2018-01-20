@@ -76,7 +76,7 @@ public:
      * \brief createCorrespondence creates a correspondence for the set image and object model
      * if the number of points is sufficient (>= 4).
      */
-    void createCorrespondence();
+    bool createCorrespondence();
 
     /*!
      * \brief numberOfCorrespondencePoints returns the numer of currently added correspondence points
@@ -97,9 +97,15 @@ public:
     bool isObjectModelSet();
 
 signals:
+    /*!
+     * \brief correspondenceCreationAbortede emitted whenever the process of correspondence
+     * creation is aborted.
+     */
     void correspondenceCreationAborted();
-
-public slots:
+    /*!
+     * \brief correspondencePointAdded emitted whenever a correspondence point is added.
+     */
+    void correspondencePointAdded(QPoint point2D, QVector3D point3D, int totalNumberOfPoints);
 
 private:
     ModelManager *modelManager;

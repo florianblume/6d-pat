@@ -27,12 +27,14 @@ class CorrespondenceEditor : public QWidget
     Q_OBJECT
 
 public:
-    explicit CorrespondenceEditor(QWidget *parent = 0);
+    explicit CorrespondenceEditor(QWidget *parent = 0, ModelManager *modelManager = 0);
     ~CorrespondenceEditor();
+    void setModelManager(ModelManager *modelManager);
     bool isDisplayingObjectModel();
     void resizeEvent(QResizeEvent* event);
 
 public slots:
+
     /*!
      * \brief setObjectModel sets the object model that is to be displayed. The user can then
      * create correspondences with the displayed image. This is not setting the correspondence yet,
@@ -40,6 +42,7 @@ public slots:
      * \param objectModel the object model to be displayed
      */
     void setObjectModel(ObjectModel *objectModel);
+
     /*!
      * \brief setCorrespondenceToEdit sets the object image correspondence that is to be edited by
      * these controls. If formerly an object model had been set it will be removed from displaying
@@ -47,6 +50,21 @@ public slots:
      * \param correspondence the correpondence to be edited
      */
     void setCorrespondenceToEdit(ObjectImageCorrespondence *correspondence);
+
+    /*!
+     * \brief visualizeLastClickedPosition adds a colored sphere to the position that the user clicked
+     * last. The color is retrieved by the provided index from the DisplayHelper. The index is, e.g.,
+     * 0 if it is the first correspondence point that the user clicked for creating an ObjectImageCorrespondence.
+     * \param correspondencePointIndex the index of the correspondence point
+     */
+    void visualizeLastClickedPosition(int correspondencePointIndex);
+
+    /*!
+     * \brief removePositionVisualizations removes all colored spheres that were added to the 3D
+     * model to indicate where the user clicked.
+     */
+    void removePositionVisualizations();
+
     /*!
      * \brief reset resets this view, i.e. clears the displayed object models
      */
@@ -54,26 +72,33 @@ public slots:
 
 signals:
     void objectModelClickedAt(ObjectModel *objectModel, QVector3D position);
-    void correspondenceUpdated(ObjectImageCorrespondence* correspondence);
-    void correspondenceRemoved(ObjectImageCorrespondence* correspondence);
 
 private:
     Ui::CorrespondenceEditor *ui;
+    ModelManager *modelManager;
+
     UniquePointer<ObjectModel> currentObjectModel;
     UniquePointer<ObjectImageCorrespondence> currentCorrespondence;
 
-    // The left view of the object model, e.g. the front view
     Qt3DExtras::Qt3DWindow *graphicsWindow = Q_NULLPTR;
     Qt3DRender::QObjectPicker *objectPicker = Q_NULLPTR;        // created but not owned later
     Qt3DCore::QEntity *rootEntity = Q_NULLPTR;                  // created but not owned later
     Qt3DCore::QEntity *sceneEntity = Q_NULLPTR;                 // created but not owned later,
-                                                                    // i.e. only need to delete
-                                                                    // when resetting the scene
+                                                                // i.e. only need to delete
+                                                                // when resetting the scene
     Qt3DRender::QRenderSettings *framegraphEntity;              // created but not owned later
+    // Left view
     Qt3DRender::QCamera *leftCamera;                            // created but not owned later
     Qt3DExtras::QOrbitCameraController *leftCameraController;   // created but not owned later
+    // Right view
     Qt3DRender::QCamera *rightCamera;                           // created but not owned later
     Qt3DExtras::QOrbitCameraController *rightCameraController;  // created but not owned later
+
+    // Stores the spheres that were added to the 3D model to indicate the positions that the user
+    // clicked while creating a new ObjectImageCorrespondence
+    QList<Qt3DCore::QEntity*> positionSpheres;
+    // Stores the position that the user clicked last to be able to add a sphere at that position
+    QVector3D lastClickedPosition;
 
     void setEnabledCorrespondenceEditorControls(bool enabled);
     void setEnabledAllControls(bool enabled);

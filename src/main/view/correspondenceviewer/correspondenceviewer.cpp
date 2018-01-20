@@ -1,5 +1,6 @@
 #include "correspondenceviewer.hpp"
 #include "ui_correspondenceviewer.h"
+#include "view/misc/displayhelper.h"
 #include "view/rendering/objectmodelrenderable.hpp"
 
 #include <Qt3DRender/QFrameGraphNode>
@@ -214,6 +215,7 @@ void CorrespondenceViewer::updateDisplayedImage() {
                                   currentlyDisplayedImage->getAbsoluteImagePath() :
                                   currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
     composedImage =  createImageWithOverlay(QImage(baseImage), renderedImage);
+    composedImageDefault = composedImage;
     ui->labelGraphics->setPixmap(QPixmap::fromImage(composedImage));
 }
 
@@ -255,6 +257,21 @@ void CorrespondenceViewer::update() {
         setImage(currentlyDisplayedImage.get());
 }
 
+void CorrespondenceViewer::visualizeLastClickedPosition(int correspondencePointIndex) {
+    Q_ASSERT(correspondencePointIndex >= 0);
+    QPainter painter(&composedImage);
+    QPen paintpen(DisplayHelper::colorForCorrespondencePointIndex(correspondencePointIndex));
+    paintpen.setWidth(3);
+    painter.setPen(paintpen);
+    painter.drawPoint(lastClickedPosition);
+    ui->labelGraphics->setPixmap(QPixmap::fromImage(composedImage));
+}
+
+void CorrespondenceViewer::removePositionVisualizations() {
+    composedImage = composedImageDefault;
+    ui->labelGraphics->setPixmap(QPixmap::fromImage(composedImage));
+}
+
 void CorrespondenceViewer::switchImage() {
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
     showingNormalImage = !showingNormalImage;
@@ -277,5 +294,6 @@ void CorrespondenceViewer::resetPositionOfImage() {
 void CorrespondenceViewer::imageClicked(QPoint point) {
     qDebug() << "Image (" + currentlyDisplayedImage->getImagePath() + ") clicked at: (" +
                 QString::number(point.x()) + ", " + QString::number(point.y()) + ").";
+    lastClickedPosition = point;
     emit imageClicked(currentlyDisplayedImage.get(), point);
 }

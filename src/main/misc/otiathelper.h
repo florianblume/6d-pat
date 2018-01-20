@@ -8,9 +8,7 @@
 
 static const QString colorCodeDelimiter = ".";
 
-class OtiatHelper {
-
-public:
+namespace OtiatHelper {
     static int sign(int x) {
         return (x > 0) - (x < 0);
     }
@@ -31,6 +29,6 @@ public:
         Q_ASSERT(splitCode.size() == 3);
         return QColor(splitCode.at(0).toInt(), splitCode.at(1).toInt(), splitCode.at(2).toInt());
     }
-};
+}
 
 #endif // OTIATHELPER_H

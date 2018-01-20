@@ -61,6 +61,19 @@ public slots:
      */
     void update();
 
+    /*!
+     * \brief visualizeLastClickedPosition draws a point at the position that the user last clicked.
+     * The color is retrieved using the provided index from the DisplayHelper.
+     * \param correspondencePointIndex the index of the correspondence point, e.g. 1 if it is the
+     * second time the user clicked the image to create a correspondence
+     */
+    void visualizeLastClickedPosition(int correspondencePointIndex);
+
+    /*!
+     * \brief removePositionVisualizations removes all visualized points from the image.
+     */
+    void removePositionVisualizations();
+
 signals:
     /*!
      * \brief imageClicked emitted when the displayed image is clicked anywhere
@@ -90,10 +103,19 @@ private:
     Qt3DCore::QEntity *sceneObjectsEntity = Q_NULLPTR;
     Qt3DRender::QRenderCaptureReply *renderCaptureReply;
     QList<ObjectModelRenderable*> objectModelRenderables;
+    // The rendered image, we store it to later compose it with the actual displayed image
     QImage renderedImage;
+    // The image consisting of the actual image overlayed with the rendered image. Points will be
+    // visualized in here with colors.
     QImage composedImage;
+    // A copy of the composedImage to restore the state before drawing the colored positions into
+    // the image.
+    QImage composedImageDefault;
     bool imageReady = false;
 
+    // Store the last clicked position, so that we can visualize it if the user calls the respective
+    // function.
+    QPoint lastClickedPosition;
     UniquePointer<Image> currentlyDisplayedImage;
 
     // Stores, whether we are currently looking at the "normal" image, or the (maybe present)

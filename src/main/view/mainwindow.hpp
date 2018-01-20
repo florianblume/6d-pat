@@ -118,8 +118,25 @@ public slots:
      */
     void onSelectedImageChanged(int index);
 
+    /*!
+     * \brief onImagesPathChangedByNavigation called when the images path is changed by the
+     * navigation controls on the left.
+     * \param path the new images path
+     */
     void onImagesPathChangedByNavigation(const QString &path);
+
+    /*!
+     * \brief onObjectModelsPathChangedByNavigation called when the object models path changes
+     * by the navigation controls on the right.
+     * \param path the new object models path
+     */
     void onObjectModelsPathChangedByNavigation(const QString &path);
+
+    /*!
+     * \brief displayWarning displays a warning as a popup box.
+     * \param title the title of the warning
+     * \param text the text of the warning
+     */
     void displayWarning(const QString &title, const QString& text);
 
     /*!

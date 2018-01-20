@@ -259,7 +259,7 @@ void MainWindow::displayWarning(const QString &title, const QString &text) {
 void MainWindow::onCorrespondencePointCreationInitiated(int currentNumberOfPoints, int requiredNumberOfPoints) {
     setStatusBarText("Please select the corresponding 3D point [" +
                                 QString::number(currentNumberOfPoints)
-                                + " of " +
+                                + " of min. " +
                                 QString::number(requiredNumberOfPoints)
                      + "].");
 }
@@ -267,7 +267,7 @@ void MainWindow::onCorrespondencePointCreationInitiated(int currentNumberOfPoint
 void MainWindow::onCorrespondencePointAdded(int currentNumberOfPoints, int requiredNumberOfPoints) {
     setStatusBarText("Please select another correspondence point [" +
                                 QString::number(currentNumberOfPoints)
-                                + " of " +
+                                + " of min. " +
                                 QString::number(requiredNumberOfPoints)
                      + "].");
 }
