@@ -61,6 +61,7 @@ void CorrespondenceEditor::setEnabledAllControls(bool enabled) {
     ui->spinBoxRotationZ->setEnabled(enabled);
     ui->sliderArticulation->setEnabled(enabled);
     ui->buttonRemove->setEnabled(enabled);
+    ui->buttonCreate->setEnabled(enabled);
 }
 
 void CorrespondenceEditor::resetControlsValues() {
@@ -187,12 +188,12 @@ void CorrespondenceEditor::removeCurrentlyEditedCorrespondence() {
     currentCorrespondence.reset();
 }
 
-void CorrespondenceEditor::predictPositionOfObjectModels() {
+void CorrespondenceEditor::onButtonPredictClicked() {
     // TODO: implement
 }
 
-void CorrespondenceEditor::buttonCreateClicked() {
-
+void CorrespondenceEditor::onButtonCreateClicked() {
+    emit buttonCreateClicked();
 }
 
 void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectModel) {
@@ -205,11 +206,12 @@ void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectM
     ObjectModelRenderable *objectModelRenderable = new ObjectModelRenderable(sceneEntity,
                                                                              objectModel,
                                                                              "");
+
+    // Only available from Qt 5.10, but program does not display objects when compiled with Qt 5.10
     //leftCamera->viewEntity(objectModelRenderable);
     //rightCamera->viewEntity(objectModelRenderable);
 
     // Picker to enable the user to select points on the object
-
     objectPicker = new Qt3DRender::QObjectPicker(objectModelRenderable);
     objectModelRenderable->addComponent(objectPicker);
     connect(objectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
@@ -274,7 +276,23 @@ void CorrespondenceEditor::visualizeLastClickedPosition(int correspondencePointI
 void CorrespondenceEditor::removePositionVisualizations() {
     for (Qt3DCore::QEntity *entity : positionSpheres) {
         delete entity;
+        entity = Q_NULLPTR;
     }
+    positionSpheres.clear();
+}
+
+void CorrespondenceEditor::onCorrespondenceCreationAborted() {
+    removePositionVisualizations();
+    ui->buttonCreate->setEnabled(false);
+}
+
+void CorrespondenceEditor::onCorrespondencePointFinished(QVector3D point3D,
+                                                         int currentNumberOfPoints,
+                                                         int minimumNumberOfPoints) {
+    // -1 because we need the index, and the signal is emitted by the correspondence creator
+    // after adding the point thus increasing the number to 1
+    visualizeLastClickedPosition(currentNumberOfPoints - 1);
+    ui->buttonCreate->setEnabled(currentNumberOfPoints >= minimumNumberOfPoints);
 }
 
 void CorrespondenceEditor::reset() {

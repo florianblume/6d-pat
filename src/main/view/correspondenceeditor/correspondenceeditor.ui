@@ -967,5 +967,25 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonCreate</sender>
+   <signal>clicked()</signal>
+   <receiver>CorrespondenceEditor</receiver>
+   <slot>onButtonCreateClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onButtonCreateClicked()</slot>
+ </slots>
 </ui>

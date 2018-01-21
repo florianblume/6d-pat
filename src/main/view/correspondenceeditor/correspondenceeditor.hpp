@@ -66,12 +66,44 @@ public slots:
     void removePositionVisualizations();
 
     /*!
+     * \brief onCorrespondenceCreationAborted reacts to the signal indicating that the process
+     * of creating a new correspondence was aborted by the user.
+     */
+    void onCorrespondenceCreationAborted();
+
+    /*!
+     * \brief onCorrespondencePointFinished the slot that handles the event when the user successfully
+     * create a correspondence point that consists of a 2D image location and a 3D point on the object model.
+     * \param point3D the 3D point on the object model
+     * \param currentNumberOfPoints the current number of correspondence points
+     * \param minimumNumberOfPoints the total number required to be able to create an actual ObjectImage Correspondence
+     */
+    void onCorrespondencePointFinished(QVector3D point3D, int currentNumberOfPoints, int minimumNumberOfPoints);
+
+    /*!
      * \brief reset resets this view, i.e. clears the displayed object models
      */
     void reset();
 
 signals:
+
+    /*!
+     * \brief objectModelClickedAt is emitted whenever the user clicks the displayed object model.
+     * \param objectModel the object model that was clicked
+     * \param position the position the user clicked the object model at
+     */
     void objectModelClickedAt(ObjectModel *objectModel, QVector3D position);
+
+    /*!
+     * \brief onButtonPredictClicked is emitted when the user clicks the predict button
+     */
+    void buttonPredictClicked();
+
+    /*!
+     * \brief onButtonCreateClicked is emitted when the user clicks the create correspondence button.
+     * The button is only enabled when enough correspondence points where clicked.
+     */
+    void buttonCreateClicked();
 
 private:
     Ui::CorrespondenceEditor *ui;
@@ -97,6 +129,7 @@ private:
     // Stores the spheres that were added to the 3D model to indicate the positions that the user
     // clicked while creating a new ObjectImageCorrespondence
     QList<Qt3DCore::QEntity*> positionSpheres;
+
     // Stores the position that the user clicked last to be able to add a sphere at that position
     QVector3D lastClickedPosition;
 
@@ -135,9 +168,9 @@ private slots:
     /*!
      * \brief predictPositionOfObjectModels gets called when the user clicks on the predict button.
      */
-    void predictPositionOfObjectModels();
+    void onButtonPredictClicked();
 
-    void buttonCreateClicked();
+    void onButtonCreateClicked();
 
 };
 

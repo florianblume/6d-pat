@@ -112,17 +112,18 @@ void MainWindow::setGalleryImageModel(GalleryImageModel* model) {
 
 void MainWindow::setGalleryObjectModelModel(GalleryObjectModelModel* model) {
     this->ui->galleryRight->setModel(model);
-    //! We connect the model that displays the 3D model objects to the selected image so that the model
-    //! can display the respective models
+    // We connect the model that displays the 3D model objects to the selected image so that the model
+    // can display the respective models
     connect(ui->galleryLeft, &Gallery::selectedItemChanged, model, &GalleryObjectModelModel::onSelectedImageChanged);
-    //! To update the listview of the 3D models we call the reset method when the model receives the signal
-    //! that the selection of images on the left has been changed
+    // To update the listview of the 3D models we call the reset method when the model receives the signal
+    // that the selection of images on the left has been changed
     connect(model, &GalleryObjectModelModel::displayedObjectModelsChanged, ui->galleryRight, &Gallery::reset);
 }
 
 void MainWindow::setModelManager(ModelManager* modelManager) {
     this->modelManager = modelManager;
     ui->correspondenceViewer->setModelManager(modelManager);
+    ui->correspondenceEditor->setModelManager(modelManager);
 }
 
 void MainWindow::resetCorrespondenceViewer() {
@@ -142,40 +143,6 @@ void MainWindow::setPreferencesStore(PreferencesStore *preferencesStore) {
 void MainWindow::setStatusBarText(const QString& text) {
     statusBarLabel->setText(text);
 }
-
-void MainWindow::onActionAboutTriggered()
-{
-    QMessageBox::about(this, tr("About Otiat"), tr("Object to image annotator, "
-                                                   "or shorter Otiat, is a tool "
-                                                   "that allows users to drag and "
-                                                   "position 3D models of objects "
-                                                   "on images. Depending on the "
-                                                   "selected storage options the "
-                                                   "position and rotation are "
-                                                   "persisted for later use. "
-                                                   "The so annotated images can "
-                                                   "be used to e.g. train a neural "
-                                                   "network."));
-}
-
-void MainWindow::onActionExitTriggered()
-{
-    QApplication::quit();
-}
-
-void MainWindow::onActionSettingsTriggered()
-{
-    SettingsDialog* settingsDialog = new SettingsDialog(this);
-    settingsDialog->setPreferencesStoreAndObjectModels(preferencesStore,
-                                                   "default",
-                                                   modelManager->getObjectModels());
-    settingsDialog->show();
-}
-
-void MainWindow::onActionAbortCreationTriggered() {
-    emit correspondenceCreationAborted();
-}
-
 //! Mouse handling, i.e. clicking in the lower left widget and dragging a line to the lower right widget
 void MainWindow::onImageClicked(Image* image, QPoint position) {
     //! No need to check for whether the right widget was clicked because the only time this method
@@ -256,20 +223,22 @@ void MainWindow::displayWarning(const QString &title, const QString &text) {
     QMessageBox::warning(this, title, text);
 }
 
-void MainWindow::onCorrespondencePointCreationInitiated(int currentNumberOfPoints, int requiredNumberOfPoints) {
+void MainWindow::onCorrespondencePointStarted(QPoint point2D, int currentNumberOfPoints, int requiredNumberOfPoints) {
     setStatusBarText("Please select the corresponding 3D point [" +
                                 QString::number(currentNumberOfPoints)
                                 + " of min. " +
                                 QString::number(requiredNumberOfPoints)
                      + "].");
+    emit correspondencePointStarted(point2D, currentNumberOfPoints, requiredNumberOfPoints);
 }
 
-void MainWindow::onCorrespondencePointAdded(int currentNumberOfPoints, int requiredNumberOfPoints) {
+void MainWindow::onCorrespondencePointFinished(QVector3D point3D, int currentNumberOfPoints, int requiredNumberOfPoints) {
     setStatusBarText("Please select another correspondence point [" +
                                 QString::number(currentNumberOfPoints)
                                 + " of min. " +
                                 QString::number(requiredNumberOfPoints)
                      + "].");
+    emit correspondencePointFinished(point3D, currentNumberOfPoints, requiredNumberOfPoints);
 }
 
 void MainWindow::onCorrespondenceCreated() {
@@ -280,10 +249,49 @@ void MainWindow::onCorrespondenceCreationReset() {
     setStatusBarText("Ready.");
 }
 
+void MainWindow::onCorrespondenceCreationRequested() {
+    setStatusBarText("Creating correspondence...");
+    emit requestCorrespondenceCreation();
+}
+
 void MainWindow::onPreferencesChanged(const QString &identifier) {
     UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier(identifier);
     setPathOnLeftBreadcrumbView(preferences->getImagesPath());
     setPathOnRightBreadcrumbView(preferences->getObjectModelsPath());
+}
+
+void MainWindow::onActionAboutTriggered()
+{
+    QMessageBox::about(this, tr("About Otiat"), tr("Object to image annotator, "
+                                                   "or shorter Otiat, is a tool "
+                                                   "that allows users to drag and "
+                                                   "position 3D models of objects "
+                                                   "on images. Depending on the "
+                                                   "selected storage options the "
+                                                   "position and rotation are "
+                                                   "persisted for later use. "
+                                                   "The so annotated images can "
+                                                   "be used to e.g. train a neural "
+                                                   "network."));
+}
+
+void MainWindow::onActionExitTriggered()
+{
+    QApplication::quit();
+}
+
+void MainWindow::onActionSettingsTriggered()
+{
+    SettingsDialog* settingsDialog = new SettingsDialog(this);
+    settingsDialog->setPreferencesStoreAndObjectModels(preferencesStore,
+                                                   "default",
+                                                   modelManager->getObjectModels());
+    settingsDialog->show();
+}
+
+void MainWindow::onActionAbortCreationTriggered() {
+    setStatusBarText("Ready.");
+    emit correspondenceCreationAborted();
 }
 
 QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";

@@ -10,14 +10,6 @@
 #include <QList>
 
 /*!
- * \brief The CorrespondingPoints struct a small helpful structure to temporary store the 2D - 3D correspondences
- */
-struct CorrespondingPoints {
-    QPoint pointIn2D;
-    QVector3D pointIn3D;
-};
-
-/*!
  * \brief The CorrespondenceCreator class is responsible for taking in correspondence points of 2D points on
  * images and 3D points on object models and create the new ObjectImageCorrespondences.
  *
@@ -28,8 +20,18 @@ struct CorrespondingPoints {
  */
 class CorrespondenceCreator : public QObject
 {
+
     Q_OBJECT
 public:
+
+    enum State {
+        Empty,
+        CorrespondencePointStarted,
+        CorrespondencePointFinished,
+        AwaitingMoreCorrespondencePoints,
+        ReadyForCorrespondenceCreation
+    };
+
     explicit CorrespondenceCreator(QObject *parent = nullptr, ModelManager *modelManager = nullptr);
 
     /*!
@@ -40,10 +42,30 @@ public:
     void setModelManager(ModelManager *modelManager);
 
     /*!
+     * \brief getState returns the state that this creator is currently in.
+     * \return
+     */
+    State getState();
+
+    /*!
      * \brief abortCreation aborts the creation of the correspondence, i.e. deletes all added points
      * and resets the image and object model pointer to be null.
      */
     void abortCreation();
+
+    /*!
+     * \brief setMinimumNumberOfPoints sets the minimum number of points required before being
+     * able to create a correspondence. The default is 4.
+     * \param numberOfPoints the minimum number of points
+     */
+    void setMinimumNumberOfPoints(int numberOfPoints);
+
+    /*!
+     * \brief getMinimumNumberOfPoints returns the minimum number of points before being able to
+     * create a correspondence. The default is 4.
+     * \return the minimum number of points required before being able to create a correspondence
+     */
+    int getMinimumNumberOfPoints();
 
     /*!
      * \brief setImage sets the image that correspondence points are to be created for. If set image
@@ -64,13 +86,17 @@ public:
     void setObjectModel(ObjectModel *objectModel);
 
     /*!
-     * \brief addPointCorrespondencePoint adds a correspondence point between the image and the object
-     * model that were set. If four points are added a new ObjectImageCorrespondence will be created.
-     * IMPORTANT: Image and object model have to be set before calling this method.
-     * \param imagePoint the point on the image
-     * \param objectModelPoint the point on the object model
+     * \brief startCorrespondencePoint sets the given point as 2D point of the correspondence point
+     * to be created. A call to finishCorrespondencePoint needs to be made afterwards.
+     * \param imagePoint the 2D image point of the correspondence point about to be created
      */
-    void addCorrespondencePoint(QPoint imagePoint, QVector3D objectModelPoint);
+    void startCorrespondencePoint(QPoint imagePoint);
+
+    /*!
+     * \brief finishCorrespondencePoint finishes the correspondence point with the given 3D location
+     * \param objectModelPoint the 3D location on the object model
+     */
+    void finishCorrespondencePoint(QVector3D objectModelPoint);
 
     /*!
      * \brief createCorrespondence creates a correspondence for the set image and object model
@@ -102,13 +128,45 @@ signals:
      * creation is aborted.
      */
     void correspondenceCreationAborted();
+
     /*!
-     * \brief correspondencePointAdded emitted whenever a correspondence point is added.
+     * \brief correspondencePointStarted is emitted whenever a 2D location as the starting position
+     * of a correspondence point is added.
+     * \param point2D the 2D starting position on the image
+     * \param totalNumberOfPoints the number of complete correspondence points that this creator
+     * currently holds
+     * \param minimumNumberOfPoints the minimum number of points required to create an actual
+     * ObjectImageCorrespondence
      */
-    void correspondencePointAdded(QPoint point2D, QVector3D point3D, int totalNumberOfPoints);
+    void correspondencePointStarted(QPoint point2D, int totalNumberOfPoints, int minimumNumberOfPoints);
+
+    /*!
+     * \brief correspondencePointFinished is emitted whenever a 3D location is added to finish
+     * the correspondence point started with the 2D location set in the startCorrespondencePoint
+     * function
+     * \param point3D the 3D location on the object model that completes the correspondence point
+     * \param totalNumberOfPoints the number of complete correspondence points that this creator
+     * currently holds
+     * \param minimumNumberOfPoints the minimum number of points required to create an actual
+     * ObjectImageCorrespondence
+     */
+    void correspondencePointFinished(QVector3D point3D, int totalNumberOfPoints, int minimumNumberOfPoints);
 
 private:
+    // Helper struct to store 2D - 3D correspondences
+    struct CorrespondingPoints {
+        QPoint pointIn2D;
+        QVector3D pointIn3D;
+    };
+
     ModelManager *modelManager;
+    // The number of correspondence points required to be able to create an ObjectImageCorrespondence
+    int minimumNumberOfPoints = 4;
+    // The state of the creator
+    State currentState = State::Empty;
+    // Points to the start of the correspondence point that is the 2D location on the image that the
+    // user clicked
+    QPoint correspondencePointStart;
     // The list of already added points
     QList<CorrespondingPoints> points;
     // The image that the correspondence is to be created for

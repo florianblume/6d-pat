@@ -7,8 +7,8 @@
 #include <QDir>
 #include <iostream>
 
-//! empty initialization of strategy so that we can set the path later and do so
-//! in a background thread to keep application reactive
+// Empty initialization of strategy so that we can set the path later and do so
+// in a background thread to keep application reactive
 MainController::MainController(int &argc, char *argv[]) :
     QApplication(argc, argv),
     strategy(),
@@ -16,6 +16,10 @@ MainController::MainController(int &argc, char *argv[]) :
     connect(preferencesStore.get(), SIGNAL(preferencesChanged(QString)),
             this, SLOT(onPreferencesChanged(QString)));
     correspondenceCreator.reset(new CorrespondenceCreator(0, &modelManager));
+    // Whenever the user clicks the create button in the correspondence editor we need to reset
+    // the controller as well
+    connect(&modelManager, SIGNAL(correspondenceAdded()),
+            this, SLOT(resetCorrespondenceCreation()));
 }
 
 MainController::~MainController() {
@@ -56,21 +60,36 @@ void MainController::initializeMainWindow() {
     mainWindow.setGalleryObjectModelModel(galleryObjectModelModel);
     mainWindow.setModelManager(&modelManager);
 
-    // Connect the main window's reactions to the user clicking on a displayed image or on an object
-    // model to delegate any further computation to this controller
+    // Delegation of user clicks to this controller
     connect(&mainWindow, SIGNAL(imageClicked(Image*,QPoint)),
             this, SLOT(onImageClicked(Image*,QPoint)));
     connect(&mainWindow, SIGNAL(objectModelClicked(ObjectModel*,QVector3D)),
             this, SLOT(onObjectModelClicked(ObjectModel*,QVector3D)));
-    connect(&mainWindow, SIGNAL(correspondenceCreationInterrupted()),
-            this, SLOT(onCorrespondenceCreationInterrupted()));
-    connect(&mainWindow, SIGNAL(correspondenceCreationAborted()),
-            this, SLOT(onCorrespondenceCreationAborted()));
 
+    // Delegation of new paths set in the navigation controls of the UI to this controller
     connect(&mainWindow, SIGNAL(imagesPathChanged(QString)),
             this, SLOT(onImagePathChanged(QString)));
     connect(&mainWindow, SIGNAL(objectModelsPathChanged(QString)),
             this, SLOT(onObjectModelsPathChanged(QString)));
+
+    // ## Correspondence stuff
+
+    // Delegation of correspondence creator actions to the window
+    connect(correspondenceCreator.get(), SIGNAL(correspondenceCreationAborted()),
+            &mainWindow, SLOT(onCorrespondenceCreationReset()));
+    connect(correspondenceCreator.get(), SIGNAL(correspondencePointStarted(QPoint,int,int)),
+            &mainWindow, SLOT(onCorrespondencePointStarted(QPoint,int,int)));
+    connect(correspondenceCreator.get(), SIGNAL(correspondencePointFinished(QVector3D,int,int)),
+            &mainWindow, SLOT(onCorrespondencePointFinished(QVector3D,int,int)));
+
+    // Delegate of user interactions to the controller
+    connect(&mainWindow, SIGNAL(correspondenceCreationInterrupted()),
+            this, SLOT(onCorrespondenceCreationInterrupted()));
+    connect(&mainWindow, SIGNAL(correspondenceCreationAborted()),
+            this, SLOT(onCorrespondenceCreationAborted()));
+    connect(&mainWindow, SIGNAL(requestCorrespondenceCreation()),
+            this, SLOT(onCorrespondenceCreationRequested()));
+
 
     mainWindow.onInitializationCompleted();
 }
@@ -80,32 +99,19 @@ void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
 }
 
 void MainController::onImageClicked(Image* image, QPoint position) {
-    // We can set the image here everytime, if it differs from the previously one, the creator will
-    // automatically reset the points etc.
-    correspondenceCreator->setImage(image);
-    lastClickedImagePosition = position;
-    // To keep track whether the user actually clicked an image before clicking an object
-    correspondenceCreationSate = CorrespondenceCreationState::ImageClicked;
-    mainWindow.onCorrespondencePointCreationInitiated(correspondenceCreator->numberOfCorrespondencePoints() + 1, 4);
+    if (correspondenceCreator->getState() != CorrespondenceCreator::State::CorrespondencePointStarted) {
+        // We can set the image here everytime, if it differs from the previously one, the creator will
+        // automatically reset the points etc.
+        correspondenceCreator->setImage(image);
+        correspondenceCreator->startCorrespondencePoint(position);
+    }
 }
 
 void MainController::onObjectModelClicked(ObjectModel* objectModel, QVector3D position) {
-    // Check whether the correspondencePointCompleted flag is set, so that the point is only
-    // added when the user clicked the image somewhere previously
-    if (correspondenceCreator->isImageSet() &&
-            correspondenceCreationSate == CorrespondenceCreationState::ImageClicked) {
-        correspondenceCreationSate = CorrespondenceCreationState::ObjectClicked;
+    if (correspondenceCreator->isImageSet() && correspondenceCreator->getState() ==
+                                               CorrespondenceCreator::State::CorrespondencePointStarted) {
         correspondenceCreator->setObjectModel(objectModel);
-        correspondenceCreator->addCorrespondencePoint(lastClickedImagePosition, position);
-        int points = correspondenceCreator->numberOfCorrespondencePoints();
-        if (points == 0) {
-            // If the number of points is 0, although we just added a point, the correspondence
-            // creation has been completed and the points cleared
-            resetCorrespondenceCreation();
-            mainWindow.onCorrespondenceCreated();
-        } else {
-            mainWindow.onCorrespondencePointAdded(correspondenceCreator->numberOfCorrespondencePoints() + 1, 4);
-        }
+        correspondenceCreator->finishCorrespondencePoint(position);
     }
 }
 
@@ -136,9 +142,12 @@ void MainController::showView() {
 
 void MainController::resetCorrespondenceCreation() {
     correspondenceCreator->abortCreation();
-    correspondenceCreationSate = CorrespondenceCreationState::Empty;
-    mainWindow.onCorrespondenceCreationReset();
+}
 
+void MainController::onCorrespondenceCreationRequested() {
+    // The user can't request this before all the requirements are met because the creat button
+    // is not enabled earlier
+    correspondenceCreator->createCorrespondence();
 }
 
 void MainController::onPreferencesChanged(const QString &identifier) {

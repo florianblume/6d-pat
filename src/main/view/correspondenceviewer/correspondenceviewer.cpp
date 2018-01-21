@@ -45,9 +45,7 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
     setupRenderingPipeline();
 
     if (modelManager) {
-        connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(update()));
-        connect(modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
-        connect(modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
+        connectModelManagerSlots();
     }
 }
 
@@ -105,15 +103,15 @@ void CorrespondenceViewer::setupSceneRoot() {
 void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
     if (this->modelManager) {
-        disconnect(this->modelManager, SIGNAL(correspondencesChanged()),
-                   this, SLOT(update()));
-        disconnect(modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
-        disconnect(modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
+        disconnect(this->modelManager, SIGNAL(correspondenceAdded()), this, SLOT(update()));
+        disconnect(this->modelManager, SIGNAL(correspondenceDeleted()), this, SLOT(update()));
+        disconnect(this->modelManager, SIGNAL(correspondenceUpdated()), this, SLOT(update()));
+        disconnect(this->modelManager, SIGNAL(correspondencesChanged()), this, SLOT(update()));
+        disconnect(this->modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
+        disconnect(this->modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
     }
     this->modelManager = modelManager;
-    connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(update()));
-    connect(modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
-    connect(modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
+    connectModelManagerSlots();
 }
 
 void CorrespondenceViewer::setImage(Image *image) {
@@ -219,6 +217,15 @@ void CorrespondenceViewer::updateDisplayedImage() {
     ui->labelGraphics->setPixmap(QPixmap::fromImage(composedImage));
 }
 
+void CorrespondenceViewer::connectModelManagerSlots() {
+    connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(update()));
+    connect(modelManager, SIGNAL(correspondenceAdded()), this, SLOT(update()));
+    connect(modelManager, SIGNAL(correspondenceDeleted()), this, SLOT(update()));
+    connect(modelManager, SIGNAL(correspondenceUpdated()), this, SLOT(update()));
+    connect(modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
+    connect(modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
+}
+
 QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage) {
     QImage imageWithOverlay = QImage(baseImage.size(), QImage::Format_ARGB32_Premultiplied);
     QPainter painter(&imageWithOverlay);
@@ -267,9 +274,21 @@ void CorrespondenceViewer::visualizeLastClickedPosition(int correspondencePointI
     ui->labelGraphics->setPixmap(QPixmap::fromImage(composedImage));
 }
 
+void CorrespondenceViewer::onCorrespondenceCreationAborted() {
+    removePositionVisualizations();
+}
+
 void CorrespondenceViewer::removePositionVisualizations() {
     composedImage = composedImageDefault;
     ui->labelGraphics->setPixmap(QPixmap::fromImage(composedImage));
+}
+
+void CorrespondenceViewer::onCorrespondencePointStarted(QPoint point2D,
+                                                         int currentNumberOfPoints,
+                                                         int minimumNumberOfPoints) {
+    // We can use the number of points as index directly, because the number of points only increases
+    // after the user successfully clicked a 2D location and the corresponding 3D point
+    visualizeLastClickedPosition(currentNumberOfPoints);
 }
 
 void CorrespondenceViewer::switchImage() {

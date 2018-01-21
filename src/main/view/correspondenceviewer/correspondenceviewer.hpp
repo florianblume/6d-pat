@@ -70,9 +70,24 @@ public slots:
     void visualizeLastClickedPosition(int correspondencePointIndex);
 
     /*!
+     * \brief onCorrespondenceCreationAborted reacts to the signal indicating that the process
+     * of creating a new correspondence was aborted by the user.
+     */
+    void onCorrespondenceCreationAborted();
+
+    /*!
      * \brief removePositionVisualizations removes all visualized points from the image.
      */
     void removePositionVisualizations();
+
+    /*!
+    * \brief onCorrespondencePointFinished is the slot that handles whenever the user wants to create
+    * a correspondence point that consists of a 2D location and a 3D point on the object model.
+    * \param point2D the 2D point on the image
+    * \param currentNumberOfPoints the current number of correspondence points
+    * \param minimumNumberOfPoints the total number required to be able to create an actual ObjectImage Correspondence
+    */
+    void onCorrespondencePointStarted(QPoint point2D, int currentNumberOfPoints, int minimumNumberOfPoints);
 
 signals:
     /*!
@@ -136,6 +151,8 @@ private:
     // Uses the createImageWithOverlay method to overlay the actual (normal/segmentation) image
     // with the rendered image
     void updateDisplayedImage();
+
+    void connectModelManagerSlots();
 
 private slots:
     /*!

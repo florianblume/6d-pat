@@ -142,20 +142,23 @@ public slots:
     /*!
      * \brief onCorrespondencePointCreationInitiated can be called when the user clicked the image
      * but not the object model yet, to indicate that the program recieved the click correctly.
+     * \param point2D the 2D location of the correspondence point to be created
      * \param currentNumberOfPoints the number of currently added correspondence points
      * \param requiredNumberOfPoints the number of totally required correspondence points to create
      * a new correspondence
      */
-    void onCorrespondencePointCreationInitiated(int currentNumberOfPoints, int requiredNumberOfPoints);
+    void onCorrespondencePointStarted(QPoint point2D, int currentNumberOfPoints, int minimumNumberOfPoints);
 
     /*!
      * \brief onCorrespondencePointAdded can be called when the user clicked the image and then
      * the object and as a result the number of added corresponding points changes.
+     * \param point3D the 3D location of the correspondence point to be created
      * \param currentNumberOfPoints the number of currently added correspondence points
      * \param requiredNumberOfPoints the number of totally required correspondence points to create
      * a new correspondence
      */
-    void onCorrespondencePointAdded(int currentNumberOfPoints, int requiredNumberOfPoints);
+    void onCorrespondencePointFinished(QVector3D point3D, int currentNumberOfPoints, int minimumNumberOfPoints);
+
     /*!
      * \brief correspondenceCreated can be called when the process of creating a correspondence
      * finished successfully.
@@ -167,6 +170,13 @@ public slots:
      * creation was reset for whatever reason.
      */
     void onCorrespondenceCreationReset();
+
+    /*!
+     * \brief onCorrespondenceCreationRequested can be called to request the creation of an
+     * ObjectImageCorrespondence. The caller has to make sure, that the prerequisities (e.g.
+     * enough correspondence points that the user clicked) are met.
+     */
+    void onCorrespondenceCreationRequested();
 
 signals:
     /*!
@@ -183,16 +193,40 @@ signals:
      * \param position the position where it was clicked
      */
     void objectModelClicked(ObjectModel* objectModel, QVector3D position);
+
     /*!
      * \brief selectedObjectModelChanged is triggered after the index of the object model is received.
      * \param objectModel the actual object model retrieved from the index
      */
     void selectedObjectModelChanged(ObjectModel *objectModel);
+
     /*!
      * \brief selectedImageChanged is emitted when the image selected in the gallery changes.
      * \param index the index of the new image
      */
     void selectedImageChanged(Image *image);
+
+    /*!
+     * \brief onCorrespondencePointCreationInitiated is emitted whenever the window receives a signal
+     * that a correspondence point has been started (i.e. a 2D point was added to the correspondence
+     * creator, this is what we hide here).
+     * \param point2D the 2D location of the correspondence point to be created
+     * \param currentNumberOfPoints the number of currently added correspondence points
+     * \param requiredNumberOfPoints the number of totally required correspondence points to create
+     * a new correspondence
+     */
+    void correspondencePointStarted(QPoint point2D, int currentNumberOfPoints, int minimumNumberOfPoints);
+
+    /*!
+     * \brief onCorrespondencePointAdded is emitted whenever the window receives a signal that
+     * a correspondence point has been added (i.e. to the correspondence creator, this is what we
+     * hide here).
+     * \param point3D the 3D location of the correspondence point to be created
+     * \param currentNumberOfPoints the number of currently added correspondence points
+     * \param requiredNumberOfPoints the number of totally required correspondence points to create
+     * a new correspondence
+     */
+    void correspondencePointFinished(QVector3D point3D, int currentNumberOfPoints, int minimumNumberOfPoints);
 
     /*!
      * \brief correspondenceCreationInterrupted this signal is emitted when the user clicks the
@@ -210,6 +244,12 @@ signals:
     void correspondenceCreationAborted();
 
     /*!
+     * \brief requestCorrespondenceCreation this signal is emitted whenever the user uses the UI
+     * to request the creation of a correspondence.
+     */
+    void requestCorrespondenceCreation();
+
+    /*!
      * \brief imagesPathChanged emitted when the images path changes because the user used the
      * navigation controls to change it
      * \param newPath the new images path that was set
@@ -222,24 +262,6 @@ signals:
      * \param newPath the new object models path that was set
      */
     void objectModelsPathChanged(const QString &newPath);
-
-private slots:
-    void onActionAboutTriggered();
-    void onActionExitTriggered();
-    void onActionSettingsTriggered();
-    void onActionAbortCreationTriggered();
-
-    // Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
-    // right clicks in the image to start creating a correspondence
-    void onImageClicked(Image* image, QPoint position);
-
-    /*!
-     * \brief onOverlayClickedAnywhere is called when the user clicks the overlay. This means
-     * he did not proceed to click the object model after clicking the image, which would have
-     * added a correspondence point to the correspondence creator.
-     */
-    void onOverlayClickedAnywhere();
-    void onPreferencesChanged(const QString &identifier);
 
 private:
     // The overlay that is shown when the user clicks on a position in the displayed image to start
@@ -277,6 +299,24 @@ private:
     static QString SPLITTER_LEFT_SIZE_BOTTOM_KEY;
     static QString SPLITTER_RIGHT_SIZE_TOP_KEY;
     static QString SPLITTER_RIGHT_SIZE_BOTTOM_KEY;
+
+private slots:
+    // Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
+    // right clicks in the image to start creating a correspondence
+    void onImageClicked(Image* image, QPoint position);
+
+    /*!
+     * \brief onOverlayClickedAnywhere is called when the user clicks the overlay. This means
+     * he did not proceed to click the object model after clicking the image, which would have
+     * added a correspondence point to the correspondence creator.
+     */
+    void onOverlayClickedAnywhere();
+    void onPreferencesChanged(const QString &identifier);
+
+    void onActionAboutTriggered();
+    void onActionExitTriggered();
+    void onActionSettingsTriggered();
+    void onActionAbortCreationTriggered();
 };
 
 #endif // MAINWINDOW_H

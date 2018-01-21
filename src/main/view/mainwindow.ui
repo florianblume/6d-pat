@@ -1517,6 +1517,9 @@
     <signal>imageClicked(Image*,QPoint)</signal>
     <slot>setImage(Image*)</slot>
     <slot>reset()</slot>
+    <slot>onCorrespondencePointStarted(QPoint,int,int)</slot>
+    <slot>removePositionVisualizations()</slot>
+    <slot>onCorrespondenceCreationAborted()</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1526,9 +1529,13 @@
    <container>1</container>
    <slots>
     <signal>objectModelClickedAt(ObjectModel*,QVector3D)</signal>
+    <signal>buttonCreateClicked()</signal>
     <slot>reset()</slot>
     <slot>setObjectModel(ObjectModel*)</slot>
     <slot>setObjectModel(int)</slot>
+    <slot>onCorrespondencePointFinished(QVector3D,int,int)</slot>
+    <slot>removePositionVisualizations()</slot>
+    <slot>onCorrespondenceCreationAborted()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -1902,10 +1909,94 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>MainWindow</sender>
+   <signal>correspondencePointStarted(QPoint,int,int)</signal>
+   <receiver>correspondenceViewer</receiver>
+   <slot>onCorrespondencePointStarted(QPoint,int,int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MainWindow</sender>
+   <signal>correspondencePointFinished(QVector3D,int,int)</signal>
+   <receiver>correspondenceEditor</receiver>
+   <slot>onCorrespondencePointFinished(QVector3D,int,int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>correspondenceEditor</sender>
+   <signal>buttonCreateClicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onCorrespondenceCreationRequested()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MainWindow</sender>
+   <signal>correspondenceCreationAborted()</signal>
+   <receiver>correspondenceEditor</receiver>
+   <slot>onCorrespondenceCreationAborted()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MainWindow</sender>
+   <signal>correspondenceCreationAborted()</signal>
+   <receiver>correspondenceViewer</receiver>
+   <slot>onCorrespondenceCreationAborted()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>selectedObjectModelChanged(ObjectModel*)</signal>
   <signal>selectedImageChanged(Image*)</signal>
+  <signal>correspondencePointStarted(QPoint,int,int)</signal>
+  <signal>correspondencePointFinished(QVector3D,int,int)</signal>
+  <signal>requestCorrespondenceCreation()</signal>
+  <signal>correspondenceCreationAborted()</signal>
   <slot>onActionAboutTriggered()</slot>
   <slot>onActionExitTriggered()</slot>
   <slot>onActionSettingsTriggered()</slot>
@@ -1916,5 +2007,6 @@
   <slot>onObjectModelsPathChangedByNavigation(QString)</slot>
   <slot>onActionAbortCreationTriggered()</slot>
   <slot>onSelectedImageChanged(int)</slot>
+  <slot>onCorrespondenceCreationRequested()</slot>
  </slots>
 </ui>

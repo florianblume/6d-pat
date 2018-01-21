@@ -17,11 +17,31 @@ void CorrespondenceCreator::setModelManager(ModelManager *modelManager) {
     this->modelManager = modelManager;
 }
 
+CorrespondenceCreator::State CorrespondenceCreator::getState() {
+    return currentState;
+}
+
 void CorrespondenceCreator::abortCreation() {
     image = Q_NULLPTR;
     objectModel = Q_NULLPTR;
     points.clear();
+    currentState = State::Empty;
     emit correspondenceCreationAborted();
+}
+
+void CorrespondenceCreator::setMinimumNumberOfPoints(int numberOfPoints) {
+    Q_ASSERT(numberOfPoints >= 1);
+    minimumNumberOfPoints = numberOfPoints;
+    // If we have points present and did not just start a correspondence point then maybe we have
+    // to set the state to ReadyForCorrespondenceCreation because suddenly enough points are present
+    if (points.size() > 0 && currentState != State::CorrespondencePointStarted) {
+        currentState = (points.size() >= minimumNumberOfPoints ? State::ReadyForCorrespondenceCreation :
+                                                          State::AwaitingMoreCorrespondencePoints);
+    }
+}
+
+int CorrespondenceCreator::getMinimumNumberOfPoints() {
+    return minimumNumberOfPoints;
 }
 
 void CorrespondenceCreator::setImage(Image *image) {
@@ -30,6 +50,7 @@ void CorrespondenceCreator::setImage(Image *image) {
         points.clear();
         objectModel = Q_NULLPTR;
         this->image = image;
+        currentState = State::Empty;
     }
 }
 
@@ -38,27 +59,39 @@ void CorrespondenceCreator::setObjectModel(ObjectModel *objectModel) {
     Q_ASSERT(image);
 
     if (this->objectModel != objectModel) {
-        points.clear();
+        // We do not care about clearing the points here, because the object model can be set later
+        // than the image. The user has to take care of this as we cannot tell whether the points
+        // should be emptied or not.
         this->objectModel = objectModel;
     }
 }
 
-void CorrespondenceCreator::addCorrespondencePoint(QPoint imagePoint, QVector3D objectModelPoint) {
-    Q_ASSERT(objectModel);
-    Q_ASSERT(image);
+void CorrespondenceCreator::startCorrespondencePoint(QPoint imagePoint) {
+    currentState = State::CorrespondencePointStarted;
+    correspondencePointStart = imagePoint;
+    emit correspondencePointStarted(imagePoint, points.size(), minimumNumberOfPoints);
+}
 
-    points.push_back(CorrespondingPoints{imagePoint, objectModelPoint});
-    qDebug() << "Added corresponding point for image (" + image->getImagePath() + ") and object (" +
-                objectModel->getPath() + "): " + correspondingPointsToString(points.last());
-
-    emit correspondencePointAdded(imagePoint, objectModelPoint, points.size());
+void CorrespondenceCreator::finishCorrespondencePoint(QVector3D objectModelPoint) {
+    if (currentState == State::CorrespondencePointStarted) {
+        points.push_back(CorrespondingPoints{correspondencePointStart, objectModelPoint});
+        currentState = (points.size() >= minimumNumberOfPoints ? State::ReadyForCorrespondenceCreation :
+                                                          State::AwaitingMoreCorrespondencePoints);
+        qDebug() << "Added corresponding point for image (" + image->getImagePath() + ") and object (" +
+                    objectModel->getPath() + "): " + correspondingPointsToString(points.last());
+        emit correspondencePointFinished(objectModelPoint, points.size(), minimumNumberOfPoints);
+    } else {
+        throw "Start a correspondence point with a 2D location before adding the corresponding 3D point.";
+    }
 }
 
 bool CorrespondenceCreator::createCorrespondence() {
     Q_ASSERT(objectModel);
     Q_ASSERT(image);
+    Q_ASSERT(currentState == State::ReadyForCorrespondenceCreation);
     Q_ASSERT_X(points.size() >= 4, "create correspondence", "number of correspondence points needs"
                                                             "to be greater than 4");
+
     qDebug() << "Creating correspondence for the following points:" << endl
              << correspondingPointsToString(points.at(0)) << endl
              << correspondingPointsToString(points.at(1)) << endl
