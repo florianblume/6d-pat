@@ -68,8 +68,10 @@ void CorrespondenceCreator::setObjectModel(ObjectModel *objectModel) {
 
 void CorrespondenceCreator::startCorrespondencePoint(QPoint imagePoint) {
     currentState = State::CorrespondencePointStarted;
-    correspondencePointStart = imagePoint;
-    emit correspondencePointStarted(imagePoint, points.size(), minimumNumberOfPoints);
+    QImage loadedImage(image->getAbsoluteImagePath());
+    // A bit confusing, but I started off with the T-Less dataset, which apparently
+    correspondencePointStart = QPoint(loadedImage.width() - imagePoint.x(), loadedImage.height() - imagePoint.y());
+    emit correspondencePointStarted(correspondencePointStart, points.size(), minimumNumberOfPoints);
 }
 
 void CorrespondenceCreator::finishCorrespondencePoint(QVector3D objectModelPoint) {
