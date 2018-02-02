@@ -14,6 +14,6 @@ and also for general documentation we want to record them here.
 
 Here we will list everything that is needed to successfully run the application.
 
-* Qt5.9
+* Qt5.9 **DOES NOT WORK WITH Qt5.10 YET**
 * OpenCV (https://opencv.org/): Clone from git and build. If the path to OpenCV that is stored in the project's file (OtiatSources.pro) differs from the path that your OpenCV installation is located at, adjust it.
 * Python 3.6: Adjust the paths to Python in OtiatSources.pro.
