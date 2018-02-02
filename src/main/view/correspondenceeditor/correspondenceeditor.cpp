@@ -126,8 +126,8 @@ void CorrespondenceEditor::setupCamera(Qt3DRender::QCamera *&camera,
                                        Qt3DRender::QViewport *mainViewport,
                                        QRectF viewportRect) {
     camera = new Qt3DRender::QCamera(rootEntity);
-    camera->setNearPlane(0.001f);
-    camera->setFarPlane(5000.f);
+    camera->setNearPlane(0.1f);
+    camera->setFarPlane(1000.f);
     camera->setPosition(position);
     camera->setViewCenter(QVector3D(0, 0, 0));
     camera->setUpVector(QVector3D(0.f, 1.f, 0.f));

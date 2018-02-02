@@ -53,8 +53,6 @@ private:
     QMap<QString, QString> codes;
     QVector<QColor> colorsOfCurrentImage;
     int currentSelectedImageIndex = -1;
-    //! We need to cache images as well because the rendered image is not ready directly
-    QMap<QString, QPixmap> cachedImages;
     //! Store the index of the currently rendered image to be able to set the correct image
     //! when the renderer returns
     uint currentlyRenderedImageIndex = 0;

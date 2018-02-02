@@ -65,7 +65,7 @@ void CorrespondenceViewer::setupRenderingPipeline() {
     // Setup camera
     camera = new Qt3DRender::QCamera(sceneRoot);
     // Initial projection matrix, the matrix will be updated as soon as an image is set
-    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.01f, 1000.0f);
+    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
     camera->setPosition(QVector3D(0.f, 0.f, 0.f));
     camera->setUpVector(QVector3D(0.f, 1.f, 0.f));
     // Set view center z coordinate to 1.f to make the camera look along the z axis

@@ -26,7 +26,7 @@ void PreferencesStore::savePreferences(Preferences *preferences) {
     //! But first remove all old entries, in case that the user deleted some codes
     settings.beginGroup(identifier + "-colorcodes");
     settings.remove("");
-    for (auto objectModelIdentifier : preferences->getSegmentationCodes()) {
+    for (auto objectModelIdentifier : preferences->getSegmentationCodes().keys()) {
         settings.setValue(objectModelIdentifier, preferences->getSegmentationCodeForObjectModel(objectModelIdentifier));
     }
     settings.endGroup();

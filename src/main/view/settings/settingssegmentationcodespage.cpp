@@ -36,7 +36,7 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Preferences *p
 
     int i = 0;
     for(const ObjectModel &objectModel : this->objectModels) {
-        const QString &code = preferences->getSegmentationCodeForObjectModel(objectModel.getAbsolutePath());
+        const QString &code = preferences->getSegmentationCodeForObjectModel(objectModel.getPath());
         ui->tableSegmentationCodes->insertRow(i);
         ui->tableSegmentationCodes->setItem(i, 0, new QTableWidgetItem(objectModel.getPath()));
         if (code.compare("") != 0) {
@@ -90,7 +90,7 @@ void SettingsSegmentationCodesPage::showColorDialog(int index) {
 
     QString colorCode = OtiatHelper::segmentationCodeFromColor(color);
     const ObjectModel &objectModel = objectModels.at(index);
-    preferences->setSegmentationCodeForObjectModel(objectModel.getAbsolutePath(), colorCode);
+    preferences->setSegmentationCodeForObjectModel(objectModel.getPath(), colorCode);
     QTableWidgetItem *item = ui->tableSegmentationCodes->item(index, 1);
     item->setText("");
     item->setBackgroundColor(color);
@@ -98,7 +98,7 @@ void SettingsSegmentationCodesPage::showColorDialog(int index) {
 
 void SettingsSegmentationCodesPage::removeColor(int index) {
     const ObjectModel &objectModel = objectModels.at(index);
-    preferences->removeSegmentationCodeForObjectModel(objectModel.getAbsolutePath());
+    preferences->removeSegmentationCodeForObjectModel(objectModel.getPath());
     QTableWidgetItem *item = ui->tableSegmentationCodes->item(index, 1);
     item->setBackgroundColor(QColor(255, 255, 255));
     item->setText("Undefined");

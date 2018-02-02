@@ -26,7 +26,8 @@ QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectMo
     if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
         return objectModel.getPath();
     } else if (role == Qt::DecorationRole) {
-        return cachedImages[objectModel.getAbsolutePath()];
+        // TODO: return rendered preview
+        return QVariant();
     }
 
     return QVariant();
@@ -47,9 +48,9 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
         //! If no codes at all were set or if the currently selected image does not provide segmentation images
         //! simply display all available object models
         return dataForObjectModel(objectModel, role);
-    } else if (codes.contains(objectModel.getAbsolutePath())) {
+    } else if (codes.contains(objectModel.getPath())) {
         //! If any codes are set only display the appropriate object models
-        QString code = codes[objectModel.getAbsolutePath()];
+        QString code = codes[objectModel.getPath()];
         QColor color = OtiatHelper::colorFromSegmentationCode(code);
         if (colorsOfCurrentImage.contains(color)) {
             return dataForObjectModel(objectModel, role);
@@ -60,14 +61,23 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
 }
 
 int GalleryObjectModelModel::rowCount(const QModelIndex &parent) const {
-    return objectModelsCache.size();
+    if (codes.size() == 0)
+        return objectModelsCache.size();
+
+    int count = 0;
+    for (const ObjectModel &model : objectModelsCache) {
+        QString code = codes[model.getPath()];
+        if (code != "") {
+            QColor color = OtiatHelper::colorFromSegmentationCode(code);
+            if (colorsOfCurrentImage.contains(color))
+                count++;
+        }
+    }
+    return count;
 }
 
 void GalleryObjectModelModel::setSegmentationCodesForObjectModels(QMap<QString, QString> codes) {
-    for (const QString &key : this->codes.keys()) {
-        codes[key] = "test";
-    }
-    //this->codes = codes;
+    this->codes = std::move(codes);
 }
 
 bool GalleryObjectModelModel::isNumberOfToolsCorrect() {
@@ -90,9 +100,8 @@ bool GalleryObjectModelModel::isNumberOfToolsCorrect() {
 void GalleryObjectModelModel::onSelectedImageChanged(int index) {
     if (index != currentSelectedImageIndex) {
         currentSelectedImageIndex = index;
-        cachedImages.clear();
         colorsOfCurrentImage.clear();
-        const Image& image = modelManager->getImages().at(currentSelectedImageIndex);
+        const Image& image = imagesCache.at(currentSelectedImageIndex);
 
         //! If we find an segmentation image update the colors that are used to filter tools
         if (image.getSegmentationImagePath().compare("") != 0) {
@@ -121,7 +130,7 @@ void GalleryObjectModelModel::onImagesChanged() {
     // When the images change, the last selected image gets deselected
     // This means we have to reset the index
     currentSelectedImageIndex = -1;
-
+    imagesCache = std::move(modelManager->getImages());
     QModelIndex top = index(0, 0);
     QModelIndex bottom = index(objectModelsCache.size() - 1, 0);
     emit dataChanged(top, bottom);
