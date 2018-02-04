@@ -60,8 +60,10 @@ void CorrespondenceEditor::setEnabledAllControls(bool enabled) {
     ui->spinBoxRotationY->setEnabled(enabled);
     ui->spinBoxRotationZ->setEnabled(enabled);
     ui->sliderArticulation->setEnabled(enabled);
+    ui->sliderOpacity->setEnabled(enabled);
     ui->buttonRemove->setEnabled(enabled);
     ui->buttonCreate->setEnabled(enabled);
+    ui->comboBoxCorrespondence->setEnabled(enabled);
 }
 
 void CorrespondenceEditor::resetControlsValues() {
@@ -72,6 +74,7 @@ void CorrespondenceEditor::resetControlsValues() {
     ui->spinBoxRotationY->setValue(0);
     ui->spinBoxRotationZ->setValue(0);
     ui->sliderArticulation->setValue(0);
+    ui->comboBoxCorrespondence->clear();
 }
 
 void CorrespondenceEditor::setup3DView() {
@@ -168,6 +171,17 @@ float CorrespondenceEditor::cameraFieldOfView() {
     return 50.f;
 }
 
+void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(const Image *image, const ObjectModel *objectModel) {
+    ui->comboBoxCorrespondence->clear();
+    QList<ObjectImageCorrespondence> correspondences = modelManager->getCorrespondencesForImageAndObjectModel(
+                *image,
+                *objectModel);
+    for (ObjectImageCorrespondence &correspondence : correspondences) {
+        ui->comboBoxCorrespondence->addItem(correspondence.getID());
+    }
+    ui->comboBoxCorrespondence->setEnabled(correspondences.size() > 0);
+}
+
 void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
     currentCorrespondence->setPosition(ui->spinBoxTranslationX->value(),
                                        ui->spinBoxTranslationY->value(),
@@ -176,16 +190,39 @@ void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
                                        ui->spinBoxRotationY->value(),
                                        ui->spinBoxRotationZ->value());
     currentCorrespondence->setArticulation(ui->sliderArticulation->value());
-}
-
-void CorrespondenceEditor::setOpacityOfObjectModel(int opacity) {
-    // TODO: implement
+    modelManager->updateObjectImageCorrespondence(currentCorrespondence->getID(),
+                                                  currentCorrespondence->getPosition(),
+                                                  currentCorrespondence->getRotation(),
+                                                  currentCorrespondence->getArticulation(),
+                                                  currentCorrespondence->isAccepted());
 }
 
 void CorrespondenceEditor::removeCurrentlyEditedCorrespondence() {
-    setEnabledAllControls(false);
-    resetControlsValues();
-    currentCorrespondence.reset();
+
+}
+
+void CorrespondenceEditor::onSpinBoxTranslationXValueChanged(double value) {
+
+}
+
+void CorrespondenceEditor::onSpinBoxTranslationYValueChanged(double value) {
+
+}
+
+void CorrespondenceEditor::onSpinBoxTranslationZValueChanged(double value) {
+
+}
+
+void CorrespondenceEditor::onSpinBoxRotationXValueChanged(double value) {
+
+}
+
+void CorrespondenceEditor::onSpinBoxRotationYValueChanged(double value) {
+
+}
+
+void CorrespondenceEditor::onSpinBoxRotationZValueChanged(double value) {
+
 }
 
 void CorrespondenceEditor::onButtonPredictClicked() {
@@ -194,6 +231,19 @@ void CorrespondenceEditor::onButtonPredictClicked() {
 
 void CorrespondenceEditor::onButtonCreateClicked() {
     emit buttonCreateClicked();
+}
+
+void CorrespondenceEditor::onComboBoxCorrespondenceIndexChanged(int index) {
+    if (index < 0 || ignoreComboBoxIndexChange)
+        return;
+
+    QList<ObjectImageCorrespondence> correspondencesForImage = modelManager->getCorrespondencesForImage(*currentlySelectedImage.get());
+    ObjectImageCorrespondence correspondence = correspondencesForImage.at(index);
+    setCorrespondenceToEdit(&correspondence);
+}
+
+void CorrespondenceEditor::onSliderOpacityValueChanged(int value) {
+    emit opacityChanged(value);
 }
 
 void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectModel) {
@@ -206,12 +256,6 @@ void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectM
     ObjectModelRenderable *objectModelRenderable = new ObjectModelRenderable(sceneEntity,
                                                                              objectModel,
                                                                              "");
-
-    // Only available from Qt 5.10, but program does not display objects when compiled with Qt 5.10
-    //leftCamera->viewEntity(objectModelRenderable);
-    //rightCamera->viewEntity(objectModelRenderable);
-
-    // Picker to enable the user to select points on the object
     objectPicker = new Qt3DRender::QObjectPicker(objectModelRenderable);
     objectModelRenderable->addComponent(objectPicker);
     connect(objectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
@@ -225,11 +269,21 @@ void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
     }
 
     qDebug() << "Setting object model (" + objectModel->getPath() + ") to display.";
+    ignoreComboBoxIndexChange = true;
     setEnabledCorrespondenceEditorControls(false);
     currentCorrespondence.reset();
     resetControlsValues();
     currentObjectModel.reset(new ObjectModel(*objectModel));
     setObjectModelOnGraphicsWindow(currentObjectModel->getAbsolutePath());
+    addCorrespondencesToComboBoxCorrespondences(currentlySelectedImage.get(), objectModel);
+    ignoreComboBoxIndexChange = false;
+}
+
+void CorrespondenceEditor::onSelectedImageChanged(int index) {
+    reset();
+    ui->sliderOpacity->setEnabled(true);
+    Image selectedImage = modelManager->getImages().at(index);
+    currentlySelectedImage.reset(new Image(selectedImage));
 }
 
 void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence *correspondence) {
@@ -241,8 +295,13 @@ void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence *co
 
     qDebug() << "Setting correspondence (" + correspondence->getID() + ", " + correspondence->getImage()->getImagePath()
                 + ", " + correspondence->getObjectModel()->getPath() + ") to display.";
+    ignoreComboBoxIndexChange = true;
+    resetControlsValues();
     currentCorrespondence.reset(new ObjectImageCorrespondence(*correspondence));
+    currentObjectModel.reset(new ObjectModel(*correspondence->getObjectModel()));
     setEnabledCorrespondenceEditorControls(true);
+    // Might not have been set correctly that's why we set it here
+    addCorrespondencesToComboBoxCorrespondences(correspondence->getImage(), correspondence->getObjectModel());
     QVector3D position = currentCorrespondence->getPosition();
     QVector3D rotation = currentCorrespondence->getRotation();
     float articulation = currentCorrespondence->getArticulation();
@@ -254,13 +313,14 @@ void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence *co
     ui->spinBoxRotationZ->setValue(rotation.z());
     ui->sliderArticulation->setValue(articulation);
     setObjectModelOnGraphicsWindow(currentCorrespondence->getObjectModel()->getAbsolutePath());
+    ignoreComboBoxIndexChange = false;
 }
 
 void CorrespondenceEditor::visualizeLastClickedPosition(int correspondencePointIndex) {
     Q_ASSERT(correspondencePointIndex >= 0);
     Qt3DCore::QEntity *sphereEntity = new Qt3DCore::QEntity(sceneEntity);
     Qt3DExtras::QSphereMesh *sphereMesh = new Qt3DExtras::QSphereMesh(sphereEntity);
-    sphereMesh->setRadius(2.0f);
+    sphereMesh->setRadius(0.5f);
     sphereMesh->setRings(10);
     sphereMesh->setSlices(10);
     sphereEntity->addComponent(sphereMesh);
@@ -308,6 +368,7 @@ void CorrespondenceEditor::reset() {
     setEnabledAllControls(false);
     currentObjectModel.reset();
     currentCorrespondence.reset();
+    currentlySelectedImage.reset();
     resetControlsValues();
 }
 

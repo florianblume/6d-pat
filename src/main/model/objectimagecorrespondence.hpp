@@ -66,6 +66,11 @@ public:
      */
     float getArticulation() const;
     /*!
+     * \brief isAccepted returns whether the user of the program is confident in the correspondence.
+     * \return whether this correspondence has been accepted
+     */
+    bool isAccepted() const;
+    /*!
      * \brief getImage Returns the image associated with this correspondence.
      * \return the image associated with this correspondence
      */
@@ -100,6 +105,11 @@ public:
      * \param articulation the articulation of the object
      */
     void setArticulation(float articulation);
+    /*!
+     * \brief setAccepted sets whether the user is confident in this correspondence.
+     * \param accepted whether the user is confident
+     */
+    void setAccepted(bool accepted);
     /*!
      * \brief getID Returns the unique ID of this correspondence.
      * \return the unique ID of this correspondence

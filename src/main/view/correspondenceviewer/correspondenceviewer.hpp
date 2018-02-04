@@ -89,6 +89,12 @@ public slots:
     */
     void onCorrespondencePointStarted(QPoint point2D, int currentNumberOfPoints, int minimumNumberOfPoints);
 
+    /*!
+     * \brief onOpacityForObjectModelsChanged slot for when the opacity of the object models is changed.
+     * \param opacity the new opacity of the object models that are displayed
+     */
+    void onOpacityForObjectModelsChanged(int opacity);
+
 signals:
     /*!
      * \brief imageClicked emitted when the displayed image is clicked anywhere
@@ -120,6 +126,7 @@ private:
     QList<ObjectModelRenderable*> objectModelRenderables;
     // The rendered image, we store it to later compose it with the actual displayed image
     QImage renderedImage;
+    qreal overlayImageOpacity = 1.f;
     // The image consisting of the actual image overlayed with the rendered image. Points will be
     // visualized in here with colors.
     QImage composedImage;

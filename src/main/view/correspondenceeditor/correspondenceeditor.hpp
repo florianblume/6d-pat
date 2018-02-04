@@ -43,6 +43,8 @@ public slots:
      */
     void setObjectModel(ObjectModel *objectModel);
 
+    void onSelectedImageChanged(int index);
+
     /*!
      * \brief setCorrespondenceToEdit sets the object image correspondence that is to be edited by
      * these controls. If formerly an object model had been set it will be removed from displaying
@@ -105,6 +107,8 @@ signals:
      */
     void buttonCreateClicked();
 
+    void opacityChanged(int opacity);
+
 private:
     Ui::CorrespondenceEditor *ui;
     ModelManager *modelManager;
@@ -133,6 +137,12 @@ private:
     // Stores the position that the user clicked last to be able to add a sphere at that position
     QVector3D lastClickedPosition;
 
+    // We need to store what image the user currently views that in case that they select an object
+    // model we can restore the list of all correspondences available for the currently viewed image
+    UniquePointer<Image> currentlySelectedImage;
+
+    bool ignoreComboBoxIndexChange = false;
+
     void setEnabledCorrespondenceEditorControls(bool enabled);
     void setEnabledAllControls(bool enabled);
     void resetControlsValues();
@@ -146,6 +156,7 @@ private:
     void updateCameraLenses();
     void resetCameras();
     float cameraFieldOfView();
+    void addCorrespondencesToComboBoxCorrespondences(const Image *image, const ObjectModel *objectModel);
 
 private slots:
     void objectPickerClicked(Qt3DRender::QPickEvent *pick);
@@ -155,22 +166,33 @@ private slots:
      */
     void updateCurrentlyEditedCorrespondence();
     /*!
-     * \brief setOpacityOfObjectModel sets the opacity of the object model that is currenlty
-     * being edited.
-     * \param opacity the opactiy to be set for the currenlty edited correspondence
-     */
-    void setOpacityOfObjectModel(int opacity);
-    /*!
      * \brief removeCurrentlyEditedCorrespondence gets called when the user wants to remove the
      * currenlty edited correspondence from the currenlty displayed image.
      */
     void removeCurrentlyEditedCorrespondence();
+
+    void onSpinBoxTranslationXValueChanged(double value);
+
+    void onSpinBoxTranslationYValueChanged(double value);
+
+    void onSpinBoxTranslationZValueChanged(double value);
+
+    void onSpinBoxRotationXValueChanged(double value);
+
+    void onSpinBoxRotationYValueChanged(double value);
+
+    void onSpinBoxRotationZValueChanged(double value);
+
     /*!
      * \brief predictPositionOfObjectModels gets called when the user clicks on the predict button.
      */
     void onButtonPredictClicked();
 
     void onButtonCreateClicked();
+
+    void onComboBoxCorrespondenceIndexChanged(int index);
+
+    void onSliderOpacityValueChanged(int value);
 
 };
 

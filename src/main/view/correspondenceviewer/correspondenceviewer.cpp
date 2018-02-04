@@ -65,7 +65,7 @@ void CorrespondenceViewer::setupRenderingPipeline() {
     // Setup camera
     camera = new Qt3DRender::QCamera(sceneRoot);
     // Initial projection matrix, the matrix will be updated as soon as an image is set
-    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
+    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 2000.0f);
     camera->setPosition(QVector3D(0.f, 0.f, 0.f));
     camera->setUpVector(QVector3D(0.f, 1.f, 0.f));
     // Set view center z coordinate to 1.f to make the camera look along the z axis
@@ -196,6 +196,7 @@ void CorrespondenceViewer::imageCaptured() {
         imageReady = true;
     } else {
         renderedImage = renderCaptureReply->image().mirrored(true, true);
+        renderedImage.save("test.png");
         // Sanity check here, because rendering is done asynchronously
         // There is a case for example, when the user switches the images path, that the image is
         // rendered. Inbetween, reset() is called from the onPreferencesChanged() method in the
@@ -203,6 +204,8 @@ void CorrespondenceViewer::imageCaptured() {
         if (currentlyDisplayedImage.get() != Q_NULLPTR)
             updateDisplayedImage();
         disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
+        qDebug() << "Finished rendering object models with positions for image ("
+                    + currentlyDisplayedImage->getImagePath() + ").";
         delete renderCaptureReply;
         imageReady = false;
     }
@@ -239,6 +242,7 @@ QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, con
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
     // Account for the offset of the focal point
+    painter.setOpacity(overlayImageOpacity);
     painter.drawImage(currentlyDisplayedImage->getFocalPointX() - (overlayImage.width() / 2.f) + 21.f,
                       currentlyDisplayedImage->getFocalPointY() - (overlayImage.height() / 2.f),
                       overlayImage);
@@ -289,6 +293,11 @@ void CorrespondenceViewer::onCorrespondencePointStarted(QPoint point2D,
     // We can use the number of points as index directly, because the number of points only increases
     // after the user successfully clicked a 2D location and the corresponding 3D point
     visualizeLastClickedPosition(currentNumberOfPoints);
+}
+
+void CorrespondenceViewer::onOpacityForObjectModelsChanged(int opacity) {
+    overlayImageOpacity = opacity / 100.f;
+    update();
 }
 
 void CorrespondenceViewer::switchImage() {

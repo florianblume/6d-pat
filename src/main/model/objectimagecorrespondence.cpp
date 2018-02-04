@@ -38,6 +38,10 @@ float ObjectImageCorrespondence::getArticulation() const {
     return articulation;
 }
 
+bool ObjectImageCorrespondence::isAccepted() const {
+    return accepted;
+}
+
 const Image* ObjectImageCorrespondence::getImage() const {
     return image;
 }
@@ -64,6 +68,10 @@ void ObjectImageCorrespondence::setRotation(QVector3D rotation) {
 
 void ObjectImageCorrespondence::setArticulation(float articulation) {
     this->articulation = articulation;
+}
+
+void ObjectImageCorrespondence::setAccepted(bool accepted) {
+    this->accepted = accepted;
 }
 
 QString ObjectImageCorrespondence::getID() const {

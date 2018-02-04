@@ -61,7 +61,7 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
 }
 
 int GalleryObjectModelModel::rowCount(const QModelIndex &parent) const {
-    if (codes.size() == 0)
+    if (codes.size() == 0 || imagesCache.at(currentSelectedImageIndex).getSegmentationImagePath().isEmpty())
         return objectModelsCache.size();
 
     int count = 0;

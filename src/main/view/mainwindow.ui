@@ -1520,6 +1520,7 @@
     <slot>onCorrespondencePointStarted(QPoint,int,int)</slot>
     <slot>removePositionVisualizations()</slot>
     <slot>onCorrespondenceCreationAborted()</slot>
+    <slot>onOpacityForObjectModelsChanged(int)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1530,12 +1531,14 @@
    <slots>
     <signal>objectModelClickedAt(ObjectModel*,QVector3D)</signal>
     <signal>buttonCreateClicked()</signal>
+    <signal>opacityChanged(int)</signal>
     <slot>reset()</slot>
     <slot>setObjectModel(ObjectModel*)</slot>
     <slot>setObjectModel(int)</slot>
     <slot>onCorrespondencePointFinished(QVector3D,int,int)</slot>
     <slot>removePositionVisualizations()</slot>
     <slot>onCorrespondenceCreationAborted()</slot>
+    <slot>onSelectedImageChanged(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -1993,7 +1996,7 @@
    <sender>galleryLeft</sender>
    <signal>selectedItemChanged(int)</signal>
    <receiver>correspondenceEditor</receiver>
-   <slot>reset()</slot>
+   <slot>onSelectedImageChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>223</x>
@@ -2001,6 +2004,22 @@
     </hint>
     <hint type="destinationlabel">
      <x>675</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>correspondenceEditor</sender>
+   <signal>opacityChanged(int)</signal>
+   <receiver>correspondenceViewer</receiver>
+   <slot>onOpacityForObjectModelsChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
      <y>401</y>
     </hint>
    </hints>
