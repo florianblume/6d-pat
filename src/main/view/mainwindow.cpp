@@ -176,6 +176,7 @@ void MainWindow::onOverlayClickedAnywhere() {
     QGuiApplication::restoreOverrideCursor();
     clickOverlay->hide();
     emit correspondenceCreationInterrupted();
+    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 }
 
 void MainWindow::onObjectModelClicked(ObjectModel* objectModel, QVector3D position) {
@@ -243,15 +244,18 @@ void MainWindow::onCorrespondencePointFinished(QVector3D point3D, int currentNum
 
 void MainWindow::onCorrespondenceCreated() {
     setStatusBarText("Ready.");
+    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 }
 
 void MainWindow::onCorrespondenceCreationReset() {
     setStatusBarText("Ready.");
+    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 }
 
 void MainWindow::onCorrespondenceCreationRequested() {
     setStatusBarText("Creating correspondence...");
     emit requestCorrespondenceCreation();
+    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 }
 
 void MainWindow::onPreferencesChanged(const QString &identifier) {

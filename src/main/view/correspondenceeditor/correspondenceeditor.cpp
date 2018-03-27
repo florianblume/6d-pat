@@ -198,31 +198,31 @@ void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
 }
 
 void CorrespondenceEditor::removeCurrentlyEditedCorrespondence() {
-
+    modelManager->removeObjectImageCorrespondence(currentCorrespondence->getID());
 }
 
 void CorrespondenceEditor::onSpinBoxTranslationXValueChanged(double value) {
-
+    updateCurrentlyEditedCorrespondence();
 }
 
 void CorrespondenceEditor::onSpinBoxTranslationYValueChanged(double value) {
-
+    updateCurrentlyEditedCorrespondence();
 }
 
 void CorrespondenceEditor::onSpinBoxTranslationZValueChanged(double value) {
-
+    updateCurrentlyEditedCorrespondence();
 }
 
 void CorrespondenceEditor::onSpinBoxRotationXValueChanged(double value) {
-
+    updateCurrentlyEditedCorrespondence();
 }
 
 void CorrespondenceEditor::onSpinBoxRotationYValueChanged(double value) {
-
+    updateCurrentlyEditedCorrespondence();
 }
 
 void CorrespondenceEditor::onSpinBoxRotationZValueChanged(double value) {
-
+    updateCurrentlyEditedCorrespondence();
 }
 
 void CorrespondenceEditor::onButtonPredictClicked() {

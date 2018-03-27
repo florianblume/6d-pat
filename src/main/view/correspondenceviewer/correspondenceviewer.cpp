@@ -230,26 +230,24 @@ void CorrespondenceViewer::connectModelManagerSlots() {
 }
 
 QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage) {
-    QImage imageWithOverlay = QImage(baseImage.size(), QImage::Format_ARGB32_Premultiplied);
-    QPainter painter(&imageWithOverlay);
-
+    QImage sourceImage = overlayImage.convertToFormat(QImage::Format_ARGB32);
+    QImage destinationImage = baseImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    QImage resultImage = QImage(sourceImage.size(), QImage::Format_ARGB32_Premultiplied);
+    QPainter painter(&resultImage);
     painter.setCompositionMode(QPainter::CompositionMode_Source);
-    painter.fillRect(imageWithOverlay.rect(), Qt::transparent);
-
+    painter.fillRect(resultImage.rect(), Qt::transparent);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    painter.drawImage(0, 0, baseImage);
-
+    painter.drawImage(0, 0, destinationImage);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-
-    // Account for the offset of the focal point
     painter.setOpacity(overlayImageOpacity);
     painter.drawImage(currentlyDisplayedImage->getFocalPointX() - (overlayImage.width() / 2.f) + 21.f,
                       currentlyDisplayedImage->getFocalPointY() - (overlayImage.height() / 2.f),
-                      overlayImage);
-
+                      sourceImage);
+    painter.setCompositionMode(QPainter::CompositionMode_DestinationOver);
+    painter.fillRect(resultImage.rect(), Qt::white);
     painter.end();
 
-    return imageWithOverlay;
+    return resultImage;
 }
 
 void CorrespondenceViewer::reset() {
