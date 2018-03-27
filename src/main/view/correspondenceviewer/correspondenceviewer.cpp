@@ -52,6 +52,7 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
 CorrespondenceViewer::~CorrespondenceViewer() {
     deleteSceneObjects();
     delete offscreenEngine;
+    delete renderCaptureReply;
     delete ui;
 }
 
@@ -162,8 +163,11 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
                                            (2.f * currentlyDisplayedImage->getFocalLengthX())) * (180.0f / M_PI));
     // Not necessary to set size first but can't hurt
     offscreenEngine->setSize(QSize(image.width(), image.height()));
-    renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
-    connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
+    if (!renderCaptureReply) {
+        // First time the image was set, afterwards the view refreshes itself constantly
+        renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
+        connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
+    }
 }
 
 void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
@@ -186,29 +190,18 @@ void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorresponde
 }
 
 void CorrespondenceViewer::imageCaptured() {
-    // The first image is somehow always empty, so request another capture and save that
-
-    if (!imageReady) {
-        disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
-        delete renderCaptureReply;
-        renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
-        connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
-        imageReady = true;
-    } else {
-        renderedImage = renderCaptureReply->image().mirrored(true, true);
-        renderedImage.save("test.png");
-        // Sanity check here, because rendering is done asynchronously
-        // There is a case for example, when the user switches the images path, that the image is
-        // rendered. Inbetween, reset() is called from the onPreferencesChanged() method in the
-        // main view. Thus the index has been reset and we should not display the rendered image.
-        if (currentlyDisplayedImage.get() != Q_NULLPTR)
-            updateDisplayedImage();
-        disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
-        qDebug() << "Finished rendering object models with positions for image ("
-                    + currentlyDisplayedImage->getImagePath() + ").";
-        delete renderCaptureReply;
-        imageReady = false;
-    }
+    // Sanity check here, because rendering is done asynchronously
+    // There is a case for example, when the user switches the images path, that the image is
+    // rendered. Inbetween, reset() is called from the onPreferencesChanged() method in the
+    // main view. Thus the index has been reset and we should not display the rendered image.
+    renderedImage = renderCaptureReply->image().mirrored(true, true);
+    renderedImage.save("test.png");
+    if (currentlyDisplayedImage.get() != Q_NULLPTR)
+        updateDisplayedImage();
+    disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
+    delete renderCaptureReply;
+    renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
+    connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
 }
 
 void CorrespondenceViewer::updateDisplayedImage() {
@@ -227,10 +220,12 @@ void CorrespondenceViewer::connectModelManagerSlots() {
     connect(modelManager, SIGNAL(correspondenceUpdated()), this, SLOT(update()));
     connect(modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
     connect(modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
+    connect(modelManager,SIGNAL(correspondenceUpdated()), this, SLOT(onCorrespondenceUpdated()));
 }
 
 QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage) {
     QImage sourceImage = overlayImage.convertToFormat(QImage::Format_ARGB32);
+    sourceImage.save("test.png");
     QImage destinationImage = baseImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
     QImage resultImage = QImage(sourceImage.size(), QImage::Format_ARGB32_Premultiplied);
     QPainter painter(&resultImage);
@@ -322,4 +317,8 @@ void CorrespondenceViewer::imageClicked(QPoint point) {
                 QString::number(point.x()) + ", " + QString::number(point.y()) + ").";
     lastClickedPosition = point;
     emit imageClicked(currentlyDisplayedImage.get(), point);
+}
+
+void CorrespondenceViewer::onCorrespondenceUpdated() {
+    update();
 }

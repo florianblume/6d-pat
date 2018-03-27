@@ -23,6 +23,8 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager *modelM
     ui->setupUi(this);
     setup3DView();
     if (modelManager)
+        // Whenever a correspondence has been added it was created through the editor, i.e. we have
+        // to remove all visualizations because the correspondence creation process was finished
         connect(modelManager, SIGNAL(correspondenceAdded()), this, SLOT(removePositionVisualizations()));
 }
 
@@ -171,30 +173,40 @@ float CorrespondenceEditor::cameraFieldOfView() {
     return 50.f;
 }
 
-void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(const Image *image, const ObjectModel *objectModel) {
+void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(const Image *image) {
     ui->comboBoxCorrespondence->clear();
-    QList<ObjectImageCorrespondence> correspondences = modelManager->getCorrespondencesForImageAndObjectModel(
-                *image,
-                *objectModel);
-    for (ObjectImageCorrespondence &correspondence : correspondences) {
+    QList<ObjectImageCorrespondence> correspondences =
+            modelManager->getCorrespondencesForImage(*image);
+    bool objectModelSet = false;
+    ignoreComboBoxIndexChange = true;
+    for (ObjectImageCorrespondence correspondence : correspondences) {
+        // We need to ignore the combo box changes first, so that the view
+        // doesn't update and crash the program
         ui->comboBoxCorrespondence->addItem(correspondence.getID());
+        if (!objectModelSet) {
+            setCorrespondenceToEdit(&correspondence);
+            objectModelSet = true;
+        }
     }
     ui->comboBoxCorrespondence->setEnabled(correspondences.size() > 0);
+    ignoreComboBoxIndexChange = false;
 }
 
 void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
-    currentCorrespondence->setPosition(ui->spinBoxTranslationX->value(),
-                                       ui->spinBoxTranslationY->value(),
-                                       ui->spinBoxTranslationZ->value());
-    currentCorrespondence->setRotation(ui->spinBoxRotationX->value(),
-                                       ui->spinBoxRotationY->value(),
-                                       ui->spinBoxRotationZ->value());
-    currentCorrespondence->setArticulation(ui->sliderArticulation->value());
-    modelManager->updateObjectImageCorrespondence(currentCorrespondence->getID(),
-                                                  currentCorrespondence->getPosition(),
-                                                  currentCorrespondence->getRotation(),
-                                                  currentCorrespondence->getArticulation(),
-                                                  currentCorrespondence->isAccepted());
+    if (currentCorrespondence) {
+        currentCorrespondence->setPosition(ui->spinBoxTranslationX->value(),
+                                           ui->spinBoxTranslationY->value(),
+                                           ui->spinBoxTranslationZ->value());
+        currentCorrespondence->setRotation(ui->spinBoxRotationX->value(),
+                                           ui->spinBoxRotationY->value(),
+                                           ui->spinBoxRotationZ->value());
+        currentCorrespondence->setArticulation(ui->sliderArticulation->value());
+        modelManager->updateObjectImageCorrespondence(currentCorrespondence->getID(),
+                                                      currentCorrespondence->getPosition(),
+                                                      currentCorrespondence->getRotation(),
+                                                      currentCorrespondence->getArticulation(),
+                                                      currentCorrespondence->isAccepted());
+    }
 }
 
 void CorrespondenceEditor::removeCurrentlyEditedCorrespondence() {
@@ -202,27 +214,33 @@ void CorrespondenceEditor::removeCurrentlyEditedCorrespondence() {
 }
 
 void CorrespondenceEditor::onSpinBoxTranslationXValueChanged(double value) {
-    updateCurrentlyEditedCorrespondence();
+    if (!ignoreComboBoxIndexChange)
+        updateCurrentlyEditedCorrespondence();
 }
 
 void CorrespondenceEditor::onSpinBoxTranslationYValueChanged(double value) {
-    updateCurrentlyEditedCorrespondence();
+    if (!ignoreComboBoxIndexChange)
+        updateCurrentlyEditedCorrespondence();
 }
 
 void CorrespondenceEditor::onSpinBoxTranslationZValueChanged(double value) {
-    updateCurrentlyEditedCorrespondence();
+    if (!ignoreComboBoxIndexChange)
+        updateCurrentlyEditedCorrespondence();
 }
 
 void CorrespondenceEditor::onSpinBoxRotationXValueChanged(double value) {
-    updateCurrentlyEditedCorrespondence();
+    if (!ignoreComboBoxIndexChange)
+        updateCurrentlyEditedCorrespondence();
 }
 
 void CorrespondenceEditor::onSpinBoxRotationYValueChanged(double value) {
-    updateCurrentlyEditedCorrespondence();
+    if (!ignoreComboBoxIndexChange)
+        updateCurrentlyEditedCorrespondence();
 }
 
 void CorrespondenceEditor::onSpinBoxRotationZValueChanged(double value) {
-    updateCurrentlyEditedCorrespondence();
+    if (!ignoreComboBoxIndexChange)
+        updateCurrentlyEditedCorrespondence();
 }
 
 void CorrespondenceEditor::onButtonPredictClicked() {
@@ -269,14 +287,11 @@ void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
     }
 
     qDebug() << "Setting object model (" + objectModel->getPath() + ") to display.";
-    ignoreComboBoxIndexChange = true;
     setEnabledCorrespondenceEditorControls(false);
     currentCorrespondence.reset();
     resetControlsValues();
     currentObjectModel.reset(new ObjectModel(*objectModel));
     setObjectModelOnGraphicsWindow(currentObjectModel->getAbsolutePath());
-    addCorrespondencesToComboBoxCorrespondences(currentlySelectedImage.get(), objectModel);
-    ignoreComboBoxIndexChange = false;
 }
 
 void CorrespondenceEditor::onSelectedImageChanged(int index) {
@@ -284,6 +299,7 @@ void CorrespondenceEditor::onSelectedImageChanged(int index) {
     ui->sliderOpacity->setEnabled(true);
     Image selectedImage = modelManager->getImages().at(index);
     currentlySelectedImage.reset(new Image(selectedImage));
+    addCorrespondencesToComboBoxCorrespondences(&selectedImage);
 }
 
 void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence *correspondence) {
@@ -295,16 +311,13 @@ void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence *co
 
     qDebug() << "Setting correspondence (" + correspondence->getID() + ", " + correspondence->getImage()->getImagePath()
                 + ", " + correspondence->getObjectModel()->getPath() + ") to display.";
-    ignoreComboBoxIndexChange = true;
     resetControlsValues();
     currentCorrespondence.reset(new ObjectImageCorrespondence(*correspondence));
     currentObjectModel.reset(new ObjectModel(*correspondence->getObjectModel()));
     setEnabledCorrespondenceEditorControls(true);
-    // Might not have been set correctly that's why we set it here
-    addCorrespondencesToComboBoxCorrespondences(correspondence->getImage(), correspondence->getObjectModel());
-    QVector3D position = currentCorrespondence->getPosition();
-    QVector3D rotation = currentCorrespondence->getRotation();
-    float articulation = currentCorrespondence->getArticulation();
+    QVector3D position = correspondence->getPosition();
+    QVector3D rotation = correspondence->getRotation();
+    float articulation = correspondence->getArticulation();
     ui->spinBoxTranslationX->setValue(position.x());
     ui->spinBoxTranslationY->setValue(position.y());
     ui->spinBoxTranslationZ->setValue(position.z());
@@ -312,8 +325,7 @@ void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence *co
     ui->spinBoxRotationY->setValue(rotation.y());
     ui->spinBoxRotationZ->setValue(rotation.z());
     ui->sliderArticulation->setValue(articulation);
-    setObjectModelOnGraphicsWindow(currentCorrespondence->getObjectModel()->getAbsolutePath());
-    ignoreComboBoxIndexChange = false;
+    setObjectModelOnGraphicsWindow(correspondence->getObjectModel()->getAbsolutePath());
 }
 
 void CorrespondenceEditor::visualizeLastClickedPosition(int correspondencePointIndex) {
@@ -365,10 +377,10 @@ void CorrespondenceEditor::reset() {
         positionSpheres.clear();
     }
 
-    setEnabledAllControls(false);
     currentObjectModel.reset();
     currentCorrespondence.reset();
     currentlySelectedImage.reset();
+    setEnabledAllControls(false);
     resetControlsValues();
 }
 

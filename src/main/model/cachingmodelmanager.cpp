@@ -152,6 +152,8 @@ bool CachingModelManager::updateObjectImageCorrespondence(const QString &id,
         correspondence->setRotation(previousRotation);
         correspondence->setArticulation(previousArticulation);
         return false;
+    } else {
+        createConditionalCache();
     }
 
     emit correspondenceUpdated();

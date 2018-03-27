@@ -156,7 +156,7 @@ private:
     void updateCameraLenses();
     void resetCameras();
     float cameraFieldOfView();
-    void addCorrespondencesToComboBoxCorrespondences(const Image *image, const ObjectModel *objectModel);
+    void addCorrespondencesToComboBoxCorrespondences(const Image *image);
 
 private slots:
     void objectPickerClicked(Qt3DRender::QPickEvent *pick);

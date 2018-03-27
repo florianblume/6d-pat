@@ -122,7 +122,7 @@ private:
     // entity that "holds" the actual objects.
     Qt3DCore::QEntity *sceneRoot = Q_NULLPTR;
     Qt3DCore::QEntity *sceneObjectsEntity = Q_NULLPTR;
-    Qt3DRender::QRenderCaptureReply *renderCaptureReply;
+    Qt3DRender::QRenderCaptureReply *renderCaptureReply = Q_NULLPTR;
     QList<ObjectModelRenderable*> objectModelRenderables;
     // The rendered image, we store it to later compose it with the actual displayed image
     QImage renderedImage;
@@ -133,7 +133,6 @@ private:
     // A copy of the composedImage to restore the state before drawing the colored positions into
     // the image.
     QImage composedImageDefault;
-    bool imageReady = false;
 
     // Store the last clicked position, so that we can visualize it if the user calls the respective
     // function.
@@ -169,6 +168,7 @@ private slots:
     void resetPositionOfImage();
     void imageCaptured();
     void imageClicked(QPoint point);
+    void onCorrespondenceUpdated();
 };
 
 #endif // CORRESPONDENCEEDITOR_H
