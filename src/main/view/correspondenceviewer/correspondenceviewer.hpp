@@ -122,7 +122,8 @@ private:
     // entity that "holds" the actual objects.
     Qt3DCore::QEntity *sceneRoot = Q_NULLPTR;
     Qt3DCore::QEntity *sceneObjectsEntity = Q_NULLPTR;
-    Qt3DRender::QRenderCaptureReply *renderCaptureReply = Q_NULLPTR;
+    QList<Qt3DRender::QRenderCaptureReply*> renderReplies;
+    int renderAgain = 0;
     QList<ObjectModelRenderable*> objectModelRenderables;
     // The rendered image, we store it to later compose it with the actual displayed image
     QImage renderedImage;

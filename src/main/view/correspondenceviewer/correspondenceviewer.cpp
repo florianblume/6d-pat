@@ -52,7 +52,6 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
 CorrespondenceViewer::~CorrespondenceViewer() {
     deleteSceneObjects();
     delete offscreenEngine;
-    delete renderCaptureReply;
     delete ui;
 }
 
@@ -116,6 +115,7 @@ void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
 }
 
 void CorrespondenceViewer::setImage(Image *image) {
+
     currentlyDisplayedImage.reset(new Image(*image));
 
     ui->buttonResetPosition->setEnabled(true);
@@ -163,11 +163,10 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
                                            (2.f * currentlyDisplayedImage->getFocalLengthX())) * (180.0f / M_PI));
     // Not necessary to set size first but can't hurt
     offscreenEngine->setSize(QSize(image.width(), image.height()));
-    if (!renderCaptureReply) {
-        // First time the image was set, afterwards the view refreshes itself constantly
-        renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
-        connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
-    }
+    renderAgain += 1;
+    Qt3DRender::QRenderCaptureReply *renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
+    renderReplies.append(renderCaptureReply);
+    connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
 }
 
 void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
@@ -194,14 +193,19 @@ void CorrespondenceViewer::imageCaptured() {
     // There is a case for example, when the user switches the images path, that the image is
     // rendered. Inbetween, reset() is called from the onPreferencesChanged() method in the
     // main view. Thus the index has been reset and we should not display the rendered image.
+    Qt3DRender::QRenderCaptureReply *renderCaptureReply = renderReplies.at(0);
     renderedImage = renderCaptureReply->image().mirrored(true, true);
-    renderedImage.save("test.png");
+    disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
+    renderReplies.pop_front();
+    delete renderCaptureReply;
     if (currentlyDisplayedImage.get() != Q_NULLPTR)
         updateDisplayedImage();
-    disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
-    delete renderCaptureReply;
-    renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
-    connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
+    if (renderAgain > 0) {
+        renderAgain--;
+        Qt3DRender::QRenderCaptureReply *renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
+        renderReplies.append(renderCaptureReply);
+        connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
+    }
 }
 
 void CorrespondenceViewer::updateDisplayedImage() {
@@ -235,7 +239,7 @@ QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, con
     painter.drawImage(0, 0, destinationImage);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     painter.setOpacity(overlayImageOpacity);
-    painter.drawImage(currentlyDisplayedImage->getFocalPointX() - (overlayImage.width() / 2.f) + 21.f,
+    painter.drawImage(currentlyDisplayedImage->getFocalPointX() - (overlayImage.width() / 2.f) + 27.f,
                       currentlyDisplayedImage->getFocalPointY() - (overlayImage.height() / 2.f),
                       sourceImage);
     painter.setCompositionMode(QPainter::CompositionMode_DestinationOver);
