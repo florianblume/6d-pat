@@ -16,6 +16,7 @@
 #include <QScopedPointer>
 #include <Qt3DCore/QEntity>
 #include <Qt3DRender/QCamera>
+#include <Qt3DRender/QLayer>
 #include <Qt3DRender/QRenderCaptureReply>
 #include <QtAwesome/QtAwesome.h>
 
@@ -122,6 +123,7 @@ private:
     // entity that "holds" the actual objects.
     Qt3DCore::QEntity *sceneRoot = Q_NULLPTR;
     Qt3DCore::QEntity *sceneObjectsEntity = Q_NULLPTR;
+    Qt3DRender::QLayer *objectsLayer;
     QList<Qt3DRender::QRenderCaptureReply*> renderReplies;
     int renderAgain = 0;
     QList<ObjectModelRenderable*> objectModelRenderables;

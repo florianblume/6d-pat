@@ -20,6 +20,9 @@ public:
     void setSceneRoot(Qt3DCore::QNode *sceneRoot);
     Qt3DRender::QRenderCapture *getRenderCapture();
     void setSize(const QSize &size);
+    void setBackgroundImagePath(const QString &path);
+    void addLayerToObjectsLayerFilter(Qt3DRender::QLayer *objectsLayer);
+    void removeLayerFromObjectsLayerFilter(Qt3DRender::QLayer *objectsLayer);
 
 private:
     Qt3DCore::QAspectEngine *aspectEngine;

@@ -80,8 +80,11 @@ void CorrespondenceViewer::setupRenderingPipeline() {
     lightTransform->setTranslation(camera->position());
     lightEntity->addComponent(lightTransform);
 
+    objectsLayer = new Qt3DRender::QLayer(sceneRoot);
+
     offscreenEngine = new OffscreenEngine(camera, QSize(500, 500));
     offscreenEngine->setSceneRoot(sceneRoot);
+    offscreenEngine->addLayerToObjectsLayerFilter(objectsLayer);
 }
 
 void CorrespondenceViewer::deleteSceneObjects() {
@@ -156,6 +159,7 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
 
     // This is just to retrieve the size of the set image
     QImage image(imagePath);
+    offscreenEngine->setBackgroundImagePath(imagePath);
     ui->labelGraphics->setFixedSize(image.size());
     // Relation between camera matrix and field of view implies the following computation
     // 180.f / M_PI is conversion from radians to degrees
@@ -184,6 +188,7 @@ void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorresponde
     newRenderable->getTransform()->setRotationX(correspondence.getRotation().x());
     newRenderable->getTransform()->setRotationY(correspondence.getRotation().y());
     newRenderable->getTransform()->setRotationZ(correspondence.getRotation().z());
+    newRenderable->addComponent(objectsLayer);
 
     qDebug() << "Adding object model (" + objectModel->getPath() + ") to display.";
 }
@@ -212,8 +217,7 @@ void CorrespondenceViewer::updateDisplayedImage() {
     QString baseImage = showingNormalImage ?
                                   currentlyDisplayedImage->getAbsoluteImagePath() :
                                   currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
-    composedImage =  createImageWithOverlay(QImage(baseImage), renderedImage);
-    composedImageDefault = composedImage;
+    composedImage =  renderedImage;
     ui->labelGraphics->setPixmap(QPixmap::fromImage(composedImage));
 }
 
@@ -225,28 +229,6 @@ void CorrespondenceViewer::connectModelManagerSlots() {
     connect(modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
     connect(modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
     connect(modelManager,SIGNAL(correspondenceUpdated()), this, SLOT(onCorrespondenceUpdated()));
-}
-
-QImage CorrespondenceViewer::createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage) {
-    QImage sourceImage = overlayImage.convertToFormat(QImage::Format_ARGB32);
-    sourceImage.save("test.png");
-    QImage destinationImage = baseImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-    QImage resultImage = QImage(sourceImage.size(), QImage::Format_ARGB32_Premultiplied);
-    QPainter painter(&resultImage);
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
-    painter.fillRect(resultImage.rect(), Qt::transparent);
-    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    painter.drawImage(0, 0, destinationImage);
-    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    painter.setOpacity(overlayImageOpacity);
-    painter.drawImage(currentlyDisplayedImage->getFocalPointX() - (overlayImage.width() / 2.f) + 27.f,
-                      currentlyDisplayedImage->getFocalPointY() - (overlayImage.height() / 2.f),
-                      sourceImage);
-    painter.setCompositionMode(QPainter::CompositionMode_DestinationOver);
-    painter.fillRect(resultImage.rect(), Qt::white);
-    painter.end();
-
-    return resultImage;
 }
 
 void CorrespondenceViewer::reset() {

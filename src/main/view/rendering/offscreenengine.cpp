@@ -13,6 +13,7 @@ OffscreenEngine::OffscreenEngine(Qt3DRender::QCamera *camera, const QSize &size)
     renderSettings->setActiveFrameGraph(offscreenFrameGraph);
     renderCapture = new Qt3DRender::QRenderCapture(offscreenFrameGraph->getLastNode());
     aspectEngine->setRootEntity(root);
+    offscreenFrameGraph->setRootEntity(root.data());
 }
 
 void OffscreenEngine::setSceneRoot(Qt3DCore::QNode *sceneRoot) {
@@ -26,4 +27,16 @@ Qt3DRender::QRenderCapture* OffscreenEngine::getRenderCapture() {
 
 void OffscreenEngine::setSize(const QSize &size) {
     offscreenFrameGraph->setSize(size);
+}
+
+void OffscreenEngine::setBackgroundImagePath(const QString &path){
+    offscreenFrameGraph->setBackgroundImagePath(path);
+}
+
+void OffscreenEngine::addLayerToObjectsLayerFilter(Qt3DRender::QLayer *objectsLayer) {
+    offscreenFrameGraph->addLayerToObjectsLayerFilter(objectsLayer);
+}
+
+void OffscreenEngine::removeLayerFromObjectsLayerFilter(Qt3DRender::QLayer *objectsLayer) {
+    offscreenFrameGraph->removeLayerFromObjectsLayerFilter(objectsLayer);
 }
