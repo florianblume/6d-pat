@@ -32,6 +32,8 @@ public:
 
     QList<ObjectImageCorrespondence> getCorrespondences() override;
 
+    ObjectImageCorrespondence getCorrespondenceById(const QString &id) override;
+
     QList<ObjectImageCorrespondence> getCorrespondencesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) override;
 
     bool addObjectImageCorrespondence(Image *image,

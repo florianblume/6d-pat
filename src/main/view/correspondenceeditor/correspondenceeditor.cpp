@@ -25,7 +25,7 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager *modelM
     if (modelManager)
         // Whenever a correspondence has been added it was created through the editor, i.e. we have
         // to remove all visualizations because the correspondence creation process was finished
-        connect(modelManager, SIGNAL(correspondenceAdded()), this, SLOT(removePositionVisualizations()));
+        connect(modelManager, SIGNAL(correspondenceAdded(QString)), this, SLOT(onCorrespondenceAdded(QString)));
 }
 
 CorrespondenceEditor::~CorrespondenceEditor()
@@ -39,7 +39,9 @@ CorrespondenceEditor::~CorrespondenceEditor()
 
 void CorrespondenceEditor::setModelManager(ModelManager *modelManager) {
     Q_ASSERT(modelManager);
+    disconnect(modelManager, SIGNAL(correspondenceAdded(QString)), this, SLOT(onCorrespondenceAdded(QString)));
     this->modelManager = modelManager;
+    connect(modelManager, SIGNAL(correspondenceAdded(QString)), this, SLOT(onCorrespondenceAdded(QString)));
 }
 
 void CorrespondenceEditor::setEnabledCorrespondenceEditorControls(bool enabled) {
@@ -76,7 +78,6 @@ void CorrespondenceEditor::resetControlsValues() {
     ui->spinBoxRotationY->setValue(0);
     ui->spinBoxRotationZ->setValue(0);
     ui->sliderArticulation->setValue(0);
-    ui->comboBoxCorrespondence->clear();
 }
 
 void CorrespondenceEditor::setup3DView() {
@@ -173,7 +174,7 @@ float CorrespondenceEditor::cameraFieldOfView() {
     return 50.f;
 }
 
-void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(const Image *image) {
+void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(const Image *image, const QString &correspondenceToSelect) {
     ui->comboBoxCorrespondence->clear();
     QList<ObjectImageCorrespondence> correspondences =
             modelManager->getCorrespondencesForImage(*image);
@@ -182,14 +183,31 @@ void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(const Ima
     for (ObjectImageCorrespondence correspondence : correspondences) {
         // We need to ignore the combo box changes first, so that the view
         // doesn't update and crash the program
-        ui->comboBoxCorrespondence->addItem(correspondence.getID());
-        if (!objectModelSet) {
+        QString id = correspondence.getID();
+        ui->comboBoxCorrespondence->addItem(id);
+        if (!objectModelSet && correspondenceToSelect == "" && correspondenceToSelect != correspondence.getID()) {
+            setCorrespondenceToEdit(&correspondence);
+            objectModelSet = true;
+        } else if (correspondenceToSelect == correspondence.getID()) {
             setCorrespondenceToEdit(&correspondence);
             objectModelSet = true;
         }
     }
     ui->comboBoxCorrespondence->setEnabled(correspondences.size() > 0);
     ignoreComboBoxIndexChange = false;
+}
+
+void CorrespondenceEditor::setCorrespondenceValuesOnControls(ObjectImageCorrespondence *correspondence) {
+    QVector3D position = correspondence->getPosition();
+    QVector3D rotation = correspondence->getRotation();
+    float articulation = correspondence->getArticulation();
+    ui->spinBoxTranslationX->setValue(position.x());
+    ui->spinBoxTranslationY->setValue(position.y());
+    ui->spinBoxTranslationZ->setValue(position.z());
+    ui->spinBoxRotationX->setValue(rotation.x());
+    ui->spinBoxRotationY->setValue(rotation.y());
+    ui->spinBoxRotationZ->setValue(rotation.z());
+    ui->sliderArticulation->setValue(articulation);
 }
 
 void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
@@ -209,8 +227,23 @@ void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
     }
 }
 
-void CorrespondenceEditor::removeCurrentlyEditedCorrespondence() {
+void CorrespondenceEditor::onCorrespondenceAdded(const QString &correspondence) {
+    removePositionVisualizations();
+    addCorrespondencesToComboBoxCorrespondences(currentlySelectedImage.get(), correspondence);
+}
+
+void CorrespondenceEditor::onButtonRemoveClicked() {
     modelManager->removeObjectImageCorrespondence(currentCorrespondence->getID());
+    QList<ObjectImageCorrespondence> correspondences = modelManager->getCorrespondencesForImage(*(currentlySelectedImage.get()));
+    if (correspondences.size() > 0) {
+        // This reloads the drop down list and does everything else
+        addCorrespondencesToComboBoxCorrespondences(currentlySelectedImage.get());
+    } else {
+        ui->comboBoxCorrespondence->clear();
+        // Setting the object model resets controls and disables them as well
+        ObjectModel objectModel = *currentCorrespondence->getObjectModel();
+        setObjectModel(&objectModel);
+    }
 }
 
 void CorrespondenceEditor::onSpinBoxTranslationXValueChanged(double value) {
@@ -311,20 +344,10 @@ void CorrespondenceEditor::setCorrespondenceToEdit(ObjectImageCorrespondence *co
 
     qDebug() << "Setting correspondence (" + correspondence->getID() + ", " + correspondence->getImage()->getImagePath()
                 + ", " + correspondence->getObjectModel()->getPath() + ") to display.";
-    resetControlsValues();
     currentCorrespondence.reset(new ObjectImageCorrespondence(*correspondence));
     currentObjectModel.reset(new ObjectModel(*correspondence->getObjectModel()));
     setEnabledCorrespondenceEditorControls(true);
-    QVector3D position = correspondence->getPosition();
-    QVector3D rotation = correspondence->getRotation();
-    float articulation = correspondence->getArticulation();
-    ui->spinBoxTranslationX->setValue(position.x());
-    ui->spinBoxTranslationY->setValue(position.y());
-    ui->spinBoxTranslationZ->setValue(position.z());
-    ui->spinBoxRotationX->setValue(rotation.x());
-    ui->spinBoxRotationY->setValue(rotation.y());
-    ui->spinBoxRotationZ->setValue(rotation.z());
-    ui->sliderArticulation->setValue(articulation);
+    setCorrespondenceValuesOnControls(correspondence);
     setObjectModelOnGraphicsWindow(correspondence->getObjectModel()->getAbsolutePath());
 }
 

@@ -18,7 +18,7 @@ MainController::MainController(int &argc, char *argv[]) :
     correspondenceCreator.reset(new CorrespondenceCreator(0, &modelManager));
     // Whenever the user clicks the create button in the correspondence editor we need to reset
     // the controller as well
-    connect(&modelManager, SIGNAL(correspondenceAdded()),
+    connect(&modelManager, SIGNAL(correspondenceAdded(QString)),
             this, SLOT(resetCorrespondenceCreation()));
 }
 

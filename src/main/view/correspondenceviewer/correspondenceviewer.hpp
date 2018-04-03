@@ -60,7 +60,7 @@ public slots:
      * (like delete, update only the parameters etc.), because the image is rendered
      * offscreen and has to be completely re-rendered anyway.
      */
-    void update();
+    void refresh();
 
     /*!
      * \brief visualizeLastClickedPosition draws a point at the position that the user last clicked.
@@ -126,16 +126,11 @@ private:
     Qt3DRender::QLayer *objectsLayer;
     QList<Qt3DRender::QRenderCaptureReply*> renderReplies;
     int renderAgain = 0;
-    QList<ObjectModelRenderable*> objectModelRenderables;
+    QMap<QString, ObjectModelRenderable*> objectModelRenderables;
     // The rendered image, we store it to later compose it with the actual displayed image
     QImage renderedImage;
+    QImage renderedImageDefault;
     qreal overlayImageOpacity = 1.f;
-    // The image consisting of the actual image overlayed with the rendered image. Points will be
-    // visualized in here with colors.
-    QImage composedImage;
-    // A copy of the composedImage to restore the state before drawing the colored positions into
-    // the image.
-    QImage composedImageDefault;
 
     // Store the last clicked position, so that we can visualize it if the user calls the respective
     // function.
@@ -157,9 +152,6 @@ private:
     void deleteSceneObjects();
     // Helper method to overlay the rendered image with the actual image
     QImage createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage);
-    // Uses the createImageWithOverlay method to overlay the actual (normal/segmentation) image
-    // with the rendered image
-    void updateDisplayedImage();
 
     void connectModelManagerSlots();
 
@@ -171,7 +163,8 @@ private slots:
     void resetPositionOfImage();
     void imageCaptured();
     void imageClicked(QPoint point);
-    void onCorrespondenceUpdated();
+    void onCorrespondenceUpdated(const QString &id);
+    void onCorrespondenceRemoved(const QString &id);
 };
 
 #endif // CORRESPONDENCEEDITOR_H

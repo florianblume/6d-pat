@@ -66,6 +66,18 @@ QList<ObjectImageCorrespondence> CachingModelManager::getCorrespondences() {
     return correspondences;
 }
 
+ObjectImageCorrespondence CachingModelManager::getCorrespondenceById(const QString &id) {
+    auto itObj = std::find_if(
+        correspondences.begin(), correspondences.end(),
+        [id](ObjectImageCorrespondence o) { return o.getID() == id; }
+    );
+    if (itObj != correspondences.end()) {
+        return *itObj;
+    } else {
+        return ObjectImageCorrespondence("", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    }
+}
+
 QList<ObjectImageCorrespondence> CachingModelManager::getCorrespondencesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) {
     QList<ObjectImageCorrespondence> correspondencesForImageAndObjectModel;
     for (ObjectImageCorrespondence &correspondence : correspondencesForImages[image.getImagePath()]) {
@@ -115,7 +127,7 @@ bool CachingModelManager::addObjectImageCorrespondence(Image *image,
 
     createConditionalCache();
 
-    emit correspondenceAdded();
+    emit correspondenceAdded(correspondence.getID());
 
     return true;
 }
@@ -152,11 +164,11 @@ bool CachingModelManager::updateObjectImageCorrespondence(const QString &id,
         correspondence->setRotation(previousRotation);
         correspondence->setArticulation(previousArticulation);
         return false;
-    } else {
-        createConditionalCache();
     }
 
-    emit correspondenceUpdated();
+    createConditionalCache();
+
+    emit correspondenceUpdated(correspondence->getID());
 
     return true;
 }
@@ -179,23 +191,14 @@ bool CachingModelManager::removeObjectImageCorrespondence(const QString &id) {
         return false;
     }
 
-    QString imagePath = correspondence->getImage()->getImagePath();
-    QList<ObjectImageCorrespondence>& correspondencesForImage = correspondencesForImages[imagePath];
-    for (int i = 0; i < correspondencesForImage.size(); i++) {
-        if (correspondencesForImage[i].getImage()->getImagePath().compare(imagePath)) {
-            correspondencesForImage.erase(correspondencesForImage.begin() + i);
-        }
+    for (int i = 0; i < correspondences.size(); i++) {
+        if (correspondences.at(i).getID() == id)
+        correspondences.removeAt(i);
     }
 
-    QString objectModelPath = correspondence->getObjectModel()->getPath();
-    QList<ObjectImageCorrespondence>& correspondencesForObject = correspondencesForObjectModels[objectModelPath];
-    for (int i = 0; i < correspondencesForObject.size(); i++) {
-        if (correspondencesForObject[i].getObjectModel()->getPath().compare(objectModelPath)) {
-            correspondencesForObject.erase(correspondencesForObject.begin() + i);
-        }
-    }
+    createConditionalCache();
 
-    emit correspondenceDeleted();
+    emit correspondenceDeleted(id);
 
     return true;
 }

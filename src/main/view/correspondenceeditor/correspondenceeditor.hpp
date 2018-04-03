@@ -156,7 +156,8 @@ private:
     void updateCameraLenses();
     void resetCameras();
     float cameraFieldOfView();
-    void addCorrespondencesToComboBoxCorrespondences(const Image *image);
+    void addCorrespondencesToComboBoxCorrespondences(const Image *image, const QString &correspondenceToSelect = "");
+    void setCorrespondenceValuesOnControls(ObjectImageCorrespondence *correspondence);
 
 private slots:
     void objectPickerClicked(Qt3DRender::QPickEvent *pick);
@@ -165,11 +166,8 @@ private slots:
      * the position or rotation controls or modifies the articulation angle.
      */
     void updateCurrentlyEditedCorrespondence();
-    /*!
-     * \brief removeCurrentlyEditedCorrespondence gets called when the user wants to remove the
-     * currenlty edited correspondence from the currenlty displayed image.
-     */
-    void removeCurrentlyEditedCorrespondence();
+
+    void onCorrespondenceAdded(const QString &correspondence);
 
     void onSpinBoxTranslationXValueChanged(double value);
 
@@ -189,6 +187,12 @@ private slots:
     void onButtonPredictClicked();
 
     void onButtonCreateClicked();
+
+    /*!
+     * \brief removeCurrentlyEditedCorrespondence gets called when the user wants to remove the
+     * currenlty edited correspondence from the currenlty displayed image.
+     */
+    void onButtonRemoveClicked();
 
     void onComboBoxCorrespondenceIndexChanged(int index);
 

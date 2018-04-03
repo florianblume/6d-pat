@@ -79,6 +79,8 @@ public:
      */
     virtual QList<ObjectImageCorrespondence> getCorrespondences() = 0;
 
+    virtual ObjectImageCorrespondence getCorrespondenceById(const QString &id) = 0;
+
     /*!
      * \brief getCorrespondencesForImageAndObjectModel Returns all correspondences for the given image and object model.
      * \param imagePath the image
@@ -136,9 +138,9 @@ signals:
      * in the correspondenceUpdated() signal to be emitted. Same holds for adding and deleting correspondences.
      */
     void correspondencesChanged();
-    void correspondenceAdded();
-    void correspondenceUpdated();
-    void correspondenceDeleted();
+    void correspondenceAdded(const QString &id);
+    void correspondenceUpdated(const QString &id);
+    void correspondenceDeleted(const QString &id);
 
 };
 

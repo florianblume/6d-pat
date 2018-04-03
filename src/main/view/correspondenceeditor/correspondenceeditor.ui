@@ -1152,6 +1152,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonRemove</sender>
+   <signal>clicked()</signal>
+   <receiver>CorrespondenceEditor</receiver>
+   <slot>onButtonRemoveClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>359</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onButtonCreateClicked()</slot>
@@ -1163,5 +1179,6 @@
   <slot>onSpinBoxRotationYValueChanged(double)</slot>
   <slot>onSpinBoxRotationZValueChanged(double)</slot>
   <slot>onSpinBoxTranslationZValueChanged(double)</slot>
+  <slot>onButtonRemoveClicked()</slot>
  </slots>
 </ui>
