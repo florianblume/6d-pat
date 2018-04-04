@@ -140,7 +140,7 @@ void CorrespondenceEditor::setupCamera(Qt3DRender::QCamera *&camera,
 
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(camera);
     Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
-    light->setIntensity(0.5f);
+    light->setIntensity(0.2f);
     Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
     lightTransform->setTranslation(lightPosition);
     lightEntity->addComponent(light);

@@ -16,10 +16,11 @@
 class OffscreenEngine
 {
 public:
-    OffscreenEngine(Qt3DRender::QCamera *camera, const QSize &size);
+    OffscreenEngine(Qt3DRender::QCamera *camera, const QSize &size, const QPointF &objectsOffset);
     void setSceneRoot(Qt3DCore::QNode *sceneRoot);
     Qt3DRender::QRenderCapture *getRenderCapture();
     void setSize(const QSize &size);
+    void setObjectsOffset(const QPointF &objectsOffset);
     void setBackgroundImagePath(const QString &path);
     void addLayerToObjectsLayerFilter(Qt3DRender::QLayer *objectsLayer);
     void removeLayerFromObjectsLayerFilter(Qt3DRender::QLayer *objectsLayer);

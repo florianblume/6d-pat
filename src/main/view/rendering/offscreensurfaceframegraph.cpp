@@ -2,7 +2,10 @@
 
 #include <Qt3DRender/QNoDraw>
 
-OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent, Qt3DRender::QCamera *camera, const QSize &size) :
+OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent,
+                                                       Qt3DRender::QCamera *camera,
+                                                       const QSize &size,
+                                                       const QPointF &objectsOffset) :
     Qt3DRender::QRenderSurfaceSelector(parent)
 {
     offscreenSurface = new QOffscreenSurface();
@@ -61,7 +64,9 @@ OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent, 
 
     // Third branch for the actual objects
     objectsLayerFilter = new Qt3DRender::QLayerFilter(renderTargetSelector);
-    objectsCameraSelector = new Qt3DRender::QCameraSelector(objectsLayerFilter);
+    objectsViewport = new Qt3DRender::QViewport(objectsLayerFilter);
+    objectsViewport->setNormalizedRect(QRectF(objectsOffset.x(), objectsOffset.y(), 1.f, 1.f));
+    objectsCameraSelector = new Qt3DRender::QCameraSelector(objectsViewport);
     objectsCameraSelector->setCamera(camera);
     objectsClearBuffers = new Qt3DRender::QClearBuffers(objectsCameraSelector);
     // Clear depth buffer so that objects will always be drawn above background
@@ -79,6 +84,10 @@ void OffscreenSurfaceFrameGraph::setSize(const QSize &size) {
     backgroundImageTextureImage->setSize(size);
     textureTarget->setSize(size);
     setExternalRenderTargetSize(size);
+}
+
+void OffscreenSurfaceFrameGraph::setObjectsOffset(const QPointF objectsOffset) {
+    objectsViewport->setNormalizedRect(QRectF(objectsOffset.x(), objectsOffset.y(), 1.f, 1.f));
 }
 
 Qt3DCore::QNode *OffscreenSurfaceFrameGraph::getLastNode() {

@@ -17,12 +17,17 @@
 #include <Qt3DExtras/QTextureMaterial>
 #include <Qt3DCore/QTransform>
 #include <Qt3DRender/QNoDraw>
+#include <Qt3DRender/QViewport>
 
 class OffscreenSurfaceFrameGraph : public Qt3DRender::QRenderSurfaceSelector
 {
 public:
-    OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent = nullptr, Qt3DRender::QCamera *camera = nullptr, const QSize &size = QSize(500, 500));
+    OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent = nullptr,
+                               Qt3DRender::QCamera *camera = nullptr,
+                               const QSize &size = QSize(500, 500),
+                               const QPointF &objectsOffset = QPointF(0, 0));
     void setSize(const QSize &size);
+    void setObjectsOffset(const QPointF objectsOffset);
     Qt3DCore::QNode *getLastNode();
     void setObjectsCamera(Qt3DRender::QCamera *camera);
     Qt3DCore::QEntity *objectsCamera();
@@ -54,6 +59,7 @@ private:
 
     // Object models framegraph objects
     Qt3DRender::QLayerFilter *objectsLayerFilter;
+    Qt3DRender::QViewport *objectsViewport;
     Qt3DRender::QCameraSelector *objectsCameraSelector;
     Qt3DRender::QClearBuffers *objectsClearBuffers;
     Qt3DRender::QRenderStateSet *renderStateSet;

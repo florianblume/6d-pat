@@ -73,7 +73,7 @@ void CorrespondenceViewer::setupRenderingPipeline() {
 
     objectsLayer = new Qt3DRender::QLayer(sceneRoot);
 
-    offscreenEngine = new OffscreenEngine(camera, QSize(500, 500));
+    offscreenEngine = new OffscreenEngine(camera, QSize(500, 500), QPointF(0, 0));
     offscreenEngine->setSceneRoot(sceneRoot);
     offscreenEngine->addLayerToObjectsLayerFilter(objectsLayer);
 }
@@ -160,6 +160,9 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
                                            (2.f * currentlyDisplayedImage->getFocalLengthX())) * (180.0f / M_PI));
     // Not necessary to set size first but can't hurt
     offscreenEngine->setSize(QSize(image.width(), image.height()));
+    float objectsXOffset = ((image.width() / 2.f) - (float) currentlyDisplayedImage->getFocalPointX()) / (float) image.width();
+    float objectsYOffset = ((image.height() / 2.f) - (float) currentlyDisplayedImage->getFocalPointY()) / (float) image.height();
+    offscreenEngine->setObjectsOffset(QPointF(objectsXOffset, objectsYOffset));
     renderAgain += 1;
     Qt3DRender::QRenderCaptureReply *renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
     renderReplies.append(renderCaptureReply);

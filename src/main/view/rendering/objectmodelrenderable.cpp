@@ -13,8 +13,8 @@ ObjectModelRenderable::ObjectModelRenderable(QNode *parent, const QString &meshP
     mesh->setSource(QUrl::fromLocalFile(meshPath));
 
     material = new Qt3DExtras::QPhongMaterial(this);
-    material->setAmbient(QColor(50, 50, 50, 255));
-    material->setDiffuse(QColor(200, 200, 200, 255));
+    material->setAmbient(QColor(100, 100, 100, 255));
+    //material->setDiffuse(QColor(200, 200, 200, 255));
     addComponent(material);
 }
 
