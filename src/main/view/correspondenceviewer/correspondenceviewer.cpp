@@ -71,17 +71,6 @@ void CorrespondenceViewer::setupRenderingPipeline() {
     // Set view center z coordinate to 1.f to make the camera look along the z axis
     camera->setViewCenter(QVector3D(0.f, 0.f, 1.f));
 
-    /*
-    lightEntity = new Qt3DCore::QEntity(sceneRoot);
-    Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
-    light->setColor("white");
-    light->setIntensity(1);
-    lightEntity->addComponent(light);
-    Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
-    lightTransform->setTranslation(camera->position());
-    lightEntity->addComponent(lightTransform);
-    */
-
     objectsLayer = new Qt3DRender::QLayer(sceneRoot);
 
     offscreenEngine = new OffscreenEngine(camera, QSize(500, 500));
@@ -204,7 +193,7 @@ void CorrespondenceViewer::imageCaptured() {
     // rendered. Inbetween, reset() is called from the onPreferencesChanged() method in the
     // main view. Thus the index has been reset and we should not display the rendered image.
     Qt3DRender::QRenderCaptureReply *renderCaptureReply = renderReplies.at(0);
-    renderedImage = renderCaptureReply->image();
+    renderedImage = renderCaptureReply->image().mirrored(true, true);
     renderedImageDefault = renderedImage;
     disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
     renderReplies.pop_front();
@@ -272,7 +261,7 @@ void CorrespondenceViewer::onCorrespondencePointStarted(QPoint point2D,
 
 void CorrespondenceViewer::onOpacityForObjectModelsChanged(int opacity) {
     overlayImageOpacity = opacity / 100.f;
-    refresh();
+    //refresh();
 }
 
 void CorrespondenceViewer::switchImage() {

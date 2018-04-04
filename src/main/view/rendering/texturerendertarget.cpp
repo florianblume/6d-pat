@@ -1,12 +1,14 @@
 #include "texturerendertarget.h"
 
-TextureRenderTarget::TextureRenderTarget(Qt3DCore::QNode *parent, const QSize &size) :
+TextureRenderTarget::TextureRenderTarget(Qt3DCore::QNode *parent,
+                                         const QSize &size,
+                                         Qt3DRender::QRenderTargetOutput::AttachmentPoint attatchmentPoint) :
     Qt3DRender::QRenderTarget(parent),
     size(size)
 {
     // Setup render target to render the final color into
     textureOutput = new Qt3DRender::QRenderTargetOutput(this);                   // no need to manage memory, we lose possession
-    textureOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color0);
+    textureOutput->setAttachmentPoint(attatchmentPoint);
     texture = new Qt3DRender::QTexture2D(textureOutput);                         // no need to manage memory, we lose possession
     texture->setSize(size.width(), size.height());
     texture->setFormat(Qt3DRender::QAbstractTexture::RGBA8_UNorm);

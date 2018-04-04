@@ -16,6 +16,7 @@
 #include <Qt3DExtras/QPlaneMesh>
 #include <Qt3DExtras/QTextureMaterial>
 #include <Qt3DCore/QTransform>
+#include <Qt3DRender/QNoDraw>
 
 class OffscreenSurfaceFrameGraph : public Qt3DRender::QRenderSurfaceSelector
 {
@@ -58,6 +59,8 @@ private:
     Qt3DRender::QRenderStateSet *renderStateSet;
     Qt3DRender::QDepthTest *depthTest;
 
+    // Last node for render capture reply
+    Qt3DRender::QNoDraw *lastNode;
 };
 
 #endif // OFFSCREENLAYER_H

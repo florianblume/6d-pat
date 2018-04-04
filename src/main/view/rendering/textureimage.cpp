@@ -5,7 +5,7 @@ TextureImage::TextureImage(Qt3DCore::QNode *parent) : Qt3DRender::QPaintedTextur
 }
 
 void TextureImage::paint(QPainter *painter) {
-    painter->drawImage(0, 0, QImage(imagePath));
+    painter->drawImage(0, 0, QImage(imagePath).mirrored(true, true));
     painter->end();
 }
 
