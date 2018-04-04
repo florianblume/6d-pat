@@ -115,7 +115,7 @@ void CorrespondenceEditor::setup3DView() {
     /*
      * Third branch holding the viewport of the back facing view
      */
-    setupCamera(rightCamera, QVector3D(0.f, 0.f, -100.f), QVector3D(0.f, 0.f, -300.f),
+    setupCamera(rightCamera, QVector3D(0.f, 0.f, -100.f), QVector3D(10.f, 0.f, -300.f),
                 mainViewport, QRectF(0.5, 0.0, 0.5, 1.0));
 
     resetCameras();
@@ -180,20 +180,23 @@ void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(const Ima
             modelManager->getCorrespondencesForImage(*image);
     bool objectModelSet = false;
     ignoreComboBoxIndexChange = true;
+    if (correspondences.size() > 0) {
+        ui->comboBoxCorrespondence->setEnabled(true);
+        ui->comboBoxCorrespondence->addItem("None");
+        ui->comboBoxCorrespondence->setCurrentIndex(0);
+    }
+    int index = 1;
     for (ObjectImageCorrespondence correspondence : correspondences) {
         // We need to ignore the combo box changes first, so that the view
         // doesn't update and crash the program
         QString id = correspondence.getID();
         ui->comboBoxCorrespondence->addItem(id);
-        if (!objectModelSet && correspondenceToSelect == "" && correspondenceToSelect != correspondence.getID()) {
-            setCorrespondenceToEdit(&correspondence);
-            objectModelSet = true;
-        } else if (correspondenceToSelect == correspondence.getID()) {
-            setCorrespondenceToEdit(&correspondence);
+        if (correspondenceToSelect == correspondence.getID()) {
+            ui->comboBoxCorrespondence->setCurrentIndex(index);
             objectModelSet = true;
         }
+        index++;
     }
-    ui->comboBoxCorrespondence->setEnabled(correspondences.size() > 0);
     ignoreComboBoxIndexChange = false;
 }
 
@@ -287,10 +290,16 @@ void CorrespondenceEditor::onButtonCreateClicked() {
 void CorrespondenceEditor::onComboBoxCorrespondenceIndexChanged(int index) {
     if (index < 0 || ignoreComboBoxIndexChange)
         return;
-
-    QList<ObjectImageCorrespondence> correspondencesForImage = modelManager->getCorrespondencesForImage(*currentlySelectedImage.get());
-    ObjectImageCorrespondence correspondence = correspondencesForImage.at(index);
-    setCorrespondenceToEdit(&correspondence);
+    else if (index == 0) {
+        // First index is placeholder
+        setEnabledCorrespondenceEditorControls(false);
+        currentCorrespondence.reset();
+        resetControlsValues();
+    } else {
+        QList<ObjectImageCorrespondence> correspondencesForImage = modelManager->getCorrespondencesForImage(*currentlySelectedImage.get());
+        ObjectImageCorrespondence correspondence = correspondencesForImage.at(--index);
+        setCorrespondenceToEdit(&correspondence);
+    }
 }
 
 void CorrespondenceEditor::onSliderOpacityValueChanged(int value) {
@@ -320,9 +329,8 @@ void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
     }
 
     qDebug() << "Setting object model (" + objectModel->getPath() + ") to display.";
-    setEnabledCorrespondenceEditorControls(false);
-    currentCorrespondence.reset();
-    resetControlsValues();
+    // This also disables controls and resets their values
+    ui->comboBoxCorrespondence->setCurrentIndex(0);
     currentObjectModel.reset(new ObjectModel(*objectModel));
     setObjectModelOnGraphicsWindow(currentObjectModel->getAbsolutePath());
 }
