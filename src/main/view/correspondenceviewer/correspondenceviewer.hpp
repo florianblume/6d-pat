@@ -130,7 +130,7 @@ private:
     // The rendered image, we store it to later compose it with the actual displayed image
     QImage renderedImage;
     QImage renderedImageDefault;
-    qreal overlayImageOpacity = 1.f;
+    qreal objectsOpacity = 1.f;
 
     // Store the last clicked position, so that we can visualize it if the user calls the respective
     // function.

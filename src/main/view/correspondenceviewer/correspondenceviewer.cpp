@@ -10,7 +10,7 @@
 #include <Qt3DRender/QCamera>
 #include <Qt3DExtras/QFirstPersonCameraController>
 #include <QOffscreenSurface>
-#include <Qt3DExtras/QPhongMaterial>
+#include <Qt3DExtras/QPhongAlphaMaterial>
 #include <Qt3DCore/QTransform>
 
 #include "math.h"
@@ -185,6 +185,10 @@ void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorresponde
     newRenderable->getTransform()->setRotationY(correspondence.getRotation().y());
     newRenderable->getTransform()->setRotationZ(correspondence.getRotation().z());
     newRenderable->addComponent(objectsLayer);
+    Qt3DExtras::QPhongAlphaMaterial *phongAlphaMaterial = new Qt3DExtras::QPhongAlphaMaterial(newRenderable);
+    phongAlphaMaterial->setAmbient(QColor(100, 100, 100, objectsOpacity));
+    phongAlphaMaterial->setAlpha(objectsOpacity);
+    newRenderable->addComponent(phongAlphaMaterial);
     objectModelRenderables.insert(correspondence.getID(), newRenderable);
 
     qDebug() << "Adding object model (" + objectModel->getPath() + ") to display.";
@@ -263,8 +267,8 @@ void CorrespondenceViewer::onCorrespondencePointStarted(QPoint point2D,
 }
 
 void CorrespondenceViewer::onOpacityForObjectModelsChanged(int opacity) {
-    overlayImageOpacity = opacity / 100.f;
-    //refresh();
+    objectsOpacity = opacity / 100.f;
+    refresh();
 }
 
 void CorrespondenceViewer::switchImage() {

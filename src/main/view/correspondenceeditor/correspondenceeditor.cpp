@@ -12,6 +12,7 @@
 #include <Qt3DRender/QPointLight>
 #include <Qt3DCore/QTransform>
 #include <Qt3DExtras/QSphereMesh>
+#include <Qt3DExtras/QPhongMaterial>
 #include <QUrl>
 #include <QThread>
 
@@ -316,6 +317,9 @@ void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectM
     ObjectModelRenderable *objectModelRenderable = new ObjectModelRenderable(sceneEntity,
                                                                              objectModel,
                                                                              "");
+    Qt3DExtras::QPhongMaterial *phongMaterial = new Qt3DExtras::QPhongMaterial(objectModelRenderable);
+    phongMaterial->setAmbient(QColor(100, 100, 100, 255));
+    objectModelRenderable->addComponent(phongMaterial);
     objectPicker = new Qt3DRender::QObjectPicker(objectModelRenderable);
     objectModelRenderable->addComponent(objectPicker);
     connect(objectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
