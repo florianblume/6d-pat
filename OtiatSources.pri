@@ -11,7 +11,6 @@ SOURCES += \
     $$PWD/src/main/model/image.cpp \
     $$PWD/src/main/model/objectmodel.cpp \
     $$PWD/src/main/model/loadandstorestrategy.cpp \
-    $$PWD/src/main/model/textfileloadandstorestrategy.cpp \
     $$PWD/src/main/model/cachingmodelmanager.cpp \
     $$PWD/src/main/model/modelmanager.cpp \
     $$PWD/src/main/view/breadcrumb/breadcrumbview.cpp \
@@ -34,7 +33,8 @@ SOURCES += \
     $$PWD/src/main/view/correspondenceviewer/imageviewlabel.cpp \
     $$PWD/src/main/controller/correspondencecreator.cpp \
     $$PWD/src/main/misc/scripting/pythonscriptingengine.cpp \
-    $$PWD/src/main/view/rendering/textureimage.cpp
+    $$PWD/src/main/view/rendering/textureimage.cpp \
+    $$PWD/src/main/model/jsonloadandstorestrategy.cpp
 
 HEADERS  += \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
@@ -43,7 +43,6 @@ HEADERS  += \
     $$PWD/src/main/model/modelmanager.hpp \
     $$PWD/src/main/model/objectimagecorrespondence.hpp \
     $$PWD/src/main/model/objectmodel.hpp \
-    $$PWD/src/main/model/textfileloadandstorestrategy.hpp \
     $$PWD/src/main/controller/maincontroller.hpp \
     $$PWD/src/main/view/mainwindow.hpp \
     $$PWD/src/main/misc/otiathelper.h \
@@ -69,7 +68,8 @@ HEADERS  += \
     $$PWD/src/main/controller/correspondencecreator.h \
     $$PWD/src/main/misc/scripting/pythonscriptingengine.h \
     $$PWD/src/main/view/misc/displayhelper.h \
-    $$PWD/src/main/view/rendering/textureimage.h
+    $$PWD/src/main/view/rendering/textureimage.h \
+    $$PWD/src/main/model/jsonloadandstorestrategy.hpp
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

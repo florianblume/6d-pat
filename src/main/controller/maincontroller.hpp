@@ -2,7 +2,7 @@
 #define MAINCONTROLLER_H
 
 #include "model/cachingmodelmanager.hpp"
-#include "model/textfileloadandstorestrategy.hpp"
+#include "model/jsonloadandstorestrategy.hpp"
 #include "misc/preferences/preferencesstore.hpp"
 #include "view/mainwindow.hpp"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
@@ -35,7 +35,7 @@ public:
 
 private:
 
-    TextFileLoadAndStoreStrategy strategy;
+    JsonLoadAndStoreStrategy strategy;
     CachingModelManager modelManager;
     UniquePointer<CorrespondenceCreator> correspondenceCreator;
     MainWindow mainWindow;

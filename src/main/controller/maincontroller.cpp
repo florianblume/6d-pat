@@ -32,7 +32,7 @@ void MainController::initialize() {
     currentPreferences = std::move(preferencesStore->loadPreferencesByIdentifier("default"));
     strategy.setImagesPath(currentPreferences->getImagesPath());
     strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
-    strategy.setCorrespondencesPath(currentPreferences->getCorrespondencesPath());
+    strategy.setCorrespondencesFilePath(currentPreferences->getCorrespondencesFilePath());
     strategy.setImageFilesExtension(currentPreferences->getImageFilesExtension());
     strategy.setSegmentationImageFilesSuffix(currentPreferences->getSegmentationImageFilesSuffix());
     initializeMainWindow();
@@ -157,8 +157,8 @@ void MainController::onPreferencesChanged(const QString &identifier) {
         strategy.setImagesPath(currentPreferences->getImagesPath());
     if (currentPreferences->getObjectModelsPath().compare(strategy.getObjectModelsPath().path()) != 0)
         strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
-    if (currentPreferences->getCorrespondencesPath().compare(strategy.getCorrespondencesPath().path()) != 0)
-        strategy.setCorrespondencesPath(currentPreferences->getCorrespondencesPath());
+    if (currentPreferences->getCorrespondencesFilePath().compare(strategy.getCorrespondencesFilePath().path()) != 0)
+        strategy.setCorrespondencesFilePath(currentPreferences->getCorrespondencesFilePath());
     if (currentPreferences->getImageFilesExtension().compare(strategy.getImageFilesExtension()) != 0)
         strategy.setImageFilesExtension(currentPreferences->getImageFilesExtension());
     if (currentPreferences->getSegmentationImageFilesSuffix().compare(strategy.getSegmentationImageFilesSuffix()) != 0)

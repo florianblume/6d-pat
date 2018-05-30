@@ -115,9 +115,7 @@ public:
      */
     virtual bool updateObjectImageCorrespondence(const QString &id,
                                                  QVector3D position,
-                                                 QVector3D rotation,
-                                                 float articulation,
-                                                 bool accepted) = 0;
+                                                 QVector3D rotation) = 0;
 
     /*!
      * \brief removeObjectImageCorrespondence Removes the given ObjectImageCorrespondence if it is present in the list

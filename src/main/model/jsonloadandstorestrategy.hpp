@@ -4,6 +4,7 @@
 #include "loadandstorestrategy.hpp"
 #include <QDir>
 #include <QString>
+#include <QStringList>
 #include <QList>
 
 /*!
@@ -11,24 +12,21 @@
  * caching already loaded images or object models and writes correspondences to text files. That is why it is important to set the
  * proper path to the folder of correspondences before using this strategy.
  */
-class TextFileLoadAndStoreStrategy : public LoadAndStoreStrategy
+class JsonLoadAndStoreStrategy : public LoadAndStoreStrategy
 {
 
     Q_OBJECT
 
 public:
     //! Unmodifiable constants (i.e. not changable by the user at runtime)
-    static const QString CORRESPONDENCE_FORMAT_DELIMITER;
-    static const QString CORRESPONDENCE_FILES_NAME_SUFFIX;
-    static const QString CORRESPONDENCE_FILES_EXTENSION;
-    static const QList<QString> OBJECT_MODEL_FILES_EXTENSIONS;
+    static const QStringList OBJECT_MODEL_FILES_EXTENSIONS;
 
 public:
     /*!
      * \brief TextFileLoadAndStoreStrategy Constructor of this strategy. The paths MUST be set aferwards to use it
      * properly, otherwise the strategy won't deliver any content.
      */
-    TextFileLoadAndStoreStrategy();
+    JsonLoadAndStoreStrategy();
 
     /*!
      * \brief TextFileLoadAndStoreStrategy Convenience constructor setting the paths already.
@@ -36,9 +34,9 @@ public:
      * \param _objectModelsPath
      * \param _correspondencesPath
      */
-    TextFileLoadAndStoreStrategy(const QDir &imagesPath, const QDir &objectModelsPath, const QDir &correspondencesPath);
+    JsonLoadAndStoreStrategy(const QDir &imagesPath, const QDir &objectModelsPath, const QDir &correspondencesFilePath);
 
-    ~TextFileLoadAndStoreStrategy();
+    ~JsonLoadAndStoreStrategy();
 
     bool persistObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence, bool deleteCorrespondence) override;
 
@@ -98,13 +96,13 @@ public:
      * are meant to be loaded
      * \return true if the path is a valid path on the filesystem, false otherwise
      */
-    bool setCorrespondencesPath(const QDir &path);
+    bool setCorrespondencesFilePath(const QDir &path);
 
     /*!
      * \brief getCorrespondencesPath Returns the path that this manager uses to store and load correspondences.
      * \return the path that this manager uses to store and load correspondences
      */
-    QDir getCorrespondencesPath() const;
+    QDir getCorrespondencesFilePath() const;
 
     /*!
      * \brief setSegmentationImageFilesSuffix sets the given suffix as the suffix to be used
@@ -141,7 +139,7 @@ private:
     //! Stores the path to the folder that holds the object models
     QDir objectModelsPath;
     //! Stores the path to the already created correspondences
-    QDir correspondencesPath;
+    QDir correspondencesFilePath;
     //! Stores the suffix that is used to try to load segmentation images
     QString segmentationImageFilesSuffix = "_GT";
     //! Stores the extension of the image files that are to be loaded

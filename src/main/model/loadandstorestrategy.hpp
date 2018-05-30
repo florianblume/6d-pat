@@ -1,4 +1,4 @@
-#ifndef LOADANDSTORESTRATEGY_H
+﻿#ifndef LOADANDSTORESTRATEGY_H
 #define LOADANDSTORESTRATEGY_H
 
 #include "objectimagecorrespondence.hpp"
@@ -62,10 +62,9 @@ public:
 
 signals:
 
-    void imagesPathChanged();
-    void objectModelsPathChanged();
-    void correspondencesPathChanged();
     void imagesChanged();
+    void objectModelsChanged();
+    void correspondencesChanged();
 
 };
 
