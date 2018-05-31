@@ -63,6 +63,7 @@ private slots:
     void onPreferencesChanged(const QString &identifier);
     void resetCorrespondenceCreation();
     void onCorrespondenceCreationRequested();
+    void onFailedToLoadImages(const QString &message);
 };
 
 #endif // MAINCONTROLLER_H

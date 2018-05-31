@@ -63,8 +63,12 @@ public:
 signals:
 
     void imagesChanged();
+    void failedToLoadImages(const QString& message);
     void objectModelsChanged();
+    void failedToLoadObjectModels(const QString &message);
     void correspondencesChanged();
+    void failedToLoadCorrespondences(const QString &message);
+    void failedToPersistCorrespondence(const QString &message);
 
 };
 

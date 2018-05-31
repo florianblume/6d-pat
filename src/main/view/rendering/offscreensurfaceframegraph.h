@@ -13,6 +13,8 @@
 #include <Qt3DRender/QDepthTest>
 #include <Qt3DRender/QLayerFilter>
 #include <Qt3DRender/QLayer>
+#include <Qt3DRender/QBlendEquation>
+#include <Qt3DRender/QBlendEquationArguments>
 #include <Qt3DExtras/QPlaneMesh>
 #include <Qt3DExtras/QTextureMaterial>
 #include <Qt3DCore/QTransform>
@@ -64,6 +66,8 @@ private:
     Qt3DRender::QClearBuffers *objectsClearBuffers;
     Qt3DRender::QRenderStateSet *renderStateSet;
     Qt3DRender::QDepthTest *depthTest;
+    Qt3DRender::QBlendEquation *blendEquation;
+    Qt3DRender::QBlendEquationArguments *blendEquationArguments;
 
     // Last node for render capture reply
     Qt3DRender::QNoDraw *lastNode;

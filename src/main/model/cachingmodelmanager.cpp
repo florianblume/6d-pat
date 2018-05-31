@@ -1,5 +1,5 @@
 #include "cachingmodelmanager.hpp"
-#include <QUuid>
+#include "misc/otiathelper.h"
 
 CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy) : ModelManager(loadAndStoreStrategy) {
     images = loadAndStoreStrategy.loadImages();
@@ -89,9 +89,7 @@ QList<ObjectImageCorrespondence> CachingModelManager::getCorrespondencesForImage
 bool CachingModelManager::addObjectImageCorrespondence(Image *image,
                                                        ObjectModel *objectModel,
                                                        QVector3D position,
-                                                       QVector3D rotation,
-                                                       float articulation,
-                                                       bool accepted) {
+                                                       QVector3D rotation) {
 
     QList<Image>::iterator imageIterator = find(images.begin(), images.end(), *image);
     if (imageIterator == images.end())
@@ -103,11 +101,13 @@ bool CachingModelManager::addObjectImageCorrespondence(Image *image,
 
     // IMPORTANT: Use the iterator values, they return the actually managed image and object model
     // and not what the user passed (and maybe created somewhere else but with the right paths)
-    ObjectImageCorrespondence correspondence(QUuid::createUuid().toString(),
+    Image *_image = &*imageIterator;
+    ObjectModel *_objectModel = &*objectModelIterator;
+    ObjectImageCorrespondence correspondence(OtiatHelper::createCorrespondenceId(_image, _objectModel),
                                              position,
                                              rotation,
-                                             &*imageIterator,
-                                             &*objectModelIterator);
+                                             _image,
+                                             _objectModel);
     // TODO: add accepted
 
     if (!loadAndStoreStrategy.persistObjectImageCorrespondence(&correspondence, false)) {

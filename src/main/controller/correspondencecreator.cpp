@@ -149,9 +149,7 @@ bool CorrespondenceCreator::createCorrespondence() {
     bool success = modelManager->addObjectImageCorrespondence(image,
                                                objectModel,
                                                position,
-                                               rotation,
-                                               0,
-                                               false);
+                                               rotation);
 
     points.clear();
     objectModel = Q_NULLPTR;

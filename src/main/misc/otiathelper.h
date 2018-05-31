@@ -1,17 +1,23 @@
 #ifndef OTIATHELPER_H
 #define OTIATHELPER_H
 
+#include "model/image.hpp"
+#include "model/objectmodel.hpp"
+
 #include <math.h>
 #include <QColor>
 #include <QString>
 #include <QList>
+#include <QFileInfo>
 #include <QStringList>
+#include <QDateTime>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/core.hpp>
 
 static const QString colorCodeDelimiter = ".";
 
 namespace OtiatHelper {
+
     static int sign(int x) {
         return (x > 0) - (x < 0);
     }
@@ -31,6 +37,18 @@ namespace OtiatHelper {
         QStringList splitCode = segmentationCode.split(colorCodeDelimiter);
         Q_ASSERT(splitCode.size() == 3);
         return QColor(splitCode.at(0).toInt(), splitCode.at(1).toInt(), splitCode.at(2).toInt());
+    }
+
+    static QString createCorrespondenceId(const Image* image, const ObjectModel *objectModel) {
+        QDateTime date = QDateTime::currentDateTime();;
+        //! We include the date as part of the identifier - this actually makes
+        //! the ID quite long but still better readable than a UUID
+        QString id = QFileInfo(image->getImagePath()).completeBaseName()
+                   + "_"
+                   + QFileInfo(objectModel->getPath()).completeBaseName()
+                   + "_"
+                   + date.toString("d.M.yy_HH:mm:ss");
+        return id;
     }
 
     // Checks if a matrix is a valid rotation matrix.

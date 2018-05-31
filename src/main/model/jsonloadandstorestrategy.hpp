@@ -141,9 +141,9 @@ private:
     //! Stores the path to the already created correspondences
     QDir correspondencesFilePath;
     //! Stores the suffix that is used to try to load segmentation images
-    QString segmentationImageFilesSuffix = "_GT";
+    QString segmentationImageFilesSuffix = "";
     //! Stores the extension of the image files that are to be loaded
-    QString imageFilesExtension = ".png";
+    QString imageFilesExtension = "";
 };
 
 #endif // TEXTFILELOADANDSTORESTRATEGY_H

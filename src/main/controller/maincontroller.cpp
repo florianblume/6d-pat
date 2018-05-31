@@ -20,6 +20,7 @@ MainController::MainController(int &argc, char *argv[]) :
     // the controller as well
     connect(&modelManager, SIGNAL(correspondenceAdded(QString)),
             this, SLOT(resetCorrespondenceCreation()));
+    connect(&strategy, SIGNAL(failedToLoadImages(QString)), this, SLOT(onFailedToLoadImages(QString)));
 }
 
 MainController::~MainController() {
@@ -148,6 +149,17 @@ void MainController::onCorrespondenceCreationRequested() {
     // The user can't request this before all the requirements are met because the creat button
     // is not enabled earlier
     correspondenceCreator->createCorrespondence();
+}
+
+void MainController::onFailedToLoadImages(const QString &message){
+    QString imagesPath = strategy.getImagesPath().path();
+    if (imagesPath != "." && imagesPath != "" && strategy.getImageFilesExtension() != "") {
+        //! "." is the default path and will likely never be used as image path, thus
+        //! do not display any warning - otherwise the warning would pop up three times
+        //! on startup, because the program tries to load images when setting the
+        //! images extension, the paths, etc.
+        mainWindow.displayWarning("Error loading images", message);
+    }
 }
 
 void MainController::onPreferencesChanged(const QString &identifier) {
