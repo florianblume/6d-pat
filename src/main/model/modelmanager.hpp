@@ -101,9 +101,7 @@ public:
     virtual bool addObjectImageCorrespondence(Image *image,
                                               ObjectModel *objectModel,
                                               QVector3D position,
-                                              QVector3D rotation,
-                                              float articulation,
-                                              bool accepted) = 0;
+                                              QVector3D rotation) = 0;
 
     /*!
      * \brief addObjectImageCorrespondence Updates the given ObjectImageCorrespondence and automatically persists it according to the
@@ -115,9 +113,7 @@ public:
      */
     virtual bool updateObjectImageCorrespondence(const QString &id,
                                                  QVector3D position,
-                                                 QVector3D rotation,
-                                                 float articulation,
-                                                 bool accepted) = 0;
+                                                 QVector3D rotation) = 0;
 
     /*!
      * \brief removeObjectImageCorrespondence Removes the given ObjectImageCorrespondence if it is present in the list

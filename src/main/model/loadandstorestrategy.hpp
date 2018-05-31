@@ -1,4 +1,4 @@
-#ifndef LOADANDSTORESTRATEGY_H
+﻿#ifndef LOADANDSTORESTRATEGY_H
 #define LOADANDSTORESTRATEGY_H
 
 #include "objectimagecorrespondence.hpp"
@@ -62,10 +62,13 @@ public:
 
 signals:
 
-    void imagesPathChanged();
-    void objectModelsPathChanged();
-    void correspondencesPathChanged();
     void imagesChanged();
+    void failedToLoadImages(const QString& message);
+    void objectModelsChanged();
+    void failedToLoadObjectModels(const QString &message);
+    void correspondencesChanged();
+    void failedToLoadCorrespondences(const QString &message);
+    void failedToPersistCorrespondence(const QString &message);
 
 };
 

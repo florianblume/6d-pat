@@ -17,7 +17,7 @@ void PreferencesStore::savePreferences(Preferences *preferences) {
     settings.beginGroup(identifier);
     settings.setValue("imagesPath", preferences->getImagesPath());
     settings.setValue("objectModelsPath", preferences->getObjectModelsPath());
-    settings.setValue("correspondencesPath", preferences->getCorrespondencesPath());
+    settings.setValue("correspondencesFilePath", preferences->getCorrespondencesFilePath());
     settings.setValue("segmentationImageFilesSuffix", preferences->getSegmentationImageFilesSuffix());
     settings.setValue("imageFilesExtension", preferences->getImageFilesExtension());
     settings.endGroup();
@@ -41,7 +41,7 @@ UniquePointer<Preferences> PreferencesStore::loadPreferencesByIdentifier(const Q
     settings.beginGroup(fullIdentifier);
     preferences->setImagesPath(settings.value("imagesPath", QDir::homePath()).toString());
     preferences->setObjectModelsPath(settings.value("objectModelsPath", QDir::homePath()).toString());
-    preferences->setCorrespondencesPath(settings.value("correspondencesPath", QDir::homePath()).toString());
+    preferences->setCorrespondencesFilePath(settings.value("correspondencesFilePath", QDir::homePath()).toString());
     preferences->setImageFilesExtension(settings.value("imageFilesExtension", "").toString());
     preferences->setSegmentationImageFilesSuffix(settings.value("segmentationImageFilesSuffix", "").toString());
     settings.endGroup();

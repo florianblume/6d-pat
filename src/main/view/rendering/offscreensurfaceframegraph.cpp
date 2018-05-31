@@ -74,8 +74,17 @@ OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent,
 
     renderStateSet = new Qt3DRender::QRenderStateSet(objectsClearBuffers);
     depthTest = new Qt3DRender::QDepthTest(renderStateSet);
-    depthTest->setDepthFunction(Qt3DRender::QDepthTest::Less);
+    depthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
     renderStateSet->addRenderState(depthTest);
+    blendEquation = new Qt3DRender::QBlendEquation(renderStateSet);
+    blendEquation->setBlendFunction(Qt3DRender::QBlendEquation::Add);
+    renderStateSet->addRenderState(blendEquation);
+    blendEquationArguments = new Qt3DRender::QBlendEquationArguments(renderStateSet);
+    blendEquationArguments->setSourceRgb(Qt3DRender::QBlendEquationArguments::One);
+    blendEquationArguments->setDestinationRgb(Qt3DRender::QBlendEquationArguments::OneMinusSourceAlpha);
+    blendEquationArguments->setSourceAlpha(Qt3DRender::QBlendEquationArguments::One);
+    blendEquationArguments->setDestinationAlpha(Qt3DRender::QBlendEquationArguments::OneMinusSourceAlpha);
+    renderStateSet->addRenderState(blendEquationArguments);
 
     lastNode = new Qt3DRender::QNoDraw(renderTargetSelector);
 }

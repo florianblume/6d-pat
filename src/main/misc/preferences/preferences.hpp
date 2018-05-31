@@ -32,8 +32,8 @@ public:
     QString getObjectModelsPath() const;
     void setObjectModelsPath(const QString &value);
 
-    QString getCorrespondencesPath() const;
-    void setCorrespondencesPath(const QString &value);
+    QString getCorrespondencesFilePath() const;
+    void setCorrespondencesFilePath(const QString &value);
 
     QString getIdentifier();
 
@@ -43,7 +43,7 @@ private:
     QString imageFilesExtension;
     QString imagesPath;
     QString objectModelsPath;
-    QString correspondencesPath;
+    QString correspondencesFilePath;
 
     QString identifier;
 };

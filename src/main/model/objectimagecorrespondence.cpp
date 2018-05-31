@@ -1,29 +1,23 @@
 #include "objectimagecorrespondence.hpp"
 
 ObjectImageCorrespondence::ObjectImageCorrespondence(QString id,
-                                                     float x, float y, float z,
-                                                     float r1, float r2, float r3,
-                                                     float articulation,
+                                                     QVector3D position,
+                                                     QVector3D rotation,
                                                      const Image* image,
                                                      const ObjectModel* objectModel)
     : image(image),
       objectModel(objectModel),
+      position(position),
+      rotation(rotation),
       id(id) {
-    position = {x, y, z};
-    rotation = {r1, r2, r3};
-    this->articulation = articulation;
-    accepted = false;
 }
 
 ObjectImageCorrespondence::ObjectImageCorrespondence(const ObjectImageCorrespondence &other)
     : position(other.position),
       rotation(other.rotation),
-      articulation(other.articulation),
-      accepted(other.accepted),
       image(other.image),
       objectModel(other.objectModel),
       id(other.id) {
-
 }
 
 QVector3D ObjectImageCorrespondence::getPosition() const {
@@ -34,14 +28,6 @@ QVector3D ObjectImageCorrespondence::getRotation() const {
     return rotation;
 }
 
-float ObjectImageCorrespondence::getArticulation() const {
-    return articulation;
-}
-
-bool ObjectImageCorrespondence::isAccepted() const {
-    return accepted;
-}
-
 const Image* ObjectImageCorrespondence::getImage() const {
     return image;
 }
@@ -50,28 +36,12 @@ const ObjectModel* ObjectImageCorrespondence::getObjectModel() const {
     return objectModel;
 }
 
-void ObjectImageCorrespondence::setPosition(float x, float y, float z) {
-    position = {x, y, z};
-}
-
 void ObjectImageCorrespondence::setPosition(QVector3D position) {
-    this->position = std::move(position);
-}
-
-void ObjectImageCorrespondence::setRotation(float r1, float r2, float r3) {
-    rotation = {r1, r2, r3};
+    this->position = position;
 }
 
 void ObjectImageCorrespondence::setRotation(QVector3D rotation) {
     this->rotation = std::move(rotation);
-}
-
-void ObjectImageCorrespondence::setArticulation(float articulation) {
-    this->articulation = articulation;
-}
-
-void ObjectImageCorrespondence::setAccepted(bool accepted) {
-    this->accepted = accepted;
 }
 
 QString ObjectImageCorrespondence::getID() const {
@@ -88,13 +58,11 @@ ObjectImageCorrespondence& ObjectImageCorrespondence::operator=(const ObjectImag
     objectModel = other.objectModel;
     position = other.position;
     rotation = other.rotation;
-    articulation = other.articulation;
-    accepted = other.accepted;
     return *this;
 }
 
 QString ObjectImageCorrespondence::toString() const {
     return id + " " + image->getImagePath() + " " + objectModel->getPath() + " " + QString::number(position.x()) + " " +
             QString::number(position.y()) + " " + QString::number(position.z()) + " " + QString::number(rotation.x()) + " " +
-            QString::number(rotation.y()) + " " + QString::number(rotation.z()) + " " + QString::number(articulation);
+            QString::number(rotation.y()) + " " + QString::number(rotation.z());
 }

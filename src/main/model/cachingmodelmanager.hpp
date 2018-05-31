@@ -39,15 +39,11 @@ public:
     bool addObjectImageCorrespondence(Image *image,
                                       ObjectModel *objectModel,
                                       QVector3D position,
-                                      QVector3D rotation,
-                                      float articulation,
-                                      bool accepted) override;
+                                      QVector3D rotation) override;
 
     bool updateObjectImageCorrespondence(const QString &id,
                                          QVector3D position,
-                                         QVector3D rotation,
-                                         float articulation,
-                                         bool accepted) override;
+                                         QVector3D rotation) override;
 
     bool removeObjectImageCorrespondence(const QString &id) override;
 

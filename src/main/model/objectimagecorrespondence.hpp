@@ -14,10 +14,6 @@ private:
     QVector3D position;
     //! The rotation of the object on the image.
     QVector3D rotation;
-    //! The atriculation of the object
-    float articulation;
-    //! The indicator whether the user is confident in the correspondence.
-    bool accepted;
     //! The image associated with this corresopndence.
     const Image* image;
     //! The object model associated with this correspondence.
@@ -39,7 +35,7 @@ public:
      * \param _image the associated image
      * \param _objectModel the associated object model
      */
-    ObjectImageCorrespondence(QString id, float x, float y, float z, float r1, float r2, float r3, float articulation,
+    ObjectImageCorrespondence(QString id, QVector3D position, QVector3D rotation,
                               const Image* image, const ObjectModel* objectModel);
 
     /*!
@@ -60,16 +56,7 @@ public:
      * \return the rotation of the image
      */
     QVector3D getRotation() const;
-    /*!
-     * \brief getArticulation Returns the articulatoin of the object on the image.
-     * \return the articulation of the object
-     */
-    float getArticulation() const;
-    /*!
-     * \brief isAccepted returns whether the user of the program is confident in the correspondence.
-     * \return whether this correspondence has been accepted
-     */
-    bool isAccepted() const;
+
     /*!
      * \brief getImage Returns the image associated with this correspondence.
      * \return the image associated with this correspondence
@@ -80,36 +67,10 @@ public:
      * \return the object model associated with this correspondence
      */
     const ObjectModel* getObjectModel() const;
-    /*!
-     * \brief setPosition Sets the position of the object on the image.
-     * \param x the x position of the object
-     * \param y the y position of the object
-     * \param z the z position, i.e. the depth of the object
-     */
-    void setPosition(float x, float y, float z);
 
     void setPosition(QVector3D position);
 
-    /*!
-     * \brief setRotation Sets the rotation of the object on the image.
-     * \param r1 the rotation of the x-axis of the object
-     * \param r2 the rotation of the y-axis of the object
-     * \param r3 the rotation of the z-axis of the object
-     */
-    void setRotation(float r1, float r2, float r3);
-
     void setRotation(QVector3D rotation);
-
-    /*!
-     * \brief setArticulation Sets the articulation of the object on the image.
-     * \param articulation the articulation of the object
-     */
-    void setArticulation(float articulation);
-    /*!
-     * \brief setAccepted sets whether the user is confident in this correspondence.
-     * \param accepted whether the user is confident
-     */
-    void setAccepted(bool accepted);
     /*!
      * \brief getID Returns the unique ID of this correspondence.
      * \return the unique ID of this correspondence

@@ -1,5 +1,5 @@
 #include "cachingmodelmanager.hpp"
-#include <QUuid>
+#include "misc/otiathelper.h"
 
 CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy) : ModelManager(loadAndStoreStrategy) {
     images = loadAndStoreStrategy.loadImages();
@@ -9,11 +9,9 @@ CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrat
 
     connect(&loadAndStoreStrategy, SIGNAL(imagesChanged()),
             this, SLOT(onImagesChanged()));
-    connect(&loadAndStoreStrategy, SIGNAL(imagesPathChanged()),
-            this, SLOT(onImagesChanged()));
-    connect(&loadAndStoreStrategy, SIGNAL(objectModelsPathChanged()),
+    connect(&loadAndStoreStrategy, SIGNAL(objectModelsChanged()),
             this, SLOT(onObjectModelsChanged()));
-    connect(&loadAndStoreStrategy, SIGNAL(correspondencesPathChanged()),
+    connect(&loadAndStoreStrategy, SIGNAL(correspondencesChanged()),
             this, SLOT(onCorrespondencesChanged()));
 }
 
@@ -74,7 +72,7 @@ ObjectImageCorrespondence CachingModelManager::getCorrespondenceById(const QStri
     if (itObj != correspondences.end()) {
         return *itObj;
     } else {
-        return ObjectImageCorrespondence("", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        return ObjectImageCorrespondence("", QVector3D(0, 0, 0), QVector3D(0, 0, 0), 0, 0);
     }
 }
 
@@ -91,9 +89,7 @@ QList<ObjectImageCorrespondence> CachingModelManager::getCorrespondencesForImage
 bool CachingModelManager::addObjectImageCorrespondence(Image *image,
                                                        ObjectModel *objectModel,
                                                        QVector3D position,
-                                                       QVector3D rotation,
-                                                       float articulation,
-                                                       bool accepted) {
+                                                       QVector3D rotation) {
 
     QList<Image>::iterator imageIterator = find(images.begin(), images.end(), *image);
     if (imageIterator == images.end())
@@ -105,16 +101,13 @@ bool CachingModelManager::addObjectImageCorrespondence(Image *image,
 
     // IMPORTANT: Use the iterator values, they return the actually managed image and object model
     // and not what the user passed (and maybe created somewhere else but with the right paths)
-    ObjectImageCorrespondence correspondence(QUuid::createUuid().toString(),
-                                             position.x(),
-                                             position.y(),
-                                             position.z(),
-                                             rotation.x(),
-                                             rotation.y(),
-                                             rotation.z(),
-                                             articulation,
-                                             &*imageIterator,
-                                             &*objectModelIterator);
+    Image *_image = &*imageIterator;
+    ObjectModel *_objectModel = &*objectModelIterator;
+    ObjectImageCorrespondence correspondence(OtiatHelper::createCorrespondenceId(_image, _objectModel),
+                                             position,
+                                             rotation,
+                                             _image,
+                                             _objectModel);
     // TODO: add accepted
 
     if (!loadAndStoreStrategy.persistObjectImageCorrespondence(&correspondence, false)) {
@@ -134,9 +127,7 @@ bool CachingModelManager::addObjectImageCorrespondence(Image *image,
 
 bool CachingModelManager::updateObjectImageCorrespondence(const QString &id,
                                                           QVector3D position,
-                                                          QVector3D rotation,
-                                                          float articulation,
-                                                          bool accepted) {
+                                                          QVector3D rotation) {
     ObjectImageCorrespondence *correspondence = Q_NULLPTR;
     for (int i = 0; i < correspondences.size(); i++) {
         if (correspondences[i].getID() == id)
@@ -150,11 +141,9 @@ bool CachingModelManager::updateObjectImageCorrespondence(const QString &id,
 
     QVector3D previousPosition = correspondence->getPosition();
     QVector3D previousRotation = correspondence->getRotation();
-    float previousArticulation = correspondence->getArticulation();
 
     correspondence->setPosition(position);
     correspondence->setRotation(rotation);
-    correspondence->setArticulation(articulation);
 
     // TODO: set accepted
 
@@ -162,7 +151,6 @@ bool CachingModelManager::updateObjectImageCorrespondence(const QString &id,
         // if there is an error persisting the correspondence for any reason we should not keep the new values
         correspondence->setPosition(previousPosition);
         correspondence->setRotation(previousRotation);
-        correspondence->setArticulation(previousArticulation);
         return false;
     }
 

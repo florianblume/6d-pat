@@ -29,7 +29,7 @@ void SettingsGeneralPage::setPreferences(Preferences *preferences) {
     this->preferences = preferences;
     ui->editImagesPath->setText(preferences->getImagesPath());
     ui->editObjectModelsPath->setText(preferences->getObjectModelsPath());
-    ui->editCorrespondencesPath->setText(preferences->getCorrespondencesPath());
+    ui->editCorrespondencesPath->setText(preferences->getCorrespondencesFilePath());
     ui->editSegmentationImageSuffix->setText(preferences->getSegmentationImageFilesSuffix());
     int boxIndex = imageFilesExtensionToIndex(preferences->getImageFilesExtension());
     ui->comboBoxImageFilesExtension->setCurrentIndex(boxIndex);
@@ -68,6 +68,14 @@ QString SettingsGeneralPage::openFolderDialogForPath(QString path) {
     return dir;
 }
 
+QString SettingsGeneralPage::openFileDialogForPath(QString path) {
+    QString dir = QFileDialog::getOpenFileName(this,
+                                               tr("Open JSON File"),
+                                               path,
+                                               tr("JSON Files (*.json)"));
+    return dir;
+}
+
 //! Public slots
 void SettingsGeneralPage::buttonImagesPathClicked() {
     QString newPath = openFolderDialogForPath(ui->editImagesPath->text());
@@ -86,10 +94,10 @@ void SettingsGeneralPage::buttonObjectModelsPathClicked() {
 }
 
 void SettingsGeneralPage::buttonCorrespondencesPathClicked() {
-    QString newPath = openFolderDialogForPath(ui->editCorrespondencesPath->text());
+    QString newPath = openFileDialogForPath(ui->editCorrespondencesPath->text());
     if (newPath.compare("") != 0) {
         ui->editCorrespondencesPath->setText(newPath);
-        preferences->setCorrespondencesPath(newPath);
+        preferences->setCorrespondencesFilePath(newPath);
     }
 }
 

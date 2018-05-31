@@ -20,6 +20,7 @@ MainController::MainController(int &argc, char *argv[]) :
     // the controller as well
     connect(&modelManager, SIGNAL(correspondenceAdded(QString)),
             this, SLOT(resetCorrespondenceCreation()));
+    connect(&strategy, SIGNAL(failedToLoadImages(QString)), this, SLOT(onFailedToLoadImages(QString)));
 }
 
 MainController::~MainController() {
@@ -32,7 +33,7 @@ void MainController::initialize() {
     currentPreferences = std::move(preferencesStore->loadPreferencesByIdentifier("default"));
     strategy.setImagesPath(currentPreferences->getImagesPath());
     strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
-    strategy.setCorrespondencesPath(currentPreferences->getCorrespondencesPath());
+    strategy.setCorrespondencesFilePath(currentPreferences->getCorrespondencesFilePath());
     strategy.setImageFilesExtension(currentPreferences->getImageFilesExtension());
     strategy.setSegmentationImageFilesSuffix(currentPreferences->getSegmentationImageFilesSuffix());
     initializeMainWindow();
@@ -150,6 +151,17 @@ void MainController::onCorrespondenceCreationRequested() {
     correspondenceCreator->createCorrespondence();
 }
 
+void MainController::onFailedToLoadImages(const QString &message){
+    QString imagesPath = strategy.getImagesPath().path();
+    if (imagesPath != "." && imagesPath != "" && strategy.getImageFilesExtension() != "") {
+        //! "." is the default path and will likely never be used as image path, thus
+        //! do not display any warning - otherwise the warning would pop up three times
+        //! on startup, because the program tries to load images when setting the
+        //! images extension, the paths, etc.
+        mainWindow.displayWarning("Error loading images", message);
+    }
+}
+
 void MainController::onPreferencesChanged(const QString &identifier) {
     currentPreferences = std::move(preferencesStore->loadPreferencesByIdentifier(identifier));
     // Do checks to avoid unnecessary reloads
@@ -157,8 +169,8 @@ void MainController::onPreferencesChanged(const QString &identifier) {
         strategy.setImagesPath(currentPreferences->getImagesPath());
     if (currentPreferences->getObjectModelsPath().compare(strategy.getObjectModelsPath().path()) != 0)
         strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
-    if (currentPreferences->getCorrespondencesPath().compare(strategy.getCorrespondencesPath().path()) != 0)
-        strategy.setCorrespondencesPath(currentPreferences->getCorrespondencesPath());
+    if (currentPreferences->getCorrespondencesFilePath().compare(strategy.getCorrespondencesFilePath().path()) != 0)
+        strategy.setCorrespondencesFilePath(currentPreferences->getCorrespondencesFilePath());
     if (currentPreferences->getImageFilesExtension().compare(strategy.getImageFilesExtension()) != 0)
         strategy.setImageFilesExtension(currentPreferences->getImageFilesExtension());
     if (currentPreferences->getSegmentationImageFilesSuffix().compare(strategy.getSegmentationImageFilesSuffix()) != 0)

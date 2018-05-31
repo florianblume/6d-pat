@@ -52,7 +52,6 @@ void CorrespondenceEditor::setEnabledCorrespondenceEditorControls(bool enabled) 
     ui->spinBoxRotationX->setEnabled(enabled);
     ui->spinBoxRotationY->setEnabled(enabled);
     ui->spinBoxRotationZ->setEnabled(enabled);
-    ui->sliderArticulation->setEnabled(enabled);
     // The next line is the difference to setEnabledAllControls
     ui->buttonRemove->setEnabled(enabled);
 }
@@ -64,7 +63,6 @@ void CorrespondenceEditor::setEnabledAllControls(bool enabled) {
     ui->spinBoxRotationX->setEnabled(enabled);
     ui->spinBoxRotationY->setEnabled(enabled);
     ui->spinBoxRotationZ->setEnabled(enabled);
-    ui->sliderArticulation->setEnabled(enabled);
     ui->sliderOpacity->setEnabled(enabled);
     ui->buttonRemove->setEnabled(enabled);
     ui->buttonCreate->setEnabled(enabled);
@@ -78,7 +76,6 @@ void CorrespondenceEditor::resetControlsValues() {
     ui->spinBoxRotationX->setValue(0);
     ui->spinBoxRotationY->setValue(0);
     ui->spinBoxRotationZ->setValue(0);
-    ui->sliderArticulation->setValue(0);
 }
 
 void CorrespondenceEditor::setup3DView() {
@@ -204,30 +201,27 @@ void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(const Ima
 void CorrespondenceEditor::setCorrespondenceValuesOnControls(ObjectImageCorrespondence *correspondence) {
     QVector3D position = correspondence->getPosition();
     QVector3D rotation = correspondence->getRotation();
-    float articulation = correspondence->getArticulation();
     ui->spinBoxTranslationX->setValue(position.x());
     ui->spinBoxTranslationY->setValue(position.y());
     ui->spinBoxTranslationZ->setValue(position.z());
     ui->spinBoxRotationX->setValue(rotation.x());
     ui->spinBoxRotationY->setValue(rotation.y());
     ui->spinBoxRotationZ->setValue(rotation.z());
-    ui->sliderArticulation->setValue(articulation);
 }
 
 void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
     if (currentCorrespondence) {
-        currentCorrespondence->setPosition(ui->spinBoxTranslationX->value(),
+        currentCorrespondence->setPosition(QVector3D(
+                                           ui->spinBoxTranslationX->value(),
                                            ui->spinBoxTranslationY->value(),
-                                           ui->spinBoxTranslationZ->value());
-        currentCorrespondence->setRotation(ui->spinBoxRotationX->value(),
+                                           ui->spinBoxTranslationZ->value()));
+        currentCorrespondence->setRotation(QVector3D(
+                                           ui->spinBoxRotationX->value(),
                                            ui->spinBoxRotationY->value(),
-                                           ui->spinBoxRotationZ->value());
-        currentCorrespondence->setArticulation(ui->sliderArticulation->value());
+                                           ui->spinBoxRotationZ->value()));
         modelManager->updateObjectImageCorrespondence(currentCorrespondence->getID(),
                                                       currentCorrespondence->getPosition(),
-                                                      currentCorrespondence->getRotation(),
-                                                      currentCorrespondence->getArticulation(),
-                                                      currentCorrespondence->isAccepted());
+                                                      currentCorrespondence->getRotation());
     }
 }
 

@@ -32,6 +32,7 @@ private:
     int imageFilesExtensionToIndex(QString extension);
     QString indexToImageFilesExtension(int index);
     QString openFolderDialogForPath(QString path);
+    QString openFileDialogForPath(QString path);
 };
 
 #endif // SETTINGSGENERALPAGE_H
