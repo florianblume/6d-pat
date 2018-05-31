@@ -52,7 +52,6 @@ void CorrespondenceEditor::setEnabledCorrespondenceEditorControls(bool enabled) 
     ui->spinBoxRotationX->setEnabled(enabled);
     ui->spinBoxRotationY->setEnabled(enabled);
     ui->spinBoxRotationZ->setEnabled(enabled);
-    ui->sliderArticulation->setEnabled(enabled);
     // The next line is the difference to setEnabledAllControls
     ui->buttonRemove->setEnabled(enabled);
 }
@@ -64,7 +63,6 @@ void CorrespondenceEditor::setEnabledAllControls(bool enabled) {
     ui->spinBoxRotationX->setEnabled(enabled);
     ui->spinBoxRotationY->setEnabled(enabled);
     ui->spinBoxRotationZ->setEnabled(enabled);
-    ui->sliderArticulation->setEnabled(enabled);
     ui->sliderOpacity->setEnabled(enabled);
     ui->buttonRemove->setEnabled(enabled);
     ui->buttonCreate->setEnabled(enabled);
@@ -78,7 +76,6 @@ void CorrespondenceEditor::resetControlsValues() {
     ui->spinBoxRotationX->setValue(0);
     ui->spinBoxRotationY->setValue(0);
     ui->spinBoxRotationZ->setValue(0);
-    ui->sliderArticulation->setValue(0);
 }
 
 void CorrespondenceEditor::setup3DView() {

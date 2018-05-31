@@ -51,70 +51,61 @@ namespace OtiatHelper {
         return id;
     }
 
-    // Checks if a matrix is a valid rotation matrix.
-    static bool isRotationMatrix(cv::Mat &R)
-    {
-        cv::Mat Rt;
-        cv::transpose(R, Rt);
-        cv::Mat shouldBeIdentity = Rt * R;
-        cv::Mat I = cv::Mat::eye(3,3, shouldBeIdentity.type());
-
-        return  cv::norm(I, shouldBeIdentity) < 1e-6;
-
-    }
-
     // Calculates rotation matrix to euler angles
     // The result is the same as MATLAB except the order
     // of the euler angles ( x and z are swapped ).
     static cv::Vec3f rotationMatrixToEulerAngles(cv::Mat &R) {
 
-        //Q_ASSERT(isRotationMatrix(R));
-
-        float sy = sqrt(R.at<float>(0,0) * R.at<float>(0,0) +  R.at<float>(1,0) * R.at<float>(1,0) );
-
-        bool singular = sy < 1e-6; // If
+        float sy = sqrt(R.at<float>(0,0) * R.at<float>(0,0) +  R.at<float>(0,1) * R.at<float>(0,1) );
 
         float x, y, z;
-        if (!singular)
-        {
-            x = atan2(R.at<float>(2,1) , R.at<float>(2,2));
-            y = atan2(-R.at<float>(2,0), sy);
-            z = atan2(R.at<float>(1,0), R.at<float>(0,0));
-        }
-        else
-        {
-            x = atan2(-R.at<float>(1,2), R.at<float>(1,1));
-            y = atan2(-R.at<float>(2,0), sy);
-            z = 0;
-        }
-        return cv::Vec3f(x, y, z);
+
+        x = atan2(R.at<float>(1,2) , R.at<float>(2,2));
+        float s1 = sin(x);
+        float c1 = cos(x);
+        y = atan2(-R.at<float>(0,2), sy);
+        z = atan2(s1 * R.at<float>(2,0) - c1 * R.at<float>(1,0),
+                  c1 * R.at<float>(1,1) - s1 * R.at<float>(2,1));
+
+        return (cv::Vec3f(x, y, z) * -180.f) / M_PI;
     }
 
-    static cv::Mat eulerAnglesToRotationMatrix(cv::Vec3f &theta)
+    static cv::Mat eulerAnglesToRotationMatrix(cv::Vec3f theta)
     {
+        theta *= M_PI;
+        theta /= -180.f;
+
+        float s1 = sin(theta[0]);
+        float c1 = cos(theta[0]);
+
+        float s2 = sin(theta[1]);
+        float c2 = cos(theta[1]);
+
+        float s3 = sin(theta[2]);
+        float c3 = cos(theta[2]);
+
         // Calculate rotation about x axis
         cv::Mat R_x = (cv::Mat_<float>(3,3) <<
-                   1,       0,              0,
-                   0,       cos(theta[0]),   -sin(theta[0]),
-                   0,       sin(theta[0]),   cos(theta[0])
-                   );
+                   1,    0,      0,
+                   0,   c1,      s1,
+                   0,   -s1,     c1);
 
         // Calculate rotation about y axis
         cv::Mat R_y = (cv::Mat_<float>(3,3) <<
-                   cos(theta[1]),   0,      sin(theta[1]),
-                   0,               1,      0,
-                   -sin(theta[1]),  0,      cos(theta[1])
+                   c2,       0,     -s2,
+                   0,        1,      0,
+                   s2,       0,      c2
                    );
 
         // Calculate rotation about z axis
         cv::Mat R_z = (cv::Mat_<float>(3,3) <<
-                   cos(theta[2]),    -sin(theta[2]),      0,
-                   sin(theta[2]),    cos(theta[2]),       0,
-                   0,                0,                  1);
+                       c3,    s3,      0,
+                       -s3,   c3,      0,
+                       0,     0,       1);
 
 
         // Combined rotation matrix
-        cv::Mat R = R_z * R_y * R_x;
+        cv::Mat R = R_x * R_y * R_z;
 
         return R;
 

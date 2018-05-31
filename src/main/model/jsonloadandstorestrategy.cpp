@@ -104,8 +104,7 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
             }
             jsonObject[imagePath] = entriesForImage;
         }
-        //! We want to replace the old content, i.e. seek to 0
-        jsonFile.seek(0);
+        jsonFile.resize(0);
         jsonFile.write(QJsonDocument(jsonObject).toJson());
         return true;
     } else {
@@ -169,6 +168,14 @@ QList<Image> JsonLoadAndStoreStrategy::loadImages() {
                 } else {
                     //! We didn't find a segmentation image, i.e. two separate images have to be added
                     images.push_back(Image(imageFilename, imagesPath.path(), focalLengthX, focalLengthY, focalPointX, focalPointY));
+                    //! If two different images and not image and segmentation image we also have to load the appropriate
+                    //! camera parameters
+                    parameters = jsonObject[secondImageFilename].toObject();
+                    cameraMatrix = parameters["K"].toArray();
+                    focalLengthX = (float) cameraMatrix[0].toDouble();
+                    focalLengthY = (float) cameraMatrix[4].toDouble();
+                    focalPointX = (float) cameraMatrix[2].toDouble();
+                    focalPointY = (float) cameraMatrix[5].toDouble();
                     images.push_back(Image(secondImageFilename, imagesPath.path(), focalLengthX, focalLengthY, focalPointX, focalPointY));
                 }
             } else {
@@ -284,7 +291,6 @@ QList<ObjectImageCorrespondence> JsonLoadAndStoreStrategy::loadCorrespondences(c
                 QVector3D qtRotationVector = QVector3D(rotationVector[0],
                                                        rotationVector[1],
                                                        rotationVector[2]);
-                qtRotationVector *= 180.f / M_PI;
 
                 //! Read position vector from json file
                 cv::Vec3f translationVector;
@@ -336,7 +342,7 @@ QList<ObjectImageCorrespondence> JsonLoadAndStoreStrategy::loadCorrespondences(c
 
         if (documentDirty) {
             //! We want to replace the old content, i.e. seek to 0
-            jsonFile.seek(0);
+            jsonFile.resize(0);
             jsonFile.write(QJsonDocument(jsonObject).toJson());
         }
     }

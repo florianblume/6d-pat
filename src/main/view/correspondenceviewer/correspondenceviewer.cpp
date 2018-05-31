@@ -10,7 +10,7 @@
 #include <Qt3DRender/QCamera>
 #include <Qt3DExtras/QFirstPersonCameraController>
 #include <QOffscreenSurface>
-#include <Qt3DExtras/QPhongAlphaMaterial>
+#include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DCore/QTransform>
 
 #include "math.h"
@@ -185,9 +185,8 @@ void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorresponde
     newRenderable->getTransform()->setRotationY(correspondence.getRotation().y());
     newRenderable->getTransform()->setRotationZ(correspondence.getRotation().z());
     newRenderable->addComponent(objectsLayer);
-    Qt3DExtras::QPhongAlphaMaterial *phongAlphaMaterial = new Qt3DExtras::QPhongAlphaMaterial(newRenderable);
+    Qt3DExtras::QPhongMaterial *phongAlphaMaterial = new Qt3DExtras::QPhongMaterial(newRenderable);
     phongAlphaMaterial->setAmbient(QColor(100, 100, 100, objectsOpacity));
-    phongAlphaMaterial->setAlpha(objectsOpacity);
     newRenderable->addComponent(phongAlphaMaterial);
     objectModelRenderables.insert(correspondence.getID(), newRenderable);
 
@@ -195,10 +194,6 @@ void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorresponde
 }
 
 void CorrespondenceViewer::imageCaptured() {
-    // Sanity check here, because rendering is done asynchronously
-    // There is a case for example, when the user switches the images path, that the image is
-    // rendered. Inbetween, reset() is called from the onPreferencesChanged() method in the
-    // main view. Thus the index has been reset and we should not display the rendered image.
     Qt3DRender::QRenderCaptureReply *renderCaptureReply = renderReplies.at(0);
     renderedImage = renderCaptureReply->image().mirrored(true, true);
     renderedImageDefault = renderedImage;
