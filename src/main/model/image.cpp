@@ -23,6 +23,36 @@ Image::Image(const QString& imagePath, const QString& basePath, const QString& s
       focalPointY(focalPointY) {
 }
 
+Image::Image(const QString &imagePath, const QString &basePath,
+             float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY,
+             QVector3D cameraPosition, QVector3D cameraRotation)
+    : imagePath(imagePath),
+      segmentationImagePath(""),
+      basePath(basePath),
+      focalLenghtX(focalLenghtX),
+      focalLenghtY(focalLenghtY),
+      focalPointX(focalPointX),
+      focalPointY(focalPointY),
+      cameraPosition(cameraPosition),
+      cameraRotation(cameraRotation) {
+
+}
+
+Image::Image(const QString &imagePath, const QString &basePath, const QString &segmentationImagePath,
+             float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY,
+             QVector3D cameraPosition, QVector3D cameraRotation)
+    : imagePath(imagePath),
+      segmentationImagePath(segmentationImagePath),
+      basePath(basePath),
+      focalLenghtX(focalLenghtX),
+      focalLenghtY(focalLenghtY),
+      focalPointX(focalPointX),
+      focalPointY(focalPointY),
+      cameraPosition(cameraPosition),
+      cameraRotation(cameraRotation) {
+
+}
+
 Image::Image(const Image &other) {
     imagePath = other.imagePath;
     segmentationImagePath = other.segmentationImagePath;
@@ -31,6 +61,8 @@ Image::Image(const Image &other) {
     focalLenghtY = other.focalLenghtY;
     focalPointX = other.focalPointX;
     focalPointY = other.focalPointY;
+    cameraPosition = other.cameraPosition;
+    cameraRotation = other.cameraRotation;
 }
 
 QString Image::getImagePath() const {
@@ -69,6 +101,14 @@ float Image::getFocalPointY() {
     return focalPointY;
 }
 
+QVector3D Image::getCameraPosition() {
+    return cameraPosition;
+}
+
+QVector3D Image::getCameraRotation() {
+    return cameraRotation;
+}
+
 bool Image::operator==(const Image &other) {
     // QString supports standard string comparison ==
     return basePath == other.basePath &&
@@ -77,12 +117,20 @@ bool Image::operator==(const Image &other) {
             focalLenghtX == other.focalLenghtX &&
             focalLenghtY == other.focalLenghtY &&
             focalPointX == other.focalPointX &&
-            focalPointY == other.focalPointY;
+            focalPointY == other.focalPointY &&
+            cameraPosition == other.cameraPosition &&
+            cameraRotation == other.cameraRotation;
 }
 
 Image& Image::operator=(const Image &other) {
     basePath = other.basePath;
     imagePath = other.imagePath;
     segmentationImagePath = other.segmentationImagePath;
+    focalLenghtX = other.focalLenghtX;
+    focalLenghtY = other.focalLenghtY;
+    focalPointX = other.focalPointX;
+    focalPointY = other.focalPointY;
+    cameraPosition = other.cameraPosition;
+    cameraRotation = other.cameraRotation;
     return *this;
 }
