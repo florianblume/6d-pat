@@ -38,7 +38,7 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
     //! If for some weird coincidence (maybe deletion of a object model on the filesystem) the passed index
     //! is out of bounds simply return a QVariant, the next time the data method is called everything should
     //! be finde again
-    if (currentSelectedImageIndex == -1 || !modelManager || index.row() >= imagesCache.size())
+    if (currentSelectedImageIndex == -1 || !modelManager || index.row() >= objectModelsCache.size())
         return QVariant();
 
     const ObjectModel& objectModel = objectModelsCache.at(index.row());
@@ -62,6 +62,7 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
 
 int GalleryObjectModelModel::rowCount(const QModelIndex &parent) const {
     if (codes.size() == 0 || imagesCache.at(currentSelectedImageIndex).getSegmentationImagePath().isEmpty())
+        //! If either is true, simply display all object models
         return objectModelsCache.size();
 
     int count = 0;

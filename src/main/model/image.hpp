@@ -2,6 +2,7 @@
 #define IMAGE_H
 
 #include <QString>
+#include <QVector3D>
 
 /*!
  * \brief The Image class holds the path to the actual image, as well as, if provided the path to the already segmented image.
@@ -11,6 +12,7 @@
 class Image {
 
 public:
+
     //! Constructor of class Image.
     /*!
       Using this constructor will store the image path and base path and set an empyt string for the segmentation image path.
@@ -29,6 +31,27 @@ public:
     */
     Image(const QString& imagePath, const QString& basePath, const QString& segmentationImagePath,
           float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY);
+
+    //! Constructor of class Image.
+    /*!
+      Using this constructor will store the image path and base path and set an empyt string for the segmentation image path.
+      \param imagePath the path to the image relative to the base path
+      \param basePath the base path to the folder where this image is directly located or within a subfolder
+    */
+    Image(const QString& imagePath, const QString& basePath,
+          float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY,
+          QVector3D cameraPosition, QVector3D cameraRotation);
+
+    //! Constructor of class Image.
+    /*!
+      Using this constructor will store the image path and the segmentation image path.
+      \param imagePath the path to the image relative to the base path
+      \param basePath the base path to the folder where the image is either directly located or located within a subfolder
+      \param segmentationImagePath the path to the segmentation image
+    */
+    Image(const QString& imagePath, const QString& basePath, const QString& segmentationImagePath,
+          float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY,
+          QVector3D cameraPosition, QVector3D cameraRotation);
 
     Image(const Image &other);
 
@@ -72,6 +95,10 @@ public:
 
     float getFocalPointY();
 
+    QVector3D getCameraPosition();
+
+    QVector3D getCameraRotation();
+
     bool operator==(const Image &other);
 
     Image& operator=(const Image &other);
@@ -84,6 +111,8 @@ private:
     float focalLenghtY;
     float focalPointX;
     float focalPointY;
+    QVector3D cameraPosition = QVector3D(0, 0, 0);
+    QVector3D cameraRotation = QVector3D(0, 0, 0);
 
 };
 

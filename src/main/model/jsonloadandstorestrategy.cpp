@@ -113,6 +113,51 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
     }
 }
 
+static QVector3D rotVectorFromJsonRotMatrix(QJsonArray &jsonRotationMatrix) {
+    cv::Mat rotationMatrix = (cv::Mat_<float>(3,3) <<
+       (float) jsonRotationMatrix[0].toDouble(),
+       (float) jsonRotationMatrix[1].toDouble(),
+       (float) jsonRotationMatrix[2].toDouble(),
+       (float) jsonRotationMatrix[3].toDouble(),
+       (float) jsonRotationMatrix[4].toDouble(),
+       (float) jsonRotationMatrix[5].toDouble(),
+       (float) jsonRotationMatrix[6].toDouble(),
+       (float) jsonRotationMatrix[7].toDouble(),
+       (float) jsonRotationMatrix[8].toDouble());
+    cv::Vec3f rotationVector = OtiatHelper::rotationMatrixToEulerAngles(rotationMatrix);
+    //! Convert to Qt vector format
+    QVector3D qtRotationVector = QVector3D(rotationVector[0],
+                                           rotationVector[1],
+                                           rotationVector[2]);
+    return qtRotationVector;
+}
+
+static Image createImageWithJsonParams(const QString& filename, const QString &segmentationFilename,
+                                       const QString &imagesPath, QJsonObject &json) {
+    QJsonObject parameters = json[filename].toObject();
+    QJsonArray cameraMatrix = parameters["K"].toArray();
+    float focalLengthX = (float) cameraMatrix[0].toDouble();
+    float focalLengthY = (float) cameraMatrix[4].toDouble();
+    float focalPointX = (float) cameraMatrix[2].toDouble();
+    float focalPointY = (float) cameraMatrix[5].toDouble();
+    QVector3D cameraRotationVector = QVector3D(0, 0, 0);
+    QVector3D cameraPositionVector = QVector3D(0, 0, 0);
+    if (parameters.contains("R")) {
+        //! We also have to rotation of the camera
+        QJsonArray cameraRotationMatrix = parameters["R"].toArray();
+        cameraRotationVector = rotVectorFromJsonRotMatrix(cameraRotationMatrix);
+    }
+    if (parameters.contains("t")) {
+        //! We also have the translation vector of the camera
+        QJsonArray cameraTranslationVector = parameters["t"].toArray();
+        cameraPositionVector = QVector3D((float) cameraTranslationVector[0].toDouble(),
+                                                  (float) cameraTranslationVector[1].toDouble(),
+                                                  (float) cameraTranslationVector[2].toDouble());
+    }
+    return Image(filename, segmentationFilename, imagesPath, focalLengthX, focalLengthY,
+                 focalPointX, focalPointY, cameraPositionVector, cameraRotationVector);
+}
+
 QList<Image> JsonLoadAndStoreStrategy::loadImages() {
     QList<Image> images;
 
@@ -127,10 +172,6 @@ QList<Image> JsonLoadAndStoreStrategy::loadImages() {
     QStringList fileFilter("*" + imageFilesExtension);
     QStringList files = imagesPath.entryList(fileFilter, QDir::Files, QDir::Name);
 
-    float focalLengthX = 0.f;
-    float focalLengthY = 0.f;
-    float focalPointX = 0.f;
-    float focalPointY = 0.f;
     //! Read in the camera parameters from the JSON file
     QFile jsonFile(imagesPath.filePath("info.json"));
     if (files.size() > 0 && jsonFile.open(QFile::ReadOnly)) {
@@ -140,16 +181,8 @@ QList<Image> JsonLoadAndStoreStrategy::loadImages() {
         for (int i = 0; i < files.size(); i += 2) {
             QString image = files[i];
             QString imageFilename = QFileInfo(image).fileName();
-            QJsonObject parameters = jsonObject[imageFilename].toObject();
-            QJsonArray cameraMatrix = parameters["K"].toArray();
-            focalLengthX = (float) cameraMatrix[0].toDouble();
-            focalLengthY = (float) cameraMatrix[4].toDouble();
-            focalPointX = (float) cameraMatrix[2].toDouble();
-            focalPointY = (float) cameraMatrix[5].toDouble();
             //! Check the next image if it is the segmentation image of the currently inspected image
             int j = i + 1;
-
-            // TODO: load parameters from json
 
             if (j < files.size()) {
                 QString secondImage = files[j];
@@ -164,22 +197,31 @@ QList<Image> JsonLoadAndStoreStrategy::loadImages() {
                 if (secondImageFilename.compare(segmentationImageFilename) == 0) {
                     //! Apparently we found a segmentation image, i.e. add the second image as segmentation
                     //! to the first
-                    images.push_back(Image(imageFilename, imagesPath.path(), segmentationImageFilename, focalLengthX, focalLengthY, focalPointX, focalPointY));
+                    images.push_back(createImageWithJsonParams(imageFilename,
+                                                               imagesPath.path(),
+                                                               segmentationImageFilename,
+                                                               jsonObject));
                 } else {
                     //! We didn't find a segmentation image, i.e. two separate images have to be added
-                    images.push_back(Image(imageFilename, imagesPath.path(), focalLengthX, focalLengthY, focalPointX, focalPointY));
+                    //! Setting the segmentation image to "" is essentially what the constructor of
+                    //! Image does, i.e. we do not need to duplicate the create Image method to
+                    //! obtain an Image without segmentation image
+                    images.push_back(createImageWithJsonParams(imageFilename,
+                                                               imagesPath.path(),
+                                                               "",
+                                                               jsonObject));
                     //! If two different images and not image and segmentation image we also have to load the appropriate
                     //! camera parameters
-                    parameters = jsonObject[secondImageFilename].toObject();
-                    cameraMatrix = parameters["K"].toArray();
-                    focalLengthX = (float) cameraMatrix[0].toDouble();
-                    focalLengthY = (float) cameraMatrix[4].toDouble();
-                    focalPointX = (float) cameraMatrix[2].toDouble();
-                    focalPointY = (float) cameraMatrix[5].toDouble();
-                    images.push_back(Image(secondImageFilename, imagesPath.path(), focalLengthX, focalLengthY, focalPointX, focalPointY));
+                    images.push_back(createImageWithJsonParams(secondImageFilename,
+                                                               imagesPath.path(),
+                                                               "",
+                                                               jsonObject));
                 }
             } else {
-                images.push_back(Image(imageFilename, imagesPath.path(), focalLengthX, focalLengthY, focalPointX, focalPointY));
+                images.push_back(createImageWithJsonParams(imageFilename,
+                                                           imagesPath.path(),
+                                                           "",
+                                                           jsonObject));
             }
         }
     } else if (files.size() > 0) {
@@ -275,35 +317,14 @@ QList<ObjectImageCorrespondence> JsonLoadAndStoreStrategy::loadCorrespondences(c
                 Q_ASSERT(correspondenceEntry.contains("obj"));
 
                 //! Read rotation vector from json file
-                QJsonArray rawRotationMatrix = correspondenceEntry["R"].toArray();
-                cv::Mat rotationMatrix = (cv::Mat_<float>(3,3) <<
-                   (float) rawRotationMatrix[0].toDouble(),
-                   (float) rawRotationMatrix[1].toDouble(),
-                   (float) rawRotationMatrix[2].toDouble(),
-                   (float) rawRotationMatrix[3].toDouble(),
-                   (float) rawRotationMatrix[4].toDouble(),
-                   (float) rawRotationMatrix[5].toDouble(),
-                   (float) rawRotationMatrix[6].toDouble(),
-                   (float) rawRotationMatrix[7].toDouble(),
-                   (float) rawRotationMatrix[8].toDouble());
-                cv::Vec3f rotationVector = OtiatHelper::rotationMatrixToEulerAngles(rotationMatrix);
-                //! Convert to Qt vector format
-                QVector3D qtRotationVector = QVector3D(rotationVector[0],
-                                                       rotationVector[1],
-                                                       rotationVector[2]);
+                QJsonArray jsonRotationMatrix = correspondenceEntry["R"].toArray();
+                QVector3D qtRotationVector = rotVectorFromJsonRotMatrix(jsonRotationMatrix);
 
-                //! Read position vector from json file
-                cv::Vec3f translationVector;
                 QJsonArray translation = correspondenceEntry["t"].toArray();
-                int translationIndex = 0;
-                foreach(const QJsonValue &translationEntry, translation) {
-                    translationVector[translationIndex] = (float) translationEntry.toDouble();
-                    translationIndex++;
-                }
-                //! Convert to Qt vector format
-                QVector3D qtTranslationVector = QVector3D(translationVector[0],
-                                                          translationVector[1],
-                                                          translationVector[2]);
+                QVector3D qtTranslationVector = QVector3D((float) translation[0].toDouble(),
+                                                          (float) translation[1].toDouble(),
+                                                          (float) translation[2].toDouble());
+
                 QString objectModelPath = correspondenceEntry["obj"].toString();
                 const Image *image = imageMap.value(imagePath);
                 const ObjectModel *objectModel = objectModelMap.value(objectModelPath);

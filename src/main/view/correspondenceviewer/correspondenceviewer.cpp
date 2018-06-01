@@ -25,12 +25,6 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
 
     awesome->initFontAwesome();
 
-    ui->buttonAccept->setFont(awesome->font(18));
-    ui->buttonAccept->setIcon(awesome->icon(fa::check));
-    ui->buttonAccept->setToolTip("Click to accept the correspondences.\n"
-                                 "They will be taken into account when updating the neural network.");
-    ui->buttonAccept->setEnabled(false);
-
     ui->buttonSwitchView->setFont(awesome->font(18));
     ui->buttonSwitchView->setIcon(awesome->icon(fa::toggleoff));
     ui->buttonSwitchView->setToolTip("Click to switch views between segmentation \n"
@@ -133,6 +127,14 @@ void CorrespondenceViewer::setImage(Image *image) {
                                     currentlyDisplayedImage->getAbsoluteSegmentationImagePath());
 }
 
+static QVector3D rotatePoint(const QVector3D point, const QVector3D &rotationVector) {
+    QMatrix4x4 m;
+    m.rotate(rotationVector.x(), QVector3D(1.0, 0.0, 0.0));
+    m.rotate(rotationVector.y(), QVector3D(0.0, 1.0, 0.0));
+    m.rotate(rotationVector.z(), QVector3D(0.0, 0.0, 1.0));
+    return m * point;
+}
+
 void CorrespondenceViewer::showImage(const QString &imagePath) {
     deleteSceneObjects();
     setupSceneRoot();
@@ -154,14 +156,24 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
     QImage image(imagePath);
     offscreenEngine->setBackgroundImagePath(imagePath);
     ui->labelGraphics->setFixedSize(image.size());
+
+    // TODO: incorporate camera rotation and position
+    //camera->setPosition(currentlyDisplayedImage->getCameraPosition());
+    //QVector3D rotatedViewCenter = rotatePoint(camera->viewCenter(), currentlyDisplayedImage->getCameraRotation());
+    //camera->setViewCenter(rotatedViewCenter + camera->position());
+    //QVector3D rotatedUpVector = rotatePoint(camera->upVector(), currentlyDisplayedImage->getCameraRotation());
+    //camera->setUpVector(rotatedUpVector + camera->upVector());
+
     // Relation between camera matrix and field of view implies the following computation
     // 180.f / M_PI is conversion from radians to degrees
     camera->setFieldOfView(2.f * std::atan(image.height() /
                                            (2.f * currentlyDisplayedImage->getFocalLengthX())) * (180.0f / M_PI));
     // Not necessary to set size first but can't hurt
     offscreenEngine->setSize(QSize(image.width(), image.height()));
-    float objectsXOffset = ((image.width() / 2.f) - (float) currentlyDisplayedImage->getFocalPointX()) / (float) image.width();
-    float objectsYOffset = ((image.height() / 2.f) - (float) currentlyDisplayedImage->getFocalPointY()) / (float) image.height();
+    float objectsXOffset = ((image.width() / 2.f) - (float) currentlyDisplayedImage->getFocalPointX())
+                                                                / (float) image.width();
+    float objectsYOffset = ((image.height() / 2.f) - (float) currentlyDisplayedImage->getFocalPointY())
+                                                                / (float) image.height();
     offscreenEngine->setObjectsOffset(QPointF(objectsXOffset, objectsYOffset));
     renderAgain += 1;
     Qt3DRender::QRenderCaptureReply *renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
@@ -225,7 +237,6 @@ void CorrespondenceViewer::reset() {
     currentlyDisplayedImage.release();
     ui->labelGraphics->setPixmap(QPixmap(0, 0));
     ui->buttonResetPosition->setEnabled(false);
-    ui->buttonAccept->setEnabled(false);
     ui->buttonSwitchView->setEnabled(false);
 }
 
