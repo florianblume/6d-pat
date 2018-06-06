@@ -65,7 +65,9 @@ OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent,
     // Third branch for the actual objects
     objectsLayerFilter = new Qt3DRender::QLayerFilter(renderTargetSelector);
     objectsViewport = new Qt3DRender::QViewport(objectsLayerFilter);
-    objectsViewport->setNormalizedRect(QRectF(objectsOffset.x(), objectsOffset.y(), 1.f, 1.f));
+    float width = size.width() >= size.height() ? 1.0 : size.width() / (float) size.height();
+    float height = size.height() >= size.width() ? 1.0 : size.height() / (float) size.width();
+    objectsViewport->setNormalizedRect(QRectF(objectsOffset.x(), objectsOffset.y(), width, height));
     objectsCameraSelector = new Qt3DRender::QCameraSelector(objectsViewport);
     objectsCameraSelector->setCamera(camera);
     objectsClearBuffers = new Qt3DRender::QClearBuffers(objectsCameraSelector);
@@ -81,7 +83,7 @@ OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent,
     renderStateSet->addRenderState(blendEquation);
     blendEquationArguments = new Qt3DRender::QBlendEquationArguments(renderStateSet);
     blendEquationArguments->setSourceRgb(Qt3DRender::QBlendEquationArguments::One);
-    blendEquationArguments->setDestinationRgb(Qt3DRender::QBlendEquationArguments::OneMinusSourceAlpha);
+    blendEquationArguments->setDestinationRgb(Qt3DRender::QBlendEquationArguments::SourceAlpha);
     blendEquationArguments->setSourceAlpha(Qt3DRender::QBlendEquationArguments::One);
     blendEquationArguments->setDestinationAlpha(Qt3DRender::QBlendEquationArguments::OneMinusSourceAlpha);
     renderStateSet->addRenderState(blendEquationArguments);
@@ -90,13 +92,22 @@ OffscreenSurfaceFrameGraph::OffscreenSurfaceFrameGraph(Qt3DCore::QNode* parent,
 }
 
 void OffscreenSurfaceFrameGraph::setSize(const QSize &size) {
-    backgroundImageTextureImage->setSize(size);
-    textureTarget->setSize(size);
     setExternalRenderTargetSize(size);
+    textureTarget->setSize(size);
+    backgroundImageTextureImage->setSize(size);
+    QRectF viewport = objectsViewport->normalizedRect();
+    float width = size.width() >= size.height() ? 1.0 : size.width() / (float) size.height();
+    float height = size.height() >= size.width() ? 1.0 : size.height() / (float) size.width();
+    viewport.setRight(width);
+    viewport.setBottom(height);
+    objectsViewport->setNormalizedRect(viewport);
 }
 
 void OffscreenSurfaceFrameGraph::setObjectsOffset(const QPointF objectsOffset) {
-    objectsViewport->setNormalizedRect(QRectF(objectsOffset.x(), objectsOffset.y(), 1.f, 1.f));
+    objectsViewport->setNormalizedRect(QRectF(objectsOffset.x(),
+                                              objectsOffset.y(),
+                                              1.0,
+                                              1.0));
 }
 
 Qt3DCore::QNode *OffscreenSurfaceFrameGraph::getLastNode() {

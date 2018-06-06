@@ -72,6 +72,7 @@ namespace OtiatHelper {
 
     static cv::Mat eulerAnglesToRotationMatrix(cv::Vec3f theta)
     {
+
         theta *= M_PI;
         theta /= -180.f;
 

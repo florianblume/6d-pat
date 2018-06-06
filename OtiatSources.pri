@@ -1,5 +1,4 @@
 QT       += core gui 3dcore 3drender 3dinput 3dextras
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 include(./QtAwesome/QtAwesome.pri)
@@ -34,7 +33,9 @@ SOURCES += \
     $$PWD/src/main/controller/correspondencecreator.cpp \
     $$PWD/src/main/misc/scripting/pythonscriptingengine.cpp \
     $$PWD/src/main/view/rendering/textureimage.cpp \
-    $$PWD/src/main/model/jsonloadandstorestrategy.cpp
+    $$PWD/src/main/model/jsonloadandstorestrategy.cpp \
+    $$PWD/src/main/view/rendering/offscreenrenderer.cpp \
+    $$PWD/src/main/view/rendering/logorenderer.cpp
 
 HEADERS  += \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
@@ -69,7 +70,9 @@ HEADERS  += \
     $$PWD/src/main/misc/scripting/pythonscriptingengine.h \
     $$PWD/src/main/view/misc/displayhelper.h \
     $$PWD/src/main/view/rendering/textureimage.h \
-    $$PWD/src/main/model/jsonloadandstorestrategy.hpp
+    $$PWD/src/main/model/jsonloadandstorestrategy.hpp \
+    $$PWD/src/main/view/rendering/offscreenrenderer.h \
+    $$PWD/src/main/view/rendering/logorenderer.h
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

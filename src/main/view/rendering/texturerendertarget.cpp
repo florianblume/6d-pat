@@ -11,7 +11,7 @@ TextureRenderTarget::TextureRenderTarget(Qt3DCore::QNode *parent,
     textureOutput->setAttachmentPoint(attatchmentPoint);
     texture = new Qt3DRender::QTexture2D(textureOutput);                         // no need to manage memory, we lose possession
     texture->setSize(size.width(), size.height());
-    texture->setFormat(Qt3DRender::QAbstractTexture::RGBA8_UNorm);
+    texture->setFormat(Qt3DRender::QAbstractTexture::RGB8_UNorm);
     texture->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
     texture->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
     textureOutput->setTexture(texture);
@@ -24,7 +24,7 @@ TextureRenderTarget::TextureRenderTarget(Qt3DCore::QNode *parent,
     depthTexture->setFormat(Qt3DRender::QAbstractTexture::DepthFormat);
     depthTexture->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
     depthTexture->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
-    depthTexture->setComparisonFunction(Qt3DRender::QAbstractTexture::CompareLess);
+    depthTexture->setComparisonFunction(Qt3DRender::QAbstractTexture::CompareLessEqual);
     depthTexture->setComparisonMode(Qt3DRender::QAbstractTexture::CompareRefToTexture);
     depthTextureOutput->setTexture(depthTexture);
     addOutput(depthTextureOutput);

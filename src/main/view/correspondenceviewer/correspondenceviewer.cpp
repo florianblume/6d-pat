@@ -3,6 +3,8 @@
 #include "view/misc/displayhelper.h"
 #include "view/rendering/objectmodelrenderable.hpp"
 
+#include "view/rendering/offscreenrenderer.h"
+
 #include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DRender/QRenderSurfaceSelector>
 #include <Qt3DRender/QRenderTargetSelector>
@@ -11,6 +13,7 @@
 #include <Qt3DExtras/QFirstPersonCameraController>
 #include <QOffscreenSurface>
 #include <Qt3DExtras/QPhongMaterial>
+#include <Qt3DExtras/QPhongAlphaMaterial>
 #include <Qt3DCore/QTransform>
 
 #include "math.h"
@@ -59,7 +62,7 @@ void CorrespondenceViewer::setupRenderingPipeline() {
     // Setup camera
     camera = new Qt3DRender::QCamera(sceneRoot);
     // Initial projection matrix, the matrix will be updated as soon as an image is set
-    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 2000.0f);
+    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
     camera->setPosition(QVector3D(0.f, 0.f, 0.f));
     camera->setUpVector(QVector3D(0.f, 1.f, 0.f));
     // Set view center z coordinate to 1.f to make the camera look along the z axis
@@ -154,22 +157,16 @@ void CorrespondenceViewer::showImage(const QString &imagePath) {
 
     // This is just to retrieve the size of the set image
     QImage image(imagePath);
+
     offscreenEngine->setBackgroundImagePath(imagePath);
     ui->labelGraphics->setFixedSize(image.size());
-
-    // TODO: incorporate camera rotation and position
-    //camera->setPosition(currentlyDisplayedImage->getCameraPosition());
-    //QVector3D rotatedViewCenter = rotatePoint(camera->viewCenter(), currentlyDisplayedImage->getCameraRotation());
-    //camera->setViewCenter(rotatedViewCenter + camera->position());
-    //QVector3D rotatedUpVector = rotatePoint(camera->upVector(), currentlyDisplayedImage->getCameraRotation());
-    //camera->setUpVector(rotatedUpVector + camera->upVector());
 
     // Relation between camera matrix and field of view implies the following computation
     // 180.f / M_PI is conversion from radians to degrees
     camera->setFieldOfView(2.f * std::atan(image.height() /
                                            (2.f * currentlyDisplayedImage->getFocalLengthX())) * (180.0f / M_PI));
     // Not necessary to set size first but can't hurt
-    offscreenEngine->setSize(QSize(image.width(), image.height()));
+    offscreenEngine->setSize(image.size());
     float objectsXOffset = ((image.width() / 2.f) - (float) currentlyDisplayedImage->getFocalPointX())
                                                                 / (float) image.width();
     float objectsYOffset = ((image.height() / 2.f) - (float) currentlyDisplayedImage->getFocalPointY())
@@ -197,8 +194,9 @@ void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorresponde
     newRenderable->getTransform()->setRotationY(correspondence.getRotation().y());
     newRenderable->getTransform()->setRotationZ(correspondence.getRotation().z());
     newRenderable->addComponent(objectsLayer);
-    Qt3DExtras::QPhongMaterial *phongAlphaMaterial = new Qt3DExtras::QPhongMaterial(newRenderable);
+    Qt3DExtras::QPhongAlphaMaterial *phongAlphaMaterial = new Qt3DExtras::QPhongAlphaMaterial(newRenderable);
     phongAlphaMaterial->setAmbient(QColor(100, 100, 100, objectsOpacity));
+    phongAlphaMaterial->setAlpha(objectsOpacity);
     newRenderable->addComponent(phongAlphaMaterial);
     objectModelRenderables.insert(correspondence.getID(), newRenderable);
 
