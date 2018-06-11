@@ -2,7 +2,7 @@
 #define IMAGE_H
 
 #include <QString>
-#include <QVector3D>
+#include <QMatrix3x3>
 
 /*!
  * \brief The Image class holds the path to the actual image, as well as, if provided the path to the already segmented image.
@@ -19,8 +19,7 @@ public:
       \param imagePath the path to the image relative to the base path
       \param basePath the base path to the folder where this image is directly located or within a subfolder
     */
-    Image(const QString& imagePath, const QString& basePath,
-          float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY);
+    Image(const QString& imagePath, const QString& basePath, QMatrix3x3 cameraMatrix);
 
     //! Constructor of class Image.
     /*!
@@ -29,29 +28,8 @@ public:
       \param basePath the base path to the folder where the image is either directly located or located within a subfolder
       \param segmentationImagePath the path to the segmentation image
     */
-    Image(const QString& imagePath, const QString& basePath, const QString& segmentationImagePath,
-          float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY);
-
-    //! Constructor of class Image.
-    /*!
-      Using this constructor will store the image path and base path and set an empyt string for the segmentation image path.
-      \param imagePath the path to the image relative to the base path
-      \param basePath the base path to the folder where this image is directly located or within a subfolder
-    */
     Image(const QString& imagePath, const QString& basePath,
-          float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY,
-          QVector3D cameraPosition, QVector3D cameraRotation);
-
-    //! Constructor of class Image.
-    /*!
-      Using this constructor will store the image path and the segmentation image path.
-      \param imagePath the path to the image relative to the base path
-      \param basePath the base path to the folder where the image is either directly located or located within a subfolder
-      \param segmentationImagePath the path to the segmentation image
-    */
-    Image(const QString& imagePath, const QString& basePath, const QString& segmentationImagePath,
-          float focalLenghtX, float focalLenghtY, float focalPointX, float focalPointY,
-          QVector3D cameraPosition, QVector3D cameraRotation);
+          const QString& segmentationImagePath, QMatrix3x3 cameraMatrix);
 
     Image(const Image &other);
 
@@ -87,17 +65,7 @@ public:
      */
     QString getBasePath() const;
 
-    float getFocalLengthX();
-
-    float getFocalLengthY();
-
-    float getFocalPointX();
-
-    float getFocalPointY();
-
-    QVector3D getCameraPosition();
-
-    QVector3D getCameraRotation();
+    QMatrix3x3 getCameraMatrix() const;
 
     bool operator==(const Image &other);
 
@@ -107,12 +75,7 @@ private:
     QString imagePath;
     QString segmentationImagePath;
     QString basePath;
-    float focalLenghtX;
-    float focalLenghtY;
-    float focalPointX;
-    float focalPointY;
-    QVector3D cameraPosition = QVector3D(0, 0, 0);
-    QVector3D cameraRotation = QVector3D(0, 0, 0);
+    QMatrix3x3 cameraMatrix;
 
 };
 

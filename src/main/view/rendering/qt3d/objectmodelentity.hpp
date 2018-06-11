@@ -7,11 +7,11 @@
 #include <Qt3DRender/QMesh>
 #include <Qt3DRender/QTexture>
 
-class ObjectModelRenderable : public Qt3DCore::QEntity
+class ObjectModelEntity : public Qt3DCore::QEntity
 {
 public:
-    explicit ObjectModelRenderable(Qt3DCore::QNode *parent, const QString &meshPath, const QString &texturePath);
-    ~ObjectModelRenderable();
+    explicit ObjectModelEntity(Qt3DCore::QNode *parent, const QString &meshPath, const QString &texturePath);
+    ~ObjectModelEntity();
     Qt3DRender::QMesh *getMesh() const;
     Qt3DCore::QTransform *getTransform() const;
     QString getMeshPath() const;

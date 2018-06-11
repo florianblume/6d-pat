@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/shaders">
+        <file alias="background.frag">src/main/view/rendering/opengl/background.frag</file>
+        <file alias="background.vert">src/main/view/rendering/opengl/background.vert</file>
+        <file alias="object.frag">src/main/view/rendering/opengl/object.frag</file>
+        <file alias="object.vert">src/main/view/rendering/opengl/object.vert</file>
+    </qresource>
+</RCC>

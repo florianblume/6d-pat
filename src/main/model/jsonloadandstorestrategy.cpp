@@ -12,9 +12,12 @@
 #include <QJsonArray>
 #include <QMap>
 
-const QStringList JsonLoadAndStoreStrategy::OBJECT_MODEL_FILES_EXTENSIONS = QStringList({"*.obj", "*.ply"});
+const QStringList JsonLoadAndStoreStrategy::OBJECT_MODEL_FILES_EXTENSIONS =
+                                            QStringList({"*.obj", "*.ply"});
 
-static QString convertPathToSuffxFileName(const QString &pathToConvert, const QString &suffix, const QString &extension) {
+static QString convertPathToSuffxFileName(const QString &pathToConvert,
+                                          const QString &suffix,
+                                          const QString &extension) {
     return QFileInfo(pathToConvert).completeBaseName() + suffix + extension;
 }
 
@@ -24,14 +27,16 @@ JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy() {
 
 JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy(const QDir &imagesPath, const QDir &objectModelsPath,
                                                            const QDir &correspondencesFilePath)
-    : imagesPath(imagesPath), objectModelsPath(objectModelsPath), correspondencesFilePath(correspondencesFilePath) {
+    : imagesPath(imagesPath),
+      objectModelsPath(objectModelsPath),
+      correspondencesFilePath(correspondencesFilePath) {
 }
 
 JsonLoadAndStoreStrategy::~JsonLoadAndStoreStrategy() {
 }
 
 bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
-        ObjectImageCorrespondence *objectImageCorrespondence, bool deleteCorrespondence) {
+        Correspondence *objectImageCorrespondence, bool deleteCorrespondence) {
     // no need to check whether paths exist because setters do so already
 
     //! we do not need to throw an exception here, the only time the path cannot exist
@@ -52,13 +57,11 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
             jsonObject.remove(objectImageCorrespondence->getID());
         } else {
             //! Preparation of 3D data for the JSON file
-            QVector3D qtRotationVector = objectImageCorrespondence->getRotation();
-            cv::Vec3f rotationVector{qtRotationVector[0], qtRotationVector[1], qtRotationVector[2]};
-            cv::Mat rotationMatrix = OtiatHelper::eulerAnglesToRotationMatrix(rotationVector);
+            QMatrix3x3 rotationMatrix = objectImageCorrespondence->getRotation();
             QJsonArray rotationMatrixArray;
-            rotationMatrixArray << rotationMatrix.at<float>(0, 0) << rotationMatrix.at<float>(0, 1) << rotationMatrix.at<float>(0, 2)
-                                << rotationMatrix.at<float>(1, 0) << rotationMatrix.at<float>(1, 1) << rotationMatrix.at<float>(1, 2)
-                                << rotationMatrix.at<float>(2, 0) << rotationMatrix.at<float>(2, 1) << rotationMatrix.at<float>(2, 2);
+            rotationMatrixArray << rotationMatrix(0, 0) << rotationMatrix(0, 1) << rotationMatrix(0, 2)
+                                << rotationMatrix(1, 0) << rotationMatrix(1, 1) << rotationMatrix(1, 2)
+                                << rotationMatrix(2, 0) << rotationMatrix(2, 1) << rotationMatrix(2, 2);
             QVector3D positionVector = objectImageCorrespondence->getPosition();
             QJsonArray positionVectorArray;
             positionVectorArray << positionVector[0] << positionVector[1] << positionVector[2];
@@ -113,8 +116,8 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
     }
 }
 
-static QVector3D rotVectorFromJsonRotMatrix(QJsonArray &jsonRotationMatrix) {
-    cv::Mat rotationMatrix = (cv::Mat_<float>(3,3) <<
+static QMatrix3x3 rotVectorFromJsonRotMatrix(QJsonArray &jsonRotationMatrix) {
+    QMatrix3x3 rotationMatrix = QMatrix3x3(new float[9]{
        (float) jsonRotationMatrix[0].toDouble(),
        (float) jsonRotationMatrix[1].toDouble(),
        (float) jsonRotationMatrix[2].toDouble(),
@@ -123,39 +126,25 @@ static QVector3D rotVectorFromJsonRotMatrix(QJsonArray &jsonRotationMatrix) {
        (float) jsonRotationMatrix[5].toDouble(),
        (float) jsonRotationMatrix[6].toDouble(),
        (float) jsonRotationMatrix[7].toDouble(),
-       (float) jsonRotationMatrix[8].toDouble());
-    cv::Vec3f rotationVector = OtiatHelper::rotationMatrixToEulerAngles(rotationMatrix);
-    //! Convert to Qt vector format
-    QVector3D qtRotationVector = QVector3D(rotationVector[0],
-                                           rotationVector[1],
-                                           rotationVector[2]);
-    return qtRotationVector;
+       (float) jsonRotationMatrix[8].toDouble()});
+    return rotationMatrix;
 }
 
 static Image createImageWithJsonParams(const QString& filename, const QString &segmentationFilename,
                                        const QString &imagesPath, QJsonObject &json) {
     QJsonObject parameters = json[filename].toObject();
     QJsonArray cameraMatrix = parameters["K"].toArray();
-    float focalLengthX = (float) cameraMatrix[0].toDouble();
-    float focalLengthY = (float) cameraMatrix[4].toDouble();
-    float focalPointX = (float) cameraMatrix[2].toDouble();
-    float focalPointY = (float) cameraMatrix[5].toDouble();
-    QVector3D cameraRotationVector = QVector3D(0, 0, 0);
-    QVector3D cameraPositionVector = QVector3D(0, 0, 0);
-    if (parameters.contains("R")) {
-        //! We also have to rotation of the camera
-        QJsonArray cameraRotationMatrix = parameters["R"].toArray();
-        cameraRotationVector = rotVectorFromJsonRotMatrix(cameraRotationMatrix);
-    }
-    if (parameters.contains("t")) {
-        //! We also have the translation vector of the camera
-        QJsonArray cameraTranslationVector = parameters["t"].toArray();
-        cameraPositionVector = QVector3D((float) cameraTranslationVector[0].toDouble(),
-                                                  (float) cameraTranslationVector[1].toDouble(),
-                                                  (float) cameraTranslationVector[2].toDouble());
-    }
-    return Image(filename, segmentationFilename, imagesPath, focalLengthX, focalLengthY,
-                 focalPointX, focalPointY, cameraPositionVector, cameraRotationVector);
+    QMatrix3x3 qtCameraMatrix = QMatrix3x3(new float[9]{
+                (float) cameraMatrix[0].toDouble(),
+                (float) cameraMatrix[1].toDouble(),
+                (float) cameraMatrix[2].toDouble(),
+                (float) cameraMatrix[3].toDouble(),
+                (float) cameraMatrix[4].toDouble(),
+                (float) cameraMatrix[5].toDouble(),
+                (float) cameraMatrix[6].toDouble(),
+                (float) cameraMatrix[7].toDouble(),
+                (float) cameraMatrix[8].toDouble()});
+    return Image(filename, segmentationFilename, imagesPath, qtCameraMatrix);
 }
 
 QList<Image> JsonLoadAndStoreStrategy::loadImages() {
@@ -286,8 +275,8 @@ QMap<QString,const ObjectModel*> createObjectModelMap(const QList<ObjectModel> &
     return objectModelMap;
 }
 
-QList<ObjectImageCorrespondence> JsonLoadAndStoreStrategy::loadCorrespondences(const QList<Image> &images, const QList<ObjectModel> &objectModels) {
-    QList<ObjectImageCorrespondence> correspondences;
+QList<Correspondence> JsonLoadAndStoreStrategy::loadCorrespondences(const QList<Image> &images, const QList<ObjectModel> &objectModels) {
+    QList<Correspondence> correspondences;
 
     //! See loadImages for why we don't throw an exception here
     if (!QFileInfo(correspondencesFilePath.path()).exists()) {
@@ -318,7 +307,7 @@ QList<ObjectImageCorrespondence> JsonLoadAndStoreStrategy::loadCorrespondences(c
 
                 //! Read rotation vector from json file
                 QJsonArray jsonRotationMatrix = correspondenceEntry["R"].toArray();
-                QVector3D qtRotationVector = rotVectorFromJsonRotMatrix(jsonRotationMatrix);
+                QMatrix3x3 rotationMatrix = rotVectorFromJsonRotMatrix(jsonRotationMatrix);
 
                 QJsonArray translation = correspondenceEntry["t"].toArray();
                 QVector3D qtTranslationVector = QVector3D((float) translation[0].toDouble(),
@@ -351,9 +340,9 @@ QList<ObjectImageCorrespondence> JsonLoadAndStoreStrategy::loadCorrespondences(c
                         documentDirty = true;
                     }
 
-                    correspondences.append(ObjectImageCorrespondence(id,
+                    correspondences.append(Correspondence(id,
                                                                  qtTranslationVector,
-                                                                 qtRotationVector,
+                                                                 rotationMatrix,
                                                                  image,
                                                                  objectModel));
                 }

@@ -1,7 +1,7 @@
 #ifndef MODELMANAGER_H
 #define MODELMANAGER_H
 
-#include "objectimagecorrespondence.hpp"
+#include "correspondence.hpp"
 #include "image.hpp"
 #include "loadandstorestrategy.hpp"
 #include <QObject>
@@ -55,7 +55,7 @@ public:
      * \param imagePath the path of the image
      * \return the list of correspondences of the image at the given path
      */
-    virtual QList<ObjectImageCorrespondence> getCorrespondencesForImage(const Image& image) const = 0;
+    virtual QList<Correspondence> getCorrespondencesForImage(const Image& image) const = 0;
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
@@ -70,16 +70,16 @@ public:
      * \param correspondences the list that the correspondences are to be added to
      * \return the list of correspondences of the object model at the given path
      */
-    virtual QList<ObjectImageCorrespondence> getCorrespondencesForObjectModel(const ObjectModel& objectModel) = 0;
+    virtual QList<Correspondence> getCorrespondencesForObjectModel(const ObjectModel& objectModel) = 0;
 
     /*!
      * \brief getCorrespondences Returns the correspondences maintained by this manager.
      * \param correspondences the list that the correspondences are to be added to
      * \return the list of correspondences maintained by this manager
      */
-    virtual QList<ObjectImageCorrespondence> getCorrespondences() = 0;
+    virtual QList<Correspondence> getCorrespondences() = 0;
 
-    virtual ObjectImageCorrespondence getCorrespondenceById(const QString &id) = 0;
+    virtual Correspondence getCorrespondenceById(const QString &id) = 0;
 
     /*!
      * \brief getCorrespondencesForImageAndObjectModel Returns all correspondences for the given image and object model.
@@ -88,7 +88,7 @@ public:
      * \param correspondences the list that the correspondences are to be added to
      * \return all correspondences of the given image and given object model
      */
-    virtual QList<ObjectImageCorrespondence> getCorrespondencesForImageAndObjectModel(const Image& image,
+    virtual QList<Correspondence> getCorrespondencesForImageAndObjectModel(const Image& image,
                                                           const ObjectModel& objectModel) = 0;
 
     /*!
@@ -101,7 +101,7 @@ public:
     virtual bool addObjectImageCorrespondence(Image *image,
                                               ObjectModel *objectModel,
                                               QVector3D position,
-                                              QVector3D rotation) = 0;
+                                              QMatrix3x3 rotation) = 0;
 
     /*!
      * \brief addObjectImageCorrespondence Updates the given ObjectImageCorrespondence and automatically persists it according to the
@@ -113,7 +113,7 @@ public:
      */
     virtual bool updateObjectImageCorrespondence(const QString &id,
                                                  QVector3D position,
-                                                 QVector3D rotation) = 0;
+                                                 QMatrix3x3 rotation) = 0;
 
     /*!
      * \brief removeObjectImageCorrespondence Removes the given ObjectImageCorrespondence if it is present in the list

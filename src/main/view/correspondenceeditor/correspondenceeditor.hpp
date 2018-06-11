@@ -51,7 +51,7 @@ public slots:
      * and the object model corresponding to the correspondence will be displayed instead.
      * \param correspondence the correpondence to be edited
      */
-    void setCorrespondenceToEdit(ObjectImageCorrespondence *correspondence);
+    void setCorrespondenceToEdit(Correspondence *correspondence);
 
     /*!
      * \brief visualizeLastClickedPosition adds a colored sphere to the position that the user clicked
@@ -107,6 +107,8 @@ signals:
      */
     void buttonCreateClicked();
 
+    void correspondenceUpdated(Correspondence *correspondence);
+
     void opacityChanged(int opacity);
 
 private:
@@ -114,7 +116,7 @@ private:
     ModelManager *modelManager;
 
     UniquePointer<ObjectModel> currentObjectModel;
-    UniquePointer<ObjectImageCorrespondence> currentCorrespondence;
+    UniquePointer<Correspondence> currentCorrespondence;
 
     Qt3DExtras::Qt3DWindow *graphicsWindow = Q_NULLPTR;
     Qt3DRender::QObjectPicker *objectPicker = Q_NULLPTR;        // created but not owned later
@@ -157,7 +159,7 @@ private:
     void resetCameras();
     float cameraFieldOfView();
     void addCorrespondencesToComboBoxCorrespondences(const Image *image, const QString &correspondenceToSelect = "");
-    void setCorrespondenceValuesOnControls(ObjectImageCorrespondence *correspondence);
+    void setCorrespondenceValuesOnControls(Correspondence *correspondence);
 
 private slots:
     void objectPickerClicked(Qt3DRender::QPickEvent *pick);
@@ -187,6 +189,8 @@ private slots:
     void onButtonPredictClicked();
 
     void onButtonCreateClicked();
+
+    void onButtonSaveClicked();
 
     /*!
      * \brief removeCurrentlyEditedCorrespondence gets called when the user wants to remove the

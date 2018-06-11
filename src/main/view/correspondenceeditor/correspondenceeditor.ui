@@ -775,6 +775,65 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="buttonSave">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="palette">
+            <palette>
+             <active>
+              <colorrole role="Button">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>227</red>
+                 <green>227</green>
+                 <blue>227</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </active>
+             <inactive>
+              <colorrole role="Button">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>227</red>
+                 <green>227</green>
+                 <blue>227</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </inactive>
+             <disabled>
+              <colorrole role="Button">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>227</red>
+                 <green>227</green>
+                 <blue>227</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </disabled>
+            </palette>
+           </property>
+           <property name="autoFillBackground">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>Save</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QFrame" name="frame_3">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
@@ -878,7 +937,7 @@
   </connection>
   <connection>
    <sender>sliderOpacity</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>sliderMoved(int)</signal>
    <receiver>CorrespondenceEditor</receiver>
    <slot>onSliderOpacityValueChanged(int)</slot>
    <hints>
@@ -1020,6 +1079,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonSave</sender>
+   <signal>clicked()</signal>
+   <receiver>CorrespondenceEditor</receiver>
+   <slot>onButtonSaveClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>404</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onButtonCreateClicked()</slot>
@@ -1032,5 +1107,6 @@
   <slot>onSpinBoxRotationZValueChanged(double)</slot>
   <slot>onSpinBoxTranslationZValueChanged(double)</slot>
   <slot>onButtonRemoveClicked()</slot>
+  <slot>onButtonSaveClicked()</slot>
  </slots>
 </ui>

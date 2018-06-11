@@ -1,20 +1,7 @@
 #include "correspondenceviewer.hpp"
 #include "ui_correspondenceviewer.h"
 #include "view/misc/displayhelper.h"
-#include "view/rendering/objectmodelrenderable.hpp"
-
-#include "view/rendering/offscreenrenderer.h"
-
-#include <Qt3DRender/QFrameGraphNode>
-#include <Qt3DRender/QRenderSurfaceSelector>
-#include <Qt3DRender/QRenderTargetSelector>
-#include <Qt3DRender/QPointLight>
-#include <Qt3DRender/QCamera>
-#include <Qt3DExtras/QFirstPersonCameraController>
-#include <QOffscreenSurface>
-#include <Qt3DExtras/QPhongMaterial>
-#include <Qt3DExtras/QPhongAlphaMaterial>
-#include <Qt3DCore/QTransform>
+#include "view/rendering/opengl/objectmodelrenderable.hpp"
 
 #include "math.h"
 
@@ -39,58 +26,13 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
     ui->buttonResetPosition->setToolTip("Click to reset the position of the image.");
     ui->buttonResetPosition->setEnabled(false);
 
-    setupRenderingPipeline();
-
     if (modelManager) {
         connectModelManagerSlots();
     }
 }
 
 CorrespondenceViewer::~CorrespondenceViewer() {
-    deleteSceneObjects();
-    delete offscreenEngine;
     delete ui;
-}
-
-void CorrespondenceViewer::setupRenderingPipeline() {
-    qDebug() << "Setting up rendering pipeline.";
-
-    sceneRoot = new Qt3DCore::QEntity();
-
-    sceneObjectsEntity = new Qt3DCore::QEntity(sceneRoot);
-
-    // Setup camera
-    camera = new Qt3DRender::QCamera(sceneRoot);
-    // Initial projection matrix, the matrix will be updated as soon as an image is set
-    camera->lens()->setPerspectiveProjection(45.0f, 1.f, 0.1f, 1000.0f);
-    camera->setPosition(QVector3D(0.f, 0.f, 0.f));
-    camera->setUpVector(QVector3D(0.f, 1.f, 0.f));
-    // Set view center z coordinate to 1.f to make the camera look along the z axis
-    camera->setViewCenter(QVector3D(0.f, 0.f, 1.f));
-
-    objectsLayer = new Qt3DRender::QLayer(sceneRoot);
-
-    offscreenEngine = new OffscreenEngine(camera, QSize(500, 500), QPointF(0, 0));
-    offscreenEngine->setSceneRoot(sceneRoot);
-    offscreenEngine->addLayerToObjectsLayerFilter(objectsLayer);
-}
-
-void CorrespondenceViewer::deleteSceneObjects() {
-    if (sceneObjectsEntity) {
-        delete sceneObjectsEntity;
-        sceneObjectsEntity = Q_NULLPTR;
-        objectModelRenderables.clear();
-    }
-}
-
-void CorrespondenceViewer::setupSceneRoot() {
-    // This recursively deletes all objects that are children of the entity
-    if (sceneObjectsEntity) {
-        delete sceneObjectsEntity;
-        objectModelRenderables.clear();
-    }
-    sceneObjectsEntity = new Qt3DCore::QEntity(sceneRoot);
-
 }
 
 void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
@@ -111,9 +53,10 @@ void CorrespondenceViewer::setImage(Image *image) {
 
     currentlyDisplayedImage.reset(new Image(*image));
 
+    ui->openGLWidget->removeObjectModels();
     ui->buttonResetPosition->setEnabled(true);
 
-    qDebug() << "Setting image (" + currentlyDisplayedImage->getImagePath() + ") to display.";
+    qDebug() << "Displaying image (" + currentlyDisplayedImage->getImagePath() + ").";
 
     // Enable/disable functionality to show only segmentation image instead of normal image
     if (currentlyDisplayedImage->getSegmentationImagePath().isEmpty()) {
@@ -126,131 +69,35 @@ void CorrespondenceViewer::setImage(Image *image) {
     } else {
         ui->buttonSwitchView->setEnabled(true);
     }
-    showImage(showingNormalImage ?  currentlyDisplayedImage->getAbsoluteImagePath() :
-                                    currentlyDisplayedImage->getAbsoluteSegmentationImagePath());
-}
-
-static QVector3D rotatePoint(const QVector3D point, const QVector3D &rotationVector) {
-    QMatrix4x4 m;
-    m.rotate(rotationVector.x(), QVector3D(1.0, 0.0, 0.0));
-    m.rotate(rotationVector.y(), QVector3D(0.0, 1.0, 0.0));
-    m.rotate(rotationVector.z(), QVector3D(0.0, 0.0, 1.0));
-    return m * point;
-}
-
-void CorrespondenceViewer::showImage(const QString &imagePath) {
-    deleteSceneObjects();
-    setupSceneRoot();
-
-    // Set root entity here as parent so that image is a child of it
-    qDebug() << "Displaying image (" + imagePath + ").";
-
-    // Do not use the pointer here as getCorrespondencesForImage requires a reference not a pointer
-    QList<ObjectImageCorrespondence> correspondencesForImage =
-            modelManager->getCorrespondencesForImage(*currentlyDisplayedImage.get());
-
-    int i = 0;
-    for (ObjectImageCorrespondence &correspondence : correspondencesForImage) {
-        addObjectModelRenderable(correspondence, i);
-        i++;
-    }
-
-    // This is just to retrieve the size of the set image
-    QImage image(imagePath);
-
-    offscreenEngine->setBackgroundImagePath(imagePath);
-    ui->labelGraphics->setFixedSize(image.size());
-
-    // Relation between camera matrix and field of view implies the following computation
-    // 180.f / M_PI is conversion from radians to degrees
-    camera->setFieldOfView(2.f * std::atan(image.height() /
-                                           (2.f * currentlyDisplayedImage->getFocalLengthX())) * (180.0f / M_PI));
-    // Not necessary to set size first but can't hurt
-    offscreenEngine->setSize(image.size());
-    float objectsXOffset = ((image.width() / 2.f) - (float) currentlyDisplayedImage->getFocalPointX())
-                                                                / (float) image.width();
-    float objectsYOffset = ((image.height() / 2.f) - (float) currentlyDisplayedImage->getFocalPointY())
-                                                                / (float) image.height();
-    offscreenEngine->setObjectsOffset(QPointF(objectsXOffset, objectsYOffset));
-    renderAgain += 1;
-    Qt3DRender::QRenderCaptureReply *renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
-    renderReplies.append(renderCaptureReply);
-    connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
-}
-
-void CorrespondenceViewer::addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
-                                                    int objectModelIndex) {
-    const ObjectModel* objectModel = correspondence.getObjectModel();
-    // We do not need to take care of deleting the renderables, the destructor of this class
-    // or the start of this function will do this
-    ObjectModelRenderable *newRenderable =
-            new ObjectModelRenderable(sceneObjectsEntity,
-                                      objectModel->getAbsolutePath(), "");
-
-    newRenderable->getTransform()->setTranslation(QVector3D(correspondence.getPosition().x(),
-                                                       correspondence.getPosition().y(),
-                                                       correspondence.getPosition().z()));
-    newRenderable->getTransform()->setRotationX(correspondence.getRotation().x());
-    newRenderable->getTransform()->setRotationY(correspondence.getRotation().y());
-    newRenderable->getTransform()->setRotationZ(correspondence.getRotation().z());
-    newRenderable->addComponent(objectsLayer);
-    Qt3DExtras::QPhongAlphaMaterial *phongAlphaMaterial = new Qt3DExtras::QPhongAlphaMaterial(newRenderable);
-    phongAlphaMaterial->setAmbient(QColor(100, 100, 100, objectsOpacity));
-    phongAlphaMaterial->setAlpha(objectsOpacity);
-    newRenderable->addComponent(phongAlphaMaterial);
-    objectModelRenderables.insert(correspondence.getID(), newRenderable);
-
-    qDebug() << "Adding object model (" + objectModel->getPath() + ") to display.";
-}
-
-void CorrespondenceViewer::imageCaptured() {
-    Qt3DRender::QRenderCaptureReply *renderCaptureReply = renderReplies.at(0);
-    renderedImage = renderCaptureReply->image().mirrored(true, true);
-    renderedImageDefault = renderedImage;
-    disconnect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
-    renderReplies.pop_front();
-    delete renderCaptureReply;
-    ui->labelGraphics->setPixmap(QPixmap::fromImage(renderedImage));
-    if (renderAgain > 0) {
-        renderAgain--;
-        Qt3DRender::QRenderCaptureReply *renderCaptureReply = offscreenEngine->getRenderCapture()->requestCapture();
-        renderReplies.append(renderCaptureReply);
-        connect(renderCaptureReply, SIGNAL(completed()), this, SLOT(imageCaptured()));
+    QString toDisplay = showingNormalImage ?  currentlyDisplayedImage->getAbsoluteImagePath() :
+                                    currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
+    ui->openGLWidget->setBackgroundImage(toDisplay, image->getCameraMatrix());
+    QList<Correspondence> correspondencesForImage = modelManager->getCorrespondencesForImage(*image);
+    for (Correspondence &correspondence : correspondencesForImage) {
+        ui->openGLWidget->addCorrespondence(correspondence);
     }
 }
 
 void CorrespondenceViewer::connectModelManagerSlots() {
-    connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(refresh()));
-    connect(modelManager, SIGNAL(correspondenceAdded(QString)), this, SLOT(refresh()));
-    connect(modelManager, SIGNAL(correspondenceDeleted(QString)), this, SLOT(onCorrespondenceRemoved(QString)));
-    connect(modelManager, SIGNAL(correspondenceUpdated(QString)), this, SLOT(onCorrespondenceUpdated(QString)));
+    // We get notified directly from the Editor so need to listen to the manager here
+    //connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(refresh()));
+    //connect(modelManager, SIGNAL(correspondenceAdded(QString)), this, SLOT(refresh()));
+    //connect(modelManager, SIGNAL(correspondenceDeleted(QString)), this, SLOT(onCorrespondenceRemoved(QString)));
+    //connect(modelManager, SIGNAL(correspondenceUpdated(QString)), this, SLOT(onCorrespondenceUpdated(QString)));
     connect(modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
     connect(modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
 }
 
 void CorrespondenceViewer::reset() {
     qDebug() << "Resetting correspondence viewer.";
-    deleteSceneObjects();
-    setupSceneRoot();
-    currentlyDisplayedImage.release();
-    ui->labelGraphics->setPixmap(QPixmap(0, 0));
+    ui->openGLWidget->removeObjectModels();
     ui->buttonResetPosition->setEnabled(false);
     ui->buttonSwitchView->setEnabled(false);
 }
 
-void CorrespondenceViewer::refresh() {
-    if (currentlyDisplayedImage.get())
-        setImage(currentlyDisplayedImage.get());
-}
-
 void CorrespondenceViewer::visualizeLastClickedPosition(int correspondencePointIndex) {
     Q_ASSERT(correspondencePointIndex >= 0);
-    QPainter painter(&renderedImage);
-    QPen paintpen(DisplayHelper::colorForCorrespondencePointIndex(correspondencePointIndex));
-    paintpen.setWidth(3);
-    painter.setPen(paintpen);
-    painter.drawPoint(lastClickedPosition);
-    ui->labelGraphics->setPixmap(QPixmap::fromImage(renderedImage));
+    // TODO: show clicks on open gl widget
 }
 
 void CorrespondenceViewer::onCorrespondenceCreationAborted() {
@@ -258,8 +105,7 @@ void CorrespondenceViewer::onCorrespondenceCreationAborted() {
 }
 
 void CorrespondenceViewer::removePositionVisualizations() {
-    renderedImage = renderedImageDefault;
-    ui->labelGraphics->setPixmap(QPixmap::fromImage(renderedImageDefault));
+    // TOOD: remove clicks on open gl widget
 }
 
 void CorrespondenceViewer::onCorrespondencePointStarted(QPoint point2D,
@@ -270,16 +116,19 @@ void CorrespondenceViewer::onCorrespondencePointStarted(QPoint point2D,
     visualizeLastClickedPosition(currentNumberOfPoints);
 }
 
+void CorrespondenceViewer::onCorrespondenceUpdate(Correspondence *correspondence){
+    // TODO: update correspondence
+}
+
 void CorrespondenceViewer::onOpacityForObjectModelsChanged(int opacity) {
     objectsOpacity = opacity / 100.f;
-    refresh();
+    ui->openGLWidget->setOpacity(objectsOpacity);
 }
 
 void CorrespondenceViewer::switchImage() {
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
     showingNormalImage = !showingNormalImage;
-
-    refresh();
+    // TODO: update open gl widget
 
     if (showingNormalImage)
         qDebug() << "Setting viewer to display normal image.";
@@ -288,10 +137,8 @@ void CorrespondenceViewer::switchImage() {
 
 }
 
-void CorrespondenceViewer::resetPositionOfImage() {
-    ui->labelGraphics->setGeometry(0, 0,
-                                   ui->labelGraphics->geometry().width(),
-                                   ui->labelGraphics->geometry().height());
+void CorrespondenceViewer::resetPositionOfGraphicsView() {
+    //QRect geometry = ui->gr;
 }
 
 void CorrespondenceViewer::imageClicked(QPoint point) {
@@ -301,30 +148,6 @@ void CorrespondenceViewer::imageClicked(QPoint point) {
     emit imageClicked(currentlyDisplayedImage.get(), point);
 }
 
-void CorrespondenceViewer::onCorrespondenceUpdated(const QString &id) {
-    if (objectModelRenderables.contains(id)) {
-        ObjectImageCorrespondence correspondence = modelManager->getCorrespondenceById(id);
-        ObjectModelRenderable *renderable = objectModelRenderables.value(id);
-        renderable->getTransform()->setTranslation(QVector3D(correspondence.getPosition().x(),
-                                                           correspondence.getPosition().y(),
-                                                           correspondence.getPosition().z()));
-        renderable->getTransform()->setRotationX(correspondence.getRotation().x());
-        renderable->getTransform()->setRotationY(correspondence.getRotation().y());
-        renderable->getTransform()->setRotationZ(correspondence.getRotation().z());
-        refresh();
-    } else {
-        throw "A correspondence has been edited, that is currently not part of the viewer.";
-    }
-}
-
 void CorrespondenceViewer::onCorrespondenceRemoved(const QString &id) {
-    if (objectModelRenderables.contains(id)) {
-        ObjectModelRenderable *renderable = objectModelRenderables.value(id);
-        renderable->setParent(new Qt3DCore::QEntity());
-        objectModelRenderables.remove(id);
-        delete renderable;
-        refresh();
-    } else {
-        throw "A correspondence has been removed, that is currently not part of the viewer.";
-    }
+
 }

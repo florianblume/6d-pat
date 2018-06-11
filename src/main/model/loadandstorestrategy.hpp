@@ -1,7 +1,7 @@
 ﻿#ifndef LOADANDSTORESTRATEGY_H
 #define LOADANDSTORESTRATEGY_H
 
-#include "objectimagecorrespondence.hpp"
+#include "correspondence.hpp"
 #include "image.hpp"
 #include "objectmodel.hpp"
 #include <QObject>
@@ -31,7 +31,7 @@ public:
      * \param deleteCorrespondence indicates whether the correspondence should be persistently deleted
      * \return true if persisting the object image correspondence was successful, false if not
      */
-    virtual bool persistObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence,
+    virtual bool persistObjectImageCorrespondence(Correspondence *objectImageCorrespondence,
                                                   bool deleteCorrespondence) = 0;
 
     /*!
@@ -51,7 +51,8 @@ public:
      * are stored depends on the strategy.
      * \return the list of all stored correspondences
      */
-    virtual QList<ObjectImageCorrespondence> loadCorrespondences(const QList<Image> &images, const QList<ObjectModel> &objectModels) = 0;
+    virtual QList<Correspondence> loadCorrespondences(const QList<Image> &images,
+                                                      const QList<ObjectModel> &objectModels) = 0;
 
     /*!
      * \brief pathExists Checks whether the given path exists on the file system and is accessible.

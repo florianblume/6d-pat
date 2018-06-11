@@ -1,7 +1,7 @@
-#include "objectmodelrenderable.hpp"
+#include "objectmodelentity.hpp"
 #include <Qt3DExtras/QPhongMaterial>
 
-ObjectModelRenderable::ObjectModelRenderable(QNode *parent, const QString &meshPath, const QString &texturePath)
+ObjectModelEntity::ObjectModelEntity(QNode *parent, const QString &meshPath, const QString &texturePath)
   : Qt3DCore::QEntity(parent),
     mesh(new Qt3DRender::QMesh()),
     transform(new Qt3DCore::QTransform()),
@@ -14,20 +14,20 @@ ObjectModelRenderable::ObjectModelRenderable(QNode *parent, const QString &meshP
 }
 
 
-ObjectModelRenderable::~ObjectModelRenderable() {
+ObjectModelEntity::~ObjectModelEntity() {
     delete mesh;
     delete transform;
     delete textureImage;
 }
 
-QString ObjectModelRenderable::getMeshPath() const {
+QString ObjectModelEntity::getMeshPath() const {
     return meshPath;
 }
 
-Qt3DRender::QMesh *ObjectModelRenderable::getMesh() const {
+Qt3DRender::QMesh *ObjectModelEntity::getMesh() const {
     return mesh;
 }
 
-Qt3DCore::QTransform *ObjectModelRenderable::getTransform() const {
+Qt3DCore::QTransform *ObjectModelEntity::getTransform() const {
     return transform;
 }
