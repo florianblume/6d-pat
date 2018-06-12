@@ -31,7 +31,8 @@ SOURCES += \
     $$PWD/src/main/view/rendering/opengl/backgroundimagerenderable.cpp \
     $$PWD/src/main/view/rendering/opengl/objectmodelrenderable.cpp \
     $$PWD/src/main/model/correspondence.cpp \
-    $$PWD/src/main/view/rendering/opengl/correspondenceviewerglwidget.cpp
+    $$PWD/src/main/view/rendering/opengl/correspondenceviewerglwidget.cpp \
+    $$PWD/src/main/view/rendering/opengl/clickvisualizationoverlay.cpp
 
 HEADERS  += \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
@@ -64,7 +65,8 @@ HEADERS  += \
     $$PWD/src/main/view/rendering/opengl/backgroundimagerenderable.hpp \
     $$PWD/src/main/view/rendering/opengl/objectmodelrenderable.hpp \
     $$PWD/src/main/model/correspondence.hpp \
-    $$PWD/src/main/view/rendering/opengl/correspondenceviewerglwidget.hpp
+    $$PWD/src/main/view/rendering/opengl/correspondenceviewerglwidget.hpp \
+    $$PWD/src/main/view/rendering/opengl/clickvisualizationoverlay.hpp
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

@@ -54,6 +54,7 @@
 #include "model/correspondence.hpp"
 #include "view/rendering/opengl/backgroundimagerenderable.hpp"
 #include "view/rendering/opengl/objectmodelrenderable.hpp"
+#include "view/rendering/opengl/clickvisualizationoverlay.hpp"
 
 #include <QString>
 #include <QSharedPointer>
@@ -64,7 +65,6 @@
 #include <QMatrix4x4>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
-#include <QPolygon>
 
 typedef QSharedPointer<BackgroundImageRenderable> BackgroundImageRenderablePtr;
 typedef QSharedPointer<ObjectModelRenderable> ObjectModelRenderablePtr;
@@ -84,10 +84,13 @@ public:
     ObjectModelRenderable *getObjectModelRenderable(
             const Correspondence &correspondence);
     void setOpacity(float opacity);
-    void addClickedPoint(const QPoint &click);
+    void addClick(QPoint position, QColor color);
     void removeClicks();
 
     ~CorrespondenceViewerGLWidget();
+
+signals:
+    void positionClicked(QPoint position);
 
 protected:
     void initializeGL() override;
@@ -120,8 +123,7 @@ private:
     QPoint lastPos;
     bool mouseDown = false;
     bool mouseMoved = false;
-
-    QPolygon clicks;
+    ClickVisualizationOverlay *clickOverlay;
 
     float farPlane = 2000.f;
     float nearPlane = 100.f;

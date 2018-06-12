@@ -50,6 +50,7 @@
 
 #include "view/rendering/opengl/correspondenceviewerglwidget.hpp"
 
+#include <QFrame>
 #include <QImage>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
@@ -57,6 +58,7 @@
 #include <QMouseEvent>
 #include <QThread>
 #include <QApplication>
+#include <QPainter>
 
 #define PROGRAM_VERTEX_ATTRIBUTE 0
 #define PROGRAM_TEXCOORD_ATTRIBUTE 1
@@ -67,6 +69,15 @@ CorrespondenceViewerGLWidget::CorrespondenceViewerGLWidget(QWidget *parent)
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     //timer->start(1000);
+
+    QSurfaceFormat format;
+    format.setDepthBufferSize(24);
+    format.setStencilBufferSize(8);
+    format.setSamples(4);
+    setFormat(format);
+
+    clickOverlay = new ClickVisualizationOverlay(this);
+    clickOverlay->resize(this->size());
 }
 
 CorrespondenceViewerGLWidget::~CorrespondenceViewerGLWidget()
@@ -78,6 +89,7 @@ CorrespondenceViewerGLWidget::~CorrespondenceViewerGLWidget()
 void CorrespondenceViewerGLWidget::setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix) {
     QImage loadedImage(QUrl::fromLocalFile(image).path());
     this->resize(loadedImage.width(), loadedImage.height());
+    clickOverlay->resize(this->size());
     if (!backgroundImageRenderable) {
         backgroundImageRenderable.reset(new BackgroundImageRenderable(image,
                                                                   PROGRAM_VERTEX_ATTRIBUTE,
@@ -143,13 +155,12 @@ void CorrespondenceViewerGLWidget::setOpacity(float opacity) {
     update();
 }
 
-void CorrespondenceViewerGLWidget::addClickedPoint(const QPoint &click) {
-    clicks.append(click);
-    update();
+void CorrespondenceViewerGLWidget::addClick(QPoint position, QColor color) {
+    clickOverlay->addClickedPoint(position, color);
 }
 
 void CorrespondenceViewerGLWidget::removeClicks() {
-    clicks.clear();
+    clickOverlay->removeClickedPoints();
 }
 
 void CorrespondenceViewerGLWidget::initializeGL()
@@ -269,7 +280,7 @@ void CorrespondenceViewerGLWidget::mouseMoveEvent(QMouseEvent *event)
 void CorrespondenceViewerGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (!mouseMoved) {
-        addClickedPoint(event->pos());
+        emit positionClicked(event->pos());
     }
     mouseMoved = false;
 }
