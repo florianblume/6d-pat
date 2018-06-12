@@ -26,7 +26,9 @@ public:
     QMatrix4x4 getViewMatrix();
     ObjectModel getObjectModel();
     QVector3D getPosition();
+    void setPosition(QVector3D position);
     QMatrix3x3 getRotation();
+    void setRotation(QMatrix3x3 rotation);
 
     // To retrieve the respective renderable
     bool operator==(const ObjectModelRenderable &other);

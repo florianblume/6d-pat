@@ -1,7 +1,6 @@
 #include "correspondenceviewer.hpp"
 #include "ui_correspondenceviewer.h"
 #include "view/misc/displayhelper.h"
-#include "view/rendering/opengl/objectmodelrenderable.hpp"
 
 #include "math.h"
 
@@ -53,7 +52,7 @@ void CorrespondenceViewer::setImage(Image *image) {
 
     currentlyDisplayedImage.reset(new Image(*image));
 
-    ui->openGLWidget->removeObjectModels();
+    ui->openGLWidget->removeCorrespondences();
     ui->buttonResetPosition->setEnabled(true);
 
     qDebug() << "Displaying image (" + currentlyDisplayedImage->getImagePath() + ").";
@@ -74,6 +73,7 @@ void CorrespondenceViewer::setImage(Image *image) {
     ui->openGLWidget->setBackgroundImage(toDisplay, image->getCameraMatrix());
     QList<Correspondence> correspondencesForImage = modelManager->getCorrespondencesForImage(*image);
     for (Correspondence &correspondence : correspondencesForImage) {
+        qDebug() << "Adding object model " + correspondence.getObjectModel()->getPath();
         ui->openGLWidget->addCorrespondence(correspondence);
     }
 }
@@ -90,14 +90,14 @@ void CorrespondenceViewer::connectModelManagerSlots() {
 
 void CorrespondenceViewer::reset() {
     qDebug() << "Resetting correspondence viewer.";
-    ui->openGLWidget->removeObjectModels();
+    ui->openGLWidget->removeCorrespondences();
     ui->buttonResetPosition->setEnabled(false);
     ui->buttonSwitchView->setEnabled(false);
 }
 
 void CorrespondenceViewer::visualizeLastClickedPosition(int correspondencePointIndex) {
     Q_ASSERT(correspondencePointIndex >= 0);
-    // TODO: show clicks on open gl widget
+    ui->openGLWidget->addClickedPoint(lastClickedPosition);
 }
 
 void CorrespondenceViewer::onCorrespondenceCreationAborted() {
@@ -116,8 +116,8 @@ void CorrespondenceViewer::onCorrespondencePointStarted(QPoint point2D,
     visualizeLastClickedPosition(currentNumberOfPoints);
 }
 
-void CorrespondenceViewer::onCorrespondenceUpdate(Correspondence *correspondence){
-    // TODO: update correspondence
+void CorrespondenceViewer::onCorrespondenceUpdated(Correspondence *correspondence){
+    ui->openGLWidget->updateCorrespondence(*correspondence);
 }
 
 void CorrespondenceViewer::onOpacityForObjectModelsChanged(int opacity) {

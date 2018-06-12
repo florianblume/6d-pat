@@ -53,7 +53,10 @@
 #include <QImage>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include <QTimer>
 #include <QMouseEvent>
+#include <QThread>
+#include <QApplication>
 
 #define PROGRAM_VERTEX_ATTRIBUTE 0
 #define PROGRAM_TEXCOORD_ATTRIBUTE 1
@@ -61,6 +64,9 @@
 
 CorrespondenceViewerGLWidget::CorrespondenceViewerGLWidget(QWidget *parent)
     : QOpenGLWidget(parent) {
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+    //timer->start(1000);
 }
 
 CorrespondenceViewerGLWidget::~CorrespondenceViewerGLWidget()
@@ -102,7 +108,14 @@ void CorrespondenceViewerGLWidget::addCorrespondence(const Correspondence &corre
     update();
 }
 
-void CorrespondenceViewerGLWidget::removeObjectModel(const Correspondence &correspondence) {
+void CorrespondenceViewerGLWidget::updateCorrespondence(const Correspondence &correspondence) {
+    ObjectModelRenderable *renderable = getObjectModelRenderable(correspondence);
+    renderable->setPosition(correspondence.getPosition());
+    renderable->setRotation(correspondence.getRotation());
+    update();
+}
+
+void CorrespondenceViewerGLWidget::removeCorrespondence(const Correspondence &correspondence) {
     for (uint index = 0; index < objectModelRenderables.size(); index++) {
         if (objectModelRenderables[index]->getCorrespondenceId() == correspondence.getID()) {
             objectModelRenderables.remove(index);
@@ -112,7 +125,7 @@ void CorrespondenceViewerGLWidget::removeObjectModel(const Correspondence &corre
     update();
 }
 
-void CorrespondenceViewerGLWidget::removeObjectModels() {
+void CorrespondenceViewerGLWidget::removeCorrespondences() {
     objectModelRenderables.clear();
     update();
 }
@@ -130,11 +143,21 @@ void CorrespondenceViewerGLWidget::setOpacity(float opacity) {
     update();
 }
 
+void CorrespondenceViewerGLWidget::addClickedPoint(const QPoint &click) {
+    clicks.append(click);
+    update();
+}
+
+void CorrespondenceViewerGLWidget::removeClicks() {
+    clicks.clear();
+}
+
 void CorrespondenceViewerGLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
 
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
 
     initializeBackgroundProgram();
@@ -166,7 +189,7 @@ void CorrespondenceViewerGLWidget::initializeObjectProgram() {
 }
 
 void CorrespondenceViewerGLWidget::paintGL()
-{   
+{
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glDisable(GL_BLEND);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -205,6 +228,8 @@ void CorrespondenceViewerGLWidget::paintGL()
         for (ObjectModelRenderablePtr &renderable : objectModelRenderables) {
             QOpenGLVertexArrayObject::Binder vaoBinder(renderable->getVertexArrayObject());
 
+            qDebug() << "Rendering " + renderable->getObjectModel().getPath();
+
             // Light position is fixed.
             objectsProgram->setUniformValue(lightPosLoc, QVector3D(0, 0, 70));
             objectsProgram->setUniformValue(opacityLoc, opacity);
@@ -241,7 +266,10 @@ void CorrespondenceViewerGLWidget::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void CorrespondenceViewerGLWidget::mouseReleaseEvent(QMouseEvent * /* event */)
+void CorrespondenceViewerGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
+    if (!mouseMoved) {
+        addClickedPoint(event->pos());
+    }
     mouseMoved = false;
 }

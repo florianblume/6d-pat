@@ -143,7 +143,7 @@ private:
     // model we can restore the list of all correspondences available for the currently viewed image
     UniquePointer<Image> currentlySelectedImage;
 
-    bool ignoreComboBoxIndexChange = false;
+    bool ignoreValueChanges = false;
 
     void setEnabledCorrespondenceEditorControls(bool enabled);
     void setEnabledAllControls(bool enabled);

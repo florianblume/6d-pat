@@ -108,7 +108,7 @@ namespace OtiatHelper {
         // Combined rotation matrix
         cv::Mat R = R_x * R_y * R_z;
 
-        return R;
+        return R.t();
 
     }
 

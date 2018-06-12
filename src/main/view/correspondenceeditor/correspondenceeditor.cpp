@@ -56,6 +56,7 @@ void CorrespondenceEditor::setEnabledCorrespondenceEditorControls(bool enabled) 
     ui->spinBoxRotationZ->setEnabled(enabled);
     // The next line is the difference to setEnabledAllControls
     ui->buttonRemove->setEnabled(enabled);
+    ui->buttonSave->setEnabled(enabled);
 }
 
 void CorrespondenceEditor::setEnabledAllControls(bool enabled) {
@@ -69,6 +70,7 @@ void CorrespondenceEditor::setEnabledAllControls(bool enabled) {
     ui->buttonRemove->setEnabled(enabled);
     ui->buttonCreate->setEnabled(enabled);
     ui->comboBoxCorrespondence->setEnabled(enabled);
+    ui->buttonSave->setEnabled(enabled);
 }
 
 void CorrespondenceEditor::resetControlsValues() {
@@ -180,7 +182,7 @@ void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(
     QList<Correspondence> correspondences =
             modelManager->getCorrespondencesForImage(*image);
     bool objectModelSet = false;
-    ignoreComboBoxIndexChange = true;
+    ignoreValueChanges = true;
     if (correspondences.size() > 0) {
         ui->comboBoxCorrespondence->setEnabled(true);
         ui->comboBoxCorrespondence->addItem("None");
@@ -198,11 +200,12 @@ void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(
         }
         index++;
     }
-    ignoreComboBoxIndexChange = false;
+    ignoreValueChanges = false;
 }
 
 void CorrespondenceEditor::setCorrespondenceValuesOnControls(Correspondence *correspondence) {
     QVector3D position = correspondence->getPosition();
+    ignoreValueChanges = true;
     ui->spinBoxTranslationX->setValue(position.x());
     ui->spinBoxTranslationY->setValue(position.y());
     ui->spinBoxTranslationZ->setValue(position.z());
@@ -221,6 +224,7 @@ void CorrespondenceEditor::setCorrespondenceValuesOnControls(Correspondence *cor
     ui->spinBoxRotationX->setValue(rotationVector[0]);
     ui->spinBoxRotationY->setValue(rotationVector[1]);
     ui->spinBoxRotationZ->setValue(rotationVector[2]);
+    ignoreValueChanges = false;
 }
 
 void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
@@ -233,10 +237,12 @@ void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
                              ui->spinBoxRotationY->value(),
                              ui->spinBoxRotationZ->value());
         cv::Mat rotMatrix = OtiatHelper::eulerAnglesToRotationMatrix(rotation);
-        QMatrix3x3 qtRotationMatrix = QMatrix3x3(new float[9] {
-            rotMatrix.at<float>(0, 0), rotMatrix.at<float>(0, 1), rotMatrix.at<float>(0, 1),
-            rotMatrix.at<float>(1, 0), rotMatrix.at<float>(1, 1), rotMatrix.at<float>(1, 1),
-            rotMatrix.at<float>(2, 0), rotMatrix.at<float>(2, 1), rotMatrix.at<float>(2, 1)});
+        // Somehow the matrix is transposed.. but transposing yields weird results
+        float values[] = {
+                rotMatrix.at<float>(0, 0), rotMatrix.at<float>(1, 0), rotMatrix.at<float>(2, 0),
+                rotMatrix.at<float>(0, 1), rotMatrix.at<float>(1, 1), rotMatrix.at<float>(2, 1),
+                rotMatrix.at<float>(0, 2), rotMatrix.at<float>(1, 2), rotMatrix.at<float>(2, 2)};
+        QMatrix3x3 qtRotationMatrix = QMatrix3x3(values);
         currentCorrespondence->setRotation(qtRotationMatrix);
         emit correspondenceUpdated(currentCorrespondence.get());
     }
@@ -262,33 +268,43 @@ void CorrespondenceEditor::onButtonRemoveClicked() {
 }
 
 void CorrespondenceEditor::onSpinBoxTranslationXValueChanged(double value) {
-    if (!ignoreComboBoxIndexChange)
+    if (!ignoreValueChanges) {
         updateCurrentlyEditedCorrespondence();
+        ui->buttonSave->setEnabled(true);
+    }
 }
 
 void CorrespondenceEditor::onSpinBoxTranslationYValueChanged(double value) {
-    if (!ignoreComboBoxIndexChange)
+    if (!ignoreValueChanges) {
         updateCurrentlyEditedCorrespondence();
+        ui->buttonSave->setEnabled(true);
+    }
 }
 
 void CorrespondenceEditor::onSpinBoxTranslationZValueChanged(double value) {
-    if (!ignoreComboBoxIndexChange)
+    if (!ignoreValueChanges) {
         updateCurrentlyEditedCorrespondence();
+        ui->buttonSave->setEnabled(true);
+    }
 }
 
 void CorrespondenceEditor::onSpinBoxRotationXValueChanged(double value) {
-    if (!ignoreComboBoxIndexChange)
+    if (!ignoreValueChanges)
         updateCurrentlyEditedCorrespondence();
 }
 
 void CorrespondenceEditor::onSpinBoxRotationYValueChanged(double value) {
-    if (!ignoreComboBoxIndexChange)
+    if (!ignoreValueChanges) {
         updateCurrentlyEditedCorrespondence();
+        ui->buttonSave->setEnabled(true);
+    }
 }
 
 void CorrespondenceEditor::onSpinBoxRotationZValueChanged(double value) {
-    if (!ignoreComboBoxIndexChange)
+    if (!ignoreValueChanges) {
         updateCurrentlyEditedCorrespondence();
+        ui->buttonSave->setEnabled(true);
+    }
 }
 
 void CorrespondenceEditor::onButtonPredictClicked() {
@@ -303,10 +319,11 @@ void CorrespondenceEditor::onButtonSaveClicked() {
     modelManager->updateObjectImageCorrespondence(currentCorrespondence->getID(),
                                                   currentCorrespondence->getPosition(),
                                                   currentCorrespondence->getRotation());
+    ui->buttonSave->setEnabled(false);
 }
 
 void CorrespondenceEditor::onComboBoxCorrespondenceIndexChanged(int index) {
-    if (index < 0 || ignoreComboBoxIndexChange)
+    if (index < 0 || ignoreValueChanges)
         return;
     else if (index == 0) {
         // First index is placeholder
@@ -332,15 +349,16 @@ void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectM
     }
 
     sceneEntity = new Qt3DCore::QEntity(rootEntity);
-    ObjectModelEntity *objectModelRenderable = new ObjectModelEntity(sceneEntity,
+    ObjectModelEntity *objectModelEntity = new ObjectModelEntity(sceneEntity,
                                                                              objectModel,
                                                                              "");
-    Qt3DExtras::QPhongMaterial *phongMaterial = new Qt3DExtras::QPhongMaterial(objectModelRenderable);
+    Qt3DExtras::QPhongMaterial *phongMaterial = new Qt3DExtras::QPhongMaterial(objectModelEntity);
     phongMaterial->setAmbient(QColor(100, 100, 100, 255));
-    objectModelRenderable->addComponent(phongMaterial);
-    objectPicker = new Qt3DRender::QObjectPicker(objectModelRenderable);
-    objectModelRenderable->addComponent(objectPicker);
-    connect(objectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)), this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
+    objectModelEntity->addComponent(phongMaterial);
+    objectPicker = new Qt3DRender::QObjectPicker(objectModelEntity);
+    objectModelEntity->addComponent(objectPicker);
+    connect(objectPicker, SIGNAL(pressed(Qt3DRender::QPickEvent*)),
+            this, SLOT(objectPickerClicked(Qt3DRender::QPickEvent*)));
 }
 
 void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {

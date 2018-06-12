@@ -6,7 +6,7 @@ int main(int argc, char *argv[]) {
     MainController m(argc, argv);
 
     QSurfaceFormat format;
-    format.setDepthBufferSize(32);
+    format.setDepthBufferSize(24);
     format.setSamples(8);
     QSurfaceFormat::setDefaultFormat(format);
 

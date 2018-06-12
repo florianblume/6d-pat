@@ -64,6 +64,7 @@
 #include <QMatrix4x4>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include <QPolygon>
 
 typedef QSharedPointer<BackgroundImageRenderable> BackgroundImageRenderablePtr;
 typedef QSharedPointer<ObjectModelRenderable> ObjectModelRenderablePtr;
@@ -77,11 +78,14 @@ public:
     explicit CorrespondenceViewerGLWidget(QWidget *parent = 0);
     void setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix);
     void addCorrespondence(const Correspondence &correspondence);
-    void removeObjectModel(const Correspondence &correspondence);
-    void removeObjectModels();
+    void updateCorrespondence(const Correspondence &correspondence);
+    void removeCorrespondence(const Correspondence &correspondence);
+    void removeCorrespondences();
     ObjectModelRenderable *getObjectModelRenderable(
             const Correspondence &correspondence);
     void setOpacity(float opacity);
+    void addClickedPoint(const QPoint &click);
+    void removeClicks();
 
     ~CorrespondenceViewerGLWidget();
 
@@ -116,6 +120,8 @@ private:
     QPoint lastPos;
     bool mouseDown = false;
     bool mouseMoved = false;
+
+    QPolygon clicks;
 
     float farPlane = 2000.f;
     float nearPlane = 100.f;

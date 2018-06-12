@@ -45,8 +45,18 @@ QVector3D ObjectModelRenderable::getPosition() {
     return position;
 }
 
+void ObjectModelRenderable::setPosition(QVector3D position) {
+    this->position = position;
+    computeViewMatrix();
+}
+
 QMatrix3x3 ObjectModelRenderable::getRotation() {
     return rotation;
+}
+
+void ObjectModelRenderable::setRotation(QMatrix3x3 rotation) {
+    this->rotation = rotation;
+    computeViewMatrix();
 }
 
 QOpenGLVertexArrayObject *ObjectModelRenderable::getVertexArrayObject() {

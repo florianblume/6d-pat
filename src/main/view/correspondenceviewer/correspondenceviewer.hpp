@@ -78,7 +78,7 @@ public slots:
     */
     void onCorrespondencePointStarted(QPoint point2D, int currentNumberOfPoints, int minimumNumberOfPoints);
 
-    void onCorrespondenceUpdate(Correspondence *correspondence);
+    void onCorrespondenceUpdated(Correspondence *correspondence);
 
     /*!
      * \brief onOpacityForObjectModelsChanged slot for when the opacity of the object models is changed.

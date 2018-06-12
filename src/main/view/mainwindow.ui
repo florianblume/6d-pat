@@ -1521,6 +1521,7 @@
     <slot>removePositionVisualizations()</slot>
     <slot>onCorrespondenceCreationAborted()</slot>
     <slot>onOpacityForObjectModelsChanged(int)</slot>
+    <slot>onCorrespondenceUpdated(Correspondence*)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1532,6 +1533,7 @@
     <signal>objectModelClickedAt(ObjectModel*,QVector3D)</signal>
     <signal>buttonCreateClicked()</signal>
     <signal>opacityChanged(int)</signal>
+    <signal>correspondenceUpdated(Correspondence*)</signal>
     <slot>reset()</slot>
     <slot>setObjectModel(ObjectModel*)</slot>
     <slot>setObjectModel(int)</slot>
@@ -2013,6 +2015,22 @@
    <signal>opacityChanged(int)</signal>
    <receiver>correspondenceViewer</receiver>
    <slot>onOpacityForObjectModelsChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>correspondenceEditor</sender>
+   <signal>correspondenceUpdated(Correspondence*)</signal>
+   <receiver>correspondenceViewer</receiver>
+   <slot>onCorrespondenceUpdated(Correspondence*)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>675</x>
