@@ -97,7 +97,7 @@ void CorrespondenceViewer::updateOpacity(){
 
 void CorrespondenceViewer::reset() {
     qDebug() << "Resetting correspondence viewer.";
-    ui->openGLWidget->removeCorrespondences();
+    ui->openGLWidget->reset();
     ui->buttonResetPosition->setEnabled(false);
     ui->buttonSwitchView->setEnabled(false);
 }

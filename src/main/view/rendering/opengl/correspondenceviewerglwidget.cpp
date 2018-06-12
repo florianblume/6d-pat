@@ -94,9 +94,11 @@ void CorrespondenceViewerGLWidget::setBackgroundImage(const QString& image, QMat
     this->resize(loadedImage.width(), loadedImage.height());
     clickOverlay->resize(this->size());
     if (!backgroundImageRenderable) {
+        makeCurrent();
         backgroundImageRenderable.reset(new BackgroundImageRenderable(image,
                                                                   PROGRAM_VERTEX_ATTRIBUTE,
                                                                   PROGRAM_TEXCOORD_ATTRIBUTE));
+        doneCurrent();
     } else {
         backgroundImageRenderable->setImage(image);
     }
@@ -166,6 +168,12 @@ void CorrespondenceViewerGLWidget::addClick(QPoint position, QColor color) {
 
 void CorrespondenceViewerGLWidget::removeClicks() {
     clickOverlay->removeClickedPoints();
+}
+
+void CorrespondenceViewerGLWidget::reset() {
+    removeClicks();
+    removeCorrespondences();
+    backgroundImageRenderable.reset();
 }
 
 void CorrespondenceViewerGLWidget::initializeGL()

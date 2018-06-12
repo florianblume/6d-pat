@@ -86,6 +86,7 @@ public:
     void setObjectsOpacity(float opacity);
     void addClick(QPoint position, QColor color);
     void removeClicks();
+    void reset();
 
     ~CorrespondenceViewerGLWidget();
 
