@@ -14,6 +14,7 @@
 #include <QSignalMapper>
 #include <QScopedPointer>
 #include <QtAwesome.h>
+#include <QTimer>
 
 namespace Ui {
 class CorrespondenceViewer;
@@ -84,7 +85,9 @@ public slots:
      * \brief onOpacityForObjectModelsChanged slot for when the opacity of the object models is changed.
      * \param opacity the new opacity of the object models that are displayed
      */
-    void onOpacityForObjectModelsChanged(int opacity);
+    void onOpacityChangeStarted(int opacity);
+
+    void onOpacityChangeEnded();
 
 signals:
     /*!
@@ -104,6 +107,7 @@ private:
 
     // All necessary stuff for 3D
     qreal objectsOpacity = 1.f;
+    QTimer *opacityTimer = 0;
 
     // Store the last clicked position, so that we can visualize it if the user calls the respective
     // function.
@@ -126,6 +130,7 @@ private slots:
     // Private slot listening to model manager
     void onCorrespondenceRemoved(const QString &id);
     void onCorrespondenceAdded(const QString &id);
+    void updateOpacity();
 };
 
 #endif // CORRESPONDENCEEDITOR_H

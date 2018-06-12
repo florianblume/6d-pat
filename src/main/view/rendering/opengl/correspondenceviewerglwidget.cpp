@@ -83,6 +83,9 @@ CorrespondenceViewerGLWidget::CorrespondenceViewerGLWidget(QWidget *parent)
 CorrespondenceViewerGLWidget::~CorrespondenceViewerGLWidget()
 {
     makeCurrent();
+    // To invoke destructors
+    backgroundImageRenderable.reset(0);
+    removeCorrespondences();
     doneCurrent();
 }
 
@@ -113,10 +116,12 @@ void CorrespondenceViewerGLWidget::setBackgroundImage(const QString& image, QMat
 }
 
 void CorrespondenceViewerGLWidget::addCorrespondence(const Correspondence &correspondence) {
+    makeCurrent();
     ObjectModelRenderablePtr renderable(new ObjectModelRenderable(correspondence,
                                                                   PROGRAM_VERTEX_ATTRIBUTE,
                                                                   PROGRAM_NORMAL_ATTRIBUTE));
     objectModelRenderables.append(renderable);
+    doneCurrent();
     update();
 }
 
@@ -150,7 +155,7 @@ ObjectModelRenderable *CorrespondenceViewerGLWidget::getObjectModelRenderable(co
     }
 }
 
-void CorrespondenceViewerGLWidget::setOpacity(float opacity) {
+void CorrespondenceViewerGLWidget::setObjectsOpacity(float opacity) {
     this->opacity = opacity;
     update();
 }
@@ -238,8 +243,6 @@ void CorrespondenceViewerGLWidget::paintGL()
 
         for (ObjectModelRenderablePtr &renderable : objectModelRenderables) {
             QOpenGLVertexArrayObject::Binder vaoBinder(renderable->getVertexArrayObject());
-
-            qDebug() << "Rendering " + renderable->getObjectModel().getPath();
 
             // Light position is fixed.
             objectsProgram->setUniformValue(lightPosLoc, QVector3D(0, 0, 70));

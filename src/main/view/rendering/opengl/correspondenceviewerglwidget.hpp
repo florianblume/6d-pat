@@ -83,7 +83,7 @@ public:
     void removeCorrespondences();
     ObjectModelRenderable *getObjectModelRenderable(
             const Correspondence &correspondence);
-    void setOpacity(float opacity);
+    void setObjectsOpacity(float opacity);
     void addClick(QPoint position, QColor color);
     void removeClicks();
 

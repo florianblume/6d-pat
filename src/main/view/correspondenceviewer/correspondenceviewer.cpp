@@ -91,6 +91,10 @@ void CorrespondenceViewer::connectModelManagerSlots() {
     connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(reset()));
 }
 
+void CorrespondenceViewer::updateOpacity(){
+    ui->openGLWidget->setObjectsOpacity(objectsOpacity);
+}
+
 void CorrespondenceViewer::reset() {
     qDebug() << "Resetting correspondence viewer.";
     ui->openGLWidget->removeCorrespondences();
@@ -124,9 +128,17 @@ void CorrespondenceViewer::onCorrespondenceUpdated(Correspondence *correspondenc
     ui->openGLWidget->updateCorrespondence(*correspondence);
 }
 
-void CorrespondenceViewer::onOpacityForObjectModelsChanged(int opacity) {
+void CorrespondenceViewer::onOpacityChangeStarted(int opacity) {
     objectsOpacity = opacity / 100.f;
-    ui->openGLWidget->setOpacity(objectsOpacity);
+    opacityTimer = new QTimer();
+    connect(opacityTimer, SIGNAL(timeout()), this, SLOT(updateOpacity()));
+    // Update opacity only every 30 ms
+    opacityTimer->start(30);
+}
+
+void CorrespondenceViewer::onOpacityChangeEnded() {
+    opacityTimer->stop();
+    delete opacityTimer;
 }
 
 void CorrespondenceViewer::switchImage() {

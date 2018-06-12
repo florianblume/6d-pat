@@ -1095,6 +1095,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>sliderOpacity</sender>
+   <signal>sliderReleased()</signal>
+   <receiver>CorrespondenceEditor</receiver>
+   <slot>onSliderOpacityReleased()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>541</x>
+     <y>247</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onButtonCreateClicked()</slot>
@@ -1108,5 +1124,6 @@
   <slot>onSpinBoxTranslationZValueChanged(double)</slot>
   <slot>onButtonRemoveClicked()</slot>
   <slot>onButtonSaveClicked()</slot>
+  <slot>onSliderOpacityReleased()</slot>
  </slots>
 </ui>

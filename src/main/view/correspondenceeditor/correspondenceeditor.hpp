@@ -109,7 +109,9 @@ signals:
 
     void correspondenceUpdated(Correspondence *correspondence);
 
-    void opacityChanged(int opacity);
+    void opacityChangeStarted(int opacity);
+
+    void opacityChangeEnded();
 
 private:
     Ui::CorrespondenceEditor *ui;
@@ -201,6 +203,8 @@ private slots:
     void onComboBoxCorrespondenceIndexChanged(int index);
 
     void onSliderOpacityValueChanged(int value);
+
+    void onSliderOpacityReleased();
 
 };
 

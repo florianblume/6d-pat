@@ -339,7 +339,11 @@ void CorrespondenceEditor::onComboBoxCorrespondenceIndexChanged(int index) {
 }
 
 void CorrespondenceEditor::onSliderOpacityValueChanged(int value) {
-    emit opacityChanged(value);
+    emit opacityChangeStarted(value);
+}
+
+void CorrespondenceEditor::onSliderOpacityReleased() {
+    emit opacityChangeEnded();
 }
 
 void CorrespondenceEditor::setObjectModelOnGraphicsWindow(const QString &objectModel) {
