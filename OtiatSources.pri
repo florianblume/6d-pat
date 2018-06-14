@@ -27,12 +27,13 @@ SOURCES += \
     $$PWD/src/main/controller/correspondencecreator.cpp \
     $$PWD/src/main/misc/scripting/pythonscriptingengine.cpp \
     $$PWD/src/main/model/jsonloadandstorestrategy.cpp \
-    $$PWD/src/main/view/rendering/qt3d/objectmodelentity.cpp \
     $$PWD/src/main/view/rendering/opengl/backgroundimagerenderable.cpp \
-    $$PWD/src/main/view/rendering/opengl/objectmodelrenderable.cpp \
     $$PWD/src/main/model/correspondence.cpp \
     $$PWD/src/main/view/rendering/opengl/correspondenceviewerglwidget.cpp \
-    $$PWD/src/main/view/rendering/opengl/clickvisualizationoverlay.cpp
+    $$PWD/src/main/view/rendering/opengl/clickvisualizationoverlay.cpp \
+    $$PWD/src/main/view/rendering/opengl/correspondenceeditorglwidget.cpp \
+    $$PWD/src/main/view/rendering/opengl/correspondencerenderable.cpp \
+    $$PWD/src/main/view/rendering/opengl/objectmodelrenderable.cpp
 
 HEADERS  += \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
@@ -61,12 +62,13 @@ HEADERS  += \
     $$PWD/src/main/misc/scripting/pythonscriptingengine.h \
     $$PWD/src/main/view/misc/displayhelper.h \
     $$PWD/src/main/model/jsonloadandstorestrategy.hpp \
-    $$PWD/src/main/view/rendering/qt3d/objectmodelentity.hpp \
     $$PWD/src/main/view/rendering/opengl/backgroundimagerenderable.hpp \
-    $$PWD/src/main/view/rendering/opengl/objectmodelrenderable.hpp \
     $$PWD/src/main/model/correspondence.hpp \
     $$PWD/src/main/view/rendering/opengl/correspondenceviewerglwidget.hpp \
-    $$PWD/src/main/view/rendering/opengl/clickvisualizationoverlay.hpp
+    $$PWD/src/main/view/rendering/opengl/clickvisualizationoverlay.hpp \
+    $$PWD/src/main/view/rendering/opengl/correspondenceeditorglwidget.hpp \
+    $$PWD/src/main/view/rendering/opengl/correspondencerenderable.hpp \
+    $$PWD/src/main/view/rendering/opengl/objectmodelrenderable.h
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

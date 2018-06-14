@@ -73,12 +73,11 @@ void CorrespondenceViewer::setImage(Image *image) {
     }
     QString toDisplay = showingNormalImage ?  currentlyDisplayedImage->getAbsoluteImagePath() :
                                     currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
-    ui->openGLWidget->setBackgroundImage(toDisplay, image->getCameraMatrix());
     QList<Correspondence> correspondencesForImage = modelManager->getCorrespondencesForImage(*image);
-    for (Correspondence &correspondence : correspondencesForImage) {
-        qDebug() << "Adding object model " + correspondence.getObjectModel()->getPath();
-        ui->openGLWidget->addCorrespondence(correspondence);
-    }
+    ui->openGLWidget->setBackgroundImageAndCorrespondences(toDisplay,
+                                                           image->getCameraMatrix(),
+                                                           correspondencesForImage);
+
 }
 
 void CorrespondenceViewer::connectModelManagerSlots() {
@@ -130,15 +129,22 @@ void CorrespondenceViewer::onCorrespondenceUpdated(Correspondence *correspondenc
 
 void CorrespondenceViewer::onOpacityChangeStarted(int opacity) {
     objectsOpacity = opacity / 100.f;
-    opacityTimer = new QTimer();
-    connect(opacityTimer, SIGNAL(timeout()), this, SLOT(updateOpacity()));
-    // Update opacity only every 30 ms
-    opacityTimer->start(30);
+    if (!opacityTimer) {
+        opacityTimer = new QTimer();
+        connect(opacityTimer, SIGNAL(timeout()), this, SLOT(updateOpacity()));
+        // Update opacity only every 30 ms
+        opacityTimer->start(30);
+    }
 }
 
 void CorrespondenceViewer::onOpacityChangeEnded() {
-    opacityTimer->stop();
-    delete opacityTimer;
+    if (opacityTimer) {
+        // Sometimes the timer is delete already...
+        opacityTimer->stop();
+        disconnect(opacityTimer, SIGNAL(timeout()), this, SLOT(updateOpacity()));
+        delete opacityTimer;
+        opacityTimer = 0;
+    }
 }
 
 void CorrespondenceViewer::switchImage() {

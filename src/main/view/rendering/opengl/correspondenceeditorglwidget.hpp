@@ -2,7 +2,6 @@
 #define GLWIDGET_H
 
 #include "model/correspondence.hpp"
-#include "view/rendering/opengl/backgroundimagerenderable.hpp"
 #include "view/rendering/opengl/correspondencerenderable.hpp"
 #include "view/rendering/opengl/clickvisualizationoverlay.hpp"
 
@@ -18,20 +17,15 @@
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
 
-typedef QSharedPointer<BackgroundImageRenderable> BackgroundImageRenderablePtr;
 typedef QSharedPointer<CorrespondenceRenderable> ObjectModelRenderablePtr;
 typedef QSharedPointer<QOpenGLShaderProgram> QOpenGLShaderProgramPtr;
 
-class CorrespondenceViewerGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class CorrespondenceEditorGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 
 public:
-    explicit CorrespondenceViewerGLWidget(QWidget *parent = 0);
-    void setBackgroundImageAndCorrespondences(const QString& image,
-                                              QMatrix3x3 cameraMatrix,
-                                              QList<Correspondence> &correspondences);
-    void setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix);
+    explicit CorrespondenceEditorGLWidget(QWidget *parent = 0);
     void addCorrespondence(const Correspondence &correspondence);
     void updateCorrespondence(const Correspondence &correspondence);
     void removeCorrespondence(const Correspondence &correspondence);
@@ -43,7 +37,7 @@ public:
     void removeClicks();
     void reset();
 
-    ~CorrespondenceViewerGLWidget();
+    ~CorrespondenceEditorGLWidget();
 
 signals:
     void positionClicked(QPoint position);
@@ -57,18 +51,12 @@ protected:
 
 private:
 
-    void setBackgroundImage(const QString& image,
-                            QMatrix3x3 cameraMatrix,
-                            bool update);
     void addCorrespondence(const Correspondence &correspondence, bool update);
 
     void initializeBackgroundProgram();
     void initializeObjectProgram();
 
     // Background stuff
-    BackgroundImageRenderablePtr backgroundImageRenderable;
-    QOpenGLShaderProgramPtr backgroundProgram;
-    QMatrix4x4 backgroundProjectionMatrix;
 
     QVector<ObjectModelRenderablePtr> objectModelRenderables;
     QOpenGLShaderProgramPtr objectsProgram;

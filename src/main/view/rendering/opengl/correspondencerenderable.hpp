@@ -14,16 +14,21 @@
 #include <QMatrix3x3>
 #include <QMatrix4x4>
 
-class ObjectModelRenderable
+//!
+//! \brief The CorrespondenceRenderable class is only an object model renderable
+//! essentially (i.e. displays an object model) but takes in a correspondence
+//! to compute the position of the object according to the correspondence.
+//!
+class CorrespondenceRenderable
 {
 public:
-    ObjectModelRenderable(const Correspondence &correspondence,
+    CorrespondenceRenderable(const Correspondence &correspondence,
                           int vertexAttributeLoc,
                           int normalAttributeLoc);
     QOpenGLVertexArrayObject *getVertexArrayObject();
     QString getCorrespondenceId();
     int getIndicesCount();
-    QMatrix4x4 getViewMatrix();
+    QMatrix4x4 getModelViewMatrix();
     ObjectModel getObjectModel();
     QVector3D getPosition();
     void setPosition(QVector3D position);
@@ -31,7 +36,7 @@ public:
     void setRotation(QMatrix3x3 rotation);
 
     // To retrieve the respective renderable
-    bool operator==(const ObjectModelRenderable &other);
+    bool operator==(const CorrespondenceRenderable &other);
 
 private:
     QString correspondenceId;
@@ -48,9 +53,9 @@ private:
     QVector<GLuint> indices;
     int vertexAttributeLoc = 0;
     int normalAttributeLoc = 0;
-    QMatrix4x4 viewMatrix;
+    QMatrix4x4 viewModelMatrix;
 
-    void computeViewMatrix();
+    void computeModelViewMatrix();
     void processMesh(aiMesh *mesh);
     void populateVertexArrayObject();
 };

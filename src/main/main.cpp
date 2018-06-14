@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
     format.setStencilBufferSize(8);
-    format.setSamples(8);
+    format.setSamples(4);
     QSurfaceFormat::setDefaultFormat(format);
 
     //! in this order so that the user sees something already and then load entities

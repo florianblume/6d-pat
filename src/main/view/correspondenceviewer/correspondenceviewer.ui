@@ -82,9 +82,9 @@
         <widget class="CorrespondenceViewerGLWidget" name="openGLWidget">
          <property name="geometry">
           <rect>
-           <x>70</x>
-           <y>50</y>
-           <width>300</width>
+           <x>120</x>
+           <y>40</y>
+           <width>201</width>
            <height>200</height>
           </rect>
          </property>
