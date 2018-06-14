@@ -51,6 +51,10 @@ protected:
 
 private:
 
+    void setXRotation(int angle);
+    void setYRotation(int angle);
+    void setZRotation(int angle);
+
     void addCorrespondence(const Correspondence &correspondence, bool update);
 
     void initializeBackgroundProgram();
@@ -67,6 +71,10 @@ private:
     // Matrix created from the intrinsic camera parameters
     QMatrix4x4 projectionMatrix;
     float opacity = 1.f;
+
+    int xRot;
+    int yRot;
+    int zRot;
 
     // To handle dragging of the widget and clicking
     QPoint lastPos;

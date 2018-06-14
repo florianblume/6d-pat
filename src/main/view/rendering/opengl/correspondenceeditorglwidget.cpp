@@ -1,6 +1,7 @@
 
 #include "view/rendering/opengl/correspondenceeditorglwidget.hpp"
 
+#include <cmath>
 #include <QFrame>
 #include <QImage>
 #include <QOpenGLExtraFunctions>
@@ -17,7 +18,10 @@
 #define PROGRAM_NORMAL_ATTRIBUTE 1
 
 CorrespondenceEditorGLWidget::CorrespondenceEditorGLWidget(QWidget *parent)
-    : QOpenGLWidget(parent) {
+    : QOpenGLWidget(parent),
+      xRot(0),
+      yRot(0),
+      zRot(0) {
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     //timer->start(1000);
@@ -38,6 +42,40 @@ CorrespondenceEditorGLWidget::~CorrespondenceEditorGLWidget()
     // To invoke destructors
     removeCorrespondences();
     doneCurrent();
+}
+
+static void qNormalizeAngle(int &angle) {
+    while (angle < 0)
+        angle += 360 * 16;
+    while (angle > 360 * 16)
+        angle -= 360 * 16;
+}
+
+void CorrespondenceEditorGLWidget::setXRotation(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != xRot) {
+        xRot = angle;
+        update();
+    }
+}
+
+void CorrespondenceEditorGLWidget::setYRotation(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != yRot) {
+        yRot = angle;
+        update();
+    }
+}
+
+void CorrespondenceEditorGLWidget::setZRotation(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != zRot) {
+        zRot = angle;
+        update();
+    }
 }
 
 void CorrespondenceEditorGLWidget::addCorrespondence(const Correspondence &correspondence) {
@@ -138,14 +176,16 @@ void CorrespondenceEditorGLWidget::paintGL()
             // Compute the projection matrix that includes the intrinsic camera parameters
             // as well as the translation and rotation of the object
             //QMatrix4x4 modelViewMatrix = renderable->getModelViewMatrix();
-            QMatrix4x4 modelViewMatrix;
-            modelViewMatrix.setToIdentity();
-            int w = width();
-            int h = height();
-            modelViewMatrix.translate(QVector3D(0, 0, -100));
+            QMatrix4x4 modelMatrix;
+            modelMatrix.setToIdentity();
+            modelMatrix.rotate(180.0f - (xRot / 16.0f), 1, 0, 0);
+            modelMatrix.rotate(yRot / 16.0f, 0, 1, 0);
+            modelMatrix.rotate(zRot / 16.0f, 0, 0, 1);
+            QMatrix4x4 viewMatrix;
+            viewMatrix.translate(QVector3D(0, 0, -100));
             projectionMatrix.setToIdentity();
             projectionMatrix.perspective(45.f, width() / (float) height(), 1.f, 500.f);
-            QMatrix4x4 modelViewProjectionMatrix = projectionMatrix * modelViewMatrix;
+            QMatrix4x4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
             //modelViewProjectionMatrix = modelViewProjectionMatrix.transposed();
             /*
             modelViewProjectionMatrix = QMatrix4x4(
@@ -168,6 +208,7 @@ void CorrespondenceEditorGLWidget::paintGL()
                         */
             objectsProgram->setUniformValue(projectionMatrixLoc, modelViewProjectionMatrix);
 
+            QMatrix4x4 modelViewMatrix = viewMatrix * modelMatrix;
             QMatrix3x3 normalMatrix = modelViewMatrix.normalMatrix();
             objectsProgram->setUniformValue(normalMatrixLoc, normalMatrix);
 
@@ -179,18 +220,21 @@ void CorrespondenceEditorGLWidget::paintGL()
 
 void CorrespondenceEditorGLWidget::mousePressEvent(QMouseEvent *event)
 {
-    lastPos = event->globalPos() - QPoint(geometry().x(), geometry().y());
+    lastPos = event->pos();
 }
 
 void CorrespondenceEditorGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
+    int dx = event->x() - lastPos.x();
+    int dy = event->y() - lastPos.y();
+
     if (event->buttons() & Qt::LeftButton) {
-        QPoint newPosition = event->globalPos();
-        newPosition.setX(newPosition.x() - lastPos.x());
-        newPosition.setY(newPosition.y() - lastPos.y());
-        move(newPosition);
-        mouseMoved = true;
+        setXRotation(xRot + 8 * dy);
+        setYRotation(yRot + 8 * dx);
+    } else if (event->buttons() & Qt::RightButton) {
+        setZRotation(zRot + 8 * dx);
     }
+    lastPos = event->pos();
 }
 
 void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
