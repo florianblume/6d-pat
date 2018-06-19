@@ -7,11 +7,7 @@
 #include <QOpenGLExtraFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
-#include <QTimer>
 #include <QMouseEvent>
-#include <QThread>
-#include <QApplication>
-#include <QPainter>
 
 #define PROGRAM_VERTEX_ATTRIBUTE 0
 #define PROGRAM_TEXCOORD_ATTRIBUTE 1
@@ -22,25 +18,28 @@ CorrespondenceEditorGLWidget::CorrespondenceEditorGLWidget(QWidget *parent)
       xRot(0),
       yRot(0),
       zRot(0) {
-    QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-    //timer->start(1000);
 
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
     format.setStencilBufferSize(8);
     format.setSamples(4);
     setFormat(format);
+}
 
-    clickOverlay = new ClickVisualizationOverlay(this);
-    clickOverlay->resize(this->size());
+void CorrespondenceEditorGLWidget::setObjectModel(const ObjectModel *objectModel) {
+    makeCurrent();
+    objectModelRenderable.reset(new ObjectModelRenderable(*objectModel,
+                                                          PROGRAM_VERTEX_ATTRIBUTE,
+                                                          PROGRAM_NORMAL_ATTRIBUTE));
+    doneCurrent();
+    update();
 }
 
 CorrespondenceEditorGLWidget::~CorrespondenceEditorGLWidget()
 {
     makeCurrent();
     // To invoke destructors
-    removeCorrespondences();
+    objectModelRenderable.reset();
     doneCurrent();
 }
 
@@ -78,56 +77,18 @@ void CorrespondenceEditorGLWidget::setZRotation(int angle)
     }
 }
 
-void CorrespondenceEditorGLWidget::addCorrespondence(const Correspondence &correspondence) {
-    addCorrespondence(correspondence, true);
-}
-
-void CorrespondenceEditorGLWidget::updateCorrespondence(const Correspondence &correspondence) {
-    CorrespondenceRenderable *renderable = getObjectModelRenderable(correspondence);
-    renderable->setPosition(correspondence.getPosition());
-    renderable->setRotation(correspondence.getRotation());
-    update();
-}
-
-void CorrespondenceEditorGLWidget::removeCorrespondence(const Correspondence &correspondence) {
-    for (uint index = 0; index < objectModelRenderables.size(); index++) {
-        if (objectModelRenderables[index]->getCorrespondenceId() == correspondence.getID()) {
-            objectModelRenderables.remove(index);
-            break;
-        }
-    }
-    update();
-}
-
-void CorrespondenceEditorGLWidget::removeCorrespondences() {
-    objectModelRenderables.clear();
-    update();
-}
-
-CorrespondenceRenderable *CorrespondenceEditorGLWidget::getObjectModelRenderable(const Correspondence &correspondence) {
-    for (ObjectModelRenderablePtr &ptr : objectModelRenderables) {
-        if (ptr->getCorrespondenceId() == correspondence.getID()) {
-            return ptr.data();
-        }
-    }
-}
-
-void CorrespondenceEditorGLWidget::setObjectsOpacity(float opacity) {
-    this->opacity = opacity;
-    update();
-}
-
-void CorrespondenceEditorGLWidget::addClick(QPoint position, QColor color) {
-    clickOverlay->addClickedPoint(position, color);
+void CorrespondenceEditorGLWidget::addClick(QVector3D position, QColor color) {
+    // TODO: add sphere
 }
 
 void CorrespondenceEditorGLWidget::removeClicks() {
-    clickOverlay->removeClickedPoints();
+    // TODO: remove spheres
 }
 
 void CorrespondenceEditorGLWidget::reset() {
     removeClicks();
-    removeCorrespondences();
+    objectModelRenderable.reset();
+    update();
 }
 
 void CorrespondenceEditorGLWidget::initializeGL()
@@ -144,10 +105,11 @@ void CorrespondenceEditorGLWidget::initializeGL()
 void CorrespondenceEditorGLWidget::initializeObjectProgram() {
     // Init objects shader program
     objectsProgram.reset(new QOpenGLShaderProgram);
+    // TODO: load custom shader that writes segmentations as well for clicking
     objectsProgram->addShaderFromSourceFile(
-                QOpenGLShader::Vertex, ":/shaders/correspondenceviewer/object.vert");
+                QOpenGLShader::Vertex, ":/shaders/correspondenceeditor/object.vert");
     objectsProgram->addShaderFromSourceFile(
-                QOpenGLShader::Fragment, ":/shaders/correspondenceviewer/object.frag");
+                QOpenGLShader::Fragment, ":/shaders/correspondenceeditor/object.frag");
     objectsProgram->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
     objectsProgram->bindAttributeLocation("normal", PROGRAM_NORMAL_ATTRIBUTE);
     objectsProgram->link();
@@ -159,100 +121,105 @@ void CorrespondenceEditorGLWidget::paintGL()
     glDisable(GL_BLEND);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    objectsProgram->bind();
-    {
-        projectionMatrixLoc = objectsProgram->uniformLocation("projectionMatrix");
-        normalMatrixLoc = objectsProgram->uniformLocation("normalMatrix");
-        lightPosLoc = objectsProgram->uniformLocation("lightPos");
-        opacityLoc = objectsProgram->uniformLocation("opacity");
+    QOpenGLExtraFunctions* f = QOpenGLContext::currentContext()->extraFunctions();
+    // Also draw segmentation color
+    GLenum bufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    f->glDrawBuffers(2, bufs);
 
-        for (ObjectModelRenderablePtr &renderable : objectModelRenderables) {
-            QOpenGLVertexArrayObject::Binder vaoBinder(renderable->getVertexArrayObject());
+    if (!objectModelRenderable.isNull()) {
+        objectsProgram->bind();
+        {
+            modelViewProjectionMatrixLoc = objectsProgram->uniformLocation("projectionMatrix");
+            normalMatrixLoc = objectsProgram->uniformLocation("normalMatrix");
+            lightPosLoc = objectsProgram->uniformLocation("lightPos");
+            segmentationColorLoc = objectsProgram->uniformLocation("segmentationColor");
+
+            QOpenGLVertexArrayObject::Binder vaoBinder(
+                        objectModelRenderable->getVertexArrayObject());
 
             // Light position is fixed.
             objectsProgram->setUniformValue(lightPosLoc, QVector3D(0, 10, 70));
-            objectsProgram->setUniformValue(opacityLoc, opacity);
+            objectsProgram->setUniformValue(segmentationColorLoc, segmentationColor);
 
-            // Compute the projection matrix that includes the intrinsic camera parameters
-            // as well as the translation and rotation of the object
-            //QMatrix4x4 modelViewMatrix = renderable->getModelViewMatrix();
-            QMatrix4x4 modelMatrix;
             modelMatrix.setToIdentity();
             modelMatrix.rotate(180.0f - (xRot / 16.0f), 1, 0, 0);
             modelMatrix.rotate(yRot / 16.0f, 0, 1, 0);
             modelMatrix.rotate(zRot / 16.0f, 0, 0, 1);
-            QMatrix4x4 viewMatrix;
-            viewMatrix.translate(QVector3D(0, 0, -100));
+            viewMatrix.setToIdentity();
+            viewMatrix.translate(QVector3D(0, 0, -4 * objectModelRenderable->getLargestVertexValue()));
             projectionMatrix.setToIdentity();
-            projectionMatrix.perspective(45.f, width() / (float) height(), 1.f, 500.f);
+            projectionMatrix.perspective(45.f, width() / (float) height(), nearPlane, farPlane);
             QMatrix4x4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
-            //modelViewProjectionMatrix = modelViewProjectionMatrix.transposed();
-            /*
-            modelViewProjectionMatrix = QMatrix4x4(
-                        2.13295f,
-                        0.f,
-                        0.0f,
-                        0.0f,
-                        0.f,
-                        2.41421f,
-                        0.0f,
-                        0.0f,
-                        0.0f,
-                        0.0f,
-                        -1.2222f,
-                        -1.0f,
-                        0.0f,
-                        0.0f,
-                        5.f,
-                        20.f);
-                        */
-            objectsProgram->setUniformValue(projectionMatrixLoc, modelViewProjectionMatrix);
+            objectsProgram->setUniformValue(modelViewProjectionMatrixLoc, modelViewProjectionMatrix);
 
             QMatrix4x4 modelViewMatrix = viewMatrix * modelMatrix;
             QMatrix3x3 normalMatrix = modelViewMatrix.normalMatrix();
             objectsProgram->setUniformValue(normalMatrixLoc, normalMatrix);
 
-            glDrawElements(GL_TRIANGLES, renderable->getIndicesCount(), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, objectModelRenderable->getIndicesCount(), GL_UNSIGNED_INT, 0);
         }
+        objectsProgram->release();
     }
-    objectsProgram->release();
 }
 
 void CorrespondenceEditorGLWidget::mousePressEvent(QMouseEvent *event)
 {
-    lastPos = event->pos();
+    lastClicked2DPos = event->pos();
 }
 
 void CorrespondenceEditorGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    int dx = event->x() - lastPos.x();
-    int dy = event->y() - lastPos.y();
+    int dx = event->x() - lastClicked2DPos.x();
+    int dy = event->y() - lastClicked2DPos.y();
 
     if (event->buttons() & Qt::LeftButton) {
         setXRotation(xRot + 8 * dy);
         setYRotation(yRot + 8 * dx);
+        mouseMoved = true;
     } else if (event->buttons() & Qt::RightButton) {
         setZRotation(zRot + 8 * dx);
+        mouseMoved = true;
     }
-    lastPos = event->pos();
+    lastClicked2DPos = event->pos();
 }
 
 void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (!mouseMoved) {
-        emit positionClicked(event->pos());
+        makeCurrent();
+
+        QOpenGLContext *context = QOpenGLContext::currentContext();
+
+        QOpenGLFramebufferObjectFormat format;
+        format.setSamples(0);
+        format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+        swapBuffer = new QOpenGLFramebufferObject(size(), format);
+        swapBuffer->addColorAttachment(size());
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, defaultFramebufferObject());
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, swapBuffer->handle());
+        context->extraFunctions()->glBlitFramebuffer(0, 0, width(), height(),
+                                                     0, 0, swapBuffer->width(), swapBuffer->height(),
+                                                     GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT,
+                                                     GL_NEAREST);
+
+        swapBuffer->bind(); // must rebind, otherwise it won't work!
+        // Read depth
+        float mouseDepth = 0;
+        glReadPixels(event->pos().x(), event->pos().y(), 1, 1,
+                     GL_DEPTH_COMPONENT, GL_FLOAT, &mouseDepth);
+        float depth = 2.0 * mouseDepth - 1.0;
+        depth = 2.0 * nearPlane * farPlane / (farPlane + nearPlane - depth * (farPlane - nearPlane));
+        qDebug() << depth;
+        glReadBuffer(GL_COLOR_ATTACHMENT1);
+        GLuint clickColor;
+        glReadPixels(event->pos().x(), event->pos().y(), 1, 1,
+                     GL_RGB, GL_UNSIGNED_BYTE, &clickColor);
+        qDebug() << clickColor;
+        swapBuffer->release();
+        delete swapBuffer;
+
+        doneCurrent();
     }
     mouseMoved = false;
-}
-
-void CorrespondenceEditorGLWidget::addCorrespondence(const Correspondence &correspondence,
-                                                     bool update) {
-    makeCurrent();
-    ObjectModelRenderablePtr renderable(new CorrespondenceRenderable(correspondence,
-                                                                  PROGRAM_VERTEX_ATTRIBUTE,
-                                                                  PROGRAM_NORMAL_ATTRIBUTE));
-    objectModelRenderables.append(renderable);
-    doneCurrent();
-    if (update)
-        this->update();
 }

@@ -246,7 +246,7 @@ void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
     // This also disables controls and resets their values
     ui->comboBoxCorrespondence->setCurrentIndex(0);
     currentObjectModel.reset(new ObjectModel(*objectModel));
-    //ui->openGLWidget->setObjectModel(objectModel);
+    ui->openGLWidget->setObjectModel(objectModel);
 }
 
 void CorrespondenceEditor::onSelectedImageChanged(int index) {
@@ -270,8 +270,7 @@ void CorrespondenceEditor::setCorrespondenceToEdit(Correspondence *correspondenc
     currentObjectModel.reset(new ObjectModel(*correspondence->getObjectModel()));
     setEnabledCorrespondenceEditorControls(true);
     setCorrespondenceValuesOnControls(correspondence);
-    QList<Correspondence> correspondences({*correspondence});
-    ui->openGLWidget->addCorrespondence(*correspondence);
+    ui->openGLWidget->setObjectModel(correspondence->getObjectModel());
 }
 
 void CorrespondenceEditor::removeClickVisualizations(){

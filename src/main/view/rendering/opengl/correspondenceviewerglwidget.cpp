@@ -67,9 +67,9 @@ void CorrespondenceViewerGLWidget::updateCorrespondence(const Correspondence &co
 }
 
 void CorrespondenceViewerGLWidget::removeCorrespondence(const Correspondence &correspondence) {
-    for (uint index = 0; index < objectModelRenderables.size(); index++) {
-        if (objectModelRenderables[index]->getCorrespondenceId() == correspondence.getID()) {
-            objectModelRenderables.remove(index);
+    for (uint index = 0; index < correspondenceRenderables.size(); index++) {
+        if (correspondenceRenderables[index]->getCorrespondenceId() == correspondence.getID()) {
+            correspondenceRenderables.remove(index);
             break;
         }
     }
@@ -77,12 +77,12 @@ void CorrespondenceViewerGLWidget::removeCorrespondence(const Correspondence &co
 }
 
 void CorrespondenceViewerGLWidget::removeCorrespondences() {
-    objectModelRenderables.clear();
+    correspondenceRenderables.clear();
     update();
 }
 
 CorrespondenceRenderable *CorrespondenceViewerGLWidget::getObjectModelRenderable(const Correspondence &correspondence) {
-    for (ObjectModelRenderablePtr &ptr : objectModelRenderables) {
+    for (CorrespondenceRenderablePtr &ptr : correspondenceRenderables) {
         if (ptr->getCorrespondenceId() == correspondence.getID()) {
             return ptr.data();
         }
@@ -185,7 +185,7 @@ void CorrespondenceViewerGLWidget::paintGL()
         lightPosLoc = objectsProgram->uniformLocation("lightPos");
         opacityLoc = objectsProgram->uniformLocation("opacity");
 
-        for (ObjectModelRenderablePtr &renderable : objectModelRenderables) {
+        for (CorrespondenceRenderablePtr &renderable : correspondenceRenderables) {
             QOpenGLVertexArrayObject::Binder vaoBinder(renderable->getVertexArrayObject());
 
             // Light position is fixed.
@@ -264,10 +264,10 @@ void CorrespondenceViewerGLWidget::setBackgroundImage(const QString &image,
 void CorrespondenceViewerGLWidget::addCorrespondence(const Correspondence &correspondence,
                                                      bool update) {
     makeCurrent();
-    ObjectModelRenderablePtr renderable(new CorrespondenceRenderable(correspondence,
+    CorrespondenceRenderablePtr renderable(new CorrespondenceRenderable(correspondence,
                                                                   PROGRAM_VERTEX_ATTRIBUTE,
                                                                   PROGRAM_NORMAL_ATTRIBUTE));
-    objectModelRenderables.append(renderable);
+    correspondenceRenderables.append(renderable);
     doneCurrent();
     if (update)
         this->update();

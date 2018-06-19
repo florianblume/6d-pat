@@ -19,7 +19,7 @@
 #include <QOpenGLFramebufferObject>
 
 typedef QSharedPointer<BackgroundImageRenderable> BackgroundImageRenderablePtr;
-typedef QSharedPointer<CorrespondenceRenderable> ObjectModelRenderablePtr;
+typedef QSharedPointer<CorrespondenceRenderable> CorrespondenceRenderablePtr;
 typedef QSharedPointer<QOpenGLShaderProgram> QOpenGLShaderProgramPtr;
 
 class CorrespondenceViewerGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -70,7 +70,7 @@ private:
     QOpenGLShaderProgramPtr backgroundProgram;
     QMatrix4x4 backgroundProjectionMatrix;
 
-    QVector<ObjectModelRenderablePtr> objectModelRenderables;
+    QVector<CorrespondenceRenderablePtr> correspondenceRenderables;
     QOpenGLShaderProgramPtr objectsProgram;
     int projectionMatrixLoc;
     int normalMatrixLoc;

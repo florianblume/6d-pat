@@ -2,6 +2,7 @@
 
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
+#include <QtGlobal>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
@@ -10,11 +11,11 @@ ObjectModelRenderable::ObjectModelRenderable(const ObjectModel &objectModel,
                                              int normalAttributeLoc) :
     objectModel(objectModel),
     vertexAttributeLoc(vertexAttributeLoc),
-    normalAttributeLoc(normalAttributeLoc) {
+    normalAttributeLoc(normalAttributeLoc),
+    vertexBuffer(QOpenGLBuffer::VertexBuffer),
+    normalBuffer(QOpenGLBuffer::VertexBuffer),
+    indexBuffer(QOpenGLBuffer::IndexBuffer) {
 
-    rotation.setToIdentity();
-    position = QVector3D(0, 0, 0);
-    computeModelMatrix();
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(objectModel.getAbsolutePath().toStdString(),
                                              aiProcess_GenSmoothNormals |
@@ -33,10 +34,6 @@ QOpenGLVertexArrayObject *ObjectModelRenderable::getVertexArrayObject() {
     return &vao;
 }
 
-QMatrix4x4 ObjectModelRenderable::getModelMatrix() {
-    return modelMatrix;
-}
-
 int ObjectModelRenderable::getIndicesCount() {
     return indices.size();
 }
@@ -45,47 +42,11 @@ ObjectModel ObjectModelRenderable::getObjectModel() {
     return objectModel;
 }
 
-QVector3D ObjectModelRenderable::getPosition() {
-    return  position;
-}
-
-void ObjectModelRenderable::setPosition(QVector3D position) {
-    this->position = position;
-    computeModelMatrix();
-}
-
-QMatrix3x3 ObjectModelRenderable::getRotation() {
-    return rotation;
-}
-
-void ObjectModelRenderable::setRotation(QMatrix3x3 rotation) {
-    this->rotation = rotation;
-    computeModelMatrix();
+float ObjectModelRenderable::getLargestVertexValue() {
+    return largestVertexValue;
 }
 
 // Private functions from here
-
-void ObjectModelRenderable::computeModelMatrix() {
-    float values[9] = {0.9981328845024109f,
-                       -0.01055908389389515f,
-                       0.06016005948185921f,
-                       -0.004781095311045647f,
-                       -0.9954285025596619f,
-                       -0.09538961946964264f,
-                       0.060892269015312195f,
-                       0.09492388367652893f,
-                       -0.9936204552650452f};
-    QMatrix3x3 _rotation(values);
-    modelMatrix = QMatrix4x4(_rotation);
-    modelMatrix(0, 3) = -3.08480f;
-    modelMatrix(1, 3) = 55.662601f;
-    modelMatrix(2, 3) = 595.96228027f;
-    QMatrix4x4 yz_flip;
-    yz_flip.setToIdentity();
-    yz_flip(1, 1) = -1;
-    yz_flip(2, 2) = -1;
-    modelMatrix = yz_flip * modelMatrix;
-}
 
 void ObjectModelRenderable::processMesh(aiMesh *mesh) {
     // Get Vertices
@@ -98,6 +59,11 @@ void ObjectModelRenderable::processMesh(aiMesh *mesh) {
             vertices.push_back(vec.x);
             vertices.push_back(vec.y);
             vertices.push_back(vec.z);
+
+            float m = qMax(vec.x, vec.y);
+            m = qMax(m, vec.z);
+            if (m > largestVertexValue)
+                largestVertexValue = m;
         }
     }
 

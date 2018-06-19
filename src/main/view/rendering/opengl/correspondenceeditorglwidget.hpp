@@ -2,13 +2,13 @@
 #define GLWIDGET_H
 
 #include "model/correspondence.hpp"
-#include "view/rendering/opengl/correspondencerenderable.hpp"
-#include "view/rendering/opengl/clickvisualizationoverlay.hpp"
+#include "view/rendering/opengl/objectmodelrenderable.h"
 
 #include <QString>
 #include <QList>
 #include <QSharedPointer>
 #include <QVector>
+#include <QVector3D>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QOpenGLVertexArrayObject>
@@ -17,7 +17,7 @@
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
 
-typedef QSharedPointer<CorrespondenceRenderable> ObjectModelRenderablePtr;
+typedef QSharedPointer<ObjectModelRenderable> ObjectModelRenderablePtr;
 typedef QSharedPointer<QOpenGLShaderProgram> QOpenGLShaderProgramPtr;
 
 class CorrespondenceEditorGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -26,21 +26,15 @@ class CorrespondenceEditorGLWidget : public QOpenGLWidget, protected QOpenGLFunc
 
 public:
     explicit CorrespondenceEditorGLWidget(QWidget *parent = 0);
-    void addCorrespondence(const Correspondence &correspondence);
-    void updateCorrespondence(const Correspondence &correspondence);
-    void removeCorrespondence(const Correspondence &correspondence);
-    void removeCorrespondences();
-    CorrespondenceRenderable *getObjectModelRenderable(
-            const Correspondence &correspondence);
-    void setObjectsOpacity(float opacity);
-    void addClick(QPoint position, QColor color);
+    void setObjectModel(const ObjectModel *objectModel);
+    void addClick(QVector3D position, QColor color);
     void removeClicks();
     void reset();
 
     ~CorrespondenceEditorGLWidget();
 
 signals:
-    void positionClicked(QPoint position);
+    void positionClicked(QVector3D position);
 
 protected:
     void initializeGL() override;
@@ -55,35 +49,33 @@ private:
     void setYRotation(int angle);
     void setZRotation(int angle);
 
-    void addCorrespondence(const Correspondence &correspondence, bool update);
-
-    void initializeBackgroundProgram();
-    void initializeObjectProgram();
-
-    // Background stuff
-
-    QVector<ObjectModelRenderablePtr> objectModelRenderables;
-    QOpenGLShaderProgramPtr objectsProgram;
-    int projectionMatrixLoc;
-    int normalMatrixLoc;
-    int lightPosLoc;
-    int opacityLoc;
-    // Matrix created from the intrinsic camera parameters
-    QMatrix4x4 projectionMatrix;
-    float opacity = 1.f;
-
     int xRot;
     int yRot;
     int zRot;
 
-    // To handle dragging of the widget and clicking
-    QPoint lastPos;
+    void initializeObjectProgram();
+
+    QOpenGLFramebufferObject *swapBuffer;
+    ObjectModelRenderablePtr objectModelRenderable;
+    QOpenGLShaderProgramPtr objectsProgram;
+    int modelViewProjectionMatrixLoc;
+    int normalMatrixLoc;
+    int lightPosLoc;
+    int segmentationColorLoc;
+    // To detect whether the object was hit by the mouse
+    QColor segmentationColor = Qt::red;
+    // Matrix created from the intrinsic camera parameters
+    QMatrix4x4 projectionMatrix;
+    QMatrix4x4 viewMatrix;
+    QMatrix4x4 modelMatrix;
+
+    QPoint lastClicked2DPos;
+    QVector3D lastClicked3DPos;
     bool mouseDown = false;
     bool mouseMoved = false;
-    ClickVisualizationOverlay *clickOverlay;
 
-    float farPlane = 2000.f;
-    float nearPlane = 100.f;
+    float farPlane = 800.f;
+    float nearPlane = 1.f;
 };
 
 #endif
