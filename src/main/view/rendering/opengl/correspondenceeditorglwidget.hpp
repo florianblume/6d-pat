@@ -16,6 +16,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
+#include <QOpenGLTexture>
 
 typedef QSharedPointer<ObjectModelRenderable> ObjectModelRenderablePtr;
 typedef QSharedPointer<QOpenGLShaderProgram> QOpenGLShaderProgramPtr;
@@ -55,9 +56,16 @@ private:
 
     void initializeObjectProgram();
 
-    QOpenGLFramebufferObject *swapBuffer;
+    //! We draw into a custom render buffer to be able to
+    //! draw the segmentation mask simultaneously
+    QOpenGLFramebufferObject *renderBuffer = 0;
+    //! We need this buffer because the render buffer has
+    //! multisampling enabled, otherwise we wouldn't be
+    //! able to retrieve its texture
+    QOpenGLFramebufferObject *segmentationSwapBuffer;
     ObjectModelRenderablePtr objectModelRenderable;
     QOpenGLShaderProgramPtr objectsProgram;
+    QOpenGLTexture *segmentationTexture = 0;
     int modelViewProjectionMatrixLoc;
     int normalMatrixLoc;
     int lightPosLoc;

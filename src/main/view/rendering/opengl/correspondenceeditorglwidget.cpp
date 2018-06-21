@@ -22,7 +22,7 @@ CorrespondenceEditorGLWidget::CorrespondenceEditorGLWidget(QWidget *parent)
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
     format.setStencilBufferSize(8);
-    format.setSamples(4);
+    format.setSamples(0);
     setFormat(format);
 }
 
@@ -100,6 +100,13 @@ void CorrespondenceEditorGLWidget::initializeGL()
     glEnable(GL_CULL_FACE);
 
     initializeObjectProgram();
+
+    QOpenGLFramebufferObjectFormat format;
+    format.setSamples(8);
+    format.setTextureTarget(GL_TEXTURE_2D);
+    format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+    renderBuffer = new QOpenGLFramebufferObject(size(), format);
+    renderBuffer->addColorAttachment(size());
 }
 
 void CorrespondenceEditorGLWidget::initializeObjectProgram() {
@@ -117,14 +124,16 @@ void CorrespondenceEditorGLWidget::initializeObjectProgram() {
 
 void CorrespondenceEditorGLWidget::paintGL()
 {
-    glClearColor(1.0, 1.0, 1.0, 1.0);
-    glDisable(GL_BLEND);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    renderBuffer->bind();
 
     QOpenGLExtraFunctions* f = QOpenGLContext::currentContext()->extraFunctions();
     // Also draw segmentation color
     GLenum bufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
     f->glDrawBuffers(2, bufs);
+
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glDisable(GL_BLEND);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (!objectModelRenderable.isNull()) {
         objectsProgram->bind();
@@ -159,7 +168,21 @@ void CorrespondenceEditorGLWidget::paintGL()
             glDrawElements(GL_TRIANGLES, objectModelRenderable->getIndicesCount(), GL_UNSIGNED_INT, 0);
         }
         objectsProgram->release();
+        QImage image = renderBuffer->toImage(false, GL_COLOR_ATTACHMENT0);
+        image.save("test.png");
+        QVector<GLuint> textures = renderBuffer->textures();
+        qDebug() << "test";
     }
+    renderBuffer->release();
+
+    glBindFramebuffer(GL_READ_BUFFER, renderBuffer->handle());
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFramebufferObject());
+
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    context->extraFunctions()->glBlitFramebuffer(0, 0, width(), height(),
+                                                 0, 0, renderBuffer->width(), renderBuffer->height(),
+                                                 GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT,
+                                                 GL_NEAREST);
 }
 
 void CorrespondenceEditorGLWidget::mousePressEvent(QMouseEvent *event)
@@ -192,18 +215,30 @@ void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
 
         QOpenGLFramebufferObjectFormat format;
         format.setSamples(0);
-        format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-        swapBuffer = new QOpenGLFramebufferObject(size(), format);
-        swapBuffer->addColorAttachment(size());
+        segmentationSwapBuffer = new QOpenGLFramebufferObject(size(), format);
+        segmentationSwapBuffer->addColorAttachment(size());
 
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, defaultFramebufferObject());
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, swapBuffer->handle());
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, renderBuffer->handle());
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, segmentationSwapBuffer->handle());
+
+        context->extraFunctions()->glBlitFramebuffer(0, 0, width(), height(),
+                                                     0, 0, renderBuffer->width(), renderBuffer->height(),
+                                                     GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT,
+                                                     GL_NEAREST);
+
+        segmentationSwapBuffer->bind();
+        QImage image = segmentationSwapBuffer->toImage();
+        image.save("test2.png");
+        segmentationSwapBuffer->release();
+        delete segmentationSwapBuffer;
+        /*
         context->extraFunctions()->glBlitFramebuffer(0, 0, width(), height(),
                                                      0, 0, swapBuffer->width(), swapBuffer->height(),
                                                      GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT,
                                                      GL_NEAREST);
 
         swapBuffer->bind(); // must rebind, otherwise it won't work!
+        qDebug() << event->pos();
         // Read depth
         float mouseDepth = 0;
         glReadPixels(event->pos().x(), event->pos().y(), 1, 1,
@@ -218,6 +253,7 @@ void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
         qDebug() << clickColor;
         swapBuffer->release();
         delete swapBuffer;
+        */
 
         doneCurrent();
     }
