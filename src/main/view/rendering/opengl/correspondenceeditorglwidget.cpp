@@ -20,9 +20,9 @@ CorrespondenceEditorGLWidget::CorrespondenceEditorGLWidget(QWidget *parent)
       zRot(0) {
 
     QSurfaceFormat format;
-    format.setDepthBufferSize(24);
+    format.setDepthBufferSize(32);
     format.setStencilBufferSize(8);
-    format.setSamples(0);
+    format.setSamples(8);
     setFormat(format);
 }
 
@@ -99,17 +99,10 @@ void CorrespondenceEditorGLWidget::initializeGL()
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
 
-    initializeObjectProgram();
-
-    QOpenGLFramebufferObjectFormat format;
-    format.setSamples(8);
-    format.setTextureTarget(GL_TEXTURE_2D);
-    format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-    renderBuffer = new QOpenGLFramebufferObject(size(), format);
-    renderBuffer->addColorAttachment(size());
+    initializePrograms();
 }
 
-void CorrespondenceEditorGLWidget::initializeObjectProgram() {
+void CorrespondenceEditorGLWidget::initializePrograms() {
     // Init objects shader program
     objectsProgram.reset(new QOpenGLShaderProgram);
     // TODO: load custom shader that writes segmentations as well for clicking
@@ -120,16 +113,22 @@ void CorrespondenceEditorGLWidget::initializeObjectProgram() {
     objectsProgram->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
     objectsProgram->bindAttributeLocation("normal", PROGRAM_NORMAL_ATTRIBUTE);
     objectsProgram->link();
+
+
+    // Init objects shader program
+    segmentationProgram.reset(new QOpenGLShaderProgram);
+    // TODO: load custom shader that writes segmentations as well for clicking
+    segmentationProgram->addShaderFromSourceFile(
+                QOpenGLShader::Vertex, ":/shaders/correspondenceeditor/object.vert");
+    segmentationProgram->addShaderFromSourceFile(
+                QOpenGLShader::Fragment, ":/shaders/correspondenceeditor/objectsegmentation.frag");
+    segmentationProgram->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
+    segmentationProgram->bindAttributeLocation("normal", PROGRAM_NORMAL_ATTRIBUTE);
+    segmentationProgram->link();
 }
 
 void CorrespondenceEditorGLWidget::paintGL()
 {
-    renderBuffer->bind();
-
-    QOpenGLExtraFunctions* f = QOpenGLContext::currentContext()->extraFunctions();
-    // Also draw segmentation color
-    GLenum bufs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-    f->glDrawBuffers(2, bufs);
 
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glDisable(GL_BLEND);
@@ -141,14 +140,12 @@ void CorrespondenceEditorGLWidget::paintGL()
             modelViewProjectionMatrixLoc = objectsProgram->uniformLocation("projectionMatrix");
             normalMatrixLoc = objectsProgram->uniformLocation("normalMatrix");
             lightPosLoc = objectsProgram->uniformLocation("lightPos");
-            segmentationColorLoc = objectsProgram->uniformLocation("segmentationColor");
 
             QOpenGLVertexArrayObject::Binder vaoBinder(
                         objectModelRenderable->getVertexArrayObject());
 
             // Light position is fixed.
             objectsProgram->setUniformValue(lightPosLoc, QVector3D(0, 10, 70));
-            objectsProgram->setUniformValue(segmentationColorLoc, segmentationColor);
 
             modelMatrix.setToIdentity();
             modelMatrix.rotate(180.0f - (xRot / 16.0f), 1, 0, 0);
@@ -168,21 +165,75 @@ void CorrespondenceEditorGLWidget::paintGL()
             glDrawElements(GL_TRIANGLES, objectModelRenderable->getIndicesCount(), GL_UNSIGNED_INT, 0);
         }
         objectsProgram->release();
-        QImage image = renderBuffer->toImage(false, GL_COLOR_ATTACHMENT0);
-        image.save("test.png");
-        QVector<GLuint> textures = renderBuffer->textures();
-        qDebug() << "test";
+
+        // Render the segmentation mask, quick n dirty
+
+        QOpenGLFramebufferObjectFormat format;
+        format.setSamples(8);
+        format.setTextureTarget(GL_TEXTURE_2D);
+        segmentationBuffer = new QOpenGLFramebufferObject(size(), format);
+        segmentationBuffer->setAttachment(QOpenGLFramebufferObject::Depth);
+        segmentationBuffer->bind();
+        glClearColor(segmentationBackgroundColor.red(),
+                     segmentationBackgroundColor.green(),
+                     segmentationBackgroundColor.blue(),
+                     segmentationBackgroundColor.alpha());
+        glDisable(GL_BLEND);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        segmentationProgram->bind();
+        {
+            modelViewProjectionMatrixLoc = segmentationProgram->uniformLocation("projectionMatrix");
+            normalMatrixLoc = segmentationProgram->uniformLocation("normalMatrix");
+            segmentationColorLoc = segmentationProgram->uniformLocation("segmentationColor");
+
+            QOpenGLVertexArrayObject::Binder vaoBinder(
+                        objectModelRenderable->getVertexArrayObject());
+
+            segmentationProgram->setUniformValue(segmentationColorLoc, segmentationColor);
+
+            modelMatrix.setToIdentity();
+            modelMatrix.rotate(180.0f - (xRot / 16.0f), 1, 0, 0);
+            modelMatrix.rotate(yRot / 16.0f, 0, 1, 0);
+            modelMatrix.rotate(zRot / 16.0f, 0, 0, 1);
+            viewMatrix.setToIdentity();
+            viewMatrix.translate(QVector3D(0, 0, -4 * objectModelRenderable->getLargestVertexValue()));
+            projectionMatrix.setToIdentity();
+            projectionMatrix.perspective(45.f, width() / (float) height(), nearPlane, farPlane);
+            QMatrix4x4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
+            segmentationProgram->setUniformValue(modelViewProjectionMatrixLoc, modelViewProjectionMatrix);
+
+            QMatrix4x4 modelViewMatrix = viewMatrix * modelMatrix;
+            QMatrix3x3 normalMatrix = modelViewMatrix.normalMatrix();
+            segmentationProgram->setUniformValue(normalMatrixLoc, normalMatrix);
+
+            glDrawElements(GL_TRIANGLES, objectModelRenderable->getIndicesCount(), GL_UNSIGNED_INT, 0);
+        }
+        segmentationProgram->release();
+
+        renderedSegmentationMask = segmentationBuffer->toImage();
+
+        if (!segmentationSwapBuffer) {
+            QOpenGLFramebufferObjectFormat format;
+            format.setSamples(0);
+            format.setTextureTarget(GL_TEXTURE_2D);
+            segmentationSwapBuffer = new QOpenGLFramebufferObject(size(), format);
+            segmentationSwapBuffer->setAttachment(QOpenGLFramebufferObject::Depth);
+            segmentationSwapBuffer->bind();
+        }
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, segmentationBuffer->handle());
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, segmentationSwapBuffer->handle());
+
+        QOpenGLContext *context = QOpenGLContext::currentContext();
+        context->extraFunctions()->glBlitFramebuffer(0, 0, width(), height(),
+                                                     0, 0, width(), height(),
+                                                     GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT,
+                                                     GL_NEAREST);
+        segmentationSwapBuffer->release();
+        segmentationBuffer->release();
+        delete segmentationBuffer;
     }
-    renderBuffer->release();
-
-    glBindFramebuffer(GL_READ_BUFFER, renderBuffer->handle());
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFramebufferObject());
-
-    QOpenGLContext *context = QOpenGLContext::currentContext();
-    context->extraFunctions()->glBlitFramebuffer(0, 0, width(), height(),
-                                                 0, 0, renderBuffer->width(), renderBuffer->height(),
-                                                 GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT,
-                                                 GL_NEAREST);
 }
 
 void CorrespondenceEditorGLWidget::mousePressEvent(QMouseEvent *event)
@@ -209,29 +260,47 @@ void CorrespondenceEditorGLWidget::mouseMoveEvent(QMouseEvent *event)
 void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (!mouseMoved) {
+        QPoint mousePos = event->pos();
+        QColor mouseClickColor = renderedSegmentationMask.pixelColor(mousePos.x(), mousePos.y());
+        if (mouseClickColor == segmentationColor) {
+            makeCurrent();
+            segmentationSwapBuffer->bind(); // must rebind, otherwise it won't work!
+            qDebug() << event->pos();
+            // Read depth
+            float mouseDepth = 1.f;
+            glReadPixels(event->pos().x(), event->pos().y(), 1, 1,
+                         GL_DEPTH_COMPONENT, GL_FLOAT, &mouseDepth);
+            qDebug() << mouseDepth;
+            float depth = 2.0 * mouseDepth - 1.0;
+            depth = 2.0 * nearPlane * farPlane / (farPlane + nearPlane - depth * (farPlane - nearPlane));
+            qDebug() << depth;
+            segmentationSwapBuffer->release();
+
+            doneCurrent();
+        }
+        /*
         makeCurrent();
 
         QOpenGLContext *context = QOpenGLContext::currentContext();
 
         QOpenGLFramebufferObjectFormat format;
         format.setSamples(0);
-        segmentationSwapBuffer = new QOpenGLFramebufferObject(size(), format);
-        segmentationSwapBuffer->addColorAttachment(size());
+        segmentationBuffer = new QOpenGLFramebufferObject(size(), format);
+        segmentationBuffer->addColorAttachment(size());
 
         glBindFramebuffer(GL_READ_FRAMEBUFFER, renderBuffer->handle());
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, segmentationSwapBuffer->handle());
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, segmentationBuffer->handle());
 
         context->extraFunctions()->glBlitFramebuffer(0, 0, width(), height(),
                                                      0, 0, renderBuffer->width(), renderBuffer->height(),
                                                      GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT,
                                                      GL_NEAREST);
 
-        segmentationSwapBuffer->bind();
-        QImage image = segmentationSwapBuffer->toImage();
+        segmentationBuffer->bind();
+        QImage image = segmentationBuffer->toImage();
         image.save("test2.png");
-        segmentationSwapBuffer->release();
-        delete segmentationSwapBuffer;
-        /*
+        segmentationBuffer->release();
+        delete segmentationBuffer;
         context->extraFunctions()->glBlitFramebuffer(0, 0, width(), height(),
                                                      0, 0, swapBuffer->width(), swapBuffer->height(),
                                                      GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT,
@@ -253,9 +322,9 @@ void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
         qDebug() << clickColor;
         swapBuffer->release();
         delete swapBuffer;
-        */
 
         doneCurrent();
+        */
     }
     mouseMoved = false;
 }

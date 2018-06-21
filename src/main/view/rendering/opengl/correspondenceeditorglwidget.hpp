@@ -54,24 +54,26 @@ private:
     int yRot;
     int zRot;
 
-    void initializeObjectProgram();
+    void initializePrograms();
 
-    //! We draw into a custom render buffer to be able to
-    //! draw the segmentation mask simultaneously
-    QOpenGLFramebufferObject *renderBuffer = 0;
-    //! We need this buffer because the render buffer has
-    //! multisampling enabled, otherwise we wouldn't be
-    //! able to retrieve its texture
-    QOpenGLFramebufferObject *segmentationSwapBuffer;
+    QOpenGLFramebufferObject *segmentationSwapBuffer = 0;
+    //! The buffer to render to segmentation mask offline to
+    QOpenGLFramebufferObject *segmentationBuffer;
     ObjectModelRenderablePtr objectModelRenderable;
     QOpenGLShaderProgramPtr objectsProgram;
-    QOpenGLTexture *segmentationTexture = 0;
+    QOpenGLShaderProgramPtr segmentationProgram;
+
     int modelViewProjectionMatrixLoc;
     int normalMatrixLoc;
     int lightPosLoc;
+
     int segmentationColorLoc;
     // To detect whether the object was hit by the mouse
-    QColor segmentationColor = Qt::red;
+    QColor segmentationColor = QColor(255.0, 255.0, 255.0, 255.0);
+    QColor segmentationBackgroundColor = QColor(0.0, 0.0, 0.0, 255.0);
+    QImage renderedSegmentationMask;
+    GLfloat *renderedDepth = 0;
+
     // Matrix created from the intrinsic camera parameters
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 viewMatrix;
