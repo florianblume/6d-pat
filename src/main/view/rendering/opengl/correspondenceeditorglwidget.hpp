@@ -56,12 +56,9 @@ private:
 
     void initializePrograms();
 
-    QOpenGLFramebufferObject *segmentationSwapBuffer = 0;
-    //! The buffer to render to segmentation mask offline to
-    QOpenGLFramebufferObject *segmentationBuffer;
     ObjectModelRenderablePtr objectModelRenderable;
     QOpenGLShaderProgramPtr objectsProgram;
-    QOpenGLShaderProgramPtr segmentationProgram;
+    QOpenGLFramebufferObject *renderFbo = 0;
 
     int modelViewProjectionMatrixLoc;
     int normalMatrixLoc;
@@ -71,8 +68,6 @@ private:
     // To detect whether the object was hit by the mouse
     QColor segmentationColor = QColor(255.0, 255.0, 255.0, 255.0);
     QColor segmentationBackgroundColor = QColor(0.0, 0.0, 0.0, 255.0);
-    QImage renderedSegmentationMask;
-    GLfloat *renderedDepth = 0;
 
     // Matrix created from the intrinsic camera parameters
     QMatrix4x4 projectionMatrix;

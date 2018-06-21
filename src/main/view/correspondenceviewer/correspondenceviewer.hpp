@@ -5,7 +5,7 @@
 #include "model/objectmodel.hpp"
 #include "model/correspondence.hpp"
 #include "model/modelmanager.hpp"
-#include "misc/globaltypedefs.h"
+#include "misc/global.h"
 #include "view/rendering/opengl/correspondenceviewerglwidget.hpp"
 
 #include <QList>

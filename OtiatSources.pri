@@ -45,7 +45,6 @@ HEADERS  += \
     $$PWD/src/main/view/mainwindow.hpp \
     $$PWD/src/main/misc/otiathelper.h \
     $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.hpp \
-    $$PWD/src/main/misc/globaltypedefs.h \
     $$PWD/src/main/view/breadcrumb/breadcrumbview.hpp \
     $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.hpp \
     $$PWD/src/main/view/gallery/gallery.hpp \
@@ -68,7 +67,8 @@ HEADERS  += \
     $$PWD/src/main/view/rendering/opengl/clickvisualizationoverlay.hpp \
     $$PWD/src/main/view/rendering/opengl/correspondenceeditorglwidget.hpp \
     $$PWD/src/main/view/rendering/opengl/correspondencerenderable.hpp \
-    $$PWD/src/main/view/rendering/opengl/objectmodelrenderable.h
+    $$PWD/src/main/view/rendering/opengl/objectmodelrenderable.h \
+    $$PWD/src/main/misc/global.h
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

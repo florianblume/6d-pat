@@ -255,7 +255,7 @@
   <customwidget>
    <class>CorrespondenceViewerGLWidget</class>
    <extends>QOpenGLWidget</extends>
-   <header>view/rendering/opengl/correspondenceviewerglwidget.h</header>
+   <header>view/rendering/opengl/correspondenceviewerglwidget.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>
