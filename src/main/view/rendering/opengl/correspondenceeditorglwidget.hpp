@@ -58,6 +58,8 @@ private:
 
     ObjectModelRenderablePtr objectModelRenderable;
     QOpenGLShaderProgramPtr objectsProgram;
+    // The FBO to store rendering results to use them later in
+    // picking
     QOpenGLFramebufferObject *renderFbo = 0;
 
     int modelViewProjectionMatrixLoc;
@@ -68,6 +70,7 @@ private:
     // To detect whether the object was hit by the mouse
     QColor segmentationColor = QColor(255.0, 255.0, 255.0, 255.0);
     QColor segmentationBackgroundColor = QColor(0.0, 0.0, 0.0, 255.0);
+    QImage renderedSegmentationImage;
 
     // Matrix created from the intrinsic camera parameters
     QMatrix4x4 projectionMatrix;

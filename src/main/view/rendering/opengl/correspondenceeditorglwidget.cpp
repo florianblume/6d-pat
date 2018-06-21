@@ -172,6 +172,13 @@ void CorrespondenceEditorGLWidget::paintGL() {
 
     fbo.release();
 
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo.handle());
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFramebufferObject());
+    f->glBlitFramebuffer(0, 0, width(), height(),
+                                                 0, 0, width(), height(),
+                                                 GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT,
+                                                 GL_NEAREST);
+
     // Save images.
     QImage img1 = fbo.toImage(false, 0);
     img1.save("red.png");
