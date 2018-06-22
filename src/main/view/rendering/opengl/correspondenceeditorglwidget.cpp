@@ -165,7 +165,7 @@ void CorrespondenceEditorGLWidget::paintGL() {
             modelMatrix.rotate(yRot / 16.0f, 0, 1, 0);
             modelMatrix.rotate(zRot / 16.0f, 0, 0, 1);
             viewMatrix.setToIdentity();
-            viewMatrix.translate(QVector3D(0, 0, -4 * objectModelRenderable->getLargestVertexValue()));
+            viewMatrix.translate(QVector3D(0, 0, -3 * objectModelRenderable->getLargestVertexValue()));
             projectionMatrix.setToIdentity();
             projectionMatrix.perspective(45.f, width() / (float) height(), nearPlane, farPlane);
             QMatrix4x4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
@@ -180,41 +180,22 @@ void CorrespondenceEditorGLWidget::paintGL() {
         objectsProgram->release();
 
         renderedSegmentationImage = fbo.toImage(true, 1);
-
-        // Since we use multisampling we need to blit before
-        // using glReadPixels
-        format.setSamples(0);
-        QOpenGLFramebufferObject fbo2(width(), height(), format);
-
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo.handle());
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo2.handle());
-
-        QOpenGLFramebufferObject::blitFramebuffer(&fbo2,
-                          QRect(0, 0, width(), height()),
-                          &fbo,
-                          QRect(0, 0, width(), height()),
-                          GL_COLOR_BUFFER_BIT,
-                          GL_NEAREST,
-                          2,
-                          0,
-                          QOpenGLFramebufferObject::DontRestoreFramebufferBinding);
-        fbo2.bind();
-        int size = width() * height();
-        GLfloat* pixels = new GLfloat[ size * 4 ];
-        glReadPixels( 0, 0, width(), height(), GL_RGBA,  GL_FLOAT, pixels );
-
-        QByteArray data(nullptr, size * 4);
-
-        for (int i = 0, j = 0; i < size * 4; ++i, j += 4) {
-            data[j] = data[j + 1] = data[j + 2] =         // R, G, B
-                (unsigned char)(pixels[i] * 255);
-            qDebug() << pixels[i] << pixels[i + 1]<< pixels[i+2];
-
-            data[j + 4] = ~0;       // Alpha
+        if (!depthFbo) {
+            // Since we use multisampling we need to blit before
+            // using glReadPixels
+            format.setSamples(0);
+            depthFbo = new QOpenGLFramebufferObject(width(), height(), format);
+            depthFbo->setAttachment(QOpenGLFramebufferObject::Depth);
         }
 
-        QImage image((const uchar*) data.constData(), width(), height(), QImage::Format_ARGB32_Premultiplied);
-        image.save("test.png");
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo.handle());
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, depthFbo->handle());
+
+        QOpenGLFramebufferObject::blitFramebuffer(depthFbo,
+                          &fbo,
+                          GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+                          GL_LINEAR);
     }
 
     fbo.release();
@@ -255,67 +236,20 @@ void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
         QColor mouseClickColor = renderedSegmentationImage.pixelColor(mousePos.x(), mousePos.y());
         if (mouseClickColor == segmentationColor) {
             makeCurrent();
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, defaultFramebufferObject());
-            qDebug() << event->pos();
-            // Read depth
-            float mouseDepth = 1.f;
-            glReadPixels(event->pos().x(), event->pos().y(), 1, 1,
-                         GL_DEPTH_COMPONENT, GL_FLOAT, &mouseDepth);
-            qDebug() << mouseDepth;
-            float depth = 2.0 * mouseDepth - 1.0;
-            depth = 2.0 * nearPlane * farPlane / (farPlane + nearPlane - depth * (farPlane - nearPlane));
-            qDebug() << depth;
+
+            depthFbo->bind();
+            GLfloat pixel;
+            glReadPixels( mousePos.x(), mousePos.y(), 1, 1, GL_DEPTH_COMPONENT,  GL_FLOAT, &pixel );
+            qDebug() << pixel;
+            depthFbo->release();
+
+            QVector3D Z(mousePos.x(), mousePos.y(), pixel);
+            QMatrix4x4 modelViewMatrix = viewMatrix * modelMatrix;
+            QVector3D localPosition = Z.unproject(modelViewMatrix, projectionMatrix, QRect(0, 0, width(), height()));
+            qDebug() << localPosition;
 
             doneCurrent();
         }
     }
     mouseMoved = false;
-        /*
-
-        QOpenGLContext *context = QOpenGLContext::currentContext();
-
-        QOpenGLFramebufferObjectFormat format;
-        format.setSamples(0);
-        segmentationBuffer = new QOpenGLFramebufferObject(size(), format);
-        segmentationBuffer->addColorAttachment(size());
-
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, renderBuffer->handle());
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, segmentationBuffer->handle());
-
-        context->extraFunctions()->glBlitFramebuffer(0, 0, width(), height(),
-                                                     0, 0, renderBuffer->width(), renderBuffer->height(),
-                                                     GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT,
-                                                     GL_NEAREST);
-
-        segmentationBuffer->bind();
-        QImage image = segmentationBuffer->toImage();
-        image.save("test2.png");
-        segmentationBuffer->release();
-        delete segmentationBuffer;
-        context->extraFunctions()->glBlitFramebuffer(0, 0, width(), height(),
-                                                     0, 0, swapBuffer->width(), swapBuffer->height(),
-                                                     GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT,
-                                                     GL_NEAREST);
-
-        swapBuffer->bind(); // must rebind, otherwise it won't work!
-        qDebug() << event->pos();
-        // Read depth
-        float mouseDepth = 0;
-        glReadPixels(event->pos().x(), event->pos().y(), 1, 1,
-                     GL_DEPTH_COMPONENT, GL_FLOAT, &mouseDepth);
-        float depth = 2.0 * mouseDepth - 1.0;
-        depth = 2.0 * nearPlane * farPlane / (farPlane + nearPlane - depth * (farPlane - nearPlane));
-        qDebug() << depth;
-        glReadBuffer(GL_COLOR_ATTACHMENT1);
-        GLuint clickColor;
-        glReadPixels(event->pos().x(), event->pos().y(), 1, 1,
-                     GL_RGB, GL_UNSIGNED_BYTE, &clickColor);
-        qDebug() << clickColor;
-        swapBuffer->release();
-        delete swapBuffer;
-
-        doneCurrent();
-
-    }
-    mouseMoved = false;*/
 }

@@ -60,7 +60,7 @@ private:
     QOpenGLShaderProgramPtr objectsProgram;
     // The FBO to store rendering results to use them later in
     // picking
-    QOpenGLFramebufferObject *renderFbo = 0;
+    QOpenGLFramebufferObject *depthFbo = 0;
 
     int modelViewProjectionMatrixLoc;
     int normalMatrixLoc;
@@ -83,7 +83,7 @@ private:
     bool mouseMoved = false;
 
     float farPlane = 800.f;
-    float nearPlane = 1.f;
+    float nearPlane = 20.f;
 };
 
 #endif

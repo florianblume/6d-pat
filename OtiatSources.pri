@@ -1,4 +1,4 @@
-QT       += core gui 3dcore 3drender 3dinput 3dextras
+QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 include(./QtAwesome/QtAwesome.pri)
@@ -89,8 +89,7 @@ INCLUDEPATH += \
     $$PWD/src/main/misc \
     $$PWD/src/main/controller \
     $$PWD/src/main/view/settings \
-    /usr/local/include/opencv \
-    /home/floretti/anaconda3/include/python3.6m
+    /usr/local/include/opencv
 
 LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d \
         -L/usr/local/lib -lassimp
