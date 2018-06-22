@@ -20,6 +20,7 @@
 
 typedef QSharedPointer<ObjectModelRenderable> ObjectModelRenderablePtr;
 typedef QSharedPointer<QOpenGLShaderProgram> QOpenGLShaderProgramPtr;
+typedef QSharedPointer<QOpenGLFramebufferObject> QOpenGLFramebufferObjectPtr;
 
 class CorrespondenceEditorGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_0
 {
@@ -64,12 +65,7 @@ private:
 
     QOpenGLShaderProgramPtr objectCoordsProgram;
     // The FBO to store the object coordinates for clicking
-    QOpenGLFramebufferObject *objectCoordsFbo = 0;
-    GLfloat *renderedObjectCoords = 0;
-
-    int modelViewProjectionMatrixLoc;
-    int normalMatrixLoc;
-    int lightPosLoc;
+    QOpenGLFramebufferObjectPtr objectCoordsFbo;
 
     int segmentationColorLoc;
     // To detect whether the object was hit by the mouse
@@ -83,7 +79,8 @@ private:
     QMatrix4x4 modelMatrix;
 
     QPoint lastClicked2DPos;
-    QVector3D lastClicked3DPos;
+    QVector<QVector3D> clicks3D;
+    QVector<QVector3D> colorsOfClicks;
     bool mouseDown = false;
     bool mouseMoved = false;
 

@@ -143,11 +143,11 @@ void CorrespondenceEditorGLWidget::drawObject() {
     projectionMatrix.setToIdentity();
     projectionMatrix.perspective(45.f, width() / (float) height(), nearPlane, farPlane);
     QMatrix4x4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
-    objectsProgram->setUniformValue(modelViewProjectionMatrixLoc, modelViewProjectionMatrix);
+    objectsProgram->setUniformValue("projectionMatrix", modelViewProjectionMatrix);
 
     QMatrix4x4 modelViewMatrix = viewMatrix * modelMatrix;
     QMatrix3x3 normalMatrix = modelViewMatrix.normalMatrix();
-    objectsProgram->setUniformValue(normalMatrixLoc, normalMatrix);
+    objectsProgram->setUniformValue("normalMatrix", normalMatrix);
 
     glDrawElements(GL_TRIANGLES, objectModelRenderable->getIndicesCount(), GL_UNSIGNED_INT, 0);
 }
@@ -183,14 +183,16 @@ void CorrespondenceEditorGLWidget::renderObjectAndSegmentation() {
     if (!objectModelRenderable.isNull()) {
         objectsProgram->bind();
         {
-            modelViewProjectionMatrixLoc = objectsProgram->uniformLocation("projectionMatrix");
-            normalMatrixLoc = objectsProgram->uniformLocation("normalMatrix");
-            lightPosLoc = objectsProgram->uniformLocation("lightPos");
-            segmentationColorLoc = objectsProgram->uniformLocation("segmentationColor");
-
             // Light position is fixed.
-            objectsProgram->setUniformValue(lightPosLoc, QVector3D(0, 10, 70));
-            objectsProgram->setUniformValue(segmentationColorLoc, segmentationColor);
+            objectsProgram->setUniformValue("lightPos", QVector3D(0, 10, 70));
+            objectsProgram->setUniformValue("segmentationColor", segmentationColor);
+            objectsProgram->setUniformValueArray("clickPositions",
+                                                 clicks3D.constData(),
+                                                 clicks3D.size());
+            objectsProgram->setUniformValueArray("colorsOfClicks",
+                                                 colorsOfClicks.constData(),
+                                                 colorsOfClicks.size());
+            objectsProgram->setUniformValue("clickCount", clicks3D.size());
             drawObject();
         }
         objectsProgram->release();
@@ -216,7 +218,7 @@ QVector3D CorrespondenceEditorGLWidget::renderObjectCoordinates(QPoint point) {
     format.setSamples(0);
     format.setTextureTarget(GL_TEXTURE_2D);
     format.setInternalTextureFormat(GL_RGBA32F);
-    objectCoordsFbo = new QOpenGLFramebufferObject(width(), height(), format);
+    objectCoordsFbo.reset(new QOpenGLFramebufferObject(width(), height(), format));
 
     objectCoordsFbo->bind();
 
@@ -232,14 +234,13 @@ QVector3D CorrespondenceEditorGLWidget::renderObjectCoordinates(QPoint point) {
     if (!objectModelRenderable.isNull()) {
         objectCoordsProgram->bind();
         {
-            modelViewProjectionMatrixLoc = objectsProgram->uniformLocation("projectionMatrix");
             drawObject();
         }
         objectCoordsProgram->release();
         glReadPixels( point.x(), height() - point.y(), 1, 1, GL_RGB,  GL_FLOAT, &pixel );
     }
     objectCoordsFbo->release();
-    delete objectCoordsFbo;
+    objectCoordsFbo.reset();
     doneCurrent();
     return QVector3D(pixel[0], pixel[1], pixel[2]);
 }
@@ -272,13 +273,21 @@ void CorrespondenceEditorGLWidget::mouseMoveEvent(QMouseEvent *event)
 void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (!mouseMoved) {
-        QPoint mousePos = event->pos();
-        QColor mouseClickColor = renderedSegmentationImage.pixelColor(mousePos.x(), mousePos.y());
-        if (mouseClickColor == segmentationColor) {
-            qDebug() << mousePos;
-            QVector3D pos3D = renderObjectCoordinates(mousePos);
-            qDebug() << pos3D;
+        if (event->buttons() & Qt::RightButton) {
+            clicks3D.clear();
+            colorsOfClicks.clear();
+        } else {
+            QPoint mousePos = event->pos();
+            QColor mouseClickColor = renderedSegmentationImage.pixelColor(mousePos.x(), mousePos.y());
+            if (mouseClickColor == segmentationColor) {
+                QVector3D pos3D = renderObjectCoordinates(mousePos);
+                clicks3D.append(pos3D);
+                int s = clicks3D.size();
+                colorsOfClicks.append(QVector3D(0.1 * s, 0, 0.1 * (s - 1)));
+            }
         }
+
+        update();
     }
     mouseMoved = false;
 }
