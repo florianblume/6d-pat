@@ -7,7 +7,7 @@
 #include "view/mainwindow.hpp"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
-#include "misc/globaltypedefs.h"
+#include "misc/global.h"
 #include "controller/correspondencecreator.h"
 
 #include <QApplication>

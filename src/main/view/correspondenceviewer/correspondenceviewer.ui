@@ -79,17 +79,14 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <widget class="ImageViewLabel" name="labelGraphics">
+        <widget class="CorrespondenceViewerGLWidget" name="openGLWidget">
          <property name="geometry">
           <rect>
-           <x>90</x>
-           <y>90</y>
-           <width>281</width>
-           <height>171</height>
+           <x>120</x>
+           <y>40</y>
+           <width>201</width>
+           <height>200</height>
           </rect>
-         </property>
-         <property name="text">
-          <string/>
          </property>
         </widget>
        </widget>
@@ -256,12 +253,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ImageViewLabel</class>
-   <extends>QLabel</extends>
-   <header>view/correspondenceviewer/imageviewlabel.h</header>
-   <slots>
-    <signal>imageClicked(QPoint)</signal>
-   </slots>
+   <class>CorrespondenceViewerGLWidget</class>
+   <extends>QOpenGLWidget</extends>
+   <header>view/rendering/opengl/correspondenceviewerglwidget.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -283,26 +277,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>labelGraphics</sender>
-   <signal>imageClicked(QPoint)</signal>
-   <receiver>CorrespondenceViewer</receiver>
-   <slot>imageClicked(QPoint)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>230</x>
-     <y>175</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>buttonResetPosition</sender>
    <signal>clicked()</signal>
    <receiver>CorrespondenceViewer</receiver>
-   <slot>resetPositionOfImage()</slot>
+   <slot>resetPositionOfGraphicsView()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>414</x>
@@ -319,6 +297,6 @@
   <signal>imageClicked(Image*,QPoint)</signal>
   <slot>switchImage()</slot>
   <slot>imageClicked(QPoint)</slot>
-  <slot>resetPositionOfImage()</slot>
+  <slot>resetPositionOfGraphicsView()</slot>
  </slots>
 </ui>

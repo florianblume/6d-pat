@@ -1,4 +1,5 @@
 #include "controller/maincontroller.hpp"
+#include "misc/global.h"
 #include <QSurfaceFormat>
 
 int main(int argc, char *argv[]) {
@@ -6,8 +7,11 @@ int main(int argc, char *argv[]) {
     MainController m(argc, argv);
 
     QSurfaceFormat format;
-    format.setDepthBufferSize(32);
-    format.setSamples(8);
+    format.setDepthBufferSize(DEPTH_BUFFER_SIZE);
+    format.setStencilBufferSize(STENCIL_BUFFER_SIZE);
+    format.setSamples(NUMBER_OF_SAMPLES);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setVersion(3, 0);
     QSurfaceFormat::setDefaultFormat(format);
 
     //! in this order so that the user sees something already and then load entities

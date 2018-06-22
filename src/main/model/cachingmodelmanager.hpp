@@ -24,26 +24,28 @@ public:
 
     QList<Image> getImages() const override;
 
-    QList<ObjectImageCorrespondence> getCorrespondencesForImage(const Image &image) const override;
+    QList<Correspondence> getCorrespondencesForImage(const Image &image) const override;
 
     QList<ObjectModel> getObjectModels() const override;
 
-    QList<ObjectImageCorrespondence> getCorrespondencesForObjectModel(const ObjectModel &objectModel) override;
+    QList<Correspondence> getCorrespondencesForObjectModel(const ObjectModel &objectModel) override;
 
-    QList<ObjectImageCorrespondence> getCorrespondences() override;
+    QList<Correspondence> getCorrespondences() override;
 
-    ObjectImageCorrespondence getCorrespondenceById(const QString &id) override;
+    Correspondence getCorrespondenceById(const QString &id) override;
 
-    QList<ObjectImageCorrespondence> getCorrespondencesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) override;
+    QList<Correspondence> getCorrespondencesForImageAndObjectModel(
+            const Image &image,
+            const ObjectModel &objectModel) override;
 
     bool addObjectImageCorrespondence(Image *image,
                                       ObjectModel *objectModel,
                                       QVector3D position,
-                                      QVector3D rotation) override;
+                                      QMatrix3x3 rotation) override;
 
     bool updateObjectImageCorrespondence(const QString &id,
                                          QVector3D position,
-                                         QVector3D rotation) override;
+                                         QMatrix3x3 rotation) override;
 
     bool removeObjectImageCorrespondence(const QString &id) override;
 
@@ -54,13 +56,13 @@ private:
     //! The list of the loaded images
     QList<Image> images;
     //! Convenience map to store correspondences for images
-    QMap<QString, QList<ObjectImageCorrespondence>> correspondencesForImages;
+    QMap<QString, QList<Correspondence>> correspondencesForImages;
     //! The list of the loaded object models
     QList<ObjectModel> objectModels;
     //! Convenience map to store correspondences for object models
-    QMap<QString, QList<ObjectImageCorrespondence>> correspondencesForObjectModels;
+    QMap<QString, QList<Correspondence>> correspondencesForObjectModels;
     //! The list of the object image correspondences
-    QList<ObjectImageCorrespondence> correspondences;
+    QList<Correspondence> correspondences;
     /*!
      * \brief createConditionalCache sets up the cache of correspondences that
      * can be retrieved for an image or for an object model.

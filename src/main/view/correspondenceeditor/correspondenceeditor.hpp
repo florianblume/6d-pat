@@ -2,15 +2,9 @@
 #define CORRESPONDENCEEDITORCONTROLS_H
 
 #include "model/modelmanager.hpp"
-#include "misc/globaltypedefs.h"
+#include "misc/global.h"
 #include <QWidget>
 #include <QFrame>
-#include <Qt3DExtras/Qt3DWindow>
-#include <Qt3DRender/QObjectPicker>
-#include <Qt3DRender/QPickEvent>
-#include <Qt3DRender/QViewport>
-#include <Qt3DExtras/QOrbitCameraController>
-#include <Qt3DRender/QCamera>
 
 namespace Ui {
 class CorrespondenceEditor;
@@ -31,7 +25,6 @@ public:
     ~CorrespondenceEditor();
     void setModelManager(ModelManager *modelManager);
     bool isDisplayingObjectModel();
-    void resizeEvent(QResizeEvent* event);
 
 public slots:
 
@@ -42,7 +35,6 @@ public slots:
      * \param objectModel the object model to be displayed
      */
     void setObjectModel(ObjectModel *objectModel);
-
     void onSelectedImageChanged(int index);
 
     /*!
@@ -51,28 +43,14 @@ public slots:
      * and the object model corresponding to the correspondence will be displayed instead.
      * \param correspondence the correpondence to be edited
      */
-    void setCorrespondenceToEdit(ObjectImageCorrespondence *correspondence);
+    void setCorrespondenceToEdit(Correspondence *correspondence);
 
-    /*!
-     * \brief visualizeLastClickedPosition adds a colored sphere to the position that the user clicked
-     * last. The color is retrieved by the provided index from the DisplayHelper. The index is, e.g.,
-     * 0 if it is the first correspondence point that the user clicked for creating an ObjectImageCorrespondence.
-     * \param correspondencePointIndex the index of the correspondence point
-     */
-    void visualizeLastClickedPosition(int correspondencePointIndex);
-
-    /*!
-     * \brief removePositionVisualizations removes all colored spheres that were added to the 3D
-     * model to indicate where the user clicked.
-     */
-    void removePositionVisualizations();
-
+    void removeClickVisualizations();
     /*!
      * \brief onCorrespondenceCreationAborted reacts to the signal indicating that the process
      * of creating a new correspondence was aborted by the user.
      */
     void onCorrespondenceCreationAborted();
-
     /*!
      * \brief onCorrespondencePointFinished the slot that handles the event when the user successfully
      * create a correspondence point that consists of a 2D image location and a 3D point on the object model.
@@ -80,8 +58,9 @@ public slots:
      * \param currentNumberOfPoints the current number of correspondence points
      * \param minimumNumberOfPoints the total number required to be able to create an actual ObjectImage Correspondence
      */
-    void onCorrespondencePointFinished(QVector3D point3D, int currentNumberOfPoints, int minimumNumberOfPoints);
-
+    void onCorrespondencePointFinished(QVector3D point3D,
+                                       int currentNumberOfPoints,
+                                       int minimumNumberOfPoints);
     /*!
      * \brief reset resets this view, i.e. clears the displayed object models
      */
@@ -95,108 +74,61 @@ signals:
      * \param position the position the user clicked the object model at
      */
     void objectModelClickedAt(ObjectModel *objectModel, QVector3D position);
-
     /*!
      * \brief onButtonPredictClicked is emitted when the user clicks the predict button
      */
     void buttonPredictClicked();
-
     /*!
      * \brief onButtonCreateClicked is emitted when the user clicks the create correspondence button.
      * The button is only enabled when enough correspondence points where clicked.
      */
     void buttonCreateClicked();
-
-    void opacityChanged(int opacity);
+    void correspondenceUpdated(Correspondence *correspondence);
+    void opacityChangeStarted(int opacity);
+    void opacityChangeEnded();
 
 private:
     Ui::CorrespondenceEditor *ui;
     ModelManager *modelManager;
 
     UniquePointer<ObjectModel> currentObjectModel;
-    UniquePointer<ObjectImageCorrespondence> currentCorrespondence;
-
-    Qt3DExtras::Qt3DWindow *graphicsWindow = Q_NULLPTR;
-    Qt3DRender::QObjectPicker *objectPicker = Q_NULLPTR;        // created but not owned later
-    Qt3DCore::QEntity *rootEntity = Q_NULLPTR;                  // created but not owned later
-    Qt3DCore::QEntity *sceneEntity = Q_NULLPTR;                 // created but not owned later,
-                                                                // i.e. only need to delete
-                                                                // when resetting the scene
-    Qt3DRender::QRenderSettings *framegraphEntity;              // created but not owned later
-    // Left view
-    Qt3DRender::QCamera *leftCamera;                            // created but not owned later
-    Qt3DExtras::QOrbitCameraController *leftCameraController;   // created but not owned later
-    // Right view
-    Qt3DRender::QCamera *rightCamera;                           // created but not owned later
-    Qt3DExtras::QOrbitCameraController *rightCameraController;  // created but not owned later
-
-    // Stores the spheres that were added to the 3D model to indicate the positions that the user
-    // clicked while creating a new ObjectImageCorrespondence
-    QList<Qt3DCore::QEntity*> positionSpheres;
-
-    // Stores the position that the user clicked last to be able to add a sphere at that position
-    QVector3D lastClickedPosition;
-
+    UniquePointer<Correspondence> currentCorrespondence;
     // We need to store what image the user currently views that in case that they select an object
     // model we can restore the list of all correspondences available for the currently viewed image
     UniquePointer<Image> currentlySelectedImage;
 
-    bool ignoreComboBoxIndexChange = false;
+    bool ignoreValueChanges = false;
 
     void setEnabledCorrespondenceEditorControls(bool enabled);
     void setEnabledAllControls(bool enabled);
     void resetControlsValues();
-    void setup3DView();
-    void setupCamera(Qt3DRender::QCamera *&camera,
-                     QVector3D position,
-                     QVector3D lightPosition,
-                     Qt3DRender::QViewport *mainViewport,
-                     QRectF viewportRect);
-    void setObjectModelOnGraphicsWindow(const QString &objectModel);
-    void updateCameraLenses();
-    void resetCameras();
-    float cameraFieldOfView();
-    void addCorrespondencesToComboBoxCorrespondences(const Image *image, const QString &correspondenceToSelect = "");
-    void setCorrespondenceValuesOnControls(ObjectImageCorrespondence *correspondence);
+    void addCorrespondencesToComboBoxCorrespondences(
+            const Image *image, const QString &correspondenceToSelect = "");
+    void setCorrespondenceValuesOnControls(Correspondence *correspondence);
 
 private slots:
-    void objectPickerClicked(Qt3DRender::QPickEvent *pick);
     /*!
      * \brief updateCurrentlyEditedCorrespondence gets called whenever the user clicks on one of
      * the position or rotation controls or modifies the articulation angle.
      */
     void updateCurrentlyEditedCorrespondence();
-
     void onCorrespondenceAdded(const QString &correspondence);
-
     void onSpinBoxTranslationXValueChanged(double value);
-
     void onSpinBoxTranslationYValueChanged(double value);
-
     void onSpinBoxTranslationZValueChanged(double value);
-
     void onSpinBoxRotationXValueChanged(double value);
-
     void onSpinBoxRotationYValueChanged(double value);
-
     void onSpinBoxRotationZValueChanged(double value);
-
-    /*!
-     * \brief predictPositionOfObjectModels gets called when the user clicks on the predict button.
-     */
-    void onButtonPredictClicked();
-
     void onButtonCreateClicked();
-
+    void onButtonSaveClicked();
     /*!
      * \brief removeCurrentlyEditedCorrespondence gets called when the user wants to remove the
      * currenlty edited correspondence from the currenlty displayed image.
      */
     void onButtonRemoveClicked();
-
     void onComboBoxCorrespondenceIndexChanged(int index);
-
     void onSliderOpacityValueChanged(int value);
+    void onSliderOpacityReleased();
 
 };
 

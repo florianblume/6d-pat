@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>630</width>
+    <width>500</width>
     <height>355</height>
    </rect>
   </property>
@@ -123,6 +123,21 @@
       <enum>QFrame::Plain</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <property name="spacing">
+       <number>0</number>
+      </property>
       <item row="1" column="3" rowspan="2">
        <widget class="QFrame" name="frameExpandingPlaceholderRight">
         <property name="sizePolicy">
@@ -180,7 +195,7 @@
           <number>0</number>
          </property>
          <property name="bottomMargin">
-          <number>0</number>
+          <number>10</number>
          </property>
          <property name="horizontalSpacing">
           <number>12</number>
@@ -205,7 +220,22 @@
            <property name="title">
             <string>Correspondence</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
+           <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0">
+            <property name="spacing">
+             <number>5</number>
+            </property>
+            <property name="leftMargin">
+             <number>5</number>
+            </property>
+            <property name="topMargin">
+             <number>5</number>
+            </property>
+            <property name="rightMargin">
+             <number>5</number>
+            </property>
+            <property name="bottomMargin">
+             <number>5</number>
+            </property>
             <item>
              <widget class="QComboBox" name="comboBoxCorrespondence">
               <property name="enabled">
@@ -238,13 +268,13 @@
              <number>0</number>
             </property>
             <property name="topMargin">
-             <number>0</number>
+             <number>5</number>
             </property>
             <property name="rightMargin">
              <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>20</number>
+             <number>10</number>
             </property>
             <property name="spacing">
              <number>0</number>
@@ -280,6 +310,21 @@
             <string>Translation</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_7">
+            <property name="leftMargin">
+             <number>5</number>
+            </property>
+            <property name="topMargin">
+             <number>5</number>
+            </property>
+            <property name="rightMargin">
+             <number>5</number>
+            </property>
+            <property name="bottomMargin">
+             <number>5</number>
+            </property>
+            <property name="spacing">
+             <number>5</number>
+            </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_3">
               <property name="text">
@@ -320,7 +365,7 @@
                <double>1000.000000000000000</double>
               </property>
               <property name="singleStep">
-               <double>0.000100000000000</double>
+               <double>0.100000000000000</double>
               </property>
              </widget>
             </item>
@@ -364,7 +409,7 @@
                <double>1000.000000000000000</double>
               </property>
               <property name="singleStep">
-               <double>0.000100000000000</double>
+               <double>0.100000000000000</double>
               </property>
              </widget>
             </item>
@@ -408,7 +453,7 @@
                <double>1000.000000000000000</double>
               </property>
               <property name="singleStep">
-               <double>0.000100000000000</double>
+               <double>0.100000000000000</double>
               </property>
              </widget>
             </item>
@@ -478,6 +523,21 @@
             <string>Rotation</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_4">
+            <property name="leftMargin">
+             <number>5</number>
+            </property>
+            <property name="topMargin">
+             <number>5</number>
+            </property>
+            <property name="rightMargin">
+             <number>5</number>
+            </property>
+            <property name="bottomMargin">
+             <number>5</number>
+            </property>
+            <property name="spacing">
+             <number>5</number>
+            </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_6">
               <property name="text">
@@ -524,7 +584,7 @@
                <double>1000.000000000000000</double>
               </property>
               <property name="singleStep">
-               <double>0.000100000000000</double>
+               <double>0.100000000000000</double>
               </property>
              </widget>
             </item>
@@ -568,7 +628,7 @@
                <double>1000.000000000000000</double>
               </property>
               <property name="singleStep">
-               <double>0.000100000000000</double>
+               <double>0.100000000000000</double>
               </property>
              </widget>
             </item>
@@ -612,7 +672,7 @@
                <double>1000.000000000000000</double>
               </property>
               <property name="singleStep">
-               <double>0.000100000000000</double>
+               <double>0.100000000000000</double>
               </property>
              </widget>
             </item>
@@ -775,6 +835,65 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="buttonSave">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="palette">
+            <palette>
+             <active>
+              <colorrole role="Button">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>227</red>
+                 <green>227</green>
+                 <blue>227</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </active>
+             <inactive>
+              <colorrole role="Button">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>227</red>
+                 <green>227</green>
+                 <blue>227</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </inactive>
+             <disabled>
+              <colorrole role="Button">
+               <brush brushstyle="SolidPattern">
+                <color alpha="255">
+                 <red>227</red>
+                 <green>227</green>
+                 <blue>227</blue>
+                </color>
+               </brush>
+              </colorrole>
+             </disabled>
+            </palette>
+           </property>
+           <property name="autoFillBackground">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>Save</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QFrame" name="frame_3">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
@@ -818,46 +937,20 @@
        <number>10</number>
       </property>
       <item>
-       <widget class="QFrame" name="graphicsFrame">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="autoFillBackground">
-         <bool>false</bool>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-        </layout>
-       </widget>
+       <widget class="CorrespondenceEditorGLWidget" name="openGLWidget"/>
       </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CorrespondenceEditorGLWidget</class>
+   <extends>QOpenGLWidget</extends>
+   <header>view/rendering/opengl/correspondenceeditorglwidget.hpp</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -878,7 +971,7 @@
   </connection>
   <connection>
    <sender>sliderOpacity</sender>
-   <signal>valueChanged(int)</signal>
+   <signal>sliderMoved(int)</signal>
    <receiver>CorrespondenceEditor</receiver>
    <slot>onSliderOpacityValueChanged(int)</slot>
    <hints>
@@ -1020,6 +1113,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonSave</sender>
+   <signal>clicked()</signal>
+   <receiver>CorrespondenceEditor</receiver>
+   <slot>onButtonSaveClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>404</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderOpacity</sender>
+   <signal>sliderReleased()</signal>
+   <receiver>CorrespondenceEditor</receiver>
+   <slot>onSliderOpacityReleased()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>541</x>
+     <y>247</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onButtonCreateClicked()</slot>
@@ -1032,5 +1157,7 @@
   <slot>onSpinBoxRotationZValueChanged(double)</slot>
   <slot>onSpinBoxTranslationZValueChanged(double)</slot>
   <slot>onButtonRemoveClicked()</slot>
+  <slot>onButtonSaveClicked()</slot>
+  <slot>onSliderOpacityReleased()</slot>
  </slots>
 </ui>

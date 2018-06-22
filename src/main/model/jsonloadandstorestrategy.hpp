@@ -34,11 +34,14 @@ public:
      * \param _objectModelsPath
      * \param _correspondencesPath
      */
-    JsonLoadAndStoreStrategy(const QDir &imagesPath, const QDir &objectModelsPath, const QDir &correspondencesFilePath);
+    JsonLoadAndStoreStrategy(const QDir &imagesPath,
+                             const QDir &objectModelsPath,
+                             const QDir &correspondencesFilePath);
 
     ~JsonLoadAndStoreStrategy();
 
-    bool persistObjectImageCorrespondence(ObjectImageCorrespondence *objectImageCorrespondence, bool deleteCorrespondence) override;
+    bool persistObjectImageCorrespondence(Correspondence *objectImageCorrespondence,
+                                          bool deleteCorrespondence) override;
 
     QList<Image> loadImages() override;
 
@@ -57,7 +60,8 @@ public:
      * \return the list of all stored correspondences
      * \throws an exception if the path to the folder that should hold the correspondences has not been set previously
      */
-    QList<ObjectImageCorrespondence> loadCorrespondences(const QList<Image> &images, const QList<ObjectModel> &objectModels) override;
+    QList<Correspondence> loadCorrespondences(const QList<Image> &images,
+                                              const QList<ObjectModel> &objectModels) override;
 
     /*!
      * \brief setImagesPath Sets the path to the folder where the images that are to be annotated are located. After setting the

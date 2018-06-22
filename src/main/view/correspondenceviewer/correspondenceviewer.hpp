@@ -3,22 +3,18 @@
 
 #include "model/image.hpp"
 #include "model/objectmodel.hpp"
-#include "model/objectimagecorrespondence.hpp"
+#include "model/correspondence.hpp"
 #include "model/modelmanager.hpp"
-#include "view/rendering/objectmodelrenderable.hpp"
-#include "view/rendering/offscreenengine.h"
-#include "misc/globaltypedefs.h"
+#include "misc/global.h"
+#include "view/rendering/opengl/correspondenceviewerglwidget.hpp"
 
 #include <QList>
 #include <QMap>
 #include <QWidget>
 #include <QSignalMapper>
 #include <QScopedPointer>
-#include <Qt3DCore/QEntity>
-#include <Qt3DRender/QCamera>
-#include <Qt3DRender/QLayer>
-#include <Qt3DRender/QRenderCaptureReply>
-#include <QtAwesome/QtAwesome.h>
+#include <QtAwesome.h>
+#include <QTimer>
 
 namespace Ui {
 class CorrespondenceViewer;
@@ -56,13 +52,6 @@ public slots:
     void reset();
 
     /*!
-     * \brief update updates the view. There are no more fine-grained update methods
-     * (like delete, update only the parameters etc.), because the image is rendered
-     * offscreen and has to be completely re-rendered anyway.
-     */
-    void refresh();
-
-    /*!
      * \brief visualizeLastClickedPosition draws a point at the position that the user last clicked.
      * The color is retrieved using the provided index from the DisplayHelper.
      * \param correspondencePointIndex the index of the correspondence point, e.g. 1 if it is the
@@ -90,11 +79,15 @@ public slots:
     */
     void onCorrespondencePointStarted(QPoint point2D, int currentNumberOfPoints, int minimumNumberOfPoints);
 
+    void onCorrespondenceUpdated(Correspondence *correspondence);
+
     /*!
      * \brief onOpacityForObjectModelsChanged slot for when the opacity of the object models is changed.
      * \param opacity the new opacity of the object models that are displayed
      */
-    void onOpacityForObjectModelsChanged(int opacity);
+    void onOpacityChangeStarted(int opacity);
+
+    void onOpacityChangeEnded();
 
 signals:
     /*!
@@ -104,7 +97,7 @@ signals:
     /*!
      * \brief correspondenceClicked emitted when a displayed object model is clicked
      */
-    void correspondenceClicked(ObjectImageCorrespondence *correspondence);
+    void correspondenceClicked(Correspondence *correspondence);
 
 private:
 
@@ -113,24 +106,8 @@ private:
     ModelManager* modelManager;
 
     // All necessary stuff for 3D
-    OffscreenEngine *offscreenEngine;
-    Qt3DRender::QCamera *camera;
-    Qt3DCore::QEntity *lightEntity;
-    // This is the total scene root entity that will hold the camera and the sceneObjectsEntity
-    // We have this entity because to delete the objects in the scene we have to delete the
-    // entity that is the parent of all objects. If we had placed the camera as a child of said
-    // entity it would get deleted on scene reset. This is why we have the root as well as the
-    // entity that "holds" the actual objects.
-    Qt3DCore::QEntity *sceneRoot = Q_NULLPTR;
-    Qt3DCore::QEntity *sceneObjectsEntity = Q_NULLPTR;
-    Qt3DRender::QLayer *objectsLayer;
-    QList<Qt3DRender::QRenderCaptureReply*> renderReplies;
-    int renderAgain = 0;
-    QMap<QString, ObjectModelRenderable*> objectModelRenderables;
-    // The rendered image, we store it to later compose it with the actual displayed image
-    QImage renderedImage;
-    QImage renderedImageDefault;
     qreal objectsOpacity = 1.f;
+    QTimer *opacityTimer = 0;
 
     // Store the last clicked position, so that we can visualize it if the user calls the respective
     // function.
@@ -141,18 +118,6 @@ private:
     // segmentation image
     bool showingNormalImage = true;
 
-    void addObjectModelRenderable(const ObjectImageCorrespondence &correspondence,
-                                  int objectModelIndex);
-    // The method that receives the retrieved image (e.g. from setImage(Image*)) and initiates
-    // rendering
-    void showImage(const QString &imagePath);
-
-    void setupRenderingPipeline();
-    void setupSceneRoot();
-    void deleteSceneObjects();
-    // Helper method to overlay the rendered image with the actual image
-    QImage createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage);
-
     void connectModelManagerSlots();
 
 private slots:
@@ -160,11 +125,12 @@ private slots:
      * \brief showSegmentationImage is there for the switch view button
      */
     void switchImage();
-    void resetPositionOfImage();
-    void imageCaptured();
-    void imageClicked(QPoint point);
-    void onCorrespondenceUpdated(const QString &id);
+    void resetPositionOfGraphicsView();
+    void onImageClicked(QPoint point);
+    // Private slot listening to model manager
     void onCorrespondenceRemoved(const QString &id);
+    void onCorrespondenceAdded(const QString &id);
+    void updateOpacity();
 };
 
 #endif // CORRESPONDENCEEDITOR_H

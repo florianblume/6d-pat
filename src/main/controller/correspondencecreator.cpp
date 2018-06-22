@@ -1,5 +1,6 @@
 #include "correspondencecreator.h"
-#include "model/objectimagecorrespondence.hpp"
+#include "model/correspondence.hpp"
+#include "misc/otiathelper.h"
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -112,9 +113,10 @@ bool CorrespondenceCreator::createCorrespondence() {
                                           loadedImage.size().height() - point.pointIn2D.y()));
     }
 
-    cv::Mat cameraMatrix = (cv::Mat_<float>(3,3) << image->getFocalLengthX(), 0, image->getFocalPointX(),
-                                                     0 , image->getFocalLengthY(), image->getFocalPointY(),
-                                                     0, 0, 1);
+    cv::Mat cameraMatrix =
+            (cv::Mat_<float>(3,3) << image->getCameraMatrix()(0, 0), 0, image->getCameraMatrix()(0, 2),
+                                     0 , image->getCameraMatrix()(1, 1), image->getCameraMatrix()(1, 2),
+                                     0, 0, 1);
     cv::Mat coefficient = cv::Mat::zeros(4,1,cv::DataType<float>::type);
 
     cv::Mat resultRotation;
@@ -143,13 +145,17 @@ bool CorrespondenceCreator::createCorrespondence() {
                        resultTranslation.at<float>(1, 0),
                        resultTranslation.at<float>(2, 0));
     // Conversion from radians to degrees
-    QVector3D rotation(resultRotation.at<float>(0, 0) * (180.0f / M_PI),
-                       resultRotation.at<float>(1, 0) * (180.0f / M_PI),
-                       resultRotation.at<float>(2, 0) * (180.0f / M_PI));
+    cv::Mat rotMatrix;
+    cv::Rodrigues(resultRotation, rotMatrix);
+    QMatrix3x3 rotationMatrix(new float[9] {
+        rotMatrix.at<float>(0, 0), rotMatrix.at<float>(0, 1), rotMatrix.at<float>(0, 2),
+        rotMatrix.at<float>(1, 0), rotMatrix.at<float>(1, 1), rotMatrix.at<float>(1, 2),
+        rotMatrix.at<float>(2, 0), rotMatrix.at<float>(2, 1), rotMatrix.at<float>(2, 2)
+    });
     bool success = modelManager->addObjectImageCorrespondence(image,
                                                objectModel,
                                                position,
-                                               rotation);
+                                               rotationMatrix);
 
     points.clear();
     objectModel = Q_NULLPTR;

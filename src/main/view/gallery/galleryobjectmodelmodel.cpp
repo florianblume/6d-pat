@@ -1,6 +1,6 @@
 #include "galleryobjectmodelmodel.hpp"
 #include "misc/otiathelper.h"
-#include "view/rendering/objectmodelrenderable.hpp"
+#include "view/rendering/opengl/correspondencerenderable.hpp"
 #include <QIcon>
 #include <QPainter>
 #include <QDir>

@@ -2,7 +2,7 @@
 #define PREFERENCESSTORE_H
 
 #include "preferences.hpp"
-#include "misc/globaltypedefs.h"
+#include "misc/global.h"
 #include <QString>
 #include <QObject>
 
