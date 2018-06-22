@@ -11,7 +11,7 @@
 #include <QSharedPointer>
 #include <QVector>
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions>
+#include <QOpenGLFunctions_3_0>
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
 #include <QOpenGLShaderProgram>
@@ -22,7 +22,7 @@ typedef QSharedPointer<BackgroundImageRenderable> BackgroundImageRenderablePtr;
 typedef QSharedPointer<CorrespondenceRenderable> CorrespondenceRenderablePtr;
 typedef QSharedPointer<QOpenGLShaderProgram> QOpenGLShaderProgramPtr;
 
-class CorrespondenceViewerGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class CorrespondenceViewerGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_0
 {
     Q_OBJECT
 

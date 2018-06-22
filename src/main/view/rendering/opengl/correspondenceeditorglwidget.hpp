@@ -10,7 +10,7 @@
 #include <QVector>
 #include <QVector3D>
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions>
+#include <QOpenGLFunctions_3_0>
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
 #include <QOpenGLShaderProgram>
@@ -21,7 +21,7 @@
 typedef QSharedPointer<ObjectModelRenderable> ObjectModelRenderablePtr;
 typedef QSharedPointer<QOpenGLShaderProgram> QOpenGLShaderProgramPtr;
 
-class CorrespondenceEditorGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class CorrespondenceEditorGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_0
 {
     Q_OBJECT
 
@@ -55,12 +55,17 @@ private:
     int zRot;
 
     void initializePrograms();
+    void drawObject();
+    void renderObjectAndSegmentation();
+    QVector3D renderObjectCoordinates(QPoint point);
 
     ObjectModelRenderablePtr objectModelRenderable;
     QOpenGLShaderProgramPtr objectsProgram;
-    // The FBO to store rendering results to use them later in
-    // picking
-    QOpenGLFramebufferObject *depthFbo = 0;
+
+    QOpenGLShaderProgramPtr objectCoordsProgram;
+    // The FBO to store the object coordinates for clicking
+    QOpenGLFramebufferObject *objectCoordsFbo = 0;
+    GLfloat *renderedObjectCoords = 0;
 
     int modelViewProjectionMatrixLoc;
     int normalMatrixLoc;

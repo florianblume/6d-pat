@@ -1,5 +1,6 @@
-varying highp vec3 vert;
-varying highp vec3 vertNormal;
+#version 130
+in highp vec3 vert;
+in highp vec3 vertNormal;
 uniform highp vec3 lightPos;
 uniform highp float opacity;
 void main() {

@@ -1,4 +1,5 @@
 #include "view/rendering/opengl/correspondenceviewerglwidget.hpp"
+#include "misc/global.h"
 
 #include <QFrame>
 #include <QImage>
@@ -22,9 +23,9 @@ CorrespondenceViewerGLWidget::CorrespondenceViewerGLWidget(QWidget *parent)
     //timer->start(1000);
 
     QSurfaceFormat format;
-    format.setDepthBufferSize(24);
-    format.setStencilBufferSize(8);
-    format.setSamples(4);
+    format.setDepthBufferSize(DEPTH_BUFFER_SIZE);
+    format.setStencilBufferSize(STENCIL_BUFFER_SIZE);
+    format.setSamples(NUMBER_OF_SAMPLES);
     setFormat(format);
 
     clickOverlay = new ClickVisualizationOverlay(this);

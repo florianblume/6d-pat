@@ -99,6 +99,10 @@ void CorrespondenceEditorGLWidget::initializeGL()
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
 
+    glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
+    glClampColor(GL_CLAMP_VERTEX_COLOR, GL_FALSE);
+    glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
+
     initializePrograms();
 }
 
@@ -113,19 +117,50 @@ void CorrespondenceEditorGLWidget::initializePrograms() {
     objectsProgram->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
     objectsProgram->bindAttributeLocation("normal", PROGRAM_NORMAL_ATTRIBUTE);
     objectsProgram->link();
+
+    // Init objects shader program
+    objectCoordsProgram.reset(new QOpenGLShaderProgram);
+    // TODO: load custom shader that writes segmentations as well for clicking
+    objectCoordsProgram->addShaderFromSourceFile(
+                QOpenGLShader::Vertex, ":/shaders/correspondenceeditor/objectcoords.vert");
+    objectCoordsProgram->addShaderFromSourceFile(
+                QOpenGLShader::Fragment, ":/shaders/correspondenceeditor/objectcoords.frag");
+    objectCoordsProgram->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
+    objectCoordsProgram->bindAttributeLocation("normal", PROGRAM_NORMAL_ATTRIBUTE);
+    objectCoordsProgram->link();
 }
 
-void CorrespondenceEditorGLWidget::paintGL() {
+void CorrespondenceEditorGLWidget::drawObject() {
+    QOpenGLVertexArrayObject::Binder vaoBinder(
+                objectModelRenderable->getVertexArrayObject());
+
+    modelMatrix.setToIdentity();
+    modelMatrix.rotate(180.0f - (xRot / 16.0f), 1, 0, 0);
+    modelMatrix.rotate(yRot / 16.0f, 0, 1, 0);
+    modelMatrix.rotate(zRot / 16.0f, 0, 0, 1);
+    viewMatrix.setToIdentity();
+    viewMatrix.translate(QVector3D(0, 0, -4 * objectModelRenderable->getLargestVertexValue()));
+    projectionMatrix.setToIdentity();
+    projectionMatrix.perspective(45.f, width() / (float) height(), nearPlane, farPlane);
+    QMatrix4x4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
+    objectsProgram->setUniformValue(modelViewProjectionMatrixLoc, modelViewProjectionMatrix);
+
+    QMatrix4x4 modelViewMatrix = viewMatrix * modelMatrix;
+    QMatrix3x3 normalMatrix = modelViewMatrix.normalMatrix();
+    objectsProgram->setUniformValue(normalMatrixLoc, normalMatrix);
+
+    glDrawElements(GL_TRIANGLES, objectModelRenderable->getIndicesCount(), GL_UNSIGNED_INT, 0);
+}
+
+void CorrespondenceEditorGLWidget::renderObjectAndSegmentation() {
     QOpenGLFramebufferObjectFormat format;
     format.setAttachment(QOpenGLFramebufferObject::Attachment::CombinedDepthStencil);
     format.setSamples(NUMBER_OF_SAMPLES);
     format.setTextureTarget(GL_TEXTURE_2D);
     format.setInternalTextureFormat(GL_RGBA32F);
     QOpenGLFramebufferObject fbo(width(), height(), format);
-    // Attachment for segmentation
-    fbo.addColorAttachment(width(), height());
-    // Attachment for object coordinates
-    fbo.addColorAttachment(width(), height());
+    fbo.addColorAttachment(size());
+    fbo.addColorAttachment(size());
     fbo.bind();
 
     // Clear buffers.
@@ -153,49 +188,14 @@ void CorrespondenceEditorGLWidget::paintGL() {
             lightPosLoc = objectsProgram->uniformLocation("lightPos");
             segmentationColorLoc = objectsProgram->uniformLocation("segmentationColor");
 
-            QOpenGLVertexArrayObject::Binder vaoBinder(
-                        objectModelRenderable->getVertexArrayObject());
-
             // Light position is fixed.
             objectsProgram->setUniformValue(lightPosLoc, QVector3D(0, 10, 70));
             objectsProgram->setUniformValue(segmentationColorLoc, segmentationColor);
-
-            modelMatrix.setToIdentity();
-            modelMatrix.rotate(180.0f - (xRot / 16.0f), 1, 0, 0);
-            modelMatrix.rotate(yRot / 16.0f, 0, 1, 0);
-            modelMatrix.rotate(zRot / 16.0f, 0, 0, 1);
-            viewMatrix.setToIdentity();
-            viewMatrix.translate(QVector3D(0, 0, -3 * objectModelRenderable->getLargestVertexValue()));
-            projectionMatrix.setToIdentity();
-            projectionMatrix.perspective(45.f, width() / (float) height(), nearPlane, farPlane);
-            QMatrix4x4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
-            objectsProgram->setUniformValue(modelViewProjectionMatrixLoc, modelViewProjectionMatrix);
-
-            QMatrix4x4 modelViewMatrix = viewMatrix * modelMatrix;
-            QMatrix3x3 normalMatrix = modelViewMatrix.normalMatrix();
-            objectsProgram->setUniformValue(normalMatrixLoc, normalMatrix);
-
-            glDrawElements(GL_TRIANGLES, objectModelRenderable->getIndicesCount(), GL_UNSIGNED_INT, 0);
+            drawObject();
         }
         objectsProgram->release();
 
         renderedSegmentationImage = fbo.toImage(true, 1);
-        if (!depthFbo) {
-            // Since we use multisampling we need to blit before
-            // using glReadPixels
-            format.setSamples(0);
-            depthFbo = new QOpenGLFramebufferObject(width(), height(), format);
-            depthFbo->setAttachment(QOpenGLFramebufferObject::Depth);
-        }
-
-
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo.handle());
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, depthFbo->handle());
-
-        QOpenGLFramebufferObject::blitFramebuffer(depthFbo,
-                          &fbo,
-                          GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
-                          GL_LINEAR);
     }
 
     fbo.release();
@@ -206,6 +206,46 @@ void CorrespondenceEditorGLWidget::paintGL() {
                                                  0, 0, width(), height(),
                                                  GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT,
                                                  GL_NEAREST);
+}
+
+QVector3D CorrespondenceEditorGLWidget::renderObjectCoordinates(QPoint point) {
+    makeCurrent();
+    QOpenGLFramebufferObjectFormat format;
+    format.setAttachment(QOpenGLFramebufferObject::Attachment::CombinedDepthStencil);
+    // Segmentation mask gets multisampled already, we don't need to again here
+    format.setSamples(0);
+    format.setTextureTarget(GL_TEXTURE_2D);
+    format.setInternalTextureFormat(GL_RGBA32F);
+    objectCoordsFbo = new QOpenGLFramebufferObject(width(), height(), format);
+
+    objectCoordsFbo->bind();
+
+    // Clear buffers.
+    QOpenGLExtraFunctions* f = QOpenGLContext::currentContext()->extraFunctions();
+    GLenum bufs[1] = { GL_COLOR_ATTACHMENT0 };
+    f->glDrawBuffers(1, bufs);
+    glClearColor(0.f, 0.f, 0.f, 1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    float pixel[3];
+
+    if (!objectModelRenderable.isNull()) {
+        objectCoordsProgram->bind();
+        {
+            modelViewProjectionMatrixLoc = objectsProgram->uniformLocation("projectionMatrix");
+            drawObject();
+        }
+        objectCoordsProgram->release();
+        glReadPixels( point.x(), height() - point.y(), 1, 1, GL_RGB,  GL_FLOAT, &pixel );
+    }
+    objectCoordsFbo->release();
+    delete objectCoordsFbo;
+    doneCurrent();
+    return QVector3D(pixel[0], pixel[1], pixel[2]);
+}
+
+void CorrespondenceEditorGLWidget::paintGL() {
+    renderObjectAndSegmentation();
 }
 
 void CorrespondenceEditorGLWidget::mousePressEvent(QMouseEvent *event)
@@ -235,20 +275,9 @@ void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
         QPoint mousePos = event->pos();
         QColor mouseClickColor = renderedSegmentationImage.pixelColor(mousePos.x(), mousePos.y());
         if (mouseClickColor == segmentationColor) {
-            makeCurrent();
-
-            depthFbo->bind();
-            GLfloat pixel;
-            glReadPixels( mousePos.x(), mousePos.y(), 1, 1, GL_DEPTH_COMPONENT,  GL_FLOAT, &pixel );
-            qDebug() << pixel;
-            depthFbo->release();
-
-            QVector3D Z(mousePos.x(), mousePos.y(), pixel);
-            QMatrix4x4 modelViewMatrix = viewMatrix * modelMatrix;
-            QVector3D localPosition = Z.unproject(modelViewMatrix, projectionMatrix, QRect(0, 0, width(), height()));
-            qDebug() << localPosition;
-
-            doneCurrent();
+            qDebug() << mousePos;
+            QVector3D pos3D = renderObjectCoordinates(mousePos);
+            qDebug() << pos3D;
         }
     }
     mouseMoved = false;

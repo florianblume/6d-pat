@@ -8,5 +8,7 @@
     <qresource prefix="/shaders/correspondenceeditor">
         <file alias="object.vert">src/main/view/rendering/opengl/objecteditor.vert</file>
         <file alias="object.frag">src/main/view/rendering/opengl/objecteditor.frag</file>
+        <file alias="objectcoords.frag">src/main/view/rendering/opengl/objecteditorcoords.frag</file>
+        <file alias="objectcoords.vert">src/main/view/rendering/opengl/objecteditorcoords.vert</file>
     </qresource>
 </RCC>
