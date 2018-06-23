@@ -267,14 +267,21 @@ void CorrespondenceEditorGLWidget::mousePressEvent(QMouseEvent *event)
 void CorrespondenceEditorGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     int dx = event->x() - lastClicked2DPos.x();
-    int dy = event->y() - lastClicked2DPos.y();
+    int dy = lastClicked2DPos.y() - event->y();
+    int d = 0;
+    if (qAbs(dx) > qAbs(dy))
+        d = dx;
+    else
+        d = dy;
 
     if (event->buttons() & Qt::LeftButton) {
-        setXRotation(xRot + 8 * dy);
-        setYRotation(yRot + 8 * dx);
+        setXRotation(xRot + 8 * d);
         mouseMoved = true;
     } else if (event->buttons() & Qt::RightButton) {
-        setZRotation(zRot + 8 * dx);
+        setZRotation(zRot + 8 * d);
+        mouseMoved = true;
+    }else if (event->buttons() & Qt::MiddleButton) {
+        setYRotation(yRot + 8 * d);
         mouseMoved = true;
     }
     lastClicked2DPos = event->pos();
