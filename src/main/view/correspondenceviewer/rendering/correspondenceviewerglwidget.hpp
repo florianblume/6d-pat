@@ -2,9 +2,9 @@
 #define GLWIDGET_H
 
 #include "model/correspondence.hpp"
-#include "view/rendering/opengl/backgroundimagerenderable.hpp"
-#include "view/rendering/opengl/correspondencerenderable.hpp"
-#include "view/rendering/opengl/clickvisualizationoverlay.hpp"
+#include "view/correspondenceviewer/rendering/backgroundimagerenderable.hpp"
+#include "view/correspondenceviewer/rendering/correspondencerenderable.hpp"
+#include "view/correspondenceviewer/rendering/clickvisualizationoverlay.hpp"
 
 #include <QString>
 #include <QList>

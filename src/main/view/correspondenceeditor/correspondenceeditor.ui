@@ -948,7 +948,7 @@
   <customwidget>
    <class>CorrespondenceEditorGLWidget</class>
    <extends>QOpenGLWidget</extends>
-   <header>view/rendering/opengl/correspondenceeditorglwidget.hpp</header>
+   <header>view/correspondenceeditor/rendering/correspondenceeditorglwidget.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -6,7 +6,7 @@
 #include "model/correspondence.hpp"
 #include "model/modelmanager.hpp"
 #include "misc/global.h"
-#include "view/rendering/opengl/correspondenceviewerglwidget.hpp"
+#include "rendering/correspondenceviewerglwidget.hpp"
 
 #include <QList>
 #include <QMap>

@@ -178,10 +178,10 @@ void CorrespondenceViewer::onImageClicked(QPoint point) {
 
 void CorrespondenceViewer::onCorrespondenceRemoved(const QString &id) {
     Correspondence correspondence = modelManager->getCorrespondenceById(id);
-    ui->openGLWidget->addCorrespondence(correspondence);
+    ui->openGLWidget->removeCorrespondence(correspondence);
 }
 
 void CorrespondenceViewer::onCorrespondenceAdded(const QString &id) {
     Correspondence correspondence = modelManager->getCorrespondenceById(id);
-    ui->openGLWidget->removeCorrespondence(correspondence);
+    ui->openGLWidget->addCorrespondence(correspondence);
 }

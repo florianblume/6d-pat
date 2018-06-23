@@ -2,7 +2,8 @@
 #define GLWIDGET_H
 
 #include "model/correspondence.hpp"
-#include "view/rendering/opengl/objectmodelrenderable.h"
+#include "view/correspondenceeditor/rendering/correspondenceeditorglwidget.hpp"
+#include "view/correspondenceeditor/rendering/objectmodelrenderable.hpp"
 
 #include <QString>
 #include <QList>

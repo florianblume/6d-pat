@@ -1,9 +1,0 @@
-#include "imageviewlabel.h"
-
-ImageViewLabel::ImageViewLabel() {
-
-}
-
-void ImageViewLabel::mousePressEvent(QMouseEvent *event) {
-
-}

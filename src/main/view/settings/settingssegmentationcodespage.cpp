@@ -1,9 +1,9 @@
 #include "settingssegmentationcodespage.hpp"
 #include "ui_settingssegmentationcodespage.h"
-#include "otiathelper.h"
+#include "misc/otiathelper.h"
 #include <QPushButton>
 #include <QColorDialog>
-#include <QtAwesome/QtAwesome.h>
+#include <3dparty/QtAwesome/QtAwesome.h>
 
 SettingsSegmentationCodesPage::SettingsSegmentationCodesPage(QWidget *parent) :
     QWidget(parent),

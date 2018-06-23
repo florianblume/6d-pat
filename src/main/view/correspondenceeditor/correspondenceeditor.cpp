@@ -2,7 +2,7 @@
 #include "ui_correspondenceeditor.h"
 #include "misc/otiathelper.h"
 #include "view/misc/displayhelper.h"
-#include "view/rendering/opengl/correspondenceeditorglwidget.hpp"
+#include "view/correspondenceeditor/rendering/correspondenceeditorglwidget.hpp"
 
 #include <opencv2/core/mat.hpp>
 #include <QUrl>

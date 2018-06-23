@@ -1,14 +1,14 @@
 <RCC>
     <qresource prefix="/shaders/correspondenceviewer">
-        <file alias="background.frag">src/main/view/rendering/opengl/background.frag</file>
-        <file alias="background.vert">src/main/view/rendering/opengl/background.vert</file>
-        <file alias="object.vert">src/main/view/rendering/opengl/objectviewer.vert</file>
-        <file alias="object.frag">src/main/view/rendering/opengl/objectviewer.frag</file>
+        <file alias="background.vert">src/main/view/correspondenceviewer/rendering/shaders/background.vert</file>
+        <file alias="background.frag">src/main/view/correspondenceviewer/rendering/shaders/background.frag</file>
+        <file alias="object.vert">src/main/view/correspondenceviewer/rendering/shaders/object.vert</file>
+        <file alias="object.frag">src/main/view/correspondenceviewer/rendering/shaders/object.frag</file>
     </qresource>
     <qresource prefix="/shaders/correspondenceeditor">
-        <file alias="object.vert">src/main/view/rendering/opengl/objecteditor.vert</file>
-        <file alias="object.frag">src/main/view/rendering/opengl/objecteditor.frag</file>
-        <file alias="objectcoords.frag">src/main/view/rendering/opengl/objecteditorcoords.frag</file>
-        <file alias="objectcoords.vert">src/main/view/rendering/opengl/objecteditorcoords.vert</file>
+        <file alias="objectcoords.vert">src/main/view/correspondenceeditor/rendering/shaders/objectcoords.vert</file>
+        <file alias="objectcoords.frag">src/main/view/correspondenceeditor/rendering/shaders/objectcoords.frag</file>
+        <file alias="object.vert">src/main/view/correspondenceeditor/rendering/shaders/object.vert</file>
+        <file alias="object.frag">src/main/view/correspondenceeditor/rendering/shaders/object.frag</file>
     </qresource>
 </RCC>

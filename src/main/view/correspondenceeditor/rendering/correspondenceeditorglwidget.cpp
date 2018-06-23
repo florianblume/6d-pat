@@ -1,4 +1,4 @@
-#include "view/rendering/opengl/correspondenceeditorglwidget.hpp"
+#include "view/correspondenceeditor/rendering/correspondenceeditorglwidget.hpp"
 #include "misc/global.h"
 
 #include <cmath>
@@ -193,6 +193,8 @@ void CorrespondenceEditorGLWidget::renderObjectAndSegmentation() {
                                                  colorsOfClicks.constData(),
                                                  colorsOfClicks.size());
             objectsProgram->setUniformValue("clickCount", clicks3D.size());
+            objectsProgram->setUniformValue("circumfence",
+                                            objectModelRenderable->getLargestVertexValue() / 50.f);
             drawObject();
         }
         objectsProgram->release();

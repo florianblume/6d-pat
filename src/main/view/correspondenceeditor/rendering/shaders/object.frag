@@ -5,6 +5,7 @@ uniform highp vec3 lightPos;
 uniform highp vec4 segmentationColor;
 uniform highp vec3 clickPositions[10];
 uniform highp vec3 colorsOfClicks[10];
+uniform highp float circumfence;
 uniform int clickCount;
 
 void main() {
@@ -18,7 +19,7 @@ void main() {
                for (int i = 0; i < clickCount; i++)
                {
                    vec3 delta = abs(vert - clickPositions[i]); // Get delta from middle vec3
-                   if ((delta.r <= 0.35) && (delta.g <= 0.35) && (delta.b <= 0.35))
+                   if (delta.r + delta.g + delta.b <= circumfence)
                    {
                        isClicked = true;
                        index = i;

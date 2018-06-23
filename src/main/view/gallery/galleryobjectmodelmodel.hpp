@@ -2,7 +2,6 @@
 #define GALLERYOBJECTMODELMODEL_H
 
 #include "model/modelmanager.hpp"
-#include "view/rendering/opengl/correspondencerenderable.hpp"
 #include <QAbstractListModel>
 #include <QPixmap>
 #include <QMap>

@@ -1,4 +1,4 @@
-#include "view/rendering/opengl/correspondenceviewerglwidget.hpp"
+#include "view/correspondenceviewer/rendering/correspondenceviewerglwidget.hpp"
 #include "misc/global.h"
 
 #include <QFrame>
