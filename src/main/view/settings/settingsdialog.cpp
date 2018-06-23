@@ -1,5 +1,6 @@
 #include "settingsdialog.hpp"
 #include "ui_settingsdialog.h"
+#include <QFileInfo>
 #include <3dparty/QtAwesome/QtAwesome.h>
 
 SettingsDialog::SettingsDialog(QWidget *parent) :

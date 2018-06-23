@@ -156,15 +156,14 @@ void MainWindow::onImageClicked(Image* image, QPoint position) {
     //! No need to check for whether the right widget was clicked because the only time this method
     //! will be called is when the object image picker received a click on the image
     if (ui->correspondenceEditor->isDisplayingObjectModel()) {
-        correspondenceCreationInProgress = false;
-        if (correspondencePointComplete) {
+        if (correspondenceCreationInProgress) {
             displayWarning("Correspondence creation", "You need to click"
                                                       " the object model"
                                                       " to add the 2D-3D"
-                                                      " orrespondence.");
+                                                      " correspondence.");
         } else {
             QGuiApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
-            correspondencePointComplete = true;
+            correspondenceCreationInProgress = true;
             emit imageClicked(image, position);
         }
     } else {
@@ -175,13 +174,18 @@ void MainWindow::onImageClicked(Image* image, QPoint position) {
 }
 
 void MainWindow::onObjectModelClicked(ObjectModel* objectModel, QVector3D position) {
+    if (!correspondenceCreationInProgress) {
+        displayWarning("Correspondence creation", "You need to click a position on"
+                                                  " the image first before selecting"
+                                                  " the corresponding 3D position.");
+    }
     QGuiApplication::restoreOverrideCursor();
+    correspondenceCreationInProgress = false;
     // The user might click on the overlay before he starts to create a correspondence,
     // i.e. the overlay is not visible yet and not created. But as soon as the user clicks
     // the image and then the object, this adds a correspondence point and the overlay
     // should be hidden.
     emit objectModelClicked(objectModel, position);
-    correspondencePointComplete = false;
 }
 
 void MainWindow::onSelectedObjectModelChanged(int index) {
@@ -245,8 +249,7 @@ void MainWindow::onCorrespondenceCreated() {
 void MainWindow::onCorrespondenceCreationReset() {
     setStatusBarText("Ready.");
     QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
-    correspondencePointComplete = false;
-    correspondenceCreationInProgress = true;
+    correspondenceCreationInProgress = false;
 }
 
 void MainWindow::onCorrespondenceCreationRequested() {

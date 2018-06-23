@@ -265,13 +265,10 @@ private:
     void writeSettings();
     void readSettings();
 
-    // To be able whether the user clicked the image
-    // and needs to click the object model now
-    bool correspondencePointComplete = false;
     // To indicate whether to emit signal correspondence
     // creation aborted when the user clicks anywhere on
     // the window
-    bool correspondenceCreationInProgress = true;
+    bool correspondenceCreationInProgress = false;
 
     // The name of the settings - QT requests this to store settings "offline"
     static QString SETTINGS_NAME;
