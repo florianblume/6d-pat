@@ -138,6 +138,7 @@ void MainController::onObjectModelsPathChanged(const QString &newPath) {
 
 void MainController::showView() {
     mainWindow.show();
+    mainWindow.raise();
 }
 
 void MainController::resetCorrespondenceCreation() {

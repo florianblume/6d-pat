@@ -165,7 +165,7 @@ void CorrespondenceEditorGLWidget::renderObjectAndSegmentation() {
     format.setAttachment(QOpenGLFramebufferObject::Attachment::CombinedDepthStencil);
     format.setSamples(NUMBER_OF_SAMPLES);
     format.setTextureTarget(GL_TEXTURE_2D);
-    format.setInternalTextureFormat(GL_RGBA32F);
+    format.setInternalTextureFormat(GL_RGBA);
     QOpenGLFramebufferObject fbo(width(), height(), format);
     fbo.addColorAttachment(size());
     fbo.addColorAttachment(size());

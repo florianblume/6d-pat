@@ -63,7 +63,7 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
                 int index = 0;
                 foreach(const QJsonValue &entry, entriesForImage) {
                     QJsonObject entryObject = entry.toObject();
-                    if (entry["id"] == objectImageCorrespondence->getID()) {
+                    if (entryObject["id"] == objectImageCorrespondence->getID()) {
                         entriesForImage.removeAt(index);
                     }
                     index++;

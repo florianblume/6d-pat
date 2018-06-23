@@ -166,7 +166,7 @@ void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
 
 void CorrespondenceEditor::onCorrespondenceAdded(const QString &correspondence) {
     QSharedPointer<Correspondence> actualCorrespondence = modelManager->getCorrespondenceById(correspondence);
-    Correspondence *c = actualCorrespondence.get();
+    Correspondence *c = actualCorrespondence.data();
     addCorrespondencesToComboBoxCorrespondences(c->getImage(), correspondence);
     ui->buttonCreate->setEnabled(false);
     ui->openGLWidget->removeClicks();

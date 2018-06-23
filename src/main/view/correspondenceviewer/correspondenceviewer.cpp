@@ -183,6 +183,6 @@ void CorrespondenceViewer::onCorrespondenceDeleted(const QString &id) {
 void CorrespondenceViewer::onCorrespondenceAdded(const QString &id) {
     QSharedPointer<Correspondence> correspondence = modelManager->getCorrespondenceById(id);
     if (!correspondence.isNull())
-        ui->openGLWidget->addCorrespondence(*correspondence.get());
+        ui->openGLWidget->addCorrespondence(*correspondence.data());
     ui->openGLWidget->removeClicks();
 }

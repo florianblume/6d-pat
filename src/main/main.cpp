@@ -14,6 +14,7 @@ int main(int argc, char *argv[]) {
     QSplashScreen splash(pixmap);
     splash.setWindowFlag(Qt::WindowStaysOnTopHint, true);
     splash.show();
+    splash.raise();
 
     MainController m;
 
