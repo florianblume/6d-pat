@@ -11,4 +11,8 @@
         <file alias="object.vert">src/main/view/correspondenceeditor/rendering/shaders/object.vert</file>
         <file alias="object.frag">src/main/view/correspondenceeditor/rendering/shaders/object.frag</file>
     </qresource>
+    <qresource prefix="/images">
+        <file alias="about.png">resources/about.png</file>
+        <file alias="icon.png">resources/icon.png</file>
+    </qresource>
 </RCC>

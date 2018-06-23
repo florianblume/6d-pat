@@ -438,11 +438,11 @@
    </palette>
   </property>
   <property name="windowTitle">
-   <string>Otiat</string>
+   <string>6D-PAT</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>../../../../../Pictures/Otiat Icon.png</normaloff>../../../../../Pictures/Otiat Icon.png</iconset>
+   <iconset resource="../../../6dpatsources.qrc">
+    <normaloff>:/images/icon.png</normaloff>:/images/icon.png</iconset>
   </property>
   <property name="autoFillBackground">
    <bool>true</bool>
@@ -1542,7 +1542,9 @@
    </slots>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../6dpatsources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>navigationRight</sender>

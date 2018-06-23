@@ -9,8 +9,7 @@
 
 // Empty initialization of strategy so that we can set the path later and do so
 // in a background thread to keep application reactive
-MainController::MainController(int &argc, char *argv[]) :
-    QApplication(argc, argv),
+MainController::MainController() :
     strategy(),
     modelManager(strategy) {
     connect(preferencesStore.get(), SIGNAL(preferencesChanged(QString)),

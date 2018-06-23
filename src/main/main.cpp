@@ -1,10 +1,23 @@
 #include "controller/maincontroller.hpp"
 #include "misc/global.h"
 #include <QSurfaceFormat>
+#include <QSplashScreen>
+#include <QPixmap>
+#include <QApplication>
+#include <QThread>
 
 int main(int argc, char *argv[]) {
     qSetMessagePattern("[%{function}] (%{type}): %{message}");
-    MainController m(argc, argv);
+    QApplication app(argc, argv);
+
+    QPixmap pixmap(":/splash.png");
+    QSplashScreen splash(pixmap);
+    splash.setWindowFlag(Qt::WindowStaysOnTopHint, true);
+    splash.show();
+
+    MainController m;
+
+    QThread::sleep(1);
 
     QSurfaceFormat format;
     format.setDepthBufferSize(DEPTH_BUFFER_SIZE);
@@ -15,7 +28,8 @@ int main(int argc, char *argv[]) {
     QSurfaceFormat::setDefaultFormat(format);
 
     //! in this order so that the user sees something already and then load entities
-    m.showView();
     m.initialize();
-    return m.exec();
+    m.showView();
+    splash.close();
+    return app.exec();
 }

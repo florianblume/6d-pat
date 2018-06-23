@@ -10,17 +10,17 @@
 #include "misc/global.h"
 #include "controller/correspondencecreator.h"
 
-#include <QApplication>
 #include <QMap>
 #include <QList>
 
-//! This class is responsible for the overall program to work. It maintains references to all the important parts and
+//! This class is responsible for the overall program to work.
+//! It maintains references to all the important parts and
 //! ensures them to work properly and updates or makes update-requests when necessary.
-class MainController : public QApplication {
+class MainController : public QObject {
     Q_OBJECT
 
 public:
-    MainController(int &argc, char *argv[]);
+    MainController();
     ~MainController();
 
     /*!

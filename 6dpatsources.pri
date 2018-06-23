@@ -93,4 +93,4 @@ LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lope
 INCLUDEPATH += /usr/local/include/assimp
 
 RESOURCES += \
-    $$PWD/otiatsourcesresources.qrc
+    $$PWD/6dpatsources.qrc

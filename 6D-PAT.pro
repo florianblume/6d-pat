@@ -7,7 +7,7 @@
 TEMPLATE = app
 TARGET = Otiat
 
-include(./OtiatSources.pri)
+include(./6dpatsources.pri)
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
@@ -16,4 +16,7 @@ SOURCES += \
 
 
 DISTFILES = \
-    OtiatSources.pri
+    6dpatsources.pri
+
+RESOURCES += \
+    6dpat.qrc

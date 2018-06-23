@@ -265,19 +265,26 @@ void MainWindow::onPreferencesChanged(const QString &identifier) {
     onCorrespondenceCreationReset();
 }
 
-void MainWindow::onActionAboutTriggered()
-{
-    QMessageBox::about(this, tr("About Otiat"), tr("Object to image annotator, "
-                                                   "or shorter Otiat, is a tool "
-                                                   "that allows users to drag and "
-                                                   "position 3D models of objects "
-                                                   "on images. Depending on the "
-                                                   "selected storage options the "
-                                                   "position and rotation are "
-                                                   "persisted for later use. "
-                                                   "The so annotated images can "
-                                                   "be used to e.g. train a neural "
-                                                   "network."));
+void MainWindow::onActionAboutTriggered() {
+    QMessageBox about;
+    about.setText(tr("What is 6D-PAT?"));
+    about.setInformativeText(tr("6D pose annotation tool, "
+                                "or shorter 6D-PAT, is a tool "
+                                "that allows users to "
+                                "position 3D models of objects "
+                                "on images. Depending on the "
+                                "selected storage options the "
+                                "position and rotation are "
+                                "persisted for later use. "
+                                "The so annotated images can "
+                                "be used to e.g. train a neural "
+                                "network."));
+    about.setStandardButtons(QMessageBox::Ok);
+    QPixmap icon(":/images/about.png");
+    about.setIconPixmap(icon);   // here is the error
+    about.setDefaultButton(QMessageBox::Ok);
+    about.show();
+    about.exec();
 }
 
 void MainWindow::onActionExitTriggered()

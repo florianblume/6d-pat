@@ -47,7 +47,7 @@ CorrespondenceViewerGLWidget::~CorrespondenceViewerGLWidget()
 {
     makeCurrent();
     // To invoke destructors
-    backgroundImageRenderable.reset(0);
+    backgroundImageRenderable.reset();
     removeCorrespondences();
     doneCurrent();
 }
@@ -109,8 +109,7 @@ void CorrespondenceViewerGLWidget::reset() {
     backgroundImageRenderable.reset();
 }
 
-void CorrespondenceViewerGLWidget::initializeGL()
-{
+void CorrespondenceViewerGLWidget::initializeGL() {
     initializeOpenGLFunctions();
 
     glEnable(GL_DEPTH_TEST);
@@ -121,8 +120,7 @@ void CorrespondenceViewerGLWidget::initializeGL()
     initializeObjectProgram();
 }
 
-void CorrespondenceViewerGLWidget::initializeBackgroundProgram()
-{
+void CorrespondenceViewerGLWidget::initializeBackgroundProgram() {
     backgroundProgram.reset(new QOpenGLShaderProgram);
     backgroundProgram->addShaderFromSourceFile(
                 QOpenGLShader::Vertex, ":/shaders/correspondenceviewer/background.vert");
@@ -149,8 +147,7 @@ void CorrespondenceViewerGLWidget::initializeObjectProgram() {
     objectsProgram->link();
 }
 
-void CorrespondenceViewerGLWidget::paintGL()
-{
+void CorrespondenceViewerGLWidget::paintGL() {
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glDisable(GL_BLEND);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -208,13 +205,11 @@ void CorrespondenceViewerGLWidget::paintGL()
     objectsProgram->release();
 }
 
-void CorrespondenceViewerGLWidget::mousePressEvent(QMouseEvent *event)
-{
+void CorrespondenceViewerGLWidget::mousePressEvent(QMouseEvent *event) {
     lastPos = event->globalPos() - QPoint(geometry().x(), geometry().y());
 }
 
-void CorrespondenceViewerGLWidget::mouseMoveEvent(QMouseEvent *event)
-{
+void CorrespondenceViewerGLWidget::mouseMoveEvent(QMouseEvent *event) {
     if (event->buttons() & Qt::LeftButton) {
         QPoint newPosition = event->globalPos();
         newPosition.setX(newPosition.x() - lastPos.x());
@@ -224,9 +219,8 @@ void CorrespondenceViewerGLWidget::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void CorrespondenceViewerGLWidget::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (!mouseMoved) {
+void CorrespondenceViewerGLWidget::mouseReleaseEvent(QMouseEvent *event) {
+    if (!mouseMoved && !backgroundImageRenderable.isNull()) {
         emit positionClicked(event->pos());
     }
     mouseMoved = false;

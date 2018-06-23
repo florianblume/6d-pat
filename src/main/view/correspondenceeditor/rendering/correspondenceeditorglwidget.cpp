@@ -282,7 +282,7 @@ void CorrespondenceEditorGLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (!mouseMoved) {
+    if (!mouseMoved && !objectModelRenderable.isNull()) {
         QPoint mousePos = event->pos();
         QColor mouseClickColor =
                 renderedSegmentationImage.pixelColor(mousePos.x(), mousePos.y());
