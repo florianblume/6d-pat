@@ -95,7 +95,7 @@ private:
     UniquePointer<Correspondence> currentCorrespondence;
     // We need to store what image the user currently views that in case that they select an object
     // model we can restore the list of all correspondences available for the currently viewed image
-    UniquePointer<Image> currentlySelectedImage;
+    Image currentlySelectedImage;
 
     bool ignoreValueChanges = false;
 
@@ -108,11 +108,19 @@ private:
 
 private slots:
     /*!
+     * \brief onObjectModelClickedAt the function that will be connected to
+     * the OpenGL widget to handle clicks on the object
+     * \param position
+     */
+    void onObjectModelClickedAt(QVector3D position);
+    /*!
      * \brief updateCurrentlyEditedCorrespondence gets called whenever the user clicks on one of
      * the position or rotation controls or modifies the articulation angle.
      */
     void updateCurrentlyEditedCorrespondence();
     void onCorrespondenceAdded(const QString &correspondence);
+    void onCorrespondenceDeleted(const QString &correspondence);
+
     void onSpinBoxTranslationXValueChanged(double value);
     void onSpinBoxTranslationYValueChanged(double value);
     void onSpinBoxTranslationZValueChanged(double value);

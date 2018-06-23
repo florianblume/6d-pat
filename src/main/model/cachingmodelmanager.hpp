@@ -32,7 +32,7 @@ public:
 
     QList<Correspondence> getCorrespondences() override;
 
-    Correspondence getCorrespondenceById(const QString &id) override;
+    QSharedPointer<Correspondence> getCorrespondenceById(const QString &id) override;
 
     QList<Correspondence> getCorrespondencesForImageAndObjectModel(
             const Image &image,

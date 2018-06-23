@@ -34,7 +34,7 @@ public:
     void setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix);
     void addCorrespondence(const Correspondence &correspondence);
     void updateCorrespondence(const Correspondence &correspondence);
-    void removeCorrespondence(const Correspondence &correspondence);
+    void removeCorrespondence(const QString &id);
     void removeCorrespondences();
     CorrespondenceRenderable *getObjectModelRenderable(
             const Correspondence &correspondence);

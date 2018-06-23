@@ -43,7 +43,7 @@ void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
         disconnect(modelManager, SIGNAL(correspondenceAdded(QString)),
                    this, SLOT(onCorrespondenceAdded(QString)));
         disconnect(modelManager, SIGNAL(correspondenceDeleted(QString)),
-                   this, SLOT(onCorrespondenceRemoved(QString)));
+                   this, SLOT(onCorrespondenceDeleted(QString)));
         disconnect(this->modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
         disconnect(this->modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
     }
@@ -84,7 +84,7 @@ void CorrespondenceViewer::connectModelManagerSlots() {
     connect(modelManager, SIGNAL(correspondenceAdded(QString)),
                this, SLOT(onCorrespondenceAdded(QString)));
     connect(modelManager, SIGNAL(correspondenceDeleted(QString)),
-               this, SLOT(onCorrespondenceRemoved(QString)));
+               this, SLOT(onCorrespondenceDeleted(QString)));
     connect(modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
     connect(modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
     connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(reset()));
@@ -104,7 +104,7 @@ void CorrespondenceViewer::reset() {
 void CorrespondenceViewer::visualizeLastClickedPosition(int correspondencePointIndex) {
     Q_ASSERT(correspondencePointIndex >= 0);
     ui->openGLWidget->addClick(lastClickedPosition,
-                               DisplayHelper::colorForCorrespondencePointIndex(correspondencePointIndex));
+              DisplayHelper::colorForCorrespondencePointIndex(correspondencePointIndex));
 }
 
 void CorrespondenceViewer::onCorrespondenceCreationAborted() {
@@ -176,12 +176,13 @@ void CorrespondenceViewer::onImageClicked(QPoint point) {
     emit imageClicked(currentlyDisplayedImage.get(), point);
 }
 
-void CorrespondenceViewer::onCorrespondenceRemoved(const QString &id) {
-    Correspondence correspondence = modelManager->getCorrespondenceById(id);
-    ui->openGLWidget->removeCorrespondence(correspondence);
+void CorrespondenceViewer::onCorrespondenceDeleted(const QString &id) {
+    ui->openGLWidget->removeCorrespondence(id);
 }
 
 void CorrespondenceViewer::onCorrespondenceAdded(const QString &id) {
-    Correspondence correspondence = modelManager->getCorrespondenceById(id);
-    ui->openGLWidget->addCorrespondence(correspondence);
+    QSharedPointer<Correspondence> correspondence = modelManager->getCorrespondenceById(id);
+    if (!correspondence.isNull())
+        ui->openGLWidget->addCorrespondence(*correspondence.get());
+    ui->openGLWidget->removeClicks();
 }

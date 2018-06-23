@@ -14,11 +14,16 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager *modelM
     ui(new Ui::CorrespondenceEditor)
 {
     ui->setupUi(this);
-    if (modelManager)
+    connect(ui->openGLWidget, SIGNAL(positionClicked(QVector3D)),
+            this, SLOT(onObjectModelClickedAt(QVector3D)));
+    if (modelManager) {
         // Whenever a correspondence has been added it was created through the editor, i.e. we have
         // to remove all visualizations because the correspondence creation process was finished
         connect(modelManager, SIGNAL(correspondenceAdded(QString)),
                 this, SLOT(onCorrespondenceAdded(QString)));
+        connect(modelManager, SIGNAL(correspondenceDeleted(QString)),
+                this, SLOT(onCorrespondenceDeleted(QString)));
+    }
 }
 
 CorrespondenceEditor::~CorrespondenceEditor()
@@ -28,11 +33,17 @@ CorrespondenceEditor::~CorrespondenceEditor()
 
 void CorrespondenceEditor::setModelManager(ModelManager *modelManager) {
     Q_ASSERT(modelManager);
-    disconnect(modelManager, SIGNAL(correspondenceAdded(QString)),
-               this, SLOT(onCorrespondenceAdded(QString)));
+    if (this->modelManager) {
+        disconnect(this->modelManager, SIGNAL(correspondenceAdded(QString)),
+                   this, SLOT(onCorrespondenceAdded(QString)));
+        disconnect(this->modelManager, SIGNAL(correspondenceDeleted(QString)),
+                this, SLOT(correspondenceDeleted(QString)));
+    }
     this->modelManager = modelManager;
     connect(modelManager, SIGNAL(correspondenceAdded(QString)),
             this, SLOT(onCorrespondenceAdded(QString)));
+    connect(modelManager, SIGNAL(correspondenceDeleted(QString)),
+            this, SLOT(onCorrespondenceDeleted(QString)));
 }
 
 void CorrespondenceEditor::setEnabledCorrespondenceEditorControls(bool enabled) {
@@ -89,6 +100,7 @@ void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(
         QString id = correspondence.getID();
         ui->comboBoxCorrespondence->addItem(id);
         if (correspondenceToSelect == correspondence.getID()) {
+            setCorrespondenceValuesOnControls(&correspondence);
             ui->comboBoxCorrespondence->setCurrentIndex(index);
             objectModelSet = true;
         }
@@ -121,6 +133,16 @@ void CorrespondenceEditor::setCorrespondenceValuesOnControls(Correspondence *cor
     ignoreValueChanges = false;
 }
 
+void CorrespondenceEditor::onObjectModelClickedAt(QVector3D position) {
+    qDebug() << "Object model (" + currentObjectModel->getPath() + ") clicked at: (" +
+                QString::number(position.x())
+                + ", "
+                + QString::number(position.y())
+                + ", "
+                + QString::number(position.z())+ ").";
+    emit objectModelClickedAt(currentObjectModel.get(), position);
+}
+
 void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
     if (currentCorrespondence) {
         currentCorrespondence->setPosition(QVector3D(
@@ -143,20 +165,27 @@ void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
 }
 
 void CorrespondenceEditor::onCorrespondenceAdded(const QString &correspondence) {
-    addCorrespondencesToComboBoxCorrespondences(currentlySelectedImage.get(), correspondence);
+    QSharedPointer<Correspondence> actualCorrespondence = modelManager->getCorrespondenceById(correspondence);
+    Correspondence *c = actualCorrespondence.get();
+    addCorrespondencesToComboBoxCorrespondences(c->getImage(), correspondence);
+    ui->buttonCreate->setEnabled(false);
+    ui->openGLWidget->removeClicks();
+}
+
+void CorrespondenceEditor::onCorrespondenceDeleted(const QString &correspondence) {
+    // Just select the default entry
+    ui->comboBoxCorrespondence->setCurrentIndex(0);
+    onComboBoxCorrespondenceIndexChanged(0);
 }
 
 void CorrespondenceEditor::onButtonRemoveClicked() {
     modelManager->removeObjectImageCorrespondence(currentCorrespondence->getID());
-    QList<Correspondence> correspondences = modelManager->getCorrespondencesForImage(*(currentlySelectedImage.get()));
+    QList<Correspondence> correspondences = modelManager->getCorrespondencesForImage(currentlySelectedImage);
     if (correspondences.size() > 0) {
         // This reloads the drop down list and does everything else
-        addCorrespondencesToComboBoxCorrespondences(currentlySelectedImage.get());
+        addCorrespondencesToComboBoxCorrespondences(&currentlySelectedImage);
     } else {
-        ui->comboBoxCorrespondence->clear();
-        // Setting the object model resets controls and disables them as well
-        ObjectModel objectModel = *currentCorrespondence->getObjectModel();
-        //setObjectModel(&objectModel);
+        reset();
     }
 }
 
@@ -221,7 +250,7 @@ void CorrespondenceEditor::onComboBoxCorrespondenceIndexChanged(int index) {
         resetControlsValues();
     } else {
         QList<Correspondence> correspondencesForImage =
-                modelManager->getCorrespondencesForImage(*currentlySelectedImage.get());
+                modelManager->getCorrespondencesForImage(currentlySelectedImage);
         Correspondence correspondence = correspondencesForImage.at(--index);
         setCorrespondenceToEdit(&correspondence);
     }
@@ -252,9 +281,8 @@ void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
 void CorrespondenceEditor::onSelectedImageChanged(int index) {
     reset();
     ui->sliderOpacity->setEnabled(true);
-    Image selectedImage = modelManager->getImages().at(index);
-    currentlySelectedImage.reset(new Image(selectedImage));
-    addCorrespondencesToComboBoxCorrespondences(&selectedImage);
+    currentlySelectedImage = modelManager->getImages().at(index);
+    addCorrespondencesToComboBoxCorrespondences(&currentlySelectedImage);
 }
 
 void CorrespondenceEditor::setCorrespondenceToEdit(Correspondence *correspondence) {
@@ -274,27 +302,28 @@ void CorrespondenceEditor::setCorrespondenceToEdit(Correspondence *correspondenc
 }
 
 void CorrespondenceEditor::removeClickVisualizations(){
-    // TODO:
+    ui->openGLWidget->removeClicks();
 }
 
 void CorrespondenceEditor::onCorrespondenceCreationAborted() {
     ui->buttonCreate->setEnabled(false);
+    removeClickVisualizations();
 }
 
 void CorrespondenceEditor::onCorrespondencePointFinished(QVector3D point3D,
                                                          int currentNumberOfPoints,
                                                          int minimumNumberOfPoints) {
-    // TODO: Visualize
     ui->buttonCreate->setEnabled(currentNumberOfPoints >= minimumNumberOfPoints);
+    QColor color = DisplayHelper::colorForCorrespondencePointIndex(currentNumberOfPoints - 1);
+    ui->openGLWidget->addClick(point3D, color);
 }
 
 void CorrespondenceEditor::reset() {
+    ui->openGLWidget->reset();
     currentObjectModel.reset();
     currentCorrespondence.reset();
-    currentlySelectedImage.reset();
     setEnabledAllControls(false);
     resetControlsValues();
-    // TODO
 }
 
 bool CorrespondenceEditor::isDisplayingObjectModel() {

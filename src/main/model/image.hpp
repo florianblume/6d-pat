@@ -13,6 +13,8 @@ class Image {
 
 public:
 
+    Image();
+
     //! Constructor of class Image.
     /*!
       Using this constructor will store the image path and base path and set an empyt string for the segmentation image path.

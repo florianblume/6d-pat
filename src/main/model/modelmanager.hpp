@@ -7,6 +7,7 @@
 #include <QObject>
 #include <QString>
 #include <QList>
+#include <QSharedPointer>
 
 using namespace std;
 
@@ -79,7 +80,7 @@ public:
      */
     virtual QList<Correspondence> getCorrespondences() = 0;
 
-    virtual Correspondence getCorrespondenceById(const QString &id) = 0;
+    virtual QSharedPointer<Correspondence> getCorrespondenceById(const QString &id) = 0;
 
     /*!
      * \brief getCorrespondencesForImageAndObjectModel Returns all correspondences for the given image and object model.

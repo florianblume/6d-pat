@@ -81,7 +81,7 @@ private:
 
     QPoint lastClicked2DPos;
     QVector<QVector3D> clicks3D;
-    QVector<QVector3D> colorsOfClicks;
+    QVector<QVector3D> clickColors;
     bool mouseDown = false;
     bool mouseMoved = false;
 

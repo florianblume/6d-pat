@@ -67,9 +67,9 @@ void CorrespondenceViewerGLWidget::updateCorrespondence(const Correspondence &co
     update();
 }
 
-void CorrespondenceViewerGLWidget::removeCorrespondence(const Correspondence &correspondence) {
+void CorrespondenceViewerGLWidget::removeCorrespondence(const QString &id) {
     for (uint index = 0; index < correspondenceRenderables.size(); index++) {
-        if (correspondenceRenderables[index]->getCorrespondenceId() == correspondence.getID()) {
+        if (correspondenceRenderables[index]->getCorrespondenceId() == id) {
             correspondenceRenderables.remove(index);
             break;
         }

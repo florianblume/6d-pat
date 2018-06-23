@@ -128,7 +128,7 @@ private slots:
     void resetPositionOfGraphicsView();
     void onImageClicked(QPoint point);
     // Private slot listening to model manager
-    void onCorrespondenceRemoved(const QString &id);
+    void onCorrespondenceDeleted(const QString &id);
     void onCorrespondenceAdded(const QString &id);
     void updateOpacity();
 };

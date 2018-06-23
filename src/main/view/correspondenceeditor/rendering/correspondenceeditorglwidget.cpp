@@ -40,6 +40,9 @@ CorrespondenceEditorGLWidget::~CorrespondenceEditorGLWidget()
     makeCurrent();
     // To invoke destructors
     objectModelRenderable.reset();
+    objectCoordsFbo.reset();
+    objectCoordsProgram.reset();
+    objectsProgram.reset();
     doneCurrent();
 }
 
@@ -78,11 +81,16 @@ void CorrespondenceEditorGLWidget::setZRotation(int angle)
 }
 
 void CorrespondenceEditorGLWidget::addClick(QVector3D position, QColor color) {
-    // TODO: add sphere
+    clicks3D.append(position);
+    clickColors.append(QVector3D(color.red() / 255.f,
+                               color.green() / 255.f,
+                               color.blue() / 255.f));
+    update();
 }
 
 void CorrespondenceEditorGLWidget::removeClicks() {
-    // TODO: remove spheres
+    clicks3D.clear();
+    update();
 }
 
 void CorrespondenceEditorGLWidget::reset() {
@@ -189,9 +197,9 @@ void CorrespondenceEditorGLWidget::renderObjectAndSegmentation() {
             objectsProgram->setUniformValueArray("clickPositions",
                                                  clicks3D.constData(),
                                                  clicks3D.size());
-            objectsProgram->setUniformValueArray("colorsOfClicks",
-                                                 colorsOfClicks.constData(),
-                                                 colorsOfClicks.size());
+            objectsProgram->setUniformValueArray("clickColors",
+                                                 clickColors.constData(),
+                                                 clickColors.size());
             objectsProgram->setUniformValue("clickCount", clicks3D.size());
             objectsProgram->setUniformValue("circumfence",
                                             objectModelRenderable->getLargestVertexValue() / 50.f);
@@ -275,21 +283,13 @@ void CorrespondenceEditorGLWidget::mouseMoveEvent(QMouseEvent *event)
 void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (!mouseMoved) {
-        if (event->buttons() & Qt::RightButton) {
-            clicks3D.clear();
-            colorsOfClicks.clear();
-        } else {
-            QPoint mousePos = event->pos();
-            QColor mouseClickColor = renderedSegmentationImage.pixelColor(mousePos.x(), mousePos.y());
-            if (mouseClickColor == segmentationColor) {
-                QVector3D pos3D = renderObjectCoordinates(mousePos);
-                clicks3D.append(pos3D);
-                int s = clicks3D.size();
-                colorsOfClicks.append(QVector3D(0.1 * s, 0, 0.1 * (s - 1)));
-            }
+        QPoint mousePos = event->pos();
+        QColor mouseClickColor =
+                renderedSegmentationImage.pixelColor(mousePos.x(), mousePos.y());
+        if (mouseClickColor == segmentationColor) {
+            QVector3D pos3D = renderObjectCoordinates(mousePos);
+            emit positionClicked(pos3D);
         }
-
-        update();
     }
     mouseMoved = false;
 }

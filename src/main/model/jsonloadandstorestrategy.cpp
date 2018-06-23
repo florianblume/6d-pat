@@ -53,8 +53,23 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
         QByteArray data = jsonFile.readAll();
         QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
         QJsonObject jsonObject = jsonDocument.object();
+
+        QString imagePath = objectImageCorrespondence->getImage()->getImagePath();
+        QJsonArray entriesForImage;
+
         if (deleteCorrespondence) {
-            jsonObject.remove(objectImageCorrespondence->getID());
+            if (jsonObject.contains(imagePath)) {
+                entriesForImage = jsonObject[imagePath].toArray();
+                int index = 0;
+                foreach(const QJsonValue &entry, entriesForImage) {
+                    QJsonObject entryObject = entry.toObject();
+                    if (entry["id"] == objectImageCorrespondence->getID()) {
+                        entriesForImage.removeAt(index);
+                    }
+                    index++;
+                }
+                jsonObject[imagePath] = entriesForImage;
+            }
         } else {
             //! Preparation of 3D data for the JSON file
             QMatrix3x3 rotationMatrix = objectImageCorrespondence->getRotation();
@@ -65,9 +80,6 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
             QVector3D positionVector = objectImageCorrespondence->getPosition();
             QJsonArray positionVectorArray;
             positionVectorArray << positionVector[0] << positionVector[1] << positionVector[2];
-
-            QString imagePath = objectImageCorrespondence->getImage()->getImagePath();
-            QJsonArray entriesForImage;
             //! Check if any entries for the image exist
             if (jsonObject.contains(imagePath)) {
                 //! There are some entries already and we check whether the correspondence
@@ -105,8 +117,8 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
                 newEntry["R"] = rotationMatrixArray;
                 entriesForImage << newEntry;
             }
-            jsonObject[imagePath] = entriesForImage;
         }
+        jsonObject[imagePath] = entriesForImage;
         jsonFile.resize(0);
         jsonFile.write(QJsonDocument(jsonObject).toJson());
         return true;

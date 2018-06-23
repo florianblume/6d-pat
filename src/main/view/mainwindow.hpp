@@ -16,28 +16,6 @@ namespace Ui {
 class MainWindow;
 }
 
-/*!
- * \brief The ClickOverlay class is there to intercept clicks anywhere (except for the 3D models)
- *  on the UI after the user clicked on a position in the image. This is to change back the cursor
- * to normal appearance.
- */
-class ClickOverlay : public QFrame {
-
-    Q_OBJECT
-
-public:
-    ClickOverlay(QWidget* parent) : QFrame(parent) {
-    }
-
-    void mousePressEvent(QMouseEvent *event)  {
-        event->accept();
-        emit clickedAnywhere();
-    }
-
-signals:
-    void clickedAnywhere();
-};
-
 class MainWindow : public QMainWindow {
 
     Q_OBJECT
@@ -98,6 +76,12 @@ public:
     void setPreferencesStore(PreferencesStore *preferencesStore);
 
 public slots:
+    /*!
+     * \brief mousePressEvent to catch clicks of the user after
+     * clicking on the image to restore the normal cursor, etc
+     * \param event
+     */
+    void mouseReleaseEvent(QMouseEvent *event) override;
 
     //! The slot that catches the emitted signal when the 3D model in the lower right correspondence controls
     //! is clicked (see CorrespondenceEditorControls)
@@ -215,7 +199,9 @@ signals:
      * \param requiredNumberOfPoints the number of totally required correspondence points to create
      * a new correspondence
      */
-    void correspondencePointStarted(QPoint point2D, int currentNumberOfPoints, int minimumNumberOfPoints);
+    void correspondencePointStarted(QPoint point2D,
+                                    int currentNumberOfPoints,
+                                    int minimumNumberOfPoints);
 
     /*!
      * \brief onCorrespondencePointAdded is emitted whenever the window receives a signal that
@@ -226,7 +212,9 @@ signals:
      * \param requiredNumberOfPoints the number of totally required correspondence points to create
      * a new correspondence
      */
-    void correspondencePointFinished(QVector3D point3D, int currentNumberOfPoints, int minimumNumberOfPoints);
+    void correspondencePointFinished(QVector3D point3D,
+                                     int currentNumberOfPoints,
+                                     int minimumNumberOfPoints);
 
     /*!
      * \brief correspondenceCreationInterrupted this signal is emitted when the user clicks the
@@ -264,12 +252,6 @@ signals:
     void objectModelsPathChanged(const QString &newPath);
 
 private:
-    // The overlay that is shown when the user clicks on a position in the displayed image to start
-    // to create a correspondence. When they then click anywhere except for the 3D model on the right
-    // the formerly changed curser (crosshair) will change back to normal, i.e. the correspondence
-    // will not be created.
-    ClickOverlay *clickOverlay = Q_NULLPTR;
-
     Ui::MainWindow *ui;
 
     // The label that displays the status of the program, like how many correspondence points have
@@ -282,6 +264,14 @@ private:
     // Used to write and read main view related settings, like position etc.
     void writeSettings();
     void readSettings();
+
+    // To be able whether the user clicked the image
+    // and needs to click the object model now
+    bool correspondencePointComplete = false;
+    // To indicate whether to emit signal correspondence
+    // creation aborted when the user clicks anywhere on
+    // the window
+    bool correspondenceCreationInProgress = true;
 
     // The name of the settings - QT requests this to store settings "offline"
     static QString SETTINGS_NAME;
@@ -305,12 +295,6 @@ private slots:
     // right clicks in the image to start creating a correspondence
     void onImageClicked(Image* image, QPoint position);
 
-    /*!
-     * \brief onOverlayClickedAnywhere is called when the user clicks the overlay. This means
-     * he did not proceed to click the object model after clicking the image, which would have
-     * added a correspondence point to the correspondence creator.
-     */
-    void onOverlayClickedAnywhere();
     void onPreferencesChanged(const QString &identifier);
 
     void onActionAboutTriggered();

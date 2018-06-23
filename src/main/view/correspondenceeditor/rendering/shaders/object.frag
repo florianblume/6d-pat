@@ -4,7 +4,7 @@ in highp vec3 vertNormal;
 uniform highp vec3 lightPos;
 uniform highp vec4 segmentationColor;
 uniform highp vec3 clickPositions[10];
-uniform highp vec3 colorsOfClicks[10];
+uniform highp vec3 clickColors[10];
 uniform highp float circumfence;
 uniform int clickCount;
 
@@ -27,7 +27,7 @@ void main() {
                }
                if (isClicked)
                {
-                   gl_FragData[0] = vec4(colorsOfClicks[index], 1.0);
+                   gl_FragData[0] = vec4(clickColors[index], 1.0);
                }
                else
                {

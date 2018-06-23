@@ -1,6 +1,14 @@
 #include "image.hpp"
 #include <QDir>
 
+Image::Image()
+    : imagePath("invalid"),
+      segmentationImagePath("invalid"),
+      basePath("invalid"),
+      cameraMatrix() {
+
+}
+
 Image::Image(const QString& imagePath, const QString& basePath, QMatrix3x3 cameraMatrix)
     : imagePath(imagePath),
       segmentationImagePath(""),

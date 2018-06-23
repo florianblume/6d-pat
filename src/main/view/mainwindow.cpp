@@ -140,6 +140,14 @@ void MainWindow::setPreferencesStore(PreferencesStore *preferencesStore) {
             this, SLOT(onPreferencesChanged(QString)));
 }
 
+void MainWindow::mouseReleaseEvent(QMouseEvent *event) {
+    if (correspondenceCreationInProgress) {
+        // Reset correspondence creation because the user clicked anywhere
+        onCorrespondenceCreationReset();
+        emit correspondenceCreationAborted();
+    }
+}
+
 void MainWindow::setStatusBarText(const QString& text) {
     statusBarLabel->setText(text);
 }
@@ -148,35 +156,22 @@ void MainWindow::onImageClicked(Image* image, QPoint position) {
     //! No need to check for whether the right widget was clicked because the only time this method
     //! will be called is when the object image picker received a click on the image
     if (ui->correspondenceEditor->isDisplayingObjectModel()) {
-        QGuiApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
-
-        if (clickOverlay == Q_NULLPTR) {
-            clickOverlay = new ClickOverlay(this);
-            connect(clickOverlay, SIGNAL(clickedAnywhere()), this, SLOT(onOverlayClickedAnywhere()));
+        correspondenceCreationInProgress = false;
+        if (correspondencePointComplete) {
+            displayWarning("Correspondence creation", "You need to click"
+                                                      " the object model"
+                                                      " to add the 2D-3D"
+                                                      " orrespondence.");
+        } else {
+            QGuiApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
+            correspondencePointComplete = true;
+            emit imageClicked(image, position);
         }
-
-        clickOverlay->setGeometry(QRect(this->geometry().x(),
-                                        this->geometry().y(),
-                                        this->geometry().width(),
-                                        this->geometry().height()
-                                            - this->statusBar()->geometry().height()));
-        clickOverlay->show();
-        clickOverlay->raise();
-        // Raise the Editor above the overlay, to enable the user to still click the 3D model
-        ui->correspondenceEditor->raise();
-        emit imageClicked(image, position);
     } else {
         QMessageBox::warning(this, "Select object model first", "Please select an object model from the list\n"
                                                                 "of object models first before trying to create\n"
                                                                 "a new correspondence.");
     }
-}
-
-void MainWindow::onOverlayClickedAnywhere() {
-    QGuiApplication::restoreOverrideCursor();
-    clickOverlay->hide();
-    emit correspondenceCreationInterrupted();
-    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 }
 
 void MainWindow::onObjectModelClicked(ObjectModel* objectModel, QVector3D position) {
@@ -185,9 +180,8 @@ void MainWindow::onObjectModelClicked(ObjectModel* objectModel, QVector3D positi
     // i.e. the overlay is not visible yet and not created. But as soon as the user clicks
     // the image and then the object, this adds a correspondence point and the overlay
     // should be hidden.
-    if (clickOverlay)
-        clickOverlay->hide();
     emit objectModelClicked(objectModel, position);
+    correspondencePointComplete = false;
 }
 
 void MainWindow::onSelectedObjectModelChanged(int index) {
@@ -197,6 +191,7 @@ void MainWindow::onSelectedObjectModelChanged(int index) {
     ObjectModel *model = new ObjectModel(objectModels.at(index));
     emit selectedObjectModelChanged(model);
     delete model;
+    onCorrespondenceCreationReset();
 }
 
 void MainWindow::onSelectedImageChanged(int index) {
@@ -206,6 +201,7 @@ void MainWindow::onSelectedImageChanged(int index) {
     Image *image = new Image(images.at(index));
     emit selectedImageChanged(image);
     delete image;
+    onCorrespondenceCreationReset();
 }
 
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
@@ -243,13 +239,14 @@ void MainWindow::onCorrespondencePointFinished(QVector3D point3D, int currentNum
 }
 
 void MainWindow::onCorrespondenceCreated() {
-    setStatusBarText("Ready.");
-    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
+    onCorrespondenceCreationReset();
 }
 
 void MainWindow::onCorrespondenceCreationReset() {
     setStatusBarText("Ready.");
     QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
+    correspondencePointComplete = false;
+    correspondenceCreationInProgress = true;
 }
 
 void MainWindow::onCorrespondenceCreationRequested() {
@@ -262,6 +259,7 @@ void MainWindow::onPreferencesChanged(const QString &identifier) {
     UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier(identifier);
     setPathOnLeftBreadcrumbView(preferences->getImagesPath());
     setPathOnRightBreadcrumbView(preferences->getObjectModelsPath());
+    onCorrespondenceCreationReset();
 }
 
 void MainWindow::onActionAboutTriggered()

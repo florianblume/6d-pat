@@ -64,19 +64,16 @@ QList<Correspondence> CachingModelManager::getCorrespondences() {
     return correspondences;
 }
 
-Correspondence CachingModelManager::getCorrespondenceById(const QString &id) {
+QSharedPointer<Correspondence> CachingModelManager::getCorrespondenceById(const QString &id) {
+    QSharedPointer<Correspondence> result;
     auto itObj = std::find_if(
         correspondences.begin(), correspondences.end(),
         [id](Correspondence o) { return o.getID() == id; }
     );
     if (itObj != correspondences.end()) {
-        return *itObj;
-    } else {
-        return Correspondence("", QVector3D(0, 0, 0), QMatrix3x3(new float[9] {
-                                                                 0.f, 0.f, 0.f,
-                                                                 0.f, 0.f, 0.f,
-                                                                 0.f, 0.f, 0.f}), 0, 0);
+        result.reset(new Correspondence(*itObj));
     }
+    return result;
 }
 
 QList<Correspondence> CachingModelManager::getCorrespondencesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) {
@@ -184,7 +181,7 @@ bool CachingModelManager::removeObjectImageCorrespondence(const QString &id) {
 
     for (int i = 0; i < correspondences.size(); i++) {
         if (correspondences.at(i).getID() == id)
-        correspondences.removeAt(i);
+            correspondences.removeAt(i);
     }
 
     createConditionalCache();
