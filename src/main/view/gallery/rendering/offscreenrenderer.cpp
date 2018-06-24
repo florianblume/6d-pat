@@ -3,7 +3,6 @@
 #include "view/correspondenceeditor/rendering/objectmodelrenderable.hpp"
 #include <QThread>
 #include <QOpenGLFunctions>
-#include <QRandomGenerator>
 #include <QOpenGLPaintDevice>
 #include <QPainter>
 
@@ -39,10 +38,7 @@ void OffscreenRenderer::run() {
     muliSampleFormat.setInternalTextureFormat(GL_RGBA);
     renderFbo = new QOpenGLFramebufferObject(size, muliSampleFormat);
     renderFbo->bind();
-    glClearColor(QRandomGenerator::global()->bounded(1.0),
-                 QRandomGenerator::global()->bounded(1.0),
-                 QRandomGenerator::global()->bounded(1.0),
-                 1.0);
+    glClearColor(0.7, 0.7, 0.7, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     QOpenGLPaintDevice device(size);
