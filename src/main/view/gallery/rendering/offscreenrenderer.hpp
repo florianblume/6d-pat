@@ -3,7 +3,6 @@
 
 #include "model/objectmodel.hpp"
 
-#include <QRunnable>
 #include <QSize>
 #include <QImage>
 #include <QOpenGLContext>
@@ -12,7 +11,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOffscreenSurface>
 #include <QMatrix4x4>
-#include <QMutex>
+#include <QRunnable>
 
 class OffscreenRenderer : public QObject, public QRunnable {
 
@@ -28,7 +27,6 @@ signals:
     void imageReady();
 
 private:
-    QMutex mutex;
     ObjectModel objectModel;
     QImage image;
     QSize size;
@@ -40,8 +38,8 @@ private:
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 viewMatrix;
     QMatrix4x4 modelMatrix;
-    float nearPlane = 1.0;
-    float farPlane = 500.0;
+    float nearPlane = 5.0;
+    float farPlane = 400.0;
 
     void setupProgram();
 };

@@ -3,8 +3,6 @@
 #include "view/correspondenceeditor/rendering/objectmodelrenderable.hpp"
 #include <QThread>
 #include <QOpenGLFunctions>
-#include <QOpenGLPaintDevice>
-#include <QPainter>
 
 #define PROGRAM_VERTEX_ATTRIBUTE 0
 #define PROGRAM_NORMAL_ATTRIBUTE 1
@@ -14,22 +12,33 @@ OffscreenRenderer::OffscreenRenderer(const ObjectModel &objectModel, const QSize
     size(size) {
     surfaceFormat.setMajorVersion(3);
     surfaceFormat.setMinorVersion(0);
+    surfaceFormat.setDepthBufferSize(DEPTH_BUFFER_SIZE);
     surfaceFormat.setRenderableType(QSurfaceFormat::OpenGL);
     surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
     surfaceFormat.setOption(QSurfaceFormat::DeprecatedFunctions);
-    setupProgram();
 }
 
 void OffscreenRenderer::run() {
     context = new QOpenGLContext();
     context->setFormat(surfaceFormat);
     context->create();
-    context->moveToThread(QThread::currentThread());
+    //context->moveToThread(QThread::currentThread());
     surface = new QOffscreenSurface();
     surface->setFormat(context->format());
     surface->create();
-    surface->moveToThread(QThread::currentThread());
+    //surface->moveToThread(QThread::currentThread());
     context->makeCurrent(surface);
+
+    objectsProgram = new QOpenGLShaderProgram;
+    // TODO: load custom shader that writes segmentations as well for clicking
+    objectsProgram->addShaderFromSourceFile(
+                QOpenGLShader::Vertex, ":/shaders/gallery/object.vert");
+    objectsProgram->addShaderFromSourceFile(
+                QOpenGLShader::Fragment, ":/shaders/gallery/object.frag");
+    objectsProgram->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
+    objectsProgram->bindAttributeLocation("normal", PROGRAM_NORMAL_ATTRIBUTE);
+    objectsProgram->link();
+
     // Initialize the buffers and renderer
     QOpenGLFramebufferObjectFormat muliSampleFormat;
     muliSampleFormat.setAttachment(QOpenGLFramebufferObject::Depth);
@@ -38,27 +47,9 @@ void OffscreenRenderer::run() {
     muliSampleFormat.setInternalTextureFormat(GL_RGBA);
     renderFbo = new QOpenGLFramebufferObject(size, muliSampleFormat);
     renderFbo->bind();
-    glClearColor(0.7, 0.7, 0.7, 1.0);
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    QOpenGLPaintDevice device(size);
-    QPainter painter;
-    painter.begin(&device);
-    painter.setRenderHints(QPainter::Antialiasing | QPainter::HighQualityAntialiasing);
-
-    QRect drawRect = QRect(0, 0, size.width(), size.height());
-
-    painter.setPen(QPen(Qt::white, 0));
-    QFont font;
-    font.setPointSize(14);
-    painter.setFont(font);
-    painter.drawText(drawRect, objectModel.getPath(), QTextOption(Qt::AlignCenter));
-
-    painter.end();
-
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    mutex.lock();
     objectsProgram->bind();
     ObjectModelRenderable renderable(objectModel,
                                      PROGRAM_VERTEX_ATTRIBUTE,
@@ -67,7 +58,7 @@ void OffscreenRenderer::run() {
     QOpenGLVertexArrayObject::Binder vaoBinder(
                 renderable.getVertexArrayObject());
 
-    objectsProgram->setUniformValue("lightPos", QVector3D(0, 10, 70));
+    objectsProgram->setUniformValue("lightPos", QVector3D(0, 0, -2 * renderable.getLargestVertexValue()));
 
     modelMatrix.setToIdentity();
     viewMatrix.setToIdentity();
@@ -87,10 +78,10 @@ void OffscreenRenderer::run() {
     image = renderFbo->toImage();
     renderFbo->release();
     context->doneCurrent();
-    mutex.unlock();
     emit imageReady();
     delete context;
     delete surface;
+    delete objectsProgram;
 }
 
 QImage OffscreenRenderer::getImage() {
@@ -99,16 +90,4 @@ QImage OffscreenRenderer::getImage() {
 
 ObjectModel OffscreenRenderer::getObjectModel() {
     return objectModel;
-}
-
-void OffscreenRenderer::setupProgram() {
-    objectsProgram = new QOpenGLShaderProgram;
-    // TODO: load custom shader that writes segmentations as well for clicking
-    objectsProgram->addShaderFromSourceFile(
-                QOpenGLShader::Vertex, ":/shaders/gallery/object.vert");
-    objectsProgram->addShaderFromSourceFile(
-                QOpenGLShader::Fragment, ":/shaders/gallery/object.frag");
-    objectsProgram->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
-    objectsProgram->bindAttributeLocation("normal", PROGRAM_NORMAL_ATTRIBUTE);
-    objectsProgram->link();
 }
