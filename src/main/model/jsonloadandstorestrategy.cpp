@@ -1,5 +1,5 @@
 #include "jsonloadandstorestrategy.hpp"
-#include "misc/otiathelper.h"
+#include "misc/generalhelper.h"
 
 #include <opencv2/core/mat.hpp>
 
@@ -342,7 +342,7 @@ QList<Correspondence> JsonLoadAndStoreStrategy::loadCorrespondences(const QList<
                     if (correspondenceEntry.contains("id")) {
                         id = correspondenceEntry["id"].toString();
                     } else {
-                        id = OtiatHelper::createCorrespondenceId(image, objectModel);
+                        id = GeneralHelper::createCorrespondenceId(image, objectModel);
                         //! No ID attatched to the entry yet -> write it to the file
                         //! to be able to identify the correspondences later
                         QJsonObject modifiedEntry(correspondenceEntry);

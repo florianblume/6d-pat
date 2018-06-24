@@ -1,5 +1,5 @@
 #include "galleryobjectmodelmodel.hpp"
-#include "misc/otiathelper.h"
+#include "misc/generalhelper.h"
 #include <QIcon>
 #include <QPainter>
 #include <QDir>
@@ -50,7 +50,7 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
     } else if (codes.contains(objectModel.getPath())) {
         //! If any codes are set only display the appropriate object models
         QString code = codes[objectModel.getPath()];
-        QColor color = OtiatHelper::colorFromSegmentationCode(code);
+        QColor color = GeneralHelper::colorFromSegmentationCode(code);
         if (colorsOfCurrentImage.contains(color)) {
             return dataForObjectModel(objectModel, role);
         }
@@ -59,7 +59,7 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-int GalleryObjectModelModel::rowCount(const QModelIndex &parent) const {
+int GalleryObjectModelModel::rowCount(const QModelIndex &/* parent */) const {
     if (codes.size() == 0 || imagesCache.at(currentSelectedImageIndex).getSegmentationImagePath().isEmpty())
         //! If either is true, simply display all object models
         return objectModelsCache.size();
@@ -68,7 +68,7 @@ int GalleryObjectModelModel::rowCount(const QModelIndex &parent) const {
     for (const ObjectModel &model : objectModelsCache) {
         QString code = codes[model.getPath()];
         if (code != "") {
-            QColor color = OtiatHelper::colorFromSegmentationCode(code);
+            QColor color = GeneralHelper::colorFromSegmentationCode(code);
             if (colorsOfCurrentImage.contains(color))
                 count++;
         }
@@ -90,7 +90,7 @@ bool GalleryObjectModelModel::isNumberOfToolsCorrect() {
 
     int numberOfMatches = 0;
     for (QMap<QString, QString>::Iterator it = codes.begin(); it != codes.end(); it++) {
-        QColor color = OtiatHelper::colorFromSegmentationCode(it.value());
+        QColor color = GeneralHelper::colorFromSegmentationCode(it.value());
         if (colorsOfCurrentImage.contains(color))
             numberOfMatches++;
     }

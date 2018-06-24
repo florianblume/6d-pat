@@ -77,7 +77,7 @@ public slots:
     * \param currentNumberOfPoints the current number of correspondence points
     * \param minimumNumberOfPoints the total number required to be able to create an actual ObjectImage Correspondence
     */
-    void onCorrespondencePointStarted(QPoint point2D, int currentNumberOfPoints, int minimumNumberOfPoints);
+    void onCorrespondencePointStarted(QPoint, int currentNumberOfPoints, int);
 
     void onCorrespondenceUpdated(Correspondence *correspondence);
 

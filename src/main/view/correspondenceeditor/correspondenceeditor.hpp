@@ -121,12 +121,12 @@ private slots:
     void onCorrespondenceAdded(const QString &correspondence);
     void onCorrespondenceDeleted(const QString &correspondence);
 
-    void onSpinBoxTranslationXValueChanged(double value);
-    void onSpinBoxTranslationYValueChanged(double value);
-    void onSpinBoxTranslationZValueChanged(double value);
-    void onSpinBoxRotationXValueChanged(double value);
-    void onSpinBoxRotationYValueChanged(double value);
-    void onSpinBoxRotationZValueChanged(double value);
+    void onSpinBoxTranslationXValueChanged(double);
+    void onSpinBoxTranslationYValueChanged(double);
+    void onSpinBoxTranslationZValueChanged(double);
+    void onSpinBoxRotationXValueChanged(double);
+    void onSpinBoxRotationYValueChanged(double);
+    void onSpinBoxRotationZValueChanged(double);
     void onButtonCreateClicked();
     void onButtonSaveClicked();
     /*!

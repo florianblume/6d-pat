@@ -1,15 +1,13 @@
 #include "settingssegmentationcodespage.hpp"
 #include "ui_settingssegmentationcodespage.h"
-#include "misc/otiathelper.h"
+#include "misc/generalhelper.h"
 #include <QPushButton>
 #include <QColorDialog>
 #include <3dparty/QtAwesome/QtAwesome.h>
 
 SettingsSegmentationCodesPage::SettingsSegmentationCodesPage(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::SettingsSegmentationCodesPage),
-    signalMapperEdit(new QSignalMapper()),
-    signalMapperRemove(new QSignalMapper())
+    ui(new Ui::SettingsSegmentationCodesPage)
 {
     ui->setupUi(this);
     QHeaderView *headerView = ui->tableSegmentationCodes->horizontalHeader();
@@ -40,7 +38,7 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Preferences *p
         ui->tableSegmentationCodes->insertRow(i);
         ui->tableSegmentationCodes->setItem(i, 0, new QTableWidgetItem(objectModel.getPath()));
         if (code.compare("") != 0) {
-            QColor color = OtiatHelper::colorFromSegmentationCode(code);
+            QColor color = GeneralHelper::colorFromSegmentationCode(code);
             QTableWidgetItem *tableItem = new QTableWidgetItem();
             tableItem->setToolTip("[" + QString::number(color.red()) + ", "
                                   + QString::number(color.green()) + ", "
@@ -61,8 +59,7 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Preferences *p
         buttonEdit->setIcon(awesome->icon(fa::paintbrush));
         buttonEdit->setFixedSize(QSize(40, 20));
         buttonEdit->setToolTip("Edit color");
-        connect(buttonEdit, SIGNAL(clicked()), signalMapperEdit.data(), SLOT(map()));
-        signalMapperEdit->setMapping(buttonEdit, i);
+        connect(buttonEdit, &QPushButton::clicked, [this, i]() {showColorDialog(i);});
         layout->addWidget(buttonEdit);
 
         //! Create delete button
@@ -71,16 +68,12 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Preferences *p
         buttonUnset->setIcon(awesome->icon(fa::remove));
         buttonUnset->setFixedSize(QSize(40, 20));
         buttonUnset->setToolTip("Remove color");
-        connect(buttonUnset, SIGNAL(clicked()), signalMapperRemove.data(), SLOT(map()));
-        signalMapperRemove->setMapping(buttonUnset, i);
+        connect(buttonUnset, &QPushButton::clicked, [this, i]() {removeColor(i);});
         layout->addWidget(buttonUnset);
-
         ui->tableSegmentationCodes->setCellWidget(i, 2, buttonsContainer);
         i++;
     }
 
-    connect(signalMapperEdit.data(), SIGNAL(mapped(int)), this, SLOT(showColorDialog(int)));
-    connect(signalMapperRemove.data(), SIGNAL(mapped(int)), this, SLOT(removeColor(int)));
 }
 
 void SettingsSegmentationCodesPage::showColorDialog(int index) {
@@ -88,7 +81,7 @@ void SettingsSegmentationCodesPage::showColorDialog(int index) {
     if (!color.isValid())
         return;
 
-    QString colorCode = OtiatHelper::segmentationCodeFromColor(color);
+    QString colorCode = GeneralHelper::segmentationCodeFromColor(color);
     const ObjectModel &objectModel = objectModels.at(index);
     preferences->setSegmentationCodeForObjectModel(objectModel.getPath(), colorCode);
     QTableWidgetItem *item = ui->tableSegmentationCodes->item(index, 1);

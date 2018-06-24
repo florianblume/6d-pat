@@ -1,6 +1,6 @@
 #include "correspondenceeditor.hpp"
 #include "ui_correspondenceeditor.h"
-#include "misc/otiathelper.h"
+#include "misc/generalhelper.h"
 #include "view/misc/displayhelper.h"
 #include "view/correspondenceeditor/rendering/correspondenceeditorglwidget.hpp"
 
@@ -10,8 +10,8 @@
 
 CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager *modelManager) :
     QWidget(parent),
-    modelManager(modelManager),
-    ui(new Ui::CorrespondenceEditor)
+    ui(new Ui::CorrespondenceEditor),
+    modelManager(modelManager)
 {
     ui->setupUi(this);
     connect(ui->openGLWidget, SIGNAL(positionClicked(QVector3D)),
@@ -86,7 +86,6 @@ void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(
     ui->comboBoxCorrespondence->clear();
     QList<Correspondence> correspondences =
             modelManager->getCorrespondencesForImage(*image);
-    bool objectModelSet = false;
     ignoreValueChanges = true;
     if (correspondences.size() > 0) {
         ui->comboBoxCorrespondence->setEnabled(true);
@@ -102,7 +101,6 @@ void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(
         if (correspondenceToSelect == correspondence.getID()) {
             setCorrespondenceValuesOnControls(&correspondence);
             ui->comboBoxCorrespondence->setCurrentIndex(index);
-            objectModelSet = true;
         }
         index++;
     }
@@ -126,7 +124,7 @@ void CorrespondenceEditor::setCorrespondenceValuesOnControls(Correspondence *cor
            rotation(2, 0),
            rotation(2, 1),
            rotation(2, 2));
-    cv::Vec3f rotationVector = OtiatHelper::rotationMatrixToEulerAngles(rotationMatrix);
+    cv::Vec3f rotationVector = GeneralHelper::rotationMatrixToEulerAngles(rotationMatrix);
     ui->spinBoxRotationX->setValue(rotationVector[0]);
     ui->spinBoxRotationY->setValue(rotationVector[1]);
     ui->spinBoxRotationZ->setValue(rotationVector[2]);
@@ -152,7 +150,7 @@ void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
         cv::Vec3f rotation(ui->spinBoxRotationX->value(),
                              ui->spinBoxRotationY->value(),
                              ui->spinBoxRotationZ->value());
-        cv::Mat rotMatrix = OtiatHelper::eulerAnglesToRotationMatrix(rotation);
+        cv::Mat rotMatrix = GeneralHelper::eulerAnglesToRotationMatrix(rotation);
         // Somehow the matrix is transposed.. but transposing yields weird results
         float values[] = {
                 rotMatrix.at<float>(0, 0), rotMatrix.at<float>(1, 0), rotMatrix.at<float>(2, 0),
@@ -172,7 +170,7 @@ void CorrespondenceEditor::onCorrespondenceAdded(const QString &correspondence) 
     ui->openGLWidget->removeClicks();
 }
 
-void CorrespondenceEditor::onCorrespondenceDeleted(const QString &correspondence) {
+void CorrespondenceEditor::onCorrespondenceDeleted(const QString& /* correspondence */) {
     // Just select the default entry
     ui->comboBoxCorrespondence->setCurrentIndex(0);
     onComboBoxCorrespondenceIndexChanged(0);
@@ -189,40 +187,40 @@ void CorrespondenceEditor::onButtonRemoveClicked() {
     }
 }
 
-void CorrespondenceEditor::onSpinBoxTranslationXValueChanged(double value) {
+void CorrespondenceEditor::onSpinBoxTranslationXValueChanged(double /* value */) {
     if (!ignoreValueChanges) {
         updateCurrentlyEditedCorrespondence();
         ui->buttonSave->setEnabled(true);
     }
 }
 
-void CorrespondenceEditor::onSpinBoxTranslationYValueChanged(double value) {
+void CorrespondenceEditor::onSpinBoxTranslationYValueChanged(double /* value */) {
     if (!ignoreValueChanges) {
         updateCurrentlyEditedCorrespondence();
         ui->buttonSave->setEnabled(true);
     }
 }
 
-void CorrespondenceEditor::onSpinBoxTranslationZValueChanged(double value) {
+void CorrespondenceEditor::onSpinBoxTranslationZValueChanged(double /* value */) {
     if (!ignoreValueChanges) {
         updateCurrentlyEditedCorrespondence();
         ui->buttonSave->setEnabled(true);
     }
 }
 
-void CorrespondenceEditor::onSpinBoxRotationXValueChanged(double value) {
+void CorrespondenceEditor::onSpinBoxRotationXValueChanged(double /* value */) {
     if (!ignoreValueChanges)
         updateCurrentlyEditedCorrespondence();
 }
 
-void CorrespondenceEditor::onSpinBoxRotationYValueChanged(double value) {
+void CorrespondenceEditor::onSpinBoxRotationYValueChanged(double /* value */) {
     if (!ignoreValueChanges) {
         updateCurrentlyEditedCorrespondence();
         ui->buttonSave->setEnabled(true);
     }
 }
 
-void CorrespondenceEditor::onSpinBoxRotationZValueChanged(double value) {
+void CorrespondenceEditor::onSpinBoxRotationZValueChanged(double) {
     if (!ignoreValueChanges) {
         updateCurrentlyEditedCorrespondence();
         ui->buttonSave->setEnabled(true);

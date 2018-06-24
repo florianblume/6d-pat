@@ -140,7 +140,7 @@ void MainWindow::setPreferencesStore(PreferencesStore *preferencesStore) {
             this, SLOT(onPreferencesChanged(QString)));
 }
 
-void MainWindow::mouseReleaseEvent(QMouseEvent *event) {
+void MainWindow::mouseReleaseEvent(QMouseEvent* /* event */) {
     if (correspondenceCreationInProgress) {
         // Reset correspondence creation because the user clicked anywhere
         onCorrespondenceCreationReset();

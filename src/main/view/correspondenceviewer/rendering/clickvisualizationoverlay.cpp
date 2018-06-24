@@ -16,7 +16,7 @@ void ClickVisualizationOverlay::removeClickedPoints() {
     update();
 }
 
-void ClickVisualizationOverlay::paintEvent(QPaintEvent *event) {
+void ClickVisualizationOverlay::paintEvent(QPaintEvent* /* event */) {
     QPainter painter(this);
     for (Click &click : clickedPoints) {
         QPen pen(click.color);

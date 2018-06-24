@@ -115,9 +115,9 @@ void CorrespondenceViewer::removePositionVisualizations() {
     ui->openGLWidget->removeClicks();
 }
 
-void CorrespondenceViewer::onCorrespondencePointStarted(QPoint point2D,
+void CorrespondenceViewer::onCorrespondencePointStarted(QPoint /* point2D */,
                                                          int currentNumberOfPoints,
-                                                         int minimumNumberOfPoints) {
+                                                         int /* minimumNumberOfPoints */) {
     // We can use the number of points as index directly, because the number of points only increases
     // after the user successfully clicked a 2D location and the corresponding 3D point
     visualizeLastClickedPosition(currentNumberOfPoints);

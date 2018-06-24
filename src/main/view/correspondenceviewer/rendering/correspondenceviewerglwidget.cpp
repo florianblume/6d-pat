@@ -68,7 +68,7 @@ void CorrespondenceViewerGLWidget::updateCorrespondence(const Correspondence &co
 }
 
 void CorrespondenceViewerGLWidget::removeCorrespondence(const QString &id) {
-    for (uint index = 0; index < correspondenceRenderables.size(); index++) {
+    for (int index = 0; index < correspondenceRenderables.size(); index++) {
         if (correspondenceRenderables[index]->getCorrespondenceId() == id) {
             correspondenceRenderables.remove(index);
             break;
@@ -88,6 +88,7 @@ CorrespondenceRenderable *CorrespondenceViewerGLWidget::getObjectModelRenderable
             return ptr.data();
         }
     }
+    return Q_NULLPTR;
 }
 
 void CorrespondenceViewerGLWidget::setObjectsOpacity(float opacity) {

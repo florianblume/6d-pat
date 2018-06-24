@@ -10,11 +10,11 @@ ObjectModelRenderable::ObjectModelRenderable(const ObjectModel &objectModel,
                                              int vertexAttributeLoc,
                                              int normalAttributeLoc) :
     objectModel(objectModel),
-    vertexAttributeLoc(vertexAttributeLoc),
-    normalAttributeLoc(normalAttributeLoc),
     vertexBuffer(QOpenGLBuffer::VertexBuffer),
     normalBuffer(QOpenGLBuffer::VertexBuffer),
-    indexBuffer(QOpenGLBuffer::IndexBuffer) {
+    indexBuffer(QOpenGLBuffer::IndexBuffer),
+    vertexAttributeLoc(vertexAttributeLoc),
+    normalAttributeLoc(normalAttributeLoc) {
 
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(objectModel.getAbsolutePath().toStdString(),

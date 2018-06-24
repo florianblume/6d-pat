@@ -24,7 +24,7 @@ QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
     return QVariant();
 }
 
-int GalleryImageModel::rowCount(const QModelIndex &parent) const {
+int GalleryImageModel::rowCount(const QModelIndex &/* parent */) const {
     return imagesCache.size();
 }
 

@@ -48,7 +48,7 @@ private:
 private slots:
     void performScroll();
     void startScrollTimer();
-    void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void onSelectionChanged(const QItemSelection &selected, const QItemSelection&);
 };
 
 #endif // GALLERY_H

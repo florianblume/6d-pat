@@ -1,28 +1,12 @@
-#ifndef OTIATHELPER_H
-#define OTIATHELPER_H
+#include "generalhelper.h"
 
-#include "model/image.hpp"
-#include "model/objectmodel.hpp"
+namespace GeneralHelper {
 
-#include <math.h>
-#include <QColor>
-#include <QString>
-#include <QList>
-#include <QFileInfo>
-#include <QStringList>
-#include <QDateTime>
-#include <opencv2/core/mat.hpp>
-#include <opencv2/core/core.hpp>
-
-static const QString colorCodeDelimiter = ".";
-
-namespace OtiatHelper {
-
-    static int sign(int x) {
+    int sign(int x) {
         return (x > 0) - (x < 0);
     }
 
-    static QString segmentationCodeFromColor(const QColor &color) {
+    QString segmentationCodeFromColor(const QColor &color) {
         int red = color.red();
         int green = color.green();
         int blue = color.blue();
@@ -33,13 +17,13 @@ namespace OtiatHelper {
                 colorCodeDelimiter + QString::number(blue);
     }
 
-    static QColor colorFromSegmentationCode(const QString &segmentationCode) {
+    QColor colorFromSegmentationCode(const QString &segmentationCode) {
         QStringList splitCode = segmentationCode.split(colorCodeDelimiter);
         Q_ASSERT(splitCode.size() == 3);
         return QColor(splitCode.at(0).toInt(), splitCode.at(1).toInt(), splitCode.at(2).toInt());
     }
 
-    static QString createCorrespondenceId(const Image* image, const ObjectModel *objectModel) {
+    QString createCorrespondenceId(const Image* image, const ObjectModel *objectModel) {
         QDateTime date = QDateTime::currentDateTime();;
         //! We include the date as part of the identifier - this actually makes
         //! the ID quite long but still better readable than a UUID
@@ -54,7 +38,7 @@ namespace OtiatHelper {
     // Calculates rotation matrix to euler angles
     // The result is the same as MATLAB except the order
     // of the euler angles ( x and z are swapped ).
-    static cv::Vec3f rotationMatrixToEulerAngles(cv::Mat &R) {
+    cv::Vec3f rotationMatrixToEulerAngles(cv::Mat &R) {
 
         float sy = sqrt(R.at<float>(0,0) * R.at<float>(0,0) +  R.at<float>(0,1) * R.at<float>(0,1) );
 
@@ -70,8 +54,7 @@ namespace OtiatHelper {
         return (cv::Vec3f(x, y, z) * -180.f) / M_PI;
     }
 
-    static cv::Mat eulerAnglesToRotationMatrix(cv::Vec3f theta)
-    {
+    cv::Mat eulerAnglesToRotationMatrix(cv::Vec3f theta) {
 
         theta *= M_PI;
         theta /= -180.f;
@@ -109,9 +92,6 @@ namespace OtiatHelper {
         cv::Mat R = R_x * R_y * R_z;
 
         return R.t();
-
     }
 
 }
-
-#endif // OTIATHELPER_H

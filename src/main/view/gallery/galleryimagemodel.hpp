@@ -21,7 +21,7 @@ public:
 
     //! Implementations of QAbstractListModel
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &) const;
 
 private:
     ModelManager *modelManager;

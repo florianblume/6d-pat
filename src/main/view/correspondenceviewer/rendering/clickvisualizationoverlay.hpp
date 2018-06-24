@@ -16,7 +16,7 @@ public:
     void removeClickedPoints();
 
 protected:
-    void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent*);
 
 private:
     struct Click {

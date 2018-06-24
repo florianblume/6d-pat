@@ -1,5 +1,5 @@
 #include "cachingmodelmanager.hpp"
-#include "misc/otiathelper.h"
+#include "misc/generalhelper.h"
 
 CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy) : ModelManager(loadAndStoreStrategy) {
     images = loadAndStoreStrategy.loadImages();
@@ -103,7 +103,7 @@ bool CachingModelManager::addObjectImageCorrespondence(Image *image,
     // and not what the user passed (and maybe created somewhere else but with the right paths)
     Image *_image = &*imageIterator;
     ObjectModel *_objectModel = &*objectModelIterator;
-    Correspondence correspondence(OtiatHelper::createCorrespondenceId(_image, _objectModel),
+    Correspondence correspondence(GeneralHelper::createCorrespondenceId(_image, _objectModel),
                                              position,
                                              rotation,
                                              _image,

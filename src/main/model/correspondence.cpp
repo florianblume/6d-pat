@@ -5,10 +5,10 @@ Correspondence::Correspondence(QString id,
                                                      QMatrix3x3 rotation,
                                                      const Image* image,
                                                      const ObjectModel* objectModel)
-    : image(image),
-      objectModel(objectModel),
-      position(position),
+    : position(position),
       rotation(rotation),
+      image(image),
+      objectModel(objectModel),
       id(id) {
 }
 

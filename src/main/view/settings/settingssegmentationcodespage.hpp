@@ -4,9 +4,6 @@
 #include "misc/preferences/preferences.hpp"
 #include "model/objectmodel.hpp"
 #include <QWidget>
-#include <QSignalMapper>
-#include <QSharedPointer>
-#include <QScopedPointer>
 
 namespace Ui {
 class SettingsSegmentationCodesPage;
@@ -26,8 +23,6 @@ private:
     Ui::SettingsSegmentationCodesPage *ui;
     Preferences *preferences;
     QList<ObjectModel> objectModels;
-    QScopedPointer<QSignalMapper> signalMapperEdit;
-    QScopedPointer<QSignalMapper> signalMapperRemove;
 
 private slots:
     void showColorDialog(int index);

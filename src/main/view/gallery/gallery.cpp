@@ -1,6 +1,6 @@
 #include "gallery.hpp"
 #include "ui_gallery.h"
-#include "misc/otiathelper.h"
+#include "misc/generalhelper.h"
 #include <3dparty/QtAwesome/QtAwesome.h>
 #include <QAbstractItemView>
 #include <QScrollBar>
@@ -90,7 +90,8 @@ void Gallery::performScroll() {
     }
 }
 
-void Gallery::onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected) {
+void Gallery::onSelectionChanged(const QItemSelection &selected,
+                                 const QItemSelection &/* deselected */) {
     if (selected.size() > 0) {
         //! Weird, this should never be the case but the app crashes because sometimes selection is empty...
         //! Maybe in the future when I'm wiser I'll understand what is happening here...

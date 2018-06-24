@@ -81,7 +81,7 @@ public slots:
      * clicking on the image to restore the normal cursor, etc
      * \param event
      */
-    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
 
     //! The slot that catches the emitted signal when the 3D model in the lower right correspondence controls
     //! is clicked (see CorrespondenceEditorControls)

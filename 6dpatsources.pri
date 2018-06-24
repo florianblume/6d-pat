@@ -1,5 +1,7 @@
 QT       += core gui
 
+CONFIG += c++11
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 include(./3dparty/QtAwesome/QtAwesome.pri)
@@ -14,7 +16,6 @@ HEADERS  += \
     $$PWD/src/main/model/objectmodel.hpp \
     $$PWD/src/main/model/jsonloadandstorestrategy.hpp \
     $$PWD/src/main/model/correspondence.hpp \
-    $$PWD/src/main/misc/otiathelper.h \
     $$PWD/src/main/misc/global.h \
     $$PWD/src/main/misc/preferences/preferences.hpp \
     $$PWD/src/main/misc/preferences/preferencesstore.hpp \
@@ -36,7 +37,8 @@ HEADERS  += \
     $$PWD/src/main/view/correspondenceviewer/rendering/correspondencerenderable.hpp \
     $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.hpp \
     $$PWD/src/main/view/correspondenceeditor/rendering/correspondenceeditorglwidget.hpp \
-    $$PWD/src/main/view/correspondenceeditor/rendering/objectmodelrenderable.hpp
+    $$PWD/src/main/view/correspondenceeditor/rendering/objectmodelrenderable.hpp \
+    $$PWD/src/main/misc/generalhelper.h
 
 SOURCES += \
     $$PWD/src/main/view/mainwindow.cpp \
@@ -67,7 +69,9 @@ SOURCES += \
     $$PWD/src/main/view/correspondenceeditor/rendering/correspondenceeditorglwidget.cpp \
     $$PWD/src/main/view/correspondenceeditor/rendering/objectmodelrenderable.cpp \
     $$PWD/src/main/misc/preferences/preferencesstore.cpp\
-    $$PWD/src/main/misc/preferences/preferences.cpp
+    $$PWD/src/main/misc/preferences/preferences.cpp \
+    $$PWD/src/main/misc/generalhelper.cpp \
+    $$PWD/src/main/view/misc/displayhelper.cpp
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

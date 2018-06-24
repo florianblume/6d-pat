@@ -179,10 +179,10 @@ void CorrespondenceEditorGLWidget::renderObjectAndSegmentation() {
     GLfloat objectBackground[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
     f->glClearBufferfv(GL_COLOR, 0, objectBackground);
 
-    GLfloat otherBackground[4] = { segmentationBackgroundColor.red(),
-                                 segmentationBackgroundColor.green(),
-                                 segmentationBackgroundColor.blue(),
-                                 segmentationBackgroundColor.alpha(),};
+    GLfloat otherBackground[4] = { (float) segmentationBackgroundColor.red(),
+                                   (float) segmentationBackgroundColor.green(),
+                                   (float) segmentationBackgroundColor.blue(),
+                                   (float) segmentationBackgroundColor.alpha(),};
     f->glClearBufferfv(GL_COLOR, 1, otherBackground);
     f->glClearBufferfv(GL_COLOR, 2, otherBackground);
 
