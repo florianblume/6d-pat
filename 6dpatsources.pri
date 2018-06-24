@@ -38,7 +38,8 @@ HEADERS  += \
     $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.hpp \
     $$PWD/src/main/view/correspondenceeditor/rendering/correspondenceeditorglwidget.hpp \
     $$PWD/src/main/view/correspondenceeditor/rendering/objectmodelrenderable.hpp \
-    $$PWD/src/main/misc/generalhelper.h
+    $$PWD/src/main/misc/generalhelper.h \
+    $$PWD/src/main/view/gallery/rendering/offscreenrenderer.hpp
 
 SOURCES += \
     $$PWD/src/main/view/mainwindow.cpp \
@@ -71,7 +72,8 @@ SOURCES += \
     $$PWD/src/main/misc/preferences/preferencesstore.cpp\
     $$PWD/src/main/misc/preferences/preferences.cpp \
     $$PWD/src/main/misc/generalhelper.cpp \
-    $$PWD/src/main/view/misc/displayhelper.cpp
+    $$PWD/src/main/view/misc/displayhelper.cpp \
+    $$PWD/src/main/view/gallery/rendering/offscreenrenderer.cpp
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

@@ -9,6 +9,7 @@
 GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager) : modelManager(modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
     objectModelsCache = std::move(modelManager->getObjectModels());
+    startRenderingObjectModels();
     imagesCache = std::move(modelManager->getImages());
     connect(modelManager, SIGNAL(objectModelsChanged()),
             this, SLOT(onObjectModelsChanged()));
@@ -22,14 +23,29 @@ GalleryObjectModelModel::~GalleryObjectModelModel() {
 }
 
 QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectModel, int role) const {
-    if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
+    if (role == Qt::ToolTipRole) {
         return objectModel.getPath();
     } else if (role == Qt::DecorationRole) {
-        // TODO: return rendered preview
-        return QVariant();
+        if (renderedObjectsModels.contains(objectModel.getPath())) {
+            return renderedObjectsModels.value(objectModel.getPath());
+        } else {
+            return QVariant();
+        }
     }
 
     return QVariant();
+}
+
+void GalleryObjectModelModel::startRenderingObjectModels() {
+    renderedObjectsModels.clear();
+    renderThreadPool.clear();
+    for (ObjectModel &objectModel : objectModelsCache) {
+        OffscreenRenderer *offscreenRenderer =
+                new OffscreenRenderer(objectModel, QSize(100, 100));
+        connect(offscreenRenderer, &OffscreenRenderer::imageReady,
+                [this, offscreenRenderer](){onObjectModelRendered(offscreenRenderer);});
+        renderThreadPool.start(offscreenRenderer);
+    }
 }
 
 //! Implementations of QAbstractListModel
@@ -116,10 +132,12 @@ void GalleryObjectModelModel::onSelectedImageChanged(int index) {
 }
 
 void GalleryObjectModelModel::onObjectModelsChanged() {
-    if (modelManager)
+    if (modelManager) {
         objectModelsCache = std::move(modelManager->getObjectModels());
-    else
+        startRenderingObjectModels();
+    } else {
         objectModelsCache.clear();
+    }
 
     QModelIndex top = index(0, 0);
     QModelIndex bottom = index(objectModelsCache.size() - 1, 0);
@@ -133,5 +151,21 @@ void GalleryObjectModelModel::onImagesChanged() {
     imagesCache = std::move(modelManager->getImages());
     QModelIndex top = index(0, 0);
     QModelIndex bottom = index(objectModelsCache.size() - 1, 0);
+    emit dataChanged(top, bottom);
+}
+
+void GalleryObjectModelModel::onObjectModelRendered(OffscreenRenderer *offscreenRenderer) {
+    ObjectModel objectModel = offscreenRenderer->getObjectModel();
+    QImage image = offscreenRenderer->getImage();
+    renderedObjectsModels.insert(objectModel.getPath(), image);
+    int i = 0;
+    for (ObjectModel &_objectModel : objectModelsCache) {
+        if (_objectModel.getPath() == objectModel.getPath()) {
+            continue;
+        }
+        i++;
+    }
+    QModelIndex top = index(i, 0);
+    QModelIndex bottom = index(i + 1, 0);
     emit dataChanged(top, bottom);
 }

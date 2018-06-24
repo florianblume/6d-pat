@@ -2,11 +2,13 @@
 #define GALLERYOBJECTMODELMODEL_H
 
 #include "model/modelmanager.hpp"
+#include "view/gallery/rendering/offscreenrenderer.hpp"
 #include <QAbstractListModel>
 #include <QPixmap>
 #include <QMap>
 #include <QVector>
 #include <QRgb>
+#include <QThreadPool>
 
 /*!
  * \brief The GalleryObjectModelModel class provides object model images to the Gallery.
@@ -48,6 +50,8 @@ private:
 
     ModelManager* modelManager;
     QList<ObjectModel> objectModelsCache;
+    QThreadPool renderThreadPool;
+    QMap<QString,QImage> renderedObjectsModels;
     QList<Image> imagesCache;
     QMap<QString, QString> codes;
     QVector<QColor> colorsOfCurrentImage;
@@ -56,12 +60,14 @@ private:
     //! when the renderer returns
     uint currentlyRenderedImageIndex = 0;
     QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
+    void startRenderingObjectModels();
 
 private slots:
 
     bool isNumberOfToolsCorrect();
     void onObjectModelsChanged();
     void onImagesChanged();
+    void onObjectModelRendered(OffscreenRenderer *offscreenRenderer);
 
 };
 

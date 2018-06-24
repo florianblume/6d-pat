@@ -5,6 +5,7 @@
 
 //! Class ObjectModel stores the URL to the 3D model of the object.
 class ObjectModel {
+
 private:
     QString objectModelPath;
     QString basePath;

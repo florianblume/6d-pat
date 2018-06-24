@@ -74,7 +74,6 @@ private:
     QColor segmentationBackgroundColor = QColor(0.0, 0.0, 0.0, 255.0);
     QImage renderedSegmentationImage;
 
-    // Matrix created from the intrinsic camera parameters
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 viewMatrix;
     QMatrix4x4 modelMatrix;
