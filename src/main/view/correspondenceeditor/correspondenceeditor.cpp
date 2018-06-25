@@ -320,8 +320,8 @@ void CorrespondenceEditor::reset() {
     ui->openGLWidget->reset();
     currentObjectModel.reset();
     currentCorrespondence.reset();
-    setEnabledAllControls(false);
     resetControlsValues();
+    setEnabledAllControls(false);
 }
 
 bool CorrespondenceEditor::isDisplayingObjectModel() {
