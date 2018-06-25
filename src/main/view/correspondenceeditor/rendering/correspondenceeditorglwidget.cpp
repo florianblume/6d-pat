@@ -202,7 +202,7 @@ void CorrespondenceEditorGLWidget::renderObjectAndSegmentation() {
                                                  clickColors.size());
             objectsProgram->setUniformValue("clickCount", clicks3D.size());
             objectsProgram->setUniformValue("circumfence",
-                                            objectModelRenderable->getLargestVertexValue() / 50.f);
+                                            objectModelRenderable->getLargestVertexValue() / 70.f);
             drawObject();
         }
         objectsProgram->release();

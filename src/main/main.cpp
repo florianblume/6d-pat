@@ -15,10 +15,10 @@ int main(int argc, char *argv[]) {
     splash.setWindowFlag(Qt::WindowStaysOnTopHint, true);
     splash.show();
     splash.raise();
+    app.processEvents();
 
     MainController m;
 
-    QThread::sleep(1);
 
     QSurfaceFormat format;
     format.setDepthBufferSize(DEPTH_BUFFER_SIZE);
@@ -27,6 +27,7 @@ int main(int argc, char *argv[]) {
     format.setProfile(QSurfaceFormat::CoreProfile);
     format.setVersion(3, 0);
     QSurfaceFormat::setDefaultFormat(format);
+    QThread::sleep(1);
 
     //! in this order so that the user sees something already and then load entities
     m.initialize();

@@ -15,19 +15,29 @@ void main() {
            highp vec3 col = clamp(color * 0.2 + color * 0.8 * NL, 0.0, 1.0);
            if (clickCount > 0) {
                bool isClicked = false;
+               bool isAroundClick = false;
                int index = 0;
                for (int i = 0; i < clickCount; i++)
                {
                    vec3 delta = abs(vert - clickPositions[i]); // Get delta from middle vec3
-                   if (delta.r + delta.g + delta.b <= circumfence)
+                   if (pow(delta.r, 2) + pow(delta.g, 2) + pow(delta.b, 2)
+                           <= pow(circumfence, 2))
                    {
                        isClicked = true;
+                       index = i;
+                   } else if (pow(delta.r, 2) + pow(delta.g, 2) + pow(delta.b, 2)
+                              <= pow(circumfence, 2) + 0.1) {
+                       isAroundClick = true;
                        index = i;
                    }
                }
                if (isClicked)
                {
                    gl_FragData[0] = vec4(clickColors[index], 1.0);
+               }
+               else if (isAroundClick)
+               {
+                   gl_FragData[0] = vec4((clickColors[index] + 2 * col) / 3, 1.0);
                }
                else
                {
