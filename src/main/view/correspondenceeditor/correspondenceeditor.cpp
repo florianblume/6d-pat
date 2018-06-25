@@ -7,6 +7,7 @@
 #include <opencv2/core/mat.hpp>
 #include <QUrl>
 #include <QThread>
+#include <QMessageBox>
 
 CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager *modelManager) :
     QWidget(parent),
@@ -167,6 +168,8 @@ void CorrespondenceEditor::onCorrespondenceAdded(const QString &correspondence) 
     Correspondence *c = actualCorrespondence.data();
     addCorrespondencesToComboBoxCorrespondences(c->getImage(), correspondence);
     ui->buttonCreate->setEnabled(false);
+    // Gets enabled somehow
+    ui->buttonSave->setEnabled(false);
     ui->openGLWidget->removeClicks();
 }
 
@@ -228,6 +231,17 @@ void CorrespondenceEditor::onSpinBoxRotationZValueChanged(double) {
 }
 
 void CorrespondenceEditor::onButtonCreateClicked() {
+    if (ui->buttonSave->isEnabled()) {
+        int result = QMessageBox::warning(this,
+                             "Correspondence creation",
+                             "Creating a correspondence will discard your unsaved"
+                             " changes, do you want to save them now?",
+                             QMessageBox::Yes,
+                             QMessageBox::No);
+        if (result == QMessageBox::Yes) {
+            onButtonSaveClicked();
+        }
+    }
     emit buttonCreateClicked();
 }
 
@@ -274,6 +288,7 @@ void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
     ui->comboBoxCorrespondence->setCurrentIndex(0);
     currentObjectModel.reset(new ObjectModel(*objectModel));
     ui->openGLWidget->setObjectModel(objectModel);
+    emit correspondenceCreationAborted();
 }
 
 void CorrespondenceEditor::onSelectedImageChanged(int index) {
@@ -297,6 +312,8 @@ void CorrespondenceEditor::setCorrespondenceToEdit(Correspondence *correspondenc
     setEnabledCorrespondenceEditorControls(true);
     setCorrespondenceValuesOnControls(correspondence);
     ui->openGLWidget->setObjectModel(correspondence->getObjectModel());
+    ui->buttonSave->setEnabled(false);
+    emit correspondenceCreationAborted();
 }
 
 void CorrespondenceEditor::removeClickVisualizations(){

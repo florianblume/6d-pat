@@ -1532,6 +1532,7 @@
     <signal>opacityChangeStarted(int)</signal>
     <signal>correspondenceUpdated(Correspondence*)</signal>
     <signal>opacityChangeEnded()</signal>
+    <signal>correspondenceCreationAborted()</signal>
     <slot>reset()</slot>
     <slot>setObjectModel(ObjectModel*)</slot>
     <slot>setObjectModel(int)</slot>
@@ -2055,6 +2056,22 @@
     <hint type="destinationlabel">
      <x>223</x>
      <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>correspondenceEditor</sender>
+   <signal>correspondenceCreationAborted()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onActionAbortCreationTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
     </hint>
    </hints>
   </connection>

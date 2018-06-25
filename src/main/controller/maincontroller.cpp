@@ -19,6 +19,8 @@ MainController::MainController() :
     // the controller as well
     connect(&modelManager, SIGNAL(correspondenceAdded(QString)),
             this, SLOT(resetCorrespondenceCreation()));
+    connect(&modelManager, SIGNAL(correspondenceDeleted(QString)),
+            this, SLOT(resetCorrespondenceCreation()));
     connect(&strategy, SIGNAL(failedToLoadImages(QString)), this, SLOT(onFailedToLoadImages(QString)));
 }
 

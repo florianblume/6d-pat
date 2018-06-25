@@ -84,6 +84,7 @@ signals:
      */
     void buttonCreateClicked();
     void correspondenceUpdated(Correspondence *correspondence);
+    void correspondenceCreationAborted();
     void opacityChangeStarted(int opacity);
     void opacityChangeEnded();
 
