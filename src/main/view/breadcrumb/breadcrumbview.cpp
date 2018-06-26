@@ -25,9 +25,17 @@ QString BreadcrumbView::getPathTowShow() {
 
 void BreadcrumbView::updateView() {
     QStringList pathParts = pathToShow.split(QDir::separator());
+    QStringList expandedPathParts;
+
+    for (int j = 0; j < pathParts.size(); j++) {
+        expandedPathParts << pathParts[j];
+        if (j < pathParts.size() - 1)
+            expandedPathParts << "/";
+    }
+
     uint i = 0;
 
-    for (QString part : pathParts) {
+    for (QString part : expandedPathParts) {
         // reuse labels
         QLabel* label;
         if (i < labels.size()) {

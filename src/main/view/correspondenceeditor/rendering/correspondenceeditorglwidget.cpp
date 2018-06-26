@@ -344,9 +344,9 @@ void CorrespondenceEditorGLWidget::keyPressEvent(QKeyEvent *ev) {
 void CorrespondenceEditorGLWidget::updateCameraPosition() {
     if (!objectModelRenderable.isNull()) {
         float factor = objectModelRenderable->getLargestVertexValue() / 10.f;
-        qDebug() << shiftDirectionX;
-        qDebug() << shiftDirectionY;
-        qDebug() << shiftDirectionZ;
+        qDebug() << xRot;
+        qDebug() << yRot;
+        qDebug() << zRot;
         xTrans += shiftDirectionX * factor;
         yTrans += shiftDirectionY * factor;
         zTrans += shiftDirectionZ * factor;

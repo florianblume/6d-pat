@@ -425,7 +425,7 @@ QDir JsonLoadAndStoreStrategy::getCorrespondencesFilePath() const {
 
 void JsonLoadAndStoreStrategy::setSegmentationImageFilesSuffix(const QString &suffix) {
     //! Only set suffix if it differs from the suffix before because we then have to reload images
-    if (suffix.compare("") != 0 && segmentationImageFilesSuffix.compare("") != 0) {
+    if (segmentationImageFilesSuffix.compare(suffix) != 0) {
         segmentationImageFilesSuffix = suffix;
         emit imagesChanged();
     }
