@@ -6,6 +6,7 @@
 #include "view/correspondenceeditor/rendering/objectmodelrenderable.hpp"
 
 #include <QString>
+#include <QTimer>
 #include <QList>
 #include <QSharedPointer>
 #include <QVector>
@@ -20,8 +21,8 @@
 #include <QOpenGLTexture>
 
 typedef QSharedPointer<ObjectModelRenderable> ObjectModelRenderablePtr;
-typedef QSharedPointer<QOpenGLShaderProgram> QOpenGLShaderProgramPtr;
-typedef QSharedPointer<QOpenGLFramebufferObject> QOpenGLFramebufferObjectPtr;
+typedef QScopedPointer<QOpenGLShaderProgram> QOpenGLShaderProgramPtr;
+typedef QScopedPointer<QOpenGLFramebufferObject> QOpenGLFramebufferObjectPtr;
 
 class CorrespondenceEditorGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_0
 {
@@ -45,17 +46,13 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *ev) override;
+    void keyReleaseEvent(QKeyEvent *ev) override;
+
+private slots:
+    void updateCameraPosition();
 
 private:
-
-    void setXRotation(int angle);
-    void setYRotation(int angle);
-    void setZRotation(int angle);
-
-    int xRot;
-    int yRot;
-    int zRot;
-
     void initializePrograms();
     void drawObject();
     void renderObjectAndSegmentation();
@@ -83,6 +80,25 @@ private:
     QVector<QVector3D> clickColors;
     bool mouseDown = false;
     bool mouseMoved = false;
+    // To capture whether the user wants to move the camera
+    int shiftDirectionX = 0;
+    int shiftDirectionY = 0;
+    int shiftDirectionZ = 0;
+    // Shift switches up/down arrow to move in z direction
+    bool shiftKeyPressed = false;
+    QScopedPointer<QTimer> keyPressedTimer;
+
+    void setXRotation(int angle);
+    void setYRotation(int angle);
+    void setZRotation(int angle);
+
+    int xRot;
+    int yRot;
+    int zRot;
+
+    int xTrans;
+    int yTrans;
+    int zTrans;
 
     float farPlane = 800.f;
     float nearPlane = 20.f;

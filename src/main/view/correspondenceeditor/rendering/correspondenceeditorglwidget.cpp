@@ -32,6 +32,9 @@ void CorrespondenceEditorGLWidget::setObjectModel(const ObjectModel *objectModel
                                                           PROGRAM_VERTEX_ATTRIBUTE,
                                                           PROGRAM_NORMAL_ATTRIBUTE));
     doneCurrent();
+    xTrans = 0;
+    yTrans = 0;
+    zTrans = 0;
     update();
 }
 
@@ -96,6 +99,9 @@ void CorrespondenceEditorGLWidget::removeClicks() {
 void CorrespondenceEditorGLWidget::reset() {
     removeClicks();
     objectModelRenderable.reset();
+    xTrans = 0;
+    yTrans = 0;
+    zTrans = 0;
     update();
 }
 
@@ -147,7 +153,9 @@ void CorrespondenceEditorGLWidget::drawObject() {
     modelMatrix.rotate(yRot / 16.0f, 0, 1, 0);
     modelMatrix.rotate(zRot / 16.0f, 0, 0, 1);
     viewMatrix.setToIdentity();
-    viewMatrix.translate(QVector3D(0, 0, -4 * objectModelRenderable->getLargestVertexValue()));
+    viewMatrix.translate(QVector3D(xTrans,
+                                   yTrans,
+                                   -4 * objectModelRenderable->getLargestVertexValue() + zTrans));
     projectionMatrix.setToIdentity();
     projectionMatrix.perspective(45.f, width() / (float) height(), nearPlane, farPlane);
     QMatrix4x4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
@@ -259,13 +267,11 @@ void CorrespondenceEditorGLWidget::paintGL() {
     renderObjectAndSegmentation();
 }
 
-void CorrespondenceEditorGLWidget::mousePressEvent(QMouseEvent *event)
-{
+void CorrespondenceEditorGLWidget::mousePressEvent(QMouseEvent *event) {
     lastClicked2DPos = event->pos();
 }
 
-void CorrespondenceEditorGLWidget::mouseMoveEvent(QMouseEvent *event)
-{
+void CorrespondenceEditorGLWidget::mouseMoveEvent(QMouseEvent *event) {
     int dx = event->x() - lastClicked2DPos.x();
     int dy = lastClicked2DPos.y() - event->y();
     int d = 0;
@@ -299,4 +305,67 @@ void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
         }
     }
     mouseMoved = false;
+}
+
+void CorrespondenceEditorGLWidget::keyPressEvent(QKeyEvent *ev) {
+    if (ev->key() == Qt::Key_Shift) {
+        shiftKeyPressed = true;
+    } else if (ev->key() == Qt::Key_Up ||
+               ev->key() == Qt::Key_Down ||
+               ev->key() == Qt::Key_Right ||
+               ev->key() == Qt::Key_Left) {
+        if (shiftKeyPressed) {
+            if (ev->key() == Qt::Key_Up)
+                shiftDirectionZ = 1;
+            else if (ev->key() == Qt::Key_Down)
+                shiftDirectionZ = -1;
+            else if (ev->key() == Qt::Key_Left)
+                shiftDirectionX = -1;
+            else if (ev->key() == Qt::Key_Right)
+                shiftDirectionX = 1;
+        } else {
+            if (ev->key() == Qt::Key_Up)
+                shiftDirectionY = 1;
+            else if (ev->key() == Qt::Key_Down)
+                shiftDirectionY = -1;
+            else if (ev->key() == Qt::Key_Left)
+                shiftDirectionX = -1;
+            else if (ev->key() == Qt::Key_Right)
+                shiftDirectionX = 1;
+        }
+        keyPressedTimer.reset(new QTimer());
+        connect(keyPressedTimer.get(), &QTimer::timeout,
+                this, &CorrespondenceEditorGLWidget::updateCameraPosition);
+        keyPressedTimer->start(10);
+    }
+
+}
+
+void CorrespondenceEditorGLWidget::updateCameraPosition() {
+    if (!objectModelRenderable.isNull()) {
+        float factor = objectModelRenderable->getLargestVertexValue() / 10.f;
+        qDebug() << shiftDirectionX;
+        qDebug() << shiftDirectionY;
+        qDebug() << shiftDirectionZ;
+        xTrans += shiftDirectionX * factor;
+        yTrans += shiftDirectionY * factor;
+        zTrans += shiftDirectionZ * factor;
+        update();
+    }
+}
+
+void CorrespondenceEditorGLWidget::keyReleaseEvent(QKeyEvent *ev) {
+    switch(ev->key()) {
+        case Qt::Key_Up: shiftDirectionY = 0; shiftDirectionZ = 0; break;
+        case Qt::Key_Down: shiftDirectionY = 0; shiftDirectionZ = 0; break;
+        case Qt::Key_Left: shiftDirectionX = 0; break;
+        case Qt::Key_Right: shiftDirectionX = 0; break;
+    }
+
+    if (ev->key() == Qt::Key_Shift) {
+        shiftKeyPressed = false;
+    } else if (!keyPressedTimer.isNull()) {
+        keyPressedTimer->stop();
+        keyPressedTimer.reset();
+    }
 }

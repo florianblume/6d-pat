@@ -1144,7 +1144,11 @@ QPushButton:pressed {
        <number>10</number>
       </property>
       <item>
-       <widget class="CorrespondenceEditorGLWidget" name="openGLWidget"/>
+       <widget class="CorrespondenceEditorGLWidget" name="openGLWidget">
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

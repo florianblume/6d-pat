@@ -175,9 +175,13 @@ void MainWindow::onImageClicked(Image* image, QPoint position) {
 
 void MainWindow::onObjectModelClicked(ObjectModel* objectModel, QVector3D position) {
     if (!correspondenceCreationInProgress) {
+        // Do not show this warning as clicking the 3D model focuses the viewer
+        // and enables moving around with the arrow keys
+        /*
         displayWarning("Correspondence creation", "You need to click a position on"
                                                   " the image first before selecting"
                                                   " the corresponding 3D position.");
+                                                  */
     }
     QGuiApplication::restoreOverrideCursor();
     correspondenceCreationInProgress = false;
