@@ -13,7 +13,7 @@
 #include <QMap>
 
 const QStringList JsonLoadAndStoreStrategy::OBJECT_MODEL_FILES_EXTENSIONS =
-                                            QStringList({"*.obj", "*.ply"});
+                                            QStringList({"*.obj", "*.ply", "*.3ds", "*.fbx"});
 
 static QString convertPathToSuffxFileName(const QString &pathToConvert,
                                           const QString &suffix,

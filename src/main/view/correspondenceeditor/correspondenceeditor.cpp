@@ -284,8 +284,10 @@ void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
     }
 
     qDebug() << "Setting object model (" + objectModel->getPath() + ") to display.";
-    // This also disables controls and resets their values
-    ui->comboBoxCorrespondence->setCurrentIndex(0);
+    // If the user has edited a correspondence they need to be able to save
+    // them even when viewing a different object model, setting the index to
+    // the None entry would inhibit this
+    // ui->comboBoxCorrespondence->setCurrentIndex(0);
     currentObjectModel.reset(new ObjectModel(*objectModel));
     ui->openGLWidget->setObjectModel(objectModel);
     emit correspondenceCreationAborted();
