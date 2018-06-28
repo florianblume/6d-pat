@@ -298,6 +298,7 @@ private slots:
     void onActionExitTriggered();
     void onActionSettingsTriggered();
     void onActionAbortCreationTriggered();
+    void onActionReloadViewsTriggered();
 };
 
 #endif // MAINWINDOW_H

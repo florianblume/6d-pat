@@ -310,6 +310,10 @@ void MainWindow::onActionAbortCreationTriggered() {
     emit correspondenceCreationAborted();
 }
 
+void MainWindow::onActionReloadViewsTriggered() {
+    modelManager->reload();
+}
+
 QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";
 QString MainWindow::SETTINGS_PROGRAM_NAME = "Otiat";
 QString MainWindow::SETTINGS_GROUP_NAME = "mainwindow";

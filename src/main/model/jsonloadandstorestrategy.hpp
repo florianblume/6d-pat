@@ -6,6 +6,7 @@
 #include <QString>
 #include <QStringList>
 #include <QList>
+#include <QFileSystemWatcher>
 
 /*!
  * \brief The TextFileLoadAndStoreStrategy class is a simple implementation of a LoadAndStoreStrategy that makes no use of
@@ -136,6 +137,10 @@ public:
      */
     QString getImageFilesExtension();
 
+private slots:
+    void onDirectoryChanged(const QString &path);
+    void onFileChanged(const QString &filePath);
+
 private:
 
     //! Stores the path to the folder that holds the images
@@ -148,6 +153,10 @@ private:
     QString segmentationImageFilesSuffix = "";
     //! Stores the extension of the image files that are to be loaded
     QString imageFilesExtension = "";
+
+    QFileSystemWatcher watcher;
+
+    void connectWatcherSignals();
 };
 
 #endif // TEXTFILELOADANDSTORESTRATEGY_H

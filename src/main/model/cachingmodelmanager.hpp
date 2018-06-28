@@ -49,6 +49,8 @@ public:
 
     bool removeObjectImageCorrespondence(const QString &id) override;
 
+    void reload() override;
+
 private:
 
     //! The pattern that is used to load maybe existing segmentation images

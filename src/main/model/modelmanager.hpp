@@ -125,6 +125,12 @@ public:
      */
     virtual bool removeObjectImageCorrespondence(const QString &id) = 0;
 
+    /*!
+     * \brief reload reads all data from the persitence storage again and
+     * emits the corresponding signals.
+     */
+    virtual void reload() = 0;
+
 signals:
 
     void imagesChanged();

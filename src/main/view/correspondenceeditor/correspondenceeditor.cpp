@@ -336,6 +336,7 @@ void CorrespondenceEditor::onCorrespondencePointFinished(QVector3D point3D,
 }
 
 void CorrespondenceEditor::reset() {
+    qDebug() << "Resetting correspondence editor.";
     ui->openGLWidget->reset();
     currentObjectModel.reset();
     currentCorrespondence.reset();

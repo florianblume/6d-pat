@@ -22,7 +22,7 @@ static QString convertPathToSuffxFileName(const QString &pathToConvert,
 }
 
 JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy() {
-    // nothing to do here
+    connectWatcherSignals();
 }
 
 JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy(const QDir &imagesPath, const QDir &objectModelsPath,
@@ -30,6 +30,10 @@ JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy(const QDir &imagesPath, const
     : imagesPath(imagesPath),
       objectModelsPath(objectModelsPath),
       correspondencesFilePath(correspondencesFilePath) {
+    watcher.addPaths(QStringList() << imagesPath.path()
+                                   << objectModelsPath.path()
+                                   << correspondencesFilePath.path());
+    connectWatcherSignals();
 }
 
 JsonLoadAndStoreStrategy::~JsonLoadAndStoreStrategy() {
@@ -378,6 +382,8 @@ bool JsonLoadAndStoreStrategy::setImagesPath(const QDir &path) {
     if (imagesPath == path)
         return true;
 
+    watcher.removePath(imagesPath.path());
+    watcher.addPath(path.path());
     imagesPath = path;
 
     emit imagesChanged();
@@ -395,6 +401,8 @@ bool JsonLoadAndStoreStrategy::setObjectModelsPath(const QDir &path) {
     if (objectModelsPath == path)
         return true;
 
+    watcher.removePath(objectModelsPath.path());
+    watcher.addPath(path.path());
     objectModelsPath = path;
 
     emit objectModelsChanged();
@@ -412,6 +420,8 @@ bool JsonLoadAndStoreStrategy::setCorrespondencesFilePath(const QDir &path) {
     if (correspondencesFilePath == path)
         return true;
 
+    watcher.removePath(correspondencesFilePath.path());
+    watcher.addPath(path.path());
     correspondencesFilePath = path;
 
     emit correspondencesChanged();
@@ -444,4 +454,32 @@ void JsonLoadAndStoreStrategy::setImageFilesExtension(const QString &extension) 
 
 QString JsonLoadAndStoreStrategy::getImageFilesExtension() {
     return imageFilesExtension;
+}
+
+void JsonLoadAndStoreStrategy::onDirectoryChanged(const QString &path) {
+    if (path == imagesPath.path()) {
+        emit imagesChanged();
+    } else if (path == objectModelsPath.path()) {
+        emit objectModelsChanged();
+    } else if (path == correspondencesFilePath.path()) {
+        emit correspondencesChanged();
+    }
+}
+
+void JsonLoadAndStoreStrategy::onFileChanged(const QString &filePath) {
+    // Only for images and object models, because storing correspondences
+    // at the correspondence file path will trigger this signal as well,
+    // but we already updated the program accordingly (of course)
+    if (filePath.contains(imagesPath.path())) {
+        emit imagesChanged();
+    } else if (filePath.contains(objectModelsPath.path())) {
+        emit objectModelsChanged();
+    }
+}
+
+void JsonLoadAndStoreStrategy::connectWatcherSignals() {
+    connect(&watcher, &QFileSystemWatcher::directoryChanged,
+            this, &JsonLoadAndStoreStrategy::onDirectoryChanged);
+    connect(&watcher, &QFileSystemWatcher::fileChanged,
+            this, &JsonLoadAndStoreStrategy::onFileChanged);
 }

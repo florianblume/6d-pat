@@ -191,6 +191,15 @@ bool CachingModelManager::removeObjectImageCorrespondence(const QString &id) {
     return true;
 }
 
+void CachingModelManager::reload() {
+    images = loadAndStoreStrategy.loadImages();
+    objectModels = loadAndStoreStrategy.loadObjectModels();
+    correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
+    emit imagesChanged();
+    emit objectModelsChanged();
+    emit correspondencesChanged();
+}
+
 void CachingModelManager::onImagesChanged() {
     images = loadAndStoreStrategy.loadImages();
     correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
