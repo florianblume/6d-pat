@@ -195,6 +195,7 @@ void CachingModelManager::reload() {
     images = loadAndStoreStrategy.loadImages();
     objectModels = loadAndStoreStrategy.loadObjectModels();
     correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
+    createConditionalCache();
     emit imagesChanged();
     emit objectModelsChanged();
     emit correspondencesChanged();

@@ -470,9 +470,9 @@ void JsonLoadAndStoreStrategy::onFileChanged(const QString &filePath) {
     // Only for images and object models, because storing correspondences
     // at the correspondence file path will trigger this signal as well,
     // but we already updated the program accordingly (of course)
-    if (filePath.contains(imagesPath.path())) {
+    if (filePath.contains(imagesPath.path()) && !filePath.endsWith(".json")) {
         emit imagesChanged();
-    } else if (filePath.contains(objectModelsPath.path())) {
+    } else if (filePath.contains(objectModelsPath.path()) && !filePath.endsWith(".json")) {
         emit objectModelsChanged();
     }
 }

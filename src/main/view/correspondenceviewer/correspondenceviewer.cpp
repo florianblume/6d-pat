@@ -99,6 +99,7 @@ void CorrespondenceViewer::reset() {
     ui->openGLWidget->reset();
     ui->buttonResetPosition->setEnabled(false);
     ui->buttonSwitchView->setEnabled(false);
+    currentlyDisplayedImage.reset();
 }
 
 void CorrespondenceViewer::visualizeLastClickedPosition(int correspondencePointIndex) {
