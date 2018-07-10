@@ -19,7 +19,7 @@ public:
     ~SettingsGeneralPage();
     void setPreferences(Preferences *preferences);
 
-private slots:
+private Q_SLOTS:
     void buttonImagesPathClicked();
     void buttonObjectModelsPathClicked();
     void buttonCorrespondencesPathClicked();

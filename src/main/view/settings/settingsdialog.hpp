@@ -21,7 +21,7 @@ public:
                                         const QString &currentPreferencesIdentifier,
                                         const QList<ObjectModel> &objectModels);
 
-public slots:
+public Q_SLOTS:
     void onAccepted(QAbstractButton* button);
 
 private:
@@ -30,7 +30,7 @@ private:
     UniquePointer<Preferences> preferences;
     QString currentPreferencesIdentifier;
 
-private slots:
+private Q_SLOTS:
     void onListWidgetClicked(const QModelIndex &index);
 };
 

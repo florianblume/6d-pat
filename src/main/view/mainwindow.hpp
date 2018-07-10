@@ -75,7 +75,7 @@ public:
 
     void setPreferencesStore(PreferencesStore *preferencesStore);
 
-public slots:
+public Q_SLOTS:
     /*!
      * \brief mousePressEvent to catch clicks of the user after
      * clicking on the image to restore the normal cursor, etc
@@ -83,7 +83,7 @@ public slots:
      */
     void mouseReleaseEvent(QMouseEvent*) override;
 
-    //! The slot that catches the emitted signal when the 3D model in the lower right correspondence controls
+    //! The slot that catches the Q_EMITted signal when the 3D model in the lower right correspondence controls
     //! is clicked (see CorrespondenceEditorControls)
     void onObjectModelClicked(ObjectModel* objectModel, QVector3D position);
 
@@ -162,16 +162,16 @@ public slots:
      */
     void onCorrespondenceCreationRequested();
 
-signals:
+Q_SIGNALS:
     /*!
-     * \brief imageClicked emitted when the image in the correspondence viewer is clicked.
+     * \brief imageClicked Q_EMITted when the image in the correspondence viewer is clicked.
      * \param image the image that was clicked
      * \param position the position where it was clicked
      */
     void imageClicked(Image* image, QPoint position);
 
     /*!
-     * \brief objectModelClicked emitted when the object model displayed in the correspondence editor
+     * \brief objectModelClicked Q_EMITted when the object model displayed in the correspondence editor
      * is clicked.
      * \param objectModel the object model that was clicked
      * \param position the position where it was clicked
@@ -185,13 +185,13 @@ signals:
     void selectedObjectModelChanged(ObjectModel *objectModel);
 
     /*!
-     * \brief selectedImageChanged is emitted when the image selected in the gallery changes.
+     * \brief selectedImageChanged is Q_EMITted when the image selected in the gallery changes.
      * \param index the index of the new image
      */
     void selectedImageChanged(Image *image);
 
     /*!
-     * \brief onCorrespondencePointCreationInitiated is emitted whenever the window receives a signal
+     * \brief onCorrespondencePointCreationInitiated is Q_EMITted whenever the window receives a signal
      * that a correspondence point has been started (i.e. a 2D point was added to the correspondence
      * creator, this is what we hide here).
      * \param point2D the 2D location of the correspondence point to be created
@@ -204,7 +204,7 @@ signals:
                                     int minimumNumberOfPoints);
 
     /*!
-     * \brief onCorrespondencePointAdded is emitted whenever the window receives a signal that
+     * \brief onCorrespondencePointAdded is Q_EMITted whenever the window receives a signal that
      * a correspondence point has been added (i.e. to the correspondence creator, this is what we
      * hide here).
      * \param point3D the 3D location of the correspondence point to be created
@@ -217,7 +217,7 @@ signals:
                                      int minimumNumberOfPoints);
 
     /*!
-     * \brief correspondenceCreationInterrupted this signal is emitted when the user clicks the
+     * \brief correspondenceCreationInterrupted this signal is Q_EMITted when the user clicks the
      * overlay that is being added to the view as soon as the image is clicked anywhere. Clicking
      * the overlay can be an accident or because the image was clicked at the wrong position.
      * Thus we assume that the user only interrupted the creation, not aborted it. The user
@@ -226,30 +226,32 @@ signals:
     void correspondenceCreationInterrupted();
 
     /*!
-     * \brief correspondenceCreationAborted is emitted when the user clicks the abort creation
+     * \brief correspondenceCreationAborted is Q_EMITted when the user clicks the abort creation
      * button
      */
     void correspondenceCreationAborted();
 
     /*!
-     * \brief requestCorrespondenceCreation this signal is emitted whenever the user uses the UI
+     * \brief requestCorrespondenceCreation this signal is Q_EMITted whenever the user uses the UI
      * to request the creation of a correspondence.
      */
     void requestCorrespondenceCreation();
 
     /*!
-     * \brief imagesPathChanged emitted when the images path changes because the user used the
+     * \brief imagesPathChanged Q_EMITted when the images path changes because the user used the
      * navigation controls to change it
      * \param newPath the new images path that was set
      */
     void imagesPathChanged(const QString& newPath);
 
     /*!
-     * \brief objectModelsPathChanged emitted when object models path changes because the user
+     * \brief objectModelsPathChanged Q_EMITted when object models path changes because the user
      * used the navigation controls to change it
      * \param newPath the new object models path that was set
      */
     void objectModelsPathChanged(const QString &newPath);
+
+    void correspondencePredictionRequested();
 
 private:
     Ui::MainWindow *ui;
@@ -265,7 +267,7 @@ private:
     void writeSettings();
     void readSettings();
 
-    // To indicate whether to emit signal correspondence
+    // To indicate whether to Q_EMIT signal correspondence
     // creation aborted when the user clicks anywhere on
     // the window
     bool correspondenceCreationInProgress = false;
@@ -287,7 +289,7 @@ private:
     static QString SPLITTER_RIGHT_SIZE_TOP_KEY;
     static QString SPLITTER_RIGHT_SIZE_BOTTOM_KEY;
 
-private slots:
+private Q_SLOTS:
     // Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
     // right clicks in the image to start creating a correspondence
     void onImageClicked(Image* image, QPoint position);
@@ -299,6 +301,8 @@ private slots:
     void onActionSettingsTriggered();
     void onActionAbortCreationTriggered();
     void onActionReloadViewsTriggered();
+
+    void onCorrespondencePredictionRequested();
 };
 
 #endif // MAINWINDOW_H

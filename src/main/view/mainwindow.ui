@@ -1475,6 +1475,11 @@
     <string>Reload Views</string>
    </property>
   </action>
+  <action name="actionTrain">
+   <property name="text">
+    <string>Train Network</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -1539,6 +1544,7 @@
     <signal>correspondenceUpdated(Correspondence*)</signal>
     <signal>opacityChangeEnded()</signal>
     <signal>correspondenceCreationAborted()</signal>
+    <signal>buttonPredictClicked()</signal>
     <slot>reset()</slot>
     <slot>setObjectModel(ObjectModel*)</slot>
     <slot>setObjectModel(int)</slot>
@@ -2097,6 +2103,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>correspondenceEditor</sender>
+   <signal>buttonPredictClicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onCorrespondencePredictionRequested()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>401</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>selectedObjectModelChanged(ObjectModel*)</signal>
@@ -2117,5 +2139,7 @@
   <slot>onSelectedImageChanged(int)</slot>
   <slot>onCorrespondenceCreationRequested()</slot>
   <slot>onActionReloadViewsTriggered()</slot>
+  <slot>onActionTrainNetworkTriggered()</slot>
+  <slot>onCorrespondencePredictionRequested()</slot>
  </slots>
 </ui>

@@ -1,3 +1,5 @@
+#include <Python.h>
+
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 #include "view/settings/settingsdialog.hpp"
@@ -144,7 +146,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent* /* event */) {
     if (correspondenceCreationInProgress) {
         // Reset correspondence creation because the user clicked anywhere
         onCorrespondenceCreationReset();
-        emit correspondenceCreationAborted();
+        Q_EMIT correspondenceCreationAborted();
     }
 }
 
@@ -164,7 +166,7 @@ void MainWindow::onImageClicked(Image* image, QPoint position) {
         } else {
             QGuiApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
             correspondenceCreationInProgress = true;
-            emit imageClicked(image, position);
+            Q_EMIT imageClicked(image, position);
         }
     } else {
         QMessageBox::warning(this, "Select object model first", "Please select an object model from the list\n"
@@ -189,7 +191,7 @@ void MainWindow::onObjectModelClicked(ObjectModel* objectModel, QVector3D positi
     // i.e. the overlay is not visible yet and not created. But as soon as the user clicks
     // the image and then the object, this adds a correspondence point and the overlay
     // should be hidden.
-    emit objectModelClicked(objectModel, position);
+    Q_EMIT objectModelClicked(objectModel, position);
 }
 
 void MainWindow::onSelectedObjectModelChanged(int index) {
@@ -197,7 +199,7 @@ void MainWindow::onSelectedObjectModelChanged(int index) {
     Q_ASSERT(index >= 0 && index < objectModels.size());
     // Ok as long as the addressees are in the same thread and directly process the event.
     ObjectModel *model = new ObjectModel(objectModels.at(index));
-    emit selectedObjectModelChanged(model);
+    Q_EMIT selectedObjectModelChanged(model);
     delete model;
     onCorrespondenceCreationReset();
 }
@@ -207,7 +209,7 @@ void MainWindow::onSelectedImageChanged(int index) {
     Q_ASSERT(index >= 0 && index < images.size());
     // Ok as long as the addressees are in the same thread and directly process the event.
     Image *image = new Image(images.at(index));
-    emit selectedImageChanged(image);
+    Q_EMIT selectedImageChanged(image);
     delete image;
     onCorrespondenceCreationReset();
 }
@@ -234,7 +236,7 @@ void MainWindow::onCorrespondencePointStarted(QPoint point2D, int currentNumberO
                                 + " of min. " +
                                 QString::number(requiredNumberOfPoints)
                      + "].");
-    emit correspondencePointStarted(point2D, currentNumberOfPoints, requiredNumberOfPoints);
+    Q_EMIT correspondencePointStarted(point2D, currentNumberOfPoints, requiredNumberOfPoints);
 }
 
 void MainWindow::onCorrespondencePointFinished(QVector3D point3D, int currentNumberOfPoints, int requiredNumberOfPoints) {
@@ -243,7 +245,7 @@ void MainWindow::onCorrespondencePointFinished(QVector3D point3D, int currentNum
                                 + " of min. " +
                                 QString::number(requiredNumberOfPoints)
                      + "].");
-    emit correspondencePointFinished(point3D, currentNumberOfPoints, requiredNumberOfPoints);
+    Q_EMIT correspondencePointFinished(point3D, currentNumberOfPoints, requiredNumberOfPoints);
 }
 
 void MainWindow::onCorrespondenceCreated() {
@@ -258,7 +260,7 @@ void MainWindow::onCorrespondenceCreationReset() {
 
 void MainWindow::onCorrespondenceCreationRequested() {
     setStatusBarText("Creating correspondence...");
-    emit requestCorrespondenceCreation();
+    Q_EMIT requestCorrespondenceCreation();
     QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 }
 
@@ -307,11 +309,15 @@ void MainWindow::onActionSettingsTriggered()
 
 void MainWindow::onActionAbortCreationTriggered() {
     setStatusBarText("Ready.");
-    emit correspondenceCreationAborted();
+    Q_EMIT correspondenceCreationAborted();
 }
 
 void MainWindow::onActionReloadViewsTriggered() {
     modelManager->reload();
+}
+
+void MainWindow::onCorrespondencePredictionRequested() {
+    Q_EMIT correspondencePredictionRequested();
 }
 
 QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";

@@ -61,7 +61,7 @@ public:
      */
     bool pathExists(const QDir &path);
 
-signals:
+Q_SIGNALS:
 
     void imagesChanged();
     void failedToLoadImages(const QString& message);

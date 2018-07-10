@@ -32,5 +32,5 @@ void GalleryImageModel::onImagesChanged() {
     imagesCache = modelManager->getImages();
     QModelIndex top = index(0, 0);
     QModelIndex bottom = index(imagesCache.size() - 1, 0);
-    emit dataChanged(top, bottom);
+    Q_EMIT dataChanged(top, bottom);
 }

@@ -301,7 +301,7 @@ void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
                 renderedSegmentationImage.pixelColor(mousePos.x(), mousePos.y());
         if (mouseClickColor == segmentationColor) {
             QVector3D pos3D = renderObjectCoordinates(mousePos);
-            emit positionClicked(pos3D);
+            Q_EMIT positionClicked(pos3D);
         }
     }
     mouseMoved = false;
@@ -334,7 +334,7 @@ void CorrespondenceEditorGLWidget::keyPressEvent(QKeyEvent *ev) {
                 shiftDirectionX = 1;
         }
         keyPressedTimer.reset(new QTimer());
-        connect(keyPressedTimer.get(), &QTimer::timeout,
+        connect(keyPressedTimer.data(), &QTimer::timeout,
                 this, &CorrespondenceEditorGLWidget::updateCameraPosition);
         keyPressedTimer->start(10);
     }

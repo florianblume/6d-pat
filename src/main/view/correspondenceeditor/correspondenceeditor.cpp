@@ -24,6 +24,12 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager *modelM
                 this, SLOT(onCorrespondenceAdded(QString)));
         connect(modelManager, SIGNAL(correspondenceDeleted(QString)),
                 this, SLOT(onCorrespondenceDeleted(QString)));
+        // Reset view when object models are changed of course but also when the
+        // images change because that might imply a change in the object models, too
+        connect(modelManager, SIGNAL(objectModelsChanged()),
+                this, SLOT(reset()));
+        connect(modelManager, SIGNAL(imagesChanged()),
+                this, SLOT(reset()));
     }
 }
 
@@ -39,12 +45,20 @@ void CorrespondenceEditor::setModelManager(ModelManager *modelManager) {
                    this, SLOT(onCorrespondenceAdded(QString)));
         disconnect(this->modelManager, SIGNAL(correspondenceDeleted(QString)),
                 this, SLOT(correspondenceDeleted(QString)));
+        disconnect(modelManager, SIGNAL(objectModelsChanged()),
+                this, SLOT(reset()));
+        disconnect(modelManager, SIGNAL(imagesChanged()),
+                this, SLOT(reset()));
     }
     this->modelManager = modelManager;
     connect(modelManager, SIGNAL(correspondenceAdded(QString)),
             this, SLOT(onCorrespondenceAdded(QString)));
     connect(modelManager, SIGNAL(correspondenceDeleted(QString)),
             this, SLOT(onCorrespondenceDeleted(QString)));
+    connect(modelManager, SIGNAL(objectModelsChanged()),
+            this, SLOT(reset()));
+    connect(modelManager, SIGNAL(imagesChanged()),
+            this, SLOT(reset()));
 }
 
 void CorrespondenceEditor::setEnabledCorrespondenceEditorControls(bool enabled) {
@@ -71,6 +85,7 @@ void CorrespondenceEditor::setEnabledAllControls(bool enabled) {
     ui->buttonCreate->setEnabled(enabled);
     ui->comboBoxCorrespondence->setEnabled(enabled);
     ui->buttonSave->setEnabled(enabled);
+    ui->buttonPredict->setEnabled(enabled);
 }
 
 void CorrespondenceEditor::resetControlsValues() {
@@ -139,7 +154,7 @@ void CorrespondenceEditor::onObjectModelClickedAt(QVector3D position) {
                 + QString::number(position.y())
                 + ", "
                 + QString::number(position.z())+ ").";
-    emit objectModelClickedAt(currentObjectModel.get(), position);
+    Q_EMIT objectModelClickedAt(currentObjectModel.get(), position);
 }
 
 void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
@@ -159,7 +174,7 @@ void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
                 rotMatrix.at<float>(0, 2), rotMatrix.at<float>(1, 2), rotMatrix.at<float>(2, 2)};
         QMatrix3x3 qtRotationMatrix = QMatrix3x3(values);
         currentCorrespondence->setRotation(qtRotationMatrix);
-        emit correspondenceUpdated(currentCorrespondence.get());
+        Q_EMIT correspondenceUpdated(currentCorrespondence.get());
     }
 }
 
@@ -230,6 +245,10 @@ void CorrespondenceEditor::onSpinBoxRotationZValueChanged(double) {
     }
 }
 
+void CorrespondenceEditor::onButtonPredictClicked() {
+    Q_EMIT buttonPredictClicked();
+}
+
 void CorrespondenceEditor::onButtonCreateClicked() {
     if (ui->buttonSave->isEnabled()) {
         int result = QMessageBox::warning(this,
@@ -242,7 +261,7 @@ void CorrespondenceEditor::onButtonCreateClicked() {
             onButtonSaveClicked();
         }
     }
-    emit buttonCreateClicked();
+    Q_EMIT buttonCreateClicked();
 }
 
 void CorrespondenceEditor::onButtonSaveClicked() {
@@ -269,11 +288,11 @@ void CorrespondenceEditor::onComboBoxCorrespondenceIndexChanged(int index) {
 }
 
 void CorrespondenceEditor::onSliderOpacityValueChanged(int value) {
-    emit opacityChangeStarted(value);
+    Q_EMIT opacityChangeStarted(value);
 }
 
 void CorrespondenceEditor::onSliderOpacityReleased() {
-    emit opacityChangeEnded();
+    Q_EMIT opacityChangeEnded();
 }
 
 void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
@@ -290,7 +309,7 @@ void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
     // ui->comboBoxCorrespondence->setCurrentIndex(0);
     currentObjectModel.reset(new ObjectModel(*objectModel));
     ui->openGLWidget->setObjectModel(objectModel);
-    emit correspondenceCreationAborted();
+    Q_EMIT correspondenceCreationAborted();
 }
 
 void CorrespondenceEditor::onSelectedImageChanged(int index) {
@@ -298,6 +317,7 @@ void CorrespondenceEditor::onSelectedImageChanged(int index) {
     ui->sliderOpacity->setEnabled(true);
     currentlySelectedImage = modelManager->getImages().at(index);
     addCorrespondencesToComboBoxCorrespondences(&currentlySelectedImage);
+    ui->buttonPredict->setEnabled(true);
 }
 
 void CorrespondenceEditor::setCorrespondenceToEdit(Correspondence *correspondence) {
@@ -315,7 +335,7 @@ void CorrespondenceEditor::setCorrespondenceToEdit(Correspondence *correspondenc
     setCorrespondenceValuesOnControls(correspondence);
     ui->openGLWidget->setObjectModel(correspondence->getObjectModel());
     ui->buttonSave->setEnabled(false);
-    emit correspondenceCreationAborted();
+    Q_EMIT correspondenceCreationAborted();
 }
 
 void CorrespondenceEditor::removeClickVisualizations(){

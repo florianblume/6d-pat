@@ -47,7 +47,7 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
     //! is if this strategy was constructed with an empty path, all other methods of
     //! setting the path check if the path exists
     if (!QFileInfo(correspondencesFilePath.path()).exists()) {
-        emit failedToPersistCorrespondence("The specified JSON file does not exist.");
+        Q_EMIT failedToPersistCorrespondence("The specified JSON file does not exist.");
         return false;
     }
 
@@ -65,7 +65,7 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
             if (jsonObject.contains(imagePath)) {
                 entriesForImage = jsonObject[imagePath].toArray();
                 int index = 0;
-                foreach(const QJsonValue &entry, entriesForImage) {
+                for(const QJsonValue &entry : entriesForImage) {
                     QJsonObject entryObject = entry.toObject();
                     if (entryObject["id"] == objectImageCorrespondence->getID()) {
                         entriesForImage.removeAt(index);
@@ -101,7 +101,7 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
                 entry["R"] = rotationMatrixArray;
                 entry["t"] = positionVectorArray;
 
-                foreach(const QJsonValue &_entry, entriesForImage) {
+                for(const QJsonValue &_entry : entriesForImage) {
                     QJsonObject entryObject = _entry.toObject();
                     if (entryObject["id"] == objectImageCorrespondence->getID()) {
                         entryFound = true;
@@ -127,7 +127,7 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
         jsonFile.write(QJsonDocument(jsonObject).toJson());
         return true;
     } else {
-        emit failedToPersistCorrespondence("Could not read the specified JSON file.");
+        Q_EMIT failedToPersistCorrespondence("Could not read the specified JSON file.");
         return false;
     }
 }
@@ -170,7 +170,7 @@ QList<Image> JsonLoadAndStoreStrategy::loadImages() {
     //! is if this strategy was constructed with an empty path, all other methods of
     //! setting the path check if the path exists
     if (!pathExists(imagesPath)) {
-        emit failedToLoadImages("The specified path does not exist.");
+        Q_EMIT failedToLoadImages("The specified path does not exist.");
         return images;
     }
 
@@ -231,9 +231,9 @@ QList<Image> JsonLoadAndStoreStrategy::loadImages() {
         }
     } else if (files.size() > 0) {
         //! Only if we can read images but do not find the JSON info file we raise the exception
-        emit failedToLoadImages("Could not find info.json with the camera parameters.");
+        Q_EMIT failedToLoadImages("Could not find info.json with the camera parameters.");
     } else if (files.size() == 0) {
-        emit failedToLoadImages("No images found at the specified path.");
+        Q_EMIT failedToLoadImages("No images found at the specified path.");
     }
 
     return images;
@@ -244,7 +244,7 @@ QList<ObjectModel> JsonLoadAndStoreStrategy::loadObjectModels() {
 
     //! See explanation under loadImages for why we don't throw an exception here
     if (!pathExists(objectModelsPath.path())) {
-        emit failedToLoadObjectModels("The specified path does not exist.");
+        Q_EMIT failedToLoadObjectModels("The specified path does not exist.");
         return objectModels;
     }
 
@@ -296,7 +296,7 @@ QList<Correspondence> JsonLoadAndStoreStrategy::loadCorrespondences(const QList<
 
     //! See loadImages for why we don't throw an exception here
     if (!QFileInfo(correspondencesFilePath.path()).exists()) {
-        emit failedToLoadCorrespondences("The specified path does not exist.");
+        Q_EMIT failedToLoadCorrespondences("The specified path does not exist.");
         return correspondences;
     }
 
@@ -309,13 +309,13 @@ QList<Correspondence> JsonLoadAndStoreStrategy::loadCorrespondences(const QList<
         QJsonObject jsonObject = jsonDocument.object();
         //! If we need to update missing IDs we have to write back the document
         bool documentDirty = false;
-        foreach(const QString& imagePath, jsonObject.keys()) {
+        for(const QString& imagePath : jsonObject.keys()) {
             QJsonArray entriesForImage = jsonObject[imagePath].toArray();
             //! Index to keep track of entries to be able to update the
             //! correspondences' IDs if necessary. See reason to update the IDs
             //! further below.
             int index = 0;
-            foreach(const QJsonValue &correspondenceEntryRaw, entriesForImage) {
+            for(const QJsonValue &correspondenceEntryRaw : entriesForImage) {
                 QJsonObject correspondenceEntry = correspondenceEntryRaw.toObject();
                 Q_ASSERT(correspondenceEntry.contains("R"));
                 Q_ASSERT(correspondenceEntry.contains("t"));
@@ -386,7 +386,7 @@ bool JsonLoadAndStoreStrategy::setImagesPath(const QDir &path) {
     watcher.addPath(path.path());
     imagesPath = path;
 
-    emit imagesChanged();
+    Q_EMIT imagesChanged();
 
     return true;
 }
@@ -405,7 +405,7 @@ bool JsonLoadAndStoreStrategy::setObjectModelsPath(const QDir &path) {
     watcher.addPath(path.path());
     objectModelsPath = path;
 
-    emit objectModelsChanged();
+    Q_EMIT objectModelsChanged();
 
     return true;
 }
@@ -424,7 +424,7 @@ bool JsonLoadAndStoreStrategy::setCorrespondencesFilePath(const QDir &path) {
     watcher.addPath(path.path());
     correspondencesFilePath = path;
 
-    emit correspondencesChanged();
+    Q_EMIT correspondencesChanged();
 
     return true;
 }
@@ -437,7 +437,7 @@ void JsonLoadAndStoreStrategy::setSegmentationImageFilesSuffix(const QString &su
     //! Only set suffix if it differs from the suffix before because we then have to reload images
     if (segmentationImageFilesSuffix.compare(suffix) != 0) {
         segmentationImageFilesSuffix = suffix;
-        emit imagesChanged();
+        Q_EMIT imagesChanged();
     }
 }
 
@@ -448,7 +448,7 @@ QString JsonLoadAndStoreStrategy::getSegmentationImageFilesSuffix() {
 void JsonLoadAndStoreStrategy::setImageFilesExtension(const QString &extension) {
     if (extension.compare("") && imageFilesExtension.compare(extension) != 0) {
         imageFilesExtension = extension;
-        emit imagesChanged();
+        Q_EMIT imagesChanged();
     }
 }
 
@@ -458,11 +458,11 @@ QString JsonLoadAndStoreStrategy::getImageFilesExtension() {
 
 void JsonLoadAndStoreStrategy::onDirectoryChanged(const QString &path) {
     if (path == imagesPath.path()) {
-        emit imagesChanged();
+        Q_EMIT imagesChanged();
     } else if (path == objectModelsPath.path()) {
-        emit objectModelsChanged();
+        Q_EMIT objectModelsChanged();
     } else if (path == correspondencesFilePath.path()) {
-        emit correspondencesChanged();
+        Q_EMIT correspondencesChanged();
     }
 }
 
@@ -470,10 +470,13 @@ void JsonLoadAndStoreStrategy::onFileChanged(const QString &filePath) {
     // Only for images and object models, because storing correspondences
     // at the correspondence file path will trigger this signal as well,
     // but we already updated the program accordingly (of course)
-    if (filePath.contains(imagesPath.path()) && !filePath.endsWith(".json")) {
-        emit imagesChanged();
-    } else if (filePath.contains(objectModelsPath.path()) && !filePath.endsWith(".json")) {
-        emit objectModelsChanged();
+    if (filePath == correspondencesFilePath.path()) {
+        Q_EMIT correspondencesChanged();
+    } else if (filePath.contains(imagesPath.path()) && filePath.endsWith(imageFilesExtension)) {
+        Q_EMIT imagesChanged();
+    } else if (filePath.contains(objectModelsPath.path())
+               && OBJECT_MODEL_FILES_EXTENSIONS.contains(filePath.right(4))) {
+        Q_EMIT objectModelsChanged();
     }
 }
 

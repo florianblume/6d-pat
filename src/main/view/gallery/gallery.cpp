@@ -96,6 +96,6 @@ void Gallery::onSelectionChanged(const QItemSelection &selected,
         //! Weird, this should never be the case but the app crashes because sometimes selection is empty...
         //! Maybe in the future when I'm wiser I'll understand what is happening here...
         QItemSelectionRange range = selected.front();
-        emit selectedItemChanged(range.top());
+        Q_EMIT selectedItemChanged(range.top());
     }
 }

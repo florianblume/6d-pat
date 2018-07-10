@@ -1,3 +1,4 @@
+#include <Python.h>
 #include "controller/maincontroller.hpp"
 #include "misc/global.h"
 #include <QSurfaceFormat>
@@ -7,12 +8,13 @@
 #include <QThread>
 
 int main(int argc, char *argv[]) {
+    PyObject *obj;
     qSetMessagePattern("[%{function}] (%{type}): %{message}");
     QApplication app(argc, argv);
 
     QPixmap pixmap(":/splash.png");
     QSplashScreen splash(pixmap);
-    splash.setWindowFlag(Qt::WindowStaysOnTopHint, true);
+    //splash.setWindowFlag(Qt::WindowStaysOnTopHint, true);
     splash.show();
     splash.raise();
     app.processEvents();

@@ -45,7 +45,7 @@ public:
 
     ~CorrespondenceViewerGLWidget();
 
-signals:
+Q_SIGNALS:
     void positionClicked(QPoint position);
 
 protected:

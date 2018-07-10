@@ -24,7 +24,7 @@ private:
     Preferences *preferences;
     QList<ObjectModel> objectModels;
 
-private slots:
+private Q_SLOTS:
     void showColorDialog(int index);
     void removeColor(int index);
 };

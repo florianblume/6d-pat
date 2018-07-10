@@ -1,6 +1,6 @@
 QT       += core gui
 
-CONFIG += c++11
+CONFIG += c++11 no_keywords
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -39,7 +39,9 @@ HEADERS  += \
     $$PWD/src/main/view/correspondenceeditor/rendering/correspondenceeditorglwidget.hpp \
     $$PWD/src/main/view/correspondenceeditor/rendering/objectmodelrenderable.hpp \
     $$PWD/src/main/misc/generalhelper.h \
-    $$PWD/src/main/view/gallery/rendering/offscreenrenderer.hpp
+    $$PWD/src/main/view/gallery/rendering/offscreenrenderer.hpp \
+    $$PWD/src/main/controller/neuralnetworkcontroller.h \
+    $$PWD/src/main/controller/neuralnetworkthread.h
 
 SOURCES += \
     $$PWD/src/main/view/mainwindow.cpp \
@@ -73,7 +75,9 @@ SOURCES += \
     $$PWD/src/main/misc/preferences/preferences.cpp \
     $$PWD/src/main/misc/generalhelper.cpp \
     $$PWD/src/main/view/misc/displayhelper.cpp \
-    $$PWD/src/main/view/gallery/rendering/offscreenrenderer.cpp
+    $$PWD/src/main/view/gallery/rendering/offscreenrenderer.cpp \
+    $$PWD/src/main/controller/neuralnetworkcontroller.cpp \
+    $$PWD/src/main/controller/neuralnetworkthread.cpp
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \
@@ -85,18 +89,20 @@ FORMS    += \
     $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.ui \
     $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.ui
 
-INCLUDEPATH += \
-    $$PWD/src/main \
+RESOURCES += \
+    $$PWD/6dpatsources.qrc
+
+INCLUDEPATH += $$PWD/src/main \
     $$PWD/src/main/model \
     $$PWD/src/main/view \
     $$PWD/src/main/controller \
     $$PWD/3dparty/QtAwesome \
-    /usr/local/include/opencv
+    /usr/local/include/opencv \
+    /usr/local/include/assimp \
+    /home/floretti/anaconda3/envs/pose_estimation/include/python3.5m
 
 LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d \
         -L/usr/local/lib -lassimp
 
-INCLUDEPATH += /usr/local/include/assimp
-
-RESOURCES += \
-    $$PWD/6dpatsources.qrc
+LIBS += -L/home/floretti/Qt5.11.0/5.11.0/gcc_64/lib -lQt5Core -lQt5Gui -lQt5Widgets \
+        -L/home/floretti/anaconda3/envs/pose_estimation/lib -lpython3.5m

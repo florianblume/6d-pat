@@ -39,13 +39,13 @@ void NavigationControls::folderButtonClicked() {
         return;
     }
     currentPath = dir;
-    emit pathChanged(dir);
+    Q_EMIT pathChanged(dir);
 }
 
 void NavigationControls::buttonNavigateLeftClicked() {
-    emit navigateLeft();
+    Q_EMIT navigateLeft();
 }
 
 void NavigationControls::buttonNavigateRightClicked() {
-    emit navigateRight();
+    Q_EMIT navigateRight();
 }

@@ -24,10 +24,12 @@ ObjectModelRenderable::ObjectModelRenderable(const ObjectModel &objectModel,
                                              aiProcess_JoinIdenticalVertices |
                                              aiProcess_SortByPType
                                              );
-    for (uint i = 0; i < scene->mNumMeshes; i++) {
-        processMesh(scene->mMeshes[0]);
+    if (scene) {
+        for (uint i = 0; i < scene->mNumMeshes; i++) {
+            processMesh(scene->mMeshes[0]);
+        }
+        populateVertexArrayObject();
     }
-    populateVertexArrayObject();
 }
 
 QOpenGLVertexArrayObject *ObjectModelRenderable::getVertexArrayObject() {

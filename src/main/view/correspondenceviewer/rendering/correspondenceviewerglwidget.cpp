@@ -222,7 +222,7 @@ void CorrespondenceViewerGLWidget::mouseMoveEvent(QMouseEvent *event) {
 
 void CorrespondenceViewerGLWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (!mouseMoved && !backgroundImageRenderable.isNull()) {
-        emit positionClicked(event->pos());
+        Q_EMIT positionClicked(event->pos());
     }
     mouseMoved = false;
 }

@@ -5,7 +5,6 @@
 #include "model/objectmodel.hpp"
 #include "model/correspondence.hpp"
 #include "model/modelmanager.hpp"
-#include "misc/global.h"
 #include "rendering/correspondenceviewerglwidget.hpp"
 
 #include <QList>
@@ -39,7 +38,7 @@ public:
      */
     void setModelManager(ModelManager* modelManager);
 
-public slots:
+public Q_SLOTS:
     /*!
      * \brief setImage sets the image that this CorrespondenceEditor displays.
      * \param index the index of the image to be displayed
@@ -50,6 +49,8 @@ public slots:
      * \brief reset resets the view to display nothing.
      */
     void reset();
+
+    void reloadCorrespondences();
 
     /*!
      * \brief visualizeLastClickedPosition draws a point at the position that the user last clicked.
@@ -89,13 +90,13 @@ public slots:
 
     void onOpacityChangeEnded();
 
-signals:
+Q_SIGNALS:
     /*!
-     * \brief imageClicked emitted when the displayed image is clicked anywhere
+     * \brief imageClicked Q_EMITted when the displayed image is clicked anywhere
      */
     void imageClicked(Image *image, QPoint position);
     /*!
-     * \brief correspondenceClicked emitted when a displayed object model is clicked
+     * \brief correspondenceClicked Q_EMITted when a displayed object model is clicked
      */
     void correspondenceClicked(Correspondence *correspondence);
 
@@ -112,7 +113,7 @@ private:
     // Store the last clicked position, so that we can visualize it if the user calls the respective
     // function.
     QPoint lastClickedPosition;
-    UniquePointer<Image> currentlyDisplayedImage;
+    QScopedPointer<Image> currentlyDisplayedImage;
 
     // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
     // segmentation image
@@ -120,7 +121,7 @@ private:
 
     void connectModelManagerSlots();
 
-private slots:
+private Q_SLOTS:
     /*!
      * \brief showSegmentationImage is there for the switch view button
      */
@@ -130,6 +131,9 @@ private slots:
     // Private slot listening to model manager
     void onCorrespondenceDeleted(const QString &id);
     void onCorrespondenceAdded(const QString &id);
+    void onCorrespondencesChanged();
+    void onImagesChanged();
+    void onObjectModelsChanged();
     void updateOpacity();
 };
 

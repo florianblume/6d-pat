@@ -13,6 +13,11 @@
 #include <QMatrix4x4>
 #include <QRunnable>
 
+/*!
+ * \brief The OffscreenRenderer class is a runnable that renders a given object model
+ * offscreen and returns the image. This way preview renderings of object models can
+ * be created.
+ */
 class OffscreenRenderer : public QObject, public QRunnable {
 
     Q_OBJECT
@@ -23,7 +28,7 @@ public:
     QImage getImage();
     ObjectModel getObjectModel();
 
-signals:
+Q_SIGNALS:
     void imageReady();
 
 private:

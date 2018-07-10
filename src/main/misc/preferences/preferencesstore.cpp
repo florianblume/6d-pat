@@ -31,7 +31,7 @@ void PreferencesStore::savePreferences(Preferences *preferences) {
     }
     settings.endGroup();
 
-    emit preferencesChanged(preferences->getIdentifier());
+    Q_EMIT preferencesChanged(preferences->getIdentifier());
 }
 
 UniquePointer<Preferences> PreferencesStore::loadPreferencesByIdentifier(const QString &identifier) {

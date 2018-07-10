@@ -27,7 +27,7 @@ void CorrespondenceCreator::abortCreation() {
     objectModel = Q_NULLPTR;
     points.clear();
     currentState = State::Empty;
-    emit correspondenceCreationAborted();
+    Q_EMIT correspondenceCreationAborted();
 }
 
 void CorrespondenceCreator::setMinimumNumberOfPoints(int numberOfPoints) {
@@ -72,7 +72,7 @@ void CorrespondenceCreator::startCorrespondencePoint(QPoint imagePoint) {
     QImage loadedImage(image->getAbsoluteImagePath());
     // A bit confusing, but I started off with the T-Less dataset, which apparently
     correspondencePointStart = QPoint(loadedImage.width() - imagePoint.x(), loadedImage.height() - imagePoint.y());
-    emit correspondencePointStarted(correspondencePointStart, points.size(), minimumNumberOfPoints);
+    Q_EMIT correspondencePointStarted(correspondencePointStart, points.size(), minimumNumberOfPoints);
 }
 
 void CorrespondenceCreator::finishCorrespondencePoint(QVector3D objectModelPoint) {
@@ -82,7 +82,7 @@ void CorrespondenceCreator::finishCorrespondencePoint(QVector3D objectModelPoint
                                                           State::AwaitingMoreCorrespondencePoints);
         qDebug() << "Added corresponding point for image (" + image->getImagePath() + ") and object (" +
                     objectModel->getPath() + "): " + correspondingPointsToString(points.last());
-        emit correspondencePointFinished(objectModelPoint, points.size(), minimumNumberOfPoints);
+        Q_EMIT correspondencePointFinished(objectModelPoint, points.size(), minimumNumberOfPoints);
     } else {
         throw "Start a correspondence point with a 2D location before adding the corresponding 3D point.";
     }

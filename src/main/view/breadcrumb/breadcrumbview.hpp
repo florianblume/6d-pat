@@ -30,7 +30,7 @@ public:
     QString getPathTowShow();
     uint getFontSize();
 
-public slots:
+public Q_SLOTS:
     void setPathToShow(const QString &newPathToShow);
 };
 

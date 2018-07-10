@@ -5,10 +5,11 @@
 #include "model/jsonloadandstorestrategy.hpp"
 #include "misc/preferences/preferencesstore.hpp"
 #include "view/mainwindow.hpp"
+#include "misc/global.h"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
-#include "misc/global.h"
 #include "controller/correspondencecreator.h"
+#include "controller/neuralnetworkcontroller.h"
 
 #include <QMap>
 #include <QList>
@@ -38,6 +39,7 @@ private:
     JsonLoadAndStoreStrategy strategy;
     CachingModelManager modelManager;
     UniquePointer<CorrespondenceCreator> correspondenceCreator;
+    QScopedPointer<NeuralNetworkController> networkController;
     MainWindow mainWindow;
 
     QMap<QString, ObjectModel*> segmentationCodes;
@@ -51,7 +53,7 @@ private:
     void initializeMainWindow();
     void setSegmentationCodesOnGalleryObjectModelModel();
 
-private slots:
+private Q_SLOTS:
     void onImageClicked(Image* image, QPoint position);
     void onObjectModelClicked(ObjectModel* objectModel, QVector3D position);
     // The slots that will be called from the main window when the user selects abort creation
@@ -63,6 +65,7 @@ private slots:
     void onPreferencesChanged(const QString &identifier);
     void resetCorrespondenceCreation();
     void onCorrespondenceCreationRequested();
+    void onCorrespondencePredictionRequested();
     void onFailedToLoadImages(const QString &message);
 };
 

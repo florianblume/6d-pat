@@ -92,6 +92,9 @@ void MainController::initializeMainWindow() {
     connect(&mainWindow, SIGNAL(requestCorrespondenceCreation()),
             this, SLOT(onCorrespondenceCreationRequested()));
 
+    connect(&mainWindow, &MainWindow::correspondencePredictionRequested,
+            this, &MainController::onCorrespondencePredictionRequested);
+
 
     mainWindow.onInitializationCompleted();
 }
@@ -151,6 +154,14 @@ void MainController::onCorrespondenceCreationRequested() {
     // The user can't request this before all the requirements are met because the creat button
     // is not enabled earlier
     correspondenceCreator->createCorrespondence();
+}
+
+void MainController::onCorrespondencePredictionRequested() {
+    if (networkController.isNull()) {
+        networkController.reset(
+                    new NeuralNetworkController("", "/home/floretti/git/flowerpower_nn/python/inference_pos.py"));
+    }
+    networkController->inference("/home/floretti/git/flowerpower_nn/data/test/config.json");
 }
 
 void MainController::onFailedToLoadImages(const QString &message){

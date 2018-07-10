@@ -137,7 +137,7 @@ public:
      */
     QString getImageFilesExtension();
 
-private slots:
+private Q_SLOTS:
     void onDirectoryChanged(const QString &path);
     void onFileChanged(const QString &filePath);
 

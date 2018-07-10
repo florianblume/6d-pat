@@ -49,6 +49,7 @@ void OffscreenRenderer::run() {
     renderFbo->bind();
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
 
     objectsProgram->bind();
     ObjectModelRenderable renderable(objectModel,
@@ -58,9 +59,10 @@ void OffscreenRenderer::run() {
     QOpenGLVertexArrayObject::Binder vaoBinder(
                 renderable.getVertexArrayObject());
 
-    objectsProgram->setUniformValue("lightPos", QVector3D(0, 0, -2 * renderable.getLargestVertexValue()));
+    objectsProgram->setUniformValue("lightPos", QVector3D(0, 0, 2 * renderable.getLargestVertexValue()));
 
     modelMatrix.setToIdentity();
+    modelMatrix.rotate(90.0, QVector3D(1.0, 0.0, 0.0));
     viewMatrix.setToIdentity();
     viewMatrix.translate(QVector3D(0, 0, -3 * renderable.getLargestVertexValue()));
     projectionMatrix.setToIdentity();
@@ -78,7 +80,7 @@ void OffscreenRenderer::run() {
     image = renderFbo->toImage();
     renderFbo->release();
     context->doneCurrent();
-    emit imageReady();
+    Q_EMIT imageReady();
     delete context;
     delete surface;
     delete objectsProgram;

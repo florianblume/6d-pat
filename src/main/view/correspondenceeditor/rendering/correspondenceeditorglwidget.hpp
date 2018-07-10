@@ -37,7 +37,7 @@ public:
 
     ~CorrespondenceEditorGLWidget();
 
-signals:
+Q_SIGNALS:
     void positionClicked(QVector3D position);
 
 protected:
@@ -49,7 +49,7 @@ protected:
     void keyPressEvent(QKeyEvent *ev) override;
     void keyReleaseEvent(QKeyEvent *ev) override;
 
-private slots:
+private Q_SLOTS:
     void updateCameraPosition();
 
 private:

@@ -26,7 +26,7 @@ public:
     void setModelManager(ModelManager *modelManager);
     bool isDisplayingObjectModel();
 
-public slots:
+public Q_SLOTS:
 
     /*!
      * \brief setObjectModel sets the object model that is to be displayed. The user can then
@@ -66,20 +66,20 @@ public slots:
      */
     void reset();
 
-signals:
+Q_SIGNALS:
 
     /*!
-     * \brief objectModelClickedAt is emitted whenever the user clicks the displayed object model.
+     * \brief objectModelClickedAt is Q_EMITted whenever the user clicks the displayed object model.
      * \param objectModel the object model that was clicked
      * \param position the position the user clicked the object model at
      */
     void objectModelClickedAt(ObjectModel *objectModel, QVector3D position);
     /*!
-     * \brief onButtonPredictClicked is emitted when the user clicks the predict button
+     * \brief onButtonPredictClicked is Q_EMITted when the user clicks the predict button
      */
     void buttonPredictClicked();
     /*!
-     * \brief onButtonCreateClicked is emitted when the user clicks the create correspondence button.
+     * \brief onButtonCreateClicked is Q_EMITted when the user clicks the create correspondence button.
      * The button is only enabled when enough correspondence points where clicked.
      */
     void buttonCreateClicked();
@@ -107,7 +107,7 @@ private:
             const Image *image, const QString &correspondenceToSelect = "");
     void setCorrespondenceValuesOnControls(Correspondence *correspondence);
 
-private slots:
+private Q_SLOTS:
     /*!
      * \brief onObjectModelClickedAt the function that will be connected to
      * the OpenGL widget to handle clicks on the object
@@ -128,6 +128,7 @@ private slots:
     void onSpinBoxRotationXValueChanged(double);
     void onSpinBoxRotationYValueChanged(double);
     void onSpinBoxRotationZValueChanged(double);
+    void onButtonPredictClicked();
     void onButtonCreateClicked();
     void onButtonSaveClicked();
     /*!

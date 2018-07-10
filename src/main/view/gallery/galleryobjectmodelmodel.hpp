@@ -28,7 +28,7 @@ public:
     int rowCount(const QModelIndex&) const;
     void setSegmentationCodesForObjectModels(QMap<QString, QString> codes);
 
-public slots:
+public Q_SLOTS:
 
     /*!
      * \brief onSelectedImageChanged sets the index of the currently selected image on this
@@ -38,10 +38,10 @@ public slots:
      */
     void onSelectedImageChanged(int index);
 
-signals:
+Q_SIGNALS:
 
     //!
-    //! \brief displayedObjectModelsChanged this signal is emitted, whenever the object models
+    //! \brief displayedObjectModelsChanged this signal is Q_EMITted, whenever the object models
     //! to display change, e.g. because the user clicked a different image.
     //!
     void displayedObjectModelsChanged();
@@ -54,6 +54,10 @@ private:
     QMap<QString,QImage> renderedObjectsModels;
     QList<Image> imagesCache;
     QMap<QString, QString> codes;
+    //! We need this in case that an object model will not be displayed due to its color
+    //! which then "tears" a hole into the indices
+    QMap<int, int> indexMapping;
+    void createIndexMapping();
     QVector<QColor> colorsOfCurrentImage;
     int currentSelectedImageIndex = -1;
     //! Store the index of the currently rendered image to be able to set the correct image
@@ -62,9 +66,9 @@ private:
     QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
     void startRenderingObjectModels();
 
-private slots:
+private Q_SLOTS:
 
-    bool isNumberOfToolsCorrect();
+    bool isNumberOfToolsCorrect() const;
     void onObjectModelsChanged();
     void onImagesChanged();
     void onObjectModelRendered(OffscreenRenderer *offscreenRenderer);

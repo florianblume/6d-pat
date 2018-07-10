@@ -24,7 +24,7 @@ public:
     void setAllowFreeSelection(bool allowFreeSelection);
     void setModel(QAbstractListModel* model);
 
-public slots:
+public Q_SLOTS:
     void selectNext();
     void selectPrevious();
     void beginScrollLeft();
@@ -32,7 +32,7 @@ public slots:
     void endScroll();
     void reset();
 
-signals:
+Q_SIGNALS:
     void selectedItemChanged(int index);
 
 private:
@@ -45,7 +45,7 @@ private:
     static const int SCROLL_INCREMENT_RATE;
     static const int SCROLL_TIMER_REFRESH_RATE;
 
-private slots:
+private Q_SLOTS:
     void performScroll();
     void startScrollTimer();
     void onSelectionChanged(const QItemSelection &selected, const QItemSelection&);

@@ -14,7 +14,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     $$PWD/src/main/main.cpp
 
-
 DISTFILES = \
     6dpatsources.pri
 

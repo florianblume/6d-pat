@@ -127,18 +127,18 @@ public:
 
     /*!
      * \brief reload reads all data from the persitence storage again and
-     * emits the corresponding signals.
+     * Q_EMITs the corresponding signals.
      */
     virtual void reload() = 0;
 
-signals:
+Q_SIGNALS:
 
     void imagesChanged();
     void objectModelsChanged();
     /*!
      * \brief correspondencesChanged called when all the correspondences change, e.g. when the path
      * to the correspondences is edited, etc. A call to the correspondence update function will result
-     * in the correspondenceUpdated() signal to be emitted. Same holds for adding and deleting correspondences.
+     * in the correspondenceUpdated() signal to be Q_EMITted. Same holds for adding and deleting correspondences.
      */
     void correspondencesChanged();
     void correspondenceAdded(const QString &id);

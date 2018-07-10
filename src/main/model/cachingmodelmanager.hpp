@@ -71,7 +71,7 @@ private:
      */
     void createConditionalCache();
 
-private slots:
+private Q_SLOTS:
 
     void onImagesChanged();
     void onObjectModelsChanged();

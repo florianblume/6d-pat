@@ -120,7 +120,7 @@ bool CachingModelManager::addObjectImageCorrespondence(Image *image,
 
     createConditionalCache();
 
-    emit correspondenceAdded(correspondence.getID());
+    Q_EMIT correspondenceAdded(correspondence.getID());
 
     return true;
 }
@@ -156,7 +156,7 @@ bool CachingModelManager::updateObjectImageCorrespondence(const QString &id,
 
     createConditionalCache();
 
-    emit correspondenceUpdated(correspondence->getID());
+    Q_EMIT correspondenceUpdated(correspondence->getID());
 
     return true;
 }
@@ -186,7 +186,7 @@ bool CachingModelManager::removeObjectImageCorrespondence(const QString &id) {
 
     createConditionalCache();
 
-    emit correspondenceDeleted(id);
+    Q_EMIT correspondenceDeleted(id);
 
     return true;
 }
@@ -196,29 +196,29 @@ void CachingModelManager::reload() {
     objectModels = loadAndStoreStrategy.loadObjectModels();
     correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
     createConditionalCache();
-    emit imagesChanged();
-    emit objectModelsChanged();
-    emit correspondencesChanged();
+    Q_EMIT imagesChanged();
+    Q_EMIT objectModelsChanged();
+    Q_EMIT correspondencesChanged();
 }
 
 void CachingModelManager::onImagesChanged() {
     images = loadAndStoreStrategy.loadImages();
     correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
     createConditionalCache();
-    emit imagesChanged();
-    emit correspondencesChanged();
+    Q_EMIT imagesChanged();
+    Q_EMIT correspondencesChanged();
 }
 
 void CachingModelManager::onObjectModelsChanged() {
     objectModels = loadAndStoreStrategy.loadObjectModels();
     correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
     createConditionalCache();
-    emit objectModelsChanged();
-    emit correspondencesChanged();
+    Q_EMIT objectModelsChanged();
+    Q_EMIT correspondencesChanged();
 }
 
 void CachingModelManager::onCorrespondencesChanged() {
     correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
     createConditionalCache();
-    emit correspondencesChanged();
+    Q_EMIT correspondencesChanged();
 }

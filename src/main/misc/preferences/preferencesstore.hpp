@@ -16,7 +16,7 @@ public:
     void savePreferences(Preferences *preferences);
     UniquePointer<Preferences> loadPreferencesByIdentifier(const QString &identifier);
 
-signals:
+Q_SIGNALS:
     void preferencesChanged(const QString &identifier);
 };
 

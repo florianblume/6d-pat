@@ -24,12 +24,12 @@ public:
     ~NavigationControls();
     void setPathToOpen(const QString &pathpath);
 
-public slots:
+public Q_SLOTS:
     void folderButtonClicked();
     void buttonNavigateLeftClicked();
     void buttonNavigateRightClicked();
 
-signals:
+Q_SIGNALS:
     void navigateLeft();
     void navigateRight();
     void pathChanged(const QString &newPath);

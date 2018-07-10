@@ -122,15 +122,15 @@ public:
      */
     bool isObjectModelSet();
 
-signals:
+Q_SIGNALS:
     /*!
-     * \brief correspondenceCreationAbortede emitted whenever the process of correspondence
+     * \brief correspondenceCreationAbortede Q_EMITted whenever the process of correspondence
      * creation is aborted.
      */
     void correspondenceCreationAborted();
 
     /*!
-     * \brief correspondencePointStarted is emitted whenever a 2D location as the starting position
+     * \brief correspondencePointStarted is Q_EMITted whenever a 2D location as the starting position
      * of a correspondence point is added.
      * \param point2D the 2D starting position on the image
      * \param totalNumberOfPoints the number of complete correspondence points that this creator
@@ -141,7 +141,7 @@ signals:
     void correspondencePointStarted(QPoint point2D, int totalNumberOfPoints, int minimumNumberOfPoints);
 
     /*!
-     * \brief correspondencePointFinished is emitted whenever a 3D location is added to finish
+     * \brief correspondencePointFinished is Q_EMITted whenever a 3D location is added to finish
      * the correspondence point started with the 2D location set in the startCorrespondencePoint
      * function
      * \param point3D the 3D location on the object model that completes the correspondence point
