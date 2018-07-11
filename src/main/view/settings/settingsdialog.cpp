@@ -11,9 +11,10 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     QtAwesome* awesome = new QtAwesome( qApp );
     awesome->initFontAwesome();
     ui->listWidget->addItem(new QListWidgetItem(awesome->icon(fa::wrench), "General"));
-    ui->listWidget->addItem(new QListWidgetItem(awesome->icon(fa::code), "Codes"));
+    ui->listWidget->addItem(new QListWidgetItem(awesome->icon(fa::paintbrush), "Codes"));
+    ui->listWidget->addItem(new QListWidgetItem(awesome->icon(fa::codefork), "Network"));
     ui->listWidget->setCurrentItem(ui->listWidget->item(0));
-
+    ui->listWidget->update();
 }
 
 SettingsDialog::~SettingsDialog()
