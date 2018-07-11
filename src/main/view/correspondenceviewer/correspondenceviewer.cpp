@@ -51,6 +51,10 @@ void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
     connectModelManagerSlots();
 }
 
+Image *CorrespondenceViewer::getCurrentlyViewedImage() {
+    return currentlyDisplayedImage.get();
+}
+
 void CorrespondenceViewer::setImage(Image *image) {
     currentlyDisplayedImage.reset(new Image(*image));
 

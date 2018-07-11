@@ -30,6 +30,7 @@ void SettingsDialog::setPreferencesStoreAndObjectModels(PreferencesStore *prefer
     preferences = preferencesStore->loadPreferencesByIdentifier(currentPreferencesIdentifier);
     this->currentPreferencesIdentifier = currentPreferencesIdentifier;
     ui->pageGeneral->setPreferences(preferences.get());
+    ui->pageNetwork->setPreferences(preferences.get());
     ui->pageSegmentationCodes->setPreferencesAndObjectModels(preferences.get(), objectModels);
 }
 

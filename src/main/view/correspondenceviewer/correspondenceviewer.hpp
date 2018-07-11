@@ -37,6 +37,7 @@ public:
      * \param modelManager the manager to be set, must not be null
      */
     void setModelManager(ModelManager* modelManager);
+    Image *getCurrentlyViewedImage();
 
 public Q_SLOTS:
     /*!

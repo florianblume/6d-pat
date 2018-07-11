@@ -83,3 +83,33 @@ QString Preferences::getSegmentationCodeForObjectModel(const QString &identifier
 QString Preferences::getIdentifier() {
     return identifier;
 }
+
+QString Preferences::getTrainingScriptPath() const
+{
+    return trainingScriptPath;
+}
+
+void Preferences::setTrainingScriptPath(const QString &value)
+{
+    trainingScriptPath = value;
+}
+
+QString Preferences::getInferenceScriptPath() const
+{
+    return inferenceScriptPath;
+}
+
+void Preferences::setInferenceScriptPath(const QString &value)
+{
+    inferenceScriptPath = value;
+}
+
+QString Preferences::getNetworkConfigPath() const
+{
+    return networkConfigPath;
+}
+
+void Preferences::setNetworkConfigPath(const QString &value)
+{
+    networkConfigPath = value;
+}

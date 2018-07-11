@@ -37,6 +37,15 @@ public:
 
     QString getIdentifier();
 
+    QString getTrainingScriptPath() const;
+    void setTrainingScriptPath(const QString &value);
+
+    QString getInferenceScriptPath() const;
+    void setInferenceScriptPath(const QString &value);
+
+    QString getNetworkConfigPath() const;
+    void setNetworkConfigPath(const QString &value);
+
 private:
     QMap<QString, QString> segmentationCodes;
     QString segmentationImageFilesSuffix;
@@ -44,6 +53,9 @@ private:
     QString imagesPath;
     QString objectModelsPath;
     QString correspondencesFilePath;
+    QString trainingScriptPath;
+    QString inferenceScriptPath;
+    QString networkConfigPath;
 
     QString identifier;
 };

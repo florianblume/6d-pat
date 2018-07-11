@@ -8,8 +8,8 @@
 #include "misc/global.h"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
-#include "controller/correspondencecreator.h"
-#include "controller/neuralnetworkcontroller.h"
+#include "controller/correspondencecreator.hpp"
+#include "controller/neuralnetworkcontroller.hpp"
 
 #include <QMap>
 #include <QList>

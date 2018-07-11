@@ -159,9 +159,15 @@ void MainController::onCorrespondenceCreationRequested() {
 void MainController::onCorrespondencePredictionRequested() {
     if (networkController.isNull()) {
         networkController.reset(
-                    new NeuralNetworkController("", "/home/floretti/git/flowerpower_nn/python/inference_pos.py"));
+                    new NeuralNetworkController(currentPreferences->getTrainingScriptPath(),
+                                                currentPreferences->getInferenceScriptPath()));
+    } else {
+        networkController->setTrainPythonScript(currentPreferences->getTrainingScriptPath());
+        networkController->setInferencePythonScript(currentPreferences->getInferenceScriptPath());
     }
-    networkController->inference("/home/floretti/git/flowerpower_nn/data/test/config.json");
+    networkController->setImages(QVector<Image>() << *mainWindow.getCurrentlyViewedImage());
+    networkController->setCorrespondencesFilePath(strategy.getCorrespondencesFilePath().path());
+    networkController->inference(currentPreferences->getNetworkConfigPath());
 }
 
 void MainController::onFailedToLoadImages(const QString &message){

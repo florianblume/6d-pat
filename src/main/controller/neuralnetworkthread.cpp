@@ -1,6 +1,6 @@
 #include "Python.h"
 
-#include "neuralnetworkthread.h"
+#include "neuralnetworkthread.hpp"
 
 NeuralNetworkThread::NeuralNetworkThread(const QString &pythonScript) :
     pythonScript(pythonScript) {
@@ -18,13 +18,17 @@ void NeuralNetworkThread::run() {
     wchar_t * argv[3];
 
     argc = 3;
-    wchar_t pythonScriptArray[pythonScript.length() + 1];
-    pythonScript.toWCharArray(pythonScriptArray);
-    argv[0] = L"/home/floretti/git/flowerpower_nn/python/inference_pos.py";
+
+    wchar_t pythonWCharArray[pythonScript.length() + 1];
+    pythonScript.toWCharArray(pythonWCharArray);
+    pythonWCharArray[pythonScript.length()] = 0;
+    argv[0] = pythonWCharArray;
+
     argv[1] = L"--config";
-    wchar_t configPathArray[configPath.length() + 1];
-    configPath.toWCharArray(configPathArray);
-    argv[2] = L"/home/floretti/git/flowerpower_nn/data/test/config.json";
+    wchar_t configWCharArray[configPath.length() + 1];
+    configPath.toWCharArray(configWCharArray);
+    configWCharArray[configPath.length()] = 0;
+    argv[2] = configWCharArray;
 
     Py_SetProgramName(argv[0]);
     PySys_SetArgv(argc, argv);

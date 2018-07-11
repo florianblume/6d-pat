@@ -75,6 +75,13 @@ public:
 
     void setPreferencesStore(PreferencesStore *preferencesStore);
 
+    /*!
+     * \brief getCurrentlyViewedImage returns the image currently selected in the images
+     * gallery and displayed by the correspondence viewer.
+     * \return the image currently displayed
+     */
+    Image *getCurrentlyViewedImage();
+
 public Q_SLOTS:
     /*!
      * \brief mousePressEvent to catch clicks of the user after

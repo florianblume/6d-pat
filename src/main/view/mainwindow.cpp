@@ -142,6 +142,10 @@ void MainWindow::setPreferencesStore(PreferencesStore *preferencesStore) {
             this, SLOT(onPreferencesChanged(QString)));
 }
 
+Image *MainWindow::getCurrentlyViewedImage() {
+    return ui->correspondenceViewer->getCurrentlyViewedImage();
+}
+
 void MainWindow::mouseReleaseEvent(QMouseEvent* /* event */) {
     if (correspondenceCreationInProgress) {
         // Reset correspondence creation because the user clicked anywhere

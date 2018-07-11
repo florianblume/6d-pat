@@ -1,4 +1,4 @@
-#include "correspondencecreator.h"
+#include "correspondencecreator.hpp"
 #include "model/correspondence.hpp"
 #include "misc/generalhelper.h"
 #include <opencv2/calib3d/calib3d.hpp>

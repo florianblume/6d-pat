@@ -8,7 +8,6 @@ include(./3dparty/QtAwesome/QtAwesome.pri)
 
 HEADERS  += \
     $$PWD/src/main/controller/maincontroller.hpp \
-    $$PWD/src/main/controller/correspondencecreator.h \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
     $$PWD/src/main/model/image.hpp \
     $$PWD/src/main/model/loadandstorestrategy.hpp \
@@ -40,8 +39,10 @@ HEADERS  += \
     $$PWD/src/main/view/correspondenceeditor/rendering/objectmodelrenderable.hpp \
     $$PWD/src/main/misc/generalhelper.h \
     $$PWD/src/main/view/gallery/rendering/offscreenrenderer.hpp \
-    $$PWD/src/main/controller/neuralnetworkcontroller.h \
-    $$PWD/src/main/controller/neuralnetworkthread.h
+    $$PWD/src/main/controller/neuralnetworkcontroller.hpp \
+    $$PWD/src/main/controller/neuralnetworkthread.hpp \
+    $$PWD/src/main/controller/correspondencecreator.hpp \
+    $$PWD/src/main/view/settings/settingsnetworkpage.hpp
 
 SOURCES += \
     $$PWD/src/main/view/mainwindow.cpp \
@@ -62,6 +63,7 @@ SOURCES += \
     $$PWD/src/main/view/gallery/iconexpandinglistview.cpp \
     $$PWD/src/main/view/settings/settingsdialog.cpp \
     $$PWD/src/main/view/settings/settingsgeneralpage.cpp \
+    $$PWD/src/main/view/settings/settingsnetworkpage.cpp \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.cpp \
     $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.cpp \
     $$PWD/src/main/view/correspondenceviewer/rendering/backgroundimagerenderable.cpp \
@@ -85,6 +87,7 @@ FORMS    += \
     $$PWD/src/main/view/gallery/gallery.ui \
     $$PWD/src/main/view/settings/settingsdialog.ui \
     $$PWD/src/main/view/settings/settingsgeneralpage.ui \
+    $$PWD/src/main/view/settings/settingsnetworkpage.ui \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.ui \
     $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.ui \
     $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.ui

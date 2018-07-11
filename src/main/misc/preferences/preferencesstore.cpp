@@ -20,6 +20,9 @@ void PreferencesStore::savePreferences(Preferences *preferences) {
     settings.setValue("correspondencesFilePath", preferences->getCorrespondencesFilePath());
     settings.setValue("segmentationImageFilesSuffix", preferences->getSegmentationImageFilesSuffix());
     settings.setValue("imageFilesExtension", preferences->getImageFilesExtension());
+    settings.setValue("trainingScriptPath", preferences->getTrainingScriptPath());
+    settings.setValue("inferenceScriptPath", preferences->getInferenceScriptPath());
+    settings.setValue("networkConfigPath", preferences->getNetworkConfigPath());
     settings.endGroup();
 
     //! Persist the object color codes so that the user does not have to enter them at each program start
@@ -39,11 +42,22 @@ UniquePointer<Preferences> PreferencesStore::loadPreferencesByIdentifier(const Q
     QSettings settings("FlorettiKonfetti Inc.", "Otiat");
     const QString &fullIdentifier = "preferences-" + identifier;
     settings.beginGroup(fullIdentifier);
-    preferences->setImagesPath(settings.value("imagesPath", QDir::homePath()).toString());
-    preferences->setObjectModelsPath(settings.value("objectModelsPath", QDir::homePath()).toString());
-    preferences->setCorrespondencesFilePath(settings.value("correspondencesFilePath", QDir::homePath()).toString());
-    preferences->setImageFilesExtension(settings.value("imageFilesExtension", "").toString());
-    preferences->setSegmentationImageFilesSuffix(settings.value("segmentationImageFilesSuffix", "").toString());
+    preferences->setImagesPath(
+                settings.value("imagesPath", QDir::homePath()).toString());
+    preferences->setObjectModelsPath(
+                settings.value("objectModelsPath", QDir::homePath()).toString());
+    preferences->setCorrespondencesFilePath(
+                settings.value("correspondencesFilePath", QDir::homePath()).toString());
+    preferences->setImageFilesExtension(
+                settings.value("imageFilesExtension", "").toString());
+    preferences->setSegmentationImageFilesSuffix(
+                settings.value("segmentationImageFilesSuffix", "").toString());
+    preferences->setTrainingScriptPath(
+                settings.value("trainingScriptPath", "").toString());
+    preferences->setInferenceScriptPath(
+                settings.value("inferenceScriptPath", "").toString());
+    preferences->setNetworkConfigPath(
+                settings.value("networkConfigPath", "").toString());
     settings.endGroup();
 
     settings.beginGroup(fullIdentifier + "-colorcodes");
