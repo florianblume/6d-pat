@@ -1,5 +1,7 @@
 #include "Python.h"
 
+#include <QDebug>
+
 #include "neuralnetworkrunnable.hpp"
 
 NeuralNetworkRunnable::NeuralNetworkRunnable(const QString &pythonScript) :
@@ -11,9 +13,11 @@ NeuralNetworkRunnable::~NeuralNetworkRunnable() {
 
 void NeuralNetworkRunnable::setConfigPath(const QString &configPath) {
     this->configPath = configPath;
+    qDebug() << "Setting network configuration: " + configPath;
 }
 
 void NeuralNetworkRunnable::run() {
+    qDebug() << "Initializing Python.";
     Py_Initialize();
     FILE* file;
     int argc;
@@ -35,7 +39,9 @@ void NeuralNetworkRunnable::run() {
     Py_SetProgramName(argv[0]);
     PySys_SetArgv(argc, argv);
     file = fopen(pythonScript.toStdString().c_str(), "r");
+    qDebug() << "Finished preparation of network. Starting inference.";
     PyRun_SimpleFile(file, pythonScript.toStdString().c_str());
+    qDebug() << "Finished inference run.";
     Q_EMIT processFinished();
 }
 

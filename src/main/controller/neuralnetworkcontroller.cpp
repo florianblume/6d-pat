@@ -16,7 +16,6 @@ NeuralNetworkController::NeuralNetworkController(const QString &trainPythonScrip
 
 NeuralNetworkController::~NeuralNetworkController() {
     QThreadPool::globalInstance()->clear();
-    Py_Finalize();
 }
 
 void NeuralNetworkController::training(const QString &configPath) {
