@@ -18,8 +18,7 @@ void PreferencesStore::savePreferences(Preferences *preferences) {
     settings.setValue("imagesPath", preferences->getImagesPath());
     settings.setValue("objectModelsPath", preferences->getObjectModelsPath());
     settings.setValue("correspondencesFilePath", preferences->getCorrespondencesFilePath());
-    settings.setValue("segmentationImageFilesSuffix", preferences->getSegmentationImageFilesSuffix());
-    settings.setValue("imageFilesExtension", preferences->getImageFilesExtension());
+    settings.setValue("segmentationImagesPath", preferences->getSegmentationImagesPath());
     settings.setValue("trainingScriptPath", preferences->getTrainingScriptPath());
     settings.setValue("inferenceScriptPath", preferences->getInferenceScriptPath());
     settings.setValue("networkConfigPath", preferences->getNetworkConfigPath());
@@ -48,10 +47,8 @@ UniquePointer<Preferences> PreferencesStore::loadPreferencesByIdentifier(const Q
                 settings.value("objectModelsPath", QDir::homePath()).toString());
     preferences->setCorrespondencesFilePath(
                 settings.value("correspondencesFilePath", QDir::homePath()).toString());
-    preferences->setImageFilesExtension(
-                settings.value("imageFilesExtension", "").toString());
-    preferences->setSegmentationImageFilesSuffix(
-                settings.value("segmentationImageFilesSuffix", "").toString());
+    preferences->setSegmentationImagePath(
+                settings.value("segmentationImagesPath", "").toString());
     preferences->setTrainingScriptPath(
                 settings.value("trainingScriptPath", "").toString());
     preferences->setInferenceScriptPath(

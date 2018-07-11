@@ -20,11 +20,8 @@ public:
 
     QString getSegmentationCodeForObjectModel(const QString &identifier);
 
-    QString getSegmentationImageFilesSuffix() const;
-    void setSegmentationImageFilesSuffix(const QString &value);
-
-    QString getImageFilesExtension() const;
-    void setImageFilesExtension(const QString &value);
+    QString getSegmentationImagesPath() const;
+    void setSegmentationImagePath(const QString &value);
 
     QString getImagesPath() const;
     void setImagesPath(const QString &value);
@@ -48,8 +45,7 @@ public:
 
 private:
     QMap<QString, QString> segmentationCodes;
-    QString segmentationImageFilesSuffix;
-    QString imageFilesExtension;
+    QString segmentationImagesPath;
     QString imagesPath;
     QString objectModelsPath;
     QString correspondencesFilePath;

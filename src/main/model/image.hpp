@@ -30,8 +30,8 @@ public:
       \param basePath the base path to the folder where the image is either directly located or located within a subfolder
       \param segmentationImagePath the path to the segmentation image
     */
-    Image(const QString& imagePath, const QString& basePath,
-          const QString& segmentationImagePath, QMatrix3x3 cameraMatrix);
+    Image(const QString& imagePath, const QString& segmentationImagePath,
+          const QString& basePath, QMatrix3x3 cameraMatrix);
 
     Image(const Image &other);
 

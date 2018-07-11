@@ -16,8 +16,8 @@ Image::Image(const QString& imagePath, const QString& basePath, QMatrix3x3 camer
       cameraMatrix(cameraMatrix) {
 }
 
-Image::Image(const QString& imagePath, const QString& basePath,
-             const QString& segmentationImagePath, QMatrix3x3 cameraMatrix)
+Image::Image(const QString& imagePath, const QString& segmentationImagePath,
+             const QString& basePath, QMatrix3x3 cameraMatrix)
     : imagePath(imagePath),
       segmentationImagePath(segmentationImagePath),
       basePath(basePath),
@@ -44,7 +44,8 @@ QString Image::getSegmentationImagePath() const {
 }
 
 QString Image::getAbsoluteSegmentationImagePath() const {
-    return QDir(basePath).filePath(segmentationImagePath);
+    // The segmentation image path is stored as absolute
+    return segmentationImagePath;
 }
 
 QString Image::getBasePath() const {

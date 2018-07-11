@@ -20,6 +20,7 @@ class JsonLoadAndStoreStrategy : public LoadAndStoreStrategy
 
 public:
     //! Unmodifiable constants (i.e. not changable by the user at runtime)
+    static const QStringList IMAGE_FILES_EXTENSIONS;
     static const QStringList OBJECT_MODEL_FILES_EXTENSIONS;
 
 public:
@@ -36,6 +37,7 @@ public:
      * \param _correspondencesPath
      */
     JsonLoadAndStoreStrategy(const QDir &imagesPath,
+                             const QDir &segmentationImagesPath,
                              const QDir &objectModelsPath,
                              const QDir &correspondencesFilePath);
 
@@ -115,27 +117,14 @@ public:
      * the actual images.
      * \param suffix the suffix to be used for segmentation images
      */
-    void setSegmentationImageFilesSuffix(const QString &suffix);
+    void setSegmentationImagesPath(const QDir &path);
 
     /*!
      * \brief getSegmentationImageFilesSuffix returns the suffix that is used to load
      * segementation images from the folder of images.
      * \return the suffix that is used to load segmentation images
      */
-    QString getSegmentationImageFilesSuffix();
-
-    /*!
-     * \brief setImageFilesExtension sets the extension to be used to load images.
-     * \param extension the extension to be used to load images.
-     */
-    void setImageFilesExtension(const QString &extension);
-
-    /*!
-     * \brief getImageFilesExtension returns the currently set extension of the image files
-     * that are to be loaded.
-     * \return the extension of the image files
-     */
-    QString getImageFilesExtension();
+    QDir getSegmentationImagesPath();
 
 private Q_SLOTS:
     void onDirectoryChanged(const QString &path);
@@ -150,9 +139,7 @@ private:
     //! Stores the path to the already created correspondences
     QDir correspondencesFilePath;
     //! Stores the suffix that is used to try to load segmentation images
-    QString segmentationImageFilesSuffix = "";
-    //! Stores the extension of the image files that are to be loaded
-    QString imageFilesExtension = "";
+    QDir segmentationImagesPath;
 
     QFileSystemWatcher watcher;
 

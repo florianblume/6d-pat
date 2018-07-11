@@ -16,8 +16,8 @@ SettingsGeneralPage::SettingsGeneralPage(QWidget *parent) :
     ui->buttonImagesPath->setIcon(awesome->icon(fa::folderopen));
     ui->buttonObjectModelsPath->setFont(awesome->font(20));
     ui->buttonObjectModelsPath->setIcon(awesome->icon(fa::folderopen));
-    ui->editSegmentationImageSuffix->setValidator(
-                new QRegularExpressionValidator(QRegularExpression("^[\\w,\\s-]+\\.[A-Za-z]{3}")));
+    ui->buttonSegmentationImages->setFont(awesome->font(20));
+    ui->buttonSegmentationImages->setIcon(awesome->icon(fa::folderopen));
 }
 
 SettingsGeneralPage::~SettingsGeneralPage()
@@ -30,34 +30,7 @@ void SettingsGeneralPage::setPreferences(Preferences *preferences) {
     ui->editImagesPath->setText(preferences->getImagesPath());
     ui->editObjectModelsPath->setText(preferences->getObjectModelsPath());
     ui->editCorrespondencesPath->setText(preferences->getCorrespondencesFilePath());
-    ui->editSegmentationImageSuffix->setText(preferences->getSegmentationImageFilesSuffix());
-    int boxIndex = imageFilesExtensionToIndex(preferences->getImageFilesExtension());
-    ui->comboBoxImageFilesExtension->setCurrentIndex(boxIndex);
-}
-
-int SettingsGeneralPage::imageFilesExtensionToIndex(QString extension) {
-    if (extension.compare(".png") == 0) {
-        return 0;
-    } else if (extension.compare(".jpeg") == 0) {
-        return 1;
-    } else if (extension.compare(".jpg") == 0) {
-        return 2;
-    }
-
-    return 0;
-}
-
-QString SettingsGeneralPage::indexToImageFilesExtension(int index) {
-    switch(index) {
-    case 0:
-        return ".png";
-    case 1:
-        return ".jpeg";
-    case 2:
-        return ".jpg";
-    default:
-        return "";
-    }
+    ui->editSegmentationImagesPath->setText(preferences->getSegmentationImagesPath());
 }
 
 QString SettingsGeneralPage::openFolderDialogForPath(QString path) {
@@ -85,6 +58,14 @@ void SettingsGeneralPage::buttonImagesPathClicked() {
     }
 }
 
+void SettingsGeneralPage::buttonSegmentationImagesPathClicked() {
+    QString newPath = openFolderDialogForPath(ui->editSegmentationImagesPath->text());
+    if (newPath.compare("") != 0) {
+        ui->editSegmentationImagesPath->setText(newPath);
+        preferences->setSegmentationImagePath(newPath);
+    }
+}
+
 void SettingsGeneralPage::buttonObjectModelsPathClicked() {
     QString newPath = openFolderDialogForPath(ui->editObjectModelsPath->text());
     if (newPath.compare("") != 0) {
@@ -101,11 +82,3 @@ void SettingsGeneralPage::buttonCorrespondencesPathClicked() {
     }
 }
 
-void SettingsGeneralPage::onComboBoxImageFilesExtensionCurrentIndexChanged(int index) {
-    preferences->setImageFilesExtension(indexToImageFilesExtension(index));
-}
-
-void SettingsGeneralPage::onEditSegmentationImageSuffixTextEdited(const QString &arg1)
-{
-    preferences->setSegmentationImageFilesSuffix(arg1);
-}

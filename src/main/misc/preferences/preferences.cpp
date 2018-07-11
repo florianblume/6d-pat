@@ -6,8 +6,7 @@ Preferences::Preferences(QString identifier) : identifier(identifier) {
 
 Preferences::Preferences(const Preferences &preferences) {
     this->segmentationCodes = preferences.segmentationCodes;
-    this->segmentationImageFilesSuffix = preferences.segmentationImageFilesSuffix;
-    this->imageFilesExtension = preferences.imageFilesExtension;
+    this->segmentationImagesPath = preferences.segmentationImagesPath;
     this->imagesPath = preferences.imagesPath;
     this->objectModelsPath = preferences.objectModelsPath;
     this->correspondencesFilePath = preferences.correspondencesFilePath;
@@ -17,20 +16,12 @@ Preferences::Preferences(const Preferences &preferences) {
 Preferences::~Preferences() {
 }
 
-QString Preferences::getSegmentationImageFilesSuffix() const {
-    return segmentationImageFilesSuffix;
+QString Preferences::getSegmentationImagesPath() const {
+    return segmentationImagesPath;
 }
 
-void Preferences::setSegmentationImageFilesSuffix(const QString &value) {
-    segmentationImageFilesSuffix = value;
-}
-
-QString Preferences::getImageFilesExtension() const {
-    return imageFilesExtension;
-}
-
-void Preferences::setImageFilesExtension(const QString &value) {
-    imageFilesExtension = value;
+void Preferences::setSegmentationImagePath(const QString &value) {
+    segmentationImagesPath = value;
 }
 
 QString Preferences::getImagesPath() const {

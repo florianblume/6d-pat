@@ -14,6 +14,8 @@
 
 const QStringList JsonLoadAndStoreStrategy::OBJECT_MODEL_FILES_EXTENSIONS =
                                             QStringList({"*.obj", "*.ply", "*.3ds", "*.fbx"});
+const QStringList JsonLoadAndStoreStrategy::IMAGE_FILES_EXTENSIONS =
+                                            QStringList({"*.jpg", "*.jpeg", "*.png", "*.tiff"});
 
 static QString convertPathToSuffxFileName(const QString &pathToConvert,
                                           const QString &suffix,
@@ -25,12 +27,16 @@ JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy() {
     connectWatcherSignals();
 }
 
-JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy(const QDir &imagesPath, const QDir &objectModelsPath,
-                                                           const QDir &correspondencesFilePath)
+JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy(const QDir &imagesPath,
+                                                   const QDir &segmentationImagesPath,
+                                                   const QDir &objectModelsPath,
+                                                   const QDir &correspondencesFilePath)
     : imagesPath(imagesPath),
+      segmentationImagesPath(segmentationImagesPath),
       objectModelsPath(objectModelsPath),
       correspondencesFilePath(correspondencesFilePath) {
     watcher.addPaths(QStringList() << imagesPath.path()
+                                   << segmentationImagesPath.path()
                                    << objectModelsPath.path()
                                    << correspondencesFilePath.path());
     connectWatcherSignals();
@@ -170,69 +176,68 @@ QList<Image> JsonLoadAndStoreStrategy::loadImages() {
     //! is if this strategy was constructed with an empty path, all other methods of
     //! setting the path check if the path exists
     if (!pathExists(imagesPath)) {
-        Q_EMIT failedToLoadImages("The specified path does not exist.");
+        Q_EMIT failedToLoadImages("The specified images path does not exist.");
+        return images;
+    } else if (segmentationImagesPath.path() != "" && !pathExists(segmentationImagesPath)) {
+        Q_EMIT failedToLoadImages("The specified segmentation images path does not exist.");
         return images;
     }
 
-    QStringList fileFilter("*" + imageFilesExtension);
-    QStringList files = imagesPath.entryList(fileFilter, QDir::Files, QDir::Name);
+    QStringList fileFilter = QStringList() << "*.jpg" << "*.jpeg" << "*.png";
+    QStringList imageFiles = imagesPath.entryList(fileFilter, QDir::Files, QDir::Name);
+    QStringList segmentationImageFiles =
+            segmentationImagesPath.entryList(fileFilter, QDir::Files, QDir::Name);
+    // Also ensure that the number of elements is the same
+    bool segmentationImagesPathSet = segmentationImagesPath.path() != ""
+            && imageFiles.size() == segmentationImageFiles.size();
+
+    // Sort both list the have the corresponding image and segmentation image at the
+    // same position
+    QCollator collator;
+    collator.setNumericMode(true);
+
+    std::sort(
+        imageFiles.begin(),
+        imageFiles.end(),
+        [&collator](const QString &s1, const QString &s2)
+        {
+            return collator.compare(s1, s2) < 0;
+        });
+    std::sort(
+        segmentationImageFiles.begin(),
+        segmentationImageFiles.end(),
+        [&collator](const QString &s1, const QString &s2)
+        {
+            return collator.compare(s1, s2) < 0;
+        });
 
     //! Read in the camera parameters from the JSON file
     QFile jsonFile(imagesPath.filePath("info.json"));
-    if (files.size() > 0 && jsonFile.open(QFile::ReadOnly)) {
+    if (imageFiles.size() > 0 && jsonFile.open(QFile::ReadOnly)) {
         QByteArray data = jsonFile.readAll();
         QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
         QJsonObject jsonObject = jsonDocument.object();
-        for (int i = 0; i < files.size(); i += 2) {
-            QString image = files[i];
+        for (int i = 0; i < imageFiles.size(); i ++) {
+            QString image = imageFiles[i];
             QString imageFilename = QFileInfo(image).fileName();
-            //! Check the next image if it is the segmentation image of the currently inspected image
-            int j = i + 1;
-
-            if (j < files.size()) {
-                QString secondImage = files[j];
-                QString secondImageFilename = QFileInfo(secondImage).fileName();
-
-                //! This is the filename that the next image would have if it is a segmentation image
-                //! If secondImage doesn't equal segmentationImageFilename then it is not a segmentation image,
-                //! i.e. segmentation images are not provided in this folder or only for some images
-                QString segmentationImageFilename = convertPathToSuffxFileName(image,
-                                                                               segmentationImageFilesSuffix,
-                                                                               imageFilesExtension);
-                if (secondImageFilename.compare(segmentationImageFilename) == 0) {
-                    //! Apparently we found a segmentation image, i.e. add the second image as segmentation
-                    //! to the first
-                    images.push_back(createImageWithJsonParams(imageFilename,
-                                                               imagesPath.path(),
-                                                               segmentationImageFilename,
-                                                               jsonObject));
-                } else {
-                    //! We didn't find a segmentation image, i.e. two separate images have to be added
-                    //! Setting the segmentation image to "" is essentially what the constructor of
-                    //! Image does, i.e. we do not need to duplicate the create Image method to
-                    //! obtain an Image without segmentation image
-                    images.push_back(createImageWithJsonParams(imageFilename,
-                                                               imagesPath.path(),
-                                                               "",
-                                                               jsonObject));
-                    //! If two different images and not image and segmentation image we also have to load the appropriate
-                    //! camera parameters
-                    images.push_back(createImageWithJsonParams(secondImageFilename,
-                                                               imagesPath.path(),
-                                                               "",
-                                                               jsonObject));
-                }
+            if (segmentationImagesPathSet) {
+                QString segmentationImageFile = segmentationImageFiles[i];
+                QString segmentationImageFilePath = segmentationImagesPath.absoluteFilePath(segmentationImageFile);
+                images.push_back(createImageWithJsonParams(imageFilename,
+                                                           segmentationImageFilePath,
+                                                           imagesPath.path(),
+                                                           jsonObject));
             } else {
                 images.push_back(createImageWithJsonParams(imageFilename,
-                                                           imagesPath.path(),
                                                            "",
+                                                           imagesPath.path(),
                                                            jsonObject));
             }
         }
-    } else if (files.size() > 0) {
+    } else if (imageFiles.size() > 0) {
         //! Only if we can read images but do not find the JSON info file we raise the exception
         Q_EMIT failedToLoadImages("Could not find info.json with the camera parameters.");
-    } else if (files.size() == 0) {
+    } else if (imageFiles.size() == 0) {
         Q_EMIT failedToLoadImages("No images found at the specified path.");
     }
 
@@ -433,27 +438,16 @@ QDir JsonLoadAndStoreStrategy::getCorrespondencesFilePath() const {
     return correspondencesFilePath.path();
 }
 
-void JsonLoadAndStoreStrategy::setSegmentationImageFilesSuffix(const QString &suffix) {
+void JsonLoadAndStoreStrategy::setSegmentationImagesPath(const QDir &path) {
     //! Only set suffix if it differs from the suffix before because we then have to reload images
-    if (segmentationImageFilesSuffix.compare(suffix) != 0) {
-        segmentationImageFilesSuffix = suffix;
+    if (segmentationImagesPath != path) {
+        segmentationImagesPath = path;
         Q_EMIT imagesChanged();
     }
 }
 
-QString JsonLoadAndStoreStrategy::getSegmentationImageFilesSuffix() {
-    return segmentationImageFilesSuffix;
-}
-
-void JsonLoadAndStoreStrategy::setImageFilesExtension(const QString &extension) {
-    if (extension.compare("") && imageFilesExtension.compare(extension) != 0) {
-        imageFilesExtension = extension;
-        Q_EMIT imagesChanged();
-    }
-}
-
-QString JsonLoadAndStoreStrategy::getImageFilesExtension() {
-    return imageFilesExtension;
+QDir JsonLoadAndStoreStrategy::getSegmentationImagesPath() {
+    return segmentationImagesPath;
 }
 
 void JsonLoadAndStoreStrategy::onDirectoryChanged(const QString &path) {
@@ -472,7 +466,8 @@ void JsonLoadAndStoreStrategy::onFileChanged(const QString &filePath) {
     // but we already updated the program accordingly (of course)
     if (filePath == correspondencesFilePath.path()) {
         Q_EMIT correspondencesChanged();
-    } else if (filePath.contains(imagesPath.path()) && filePath.endsWith(imageFilesExtension)) {
+    } else if (filePath.contains(imagesPath.path())
+               && IMAGE_FILES_EXTENSIONS.contains(filePath.right(4))) {
         Q_EMIT imagesChanged();
     } else if (filePath.contains(objectModelsPath.path())
                && OBJECT_MODEL_FILES_EXTENSIONS.contains(filePath.right(4))) {

@@ -35,8 +35,7 @@ void MainController::initialize() {
     strategy.setImagesPath(currentPreferences->getImagesPath());
     strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
     strategy.setCorrespondencesFilePath(currentPreferences->getCorrespondencesFilePath());
-    strategy.setImageFilesExtension(currentPreferences->getImageFilesExtension());
-    strategy.setSegmentationImageFilesSuffix(currentPreferences->getSegmentationImageFilesSuffix());
+    strategy.setSegmentationImagesPath(currentPreferences->getSegmentationImagesPath());
     initializeMainWindow();
 }
 
@@ -182,7 +181,7 @@ void MainController::onNetworkInferenceFinished() {
 
 void MainController::onFailedToLoadImages(const QString &message){
     QString imagesPath = strategy.getImagesPath().path();
-    if (imagesPath != "." && imagesPath != "" && strategy.getImageFilesExtension() != "") {
+    if (imagesPath != "." && imagesPath != "") {
         //! "." is the default path and will likely never be used as image path, thus
         //! do not display any warning - otherwise the warning would pop up three times
         //! on startup, because the program tries to load images when setting the
@@ -200,10 +199,8 @@ void MainController::onPreferencesChanged(const QString &identifier) {
         strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
     if (currentPreferences->getCorrespondencesFilePath().compare(strategy.getCorrespondencesFilePath().path()) != 0)
         strategy.setCorrespondencesFilePath(currentPreferences->getCorrespondencesFilePath());
-    if (currentPreferences->getImageFilesExtension().compare(strategy.getImageFilesExtension()) != 0)
-        strategy.setImageFilesExtension(currentPreferences->getImageFilesExtension());
-    if (currentPreferences->getSegmentationImageFilesSuffix().compare(strategy.getSegmentationImageFilesSuffix()) != 0)
-        strategy.setSegmentationImageFilesSuffix(currentPreferences->getSegmentationImageFilesSuffix());
+    if (currentPreferences->getSegmentationImagesPath().compare(strategy.getSegmentationImagesPath().path()) != 0)
+        strategy.setSegmentationImagesPath(currentPreferences->getSegmentationImagesPath());
     setSegmentationCodesOnGalleryObjectModelModel();
     correspondenceCreator->abortCreation();
 }

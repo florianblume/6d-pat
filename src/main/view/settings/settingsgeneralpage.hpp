@@ -21,16 +21,13 @@ public:
 
 private Q_SLOTS:
     void buttonImagesPathClicked();
+    void buttonSegmentationImagesPathClicked();
     void buttonObjectModelsPathClicked();
     void buttonCorrespondencesPathClicked();
-    void onComboBoxImageFilesExtensionCurrentIndexChanged(int index);
-    void onEditSegmentationImageSuffixTextEdited(const QString &arg1);
 
 private:
     Ui::SettingsGeneralPage *ui;
     Preferences *preferences;
-    int imageFilesExtensionToIndex(QString extension);
-    QString indexToImageFilesExtension(int index);
     QString openFolderDialogForPath(QString path);
     QString openFileDialogForPath(QString path);
 };
