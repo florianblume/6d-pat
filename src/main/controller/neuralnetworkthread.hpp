@@ -2,16 +2,19 @@
 #define NEURALNETWORKTHREAD_H
 
 #include <QObject>
-#include <QThread>
+#include <QRunnable>
 
-class NeuralNetworkThread : public QThread {
+class NeuralNetworkRunnable : public QObject, public QRunnable {
 
     Q_OBJECT
 
 public:
-    NeuralNetworkThread(const QString &pythonScript);
+    NeuralNetworkRunnable(const QString &pythonScript);
     void setConfigPath(const QString &configPath);
     void run() override;
+
+Q_SIGNALS:
+    void processFinished();
 
 private:
     QString pythonScript;

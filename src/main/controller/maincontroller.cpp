@@ -161,6 +161,8 @@ void MainController::onCorrespondencePredictionRequested() {
         networkController.reset(
                     new NeuralNetworkController(currentPreferences->getTrainingScriptPath(),
                                                 currentPreferences->getInferenceScriptPath()));
+        connect(networkController.get(), &NeuralNetworkController::inferenceFinished,
+                this, &MainController::onNetworkInferenceFinished);
     } else {
         networkController->setTrainPythonScript(currentPreferences->getTrainingScriptPath());
         networkController->setInferencePythonScript(currentPreferences->getInferenceScriptPath());
@@ -168,6 +170,14 @@ void MainController::onCorrespondencePredictionRequested() {
     networkController->setImages(QVector<Image>() << *mainWindow.getCurrentlyViewedImage());
     networkController->setCorrespondencesFilePath(strategy.getCorrespondencesFilePath().path());
     networkController->inference(currentPreferences->getNetworkConfigPath());
+}
+
+void MainController::onNetworkTrainingFinished() {
+    // Nothing to do here, training not yet implemented
+}
+
+void MainController::onNetworkInferenceFinished() {
+    mainWindow.hideNetworkProgressView();
 }
 
 void MainController::onFailedToLoadImages(const QString &message){

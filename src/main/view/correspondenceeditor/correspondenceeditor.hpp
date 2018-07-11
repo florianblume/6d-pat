@@ -140,6 +140,9 @@ private Q_SLOTS:
     void onSliderOpacityValueChanged(int value);
     void onSliderOpacityReleased();
 
+    //! React to signal from the model manager
+    void onCorrespondencesChanged();
+
 };
 
 #endif // CORRESPONDENCEEDITORCONTROLS_H

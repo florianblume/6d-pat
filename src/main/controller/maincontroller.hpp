@@ -66,6 +66,8 @@ private Q_SLOTS:
     void resetCorrespondenceCreation();
     void onCorrespondenceCreationRequested();
     void onCorrespondencePredictionRequested();
+    void onNetworkTrainingFinished();
+    void onNetworkInferenceFinished();
     void onFailedToLoadImages(const QString &message);
 };
 

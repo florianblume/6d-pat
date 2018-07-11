@@ -5,6 +5,7 @@
 #include "misc/preferences/preferencesstore.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
+#include "view/misc/networkprogressview.hpp"
 #include <QGuiApplication>
 #include <QMainWindow>
 #include <QMouseEvent>
@@ -81,6 +82,8 @@ public:
      * \return the image currently displayed
      */
     Image *getCurrentlyViewedImage();
+
+    void resizeEvent(QResizeEvent *event) override;
 
 public Q_SLOTS:
     /*!
@@ -168,6 +171,12 @@ public Q_SLOTS:
      * enough correspondence points that the user clicked) are met.
      */
     void onCorrespondenceCreationRequested();
+
+    /*!
+     * \brief hideNetworkProgressView will be called externaly when the network has finished
+     * its progress
+     */
+    void hideNetworkProgressView();
 
 Q_SIGNALS:
     /*!
@@ -278,6 +287,8 @@ private:
     // creation aborted when the user clicks anywhere on
     // the window
     bool correspondenceCreationInProgress = false;
+
+    QScopedPointer<NetworkProgressView> networkProgressView;
 
     // The name of the settings - QT requests this to store settings "offline"
     static QString SETTINGS_NAME;

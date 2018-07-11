@@ -42,7 +42,7 @@ Q_SIGNALS:
     void networkStopped();
 
 private:
-    QScopedPointer<NeuralNetworkThread> thread;
+    QScopedPointer<NeuralNetworkRunnable> networkRunnable;
     QString trainPythonScript;
     QString inferencePythonScript;
     QString correspondencesFilePath;

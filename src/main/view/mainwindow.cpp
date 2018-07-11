@@ -18,10 +18,10 @@ MainWindow::MainWindow(QWidget *parent) :
     setStatusBarText(QString("Loading..."));
 
     // If the selected image changes, we also need to cancel any started creation of a correspondence
-    connect(ui->galleryLeft, SIGNAL(selectedItemChanged(int)),
-            this, SIGNAL(correspondenceCreationAborted()));
-    connect(ui->galleryRight, SIGNAL(selectedItemChanged(int)),
-            this, SIGNAL(correspondenceCreationAborted()));
+    connect(ui->galleryLeft, &Gallery::selectedItemChanged,
+            this, &MainWindow::correspondenceCreationAborted);
+    connect(ui->galleryRight, &Gallery::selectedItemChanged,
+            this, &MainWindow::correspondenceCreationAborted);
     connect(ui->navigationLeft, SIGNAL(pathChanged(QString)),
             this, SIGNAL(imagesPathChanged(QString)));
     connect(ui->navigationRight, SIGNAL(pathChanged(QString)),
@@ -146,6 +146,12 @@ Image *MainWindow::getCurrentlyViewedImage() {
     return ui->correspondenceViewer->getCurrentlyViewedImage();
 }
 
+void MainWindow::resizeEvent(QResizeEvent *event) {
+    if (!networkProgressView.isNull()) {
+        networkProgressView->setGeometry(0, 0, this->width(), this->height());
+    }
+}
+
 void MainWindow::mouseReleaseEvent(QMouseEvent* /* event */) {
     if (correspondenceCreationInProgress) {
         // Reset correspondence creation because the user clicked anywhere
@@ -268,6 +274,10 @@ void MainWindow::onCorrespondenceCreationRequested() {
     QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 }
 
+void MainWindow::hideNetworkProgressView() {
+    networkProgressView->hide();
+}
+
 void MainWindow::onPreferencesChanged(const QString &identifier) {
     UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier(identifier);
     setPathOnLeftBreadcrumbView(preferences->getImagesPath());
@@ -321,6 +331,11 @@ void MainWindow::onActionReloadViewsTriggered() {
 }
 
 void MainWindow::onCorrespondencePredictionRequested() {
+    if (networkProgressView.isNull()) {
+        networkProgressView.reset(new NetworkProgressView(this));
+    }
+    networkProgressView->show();
+    networkProgressView->setGeometry(QRect(0, 0, this->width(), this->height()));
     Q_EMIT correspondencePredictionRequested();
 }
 

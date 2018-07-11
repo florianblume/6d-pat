@@ -8,6 +8,10 @@
 #include <QUrl>
 #include <QThread>
 #include <QMessageBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QSizePolicy>
+#include <QTimer>
 
 CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager *modelManager) :
     QWidget(parent),
@@ -15,6 +19,7 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager *modelM
     modelManager(modelManager)
 {
     ui->setupUi(this);
+
     connect(ui->openGLWidget, SIGNAL(positionClicked(QVector3D)),
             this, SLOT(onObjectModelClickedAt(QVector3D)));
     if (modelManager) {
@@ -30,6 +35,8 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager *modelM
                 this, SLOT(reset()));
         connect(modelManager, SIGNAL(imagesChanged()),
                 this, SLOT(reset()));
+        connect(modelManager, SIGNAL(correspondencesChanged()),
+                this, SLOT(onCorrespondencesChanged()));
     }
 }
 
@@ -202,6 +209,8 @@ void CorrespondenceEditor::onButtonRemoveClicked() {
         addCorrespondencesToComboBoxCorrespondences(&currentlySelectedImage);
     } else {
         reset();
+        //! But we need to re-enable the predict button, as the viewer is still displaying the image
+        ui->buttonPredict->setEnabled(true);
     }
 }
 
@@ -293,6 +302,10 @@ void CorrespondenceEditor::onSliderOpacityValueChanged(int value) {
 
 void CorrespondenceEditor::onSliderOpacityReleased() {
     Q_EMIT opacityChangeEnded();
+}
+
+void CorrespondenceEditor::onCorrespondencesChanged() {
+    // Nothing to do here, legacy code
 }
 
 void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
