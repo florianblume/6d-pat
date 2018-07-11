@@ -10,7 +10,7 @@ NetworkProgressView::NetworkProgressView(QWidget *parent) :
     ui->setupUi(this);
     setAttribute(Qt::WA_NoSystemBackground, true);
     //setAttribute(Qt::WA_TranslucentBackground, true);
-    setStyleSheet("background-color: rgba(0,0,0,200)");
+    setStyleSheet("background-color: rgba(0,0,0,240)");
 }
 
 NetworkProgressView::~NetworkProgressView()

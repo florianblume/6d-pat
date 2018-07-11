@@ -10,8 +10,12 @@ class NeuralNetworkRunnable : public QObject, public QRunnable {
 
 public:
     NeuralNetworkRunnable(const QString &pythonScript);
+    ~NeuralNetworkRunnable();
     void setConfigPath(const QString &configPath);
     void run() override;
+
+    QString getPythonScript() const;
+    void setPythonScript(const QString &value);
 
 Q_SIGNALS:
     void processFinished();

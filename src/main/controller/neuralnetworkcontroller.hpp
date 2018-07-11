@@ -1,10 +1,9 @@
 #ifndef NEURALNETWORKCONTROLLER_H
 #define NEURALNETWORKCONTROLLER_H
 
-#include "neuralnetworkthread.hpp"
+#include "neuralnetworkrunnable.hpp"
 #include "model/image.hpp"
 
-#include <QScopedPointer>
 #include <QString>
 #include <QObject>
 #include <QVector>
@@ -21,6 +20,7 @@ class NeuralNetworkController : public QObject
 
 public:
     NeuralNetworkController(const QString &trainPythonScript, const QString &inferencePythonScript);
+    ~NeuralNetworkController();
     void training(const QString &configPath);
     void inference(const QString &configPath);
     void setImages(const QVector<Image> &images);
@@ -42,7 +42,7 @@ Q_SIGNALS:
     void networkStopped();
 
 private:
-    QScopedPointer<NeuralNetworkRunnable> networkRunnable;
+    NeuralNetworkRunnable *networkRunnable = 0;
     QString trainPythonScript;
     QString inferencePythonScript;
     QString correspondencesFilePath;

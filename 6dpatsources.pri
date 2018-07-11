@@ -40,10 +40,10 @@ HEADERS  += \
     $$PWD/src/main/misc/generalhelper.h \
     $$PWD/src/main/view/gallery/rendering/offscreenrenderer.hpp \
     $$PWD/src/main/controller/neuralnetworkcontroller.hpp \
-    $$PWD/src/main/controller/neuralnetworkthread.hpp \
     $$PWD/src/main/controller/correspondencecreator.hpp \
     $$PWD/src/main/view/settings/settingsnetworkpage.hpp \
-    $$PWD/src/main/view/misc/networkprogressview.hpp
+    $$PWD/src/main/view/misc/networkprogressview.hpp \
+    $$PWD/src/main/controller/neuralnetworkrunnable.hpp
 
 SOURCES += \
     $$PWD/src/main/view/mainwindow.cpp \
@@ -80,8 +80,8 @@ SOURCES += \
     $$PWD/src/main/view/misc/displayhelper.cpp \
     $$PWD/src/main/view/gallery/rendering/offscreenrenderer.cpp \
     $$PWD/src/main/controller/neuralnetworkcontroller.cpp \
-    $$PWD/src/main/controller/neuralnetworkthread.cpp \
-    $$PWD/src/main/view/misc/networkprogressview.cpp
+    $$PWD/src/main/view/misc/networkprogressview.cpp \
+    $$PWD/src/main/controller/neuralnetworkrunnable.cpp
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

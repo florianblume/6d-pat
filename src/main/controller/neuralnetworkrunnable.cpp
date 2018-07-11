@@ -1,9 +1,12 @@
 #include "Python.h"
 
-#include "neuralnetworkthread.hpp"
+#include "neuralnetworkrunnable.hpp"
 
 NeuralNetworkRunnable::NeuralNetworkRunnable(const QString &pythonScript) :
     pythonScript(pythonScript) {
+}
+
+NeuralNetworkRunnable::~NeuralNetworkRunnable() {
 }
 
 void NeuralNetworkRunnable::setConfigPath(const QString &configPath) {
@@ -34,4 +37,14 @@ void NeuralNetworkRunnable::run() {
     file = fopen(pythonScript.toStdString().c_str(), "r");
     PyRun_SimpleFile(file, pythonScript.toStdString().c_str());
     Q_EMIT processFinished();
+}
+
+QString NeuralNetworkRunnable::getPythonScript() const
+{
+    return pythonScript;
+}
+
+void NeuralNetworkRunnable::setPythonScript(const QString &value)
+{
+    pythonScript = value;
 }

@@ -56,6 +56,8 @@ void CorrespondenceEditor::setModelManager(ModelManager *modelManager) {
                 this, SLOT(reset()));
         disconnect(modelManager, SIGNAL(imagesChanged()),
                 this, SLOT(reset()));
+        disconnect(modelManager, SIGNAL(correspondencesChanged()),
+                this, SLOT(onCorrespondencesChanged()));
     }
     this->modelManager = modelManager;
     connect(modelManager, SIGNAL(correspondenceAdded(QString)),
@@ -66,6 +68,8 @@ void CorrespondenceEditor::setModelManager(ModelManager *modelManager) {
             this, SLOT(reset()));
     connect(modelManager, SIGNAL(imagesChanged()),
             this, SLOT(reset()));
+    connect(modelManager, SIGNAL(correspondencesChanged()),
+            this, SLOT(onCorrespondencesChanged()));
 }
 
 void CorrespondenceEditor::setEnabledCorrespondenceEditorControls(bool enabled) {
@@ -305,7 +309,9 @@ void CorrespondenceEditor::onSliderOpacityReleased() {
 }
 
 void CorrespondenceEditor::onCorrespondencesChanged() {
-    // Nothing to do here, legacy code
+    reset();
+    ui->buttonPredict->setEnabled(true);
+    addCorrespondencesToComboBoxCorrespondences(&currentlySelectedImage);
 }
 
 void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {

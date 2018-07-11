@@ -1,3 +1,5 @@
+#include <Python.h>
+
 #include "neuralnetworkcontroller.hpp"
 
 #include <QJsonDocument>
@@ -12,29 +14,34 @@ NeuralNetworkController::NeuralNetworkController(const QString &trainPythonScrip
     inferencePythonScript(inferencePythonScript) {
 }
 
+NeuralNetworkController::~NeuralNetworkController() {
+    QThreadPool::globalInstance()->clear();
+    Py_Finalize();
+}
+
 void NeuralNetworkController::training(const QString &configPath) {
-    if (!networkRunnable.isNull()) {
-        QThreadPool::globalInstance()->clear();
+    if (networkRunnable) {
+        QThreadPool::globalInstance()->waitForDone();
     }
+    networkRunnable = new NeuralNetworkRunnable(trainPythonScript);
     setPathsOnConfig(configPath);
-    networkRunnable.reset(new NeuralNetworkRunnable(trainPythonScript));
     networkRunnable->setConfigPath(configPath);
-    connect(networkRunnable.get(), &NeuralNetworkRunnable::processFinished,
+    connect(networkRunnable, &NeuralNetworkRunnable::processFinished,
             this, &NeuralNetworkController::trainingFinished);
-    QThreadPool::globalInstance()->start(networkRunnable.get());
+    QThreadPool::globalInstance()->start(networkRunnable);
     Q_EMIT trainingStarted();
 }
 
 void NeuralNetworkController::inference(const QString &configPath) {
-    if (!networkRunnable.isNull()) {
-        QThreadPool::globalInstance()->clear();
+    if (networkRunnable) {
+        QThreadPool::globalInstance()->waitForDone();
     }
+    networkRunnable = new NeuralNetworkRunnable(inferencePythonScript);
     setPathsOnConfig(configPath);
-    networkRunnable.reset(new NeuralNetworkRunnable(inferencePythonScript));
     networkRunnable->setConfigPath(configPath);
-    connect(networkRunnable.get(), &NeuralNetworkRunnable::processFinished,
+    connect(networkRunnable, &NeuralNetworkRunnable::processFinished,
             this, &NeuralNetworkController::inferenceFinished);
-    QThreadPool::globalInstance()->start(networkRunnable.get());
+    QThreadPool::globalInstance()->start(networkRunnable);
     Q_EMIT inferenceStarted();
 }
 
@@ -47,7 +54,7 @@ void NeuralNetworkController::setCorrespondencesFilePath(const QString &filePath
 }
 
 void NeuralNetworkController::stop() {
-    if (!networkRunnable.isNull()) {
+    if (networkRunnable) {
         QThreadPool::globalInstance()->clear();
         Q_EMIT networkStopped();
     }
