@@ -23,6 +23,7 @@ Q_SIGNALS:
 private:
     QString pythonScript;
     QString configPath;
+    bool isInitialized = false;
 };
 
 #endif // NEURALNETWORKTHREAD_H

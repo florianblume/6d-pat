@@ -7,11 +7,13 @@
 #include <QJsonArray>
 #include <QFile>
 #include <QThreadPool>
+#include <QDebug>
 
 NeuralNetworkController::NeuralNetworkController(const QString &trainPythonScript,
                                                  const QString &inferencePythonScript) :
     trainPythonScript(trainPythonScript),
     inferencePythonScript(inferencePythonScript) {
+
 }
 
 NeuralNetworkController::~NeuralNetworkController() {
@@ -59,23 +61,19 @@ void NeuralNetworkController::stop() {
     }
 }
 
-QString NeuralNetworkController::getTrainPythonScript() const
-{
+QString NeuralNetworkController::getTrainPythonScript() const {
     return trainPythonScript;
 }
 
-void NeuralNetworkController::setTrainPythonScript(const QString &value)
-{
+void NeuralNetworkController::setTrainPythonScript(const QString &value) {
     trainPythonScript = value;
 }
 
-QString NeuralNetworkController::getInferencePythonScript() const
-{
+QString NeuralNetworkController::getInferencePythonScript() const {
     return inferencePythonScript;
 }
 
-void NeuralNetworkController::setInferencePythonScript(const QString &value)
-{
+void NeuralNetworkController::setInferencePythonScript(const QString &value) {
     inferencePythonScript = value;
 }
 

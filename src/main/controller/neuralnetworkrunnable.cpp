@@ -1,6 +1,7 @@
 #include "Python.h"
 
 #include <QDebug>
+#include <QFileInfo>
 
 #include "neuralnetworkrunnable.hpp"
 
@@ -18,39 +19,33 @@ void NeuralNetworkRunnable::setConfigPath(const QString &configPath) {
 
 void NeuralNetworkRunnable::run() {
     qDebug() << "Initializing Python.";
+    if (!isInitialized) {
+        isInitialized = true;
+    }
     Py_Initialize();
-    FILE* file;
-    int argc;
-    wchar_t * argv[3];
+    PyEval_InitThreads();
 
-    argc = 3;
-
-    wchar_t pythonWCharArray[pythonScript.length() + 1];
-    pythonScript.toWCharArray(pythonWCharArray);
-    pythonWCharArray[pythonScript.length()] = 0;
-    argv[0] = pythonWCharArray;
-
-    argv[1] = L"--config";
-    wchar_t configWCharArray[configPath.length() + 1];
-    configPath.toWCharArray(configWCharArray);
-    configWCharArray[configPath.length()] = 0;
-    argv[2] = configWCharArray;
-
-    Py_SetProgramName(argv[0]);
-    PySys_SetArgv(argc, argv);
-    file = fopen(pythonScript.toStdString().c_str(), "r");
+    QFileInfo pythonScriptInfo(pythonScript);
+    PyRun_SimpleString("import sys");
+    QString append = QString("sys.path.append(\"") + pythonScriptInfo.absolutePath() + "\")";
+    PyRun_SimpleString(append.toStdString().c_str());
+    const char* moduleName = pythonScriptInfo.baseName().toStdString().c_str();
+    PyObject* myModuleString = PyUnicode_FromString(moduleName);
+    PyObject* myModule = PyImport_Import(myModuleString);
+    PyObject* myFunction = PyObject_GetAttrString(myModule, (char *) "inference_with_config_path");
+    PyObject* argument = PyUnicode_FromString(configPath.toStdString().c_str());
+    PyObject* args = PyTuple_Pack(1, argument);
     qDebug() << "Finished preparation of network. Starting inference.";
-    PyRun_SimpleFile(file, pythonScript.toStdString().c_str());
+    PyObject* result = PyObject_CallObject(myFunction, args);
     qDebug() << "Finished inference run.";
+
     Q_EMIT processFinished();
 }
 
-QString NeuralNetworkRunnable::getPythonScript() const
-{
+QString NeuralNetworkRunnable::getPythonScript() const {
     return pythonScript;
 }
 
-void NeuralNetworkRunnable::setPythonScript(const QString &value)
-{
+void NeuralNetworkRunnable::setPythonScript(const QString &value) {
     pythonScript = value;
 }
