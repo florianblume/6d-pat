@@ -183,10 +183,9 @@ QList<Image> JsonLoadAndStoreStrategy::loadImages() {
         return images;
     }
 
-    QStringList fileFilter = QStringList() << "*.jpg" << "*.jpeg" << "*.png";
-    QStringList imageFiles = imagesPath.entryList(fileFilter, QDir::Files, QDir::Name);
+    QStringList imageFiles = imagesPath.entryList(IMAGE_FILES_EXTENSIONS, QDir::Files, QDir::Name);
     QStringList segmentationImageFiles =
-            segmentationImagesPath.entryList(fileFilter, QDir::Files, QDir::Name);
+            segmentationImagesPath.entryList(IMAGE_FILES_EXTENSIONS, QDir::Files, QDir::Name);
     // Also ensure that the number of elements is the same
     bool segmentationImagesPathSet = segmentationImagesPath.path() != ""
             && imageFiles.size() == segmentationImageFiles.size();

@@ -101,4 +101,10 @@ RESOURCES += \
 INCLUDEPATH += $$PWD/src/main \
     $$PWD/src/main/model \
     $$PWD/src/main/view \
-    $$PWD/src/main/controller
+    $$PWD/src/main/controller \
+    $$PWD/3dparty/QtAwesome \
+    /usr/local/include/opencv \
+    /usr/local/include/assimp
+
+LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d \
+        -L/usr/local/lib -lassimp

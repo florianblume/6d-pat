@@ -1,6 +1,5 @@
-#include "Python.h"
-
 #include <QDebug>
+#include <QProcess>
 
 #include "neuralnetworkrunnable.hpp"
 
@@ -17,31 +16,15 @@ void NeuralNetworkRunnable::setConfigPath(const QString &configPath) {
 }
 
 void NeuralNetworkRunnable::run() {
-    qDebug() << "Initializing Python.";
-    Py_Initialize();
-    FILE* file;
-    int argc;
-    wchar_t * argv[3];
-
-    argc = 3;
-
-    wchar_t pythonWCharArray[pythonScript.length() + 1];
-    pythonScript.toWCharArray(pythonWCharArray);
-    pythonWCharArray[pythonScript.length()] = 0;
-    argv[0] = pythonWCharArray;
-
-    argv[1] = L"--config";
-    wchar_t configWCharArray[configPath.length() + 1];
-    configPath.toWCharArray(configWCharArray);
-    configWCharArray[configPath.length()] = 0;
-    argv[2] = configWCharArray;
-
-    Py_SetProgramName(argv[0]);
-    PySys_SetArgv(argc, argv);
-    file = fopen(pythonScript.toStdString().c_str(), "r");
-    qDebug() << "Finished preparation of network. Starting inference.";
-    PyRun_SimpleFile(file, pythonScript.toStdString().c_str());
-    qDebug() << "Finished inference run.";
+    qDebug() << "Running network.";
+    QProcess p;
+    // TODO: replace by custom python interpreter
+    p.start(QString("/home/floretti/anaconda3/envs/pose_estimation/bin/python ") +
+            pythonScript +
+            QString(" --config ") + configPath);
+    p.waitForFinished();
+    qDebug() << "Network run finished.";
+    qDebug() << QString(p.readAllStandardOutput());
     Q_EMIT processFinished();
 }
 

@@ -1,12 +1,16 @@
 #ifndef NEURALNETWORKCONTROLLER_H
 #define NEURALNETWORKCONTROLLER_H
 
+#include "stdio.h"
+
 #include "neuralnetworkrunnable.hpp"
 #include "model/image.hpp"
 
 #include <QString>
 #include <QObject>
 #include <QVector>
+
+using namespace std;
 
 /*!
  * \brief The NeuralNetworkController class defines an access point to the neural network
@@ -40,6 +44,10 @@ Q_SIGNALS:
     void inferenceFinished();
 
     void networkStopped();
+
+private Q_SLOTS:
+    void onTrainingFinished();
+    void onInferenceFinished();
 
 private:
     NeuralNetworkRunnable *networkRunnable = 0;

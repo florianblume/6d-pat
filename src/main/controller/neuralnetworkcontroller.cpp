@@ -26,12 +26,13 @@ void NeuralNetworkController::training(const QString &configPath) {
     setPathsOnConfig(configPath);
     networkRunnable->setConfigPath(configPath);
     connect(networkRunnable, &NeuralNetworkRunnable::processFinished,
-            this, &NeuralNetworkController::trainingFinished);
+            this, &NeuralNetworkController::onTrainingFinished);
     QThreadPool::globalInstance()->start(networkRunnable);
     Q_EMIT trainingStarted();
 }
 
 void NeuralNetworkController::inference(const QString &configPath) {
+
     if (networkRunnable) {
         QThreadPool::globalInstance()->waitForDone();
     }
@@ -39,7 +40,7 @@ void NeuralNetworkController::inference(const QString &configPath) {
     setPathsOnConfig(configPath);
     networkRunnable->setConfigPath(configPath);
     connect(networkRunnable, &NeuralNetworkRunnable::processFinished,
-            this, &NeuralNetworkController::inferenceFinished);
+            this, &NeuralNetworkController::onInferenceFinished);
     QThreadPool::globalInstance()->start(networkRunnable);
     Q_EMIT inferenceStarted();
 }
@@ -77,6 +78,14 @@ QString NeuralNetworkController::getInferencePythonScript() const
 void NeuralNetworkController::setInferencePythonScript(const QString &value)
 {
     inferencePythonScript = value;
+}
+
+void NeuralNetworkController::onTrainingFinished() {
+    Q_EMIT trainingFinished();
+}
+
+void NeuralNetworkController::onInferenceFinished() {
+    Q_EMIT inferenceFinished();
 }
 
 void NeuralNetworkController::setPathsOnConfig(const QString &configPath) {
