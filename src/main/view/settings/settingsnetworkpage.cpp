@@ -16,6 +16,8 @@ SettingsNetworkPage::SettingsNetworkPage(QWidget *parent) :
     ui->buttonInferenceScriptPath->setIcon(awesome->icon(fa::folderopen));
     ui->buttonNetworkConfigPath->setFont(awesome->font(20));
     ui->buttonNetworkConfigPath->setIcon(awesome->icon(fa::folderopen));
+    ui->buttonPythonInterpreterPath->setFont(awesome->font(20));
+    ui->buttonPythonInterpreterPath->setIcon(awesome->icon(fa::folderopen));
 }
 
 SettingsNetworkPage::~SettingsNetworkPage() {
@@ -27,6 +29,17 @@ void SettingsNetworkPage::setPreferences(Preferences *preferences) {
     ui->editTrainingScriptPath->setText(preferences->getTrainingScriptPath());
     ui->editInferenceScriptPath->setText(preferences->getInferenceScriptPath());
     ui->editNetworkConfigPath->setText(preferences->getNetworkConfigPath());
+    ui->editPythonInterpreterPath->setText(preferences->getPythonInterpreterPath());
+}
+
+void SettingsNetworkPage::buttonPythonInterpreterPathClicked() {
+    QString newPath = openFileDialogForPath(ui->editPythonInterpreterPath->text(),
+                                            "Open Python interpreter",
+                                            "Python files (python)");
+    if (newPath.compare("") != 0) {
+        ui->editPythonInterpreterPath->setText(newPath);
+        preferences->setPythonInterpreterPath(newPath);
+    }
 }
 
 void SettingsNetworkPage::buttonTrainingScriptPathClicked() {

@@ -104,3 +104,13 @@ void Preferences::setNetworkConfigPath(const QString &value)
 {
     networkConfigPath = value;
 }
+
+QString Preferences::getPythonInterpreterPath() const
+{
+    return pythonInterpreterPath;
+}
+
+void Preferences::setPythonInterpreterPath(const QString &value)
+{
+    pythonInterpreterPath = value;
+}

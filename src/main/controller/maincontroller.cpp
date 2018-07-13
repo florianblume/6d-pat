@@ -158,11 +158,13 @@ void MainController::onCorrespondenceCreationRequested() {
 void MainController::onCorrespondencePredictionRequested() {
     if (networkController.isNull()) {
         networkController.reset(
-                    new NeuralNetworkController(currentPreferences->getTrainingScriptPath(),
+                    new NeuralNetworkController(currentPreferences->getPythonInterpreterPath(),
+                                                currentPreferences->getTrainingScriptPath(),
                                                 currentPreferences->getInferenceScriptPath()));
         connect(networkController.data(), &NeuralNetworkController::inferenceFinished,
                 this, &MainController::onNetworkInferenceFinished);
     } else {
+        networkController->setPythonInterpreter(currentPreferences->getPythonInterpreterPath());
         networkController->setTrainPythonScript(currentPreferences->getTrainingScriptPath());
         networkController->setInferencePythonScript(currentPreferences->getInferenceScriptPath());
     }

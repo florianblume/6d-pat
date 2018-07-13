@@ -43,12 +43,16 @@ public:
     QString getNetworkConfigPath() const;
     void setNetworkConfigPath(const QString &value);
 
+    QString getPythonInterpreterPath() const;
+    void setPythonInterpreterPath(const QString &value);
+
 private:
     QMap<QString, QString> segmentationCodes;
     QString segmentationImagesPath;
     QString imagesPath;
     QString objectModelsPath;
     QString correspondencesFilePath;
+    QString pythonInterpreterPath;
     QString trainingScriptPath;
     QString inferenceScriptPath;
     QString networkConfigPath;

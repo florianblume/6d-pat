@@ -3,7 +3,9 @@
 
 #include "neuralnetworkrunnable.hpp"
 
-NeuralNetworkRunnable::NeuralNetworkRunnable(const QString &pythonScript) :
+NeuralNetworkRunnable::NeuralNetworkRunnable(const QString &pythonInterpreter,
+                                             const QString &pythonScript) :
+    pythonInterpreter(pythonInterpreter),
     pythonScript(pythonScript) {
 }
 
@@ -19,7 +21,7 @@ void NeuralNetworkRunnable::run() {
     qDebug() << "Running network.";
     // TODO: replace by custom python interpreter
     QProcess networkProcess;
-    networkProcess.start(QString("/home/floretti/anaconda3/envs/pose_estimation/bin/python ") +
+    networkProcess.start(pythonInterpreter + " " +
             pythonScript +
             QString(" --config ") + configPath);
     networkProcess.waitForFinished();
@@ -35,4 +37,14 @@ QString NeuralNetworkRunnable::getPythonScript() const
 void NeuralNetworkRunnable::setPythonScript(const QString &value)
 {
     pythonScript = value;
+}
+
+QString NeuralNetworkRunnable::getPythonInterpreter() const
+{
+    return pythonInterpreter;
+}
+
+void NeuralNetworkRunnable::setPythonInterpreter(const QString &value)
+{
+    pythonInterpreter = value;
 }

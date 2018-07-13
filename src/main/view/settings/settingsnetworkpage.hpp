@@ -18,6 +18,7 @@ public:
     void setPreferences(Preferences *preferences);
 
 private Q_SLOTS:
+    void buttonPythonInterpreterPathClicked();
     void buttonTrainingScriptPathClicked();
     void buttonInferenceScriptPathClicked();
     void buttonNetworkConfigPathClicked();

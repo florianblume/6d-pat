@@ -23,7 +23,9 @@ class NeuralNetworkController : public QObject
     Q_OBJECT
 
 public:
-    NeuralNetworkController(const QString &trainPythonScript, const QString &inferencePythonScript);
+    NeuralNetworkController(const QString &pythonInterpreter,
+                            const QString &trainPythonScript,
+                            const QString &inferencePythonScript);
     ~NeuralNetworkController();
     void training(const QString &configPath);
     void inference(const QString &configPath);
@@ -36,6 +38,9 @@ public:
 
     QString getInferencePythonScript() const;
     void setInferencePythonScript(const QString &value);
+
+    QString getPythonInterpreter() const;
+    void setPythonInterpreter(const QString &value);
 
 Q_SIGNALS:
     void trainingStarted();
@@ -51,6 +56,7 @@ private Q_SLOTS:
 
 private:
     NeuralNetworkRunnable *networkRunnable = 0;
+    QString pythonInterpreter;
     QString trainPythonScript;
     QString inferencePythonScript;
     QString correspondencesFilePath;

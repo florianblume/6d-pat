@@ -19,6 +19,7 @@ void PreferencesStore::savePreferences(Preferences *preferences) {
     settings.setValue("objectModelsPath", preferences->getObjectModelsPath());
     settings.setValue("correspondencesFilePath", preferences->getCorrespondencesFilePath());
     settings.setValue("segmentationImagesPath", preferences->getSegmentationImagesPath());
+    settings.setValue("pythonInterpreterPath", preferences->getPythonInterpreterPath());
     settings.setValue("trainingScriptPath", preferences->getTrainingScriptPath());
     settings.setValue("inferenceScriptPath", preferences->getInferenceScriptPath());
     settings.setValue("networkConfigPath", preferences->getNetworkConfigPath());
@@ -49,6 +50,8 @@ UniquePointer<Preferences> PreferencesStore::loadPreferencesByIdentifier(const Q
                 settings.value("correspondencesFilePath", QDir::homePath()).toString());
     preferences->setSegmentationImagePath(
                 settings.value("segmentationImagesPath", "").toString());
+    preferences->setPythonInterpreterPath(
+                settings.value("pythonInterpreterPath", "").toString());
     preferences->setTrainingScriptPath(
                 settings.value("trainingScriptPath", "").toString());
     preferences->setInferenceScriptPath(

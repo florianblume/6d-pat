@@ -6,8 +6,10 @@
 #include <QFile>
 #include <QThreadPool>
 
-NeuralNetworkController::NeuralNetworkController(const QString &trainPythonScript,
+NeuralNetworkController::NeuralNetworkController(const QString &pythonInterpreter,
+                                                 const QString &trainPythonScript,
                                                  const QString &inferencePythonScript) :
+    pythonInterpreter(pythonInterpreter),
     trainPythonScript(trainPythonScript),
     inferencePythonScript(inferencePythonScript) {
 }
@@ -20,7 +22,7 @@ void NeuralNetworkController::training(const QString &configPath) {
     if (networkRunnable) {
         QThreadPool::globalInstance()->waitForDone();
     }
-    networkRunnable = new NeuralNetworkRunnable(trainPythonScript);
+    networkRunnable = new NeuralNetworkRunnable(pythonInterpreter, trainPythonScript);
     setPathsOnConfig(configPath);
     networkRunnable->setConfigPath(configPath);
     connect(networkRunnable, &NeuralNetworkRunnable::processFinished,
@@ -34,7 +36,7 @@ void NeuralNetworkController::inference(const QString &configPath) {
     if (networkRunnable) {
         QThreadPool::globalInstance()->waitForDone();
     }
-    networkRunnable = new NeuralNetworkRunnable(inferencePythonScript);
+    networkRunnable = new NeuralNetworkRunnable(pythonInterpreter, inferencePythonScript);
     setPathsOnConfig(configPath);
     networkRunnable->setConfigPath(configPath);
     connect(networkRunnable, &NeuralNetworkRunnable::processFinished,
@@ -84,6 +86,16 @@ void NeuralNetworkController::onTrainingFinished() {
 
 void NeuralNetworkController::onInferenceFinished() {
     Q_EMIT inferenceFinished();
+}
+
+QString NeuralNetworkController::getPythonInterpreter() const
+{
+    return pythonInterpreter;
+}
+
+void NeuralNetworkController::setPythonInterpreter(const QString &value)
+{
+    pythonInterpreter = value;
 }
 
 void NeuralNetworkController::setPathsOnConfig(const QString &configPath) {
