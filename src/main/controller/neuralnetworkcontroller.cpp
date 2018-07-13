@@ -1,5 +1,3 @@
-#include <Python.h>
-
 #include "neuralnetworkcontroller.hpp"
 
 #include <QJsonDocument>

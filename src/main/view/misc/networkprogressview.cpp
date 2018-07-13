@@ -2,6 +2,7 @@
 #include "ui_networkprogressview.h"
 
 #include <QPainter>
+#include <QDebug>
 
 NetworkProgressView::NetworkProgressView(QWidget *parent) :
     QWidget(parent),

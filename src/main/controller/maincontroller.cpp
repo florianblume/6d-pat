@@ -78,10 +78,10 @@ void MainController::initializeMainWindow() {
     // Delegation of correspondence creator actions to the window
     connect(correspondenceCreator.get(), SIGNAL(correspondenceCreationAborted()),
             &mainWindow, SLOT(onCorrespondenceCreationReset()));
-    connect(correspondenceCreator.get(), SIGNAL(correspondencePointStarted(QPoint,int,int)),
-            &mainWindow, SLOT(onCorrespondencePointStarted(QPoint,int,int)));
-    connect(correspondenceCreator.get(), SIGNAL(correspondencePointFinished(QVector3D,int,int)),
-            &mainWindow, SLOT(onCorrespondencePointFinished(QVector3D,int,int)));
+    connect(correspondenceCreator.get(), &CorrespondenceCreator::correspondencePointStarted,
+            &mainWindow, &MainWindow::onCorrespondencePointStarted);
+    connect(correspondenceCreator.get(), &CorrespondenceCreator::correspondencePointFinished,
+            &mainWindow, &MainWindow::onCorrespondencePointFinished);
 
     // Delegate of user interactions to the controller
     connect(&mainWindow, SIGNAL(correspondenceCreationInterrupted()),

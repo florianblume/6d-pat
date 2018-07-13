@@ -1,5 +1,3 @@
-#include <Python.h>
-
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 #include "view/settings/settingsdialog.hpp"

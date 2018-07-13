@@ -18,6 +18,7 @@ public:
     void setPythonScript(const QString &value);
 
 Q_SIGNALS:
+    void networkSentMessage(const QString &message);
     void processFinished();
 
 private:

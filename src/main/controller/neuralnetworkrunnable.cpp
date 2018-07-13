@@ -17,14 +17,13 @@ void NeuralNetworkRunnable::setConfigPath(const QString &configPath) {
 
 void NeuralNetworkRunnable::run() {
     qDebug() << "Running network.";
-    QProcess p;
     // TODO: replace by custom python interpreter
-    p.start(QString("/home/floretti/anaconda3/envs/pose_estimation/bin/python ") +
+    QProcess networkProcess;
+    networkProcess.start(QString("/home/floretti/anaconda3/envs/pose_estimation/bin/python ") +
             pythonScript +
             QString(" --config ") + configPath);
-    p.waitForFinished();
+    networkProcess.waitForFinished();
     qDebug() << "Network run finished.";
-    qDebug() << QString(p.readAllStandardOutput());
     Q_EMIT processFinished();
 }
 
