@@ -8,6 +8,7 @@ TEMPLATE = app
 TARGET = Otiat
 
 include(./6dpatsources.pri)
+include(./6dpatlibraryincludes.pri)
 
 DEFINES += QT_DEPRECATED_WARNINGS
 

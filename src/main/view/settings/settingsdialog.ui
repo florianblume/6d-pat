@@ -564,7 +564,7 @@ QListView::item:!selected:hover{
   <customwidget>
    <class>SettingsNetworkPage</class>
    <extends>QWidget</extends>
-   <header>view/settings/settingsnetworkpage.h</header>
+   <header>view/settings/settingsnetworkpage.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -20,6 +20,10 @@ GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager) : m
 }
 
 GalleryObjectModelModel::~GalleryObjectModelModel() {
+    // Otherwise the application crashes because the render threads
+    // try to access attributes of this class. Disconnect() does not
+    // seem to solve the problem, i.e. we wait here.
+    renderThreadPool.waitForDone();
 }
 
 QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectModel, int role) const {
@@ -202,6 +206,7 @@ void GalleryObjectModelModel::onImagesChanged() {
 
 void GalleryObjectModelModel::onObjectModelRendered(OffscreenRenderer *offscreenRenderer) {
     ObjectModel objectModel = offscreenRenderer->getObjectModel();
+    qDebug() << "Preview rendering finished for " + objectModel.getPath();;
     QImage image = offscreenRenderer->getImage();
     renderedObjectsModels.insert(objectModel.getPath(), image);
     int i = 0;

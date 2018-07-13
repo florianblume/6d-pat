@@ -160,7 +160,7 @@ void MainController::onCorrespondencePredictionRequested() {
         networkController.reset(
                     new NeuralNetworkController(currentPreferences->getTrainingScriptPath(),
                                                 currentPreferences->getInferenceScriptPath()));
-        connect(networkController.get(), &NeuralNetworkController::inferenceFinished,
+        connect(networkController.data(), &NeuralNetworkController::inferenceFinished,
                 this, &MainController::onNetworkInferenceFinished);
     } else {
         networkController->setTrainPythonScript(currentPreferences->getTrainingScriptPath());

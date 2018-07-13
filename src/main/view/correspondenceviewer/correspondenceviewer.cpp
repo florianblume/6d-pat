@@ -52,7 +52,7 @@ void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
 }
 
 Image *CorrespondenceViewer::getCurrentlyViewedImage() {
-    return currentlyDisplayedImage.get();
+    return currentlyDisplayedImage.data();
 }
 
 void CorrespondenceViewer::setImage(Image *image) {
@@ -107,7 +107,7 @@ void CorrespondenceViewer::reset() {
 
 void CorrespondenceViewer::reloadCorrespondences() {
     if (!currentlyDisplayedImage.isNull()) {
-        Image image = *(currentlyDisplayedImage.get());
+        Image image = *(currentlyDisplayedImage.data());
         setImage(&image);
     } else {
         reset();
@@ -186,7 +186,7 @@ void CorrespondenceViewer::onImageClicked(QPoint point) {
     qDebug() << "Image (" + currentlyDisplayedImage->getImagePath() + ") clicked at: (" +
                 QString::number(point.x()) + ", " + QString::number(point.y()) + ").";
     lastClickedPosition = point;
-    Q_EMIT imageClicked(currentlyDisplayedImage.get(), point);
+    Q_EMIT imageClicked(currentlyDisplayedImage.data(), point);
 }
 
 void CorrespondenceViewer::onCorrespondenceDeleted(const QString &id) {
