@@ -82,6 +82,7 @@ void CorrespondenceEditor::setEnabledCorrespondenceEditorControls(bool enabled) 
     // The next line is the difference to setEnabledAllControls
     ui->buttonRemove->setEnabled(enabled);
     ui->buttonSave->setEnabled(enabled);
+    ui->sliderOpacity->setEnabled(enabled);
 }
 
 void CorrespondenceEditor::setEnabledAllControls(bool enabled) {
@@ -118,6 +119,7 @@ void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(
         ui->comboBoxCorrespondence->setEnabled(true);
         ui->comboBoxCorrespondence->addItem("None");
         ui->comboBoxCorrespondence->setCurrentIndex(0);
+        ui->sliderOpacity->setEnabled(true);
     }
     int index = 1;
     for (Correspondence correspondence : correspondences) {

@@ -43,7 +43,8 @@ HEADERS  += \
     $$PWD/src/main/controller/correspondencecreator.hpp \
     $$PWD/src/main/view/settings/settingsnetworkpage.hpp \
     $$PWD/src/main/view/misc/networkprogressview.hpp \
-    $$PWD/src/main/controller/neuralnetworkrunnable.hpp
+    $$PWD/src/main/controller/neuralnetworkrunnable.hpp \
+    $$PWD/src/main/view/neuralnetworkdialog/neuralnetworkdialog.hpp
 
 SOURCES += \
     $$PWD/src/main/view/mainwindow.cpp \
@@ -81,7 +82,8 @@ SOURCES += \
     $$PWD/src/main/view/gallery/rendering/offscreenrenderer.cpp \
     $$PWD/src/main/controller/neuralnetworkcontroller.cpp \
     $$PWD/src/main/view/misc/networkprogressview.cpp \
-    $$PWD/src/main/controller/neuralnetworkrunnable.cpp
+    $$PWD/src/main/controller/neuralnetworkrunnable.cpp \
+    $$PWD/src/main/view/neuralnetworkdialog/neuralnetworkdialog.cpp
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \
@@ -93,7 +95,8 @@ FORMS    += \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.ui \
     $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.ui \
     $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.ui \
-    $$PWD/src/main/view/misc/networkprogressview.ui
+    $$PWD/src/main/view/misc/networkprogressview.ui \
+    $$PWD/src/main/view/neuralnetworkdialog/neuralnetworkdialog.ui
 
 RESOURCES += \
     $$PWD/6dpatsources.qrc

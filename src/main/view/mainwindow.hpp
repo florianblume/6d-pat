@@ -6,6 +6,7 @@
 #include "view/gallery/galleryimagemodel.hpp"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
 #include "view/misc/networkprogressview.hpp"
+#include "view/neuralnetworkdialog/neuralnetworkdialog.hpp"
 #include <QGuiApplication>
 #include <QMainWindow>
 #include <QMouseEvent>
@@ -268,6 +269,7 @@ Q_SIGNALS:
     void objectModelsPathChanged(const QString &newPath);
 
     void correspondencePredictionRequested();
+    void posePredictionRequestedForImages(QList<Image> images);
 
 private:
     Ui::MainWindow *ui;
@@ -289,6 +291,7 @@ private:
     bool correspondenceCreationInProgress = false;
 
     QScopedPointer<NetworkProgressView> networkProgressView;
+    QScopedPointer<NeuralNetworkDialog> neuralNetworkDialog;
 
     // The name of the settings - QT requests this to store settings "offline"
     static QString SETTINGS_NAME;
@@ -319,7 +322,8 @@ private Q_SLOTS:
     void onActionSettingsTriggered();
     void onActionAbortCreationTriggered();
     void onActionReloadViewsTriggered();
-
+    void onActionNetworkPredictTriggered();
+    void onPosePredictionRequestedForImages(QList<Image> images);
     void onCorrespondencePredictionRequested();
 };
 

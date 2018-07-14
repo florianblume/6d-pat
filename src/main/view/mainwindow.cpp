@@ -1,6 +1,7 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
 #include "view/settings/settingsdialog.hpp"
+#include "view/neuralnetworkdialog/neuralnetworkdialog.hpp"
 #include <QSettings>
 #include <QCloseEvent>
 #include <QMessageBox>
@@ -326,6 +327,24 @@ void MainWindow::onActionAbortCreationTriggered() {
 
 void MainWindow::onActionReloadViewsTriggered() {
     modelManager->reload();
+}
+
+void MainWindow::onActionNetworkPredictTriggered() {
+    if (neuralNetworkDialog.isNull()) {
+        neuralNetworkDialog.reset(new NeuralNetworkDialog(this, modelManager));
+        connect(neuralNetworkDialog.data(), &NeuralNetworkDialog::networkPredictionRequestedForImages,
+                this, &MainWindow::onPosePredictionRequestedForImages);
+    }
+    neuralNetworkDialog->show();
+}
+
+void MainWindow::onPosePredictionRequestedForImages(QList<Image> images) {
+    if (networkProgressView.isNull()) {
+        networkProgressView.reset(new NetworkProgressView(this));
+    }
+    networkProgressView->show();
+    networkProgressView->setGeometry(QRect(0, 0, this->width(), this->height()));
+    emit posePredictionRequestedForImages(images);
 }
 
 void MainWindow::onCorrespondencePredictionRequested() {

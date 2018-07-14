@@ -19,12 +19,12 @@ void NeuralNetworkRunnable::setConfigPath(const QString &configPath) {
 
 void NeuralNetworkRunnable::run() {
     qDebug() << "Running network.";
-    // TODO: replace by custom python interpreter
     QProcess networkProcess;
     networkProcess.start(pythonInterpreter + " " +
             pythonScript +
             QString(" --config ") + configPath);
-    networkProcess.waitForFinished();
+    // No timeout
+    networkProcess.waitForFinished(-1);
     qDebug() << "Network run finished.";
     Q_EMIT processFinished();
 }

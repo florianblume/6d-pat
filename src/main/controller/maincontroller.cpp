@@ -93,6 +93,8 @@ void MainController::initializeMainWindow() {
 
     connect(&mainWindow, &MainWindow::correspondencePredictionRequested,
             this, &MainController::onCorrespondencePredictionRequested);
+    connect(&mainWindow, &MainWindow::posePredictionRequestedForImages,
+            this, &MainController::onPosePredictionRequestedForImages);
 
 
     mainWindow.onInitializationCompleted();
@@ -156,6 +158,20 @@ void MainController::onCorrespondenceCreationRequested() {
 }
 
 void MainController::onCorrespondencePredictionRequested() {
+    performPosePredictionForImages(QList<Image>() << *mainWindow.getCurrentlyViewedImage());
+}
+
+void MainController::onPosePredictionRequestedForImages(QList<Image> images) {
+    performPosePredictionForImages(images);
+}
+
+void MainController::performPosePredictionForImages(QList<Image> images) {
+    if (currentPreferences->getSegmentationImagesPath() == "") {
+        mainWindow.displayWarning("Segmentation images path not set", "The path to the segmentation "
+                                                                      "images has to "
+                                                   "be set in order to run network prediction.");
+        return;
+    }
     if (networkController.isNull()) {
         networkController.reset(
                     new NeuralNetworkController(currentPreferences->getPythonInterpreterPath(),
@@ -168,8 +184,10 @@ void MainController::onCorrespondencePredictionRequested() {
         networkController->setTrainPythonScript(currentPreferences->getTrainingScriptPath());
         networkController->setInferencePythonScript(currentPreferences->getInferenceScriptPath());
     }
-    networkController->setImages(QVector<Image>() << *mainWindow.getCurrentlyViewedImage());
+    networkController->setImages(images.toVector());
     networkController->setCorrespondencesFilePath(strategy.getCorrespondencesFilePath().path());
+    networkController->setImagesPath(currentPreferences->getImagesPath());
+    networkController->setSegmentationImagesPath(currentPreferences->getSegmentationImagesPath());
     networkController->inference(currentPreferences->getNetworkConfigPath());
 }
 

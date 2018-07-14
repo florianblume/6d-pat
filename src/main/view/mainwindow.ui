@@ -1420,8 +1420,15 @@
     <addaction name="actionTutorial"/>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuNetwork">
+    <property name="title">
+     <string>Network</string>
+    </property>
+    <addaction name="actionPredict"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuNetwork"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -1478,6 +1485,11 @@
   <action name="actionTrain">
    <property name="text">
     <string>Train Network</string>
+   </property>
+  </action>
+  <action name="actionPredict">
+   <property name="text">
+    <string>Predict</string>
    </property>
   </action>
  </widget>
@@ -2119,6 +2131,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionPredict</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onActionNetworkPredictTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>selectedObjectModelChanged(ObjectModel*)</signal>
@@ -2141,5 +2169,6 @@
   <slot>onActionReloadViewsTriggered()</slot>
   <slot>onActionTrainNetworkTriggered()</slot>
   <slot>onCorrespondencePredictionRequested()</slot>
+  <slot>onActionNetworkPredictTriggered()</slot>
  </slots>
 </ui>

@@ -60,19 +60,9 @@ void NeuralNetworkController::stop() {
     }
 }
 
-QString NeuralNetworkController::getTrainPythonScript() const
-{
-    return trainPythonScript;
-}
-
 void NeuralNetworkController::setTrainPythonScript(const QString &value)
 {
     trainPythonScript = value;
-}
-
-QString NeuralNetworkController::getInferencePythonScript() const
-{
-    return inferencePythonScript;
 }
 
 void NeuralNetworkController::setInferencePythonScript(const QString &value)
@@ -88,9 +78,14 @@ void NeuralNetworkController::onInferenceFinished() {
     Q_EMIT inferenceFinished();
 }
 
-QString NeuralNetworkController::getPythonInterpreter() const
+void NeuralNetworkController::setSegmentationImagesPath(const QString &value)
 {
-    return pythonInterpreter;
+    segmentationImagesPath = value;
+}
+
+void NeuralNetworkController::setImagesPath(const QString &value)
+{
+    imagesPath = value;
 }
 
 void NeuralNetworkController::setPythonInterpreter(const QString &value)
@@ -115,6 +110,8 @@ void NeuralNetworkController::setPathsOnConfig(const QString &configPath) {
             imageListFile.write(QJsonDocument(imageList).toJson());
         }
         jsonObject["OUTPUT_FILE"] = correspondencesFilePath;
+        jsonObject["IMAGES_PATH"] = imagesPath;
+        jsonObject["SEGMENTATION_IMAGES_PATH"] = segmentationImagesPath;
         configFile.resize(0);
         configFile.write(QJsonDocument(jsonObject).toJson());
     }
