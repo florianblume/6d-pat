@@ -3,6 +3,7 @@
 
 #include "model/modelmanager.hpp"
 #include <QAbstractListModel>
+#include <QImage>
 
 /*!
  * \brief The GalleryImageModel class provides the image data for a listview that is supposed to
@@ -26,6 +27,9 @@ public:
 private:
     ModelManager *modelManager;
     QList<Image> imagesCache;
+    QList<QImage> resizedImagesCache;
+
+    void resizeImages();
 
 private Q_SLOTS:
     void onImagesChanged();
