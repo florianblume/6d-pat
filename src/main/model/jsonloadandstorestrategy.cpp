@@ -139,16 +139,17 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
 }
 
 static QMatrix3x3 rotVectorFromJsonRotMatrix(QJsonArray &jsonRotationMatrix) {
-    QMatrix3x3 rotationMatrix = QMatrix3x3(new float[9]{
-       (float) jsonRotationMatrix[0].toDouble(),
-       (float) jsonRotationMatrix[1].toDouble(),
-       (float) jsonRotationMatrix[2].toDouble(),
-       (float) jsonRotationMatrix[3].toDouble(),
-       (float) jsonRotationMatrix[4].toDouble(),
-       (float) jsonRotationMatrix[5].toDouble(),
-       (float) jsonRotationMatrix[6].toDouble(),
-       (float) jsonRotationMatrix[7].toDouble(),
-       (float) jsonRotationMatrix[8].toDouble()});
+    float values[9] = {
+        (float) jsonRotationMatrix[0].toDouble(),
+        (float) jsonRotationMatrix[1].toDouble(),
+        (float) jsonRotationMatrix[2].toDouble(),
+        (float) jsonRotationMatrix[3].toDouble(),
+        (float) jsonRotationMatrix[4].toDouble(),
+        (float) jsonRotationMatrix[5].toDouble(),
+        (float) jsonRotationMatrix[6].toDouble(),
+        (float) jsonRotationMatrix[7].toDouble(),
+        (float) jsonRotationMatrix[8].toDouble()};
+    QMatrix3x3 rotationMatrix = QMatrix3x3(values);
     return rotationMatrix;
 }
 
@@ -156,16 +157,17 @@ static Image createImageWithJsonParams(const QString& filename, const QString &s
                                        const QString &imagesPath, QJsonObject &json) {
     QJsonObject parameters = json[filename].toObject();
     QJsonArray cameraMatrix = parameters["K"].toArray();
-    QMatrix3x3 qtCameraMatrix = QMatrix3x3(new float[9]{
-                (float) cameraMatrix[0].toDouble(),
-                (float) cameraMatrix[1].toDouble(),
-                (float) cameraMatrix[2].toDouble(),
-                (float) cameraMatrix[3].toDouble(),
-                (float) cameraMatrix[4].toDouble(),
-                (float) cameraMatrix[5].toDouble(),
-                (float) cameraMatrix[6].toDouble(),
-                (float) cameraMatrix[7].toDouble(),
-                (float) cameraMatrix[8].toDouble()});
+    float values[9] = {
+        (float) cameraMatrix[0].toDouble(),
+        (float) cameraMatrix[1].toDouble(),
+        (float) cameraMatrix[2].toDouble(),
+        (float) cameraMatrix[3].toDouble(),
+        (float) cameraMatrix[4].toDouble(),
+        (float) cameraMatrix[5].toDouble(),
+        (float) cameraMatrix[6].toDouble(),
+        (float) cameraMatrix[7].toDouble(),
+        (float) cameraMatrix[8].toDouble()};
+    QMatrix3x3 qtCameraMatrix = QMatrix3x3(values);
     return Image(filename, segmentationFilename, imagesPath, qtCameraMatrix);
 }
 

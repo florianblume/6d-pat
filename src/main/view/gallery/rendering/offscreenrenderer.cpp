@@ -84,6 +84,7 @@ void OffscreenRenderer::run() {
     delete context;
     delete surface;
     delete objectsProgram;
+    delete renderFbo;
 }
 
 QImage OffscreenRenderer::getImage() {
