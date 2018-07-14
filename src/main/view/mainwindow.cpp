@@ -275,6 +275,7 @@ void MainWindow::onCorrespondenceCreationRequested() {
 
 void MainWindow::hideNetworkProgressView() {
     networkProgressView->hide();
+    QApplication::restoreOverrideCursor();
 }
 
 void MainWindow::onPreferencesChanged(const QString &identifier) {
@@ -344,6 +345,7 @@ void MainWindow::onPosePredictionRequestedForImages(QList<Image> images) {
     }
     networkProgressView->show();
     networkProgressView->setGeometry(QRect(0, 0, this->width(), this->height()));
+    QApplication::setOverrideCursor(Qt::WaitCursor);
     emit posePredictionRequestedForImages(images);
 }
 
@@ -353,6 +355,7 @@ void MainWindow::onCorrespondencePredictionRequested() {
     }
     networkProgressView->show();
     networkProgressView->setGeometry(QRect(0, 0, this->width(), this->height()));
+    QApplication::setOverrideCursor(Qt::WaitCursor);
     Q_EMIT correspondencePredictionRequested();
 }
 
