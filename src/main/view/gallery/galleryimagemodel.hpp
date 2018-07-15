@@ -4,6 +4,9 @@
 #include "model/modelmanager.hpp"
 #include <QAbstractListModel>
 #include <QImage>
+#include <QtConcurrent/QtConcurrent>
+#include <QFuture>
+#include <QFutureWatcher>
 
 /*!
  * \brief The GalleryImageModel class provides the image data for a listview that is supposed to
@@ -19,6 +22,7 @@ public:
      * \param modelManager the model manager that is supposed to be used for image retrieval
      */
     explicit GalleryImageModel(ModelManager* modelManager);
+    ~GalleryImageModel();
 
     //! Implementations of QAbstractListModel
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -27,8 +31,10 @@ public:
 private:
     ModelManager *modelManager;
     QList<Image> imagesCache;
-    QList<QImage> resizedImagesCache;
+    QFuture<void> resizedImagesFuture;
+    QMap<QString, QImage> resizedImagesCache;
 
+    void threadedResizeImages();
     void resizeImages();
 
 private Q_SLOTS:
