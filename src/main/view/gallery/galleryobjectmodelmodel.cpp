@@ -31,7 +31,7 @@ QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectMo
         return objectModel.getPath();
     } else if (role == Qt::DecorationRole) {
         if (renderedObjectsModels.contains(objectModel.getPath())) {
-            return renderedObjectsModels.value(objectModel.getPath());
+            return QIcon(QPixmap::fromImage(renderedObjectsModels.value(objectModel.getPath())));
         } else {
             return QVariant();
         }

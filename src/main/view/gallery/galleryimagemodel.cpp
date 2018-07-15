@@ -27,6 +27,10 @@ QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
     if (role == Qt::DecorationRole) {
         if (resizedImagesCache.contains(imagePath)) {
             return QIcon(QPixmap::fromImage(resizedImagesCache[imagePath]));
+        } else {
+            QPixmap pix(300, 300);
+            pix.fill(Qt::white);
+            return QIcon(pix);
         }
     } else if (role == Qt::ToolTipRole) {
         return imagePath;
@@ -35,19 +39,21 @@ QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
 }
 
 int GalleryImageModel::rowCount(const QModelIndex &/* parent */) const {
-    return resizedImagesCache.size();
+    return imagesCache.size();
 }
 
 void GalleryImageModel::threadedResizeImages() {
     int i = 0;
     for (Image image : imagesCache) {
-        beginInsertRows(QModelIndex(), resizedImagesCache.size(), resizedImagesCache.size());
+        //beginInsertRows(QModelIndex(), resizedImagesCache.size(), resizedImagesCache.size());
         QImage loadedImage(QUrl::fromLocalFile(image.getAbsoluteImagePath()).path());
         // No one is going to view images larger than 300 px height
         loadedImage = loadedImage.scaledToHeight(300);
         resizedImagesCache[image.getImagePath()] = loadedImage;
+        QModelIndex top = index(i, 0);
+        QModelIndex bottom = index(i, 0);
+        Q_EMIT dataChanged(top, bottom);
         i++;
-        endInsertRows();
     }
 }
 
