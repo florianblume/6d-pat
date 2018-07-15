@@ -330,7 +330,7 @@ QPushButton:pressed {
          <enum>QListView::Adjust</enum>
         </property>
         <property name="layoutMode">
-         <enum>QListView::Batched</enum>
+         <enum>QListView::SinglePass</enum>
         </property>
         <property name="viewMode">
          <enum>QListView::ListMode</enum>
