@@ -5,6 +5,8 @@
 #include <QJsonArray>
 #include <QFile>
 #include <QThreadPool>
+#include <QDir>
+#include <QProcess>
 
 NeuralNetworkController::NeuralNetworkController(const QString &pythonInterpreter,
                                                  const QString &trainPythonScript,
@@ -12,6 +14,7 @@ NeuralNetworkController::NeuralNetworkController(const QString &pythonInterprete
     pythonInterpreter(pythonInterpreter),
     trainPythonScript(trainPythonScript),
     inferencePythonScript(inferencePythonScript) {
+    connect(&queryTimer, &QTimer::timeout, this, &NeuralNetworkController::writeOutput);
 }
 
 NeuralNetworkController::~NeuralNetworkController() {
@@ -28,6 +31,7 @@ void NeuralNetworkController::training(const QString &configPath) {
     connect(networkRunnable, &NeuralNetworkRunnable::processFinished,
             this, &NeuralNetworkController::onTrainingFinished);
     QThreadPool::globalInstance()->start(networkRunnable);
+    queryTimer.start(1000);
     Q_EMIT trainingStarted();
 }
 
@@ -42,6 +46,7 @@ void NeuralNetworkController::inference(const QString &configPath) {
     connect(networkRunnable, &NeuralNetworkRunnable::processFinished,
             this, &NeuralNetworkController::onInferenceFinished);
     QThreadPool::globalInstance()->start(networkRunnable);
+    queryTimer.start(1000);
     Q_EMIT inferenceStarted();
 }
 
@@ -55,6 +60,7 @@ void NeuralNetworkController::setCorrespondencesFilePath(const QString &filePath
 
 void NeuralNetworkController::stop() {
     if (networkRunnable) {
+        queryTimer.stop();
         QThreadPool::globalInstance()->clear();
         Q_EMIT networkStopped();
     }
@@ -71,11 +77,20 @@ void NeuralNetworkController::setInferencePythonScript(const QString &value)
 }
 
 void NeuralNetworkController::onTrainingFinished() {
+    queryTimer.stop();
     Q_EMIT trainingFinished();
 }
 
 void NeuralNetworkController::onInferenceFinished() {
+    queryTimer.stop();
     Q_EMIT inferenceFinished();
+}
+
+void NeuralNetworkController::writeOutput() {
+    QProcess *process = networkRunnable->getProcess();
+    if (process != Q_NULLPTR) {
+        qDebug() << process->readAllStandardOutput();
+    }
 }
 
 void NeuralNetworkController::setSegmentationImagesPath(const QString &value)
@@ -111,6 +126,7 @@ void NeuralNetworkController::setPathsOnConfig(const QString &configPath) {
         }
         jsonObject["OUTPUT_FILE"] = correspondencesFilePath;
         jsonObject["IMAGES_PATH"] = imagesPath;
+        jsonObject["CAM_INFO_PATH"] = QDir(imagesPath).filePath("info.json");
         jsonObject["SEGMENTATION_IMAGES_PATH"] = segmentationImagesPath;
         configFile.resize(0);
         configFile.write(QJsonDocument(jsonObject).toJson());

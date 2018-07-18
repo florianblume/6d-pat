@@ -9,6 +9,7 @@
 #include <QString>
 #include <QObject>
 #include <QVector>
+#include <QTimer>
 
 using namespace std;
 
@@ -50,6 +51,7 @@ Q_SIGNALS:
 private Q_SLOTS:
     void onTrainingFinished();
     void onInferenceFinished();
+    void writeOutput();
 
 private:
     NeuralNetworkRunnable *networkRunnable = 0;
@@ -60,6 +62,8 @@ private:
     QString imagesPath;
     QString segmentationImagesPath;
     QVector<Image> images;
+
+    QTimer queryTimer;
 
     void setPathsOnConfig(const QString &configPath);
 };

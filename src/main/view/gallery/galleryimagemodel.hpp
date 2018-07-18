@@ -2,11 +2,11 @@
 #define GALLERYIMAGEMODEL_H
 
 #include "model/modelmanager.hpp"
+#include "resizeimagesrunnable.h"
+
 #include <QAbstractListModel>
 #include <QImage>
-#include <QtConcurrent/QtConcurrent>
-#include <QFuture>
-#include <QFutureWatcher>
+#include <QThreadPool>
 
 /*!
  * \brief The GalleryImageModel class provides the image data for a listview that is supposed to
@@ -31,13 +31,16 @@ public:
 private:
     ModelManager *modelManager;
     QList<Image> imagesCache;
-    QFuture<void> resizedImagesFuture;
+    ResizeImagesRunnable *resizeImagesRunnable = Q_NULLPTR;
+    QThreadPool resizeImagesThreadpool;
     QMap<QString, QImage> resizedImagesCache;
+    bool abortResize = false;
 
     void threadedResizeImages();
     void resizeImages();
 
 private Q_SLOTS:
+    void onImageResized(int imageIndex, QString imagePath, QImage resizedImage);
     void onImagesChanged();
 
 };

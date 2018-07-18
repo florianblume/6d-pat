@@ -5,7 +5,7 @@
 #include "misc/preferences/preferencesstore.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
-#include "view/misc/networkprogressview.hpp"
+#include "view/neuralnetworkprogressview/networkprogressview.hpp"
 #include "view/neuralnetworkdialog/neuralnetworkdialog.hpp"
 #include <QGuiApplication>
 #include <QMainWindow>

@@ -13,8 +13,8 @@ GalleryImageModel::GalleryImageModel(ModelManager* modelManager) {
 }
 
 GalleryImageModel::~GalleryImageModel() {
-    resizedImagesFuture.cancel();
-    resizedImagesFuture.waitForFinished();
+    resizeImagesRunnable->stop();
+    resizeImagesThreadpool.waitForDone();
 }
 
 QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
@@ -28,8 +28,13 @@ QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
         if (resizedImagesCache.contains(imagePath)) {
             return QIcon(QPixmap::fromImage(resizedImagesCache[imagePath]));
         } else {
+            // Just a placeholder
             QPixmap pix(300, 300);
             pix.fill(Qt::white);
+            QPainter painter(&pix);
+            painter.setRenderHint(QPainter::TextAntialiasing);
+            painter.setFont(QFont("ubuntu", 35));
+            painter.drawText(pix.rect(), Qt::AlignVCenter, imagePath);
             return QIcon(pix);
         }
     } else if (role == Qt::ToolTipRole) {
@@ -42,25 +47,24 @@ int GalleryImageModel::rowCount(const QModelIndex &/* parent */) const {
     return imagesCache.size();
 }
 
-void GalleryImageModel::threadedResizeImages() {
-    int i = 0;
-    for (Image image : imagesCache) {
-        //beginInsertRows(QModelIndex(), resizedImagesCache.size(), resizedImagesCache.size());
-        QImage loadedImage(QUrl::fromLocalFile(image.getAbsoluteImagePath()).path());
-        // No one is going to view images larger than 300 px height
-        loadedImage = loadedImage.scaledToHeight(300);
-        resizedImagesCache[image.getImagePath()] = loadedImage;
-        QModelIndex top = index(i, 0);
-        QModelIndex bottom = index(i, 0);
-        Q_EMIT dataChanged(top, bottom);
-        i++;
+void GalleryImageModel::resizeImages() {
+    if (resizeImagesRunnable) {
+        resizeImagesRunnable->stop();
+        resizeImagesThreadpool.clear();
+        resizeImagesThreadpool.waitForDone();
     }
+    resizedImagesCache.clear();
+    resizeImagesRunnable = new ResizeImagesRunnable(imagesCache);
+    connect(resizeImagesRunnable, &ResizeImagesRunnable::imageResized,
+            this, &GalleryImageModel::onImageResized);
+    resizeImagesThreadpool.start(resizeImagesRunnable);
 }
 
-void GalleryImageModel::resizeImages() {
-    resizedImagesFuture.cancel();
-    resizedImagesCache.clear();
-    resizedImagesFuture = QtConcurrent::run(this, &GalleryImageModel::threadedResizeImages);
+void GalleryImageModel::onImageResized(int imageIndex, QString imagePath, QImage resizedImage) {
+    resizedImagesCache[imagePath] = resizedImage;
+    QModelIndex top = index(imageIndex, 0);
+    QModelIndex bottom = index(imageIndex, 0);
+    Q_EMIT dataChanged(top, bottom);
 }
 
 void GalleryImageModel::onImagesChanged() {

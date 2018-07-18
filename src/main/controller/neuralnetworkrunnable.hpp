@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QRunnable>
+#include <QProcess>
+#include <QTimer>
 
 class NeuralNetworkRunnable : public QObject, public QRunnable {
 
@@ -20,6 +22,8 @@ public:
     QString getPythonInterpreter() const;
     void setPythonInterpreter(const QString &value);
 
+    QProcess *getProcess() const;
+
 Q_SIGNALS:
     void networkSentMessage(const QString &message);
     void processFinished();
@@ -28,6 +32,8 @@ private:
     QString pythonInterpreter;
     QString pythonScript;
     QString configPath;
+    QProcess *process = Q_NULLPTR;
+    QTimer queryTimer;
 };
 
 #endif // NEURALNETWORKTHREAD_H
