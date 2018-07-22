@@ -816,7 +816,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="CorrespondenceViewer" name="correspondenceViewer" native="true">
+          <widget class="PoseViewer" name="poseViewer" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -1300,7 +1300,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="CorrespondenceEditor" name="correspondenceEditor" native="true">
+          <widget class="PoseEditor" name="poseEditor" native="true">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -1410,7 +1410,7 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionAbort_Correspondence_Creation"/>
+    <addaction name="actionAbort_Pose_Creation"/>
     <addaction name="actionReload_Views"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -1472,7 +1472,7 @@
     <string>Tutorial</string>
    </property>
   </action>
-  <action name="actionAbort_Correspondence_Creation">
+  <action name="actionAbort_Pose_Creation">
    <property name="text">
     <string>Abort Creation</string>
    </property>
@@ -1528,41 +1528,41 @@
    </slots>
   </customwidget>
   <customwidget>
-   <class>CorrespondenceViewer</class>
+   <class>PoseViewer</class>
    <extends>QWidget</extends>
-   <header>view/correspondenceviewer/correspondenceviewer.hpp</header>
+   <header>view/poseviewer/poseviewer.hpp</header>
    <container>1</container>
    <slots>
     <signal>imageClicked(Image*,QPoint)</signal>
     <slot>setImage(Image*)</slot>
     <slot>reset()</slot>
-    <slot>onCorrespondencePointStarted(QPoint,int,int)</slot>
+    <slot>onPosePointStarted(QPoint,int,int)</slot>
     <slot>removePositionVisualizations()</slot>
-    <slot>onCorrespondenceCreationAborted()</slot>
+    <slot>onPoseCreationAborted()</slot>
     <slot>onOpacityChangeStarted(int)</slot>
-    <slot>onCorrespondenceUpdated(Correspondence*)</slot>
+    <slot>onPoseUpdated(Pose*)</slot>
     <slot>onOpacityChangeEnded()</slot>
    </slots>
   </customwidget>
   <customwidget>
-   <class>CorrespondenceEditor</class>
+   <class>PoseEditor</class>
    <extends>QWidget</extends>
-   <header>view/correspondenceeditor/correspondenceeditor.hpp</header>
+   <header>view/poseeditor/poseeditor.hpp</header>
    <container>1</container>
    <slots>
     <signal>objectModelClickedAt(ObjectModel*,QVector3D)</signal>
     <signal>buttonCreateClicked()</signal>
     <signal>opacityChangeStarted(int)</signal>
-    <signal>correspondenceUpdated(Correspondence*)</signal>
+    <signal>poseUpdated(Pose*)</signal>
     <signal>opacityChangeEnded()</signal>
-    <signal>correspondenceCreationAborted()</signal>
+    <signal>poseCreationAborted()</signal>
     <signal>buttonPredictClicked()</signal>
     <slot>reset()</slot>
     <slot>setObjectModel(ObjectModel*)</slot>
     <slot>setObjectModel(int)</slot>
-    <slot>onCorrespondencePointFinished(QVector3D,int,int)</slot>
+    <slot>onPosePointFinished(QVector3D,int,int)</slot>
     <slot>removePositionVisualizations()</slot>
-    <slot>onCorrespondenceCreationAborted()</slot>
+    <slot>onPoseCreationAborted()</slot>
     <slot>onSelectedImageChanged(int)</slot>
    </slots>
   </customwidget>
@@ -1638,7 +1638,7 @@
   <connection>
    <sender>navigationRight</sender>
    <signal>pathChanged(QString)</signal>
-   <receiver>correspondenceViewer</receiver>
+   <receiver>poseViewer</receiver>
    <slot>reset()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1702,7 +1702,7 @@
   <connection>
    <sender>navigationRight</sender>
    <signal>pathChanged(QString)</signal>
-   <receiver>correspondenceEditor</receiver>
+   <receiver>poseEditor</receiver>
    <slot>reset()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1718,7 +1718,7 @@
   <connection>
    <sender>navigationLeft</sender>
    <signal>pathChanged(QString)</signal>
-   <receiver>correspondenceEditor</receiver>
+   <receiver>poseEditor</receiver>
    <slot>reset()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1734,7 +1734,7 @@
   <connection>
    <sender>navigationLeft</sender>
    <signal>pathChanged(QString)</signal>
-   <receiver>correspondenceViewer</receiver>
+   <receiver>poseViewer</receiver>
    <slot>reset()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1748,7 +1748,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>correspondenceViewer</sender>
+   <sender>poseViewer</sender>
    <signal>imageClicked(Image*,QPoint)</signal>
    <receiver>MainWindow</receiver>
    <slot>onImageClicked(Image*,QPoint)</slot>
@@ -1766,7 +1766,7 @@
   <connection>
    <sender>MainWindow</sender>
    <signal>selectedObjectModelChanged(ObjectModel*)</signal>
-   <receiver>correspondenceEditor</receiver>
+   <receiver>poseEditor</receiver>
    <slot>setObjectModel(ObjectModel*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1780,7 +1780,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>correspondenceEditor</sender>
+   <sender>poseEditor</sender>
    <signal>objectModelClickedAt(ObjectModel*,QVector3D)</signal>
    <receiver>MainWindow</receiver>
    <slot>onObjectModelClicked(ObjectModel*,QVector3D)</slot>
@@ -1908,7 +1908,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionAbort_Correspondence_Creation</sender>
+   <sender>actionAbort_Pose_Creation</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>onActionAbortCreationTriggered()</slot>
@@ -1926,7 +1926,7 @@
   <connection>
    <sender>MainWindow</sender>
    <signal>selectedImageChanged(Image*)</signal>
-   <receiver>correspondenceViewer</receiver>
+   <receiver>poseViewer</receiver>
    <slot>setImage(Image*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1941,9 +1941,9 @@
   </connection>
   <connection>
    <sender>MainWindow</sender>
-   <signal>correspondencePointStarted(QPoint,int,int)</signal>
-   <receiver>correspondenceViewer</receiver>
-   <slot>onCorrespondencePointStarted(QPoint,int,int)</slot>
+   <signal>posePointStarted(QPoint,int,int)</signal>
+   <receiver>poseViewer</receiver>
+   <slot>onPosePointStarted(QPoint,int,int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>449</x>
@@ -1957,9 +1957,9 @@
   </connection>
   <connection>
    <sender>MainWindow</sender>
-   <signal>correspondencePointFinished(QVector3D,int,int)</signal>
-   <receiver>correspondenceEditor</receiver>
-   <slot>onCorrespondencePointFinished(QVector3D,int,int)</slot>
+   <signal>posePointFinished(QVector3D,int,int)</signal>
+   <receiver>poseEditor</receiver>
+   <slot>onPosePointFinished(QVector3D,int,int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>449</x>
@@ -1972,10 +1972,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>correspondenceEditor</sender>
+   <sender>poseEditor</sender>
    <signal>buttonCreateClicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>onCorrespondenceCreationRequested()</slot>
+   <slot>onPoseCreationRequested()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>675</x>
@@ -1989,9 +1989,9 @@
   </connection>
   <connection>
    <sender>MainWindow</sender>
-   <signal>correspondenceCreationAborted()</signal>
-   <receiver>correspondenceEditor</receiver>
-   <slot>onCorrespondenceCreationAborted()</slot>
+   <signal>poseCreationAborted()</signal>
+   <receiver>poseEditor</receiver>
+   <slot>onPoseCreationAborted()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>449</x>
@@ -2005,9 +2005,9 @@
   </connection>
   <connection>
    <sender>MainWindow</sender>
-   <signal>correspondenceCreationAborted()</signal>
-   <receiver>correspondenceViewer</receiver>
-   <slot>onCorrespondenceCreationAborted()</slot>
+   <signal>poseCreationAborted()</signal>
+   <receiver>poseViewer</receiver>
+   <slot>onPoseCreationAborted()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>449</x>
@@ -2022,7 +2022,7 @@
   <connection>
    <sender>galleryLeft</sender>
    <signal>selectedItemChanged(int)</signal>
-   <receiver>correspondenceEditor</receiver>
+   <receiver>poseEditor</receiver>
    <slot>onSelectedImageChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2036,9 +2036,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>correspondenceEditor</sender>
+   <sender>poseEditor</sender>
    <signal>opacityChangeStarted(int)</signal>
-   <receiver>correspondenceViewer</receiver>
+   <receiver>poseViewer</receiver>
    <slot>onOpacityChangeStarted(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2052,10 +2052,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>correspondenceEditor</sender>
-   <signal>correspondenceUpdated(Correspondence*)</signal>
-   <receiver>correspondenceViewer</receiver>
-   <slot>onCorrespondenceUpdated(Correspondence*)</slot>
+   <sender>poseEditor</sender>
+   <signal>poseUpdated(Pose*)</signal>
+   <receiver>poseViewer</receiver>
+   <slot>onPoseUpdated(Pose*)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>675</x>
@@ -2068,9 +2068,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>correspondenceEditor</sender>
+   <sender>poseEditor</sender>
    <signal>opacityChangeEnded()</signal>
-   <receiver>correspondenceViewer</receiver>
+   <receiver>poseViewer</receiver>
    <slot>onOpacityChangeEnded()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2084,8 +2084,8 @@
    </hints>
   </connection>
   <connection>
-   <sender>correspondenceEditor</sender>
-   <signal>correspondenceCreationAborted()</signal>
+   <sender>poseEditor</sender>
+   <signal>poseCreationAborted()</signal>
    <receiver>MainWindow</receiver>
    <slot>onActionAbortCreationTriggered()</slot>
    <hints>
@@ -2116,10 +2116,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>correspondenceEditor</sender>
+   <sender>poseEditor</sender>
    <signal>buttonPredictClicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>onCorrespondencePredictionRequested()</slot>
+   <slot>onPosePredictionRequested()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>675</x>
@@ -2151,10 +2151,10 @@
  <slots>
   <signal>selectedObjectModelChanged(ObjectModel*)</signal>
   <signal>selectedImageChanged(Image*)</signal>
-  <signal>correspondencePointStarted(QPoint,int,int)</signal>
-  <signal>correspondencePointFinished(QVector3D,int,int)</signal>
-  <signal>requestCorrespondenceCreation()</signal>
-  <signal>correspondenceCreationAborted()</signal>
+  <signal>posePointStarted(QPoint,int,int)</signal>
+  <signal>posePointFinished(QVector3D,int,int)</signal>
+  <signal>requestPoseCreation()</signal>
+  <signal>poseCreationAborted()</signal>
   <slot>onActionAboutTriggered()</slot>
   <slot>onActionExitTriggered()</slot>
   <slot>onActionSettingsTriggered()</slot>
@@ -2165,10 +2165,10 @@
   <slot>onObjectModelsPathChangedByNavigation(QString)</slot>
   <slot>onActionAbortCreationTriggered()</slot>
   <slot>onSelectedImageChanged(int)</slot>
-  <slot>onCorrespondenceCreationRequested()</slot>
+  <slot>onPoseCreationRequested()</slot>
   <slot>onActionReloadViewsTriggered()</slot>
   <slot>onActionTrainNetworkTriggered()</slot>
-  <slot>onCorrespondencePredictionRequested()</slot>
+  <slot>onPosePredictionRequested()</slot>
   <slot>onActionNetworkPredictTriggered()</slot>
  </slots>
 </ui>

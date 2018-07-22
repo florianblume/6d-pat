@@ -24,30 +24,30 @@ public:
 
     QList<Image> getImages() const override;
 
-    QList<Correspondence> getCorrespondencesForImage(const Image &image) const override;
+    QList<Pose> getPosesForImage(const Image &image) const override;
 
     QList<ObjectModel> getObjectModels() const override;
 
-    QList<Correspondence> getCorrespondencesForObjectModel(const ObjectModel &objectModel) override;
+    QList<Pose> getPosesForObjectModel(const ObjectModel &objectModel) override;
 
-    QList<Correspondence> getCorrespondences() override;
+    QList<Pose> getPoses() override;
 
-    QSharedPointer<Correspondence> getCorrespondenceById(const QString &id) override;
+    QSharedPointer<Pose> getPoseById(const QString &id) override;
 
-    QList<Correspondence> getCorrespondencesForImageAndObjectModel(
+    QList<Pose> getPosesForImageAndObjectModel(
             const Image &image,
             const ObjectModel &objectModel) override;
 
-    bool addObjectImageCorrespondence(Image *image,
+    bool addObjectImagePose(Image *image,
                                       ObjectModel *objectModel,
                                       QVector3D position,
                                       QMatrix3x3 rotation) override;
 
-    bool updateObjectImageCorrespondence(const QString &id,
+    bool updateObjectImagePose(const QString &id,
                                          QVector3D position,
                                          QMatrix3x3 rotation) override;
 
-    bool removeObjectImageCorrespondence(const QString &id) override;
+    bool removeObjectImagePose(const QString &id) override;
 
     void reload() override;
 
@@ -57,16 +57,16 @@ private:
     QString segmentationImagePattern;
     //! The list of the loaded images
     QList<Image> images;
-    //! Convenience map to store correspondences for images
-    QMap<QString, QList<Correspondence>> correspondencesForImages;
+    //! Convenience map to store poses for images
+    QMap<QString, QList<Pose>> posesForImages;
     //! The list of the loaded object models
     QList<ObjectModel> objectModels;
-    //! Convenience map to store correspondences for object models
-    QMap<QString, QList<Correspondence>> correspondencesForObjectModels;
-    //! The list of the object image correspondences
-    QList<Correspondence> correspondences;
+    //! Convenience map to store poses for object models
+    QMap<QString, QList<Pose>> posesForObjectModels;
+    //! The list of the object image poses
+    QList<Pose> poses;
     /*!
-     * \brief createConditionalCache sets up the cache of correspondences that
+     * \brief createConditionalCache sets up the cache of poses that
      * can be retrieved for an image or for an object model.
      */
     void createConditionalCache();
@@ -75,7 +75,7 @@ private Q_SLOTS:
 
     void onImagesChanged();
     void onObjectModelsChanged();
-    void onCorrespondencesChanged();
+    void onPosesChanged();
 
 };
 

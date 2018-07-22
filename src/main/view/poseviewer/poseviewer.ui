@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CorrespondenceViewer</class>
- <widget class="QWidget" name="CorrespondenceViewer">
+ <class>PoseViewer</class>
+ <widget class="QWidget" name="PoseViewer">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -82,7 +82,7 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <widget class="CorrespondenceViewerGLWidget" name="openGLWidget">
+        <widget class="PoseViewerGLWidget" name="openGLWidget">
          <property name="geometry">
           <rect>
            <x>120</x>
@@ -394,9 +394,9 @@ QPushButton:pressed {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CorrespondenceViewerGLWidget</class>
+   <class>PoseViewerGLWidget</class>
    <extends>QOpenGLWidget</extends>
-   <header>view/correspondenceviewer/rendering/correspondenceviewerglwidget.hpp</header>
+   <header>view/poseviewer/rendering/poseviewerglwidget.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -404,7 +404,7 @@ QPushButton:pressed {
   <connection>
    <sender>buttonSwitchView</sender>
    <signal>clicked()</signal>
-   <receiver>CorrespondenceViewer</receiver>
+   <receiver>PoseViewer</receiver>
    <slot>switchImage()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -420,7 +420,7 @@ QPushButton:pressed {
   <connection>
    <sender>buttonResetPosition</sender>
    <signal>clicked()</signal>
-   <receiver>CorrespondenceViewer</receiver>
+   <receiver>PoseViewer</receiver>
    <slot>resetPositionOfGraphicsView()</slot>
    <hints>
     <hint type="sourcelabel">

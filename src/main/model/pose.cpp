@@ -1,6 +1,6 @@
-#include "correspondence.hpp"
+#include "pose.hpp"
 
-Correspondence::Correspondence(QString id,
+Pose::Pose(QString id,
                                                      QVector3D position,
                                                      QMatrix3x3 rotation,
                                                      const Image* image,
@@ -12,7 +12,7 @@ Correspondence::Correspondence(QString id,
       id(id) {
 }
 
-Correspondence::Correspondence(const Correspondence &other)
+Pose::Pose(const Pose &other)
     : position(other.position),
       rotation(other.rotation),
       image(other.image),
@@ -20,39 +20,39 @@ Correspondence::Correspondence(const Correspondence &other)
       id(other.id) {
 }
 
-QVector3D Correspondence::getPosition() const {
+QVector3D Pose::getPosition() const {
     return position;
 }
 
-QMatrix3x3 Correspondence::getRotation() const {
+QMatrix3x3 Pose::getRotation() const {
     return rotation;
 }
 
-const Image* Correspondence::getImage() const {
+const Image* Pose::getImage() const {
     return image;
 }
 
-const ObjectModel* Correspondence::getObjectModel() const {
+const ObjectModel* Pose::getObjectModel() const {
     return objectModel;
 }
 
-void Correspondence::setPosition(QVector3D position) {
+void Pose::setPosition(QVector3D position) {
     this->position = position;
 }
 
-void Correspondence::setRotation(QMatrix3x3 rotation) {
+void Pose::setRotation(QMatrix3x3 rotation) {
     this->rotation = std::move(rotation);
 }
 
-QString Correspondence::getID() const {
+QString Pose::getID() const {
     return id;
 }
 
-bool Correspondence::operator==(const Correspondence& objectImageCorrespondence) {
-    return id.compare(objectImageCorrespondence.getID()) == 0;
+bool Pose::operator==(const Pose& objectImagePose) {
+    return id.compare(objectImagePose.getID()) == 0;
 }
 
-Correspondence& Correspondence::operator=(const Correspondence &other) {
+Pose& Pose::operator=(const Pose &other) {
     id = other.id;
     image = other.image;
     objectModel = other.objectModel;

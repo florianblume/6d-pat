@@ -1,15 +1,15 @@
 <RCC>
-    <qresource prefix="/shaders/correspondenceviewer">
-        <file alias="background.vert">src/main/view/correspondenceviewer/rendering/shaders/background.vert</file>
-        <file alias="background.frag">src/main/view/correspondenceviewer/rendering/shaders/background.frag</file>
-        <file alias="object.vert">src/main/view/correspondenceviewer/rendering/shaders/object.vert</file>
-        <file alias="object.frag">src/main/view/correspondenceviewer/rendering/shaders/object.frag</file>
+    <qresource prefix="/shaders/poseviewer">
+        <file alias="background.vert">src/main/view/poseviewer/rendering/shaders/background.vert</file>
+        <file alias="background.frag">src/main/view/poseviewer/rendering/shaders/background.frag</file>
+        <file alias="object.vert">src/main/view/poseviewer/rendering/shaders/object.vert</file>
+        <file alias="object.frag">src/main/view/poseviewer/rendering/shaders/object.frag</file>
     </qresource>
-    <qresource prefix="/shaders/correspondenceeditor">
-        <file alias="objectcoords.vert">src/main/view/correspondenceeditor/rendering/shaders/objectcoords.vert</file>
-        <file alias="objectcoords.frag">src/main/view/correspondenceeditor/rendering/shaders/objectcoords.frag</file>
-        <file alias="object.vert">src/main/view/correspondenceeditor/rendering/shaders/object.vert</file>
-        <file alias="object.frag">src/main/view/correspondenceeditor/rendering/shaders/object.frag</file>
+    <qresource prefix="/shaders/poseeditor">
+        <file alias="objectcoords.vert">src/main/view/poseeditor/rendering/shaders/objectcoords.vert</file>
+        <file alias="objectcoords.frag">src/main/view/poseeditor/rendering/shaders/objectcoords.frag</file>
+        <file alias="object.vert">src/main/view/poseeditor/rendering/shaders/object.vert</file>
+        <file alias="object.frag">src/main/view/poseeditor/rendering/shaders/object.frag</file>
     </qresource>
     <qresource prefix="/images">
         <file alias="about.png">resources/about.png</file>

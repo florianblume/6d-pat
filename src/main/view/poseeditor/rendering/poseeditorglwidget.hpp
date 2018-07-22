@@ -1,9 +1,9 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
-#include "model/correspondence.hpp"
-#include "view/correspondenceeditor/rendering/correspondenceeditorglwidget.hpp"
-#include "view/correspondenceeditor/rendering/objectmodelrenderable.hpp"
+#include "model/pose.hpp"
+#include "view/poseeditor/rendering/poseeditorglwidget.hpp"
+#include "view/poseeditor/rendering/objectmodelrenderable.hpp"
 
 #include <QString>
 #include <QTimer>
@@ -24,18 +24,18 @@ typedef QSharedPointer<ObjectModelRenderable> ObjectModelRenderablePtr;
 typedef QScopedPointer<QOpenGLShaderProgram> QOpenGLShaderProgramPtr;
 typedef QScopedPointer<QOpenGLFramebufferObject> QOpenGLFramebufferObjectPtr;
 
-class CorrespondenceEditorGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_0
+class PoseEditorGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_0
 {
     Q_OBJECT
 
 public:
-    explicit CorrespondenceEditorGLWidget(QWidget *parent = 0);
+    explicit PoseEditorGLWidget(QWidget *parent = 0);
     void setObjectModel(const ObjectModel *objectModel);
     void addClick(QVector3D position, QColor color);
     void removeClicks();
     void reset();
 
-    ~CorrespondenceEditorGLWidget();
+    ~PoseEditorGLWidget();
 
 Q_SIGNALS:
     void positionClicked(QVector3D position);

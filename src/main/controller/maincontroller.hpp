@@ -8,7 +8,7 @@
 #include "misc/global.h"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
-#include "controller/correspondencecreator.hpp"
+#include "controller/posecreator.hpp"
 #include "controller/neuralnetworkcontroller.hpp"
 
 #include <QMap>
@@ -38,7 +38,7 @@ private:
 
     JsonLoadAndStoreStrategy strategy;
     CachingModelManager modelManager;
-    UniquePointer<CorrespondenceCreator> correspondenceCreator;
+    UniquePointer<PoseCreator> poseCreator;
     QScopedPointer<NeuralNetworkController> networkController;
     MainWindow mainWindow;
 
@@ -58,14 +58,14 @@ private Q_SLOTS:
     void onObjectModelClicked(ObjectModel* objectModel, QVector3D position);
     // The slots that will be called from the main window when the user selects abort creation
     // from the menu or aborts creation in another way
-    void onCorrespondenceCreationInterrupted();
-    void onCorrespondenceCreationAborted();
+    void onPoseCreationInterrupted();
+    void onPoseCreationAborted();
     void onImagePathChanged(const QString &newPath);
     void onObjectModelsPathChanged(const QString &newPath);
     void onPreferencesChanged(const QString &identifier);
-    void resetCorrespondenceCreation();
-    void onCorrespondenceCreationRequested();
-    void onCorrespondencePredictionRequested();
+    void resetPoseCreation();
+    void onPoseCreationRequested();
+    void onPosePredictionRequested();
     void onPosePredictionRequestedForImages(QList<Image> images);
     void performPosePredictionForImages(QList<Image> images);
     void onNetworkTrainingFinished();

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CorrespondenceEditor</class>
- <widget class="QWidget" name="CorrespondenceEditor">
+ <class>PoseEditor</class>
+ <widget class="QWidget" name="PoseEditor">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -204,7 +204,7 @@
           <number>0</number>
          </property>
          <item row="0" column="2">
-          <widget class="QGroupBox" name="groupBoxCorrespondences">
+          <widget class="QGroupBox" name="groupBoxPoses">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -218,7 +218,7 @@
             </size>
            </property>
            <property name="title">
-            <string>Correspondence</string>
+            <string>Pose</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0">
             <property name="spacing">
@@ -237,12 +237,12 @@
              <number>5</number>
             </property>
             <item>
-             <widget class="QComboBox" name="comboBoxCorrespondence">
+             <widget class="QComboBox" name="comboBoxPose">
               <property name="enabled">
                <bool>false</bool>
               </property>
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This dropdown shows all correspondences of the currently viewed image and the currently selected object model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This dropdown shows all poses of the currently viewed image and the currently selected object model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="currentText">
                <string/>
@@ -1272,7 +1272,7 @@ QPushButton:pressed {
        <number>10</number>
       </property>
       <item>
-       <widget class="CorrespondenceEditorGLWidget" name="openGLWidget">
+       <widget class="PoseEditorGLWidget" name="openGLWidget">
         <property name="focusPolicy">
          <enum>Qt::ClickFocus</enum>
         </property>
@@ -1285,9 +1285,9 @@ QPushButton:pressed {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CorrespondenceEditorGLWidget</class>
+   <class>PoseEditorGLWidget</class>
    <extends>QOpenGLWidget</extends>
-   <header>view/correspondenceeditor/rendering/correspondenceeditorglwidget.hpp</header>
+   <header>view/poseeditor/rendering/poseeditorglwidget.hpp</header>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -1295,7 +1295,7 @@ QPushButton:pressed {
   <connection>
    <sender>buttonCreate</sender>
    <signal>clicked()</signal>
-   <receiver>CorrespondenceEditor</receiver>
+   <receiver>PoseEditor</receiver>
    <slot>onButtonCreateClicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1311,7 +1311,7 @@ QPushButton:pressed {
   <connection>
    <sender>sliderOpacity</sender>
    <signal>sliderMoved(int)</signal>
-   <receiver>CorrespondenceEditor</receiver>
+   <receiver>PoseEditor</receiver>
    <slot>onSliderOpacityValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1327,7 +1327,7 @@ QPushButton:pressed {
   <connection>
    <sender>spinBoxTranslationX</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>CorrespondenceEditor</receiver>
+   <receiver>PoseEditor</receiver>
    <slot>onSpinBoxTranslationXValueChanged(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1343,7 +1343,7 @@ QPushButton:pressed {
   <connection>
    <sender>spinBoxTranslationY</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>CorrespondenceEditor</receiver>
+   <receiver>PoseEditor</receiver>
    <slot>onSpinBoxTranslationYValueChanged(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1359,7 +1359,7 @@ QPushButton:pressed {
   <connection>
    <sender>spinBoxTranslationZ</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>CorrespondenceEditor</receiver>
+   <receiver>PoseEditor</receiver>
    <slot>onSpinBoxTranslationZValueChanged(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1375,7 +1375,7 @@ QPushButton:pressed {
   <connection>
    <sender>buttonRemove</sender>
    <signal>clicked()</signal>
-   <receiver>CorrespondenceEditor</receiver>
+   <receiver>PoseEditor</receiver>
    <slot>onButtonRemoveClicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1391,7 +1391,7 @@ QPushButton:pressed {
   <connection>
    <sender>spinBoxRotationX</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>CorrespondenceEditor</receiver>
+   <receiver>PoseEditor</receiver>
    <slot>onSpinBoxRotationXValueChanged(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1407,7 +1407,7 @@ QPushButton:pressed {
   <connection>
    <sender>spinBoxRotationY</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>CorrespondenceEditor</receiver>
+   <receiver>PoseEditor</receiver>
    <slot>onSpinBoxRotationYValueChanged(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1423,7 +1423,7 @@ QPushButton:pressed {
   <connection>
    <sender>spinBoxRotationZ</sender>
    <signal>valueChanged(double)</signal>
-   <receiver>CorrespondenceEditor</receiver>
+   <receiver>PoseEditor</receiver>
    <slot>onSpinBoxRotationZValueChanged(double)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1437,10 +1437,10 @@ QPushButton:pressed {
    </hints>
   </connection>
   <connection>
-   <sender>comboBoxCorrespondence</sender>
+   <sender>comboBoxPose</sender>
    <signal>currentIndexChanged(int)</signal>
-   <receiver>CorrespondenceEditor</receiver>
-   <slot>onComboBoxCorrespondenceIndexChanged(int)</slot>
+   <receiver>PoseEditor</receiver>
+   <slot>onComboBoxPoseIndexChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>82</x>
@@ -1455,7 +1455,7 @@ QPushButton:pressed {
   <connection>
    <sender>buttonSave</sender>
    <signal>clicked()</signal>
-   <receiver>CorrespondenceEditor</receiver>
+   <receiver>PoseEditor</receiver>
    <slot>onButtonSaveClicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1471,7 +1471,7 @@ QPushButton:pressed {
   <connection>
    <sender>sliderOpacity</sender>
    <signal>sliderReleased()</signal>
-   <receiver>CorrespondenceEditor</receiver>
+   <receiver>PoseEditor</receiver>
    <slot>onSliderOpacityReleased()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1487,7 +1487,7 @@ QPushButton:pressed {
   <connection>
    <sender>buttonPredict</sender>
    <signal>clicked()</signal>
-   <receiver>CorrespondenceEditor</receiver>
+   <receiver>PoseEditor</receiver>
    <slot>onButtonPredictClicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1503,7 +1503,7 @@ QPushButton:pressed {
  </connections>
  <slots>
   <slot>onButtonCreateClicked()</slot>
-  <slot>onComboBoxCorrespondenceIndexChanged(int)</slot>
+  <slot>onComboBoxPoseIndexChanged(int)</slot>
   <slot>onSliderOpacityValueChanged(int)</slot>
   <slot>onSpinBoxTranslationXValueChanged(double)</slot>
   <slot>onSpinBoxTranslationYValueChanged(double)</slot>

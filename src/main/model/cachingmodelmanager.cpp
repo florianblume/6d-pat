@@ -4,35 +4,35 @@
 CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy) : ModelManager(loadAndStoreStrategy) {
     images = loadAndStoreStrategy.loadImages();
     objectModels = loadAndStoreStrategy.loadObjectModels();
-    correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
+    poses = loadAndStoreStrategy.loadPoses(images, objectModels);
     createConditionalCache();
 
     connect(&loadAndStoreStrategy, SIGNAL(imagesChanged()),
             this, SLOT(onImagesChanged()));
     connect(&loadAndStoreStrategy, SIGNAL(objectModelsChanged()),
             this, SLOT(onObjectModelsChanged()));
-    connect(&loadAndStoreStrategy, SIGNAL(correspondencesChanged()),
-            this, SLOT(onCorrespondencesChanged()));
+    connect(&loadAndStoreStrategy, SIGNAL(posesChanged()),
+            this, SLOT(onPosesChanged()));
 }
 
 CachingModelManager::~CachingModelManager() {
 }
 
 void CachingModelManager::createConditionalCache() {
-    correspondencesForImages.clear();
-    correspondencesForObjectModels.clear();
-    for (int i = 0; i < correspondences.size(); i++) {
-        Correspondence &correspondence = correspondences[i];
+    posesForImages.clear();
+    posesForObjectModels.clear();
+    for (int i = 0; i < poses.size(); i++) {
+        Pose &pose = poses[i];
 
-        //! Setup cache of correspondences that can be retrieved via an image
-        QList<Correspondence> &correspondencesForImage =
-                correspondencesForImages[correspondence.getImage()->getImagePath()];
-        correspondencesForImage.append(correspondence);
+        //! Setup cache of poses that can be retrieved via an image
+        QList<Pose> &posesForImage =
+                posesForImages[pose.getImage()->getImagePath()];
+        posesForImage.append(pose);
 
-        //! Setup cache of correspondences that can be retrieved via an object model
-        QList<Correspondence> &correspondencesForObjectModel =
-                correspondencesForObjectModels[correspondence.getObjectModel()->getPath()];
-        correspondencesForObjectModel.append(correspondence);
+        //! Setup cache of poses that can be retrieved via an object model
+        QList<Pose> &posesForObjectModel =
+                posesForObjectModels[pose.getObjectModel()->getPath()];
+        posesForObjectModel.append(pose);
     }
 }
 
@@ -40,53 +40,53 @@ QList<Image> CachingModelManager::getImages() const {
     return images;
 }
 
-QList<Correspondence> CachingModelManager::getCorrespondencesForImage(const Image &image) const  {
-    if (correspondencesForImages.find(image.getImagePath()) != correspondencesForImages.end()) {
-        return correspondencesForImages[image.getImagePath()];
+QList<Pose> CachingModelManager::getPosesForImage(const Image &image) const  {
+    if (posesForImages.find(image.getImagePath()) != posesForImages.end()) {
+        return posesForImages[image.getImagePath()];
     }
 
-    return QList<Correspondence>();
+    return QList<Pose>();
 }
 
 QList<ObjectModel> CachingModelManager::getObjectModels() const {
     return objectModels;
 }
 
-QList<Correspondence> CachingModelManager::getCorrespondencesForObjectModel(const ObjectModel &objectModel) {
-    if (correspondencesForObjectModels.find(objectModel.getPath()) != correspondencesForObjectModels.end()) {
-        return correspondencesForObjectModels[objectModel.getPath()];
+QList<Pose> CachingModelManager::getPosesForObjectModel(const ObjectModel &objectModel) {
+    if (posesForObjectModels.find(objectModel.getPath()) != posesForObjectModels.end()) {
+        return posesForObjectModels[objectModel.getPath()];
     }
 
-    return QList<Correspondence>();
+    return QList<Pose>();
 }
 
-QList<Correspondence> CachingModelManager::getCorrespondences() {
-    return correspondences;
+QList<Pose> CachingModelManager::getPoses() {
+    return poses;
 }
 
-QSharedPointer<Correspondence> CachingModelManager::getCorrespondenceById(const QString &id) {
-    QSharedPointer<Correspondence> result;
+QSharedPointer<Pose> CachingModelManager::getPoseById(const QString &id) {
+    QSharedPointer<Pose> result;
     auto itObj = std::find_if(
-        correspondences.begin(), correspondences.end(),
-        [id](Correspondence o) { return o.getID() == id; }
+        poses.begin(), poses.end(),
+        [id](Pose o) { return o.getID() == id; }
     );
-    if (itObj != correspondences.end()) {
-        result.reset(new Correspondence(*itObj));
+    if (itObj != poses.end()) {
+        result.reset(new Pose(*itObj));
     }
     return result;
 }
 
-QList<Correspondence> CachingModelManager::getCorrespondencesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) {
-    QList<Correspondence> correspondencesForImageAndObjectModel;
-    for (Correspondence &correspondence : correspondencesForImages[image.getImagePath()]) {
-        if (correspondence.getObjectModel()->getPath().compare(objectModel.getPath()) == 0) {
-           correspondencesForImageAndObjectModel.append(correspondence);
+QList<Pose> CachingModelManager::getPosesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) {
+    QList<Pose> posesForImageAndObjectModel;
+    for (Pose &pose : posesForImages[image.getImagePath()]) {
+        if (pose.getObjectModel()->getPath().compare(objectModel.getPath()) == 0) {
+           posesForImageAndObjectModel.append(pose);
         }
     }
-    return correspondencesForImageAndObjectModel;
+    return posesForImageAndObjectModel;
 }
 
-bool CachingModelManager::addObjectImageCorrespondence(Image *image,
+bool CachingModelManager::addObjectImagePose(Image *image,
                                                        ObjectModel *objectModel,
                                                        QVector3D position,
                                                        QMatrix3x3 rotation) {
@@ -103,90 +103,90 @@ bool CachingModelManager::addObjectImageCorrespondence(Image *image,
     // and not what the user passed (and maybe created somewhere else but with the right paths)
     Image *_image = &*imageIterator;
     ObjectModel *_objectModel = &*objectModelIterator;
-    Correspondence correspondence(GeneralHelper::createCorrespondenceId(_image, _objectModel),
+    Pose pose(GeneralHelper::createPoseId(_image, _objectModel),
                                              position,
                                              rotation,
                                              _image,
                                              _objectModel);
     // TODO: add accepted
 
-    if (!loadAndStoreStrategy.persistObjectImageCorrespondence(&correspondence, false)) {
-        //! if there is an error persisting the correspondence for any reason we should not add the correspondence to this manager
+    if (!loadAndStoreStrategy.persistObjectImagePose(&pose, false)) {
+        //! if there is an error persisting the pose for any reason we should not add the pose to this manager
         return false;
     }
 
-    //! correspondence has not yet been added
-    correspondences.push_back(correspondence);
+    //! pose has not yet been added
+    poses.push_back(pose);
 
     createConditionalCache();
 
-    Q_EMIT correspondenceAdded(correspondence.getID());
+    Q_EMIT poseAdded(pose.getID());
 
     return true;
 }
 
-bool CachingModelManager::updateObjectImageCorrespondence(const QString &id,
+bool CachingModelManager::updateObjectImagePose(const QString &id,
                                                           QVector3D position,
                                                           QMatrix3x3 rotation) {
-    Correspondence *correspondence = Q_NULLPTR;
-    for (int i = 0; i < correspondences.size(); i++) {
-        if (correspondences[i].getID() == id)
-            correspondence = &correspondences[i];
+    Pose *pose = Q_NULLPTR;
+    for (int i = 0; i < poses.size(); i++) {
+        if (poses[i].getID() == id)
+            pose = &poses[i];
     }
 
-    if (!correspondence) {
-        //! this manager does not manager the given correspondence
+    if (!pose) {
+        //! this manager does not manager the given pose
         return false;
     }
 
-    QVector3D previousPosition = correspondence->getPosition();
-    QMatrix3x3 previousRotation = correspondence->getRotation();
+    QVector3D previousPosition = pose->getPosition();
+    QMatrix3x3 previousRotation = pose->getRotation();
 
-    correspondence->setPosition(position);
-    correspondence->setRotation(rotation);
+    pose->setPosition(position);
+    pose->setRotation(rotation);
 
     // TODO: set accepted
 
-    if (!loadAndStoreStrategy.persistObjectImageCorrespondence(correspondence, false)) {
-        // if there is an error persisting the correspondence for any reason we should not keep the new values
-        correspondence->setPosition(previousPosition);
-        correspondence->setRotation(previousRotation);
+    if (!loadAndStoreStrategy.persistObjectImagePose(pose, false)) {
+        // if there is an error persisting the pose for any reason we should not keep the new values
+        pose->setPosition(previousPosition);
+        pose->setRotation(previousRotation);
         return false;
     }
 
     createConditionalCache();
 
-    Q_EMIT correspondenceUpdated(correspondence->getID());
+    Q_EMIT poseUpdated(pose->getID());
 
     return true;
 }
 
-bool CachingModelManager::removeObjectImageCorrespondence(const QString &id) {
-    Correspondence *correspondence = Q_NULLPTR;
-    for (int i = 0; i < correspondences.size(); i++) {
-        if (correspondences[i].getID() == id)
-            correspondence = &correspondences[i];
+bool CachingModelManager::removeObjectImagePose(const QString &id) {
+    Pose *pose = Q_NULLPTR;
+    for (int i = 0; i < poses.size(); i++) {
+        if (poses[i].getID() == id)
+            pose = &poses[i];
     }
 
-    if (!correspondence) {
-        //! this manager does not manager the given correspondence
+    if (!pose) {
+        //! this manager does not manager the given pose
         return false;
     }
 
-    if (!loadAndStoreStrategy.persistObjectImageCorrespondence(correspondence, true)) {
-        //! there was an error persistently removing the corresopndence, maybe wrong folder, maybe the correspondence didn't exist
-        //! thus it doesn't make sense to remove the correspondence from this manager
+    if (!loadAndStoreStrategy.persistObjectImagePose(pose, true)) {
+        //! there was an error persistently removing the corresopndence, maybe wrong folder, maybe the pose didn't exist
+        //! thus it doesn't make sense to remove the pose from this manager
         return false;
     }
 
-    for (int i = 0; i < correspondences.size(); i++) {
-        if (correspondences.at(i).getID() == id)
-            correspondences.removeAt(i);
+    for (int i = 0; i < poses.size(); i++) {
+        if (poses.at(i).getID() == id)
+            poses.removeAt(i);
     }
 
     createConditionalCache();
 
-    Q_EMIT correspondenceDeleted(id);
+    Q_EMIT poseDeleted(id);
 
     return true;
 }
@@ -194,31 +194,31 @@ bool CachingModelManager::removeObjectImageCorrespondence(const QString &id) {
 void CachingModelManager::reload() {
     images = loadAndStoreStrategy.loadImages();
     objectModels = loadAndStoreStrategy.loadObjectModels();
-    correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
+    poses = loadAndStoreStrategy.loadPoses(images, objectModels);
     createConditionalCache();
     Q_EMIT imagesChanged();
     Q_EMIT objectModelsChanged();
-    Q_EMIT correspondencesChanged();
+    Q_EMIT posesChanged();
 }
 
 void CachingModelManager::onImagesChanged() {
     images = loadAndStoreStrategy.loadImages();
-    correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
+    poses = loadAndStoreStrategy.loadPoses(images, objectModels);
     createConditionalCache();
     Q_EMIT imagesChanged();
-    Q_EMIT correspondencesChanged();
+    Q_EMIT posesChanged();
 }
 
 void CachingModelManager::onObjectModelsChanged() {
     objectModels = loadAndStoreStrategy.loadObjectModels();
-    correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
+    poses = loadAndStoreStrategy.loadPoses(images, objectModels);
     createConditionalCache();
     Q_EMIT objectModelsChanged();
-    Q_EMIT correspondencesChanged();
+    Q_EMIT posesChanged();
 }
 
-void CachingModelManager::onCorrespondencesChanged() {
-    correspondences = loadAndStoreStrategy.loadCorrespondences(images, objectModels);
+void CachingModelManager::onPosesChanged() {
+    poses = loadAndStoreStrategy.loadPoses(images, objectModels);
     createConditionalCache();
-    Q_EMIT correspondencesChanged();
+    Q_EMIT posesChanged();
 }

@@ -1,4 +1,4 @@
-#include "view/correspondenceeditor/rendering/correspondenceeditorglwidget.hpp"
+#include "view/poseeditor/rendering/poseeditorglwidget.hpp"
 #include "misc/global.h"
 
 #include <cmath>
@@ -13,7 +13,7 @@
 #define PROGRAM_TEXCOORD_ATTRIBUTE 1
 #define PROGRAM_NORMAL_ATTRIBUTE 1
 
-CorrespondenceEditorGLWidget::CorrespondenceEditorGLWidget(QWidget *parent)
+PoseEditorGLWidget::PoseEditorGLWidget(QWidget *parent)
     : QOpenGLWidget(parent),
       xRot(0),
       yRot(0),
@@ -26,7 +26,7 @@ CorrespondenceEditorGLWidget::CorrespondenceEditorGLWidget(QWidget *parent)
     setFormat(format);
 }
 
-void CorrespondenceEditorGLWidget::setObjectModel(const ObjectModel *objectModel) {
+void PoseEditorGLWidget::setObjectModel(const ObjectModel *objectModel) {
     makeCurrent();
     objectModelRenderable.reset(new ObjectModelRenderable(*objectModel,
                                                           PROGRAM_VERTEX_ATTRIBUTE,
@@ -38,7 +38,7 @@ void CorrespondenceEditorGLWidget::setObjectModel(const ObjectModel *objectModel
     update();
 }
 
-CorrespondenceEditorGLWidget::~CorrespondenceEditorGLWidget()
+PoseEditorGLWidget::~PoseEditorGLWidget()
 {
     makeCurrent();
     // To invoke destructors
@@ -56,7 +56,7 @@ static void qNormalizeAngle(int &angle) {
         angle -= 360 * 16;
 }
 
-void CorrespondenceEditorGLWidget::setXRotation(int angle)
+void PoseEditorGLWidget::setXRotation(int angle)
 {
     qNormalizeAngle(angle);
     if (angle != xRot) {
@@ -65,7 +65,7 @@ void CorrespondenceEditorGLWidget::setXRotation(int angle)
     }
 }
 
-void CorrespondenceEditorGLWidget::setYRotation(int angle)
+void PoseEditorGLWidget::setYRotation(int angle)
 {
     qNormalizeAngle(angle);
     if (angle != yRot) {
@@ -74,7 +74,7 @@ void CorrespondenceEditorGLWidget::setYRotation(int angle)
     }
 }
 
-void CorrespondenceEditorGLWidget::setZRotation(int angle)
+void PoseEditorGLWidget::setZRotation(int angle)
 {
     qNormalizeAngle(angle);
     if (angle != zRot) {
@@ -83,7 +83,7 @@ void CorrespondenceEditorGLWidget::setZRotation(int angle)
     }
 }
 
-void CorrespondenceEditorGLWidget::addClick(QVector3D position, QColor color) {
+void PoseEditorGLWidget::addClick(QVector3D position, QColor color) {
     clicks3D.append(position);
     clickColors.append(QVector3D(color.red() / 255.f,
                                color.green() / 255.f,
@@ -91,12 +91,12 @@ void CorrespondenceEditorGLWidget::addClick(QVector3D position, QColor color) {
     update();
 }
 
-void CorrespondenceEditorGLWidget::removeClicks() {
+void PoseEditorGLWidget::removeClicks() {
     clicks3D.clear();
     update();
 }
 
-void CorrespondenceEditorGLWidget::reset() {
+void PoseEditorGLWidget::reset() {
     removeClicks();
     objectModelRenderable.reset();
     xTrans = 0;
@@ -105,7 +105,7 @@ void CorrespondenceEditorGLWidget::reset() {
     update();
 }
 
-void CorrespondenceEditorGLWidget::initializeGL()
+void PoseEditorGLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
 
@@ -120,14 +120,14 @@ void CorrespondenceEditorGLWidget::initializeGL()
     initializePrograms();
 }
 
-void CorrespondenceEditorGLWidget::initializePrograms() {
+void PoseEditorGLWidget::initializePrograms() {
     // Init objects shader program
     objectsProgram.reset(new QOpenGLShaderProgram);
     // TODO: load custom shader that writes segmentations as well for clicking
     objectsProgram->addShaderFromSourceFile(
-                QOpenGLShader::Vertex, ":/shaders/correspondenceeditor/object.vert");
+                QOpenGLShader::Vertex, ":/shaders/poseeditor/object.vert");
     objectsProgram->addShaderFromSourceFile(
-                QOpenGLShader::Fragment, ":/shaders/correspondenceeditor/object.frag");
+                QOpenGLShader::Fragment, ":/shaders/poseeditor/object.frag");
     objectsProgram->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
     objectsProgram->bindAttributeLocation("normal", PROGRAM_NORMAL_ATTRIBUTE);
     objectsProgram->link();
@@ -136,15 +136,15 @@ void CorrespondenceEditorGLWidget::initializePrograms() {
     objectCoordsProgram.reset(new QOpenGLShaderProgram);
     // TODO: load custom shader that writes segmentations as well for clicking
     objectCoordsProgram->addShaderFromSourceFile(
-                QOpenGLShader::Vertex, ":/shaders/correspondenceeditor/objectcoords.vert");
+                QOpenGLShader::Vertex, ":/shaders/poseeditor/objectcoords.vert");
     objectCoordsProgram->addShaderFromSourceFile(
-                QOpenGLShader::Fragment, ":/shaders/correspondenceeditor/objectcoords.frag");
+                QOpenGLShader::Fragment, ":/shaders/poseeditor/objectcoords.frag");
     objectCoordsProgram->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
     objectCoordsProgram->bindAttributeLocation("normal", PROGRAM_NORMAL_ATTRIBUTE);
     objectCoordsProgram->link();
 }
 
-void CorrespondenceEditorGLWidget::drawObject() {
+void PoseEditorGLWidget::drawObject() {
     QOpenGLVertexArrayObject::Binder vaoBinder(
                 objectModelRenderable->getVertexArrayObject());
 
@@ -168,7 +168,7 @@ void CorrespondenceEditorGLWidget::drawObject() {
     glDrawElements(GL_TRIANGLES, objectModelRenderable->getIndicesCount(), GL_UNSIGNED_INT, 0);
 }
 
-void CorrespondenceEditorGLWidget::renderObjectAndSegmentation() {
+void PoseEditorGLWidget::renderObjectAndSegmentation() {
     QOpenGLFramebufferObjectFormat format;
     format.setAttachment(QOpenGLFramebufferObject::Attachment::CombinedDepthStencil);
     format.setSamples(NUMBER_OF_SAMPLES);
@@ -228,7 +228,7 @@ void CorrespondenceEditorGLWidget::renderObjectAndSegmentation() {
                                                  GL_NEAREST);
 }
 
-QVector3D CorrespondenceEditorGLWidget::renderObjectCoordinates(QPoint point) {
+QVector3D PoseEditorGLWidget::renderObjectCoordinates(QPoint point) {
     makeCurrent();
     QOpenGLFramebufferObjectFormat format;
     format.setAttachment(QOpenGLFramebufferObject::Attachment::CombinedDepthStencil);
@@ -263,15 +263,15 @@ QVector3D CorrespondenceEditorGLWidget::renderObjectCoordinates(QPoint point) {
     return QVector3D(pixel[0], pixel[1], pixel[2]);
 }
 
-void CorrespondenceEditorGLWidget::paintGL() {
+void PoseEditorGLWidget::paintGL() {
     renderObjectAndSegmentation();
 }
 
-void CorrespondenceEditorGLWidget::mousePressEvent(QMouseEvent *event) {
+void PoseEditorGLWidget::mousePressEvent(QMouseEvent *event) {
     lastClicked2DPos = event->pos();
 }
 
-void CorrespondenceEditorGLWidget::mouseMoveEvent(QMouseEvent *event) {
+void PoseEditorGLWidget::mouseMoveEvent(QMouseEvent *event) {
     int dx = event->x() - lastClicked2DPos.x();
     int dy = lastClicked2DPos.y() - event->y();
     int d = 0;
@@ -293,7 +293,7 @@ void CorrespondenceEditorGLWidget::mouseMoveEvent(QMouseEvent *event) {
     lastClicked2DPos = event->pos();
 }
 
-void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
+void PoseEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (!mouseMoved && !objectModelRenderable.isNull()) {
         QPoint mousePos = event->pos();
@@ -307,7 +307,7 @@ void CorrespondenceEditorGLWidget::mouseReleaseEvent(QMouseEvent *event)
     mouseMoved = false;
 }
 
-void CorrespondenceEditorGLWidget::keyPressEvent(QKeyEvent *ev) {
+void PoseEditorGLWidget::keyPressEvent(QKeyEvent *ev) {
     if (ev->key() == Qt::Key_Shift) {
         shiftKeyPressed = true;
     } else if (ev->key() == Qt::Key_Up ||
@@ -335,13 +335,13 @@ void CorrespondenceEditorGLWidget::keyPressEvent(QKeyEvent *ev) {
         }
         keyPressedTimer.reset(new QTimer());
         connect(keyPressedTimer.data(), &QTimer::timeout,
-                this, &CorrespondenceEditorGLWidget::updateCameraPosition);
+                this, &PoseEditorGLWidget::updateCameraPosition);
         keyPressedTimer->start(10);
     }
 
 }
 
-void CorrespondenceEditorGLWidget::updateCameraPosition() {
+void PoseEditorGLWidget::updateCameraPosition() {
     if (!objectModelRenderable.isNull()) {
         float factor = objectModelRenderable->getLargestVertexValue() / 10.f;
         xTrans += shiftDirectionX * factor;
@@ -351,7 +351,7 @@ void CorrespondenceEditorGLWidget::updateCameraPosition() {
     }
 }
 
-void CorrespondenceEditorGLWidget::keyReleaseEvent(QKeyEvent *ev) {
+void PoseEditorGLWidget::keyReleaseEvent(QKeyEvent *ev) {
     switch(ev->key()) {
         case Qt::Key_Up: shiftDirectionY = 0; shiftDirectionZ = 0; break;
         case Qt::Key_Down: shiftDirectionY = 0; shiftDirectionZ = 0; break;

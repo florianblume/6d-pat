@@ -1,7 +1,7 @@
 #ifndef OBJECTMODELRENDERABLE_H
 #define OBJECTMODELRENDERABLE_H
 
-#include "model/correspondence.hpp"
+#include "model/pose.hpp"
 
 #include <assimp/mesh.h>
 #include <assimp/Importer.hpp>
@@ -15,18 +15,18 @@
 #include <QMatrix4x4>
 
 //!
-//! \brief The CorrespondenceRenderable class is only an object model renderable
-//! essentially (i.e. displays an object model) but takes in a correspondence
-//! to compute the position of the object according to the correspondence.
+//! \brief The PoseRenderable class is only an object model renderable
+//! essentially (i.e. displays an object model) but takes in a pose
+//! to compute the position of the object according to the pose.
 //!
-class CorrespondenceRenderable
+class PoseRenderable
 {
 public:
-    CorrespondenceRenderable(const Correspondence &correspondence,
+    PoseRenderable(const Pose &pose,
                           int vertexAttributeLoc,
                           int normalAttributeLoc);
     QOpenGLVertexArrayObject *getVertexArrayObject();
-    QString getCorrespondenceId();
+    QString getPoseId();
     int getIndicesCount();
     QMatrix4x4 getModelViewMatrix();
     ObjectModel getObjectModel();
@@ -36,10 +36,10 @@ public:
     void setRotation(QMatrix3x3 rotation);
 
     // To retrieve the respective renderable
-    bool operator==(const CorrespondenceRenderable &other);
+    bool operator==(const PoseRenderable &other);
 
 private:
-    QString correspondenceId;
+    QString poseId;
     ObjectModel objectModel;
     QVector3D position;
     QMatrix3x3 rotation;

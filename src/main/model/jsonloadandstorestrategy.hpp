@@ -10,8 +10,8 @@
 
 /*!
  * \brief The TextFileLoadAndStoreStrategy class is a simple implementation of a LoadAndStoreStrategy that makes no use of
- * caching already loaded images or object models and writes correspondences to text files. That is why it is important to set the
- * proper path to the folder of correspondences before using this strategy.
+ * caching already loaded images or object models and writes poses to text files. That is why it is important to set the
+ * proper path to the folder of poses before using this strategy.
  */
 class JsonLoadAndStoreStrategy : public LoadAndStoreStrategy
 {
@@ -34,36 +34,36 @@ public:
      * \brief TextFileLoadAndStoreStrategy Convenience constructor setting the paths already.
      * \param _imagesPath
      * \param _objectModelsPath
-     * \param _correspondencesPath
+     * \param _posesPath
      */
     JsonLoadAndStoreStrategy(const QDir &imagesPath,
                              const QDir &segmentationImagesPath,
                              const QDir &objectModelsPath,
-                             const QDir &correspondencesFilePath);
+                             const QDir &posesFilePath);
 
     ~JsonLoadAndStoreStrategy();
 
-    bool persistObjectImageCorrespondence(Correspondence *objectImageCorrespondence,
-                                          bool deleteCorrespondence) override;
+    bool persistObjectImagePose(Pose *objectImagePose,
+                                          bool deletePose) override;
 
     QList<Image> loadImages() override;
 
     QList<ObjectModel> loadObjectModels() override;
 
     /*!
-     * \brief loadCorrespondences Loads the correspondences at the given path. How the correspondences are stored depends on the
+     * \brief loadPoses Loads the poses at the given path. How the poses are stored depends on the
      * strategy.
      *
-     * IMPORTANT: This implementation of LoadAndStoreStrategy makes use of text files to store correspondences, this means that the
+     * IMPORTANT: This implementation of LoadAndStoreStrategy makes use of text files to store poses, this means that the
      * path to the folder has to be set before this method is called. Failing to do so will raise an exception.
      *
-     * \param images the images to insert as references into the respective correspondences
-     * \param objectModels the object models to insert as reference into the respective correspondence
-     * \param correspondences the list that the corresondences are to be added to
-     * \return the list of all stored correspondences
-     * \throws an exception if the path to the folder that should hold the correspondences has not been set previously
+     * \param images the images to insert as references into the respective poses
+     * \param objectModels the object models to insert as reference into the respective pose
+     * \param poses the list that the corresondences are to be added to
+     * \return the list of all stored poses
+     * \throws an exception if the path to the folder that should hold the poses has not been set previously
      */
-    QList<Correspondence> loadCorrespondences(const QList<Image> &images,
+    QList<Pose> loadPoses(const QList<Image> &images,
                                               const QList<ObjectModel> &objectModels) override;
 
     /*!
@@ -96,20 +96,20 @@ public:
     QDir getObjectModelsPath() const;
 
     /*!
-     * \brief setCorrespondencesPath Sets the path to the folder where object image correspondences are stored at. After setting
-     * the path the manager will automatically try to load the already existing correspondences and will store all future
-     * correspondences at this location.
-     * \param path the path where the manager should store correspondences at or where some correspondences already exist that
+     * \brief setPosesPath Sets the path to the folder where object image poses are stored at. After setting
+     * the path the manager will automatically try to load the already existing poses and will store all future
+     * poses at this location.
+     * \param path the path where the manager should store poses at or where some poses already exist that
      * are meant to be loaded
      * \return true if the path is a valid path on the filesystem, false otherwise
      */
-    bool setCorrespondencesFilePath(const QDir &path);
+    bool setPosesFilePath(const QDir &path);
 
     /*!
-     * \brief getCorrespondencesPath Returns the path that this manager uses to store and load correspondences.
-     * \return the path that this manager uses to store and load correspondences
+     * \brief getPosesPath Returns the path that this manager uses to store and load poses.
+     * \return the path that this manager uses to store and load poses
      */
-    QDir getCorrespondencesFilePath() const;
+    QDir getPosesFilePath() const;
 
     /*!
      * \brief setSegmentationImageFilesSuffix sets the given suffix as the suffix to be used
@@ -136,8 +136,8 @@ private:
     QDir imagesPath;
     //! Stores the path to the folder that holds the object models
     QDir objectModelsPath;
-    //! Stores the path to the already created correspondences
-    QDir correspondencesFilePath;
+    //! Stores the path to the already created poses
+    QDir posesFilePath;
     //! Stores the suffix that is used to try to load segmentation images
     QDir segmentationImagesPath;
 

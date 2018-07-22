@@ -1,7 +1,7 @@
 ﻿#ifndef LOADANDSTORESTRATEGY_H
 #define LOADANDSTORESTRATEGY_H
 
-#include "correspondence.hpp"
+#include "pose.hpp"
 #include "image.hpp"
 #include "objectmodel.hpp"
 #include <QObject>
@@ -25,14 +25,14 @@ public:
     virtual ~LoadAndStoreStrategy();
 
     /*!
-     * \brief persistObjectImageCorrespondence Persists the given ObjectImageCorrespondence. The details of
+     * \brief persistObjectImagePose Persists the given ObjectImagePose. The details of
      * how the data is persisted depends on the LoadAndStoreStrategy implementation.
-     * \param objectImageCorrespondence the object image correspondence to persist
-     * \param deleteCorrespondence indicates whether the correspondence should be persistently deleted
-     * \return true if persisting the object image correspondence was successful, false if not
+     * \param objectImagePose the object image pose to persist
+     * \param deletePose indicates whether the pose should be persistently deleted
+     * \return true if persisting the object image pose was successful, false if not
      */
-    virtual bool persistObjectImageCorrespondence(Correspondence *objectImageCorrespondence,
-                                                  bool deleteCorrespondence) = 0;
+    virtual bool persistObjectImagePose(Pose *objectImagePose,
+                                                  bool deletePose) = 0;
 
     /*!
      * \brief loadImages Loads the images.
@@ -47,11 +47,11 @@ public:
     virtual QList<ObjectModel> loadObjectModels() = 0;
 
     /*!
-     * \brief loadCorrespondences Loads the correspondences at the given path. How the correspondences
+     * \brief loadPoses Loads the poses at the given path. How the poses
      * are stored depends on the strategy.
-     * \return the list of all stored correspondences
+     * \return the list of all stored poses
      */
-    virtual QList<Correspondence> loadCorrespondences(const QList<Image> &images,
+    virtual QList<Pose> loadPoses(const QList<Image> &images,
                                                       const QList<ObjectModel> &objectModels) = 0;
 
     /*!
@@ -67,9 +67,9 @@ Q_SIGNALS:
     void failedToLoadImages(const QString& message);
     void objectModelsChanged();
     void failedToLoadObjectModels(const QString &message);
-    void correspondencesChanged();
-    void failedToLoadCorrespondences(const QString &message);
-    void failedToPersistCorrespondence(const QString &message);
+    void posesChanged();
+    void failedToLoadPoses(const QString &message);
+    void failedToPersistPose(const QString &message);
 
 };
 

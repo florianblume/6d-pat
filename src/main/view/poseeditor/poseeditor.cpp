@@ -1,8 +1,8 @@
-#include "correspondenceeditor.hpp"
-#include "ui_correspondenceeditor.h"
+#include "poseeditor.hpp"
+#include "ui_poseeditor.h"
 #include "misc/generalhelper.h"
 #include "view/misc/displayhelper.h"
-#include "view/correspondenceeditor/rendering/correspondenceeditorglwidget.hpp"
+#include "view/poseeditor/rendering/poseeditorglwidget.hpp"
 
 #include <opencv2/core/mat.hpp>
 #include <QUrl>
@@ -13,9 +13,9 @@
 #include <QSizePolicy>
 #include <QTimer>
 
-CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager *modelManager) :
+PoseEditor::PoseEditor(QWidget *parent, ModelManager *modelManager) :
     QWidget(parent),
-    ui(new Ui::CorrespondenceEditor),
+    ui(new Ui::PoseEditor),
     modelManager(modelManager)
 {
     ui->setupUi(this);
@@ -23,56 +23,56 @@ CorrespondenceEditor::CorrespondenceEditor(QWidget *parent, ModelManager *modelM
     connect(ui->openGLWidget, SIGNAL(positionClicked(QVector3D)),
             this, SLOT(onObjectModelClickedAt(QVector3D)));
     if (modelManager) {
-        // Whenever a correspondence has been added it was created through the editor, i.e. we have
-        // to remove all visualizations because the correspondence creation process was finished
-        connect(modelManager, SIGNAL(correspondenceAdded(QString)),
-                this, SLOT(onCorrespondenceAdded(QString)));
-        connect(modelManager, SIGNAL(correspondenceDeleted(QString)),
-                this, SLOT(onCorrespondenceDeleted(QString)));
+        // Whenever a pose has been added it was created through the editor, i.e. we have
+        // to remove all visualizations because the pose creation process was finished
+        connect(modelManager, SIGNAL(poseAdded(QString)),
+                this, SLOT(onPoseAdded(QString)));
+        connect(modelManager, SIGNAL(poseDeleted(QString)),
+                this, SLOT(onPoseDeleted(QString)));
         // Reset view when object models are changed of course but also when the
         // images change because that might imply a change in the object models, too
         connect(modelManager, SIGNAL(objectModelsChanged()),
                 this, SLOT(reset()));
         connect(modelManager, SIGNAL(imagesChanged()),
                 this, SLOT(reset()));
-        connect(modelManager, SIGNAL(correspondencesChanged()),
-                this, SLOT(onCorrespondencesChanged()));
+        connect(modelManager, SIGNAL(posesChanged()),
+                this, SLOT(onPosesChanged()));
     }
 }
 
-CorrespondenceEditor::~CorrespondenceEditor()
+PoseEditor::~PoseEditor()
 {
     delete ui;
 }
 
-void CorrespondenceEditor::setModelManager(ModelManager *modelManager) {
+void PoseEditor::setModelManager(ModelManager *modelManager) {
     Q_ASSERT(modelManager);
     if (this->modelManager) {
-        disconnect(this->modelManager, SIGNAL(correspondenceAdded(QString)),
-                   this, SLOT(onCorrespondenceAdded(QString)));
-        disconnect(this->modelManager, SIGNAL(correspondenceDeleted(QString)),
-                this, SLOT(correspondenceDeleted(QString)));
+        disconnect(this->modelManager, SIGNAL(poseAdded(QString)),
+                   this, SLOT(onPoseAdded(QString)));
+        disconnect(this->modelManager, SIGNAL(poseDeleted(QString)),
+                this, SLOT(poseDeleted(QString)));
         disconnect(modelManager, SIGNAL(objectModelsChanged()),
                 this, SLOT(reset()));
         disconnect(modelManager, SIGNAL(imagesChanged()),
                 this, SLOT(reset()));
-        disconnect(modelManager, SIGNAL(correspondencesChanged()),
-                this, SLOT(onCorrespondencesChanged()));
+        disconnect(modelManager, SIGNAL(posesChanged()),
+                this, SLOT(onPosesChanged()));
     }
     this->modelManager = modelManager;
-    connect(modelManager, SIGNAL(correspondenceAdded(QString)),
-            this, SLOT(onCorrespondenceAdded(QString)));
-    connect(modelManager, SIGNAL(correspondenceDeleted(QString)),
-            this, SLOT(onCorrespondenceDeleted(QString)));
+    connect(modelManager, SIGNAL(poseAdded(QString)),
+            this, SLOT(onPoseAdded(QString)));
+    connect(modelManager, SIGNAL(poseDeleted(QString)),
+            this, SLOT(onPoseDeleted(QString)));
     connect(modelManager, SIGNAL(objectModelsChanged()),
             this, SLOT(reset()));
     connect(modelManager, SIGNAL(imagesChanged()),
             this, SLOT(reset()));
-    connect(modelManager, SIGNAL(correspondencesChanged()),
-            this, SLOT(onCorrespondencesChanged()));
+    connect(modelManager, SIGNAL(posesChanged()),
+            this, SLOT(onPosesChanged()));
 }
 
-void CorrespondenceEditor::setEnabledCorrespondenceEditorControls(bool enabled) {
+void PoseEditor::setEnabledPoseEditorControls(bool enabled) {
     ui->spinBoxTranslationX->setEnabled(enabled);
     ui->spinBoxTranslationY->setEnabled(enabled);
     ui->spinBoxTranslationZ->setEnabled(enabled);
@@ -85,7 +85,7 @@ void CorrespondenceEditor::setEnabledCorrespondenceEditorControls(bool enabled) 
     ui->sliderOpacity->setEnabled(enabled);
 }
 
-void CorrespondenceEditor::setEnabledAllControls(bool enabled) {
+void PoseEditor::setEnabledAllControls(bool enabled) {
     ui->spinBoxTranslationX->setEnabled(enabled);
     ui->spinBoxTranslationY->setEnabled(enabled);
     ui->spinBoxTranslationZ->setEnabled(enabled);
@@ -95,12 +95,12 @@ void CorrespondenceEditor::setEnabledAllControls(bool enabled) {
     ui->sliderOpacity->setEnabled(enabled);
     ui->buttonRemove->setEnabled(enabled);
     ui->buttonCreate->setEnabled(enabled);
-    ui->comboBoxCorrespondence->setEnabled(enabled);
+    ui->comboBoxPose->setEnabled(enabled);
     ui->buttonSave->setEnabled(enabled);
     ui->buttonPredict->setEnabled(enabled);
 }
 
-void CorrespondenceEditor::resetControlsValues() {
+void PoseEditor::resetControlsValues() {
     ui->spinBoxTranslationX->setValue(0);
     ui->spinBoxTranslationY->setValue(0);
     ui->spinBoxTranslationZ->setValue(0);
@@ -109,40 +109,40 @@ void CorrespondenceEditor::resetControlsValues() {
     ui->spinBoxRotationZ->setValue(0);
 }
 
-void CorrespondenceEditor::addCorrespondencesToComboBoxCorrespondences(
-        const Image *image, const QString &correspondenceToSelect) {
-    ui->comboBoxCorrespondence->clear();
-    QList<Correspondence> correspondences =
-            modelManager->getCorrespondencesForImage(*image);
+void PoseEditor::addPosesToComboBoxPoses(
+        const Image *image, const QString &poseToSelect) {
+    ui->comboBoxPose->clear();
+    QList<Pose> poses =
+            modelManager->getPosesForImage(*image);
     ignoreValueChanges = true;
-    if (correspondences.size() > 0) {
-        ui->comboBoxCorrespondence->setEnabled(true);
-        ui->comboBoxCorrespondence->addItem("None");
-        ui->comboBoxCorrespondence->setCurrentIndex(0);
+    if (poses.size() > 0) {
+        ui->comboBoxPose->setEnabled(true);
+        ui->comboBoxPose->addItem("None");
+        ui->comboBoxPose->setCurrentIndex(0);
         ui->sliderOpacity->setEnabled(true);
     }
     int index = 1;
-    for (Correspondence correspondence : correspondences) {
+    for (Pose pose : poses) {
         // We need to ignore the combo box changes first, so that the view
         // doesn't update and crash the program
-        QString id = correspondence.getID();
-        ui->comboBoxCorrespondence->addItem(id);
-        if (correspondenceToSelect == correspondence.getID()) {
-            setCorrespondenceValuesOnControls(&correspondence);
-            ui->comboBoxCorrespondence->setCurrentIndex(index);
+        QString id = pose.getID();
+        ui->comboBoxPose->addItem(id);
+        if (poseToSelect == pose.getID()) {
+            setPoseValuesOnControls(&pose);
+            ui->comboBoxPose->setCurrentIndex(index);
         }
         index++;
     }
     ignoreValueChanges = false;
 }
 
-void CorrespondenceEditor::setCorrespondenceValuesOnControls(Correspondence *correspondence) {
-    QVector3D position = correspondence->getPosition();
+void PoseEditor::setPoseValuesOnControls(Pose *pose) {
+    QVector3D position = pose->getPosition();
     ignoreValueChanges = true;
     ui->spinBoxTranslationX->setValue(position.x());
     ui->spinBoxTranslationY->setValue(position.y());
     ui->spinBoxTranslationZ->setValue(position.z());
-    QMatrix3x3 rotation = correspondence->getRotation();
+    QMatrix3x3 rotation = pose->getRotation();
     cv::Mat rotationMatrix = (cv::Mat_<float>(3,3) <<
            rotation(0, 0),
            rotation(0, 1),
@@ -160,7 +160,7 @@ void CorrespondenceEditor::setCorrespondenceValuesOnControls(Correspondence *cor
     ignoreValueChanges = false;
 }
 
-void CorrespondenceEditor::onObjectModelClickedAt(QVector3D position) {
+void PoseEditor::onObjectModelClickedAt(QVector3D position) {
     qDebug() << "Object model (" + currentObjectModel->getPath() + ") clicked at: (" +
                 QString::number(position.x())
                 + ", "
@@ -170,9 +170,9 @@ void CorrespondenceEditor::onObjectModelClickedAt(QVector3D position) {
     Q_EMIT objectModelClickedAt(currentObjectModel.get(), position);
 }
 
-void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
-    if (currentCorrespondence) {
-        currentCorrespondence->setPosition(QVector3D(
+void PoseEditor::updateCurrentlyEditedPose() {
+    if (currentPose) {
+        currentPose->setPosition(QVector3D(
                                            ui->spinBoxTranslationX->value(),
                                            ui->spinBoxTranslationY->value(),
                                            ui->spinBoxTranslationZ->value()));
@@ -186,33 +186,33 @@ void CorrespondenceEditor::updateCurrentlyEditedCorrespondence() {
                 rotMatrix.at<float>(0, 1), rotMatrix.at<float>(1, 1), rotMatrix.at<float>(2, 1),
                 rotMatrix.at<float>(0, 2), rotMatrix.at<float>(1, 2), rotMatrix.at<float>(2, 2)};
         QMatrix3x3 qtRotationMatrix = QMatrix3x3(values);
-        currentCorrespondence->setRotation(qtRotationMatrix);
-        Q_EMIT correspondenceUpdated(currentCorrespondence.get());
+        currentPose->setRotation(qtRotationMatrix);
+        Q_EMIT poseUpdated(currentPose.get());
     }
 }
 
-void CorrespondenceEditor::onCorrespondenceAdded(const QString &correspondence) {
-    QSharedPointer<Correspondence> actualCorrespondence = modelManager->getCorrespondenceById(correspondence);
-    Correspondence *c = actualCorrespondence.data();
-    addCorrespondencesToComboBoxCorrespondences(c->getImage(), correspondence);
+void PoseEditor::onPoseAdded(const QString &pose) {
+    QSharedPointer<Pose> actualPose = modelManager->getPoseById(pose);
+    Pose *c = actualPose.data();
+    addPosesToComboBoxPoses(c->getImage(), pose);
     ui->buttonCreate->setEnabled(false);
     // Gets enabled somehow
     ui->buttonSave->setEnabled(false);
     ui->openGLWidget->removeClicks();
 }
 
-void CorrespondenceEditor::onCorrespondenceDeleted(const QString& /* correspondence */) {
+void PoseEditor::onPoseDeleted(const QString& /* pose */) {
     // Just select the default entry
-    ui->comboBoxCorrespondence->setCurrentIndex(0);
-    onComboBoxCorrespondenceIndexChanged(0);
+    ui->comboBoxPose->setCurrentIndex(0);
+    onComboBoxPoseIndexChanged(0);
 }
 
-void CorrespondenceEditor::onButtonRemoveClicked() {
-    modelManager->removeObjectImageCorrespondence(currentCorrespondence->getID());
-    QList<Correspondence> correspondences = modelManager->getCorrespondencesForImage(currentlySelectedImage);
-    if (correspondences.size() > 0) {
+void PoseEditor::onButtonRemoveClicked() {
+    modelManager->removeObjectImagePose(currentPose->getID());
+    QList<Pose> poses = modelManager->getPosesForImage(currentlySelectedImage);
+    if (poses.size() > 0) {
         // This reloads the drop down list and does everything else
-        addCorrespondencesToComboBoxCorrespondences(&currentlySelectedImage);
+        addPosesToComboBoxPoses(&currentlySelectedImage);
     } else {
         reset();
         //! But we need to re-enable the predict button, as the viewer is still displaying the image
@@ -220,55 +220,55 @@ void CorrespondenceEditor::onButtonRemoveClicked() {
     }
 }
 
-void CorrespondenceEditor::onSpinBoxTranslationXValueChanged(double /* value */) {
+void PoseEditor::onSpinBoxTranslationXValueChanged(double /* value */) {
     if (!ignoreValueChanges) {
-        updateCurrentlyEditedCorrespondence();
+        updateCurrentlyEditedPose();
         ui->buttonSave->setEnabled(true);
     }
 }
 
-void CorrespondenceEditor::onSpinBoxTranslationYValueChanged(double /* value */) {
+void PoseEditor::onSpinBoxTranslationYValueChanged(double /* value */) {
     if (!ignoreValueChanges) {
-        updateCurrentlyEditedCorrespondence();
+        updateCurrentlyEditedPose();
         ui->buttonSave->setEnabled(true);
     }
 }
 
-void CorrespondenceEditor::onSpinBoxTranslationZValueChanged(double /* value */) {
+void PoseEditor::onSpinBoxTranslationZValueChanged(double /* value */) {
     if (!ignoreValueChanges) {
-        updateCurrentlyEditedCorrespondence();
+        updateCurrentlyEditedPose();
         ui->buttonSave->setEnabled(true);
     }
 }
 
-void CorrespondenceEditor::onSpinBoxRotationXValueChanged(double /* value */) {
+void PoseEditor::onSpinBoxRotationXValueChanged(double /* value */) {
     if (!ignoreValueChanges)
-        updateCurrentlyEditedCorrespondence();
+        updateCurrentlyEditedPose();
 }
 
-void CorrespondenceEditor::onSpinBoxRotationYValueChanged(double /* value */) {
+void PoseEditor::onSpinBoxRotationYValueChanged(double /* value */) {
     if (!ignoreValueChanges) {
-        updateCurrentlyEditedCorrespondence();
+        updateCurrentlyEditedPose();
         ui->buttonSave->setEnabled(true);
     }
 }
 
-void CorrespondenceEditor::onSpinBoxRotationZValueChanged(double) {
+void PoseEditor::onSpinBoxRotationZValueChanged(double) {
     if (!ignoreValueChanges) {
-        updateCurrentlyEditedCorrespondence();
+        updateCurrentlyEditedPose();
         ui->buttonSave->setEnabled(true);
     }
 }
 
-void CorrespondenceEditor::onButtonPredictClicked() {
+void PoseEditor::onButtonPredictClicked() {
     Q_EMIT buttonPredictClicked();
 }
 
-void CorrespondenceEditor::onButtonCreateClicked() {
+void PoseEditor::onButtonCreateClicked() {
     if (ui->buttonSave->isEnabled()) {
         int result = QMessageBox::warning(this,
-                             "Correspondence creation",
-                             "Creating a correspondence will discard your unsaved"
+                             "Pose creation",
+                             "Creating a pose will discard your unsaved"
                              " changes, do you want to save them now?",
                              QMessageBox::Yes,
                              QMessageBox::No);
@@ -279,44 +279,44 @@ void CorrespondenceEditor::onButtonCreateClicked() {
     Q_EMIT buttonCreateClicked();
 }
 
-void CorrespondenceEditor::onButtonSaveClicked() {
-    modelManager->updateObjectImageCorrespondence(currentCorrespondence->getID(),
-                                                  currentCorrespondence->getPosition(),
-                                                  currentCorrespondence->getRotation());
+void PoseEditor::onButtonSaveClicked() {
+    modelManager->updateObjectImagePose(currentPose->getID(),
+                                                  currentPose->getPosition(),
+                                                  currentPose->getRotation());
     ui->buttonSave->setEnabled(false);
 }
 
-void CorrespondenceEditor::onComboBoxCorrespondenceIndexChanged(int index) {
+void PoseEditor::onComboBoxPoseIndexChanged(int index) {
     if (index < 0 || ignoreValueChanges)
         return;
     else if (index == 0) {
         // First index is placeholder
-        setEnabledCorrespondenceEditorControls(false);
-        currentCorrespondence.reset();
+        setEnabledPoseEditorControls(false);
+        currentPose.reset();
         resetControlsValues();
     } else {
-        QList<Correspondence> correspondencesForImage =
-                modelManager->getCorrespondencesForImage(currentlySelectedImage);
-        Correspondence correspondence = correspondencesForImage.at(--index);
-        setCorrespondenceToEdit(&correspondence);
+        QList<Pose> posesForImage =
+                modelManager->getPosesForImage(currentlySelectedImage);
+        Pose pose = posesForImage.at(--index);
+        setPoseToEdit(&pose);
     }
 }
 
-void CorrespondenceEditor::onSliderOpacityValueChanged(int value) {
+void PoseEditor::onSliderOpacityValueChanged(int value) {
     Q_EMIT opacityChangeStarted(value);
 }
 
-void CorrespondenceEditor::onSliderOpacityReleased() {
+void PoseEditor::onSliderOpacityReleased() {
     Q_EMIT opacityChangeEnded();
 }
 
-void CorrespondenceEditor::onCorrespondencesChanged() {
+void PoseEditor::onPosesChanged() {
     reset();
     ui->buttonPredict->setEnabled(true);
-    addCorrespondencesToComboBoxCorrespondences(&currentlySelectedImage);
+    addPosesToComboBoxPoses(&currentlySelectedImage);
 }
 
-void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
+void PoseEditor::setObjectModel(ObjectModel *objectModel) {
     if (objectModel == Q_NULLPTR) {
         qDebug() << "Object model to set was null. Restting view.";
         reset();
@@ -324,67 +324,67 @@ void CorrespondenceEditor::setObjectModel(ObjectModel *objectModel) {
     }
 
     qDebug() << "Setting object model (" + objectModel->getPath() + ") to display.";
-    // If the user has edited a correspondence they need to be able to save
+    // If the user has edited a pose they need to be able to save
     // them even when viewing a different object model, setting the index to
     // the None entry would inhibit this
-    // ui->comboBoxCorrespondence->setCurrentIndex(0);
+    // ui->comboBoxPose->setCurrentIndex(0);
     currentObjectModel.reset(new ObjectModel(*objectModel));
     ui->openGLWidget->setObjectModel(objectModel);
-    Q_EMIT correspondenceCreationAborted();
+    Q_EMIT poseCreationAborted();
 }
 
-void CorrespondenceEditor::onSelectedImageChanged(int index) {
+void PoseEditor::onSelectedImageChanged(int index) {
     reset();
     ui->sliderOpacity->setEnabled(true);
     currentlySelectedImage = modelManager->getImages().at(index);
-    addCorrespondencesToComboBoxCorrespondences(&currentlySelectedImage);
+    addPosesToComboBoxPoses(&currentlySelectedImage);
     ui->buttonPredict->setEnabled(true);
 }
 
-void CorrespondenceEditor::setCorrespondenceToEdit(Correspondence *correspondence) {
-    if (correspondence == Q_NULLPTR) {
-        qDebug() << "Correspondence to set was null. Restting view.";
+void PoseEditor::setPoseToEdit(Pose *pose) {
+    if (pose == Q_NULLPTR) {
+        qDebug() << "Pose to set was null. Restting view.";
         reset();
         return;
     }
 
-    qDebug() << "Setting correspondence (" + correspondence->getID() + ", " + correspondence->getImage()->getImagePath()
-                + ", " + correspondence->getObjectModel()->getPath() + ") to display.";
-    currentCorrespondence.reset(new Correspondence(*correspondence));
-    currentObjectModel.reset(new ObjectModel(*correspondence->getObjectModel()));
-    setEnabledCorrespondenceEditorControls(true);
-    setCorrespondenceValuesOnControls(correspondence);
-    ui->openGLWidget->setObjectModel(correspondence->getObjectModel());
+    qDebug() << "Setting pose (" + pose->getID() + ", " + pose->getImage()->getImagePath()
+                + ", " + pose->getObjectModel()->getPath() + ") to display.";
+    currentPose.reset(new Pose(*pose));
+    currentObjectModel.reset(new ObjectModel(*pose->getObjectModel()));
+    setEnabledPoseEditorControls(true);
+    setPoseValuesOnControls(pose);
+    ui->openGLWidget->setObjectModel(pose->getObjectModel());
     ui->buttonSave->setEnabled(false);
-    Q_EMIT correspondenceCreationAborted();
+    Q_EMIT poseCreationAborted();
 }
 
-void CorrespondenceEditor::removeClickVisualizations(){
+void PoseEditor::removeClickVisualizations(){
     ui->openGLWidget->removeClicks();
 }
 
-void CorrespondenceEditor::onCorrespondenceCreationAborted() {
+void PoseEditor::onPoseCreationAborted() {
     ui->buttonCreate->setEnabled(false);
     removeClickVisualizations();
 }
 
-void CorrespondenceEditor::onCorrespondencePointFinished(QVector3D point3D,
+void PoseEditor::onPosePointFinished(QVector3D point3D,
                                                          int currentNumberOfPoints,
                                                          int minimumNumberOfPoints) {
     ui->buttonCreate->setEnabled(currentNumberOfPoints >= minimumNumberOfPoints);
-    QColor color = DisplayHelper::colorForCorrespondencePointIndex(currentNumberOfPoints - 1);
+    QColor color = DisplayHelper::colorForPosePointIndex(currentNumberOfPoints - 1);
     ui->openGLWidget->addClick(point3D, color);
 }
 
-void CorrespondenceEditor::reset() {
-    qDebug() << "Resetting correspondence editor.";
+void PoseEditor::reset() {
+    qDebug() << "Resetting pose editor.";
     ui->openGLWidget->reset();
     currentObjectModel.reset();
-    currentCorrespondence.reset();
+    currentPose.reset();
     resetControlsValues();
     setEnabledAllControls(false);
 }
 
-bool CorrespondenceEditor::isDisplayingObjectModel() {
+bool PoseEditor::isDisplayingObjectModel() {
     return currentObjectModel != Q_NULLPTR;
 }

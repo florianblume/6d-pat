@@ -9,7 +9,7 @@
 
 //! This class represents a match between an object model and an image, i.e. stores where the object is located on the image and
 //! how it is rotated.
-class Correspondence {
+class Pose {
 private:
     //! The position of the object on the image. The value z is the depth, i.e. how large the object ist.
     QVector3D position;
@@ -17,27 +17,27 @@ private:
     QMatrix3x3 rotation;
     //! The image associated with this corresopndence.
     const Image* image;
-    //! The object model associated with this correspondence.
+    //! The object model associated with this pose.
     const ObjectModel* objectModel;
-    //! The ID of the correspondence. This is necessary becuase images might contain some objects multiple times.
+    //! The ID of the pose. This is necessary becuase images might contain some objects multiple times.
     QString id;
 
 public:
-    //! Constructor of class ObjectImageCorrespondence.
+    //! Constructor of class ObjectImagePose.
     /*!
-     * \brief ObjectImageCorrespondence Constructs an ObjectImageCorrespondence and assigns the passed values.
-     * \param id the ID of the correspondence
+     * \brief ObjectImagePose Constructs an ObjectImagePose and assigns the passed values.
+     * \param id the ID of the pose
      * \param _image the associated image
      * \param _objectModel the associated object model
      */
-    Correspondence(QString id, QVector3D position, QMatrix3x3 rotation,
+    Pose(QString id, QVector3D position, QMatrix3x3 rotation,
                               const Image* image, const ObjectModel* objectModel);
 
     /*!
-     * \brief ObjectImageCorrespondence copy constructor for class ObjectImageCorrespondence.
-     * \param other the correspondence to copy from
+     * \brief ObjectImagePose copy constructor for class ObjectImagePose.
+     * \param other the pose to copy from
      */
-    Correspondence(const Correspondence &other);
+    Pose(const Pose &other);
 
     /*!
      * \brief getPosition Returns the position of the object on the image. The value z of the position determines the depth,
@@ -53,13 +53,13 @@ public:
     QMatrix3x3 getRotation() const;
 
     /*!
-     * \brief getImage Returns the image associated with this correspondence.
-     * \return the image associated with this correspondence
+     * \brief getImage Returns the image associated with this pose.
+     * \return the image associated with this pose
      */
     const Image* getImage() const;
     /*!
-     * \brief getObjectModel Returns the object model associated with this correspondence.
-     * \return the object model associated with this correspondence
+     * \brief getObjectModel Returns the object model associated with this pose.
+     * \return the object model associated with this pose
      */
     const ObjectModel* getObjectModel() const;
 
@@ -67,19 +67,19 @@ public:
 
     void setRotation(QMatrix3x3 rotation);
     /*!
-     * \brief getID Returns the unique ID of this correspondence.
-     * \return the unique ID of this correspondence
+     * \brief getID Returns the unique ID of this pose.
+     * \return the unique ID of this pose
      */
     QString getID() const;
 
     /*!
-     * \brief operator == Returns true if the IDs of the two correspondences are the same.
-     * \param objectImageCorrespondence the other correspondence to check for
+     * \brief operator == Returns true if the IDs of the two poses are the same.
+     * \param objectImagePose the other pose to check for
      * \return true if the IDs are the same, false otherwise
      */
-    bool operator==(const Correspondence& objectImageCorrespondence);
+    bool operator==(const Pose& objectImagePose);
 
-    Correspondence& operator=(const Correspondence &other);
+    Pose& operator=(const Pose &other);
 
 };
 

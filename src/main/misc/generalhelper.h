@@ -24,7 +24,7 @@ namespace GeneralHelper {
 
     QColor colorFromSegmentationCode(const QString &segmentationCode);
 
-    QString createCorrespondenceId(const Image* image, const ObjectModel *objectModel);
+    QString createPoseId(const Image* image, const ObjectModel *objectModel);
 
     // Calculates rotation matrix to euler angles
     // The result is the same as MATLAB except the order

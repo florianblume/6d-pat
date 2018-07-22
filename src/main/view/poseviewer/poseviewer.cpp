@@ -1,12 +1,12 @@
-#include "correspondenceviewer.hpp"
-#include "ui_correspondenceviewer.h"
+#include "poseviewer.hpp"
+#include "ui_poseviewer.h"
 #include "view/misc/displayhelper.h"
 
 #include "math.h"
 
-CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelManager) :
+PoseViewer::PoseViewer(QWidget *parent, ModelManager* modelManager) :
     QWidget(parent),
-    ui(new Ui::CorrespondenceViewer),
+    ui(new Ui::PoseViewer),
     awesome(new QtAwesome( qApp )),
     modelManager(modelManager)
 {
@@ -32,18 +32,18 @@ CorrespondenceViewer::CorrespondenceViewer(QWidget *parent, ModelManager* modelM
     connect(ui->openGLWidget, SIGNAL(positionClicked(QPoint)), this, SLOT(onImageClicked(QPoint)));
 }
 
-CorrespondenceViewer::~CorrespondenceViewer() {
+PoseViewer::~PoseViewer() {
     delete ui;
 }
 
-void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
+void PoseViewer::setModelManager(ModelManager* modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
     if (this->modelManager) {
-        disconnect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(onCorrespondencesChanged()));
-        disconnect(modelManager, SIGNAL(correspondenceAdded(QString)),
-                   this, SLOT(onCorrespondenceAdded(QString)));
-        disconnect(modelManager, SIGNAL(correspondenceDeleted(QString)),
-                   this, SLOT(onCorrespondenceDeleted(QString)));
+        disconnect(modelManager, SIGNAL(posesChanged()), this, SLOT(onPosesChanged()));
+        disconnect(modelManager, SIGNAL(poseAdded(QString)),
+                   this, SLOT(onPoseAdded(QString)));
+        disconnect(modelManager, SIGNAL(poseDeleted(QString)),
+                   this, SLOT(onPoseDeleted(QString)));
         disconnect(this->modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
         disconnect(this->modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
     }
@@ -51,14 +51,14 @@ void CorrespondenceViewer::setModelManager(ModelManager* modelManager) {
     connectModelManagerSlots();
 }
 
-Image *CorrespondenceViewer::getCurrentlyViewedImage() {
+Image *PoseViewer::getCurrentlyViewedImage() {
     return currentlyDisplayedImage.data();
 }
 
-void CorrespondenceViewer::setImage(Image *image) {
+void PoseViewer::setImage(Image *image) {
     currentlyDisplayedImage.reset(new Image(*image));
 
-    ui->openGLWidget->removeCorrespondences();
+    ui->openGLWidget->removePoses();
     ui->buttonResetPosition->setEnabled(true);
 
     qDebug() << "Displaying image (" + currentlyDisplayedImage->getImagePath() + ").";
@@ -76,36 +76,36 @@ void CorrespondenceViewer::setImage(Image *image) {
     }
     QString toDisplay = showingNormalImage ?  currentlyDisplayedImage->getAbsoluteImagePath() :
                                     currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
-    QList<Correspondence> correspondencesForImage = modelManager->getCorrespondencesForImage(*image);
-    ui->openGLWidget->setBackgroundImageAndCorrespondences(toDisplay,
+    QList<Pose> posesForImage = modelManager->getPosesForImage(*image);
+    ui->openGLWidget->setBackgroundImageAndPoses(toDisplay,
                                                            image->getCameraMatrix(),
-                                                           correspondencesForImage);
+                                                           posesForImage);
 
 }
 
-void CorrespondenceViewer::connectModelManagerSlots() {
-    connect(modelManager, SIGNAL(correspondenceAdded(QString)),
-               this, SLOT(onCorrespondenceAdded(QString)));
-    connect(modelManager, SIGNAL(correspondenceDeleted(QString)),
-               this, SLOT(onCorrespondenceDeleted(QString)));
+void PoseViewer::connectModelManagerSlots() {
+    connect(modelManager, SIGNAL(poseAdded(QString)),
+               this, SLOT(onPoseAdded(QString)));
+    connect(modelManager, SIGNAL(poseDeleted(QString)),
+               this, SLOT(onPoseDeleted(QString)));
     connect(modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
     connect(modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
-    connect(modelManager, SIGNAL(correspondencesChanged()), this, SLOT(onCorrespondencesChanged()));
+    connect(modelManager, SIGNAL(posesChanged()), this, SLOT(onPosesChanged()));
 }
 
-void CorrespondenceViewer::updateOpacity(){
+void PoseViewer::updateOpacity(){
     ui->openGLWidget->setObjectsOpacity(objectsOpacity);
 }
 
-void CorrespondenceViewer::reset() {
-    qDebug() << "Resetting correspondence viewer.";
+void PoseViewer::reset() {
+    qDebug() << "Resetting pose viewer.";
     ui->openGLWidget->reset();
     ui->buttonResetPosition->setEnabled(false);
     ui->buttonSwitchView->setEnabled(false);
     currentlyDisplayedImage.reset();
 }
 
-void CorrespondenceViewer::reloadCorrespondences() {
+void PoseViewer::reloadPoses() {
     if (!currentlyDisplayedImage.isNull()) {
         Image image = *(currentlyDisplayedImage.data());
         setImage(&image);
@@ -114,21 +114,21 @@ void CorrespondenceViewer::reloadCorrespondences() {
     }
 }
 
-void CorrespondenceViewer::visualizeLastClickedPosition(int correspondencePointIndex) {
-    Q_ASSERT(correspondencePointIndex >= 0);
+void PoseViewer::visualizeLastClickedPosition(int posePointIndex) {
+    Q_ASSERT(posePointIndex >= 0);
     ui->openGLWidget->addClick(lastClickedPosition,
-              DisplayHelper::colorForCorrespondencePointIndex(correspondencePointIndex));
+              DisplayHelper::colorForPosePointIndex(posePointIndex));
 }
 
-void CorrespondenceViewer::onCorrespondenceCreationAborted() {
+void PoseViewer::onPoseCreationAborted() {
     removePositionVisualizations();
 }
 
-void CorrespondenceViewer::removePositionVisualizations() {
+void PoseViewer::removePositionVisualizations() {
     ui->openGLWidget->removeClicks();
 }
 
-void CorrespondenceViewer::onCorrespondencePointStarted(QPoint /* point2D */,
+void PoseViewer::onPosePointStarted(QPoint /* point2D */,
                                                          int currentNumberOfPoints,
                                                          int /* minimumNumberOfPoints */) {
     // We can use the number of points as index directly, because the number of points only increases
@@ -136,11 +136,11 @@ void CorrespondenceViewer::onCorrespondencePointStarted(QPoint /* point2D */,
     visualizeLastClickedPosition(currentNumberOfPoints);
 }
 
-void CorrespondenceViewer::onCorrespondenceUpdated(Correspondence *correspondence){
-    ui->openGLWidget->updateCorrespondence(*correspondence);
+void PoseViewer::onPoseUpdated(Pose *pose){
+    ui->openGLWidget->updatePose(*pose);
 }
 
-void CorrespondenceViewer::onOpacityChangeStarted(int opacity) {
+void PoseViewer::onOpacityChangeStarted(int opacity) {
     objectsOpacity = opacity / 100.f;
     if (!opacityTimer) {
         opacityTimer = new QTimer();
@@ -150,7 +150,7 @@ void CorrespondenceViewer::onOpacityChangeStarted(int opacity) {
     }
 }
 
-void CorrespondenceViewer::onOpacityChangeEnded() {
+void PoseViewer::onOpacityChangeEnded() {
     if (opacityTimer) {
         // Sometimes the timer is delete already...
         opacityTimer->stop();
@@ -160,7 +160,7 @@ void CorrespondenceViewer::onOpacityChangeEnded() {
     }
 }
 
-void CorrespondenceViewer::switchImage() {
+void PoseViewer::switchImage() {
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
     showingNormalImage = !showingNormalImage;
     if (showingNormalImage)
@@ -177,37 +177,37 @@ void CorrespondenceViewer::switchImage() {
 
 }
 
-void CorrespondenceViewer::resetPositionOfGraphicsView() {
+void PoseViewer::resetPositionOfGraphicsView() {
     QRect geo = ui->openGLWidget->geometry();
     ui->openGLWidget->setGeometry(0, 0, geo.width(), geo.height());
 }
 
-void CorrespondenceViewer::onImageClicked(QPoint point) {
+void PoseViewer::onImageClicked(QPoint point) {
     qDebug() << "Image (" + currentlyDisplayedImage->getImagePath() + ") clicked at: (" +
                 QString::number(point.x()) + ", " + QString::number(point.y()) + ").";
     lastClickedPosition = point;
     Q_EMIT imageClicked(currentlyDisplayedImage.data(), point);
 }
 
-void CorrespondenceViewer::onCorrespondenceDeleted(const QString &id) {
-    ui->openGLWidget->removeCorrespondence(id);
+void PoseViewer::onPoseDeleted(const QString &id) {
+    ui->openGLWidget->removePose(id);
 }
 
-void CorrespondenceViewer::onCorrespondenceAdded(const QString &id) {
-    QSharedPointer<Correspondence> correspondence = modelManager->getCorrespondenceById(id);
-    if (!correspondence.isNull())
-        ui->openGLWidget->addCorrespondence(*correspondence.data());
+void PoseViewer::onPoseAdded(const QString &id) {
+    QSharedPointer<Pose> pose = modelManager->getPoseById(id);
+    if (!pose.isNull())
+        ui->openGLWidget->addPose(*pose.data());
     ui->openGLWidget->removeClicks();
 }
 
-void CorrespondenceViewer::onCorrespondencesChanged() {
-    reloadCorrespondences();
+void PoseViewer::onPosesChanged() {
+    reloadPoses();
 }
 
-void CorrespondenceViewer::onImagesChanged() {
+void PoseViewer::onImagesChanged() {
     reset();
 }
 
-void CorrespondenceViewer::onObjectModelsChanged() {
+void PoseViewer::onObjectModelsChanged() {
     reset();
 }

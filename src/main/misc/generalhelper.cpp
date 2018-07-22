@@ -23,7 +23,7 @@ namespace GeneralHelper {
         return QColor(splitCode.at(0).toInt(), splitCode.at(1).toInt(), splitCode.at(2).toInt());
     }
 
-    QString createCorrespondenceId(const Image* image, const ObjectModel *objectModel) {
+    QString createPoseId(const Image* image, const ObjectModel *objectModel) {
         QDateTime date = QDateTime::currentDateTime();;
         //! We include the date as part of the identifier - this actually makes
         //! the ID quite long but still better readable than a UUID

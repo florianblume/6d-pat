@@ -31,7 +31,7 @@ public:
     void training(const QString &configPath);
     void inference(const QString &configPath);
     void setImages(const QVector<Image> &images);
-    void setCorrespondencesFilePath(const QString &filePath);
+    void setPosesFilePath(const QString &filePath);
     void stop();
 
     void setTrainPythonScript(const QString &value);
@@ -58,7 +58,7 @@ private:
     QString pythonInterpreter;
     QString trainPythonScript;
     QString inferencePythonScript;
-    QString correspondencesFilePath;
+    QString posesFilePath;
     QString imagesPath;
     QString segmentationImagesPath;
     QVector<Image> images;

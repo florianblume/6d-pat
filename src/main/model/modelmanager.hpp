@@ -1,7 +1,7 @@
 #ifndef MODELMANAGER_H
 #define MODELMANAGER_H
 
-#include "correspondence.hpp"
+#include "pose.hpp"
 #include "image.hpp"
 #include "loadandstorestrategy.hpp"
 #include <QObject>
@@ -13,13 +13,13 @@ using namespace std;
 
 //! Interface ModelManager defines methods to load entities of the program and store them as well.
 /*!
- * A ModelManager is there to read in images and 3D models as well as correspondences already created by the user. It does so automatically on
+ * A ModelManager is there to read in images and 3D models as well as poses already created by the user. It does so automatically on
  * startup and it also takes care of persisting changes constantly.
- * A ModelManager can also provide the read images, object models and correspondences.
+ * A ModelManager can also provide the read images, object models and poses.
  * To do so the ModelManager requires to receive a LoadAndStoreStrategy which handles the underlying details of how to persist and therefore
  * also how to load entities.
  *
- * Attention: To persist modified correspondences they have to be updated through the update method of the manager, otherwise the changes
+ * Attention: To persist modified poses they have to be updated through the update method of the manager, otherwise the changes
  * will be lost on program restart.
 */
 class ModelManager : public QObject
@@ -52,11 +52,11 @@ public:
    virtual QList<Image> getImages() const = 0;
 
     /*!
-     * \brief getCorrespondencesForImage Returns all ObjectImageCorrespondences for the image at the given path.
+     * \brief getPosesForImage Returns all ObjectImagePoses for the image at the given path.
      * \param imagePath the path of the image
-     * \return the list of correspondences of the image at the given path
+     * \return the list of poses of the image at the given path
      */
-    virtual QList<Correspondence> getCorrespondencesForImage(const Image& image) const = 0;
+    virtual QList<Pose> getPosesForImage(const Image& image) const = 0;
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
@@ -66,64 +66,64 @@ public:
     virtual QList<ObjectModel> getObjectModels() const = 0;
 
     /*!
-     * \brief getCorrespondencesForObjectModels Returns all ObjectImageCorrespondences for the object model at the given path.
+     * \brief getPosesForObjectModels Returns all ObjectImagePoses for the object model at the given path.
      * \param objectModelPath the path of the object model
-     * \param correspondences the list that the correspondences are to be added to
-     * \return the list of correspondences of the object model at the given path
+     * \param poses the list that the poses are to be added to
+     * \return the list of poses of the object model at the given path
      */
-    virtual QList<Correspondence> getCorrespondencesForObjectModel(const ObjectModel& objectModel) = 0;
+    virtual QList<Pose> getPosesForObjectModel(const ObjectModel& objectModel) = 0;
 
     /*!
-     * \brief getCorrespondences Returns the correspondences maintained by this manager.
-     * \param correspondences the list that the correspondences are to be added to
-     * \return the list of correspondences maintained by this manager
+     * \brief getPoses Returns the poses maintained by this manager.
+     * \param poses the list that the poses are to be added to
+     * \return the list of poses maintained by this manager
      */
-    virtual QList<Correspondence> getCorrespondences() = 0;
+    virtual QList<Pose> getPoses() = 0;
 
-    virtual QSharedPointer<Correspondence> getCorrespondenceById(const QString &id) = 0;
+    virtual QSharedPointer<Pose> getPoseById(const QString &id) = 0;
 
     /*!
-     * \brief getCorrespondencesForImageAndObjectModel Returns all correspondences for the given image and object model.
+     * \brief getPosesForImageAndObjectModel Returns all poses for the given image and object model.
      * \param imagePath the image
      * \param objectModelPath the object model
-     * \param correspondences the list that the correspondences are to be added to
-     * \return all correspondences of the given image and given object model
+     * \param poses the list that the poses are to be added to
+     * \return all poses of the given image and given object model
      */
-    virtual QList<Correspondence> getCorrespondencesForImageAndObjectModel(const Image& image,
+    virtual QList<Pose> getPosesForImageAndObjectModel(const Image& image,
                                                           const ObjectModel& objectModel) = 0;
 
     /*!
-     * \brief addObjectImageCorrespondence Adds a new ObjectImageCorrespondence to the correspondences managed by this manager.
-     * The method will return true if creating the correspondence was successful and persisting it as well.
-     * \param objectImageCorrespondence the correspondence that stores all the values for the correspondence that will be created by
-     * this manager and added to the list of managed correspondences
-     * \return true if creating and persisting the correspondence was successful
+     * \brief addObjectImagePose Adds a new ObjectImagePose to the poses managed by this manager.
+     * The method will return true if creating the pose was successful and persisting it as well.
+     * \param objectImagePose the pose that stores all the values for the pose that will be created by
+     * this manager and added to the list of managed poses
+     * \return true if creating and persisting the pose was successful
      */
-    virtual bool addObjectImageCorrespondence(Image *image,
+    virtual bool addObjectImagePose(Image *image,
                                               ObjectModel *objectModel,
                                               QVector3D position,
                                               QMatrix3x3 rotation) = 0;
 
     /*!
-     * \brief addObjectImageCorrespondence Updates the given ObjectImageCorrespondence and automatically persists it according to the
+     * \brief addObjectImagePose Updates the given ObjectImagePose and automatically persists it according to the
      * LoadAndStoreStrategy of this Manager. If this manager does not manage the given ObjectImageCorresopndence false will be
      * returned.
-     * \param objectImageCorrespondence the correspondence to be updated
-     * \return true if updating  and also persisting the correspondence was successful, false if this manager does not manage the given
-     * correspondence or persisting it has failed
+     * \param objectImagePose the pose to be updated
+     * \return true if updating  and also persisting the pose was successful, false if this manager does not manage the given
+     * pose or persisting it has failed
      */
-    virtual bool updateObjectImageCorrespondence(const QString &id,
+    virtual bool updateObjectImagePose(const QString &id,
                                                  QVector3D position,
                                                  QMatrix3x3 rotation) = 0;
 
     /*!
-     * \brief removeObjectImageCorrespondence Removes the given ObjectImageCorrespondence if it is present in the list
-     * of correspondences mainainted by this manager.
-     * \param objectImageCorrespondence the correspondence to be removed
-     * \return true if the correspondence was present and removing it, i.e. also removing it from the filesystem was
+     * \brief removeObjectImagePose Removes the given ObjectImagePose if it is present in the list
+     * of poses mainainted by this manager.
+     * \param objectImagePose the pose to be removed
+     * \return true if the pose was present and removing it, i.e. also removing it from the filesystem was
      * successful
      */
-    virtual bool removeObjectImageCorrespondence(const QString &id) = 0;
+    virtual bool removeObjectImagePose(const QString &id) = 0;
 
     /*!
      * \brief reload reads all data from the persitence storage again and
@@ -136,14 +136,14 @@ Q_SIGNALS:
     void imagesChanged();
     void objectModelsChanged();
     /*!
-     * \brief correspondencesChanged called when all the correspondences change, e.g. when the path
-     * to the correspondences is edited, etc. A call to the correspondence update function will result
-     * in the correspondenceUpdated() signal to be Q_EMITted. Same holds for adding and deleting correspondences.
+     * \brief posesChanged called when all the poses change, e.g. when the path
+     * to the poses is edited, etc. A call to the pose update function will result
+     * in the poseUpdated() signal to be Q_EMITted. Same holds for adding and deleting poses.
      */
-    void correspondencesChanged();
-    void correspondenceAdded(const QString &id);
-    void correspondenceUpdated(const QString &id);
-    void correspondenceDeleted(const QString &id);
+    void posesChanged();
+    void poseAdded(const QString &id);
+    void poseUpdated(const QString &id);
+    void poseDeleted(const QString &id);
 
 };
 

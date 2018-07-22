@@ -16,11 +16,11 @@ MainWindow::MainWindow(QWidget *parent) :
     statusBar()->addPermanentWidget(statusBarLabel, 1);
     setStatusBarText(QString("Loading..."));
 
-    // If the selected image changes, we also need to cancel any started creation of a correspondence
+    // If the selected image changes, we also need to cancel any started creation of a pose
     connect(ui->galleryLeft, &Gallery::selectedItemChanged,
-            this, &MainWindow::correspondenceCreationAborted);
+            this, &MainWindow::poseCreationAborted);
     connect(ui->galleryRight, &Gallery::selectedItemChanged,
-            this, &MainWindow::correspondenceCreationAborted);
+            this, &MainWindow::poseCreationAborted);
     connect(ui->navigationLeft, SIGNAL(pathChanged(QString)),
             this, SIGNAL(imagesPathChanged(QString)));
     connect(ui->navigationRight, SIGNAL(pathChanged(QString)),
@@ -123,12 +123,12 @@ void MainWindow::setGalleryObjectModelModel(GalleryObjectModelModel* model) {
 
 void MainWindow::setModelManager(ModelManager* modelManager) {
     this->modelManager = modelManager;
-    ui->correspondenceViewer->setModelManager(modelManager);
-    ui->correspondenceEditor->setModelManager(modelManager);
+    ui->poseViewer->setModelManager(modelManager);
+    ui->poseEditor->setModelManager(modelManager);
 }
 
-void MainWindow::resetCorrespondenceViewer() {
-    ui->correspondenceViewer->reset();
+void MainWindow::resetPoseViewer() {
+    ui->poseViewer->reset();
 }
 
 void MainWindow::setPreferencesStore(PreferencesStore *preferencesStore) {
@@ -142,7 +142,7 @@ void MainWindow::setPreferencesStore(PreferencesStore *preferencesStore) {
 }
 
 Image *MainWindow::getCurrentlyViewedImage() {
-    return ui->correspondenceViewer->getCurrentlyViewedImage();
+    return ui->poseViewer->getCurrentlyViewedImage();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event) {
@@ -152,10 +152,10 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent* /* event */) {
-    if (correspondenceCreationInProgress) {
-        // Reset correspondence creation because the user clicked anywhere
-        onCorrespondenceCreationReset();
-        Q_EMIT correspondenceCreationAborted();
+    if (poseCreationInProgress) {
+        // Reset pose creation because the user clicked anywhere
+        onPoseCreationReset();
+        Q_EMIT poseCreationAborted();
     }
 }
 
@@ -166,39 +166,39 @@ void MainWindow::setStatusBarText(const QString& text) {
 void MainWindow::onImageClicked(Image* image, QPoint position) {
     //! No need to check for whether the right widget was clicked because the only time this method
     //! will be called is when the object image picker received a click on the image
-    if (ui->correspondenceEditor->isDisplayingObjectModel()) {
-        if (correspondenceCreationInProgress) {
-            displayWarning("Correspondence creation", "You need to click"
+    if (ui->poseEditor->isDisplayingObjectModel()) {
+        if (poseCreationInProgress) {
+            displayWarning("Pose creation", "You need to click"
                                                       " the object model"
                                                       " to add the 2D-3D"
-                                                      " correspondence.");
+                                                      " pose.");
         } else {
             QGuiApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
-            correspondenceCreationInProgress = true;
+            poseCreationInProgress = true;
             Q_EMIT imageClicked(image, position);
         }
     } else {
         QMessageBox::warning(this, "Select object model first", "Please select an object model from the list\n"
                                                                 "of object models first before trying to create\n"
-                                                                "a new correspondence.");
+                                                                "a new pose.");
     }
 }
 
 void MainWindow::onObjectModelClicked(ObjectModel* objectModel, QVector3D position) {
-    if (!correspondenceCreationInProgress) {
+    if (!poseCreationInProgress) {
         // Do not show this warning as clicking the 3D model focuses the viewer
         // and enables moving around with the arrow keys
         /*
-        displayWarning("Correspondence creation", "You need to click a position on"
+        displayWarning("Pose creation", "You need to click a position on"
                                                   " the image first before selecting"
                                                   " the corresponding 3D position.");
                                                   */
     }
     QGuiApplication::restoreOverrideCursor();
-    correspondenceCreationInProgress = false;
-    // The user might click on the overlay before he starts to create a correspondence,
+    poseCreationInProgress = false;
+    // The user might click on the overlay before he starts to create a pose,
     // i.e. the overlay is not visible yet and not created. But as soon as the user clicks
-    // the image and then the object, this adds a correspondence point and the overlay
+    // the image and then the object, this adds a pose point and the overlay
     // should be hidden.
     Q_EMIT objectModelClicked(objectModel, position);
 }
@@ -210,7 +210,7 @@ void MainWindow::onSelectedObjectModelChanged(int index) {
     ObjectModel *model = new ObjectModel(objectModels.at(index));
     Q_EMIT selectedObjectModelChanged(model);
     delete model;
-    onCorrespondenceCreationReset();
+    onPoseCreationReset();
 }
 
 void MainWindow::onSelectedImageChanged(int index) {
@@ -220,7 +220,7 @@ void MainWindow::onSelectedImageChanged(int index) {
     Image *image = new Image(images.at(index));
     Q_EMIT selectedImageChanged(image);
     delete image;
-    onCorrespondenceCreationReset();
+    onPoseCreationReset();
 }
 
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
@@ -239,37 +239,37 @@ void MainWindow::displayWarning(const QString &title, const QString &text) {
     QMessageBox::warning(this, title, text);
 }
 
-void MainWindow::onCorrespondencePointStarted(QPoint point2D, int currentNumberOfPoints, int requiredNumberOfPoints) {
+void MainWindow::onPosePointStarted(QPoint point2D, int currentNumberOfPoints, int requiredNumberOfPoints) {
     setStatusBarText("Please select the corresponding 3D point [" +
                                 QString::number(currentNumberOfPoints)
                                 + " of min. " +
                                 QString::number(requiredNumberOfPoints)
                      + "].");
-    Q_EMIT correspondencePointStarted(point2D, currentNumberOfPoints, requiredNumberOfPoints);
+    Q_EMIT posePointStarted(point2D, currentNumberOfPoints, requiredNumberOfPoints);
 }
 
-void MainWindow::onCorrespondencePointFinished(QVector3D point3D, int currentNumberOfPoints, int requiredNumberOfPoints) {
-    setStatusBarText("Please select another correspondence point [" +
+void MainWindow::onPosePointFinished(QVector3D point3D, int currentNumberOfPoints, int requiredNumberOfPoints) {
+    setStatusBarText("Please select another pose point [" +
                                 QString::number(currentNumberOfPoints)
                                 + " of min. " +
                                 QString::number(requiredNumberOfPoints)
                      + "].");
-    Q_EMIT correspondencePointFinished(point3D, currentNumberOfPoints, requiredNumberOfPoints);
+    Q_EMIT posePointFinished(point3D, currentNumberOfPoints, requiredNumberOfPoints);
 }
 
-void MainWindow::onCorrespondenceCreated() {
-    onCorrespondenceCreationReset();
+void MainWindow::onPoseCreated() {
+    onPoseCreationReset();
 }
 
-void MainWindow::onCorrespondenceCreationReset() {
+void MainWindow::onPoseCreationReset() {
     setStatusBarText("Ready.");
     QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
-    correspondenceCreationInProgress = false;
+    poseCreationInProgress = false;
 }
 
-void MainWindow::onCorrespondenceCreationRequested() {
-    setStatusBarText("Creating correspondence...");
-    Q_EMIT requestCorrespondenceCreation();
+void MainWindow::onPoseCreationRequested() {
+    setStatusBarText("Creating pose...");
+    Q_EMIT requestPoseCreation();
     QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 }
 
@@ -282,7 +282,7 @@ void MainWindow::onPreferencesChanged(const QString &identifier) {
     UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier(identifier);
     setPathOnLeftBreadcrumbView(preferences->getImagesPath());
     setPathOnRightBreadcrumbView(preferences->getObjectModelsPath());
-    onCorrespondenceCreationReset();
+    onPoseCreationReset();
 }
 
 void MainWindow::onActionAboutTriggered() {
@@ -323,7 +323,7 @@ void MainWindow::onActionSettingsTriggered()
 
 void MainWindow::onActionAbortCreationTriggered() {
     setStatusBarText("Ready.");
-    Q_EMIT correspondenceCreationAborted();
+    Q_EMIT poseCreationAborted();
 }
 
 void MainWindow::onActionReloadViewsTriggered() {
@@ -349,14 +349,14 @@ void MainWindow::onPosePredictionRequestedForImages(QList<Image> images) {
     emit posePredictionRequestedForImages(images);
 }
 
-void MainWindow::onCorrespondencePredictionRequested() {
+void MainWindow::onPosePredictionRequested() {
     if (networkProgressView.isNull()) {
         networkProgressView.reset(new NetworkProgressView(this));
     }
     networkProgressView->show();
     networkProgressView->setGeometry(QRect(0, 0, this->width(), this->height()));
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    Q_EMIT correspondencePredictionRequested();
+    Q_EMIT posePredictionRequested();
 }
 
 QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";

@@ -14,7 +14,7 @@ HEADERS  += \
     $$PWD/src/main/model/modelmanager.hpp \
     $$PWD/src/main/model/objectmodel.hpp \
     $$PWD/src/main/model/jsonloadandstorestrategy.hpp \
-    $$PWD/src/main/model/correspondence.hpp \
+    $$PWD/src/main/model/pose.hpp \
     $$PWD/src/main/misc/global.h \
     $$PWD/src/main/misc/preferences/preferences.hpp \
     $$PWD/src/main/misc/preferences/preferencesstore.hpp \
@@ -29,18 +29,18 @@ HEADERS  += \
     $$PWD/src/main/view/settings/settingsdialog.hpp \
     $$PWD/src/main/view/settings/settingsgeneralpage.hpp \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.hpp \
-    $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.hpp \
-    $$PWD/src/main/view/correspondenceviewer/rendering/backgroundimagerenderable.hpp \
-    $$PWD/src/main/view/correspondenceviewer/rendering/correspondenceviewerglwidget.hpp \
-    $$PWD/src/main/view/correspondenceviewer/rendering/clickvisualizationoverlay.hpp \
-    $$PWD/src/main/view/correspondenceviewer/rendering/correspondencerenderable.hpp \
-    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.hpp \
-    $$PWD/src/main/view/correspondenceeditor/rendering/correspondenceeditorglwidget.hpp \
-    $$PWD/src/main/view/correspondenceeditor/rendering/objectmodelrenderable.hpp \
+    $$PWD/src/main/view/poseviewer/poseviewer.hpp \
+    $$PWD/src/main/view/poseviewer/rendering/backgroundimagerenderable.hpp \
+    $$PWD/src/main/view/poseviewer/rendering/poseviewerglwidget.hpp \
+    $$PWD/src/main/view/poseviewer/rendering/clickvisualizationoverlay.hpp \
+    $$PWD/src/main/view/poseviewer/rendering/poserenderable.hpp \
+    $$PWD/src/main/view/poseeditor/poseeditor.hpp \
+    $$PWD/src/main/view/poseeditor/rendering/poseeditorglwidget.hpp \
+    $$PWD/src/main/view/poseeditor/rendering/objectmodelrenderable.hpp \
     $$PWD/src/main/misc/generalhelper.h \
     $$PWD/src/main/view/gallery/rendering/offscreenrenderer.hpp \
     $$PWD/src/main/controller/neuralnetworkcontroller.hpp \
-    $$PWD/src/main/controller/correspondencecreator.hpp \
+    $$PWD/src/main/controller/posecreator.hpp \
     $$PWD/src/main/view/settings/settingsnetworkpage.hpp \
     $$PWD/src/main/controller/neuralnetworkrunnable.hpp \
     $$PWD/src/main/view/neuralnetworkdialog/neuralnetworkdialog.hpp \
@@ -50,14 +50,14 @@ HEADERS  += \
 SOURCES += \
     $$PWD/src/main/view/mainwindow.cpp \
     $$PWD/src/main/controller/maincontroller.cpp \
-    $$PWD/src/main/controller/correspondencecreator.cpp \
+    $$PWD/src/main/controller/posecreator.cpp \
     $$PWD/src/main/model/image.cpp \
     $$PWD/src/main/model/objectmodel.cpp \
     $$PWD/src/main/model/loadandstorestrategy.cpp \
     $$PWD/src/main/model/cachingmodelmanager.cpp \
     $$PWD/src/main/model/modelmanager.cpp \
     $$PWD/src/main/model/jsonloadandstorestrategy.cpp \
-    $$PWD/src/main/model/correspondence.cpp \
+    $$PWD/src/main/model/pose.cpp \
     $$PWD/src/main/view/breadcrumb/breadcrumbview.cpp \
     $$PWD/src/main/view/navigationcontrols/navigationcontrols.cpp \
     $$PWD/src/main/view/gallery/gallery.cpp \
@@ -68,14 +68,14 @@ SOURCES += \
     $$PWD/src/main/view/settings/settingsgeneralpage.cpp \
     $$PWD/src/main/view/settings/settingsnetworkpage.cpp \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.cpp \
-    $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.cpp \
-    $$PWD/src/main/view/correspondenceviewer/rendering/backgroundimagerenderable.cpp \
-    $$PWD/src/main/view/correspondenceviewer/rendering/correspondenceviewerglwidget.cpp \
-    $$PWD/src/main/view/correspondenceviewer/rendering/correspondencerenderable.cpp \
-    $$PWD/src/main/view/correspondenceviewer/rendering/clickvisualizationoverlay.cpp \
-    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.cpp \
-    $$PWD/src/main/view/correspondenceeditor/rendering/correspondenceeditorglwidget.cpp \
-    $$PWD/src/main/view/correspondenceeditor/rendering/objectmodelrenderable.cpp \
+    $$PWD/src/main/view/poseviewer/poseviewer.cpp \
+    $$PWD/src/main/view/poseviewer/rendering/backgroundimagerenderable.cpp \
+    $$PWD/src/main/view/poseviewer/rendering/poseviewerglwidget.cpp \
+    $$PWD/src/main/view/poseviewer/rendering/poserenderable.cpp \
+    $$PWD/src/main/view/poseviewer/rendering/clickvisualizationoverlay.cpp \
+    $$PWD/src/main/view/poseeditor/poseeditor.cpp \
+    $$PWD/src/main/view/poseeditor/rendering/poseeditorglwidget.cpp \
+    $$PWD/src/main/view/poseeditor/rendering/objectmodelrenderable.cpp \
     $$PWD/src/main/misc/preferences/preferencesstore.cpp\
     $$PWD/src/main/misc/preferences/preferences.cpp \
     $$PWD/src/main/misc/generalhelper.cpp \
@@ -95,8 +95,8 @@ FORMS    += \
     $$PWD/src/main/view/settings/settingsgeneralpage.ui \
     $$PWD/src/main/view/settings/settingsnetworkpage.ui \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.ui \
-    $$PWD/src/main/view/correspondenceviewer/correspondenceviewer.ui \
-    $$PWD/src/main/view/correspondenceeditor/correspondenceeditor.ui \
+    $$PWD/src/main/view/poseviewer/poseviewer.ui \
+    $$PWD/src/main/view/poseeditor/poseeditor.ui \
     $$PWD/src/main/view/neuralnetworkdialog/neuralnetworkdialog.ui \
     $$PWD/src/main/view/neuralnetworkprogressview/networkprogressview.ui
 

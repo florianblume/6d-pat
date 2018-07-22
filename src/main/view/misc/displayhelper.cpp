@@ -2,7 +2,7 @@
 
 namespace  DisplayHelper {
 
-    QColor colorForCorrespondencePointIndex(int index) {
+    QColor colorForPosePointIndex(int index) {
         switch(index) {
             case 0: return Qt::red;
             case 1: return Qt::green;

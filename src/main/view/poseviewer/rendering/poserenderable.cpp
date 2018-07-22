@@ -1,17 +1,17 @@
-#include "correspondencerenderable.hpp"
+#include "poserenderable.hpp"
 
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-CorrespondenceRenderable::CorrespondenceRenderable(const Correspondence &correspondence,
+PoseRenderable::PoseRenderable(const Pose &pose,
                                              int vertexAttributeLoc,
                                              int normalAttributeLoc) :
-    correspondenceId(correspondence.getID()),
-    objectModel(*correspondence.getObjectModel()),
-    position(correspondence.getPosition()),
-    rotation(correspondence.getRotation()),
+    poseId(pose.getID()),
+    objectModel(*pose.getObjectModel()),
+    position(pose.getPosition()),
+    rotation(pose.getRotation()),
     vertexBuffer(QOpenGLBuffer::VertexBuffer),
     normalBuffer(QOpenGLBuffer::VertexBuffer),
     indexBuffer(QOpenGLBuffer::IndexBuffer),
@@ -33,51 +33,51 @@ CorrespondenceRenderable::CorrespondenceRenderable(const Correspondence &corresp
     populateVertexArrayObject();
 }
 
-QMatrix4x4 CorrespondenceRenderable::getModelViewMatrix() {
+QMatrix4x4 PoseRenderable::getModelViewMatrix() {
     return viewModelMatrix;
 }
 
-ObjectModel CorrespondenceRenderable::getObjectModel() {
+ObjectModel PoseRenderable::getObjectModel() {
     return objectModel;
 }
 
-QVector3D CorrespondenceRenderable::getPosition() {
+QVector3D PoseRenderable::getPosition() {
     return position;
 }
 
-void CorrespondenceRenderable::setPosition(QVector3D position) {
+void PoseRenderable::setPosition(QVector3D position) {
     this->position = position;
     computeModelViewMatrix();
 }
 
-QMatrix3x3 CorrespondenceRenderable::getRotation() {
+QMatrix3x3 PoseRenderable::getRotation() {
     return rotation;
 }
 
-void CorrespondenceRenderable::setRotation(QMatrix3x3 rotation) {
+void PoseRenderable::setRotation(QMatrix3x3 rotation) {
     this->rotation = rotation;
     computeModelViewMatrix();
 }
 
-QOpenGLVertexArrayObject *CorrespondenceRenderable::getVertexArrayObject() {
+QOpenGLVertexArrayObject *PoseRenderable::getVertexArrayObject() {
     return &vao;
 }
 
-QString CorrespondenceRenderable::getCorrespondenceId() {
-    return correspondenceId;
+QString PoseRenderable::getPoseId() {
+    return poseId;
 }
 
-int CorrespondenceRenderable::getIndicesCount() {
+int PoseRenderable::getIndicesCount() {
     return indices.size();
 }
 
-bool CorrespondenceRenderable::operator==(const CorrespondenceRenderable &other) {
-    return correspondenceId == other.correspondenceId;
+bool PoseRenderable::operator==(const PoseRenderable &other) {
+    return poseId == other.poseId;
 }
 
 // Private functions from here
 
-void CorrespondenceRenderable::computeModelViewMatrix() {
+void PoseRenderable::computeModelViewMatrix() {
     viewModelMatrix = QMatrix4x4(rotation);
     viewModelMatrix(0, 3) = position[0];
     viewModelMatrix(1, 3) = position[1];
@@ -89,7 +89,7 @@ void CorrespondenceRenderable::computeModelViewMatrix() {
     viewModelMatrix = yz_flip * viewModelMatrix;
 }
 
-void CorrespondenceRenderable::processMesh(aiMesh *mesh) {
+void PoseRenderable::processMesh(aiMesh *mesh) {
     // Get Vertices
     if (mesh->mNumVertices > 0)
     {
@@ -130,7 +130,7 @@ void CorrespondenceRenderable::processMesh(aiMesh *mesh) {
     }
 }
 
-void CorrespondenceRenderable::populateVertexArrayObject() {
+void PoseRenderable::populateVertexArrayObject() {
     vao.create();
     QOpenGLVertexArrayObject::Binder vaoBinder(&vao);
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();

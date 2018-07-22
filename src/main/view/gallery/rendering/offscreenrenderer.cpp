@@ -1,6 +1,6 @@
 #include "offscreenrenderer.hpp"
 #include "misc/global.h"
-#include "view/correspondenceeditor/rendering/objectmodelrenderable.hpp"
+#include "view/poseeditor/rendering/objectmodelrenderable.hpp"
 #include <QThread>
 #include <QOpenGLFunctions>
 

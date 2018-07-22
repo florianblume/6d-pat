@@ -54,8 +54,8 @@ void NeuralNetworkController::setImages(const QVector<Image> &images) {
     this->images = images;
 }
 
-void NeuralNetworkController::setCorrespondencesFilePath(const QString &filePath) {
-    this->correspondencesFilePath = filePath;
+void NeuralNetworkController::setPosesFilePath(const QString &filePath) {
+    this->posesFilePath = filePath;
 }
 
 void NeuralNetworkController::stop() {
@@ -124,7 +124,7 @@ void NeuralNetworkController::setPathsOnConfig(const QString &configPath) {
             imageListFile.resize(0);
             imageListFile.write(QJsonDocument(imageList).toJson());
         }
-        jsonObject["OUTPUT_FILE"] = correspondencesFilePath;
+        jsonObject["OUTPUT_FILE"] = posesFilePath;
         jsonObject["IMAGES_PATH"] = imagesPath;
         jsonObject["CAM_INFO_PATH"] = QDir(imagesPath).filePath("info.json");
         jsonObject["SEGMENTATION_IMAGES_PATH"] = segmentationImagesPath;

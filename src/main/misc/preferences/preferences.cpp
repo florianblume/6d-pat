@@ -9,7 +9,7 @@ Preferences::Preferences(const Preferences &preferences) {
     this->segmentationImagesPath = preferences.segmentationImagesPath;
     this->imagesPath = preferences.imagesPath;
     this->objectModelsPath = preferences.objectModelsPath;
-    this->correspondencesFilePath = preferences.correspondencesFilePath;
+    this->posesFilePath = preferences.posesFilePath;
     this->identifier = preferences.identifier;
 }
 
@@ -40,12 +40,12 @@ void Preferences::setObjectModelsPath(const QString &value) {
     objectModelsPath = value;
 }
 
-QString Preferences::getCorrespondencesFilePath() const {
-    return correspondencesFilePath;
+QString Preferences::getPosesFilePath() const {
+    return posesFilePath;
 }
 
-void Preferences::setCorrespondencesFilePath(const QString &value) {
-    correspondencesFilePath = value;
+void Preferences::setPosesFilePath(const QString &value) {
+    posesFilePath = value;
 }
 
 QMap<QString, QString> Preferences::getSegmentationCodes() const {

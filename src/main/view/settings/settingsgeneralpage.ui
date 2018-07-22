@@ -177,7 +177,7 @@
     </widget>
    </item>
    <item row="4" column="0">
-    <widget class="QLabel" name="labelCorrespondencesPath">
+    <widget class="QLabel" name="labelPosesPath">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
        <horstretch>1</horstretch>
@@ -191,7 +191,7 @@
       </size>
      </property>
      <property name="text">
-      <string>Correspondences path</string>
+      <string>Poses path</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -212,7 +212,7 @@
     </widget>
    </item>
    <item row="4" column="1">
-    <widget class="QLineEdit" name="editCorrespondencesPath">
+    <widget class="QLineEdit" name="editPosesPath">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>3</horstretch>
@@ -228,7 +228,7 @@
     </widget>
    </item>
    <item row="4" column="2">
-    <widget class="QPushButton" name="buttonCorrespondencesPath">
+    <widget class="QPushButton" name="buttonPosesPath">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -327,10 +327,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonCorrespondencesPath</sender>
+   <sender>buttonPosesPath</sender>
    <signal>clicked()</signal>
    <receiver>SettingsGeneralPage</receiver>
-   <slot>buttonCorrespondencesPathClicked()</slot>
+   <slot>buttonPosesPathClicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>370</x>
@@ -378,7 +378,7 @@
  <slots>
   <slot>buttonImagesPathClicked()</slot>
   <slot>buttonObjectModelsPathClicked()</slot>
-  <slot>buttonCorrespondencesPathClicked()</slot>
+  <slot>buttonPosesPathClicked()</slot>
   <slot>onComboBoxImageFilesExtensionCurrentIndexChanged(int)</slot>
   <slot>buttonSegmentationImagesPathClicked()</slot>
  </slots>

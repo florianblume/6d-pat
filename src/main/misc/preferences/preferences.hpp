@@ -29,8 +29,8 @@ public:
     QString getObjectModelsPath() const;
     void setObjectModelsPath(const QString &value);
 
-    QString getCorrespondencesFilePath() const;
-    void setCorrespondencesFilePath(const QString &value);
+    QString getPosesFilePath() const;
+    void setPosesFilePath(const QString &value);
 
     QString getIdentifier();
 
@@ -51,7 +51,7 @@ private:
     QString segmentationImagesPath;
     QString imagesPath;
     QString objectModelsPath;
-    QString correspondencesFilePath;
+    QString posesFilePath;
     QString pythonInterpreterPath;
     QString trainingScriptPath;
     QString inferenceScriptPath;

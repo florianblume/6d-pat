@@ -14,13 +14,13 @@ MainController::MainController() :
     modelManager(strategy) {
     connect(preferencesStore.get(), SIGNAL(preferencesChanged(QString)),
             this, SLOT(onPreferencesChanged(QString)));
-    correspondenceCreator.reset(new CorrespondenceCreator(0, &modelManager));
-    // Whenever the user clicks the create button in the correspondence editor we need to reset
+    poseCreator.reset(new PoseCreator(0, &modelManager));
+    // Whenever the user clicks the create button in the pose editor we need to reset
     // the controller as well
-    connect(&modelManager, SIGNAL(correspondenceAdded(QString)),
-            this, SLOT(resetCorrespondenceCreation()));
-    connect(&modelManager, SIGNAL(correspondenceDeleted(QString)),
-            this, SLOT(resetCorrespondenceCreation()));
+    connect(&modelManager, SIGNAL(poseAdded(QString)),
+            this, SLOT(resetPoseCreation()));
+    connect(&modelManager, SIGNAL(poseDeleted(QString)),
+            this, SLOT(resetPoseCreation()));
     connect(&strategy, SIGNAL(failedToLoadImages(QString)), this, SLOT(onFailedToLoadImages(QString)));
 }
 
@@ -34,7 +34,7 @@ void MainController::initialize() {
     currentPreferences = std::move(preferencesStore->loadPreferencesByIdentifier("default"));
     strategy.setImagesPath(currentPreferences->getImagesPath());
     strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
-    strategy.setCorrespondencesFilePath(currentPreferences->getCorrespondencesFilePath());
+    strategy.setPosesFilePath(currentPreferences->getPosesFilePath());
     strategy.setSegmentationImagesPath(currentPreferences->getSegmentationImagesPath());
     initializeMainWindow();
 }
@@ -73,26 +73,26 @@ void MainController::initializeMainWindow() {
     connect(&mainWindow, SIGNAL(objectModelsPathChanged(QString)),
             this, SLOT(onObjectModelsPathChanged(QString)));
 
-    // ## Correspondence stuff
+    // ## Pose stuff
 
-    // Delegation of correspondence creator actions to the window
-    connect(correspondenceCreator.get(), SIGNAL(correspondenceCreationAborted()),
-            &mainWindow, SLOT(onCorrespondenceCreationReset()));
-    connect(correspondenceCreator.get(), &CorrespondenceCreator::correspondencePointStarted,
-            &mainWindow, &MainWindow::onCorrespondencePointStarted);
-    connect(correspondenceCreator.get(), &CorrespondenceCreator::correspondencePointFinished,
-            &mainWindow, &MainWindow::onCorrespondencePointFinished);
+    // Delegation of pose creator actions to the window
+    connect(poseCreator.get(), SIGNAL(poseCreationAborted()),
+            &mainWindow, SLOT(onPoseCreationReset()));
+    connect(poseCreator.get(), &PoseCreator::posePointStarted,
+            &mainWindow, &MainWindow::onPosePointStarted);
+    connect(poseCreator.get(), &PoseCreator::posePointFinished,
+            &mainWindow, &MainWindow::onPosePointFinished);
 
     // Delegate of user interactions to the controller
-    connect(&mainWindow, SIGNAL(correspondenceCreationInterrupted()),
-            this, SLOT(onCorrespondenceCreationInterrupted()));
-    connect(&mainWindow, SIGNAL(correspondenceCreationAborted()),
-            this, SLOT(onCorrespondenceCreationAborted()));
-    connect(&mainWindow, SIGNAL(requestCorrespondenceCreation()),
-            this, SLOT(onCorrespondenceCreationRequested()));
+    connect(&mainWindow, SIGNAL(poseCreationInterrupted()),
+            this, SLOT(onPoseCreationInterrupted()));
+    connect(&mainWindow, SIGNAL(poseCreationAborted()),
+            this, SLOT(onPoseCreationAborted()));
+    connect(&mainWindow, SIGNAL(requestPoseCreation()),
+            this, SLOT(onPoseCreationRequested()));
 
-    connect(&mainWindow, &MainWindow::correspondencePredictionRequested,
-            this, &MainController::onCorrespondencePredictionRequested);
+    connect(&mainWindow, &MainWindow::posePredictionRequested,
+            this, &MainController::onPosePredictionRequested);
     connect(&mainWindow, &MainWindow::posePredictionRequestedForImages,
             this, &MainController::onPosePredictionRequestedForImages);
 
@@ -105,41 +105,41 @@ void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
 }
 
 void MainController::onImageClicked(Image* image, QPoint position) {
-    if (correspondenceCreator->getState() != CorrespondenceCreator::State::CorrespondencePointStarted) {
+    if (poseCreator->getState() != PoseCreator::State::PosePointStarted) {
         // We can set the image here everytime, if it differs from the previously one, the creator will
         // automatically reset the points etc.
-        correspondenceCreator->setImage(image);
-        correspondenceCreator->startCorrespondencePoint(position);
+        poseCreator->setImage(image);
+        poseCreator->startPosePoint(position);
     }
 }
 
 void MainController::onObjectModelClicked(ObjectModel* objectModel, QVector3D position) {
-    if (correspondenceCreator->isImageSet() && correspondenceCreator->getState() ==
-                                               CorrespondenceCreator::State::CorrespondencePointStarted) {
-        correspondenceCreator->setObjectModel(objectModel);
-        correspondenceCreator->finishCorrespondencePoint(position);
+    if (poseCreator->isImageSet() && poseCreator->getState() ==
+                                               PoseCreator::State::PosePointStarted) {
+        poseCreator->setObjectModel(objectModel);
+        poseCreator->finishPosePoint(position);
     }
 }
 
 
-void MainController::onCorrespondenceCreationInterrupted() {
+void MainController::onPoseCreationInterrupted() {
     // nothing to do here
 }
 
-void MainController::onCorrespondenceCreationAborted() {
-    resetCorrespondenceCreation();
+void MainController::onPoseCreationAborted() {
+    resetPoseCreation();
 }
 
 void MainController::onImagePathChanged(const QString &newPath) {
     this->strategy.setImagesPath(newPath);
     this->currentPreferences->setImagesPath(newPath);
-    resetCorrespondenceCreation();
+    resetPoseCreation();
 }
 
 void MainController::onObjectModelsPathChanged(const QString &newPath) {
     this->strategy.setObjectModelsPath(newPath);
     this->currentPreferences->setObjectModelsPath(newPath);
-    resetCorrespondenceCreation();
+    resetPoseCreation();
 }
 
 void MainController::showView() {
@@ -147,17 +147,17 @@ void MainController::showView() {
     mainWindow.raise();
 }
 
-void MainController::resetCorrespondenceCreation() {
-    correspondenceCreator->abortCreation();
+void MainController::resetPoseCreation() {
+    poseCreator->abortCreation();
 }
 
-void MainController::onCorrespondenceCreationRequested() {
+void MainController::onPoseCreationRequested() {
     // The user can't request this before all the requirements are met because the creat button
     // is not enabled earlier
-    correspondenceCreator->createCorrespondence();
+    poseCreator->createPose();
 }
 
-void MainController::onCorrespondencePredictionRequested() {
+void MainController::onPosePredictionRequested() {
     performPosePredictionForImages(QList<Image>() << *mainWindow.getCurrentlyViewedImage());
 }
 
@@ -185,7 +185,7 @@ void MainController::performPosePredictionForImages(QList<Image> images) {
         networkController->setInferencePythonScript(currentPreferences->getInferenceScriptPath());
     }
     networkController->setImages(images.toVector());
-    networkController->setCorrespondencesFilePath(strategy.getCorrespondencesFilePath().path());
+    networkController->setPosesFilePath(strategy.getPosesFilePath().path());
     networkController->setImagesPath(currentPreferences->getImagesPath());
     networkController->setSegmentationImagesPath(currentPreferences->getSegmentationImagesPath());
     networkController->inference(currentPreferences->getNetworkConfigPath());
@@ -217,10 +217,10 @@ void MainController::onPreferencesChanged(const QString &identifier) {
         strategy.setImagesPath(currentPreferences->getImagesPath());
     if (currentPreferences->getObjectModelsPath().compare(strategy.getObjectModelsPath().path()) != 0)
         strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
-    if (currentPreferences->getCorrespondencesFilePath().compare(strategy.getCorrespondencesFilePath().path()) != 0)
-        strategy.setCorrespondencesFilePath(currentPreferences->getCorrespondencesFilePath());
+    if (currentPreferences->getPosesFilePath().compare(strategy.getPosesFilePath().path()) != 0)
+        strategy.setPosesFilePath(currentPreferences->getPosesFilePath());
     if (currentPreferences->getSegmentationImagesPath().compare(strategy.getSegmentationImagesPath().path()) != 0)
         strategy.setSegmentationImagesPath(currentPreferences->getSegmentationImagesPath());
     setSegmentationCodesOnGalleryObjectModelModel();
-    correspondenceCreator->abortCreation();
+    poseCreator->abortCreation();
 }

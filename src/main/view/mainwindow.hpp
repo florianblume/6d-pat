@@ -50,7 +50,7 @@ public:
     void setPathOnRightBreadcrumbView(const QString &pathToShow);
     void setPathOnLeftNavigationControls(const QString &path);
     void setPathOnRightNavigationControls(const QString &path);
-    void resetCorrespondenceViewer();
+    void resetPoseViewer();
 
     void setStatusBarText(const QString& text);
 
@@ -68,7 +68,7 @@ public:
     void setGalleryObjectModelModel(GalleryObjectModelModel* model);
 
     /*!
-     * \brief setModelManagerForCorrespondenceEditor sets the model manager for the correspondence editor.
+     * \brief setModelManagerForPoseEditor sets the model manager for the pose editor.
      * This method passes the model manager directly because th editor has to access its functions at various
      * places making a proxy inbetween to complex.
      * \param modelManager the model manager that the editor uses to load correspondeces, update them, etc...
@@ -79,7 +79,7 @@ public:
 
     /*!
      * \brief getCurrentlyViewedImage returns the image currently selected in the images
-     * gallery and displayed by the correspondence viewer.
+     * gallery and displayed by the pose viewer.
      * \return the image currently displayed
      */
     Image *getCurrentlyViewedImage();
@@ -94,20 +94,20 @@ public Q_SLOTS:
      */
     void mouseReleaseEvent(QMouseEvent*) override;
 
-    //! The slot that catches the Q_EMITted signal when the 3D model in the lower right correspondence controls
-    //! is clicked (see CorrespondenceEditorControls)
+    //! The slot that catches the Q_EMITted signal when the 3D model in the lower right pose controls
+    //! is clicked (see PoseEditorControls)
     void onObjectModelClicked(ObjectModel* objectModel, QVector3D position);
 
     /*!
      * \brief onSelectedObjectModelChanged will be called from the right gallery that displays
      * objects models so that the main view can retrieve the actual object model an pass it on
-     * to the correspondence editor controls.
+     * to the pose editor controls.
      */
     void onSelectedObjectModelChanged(int index);
 
     /*!
      * \brief onSelectedImageChanged will be called from the left gallery that displays
-     * images so that the main view can retrieve the actual image and pass it on to the correspondence
+     * images so that the main view can retrieve the actual image and pass it on to the pose
      * viewer.
      * \param index the index of the selected image
      */
@@ -135,43 +135,43 @@ public Q_SLOTS:
     void displayWarning(const QString &title, const QString& text);
 
     /*!
-     * \brief onCorrespondencePointCreationInitiated can be called when the user clicked the image
+     * \brief onPosePointCreationInitiated can be called when the user clicked the image
      * but not the object model yet, to indicate that the program recieved the click correctly.
-     * \param point2D the 2D location of the correspondence point to be created
-     * \param currentNumberOfPoints the number of currently added correspondence points
-     * \param requiredNumberOfPoints the number of totally required correspondence points to create
-     * a new correspondence
+     * \param point2D the 2D location of the pose point to be created
+     * \param currentNumberOfPoints the number of currently added pose points
+     * \param requiredNumberOfPoints the number of totally required pose points to create
+     * a new pose
      */
-    void onCorrespondencePointStarted(QPoint point2D, int currentNumberOfPoints, int minimumNumberOfPoints);
+    void onPosePointStarted(QPoint point2D, int currentNumberOfPoints, int minimumNumberOfPoints);
 
     /*!
-     * \brief onCorrespondencePointAdded can be called when the user clicked the image and then
+     * \brief onPosePointAdded can be called when the user clicked the image and then
      * the object and as a result the number of added corresponding points changes.
-     * \param point3D the 3D location of the correspondence point to be created
-     * \param currentNumberOfPoints the number of currently added correspondence points
-     * \param requiredNumberOfPoints the number of totally required correspondence points to create
-     * a new correspondence
+     * \param point3D the 3D location of the pose point to be created
+     * \param currentNumberOfPoints the number of currently added pose points
+     * \param requiredNumberOfPoints the number of totally required pose points to create
+     * a new pose
      */
-    void onCorrespondencePointFinished(QVector3D point3D, int currentNumberOfPoints, int minimumNumberOfPoints);
+    void onPosePointFinished(QVector3D point3D, int currentNumberOfPoints, int minimumNumberOfPoints);
 
     /*!
-     * \brief correspondenceCreated can be called when the process of creating a correspondence
+     * \brief poseCreated can be called when the process of creating a pose
      * finished successfully.
      */
-    void onCorrespondenceCreated();
+    void onPoseCreated();
 
     /*!
-     * \brief onCorrespondenceCreationReset can be called when the process of correspondence
+     * \brief onPoseCreationReset can be called when the process of pose
      * creation was reset for whatever reason.
      */
-    void onCorrespondenceCreationReset();
+    void onPoseCreationReset();
 
     /*!
-     * \brief onCorrespondenceCreationRequested can be called to request the creation of an
-     * ObjectImageCorrespondence. The caller has to make sure, that the prerequisities (e.g.
-     * enough correspondence points that the user clicked) are met.
+     * \brief onPoseCreationRequested can be called to request the creation of an
+     * ObjectImagePose. The caller has to make sure, that the prerequisities (e.g.
+     * enough pose points that the user clicked) are met.
      */
-    void onCorrespondenceCreationRequested();
+    void onPoseCreationRequested();
 
     /*!
      * \brief hideNetworkProgressView will be called externaly when the network has finished
@@ -181,14 +181,14 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     /*!
-     * \brief imageClicked Q_EMITted when the image in the correspondence viewer is clicked.
+     * \brief imageClicked Q_EMITted when the image in the pose viewer is clicked.
      * \param image the image that was clicked
      * \param position the position where it was clicked
      */
     void imageClicked(Image* image, QPoint position);
 
     /*!
-     * \brief objectModelClicked Q_EMITted when the object model displayed in the correspondence editor
+     * \brief objectModelClicked Q_EMITted when the object model displayed in the pose editor
      * is clicked.
      * \param objectModel the object model that was clicked
      * \param position the position where it was clicked
@@ -208,51 +208,51 @@ Q_SIGNALS:
     void selectedImageChanged(Image *image);
 
     /*!
-     * \brief onCorrespondencePointCreationInitiated is Q_EMITted whenever the window receives a signal
-     * that a correspondence point has been started (i.e. a 2D point was added to the correspondence
+     * \brief onPosePointCreationInitiated is Q_EMITted whenever the window receives a signal
+     * that a pose point has been started (i.e. a 2D point was added to the pose
      * creator, this is what we hide here).
-     * \param point2D the 2D location of the correspondence point to be created
-     * \param currentNumberOfPoints the number of currently added correspondence points
-     * \param requiredNumberOfPoints the number of totally required correspondence points to create
-     * a new correspondence
+     * \param point2D the 2D location of the pose point to be created
+     * \param currentNumberOfPoints the number of currently added pose points
+     * \param requiredNumberOfPoints the number of totally required pose points to create
+     * a new pose
      */
-    void correspondencePointStarted(QPoint point2D,
+    void posePointStarted(QPoint point2D,
                                     int currentNumberOfPoints,
                                     int minimumNumberOfPoints);
 
     /*!
-     * \brief onCorrespondencePointAdded is Q_EMITted whenever the window receives a signal that
-     * a correspondence point has been added (i.e. to the correspondence creator, this is what we
+     * \brief onPosePointAdded is Q_EMITted whenever the window receives a signal that
+     * a pose point has been added (i.e. to the pose creator, this is what we
      * hide here).
-     * \param point3D the 3D location of the correspondence point to be created
-     * \param currentNumberOfPoints the number of currently added correspondence points
-     * \param requiredNumberOfPoints the number of totally required correspondence points to create
-     * a new correspondence
+     * \param point3D the 3D location of the pose point to be created
+     * \param currentNumberOfPoints the number of currently added pose points
+     * \param requiredNumberOfPoints the number of totally required pose points to create
+     * a new pose
      */
-    void correspondencePointFinished(QVector3D point3D,
+    void posePointFinished(QVector3D point3D,
                                      int currentNumberOfPoints,
                                      int minimumNumberOfPoints);
 
     /*!
-     * \brief correspondenceCreationInterrupted this signal is Q_EMITted when the user clicks the
+     * \brief poseCreationInterrupted this signal is Q_EMITted when the user clicks the
      * overlay that is being added to the view as soon as the image is clicked anywhere. Clicking
      * the overlay can be an accident or because the image was clicked at the wrong position.
      * Thus we assume that the user only interrupted the creation, not aborted it. The user
      * can abort the creation from the menu.
      */
-    void correspondenceCreationInterrupted();
+    void poseCreationInterrupted();
 
     /*!
-     * \brief correspondenceCreationAborted is Q_EMITted when the user clicks the abort creation
+     * \brief poseCreationAborted is Q_EMITted when the user clicks the abort creation
      * button
      */
-    void correspondenceCreationAborted();
+    void poseCreationAborted();
 
     /*!
-     * \brief requestCorrespondenceCreation this signal is Q_EMITted whenever the user uses the UI
-     * to request the creation of a correspondence.
+     * \brief requestPoseCreation this signal is Q_EMITted whenever the user uses the UI
+     * to request the creation of a pose.
      */
-    void requestCorrespondenceCreation();
+    void requestPoseCreation();
 
     /*!
      * \brief imagesPathChanged Q_EMITted when the images path changes because the user used the
@@ -268,13 +268,13 @@ Q_SIGNALS:
      */
     void objectModelsPathChanged(const QString &newPath);
 
-    void correspondencePredictionRequested();
+    void posePredictionRequested();
     void posePredictionRequestedForImages(QList<Image> images);
 
 private:
     Ui::MainWindow *ui;
 
-    // The label that displays the status of the program, like how many correspondence points have
+    // The label that displays the status of the program, like how many pose points have
     // been added, etc.
     QLabel *statusBarLabel = new QLabel();
 
@@ -285,10 +285,10 @@ private:
     void writeSettings();
     void readSettings();
 
-    // To indicate whether to Q_EMIT signal correspondence
+    // To indicate whether to Q_EMIT signal pose
     // creation aborted when the user clicks anywhere on
     // the window
-    bool correspondenceCreationInProgress = false;
+    bool poseCreationInProgress = false;
 
     QScopedPointer<NetworkProgressView> networkProgressView;
     QScopedPointer<NeuralNetworkDialog> neuralNetworkDialog;
@@ -312,7 +312,7 @@ private:
 
 private Q_SLOTS:
     // Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
-    // right clicks in the image to start creating a correspondence
+    // right clicks in the image to start creating a pose
     void onImageClicked(Image* image, QPoint position);
 
     void onPreferencesChanged(const QString &identifier);
@@ -324,7 +324,7 @@ private Q_SLOTS:
     void onActionReloadViewsTriggered();
     void onActionNetworkPredictTriggered();
     void onPosePredictionRequestedForImages(QList<Image> images);
-    void onCorrespondencePredictionRequested();
+    void onPosePredictionRequested();
 };
 
 #endif // MAINWINDOW_H

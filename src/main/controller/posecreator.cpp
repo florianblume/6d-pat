@@ -1,5 +1,5 @@
-#include "correspondencecreator.hpp"
-#include "model/correspondence.hpp"
+#include "posecreator.hpp"
+#include "model/pose.hpp"
 #include "misc/generalhelper.h"
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/core.hpp>
@@ -7,45 +7,45 @@
 #include <QImage>
 #include <QDebug>
 
-CorrespondenceCreator::CorrespondenceCreator(QObject *parent, ModelManager *modelManager) :
+PoseCreator::PoseCreator(QObject *parent, ModelManager *modelManager) :
     QObject(parent),
     modelManager(modelManager) {
 
 }
 
-void CorrespondenceCreator::setModelManager(ModelManager *modelManager) {
+void PoseCreator::setModelManager(ModelManager *modelManager) {
     Q_ASSERT(modelManager);
     this->modelManager = modelManager;
 }
 
-CorrespondenceCreator::State CorrespondenceCreator::getState() {
+PoseCreator::State PoseCreator::getState() {
     return currentState;
 }
 
-void CorrespondenceCreator::abortCreation() {
+void PoseCreator::abortCreation() {
     image = Q_NULLPTR;
     objectModel = Q_NULLPTR;
     points.clear();
     currentState = State::Empty;
-    Q_EMIT correspondenceCreationAborted();
+    Q_EMIT poseCreationAborted();
 }
 
-void CorrespondenceCreator::setMinimumNumberOfPoints(int numberOfPoints) {
+void PoseCreator::setMinimumNumberOfPoints(int numberOfPoints) {
     Q_ASSERT(numberOfPoints >= 1);
     minimumNumberOfPoints = numberOfPoints;
-    // If we have points present and did not just start a correspondence point then maybe we have
-    // to set the state to ReadyForCorrespondenceCreation because suddenly enough points are present
-    if (points.size() > 0 && currentState != State::CorrespondencePointStarted) {
-        currentState = (points.size() >= minimumNumberOfPoints ? State::ReadyForCorrespondenceCreation :
-                                                          State::AwaitingMoreCorrespondencePoints);
+    // If we have points present and did not just start a pose point then maybe we have
+    // to set the state to ReadyForPoseCreation because suddenly enough points are present
+    if (points.size() > 0 && currentState != State::PosePointStarted) {
+        currentState = (points.size() >= minimumNumberOfPoints ? State::ReadyForPoseCreation :
+                                                          State::AwaitingMorePosePoints);
     }
 }
 
-int CorrespondenceCreator::getMinimumNumberOfPoints() {
+int PoseCreator::getMinimumNumberOfPoints() {
     return minimumNumberOfPoints;
 }
 
-void CorrespondenceCreator::setImage(Image *image) {
+void PoseCreator::setImage(Image *image) {
     Q_ASSERT(image);
     if (this->image != image) {
         points.clear();
@@ -55,7 +55,7 @@ void CorrespondenceCreator::setImage(Image *image) {
     }
 }
 
-void CorrespondenceCreator::setObjectModel(ObjectModel *objectModel) {
+void PoseCreator::setObjectModel(ObjectModel *objectModel) {
     Q_ASSERT(objectModel);
     Q_ASSERT(image);
 
@@ -67,35 +67,35 @@ void CorrespondenceCreator::setObjectModel(ObjectModel *objectModel) {
     }
 }
 
-void CorrespondenceCreator::startCorrespondencePoint(QPoint imagePoint) {
-    currentState = State::CorrespondencePointStarted;
+void PoseCreator::startPosePoint(QPoint imagePoint) {
+    currentState = State::PosePointStarted;
     QImage loadedImage(image->getAbsoluteImagePath());
     // A bit confusing, but I started off with the T-Less dataset, which apparently
-    correspondencePointStart = QPoint(loadedImage.width() - imagePoint.x(), loadedImage.height() - imagePoint.y());
-    Q_EMIT correspondencePointStarted(correspondencePointStart, points.size(), minimumNumberOfPoints);
+    posePointStart = QPoint(loadedImage.width() - imagePoint.x(), loadedImage.height() - imagePoint.y());
+    Q_EMIT posePointStarted(posePointStart, points.size(), minimumNumberOfPoints);
 }
 
-void CorrespondenceCreator::finishCorrespondencePoint(QVector3D objectModelPoint) {
-    if (currentState == State::CorrespondencePointStarted) {
-        points.push_back(CorrespondingPoints{correspondencePointStart, objectModelPoint});
-        currentState = (points.size() >= minimumNumberOfPoints ? State::ReadyForCorrespondenceCreation :
-                                                          State::AwaitingMoreCorrespondencePoints);
+void PoseCreator::finishPosePoint(QVector3D objectModelPoint) {
+    if (currentState == State::PosePointStarted) {
+        points.push_back(CorrespondingPoints{posePointStart, objectModelPoint});
+        currentState = (points.size() >= minimumNumberOfPoints ? State::ReadyForPoseCreation :
+                                                          State::AwaitingMorePosePoints);
         qDebug() << "Added corresponding point for image (" + image->getImagePath() + ") and object (" +
                     objectModel->getPath() + "): " + correspondingPointsToString(points.last());
-        Q_EMIT correspondencePointFinished(objectModelPoint, points.size(), minimumNumberOfPoints);
+        Q_EMIT posePointFinished(objectModelPoint, points.size(), minimumNumberOfPoints);
     } else {
-        throw "Start a correspondence point with a 2D location before adding the corresponding 3D point.";
+        throw "Start a pose point with a 2D location before adding the corresponding 3D point.";
     }
 }
 
-bool CorrespondenceCreator::createCorrespondence() {
+bool PoseCreator::createPose() {
     Q_ASSERT(objectModel);
     Q_ASSERT(image);
-    Q_ASSERT(currentState == State::ReadyForCorrespondenceCreation);
-    Q_ASSERT_X(points.size() >= 4, "create correspondence", "number of correspondence points needs"
+    Q_ASSERT(currentState == State::ReadyForPoseCreation);
+    Q_ASSERT_X(points.size() >= 4, "create pose", "number of pose points needs"
                                                             "to be greater than 4");
 
-    qDebug() << "Creating correspondence for the following points:" << endl
+    qDebug() << "Creating pose for the following points:" << endl
              << correspondingPointsToString(points.at(0)) << endl
              << correspondingPointsToString(points.at(1)) << endl
              << correspondingPointsToString(points.at(2)) << endl
@@ -152,7 +152,7 @@ bool CorrespondenceCreator::createCorrespondence() {
         rotMatrix.at<float>(1, 0), rotMatrix.at<float>(1, 1), rotMatrix.at<float>(1, 2),
         rotMatrix.at<float>(2, 0), rotMatrix.at<float>(2, 1), rotMatrix.at<float>(2, 2)
     });
-    bool success = modelManager->addObjectImageCorrespondence(image,
+    bool success = modelManager->addObjectImagePose(image,
                                                objectModel,
                                                position,
                                                rotationMatrix);
@@ -163,19 +163,19 @@ bool CorrespondenceCreator::createCorrespondence() {
     return success;
 }
 
-bool CorrespondenceCreator::isImageSet() {
+bool PoseCreator::isImageSet() {
     return image != Q_NULLPTR;
 }
 
-bool CorrespondenceCreator::isObjectModelSet() {
+bool PoseCreator::isObjectModelSet() {
     return objectModel != Q_NULLPTR;
 }
 
-int CorrespondenceCreator::numberOfCorrespondencePoints() {
+int PoseCreator::numberOfPosePoints() {
     return points.size();
 }
 
-QString CorrespondenceCreator::correspondingPointsToString(const CorrespondingPoints& points) {
+QString PoseCreator::correspondingPointsToString(const CorrespondingPoints& points) {
     return "("
             + QString::number(points.pointIn2D.x()) + ", "
             + QString::number(points.pointIn2D.y())

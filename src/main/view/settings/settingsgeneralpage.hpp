@@ -23,7 +23,7 @@ private Q_SLOTS:
     void buttonImagesPathClicked();
     void buttonSegmentationImagesPathClicked();
     void buttonObjectModelsPathClicked();
-    void buttonCorrespondencesPathClicked();
+    void buttonPosesPathClicked();
 
 private:
     Ui::SettingsGeneralPage *ui;

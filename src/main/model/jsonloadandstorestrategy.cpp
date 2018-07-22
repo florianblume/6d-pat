@@ -30,50 +30,50 @@ JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy() {
 JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy(const QDir &imagesPath,
                                                    const QDir &segmentationImagesPath,
                                                    const QDir &objectModelsPath,
-                                                   const QDir &correspondencesFilePath)
+                                                   const QDir &posesFilePath)
     : imagesPath(imagesPath),
       segmentationImagesPath(segmentationImagesPath),
       objectModelsPath(objectModelsPath),
-      correspondencesFilePath(correspondencesFilePath) {
+      posesFilePath(posesFilePath) {
     watcher.addPaths(QStringList() << imagesPath.path()
                                    << segmentationImagesPath.path()
                                    << objectModelsPath.path()
-                                   << correspondencesFilePath.path());
+                                   << posesFilePath.path());
     connectWatcherSignals();
 }
 
 JsonLoadAndStoreStrategy::~JsonLoadAndStoreStrategy() {
 }
 
-bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
-        Correspondence *objectImageCorrespondence, bool deleteCorrespondence) {
+bool JsonLoadAndStoreStrategy::persistObjectImagePose(
+        Pose *objectImagePose, bool deletePose) {
     // no need to check whether paths exist because setters do so already
 
     //! we do not need to throw an exception here, the only time the path cannot exist
     //! is if this strategy was constructed with an empty path, all other methods of
     //! setting the path check if the path exists
-    if (!QFileInfo(correspondencesFilePath.path()).exists()) {
-        Q_EMIT failedToPersistCorrespondence("The specified JSON file does not exist.");
+    if (!QFileInfo(posesFilePath.path()).exists()) {
+        Q_EMIT failedToPersistPose("The specified JSON file does not exist.");
         return false;
     }
 
     //! Read in the camera parameters from the JSON file
-    QFile jsonFile(correspondencesFilePath.path());
+    QFile jsonFile(posesFilePath.path());
     if (jsonFile.open(QFile::ReadWrite)) {
         QByteArray data = jsonFile.readAll();
         QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
         QJsonObject jsonObject = jsonDocument.object();
 
-        QString imagePath = objectImageCorrespondence->getImage()->getImagePath();
+        QString imagePath = objectImagePose->getImage()->getImagePath();
         QJsonArray entriesForImage;
 
-        if (deleteCorrespondence) {
+        if (deletePose) {
             if (jsonObject.contains(imagePath)) {
                 entriesForImage = jsonObject[imagePath].toArray();
                 int index = 0;
                 for(const QJsonValue &entry : entriesForImage) {
                     QJsonObject entryObject = entry.toObject();
-                    if (entryObject["id"] == objectImageCorrespondence->getID()) {
+                    if (entryObject["id"] == objectImagePose->getID()) {
                         entriesForImage.removeAt(index);
                     }
                     index++;
@@ -82,34 +82,34 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
             }
         } else {
             //! Preparation of 3D data for the JSON file
-            QMatrix3x3 rotationMatrix = objectImageCorrespondence->getRotation();
+            QMatrix3x3 rotationMatrix = objectImagePose->getRotation();
             QJsonArray rotationMatrixArray;
             rotationMatrixArray << rotationMatrix(0, 0) << rotationMatrix(0, 1) << rotationMatrix(0, 2)
                                 << rotationMatrix(1, 0) << rotationMatrix(1, 1) << rotationMatrix(1, 2)
                                 << rotationMatrix(2, 0) << rotationMatrix(2, 1) << rotationMatrix(2, 2);
-            QVector3D positionVector = objectImageCorrespondence->getPosition();
+            QVector3D positionVector = objectImagePose->getPosition();
             QJsonArray positionVectorArray;
             positionVectorArray << positionVector[0] << positionVector[1] << positionVector[2];
             //! Check if any entries for the image exist
             if (jsonObject.contains(imagePath)) {
-                //! There are some entries already and we check whether the correspondence
+                //! There are some entries already and we check whether the pose
                 //! already exists
                 entriesForImage = jsonObject[imagePath].toArray();
-                //! We have to check whether our correspondence exists, and if it does, only update it
-                //! If we don't find it we have to create it anew and add it to the list of correspondences
+                //! We have to check whether our pose exists, and if it does, only update it
+                //! If we don't find it we have to create it anew and add it to the list of poses
                 bool entryFound = false;
-                //! Keep track of the index if we find an existing correspondence
+                //! Keep track of the index if we find an existing pose
                 int index = 0;
                 //! Create new entry object, as we can't modify the exisiting ones directly somehow
                 QJsonObject entry;
-                entry["id"] = objectImageCorrespondence->getID();
-                entry["obj"] = objectImageCorrespondence->getObjectModel()->getPath();
+                entry["id"] = objectImagePose->getID();
+                entry["obj"] = objectImagePose->getObjectModel()->getPath();
                 entry["R"] = rotationMatrixArray;
                 entry["t"] = positionVectorArray;
 
                 for(const QJsonValue &_entry : entriesForImage) {
                     QJsonObject entryObject = _entry.toObject();
-                    if (entryObject["id"] == objectImageCorrespondence->getID()) {
+                    if (entryObject["id"] == objectImagePose->getID()) {
                         entryFound = true;
                         entriesForImage[index] = entry;
                     }
@@ -121,8 +121,8 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
                 }
             } else {
                 QJsonObject newEntry;
-                newEntry["id"] = objectImageCorrespondence->getID();
-                newEntry["obj"] = objectImageCorrespondence->getObjectModel()->getPath();
+                newEntry["id"] = objectImagePose->getID();
+                newEntry["obj"] = objectImagePose->getObjectModel()->getPath();
                 newEntry["t"] = positionVectorArray;
                 newEntry["R"] = rotationMatrixArray;
                 entriesForImage << newEntry;
@@ -133,7 +133,7 @@ bool JsonLoadAndStoreStrategy::persistObjectImageCorrespondence(
         jsonFile.write(QJsonDocument(jsonObject).toJson());
         return true;
     } else {
-        Q_EMIT failedToPersistCorrespondence("Could not read the specified JSON file.");
+        Q_EMIT failedToPersistPose("Could not read the specified JSON file.");
         return false;
     }
 }
@@ -297,16 +297,16 @@ QMap<QString,const ObjectModel*> createObjectModelMap(const QList<ObjectModel> &
     return objectModelMap;
 }
 
-QList<Correspondence> JsonLoadAndStoreStrategy::loadCorrespondences(const QList<Image> &images, const QList<ObjectModel> &objectModels) {
-    QList<Correspondence> correspondences;
+QList<Pose> JsonLoadAndStoreStrategy::loadPoses(const QList<Image> &images, const QList<ObjectModel> &objectModels) {
+    QList<Pose> poses;
 
     //! See loadImages for why we don't throw an exception here
-    if (!QFileInfo(correspondencesFilePath.path()).exists()) {
-        Q_EMIT failedToLoadCorrespondences("The specified path does not exist.");
-        return correspondences;
+    if (!QFileInfo(posesFilePath.path()).exists()) {
+        Q_EMIT failedToLoadPoses("The specified path does not exist.");
+        return poses;
     }
 
-    QFile jsonFile(correspondencesFilePath.path());
+    QFile jsonFile(posesFilePath.path());
     if (jsonFile.open(QFile::ReadWrite)) {
         QMap<QString, const Image*> imageMap = createImageMap(images);
         QMap<QString, const ObjectModel*> objectModelMap = createObjectModelMap(objectModels);
@@ -318,25 +318,25 @@ QList<Correspondence> JsonLoadAndStoreStrategy::loadCorrespondences(const QList<
         for(const QString& imagePath : jsonObject.keys()) {
             QJsonArray entriesForImage = jsonObject[imagePath].toArray();
             //! Index to keep track of entries to be able to update the
-            //! correspondences' IDs if necessary. See reason to update the IDs
+            //! poses' IDs if necessary. See reason to update the IDs
             //! further below.
             int index = 0;
-            for(const QJsonValue &correspondenceEntryRaw : entriesForImage) {
-                QJsonObject correspondenceEntry = correspondenceEntryRaw.toObject();
-                Q_ASSERT(correspondenceEntry.contains("R"));
-                Q_ASSERT(correspondenceEntry.contains("t"));
-                Q_ASSERT(correspondenceEntry.contains("obj"));
+            for(const QJsonValue &poseEntryRaw : entriesForImage) {
+                QJsonObject poseEntry = poseEntryRaw.toObject();
+                Q_ASSERT(poseEntry.contains("R"));
+                Q_ASSERT(poseEntry.contains("t"));
+                Q_ASSERT(poseEntry.contains("obj"));
 
                 //! Read rotation vector from json file
-                QJsonArray jsonRotationMatrix = correspondenceEntry["R"].toArray();
+                QJsonArray jsonRotationMatrix = poseEntry["R"].toArray();
                 QMatrix3x3 rotationMatrix = rotVectorFromJsonRotMatrix(jsonRotationMatrix);
 
-                QJsonArray translation = correspondenceEntry["t"].toArray();
+                QJsonArray translation = poseEntry["t"].toArray();
                 QVector3D qtTranslationVector = QVector3D((float) translation[0].toDouble(),
                                                           (float) translation[1].toDouble(),
                                                           (float) translation[2].toDouble());
 
-                QString objectModelPath = correspondenceEntry["obj"].toString();
+                QString objectModelPath = poseEntry["obj"].toString();
                 const Image *image = imageMap.value(imagePath);
                 const ObjectModel *objectModel = objectModelMap.value(objectModelPath);
 
@@ -346,23 +346,23 @@ QList<Correspondence> JsonLoadAndStoreStrategy::loadCorrespondences(const QList<
                     //!
                     QString id = "";
                     //! An external ground truth file (e.g. from TLESS) might not have
-                    //! IDs of exisiting correspondences. We need IDs to be able to
-                    //! modify correspondences but if we are not the creator of the
-                    //! correspondence we thus have to add an ID.
-                    if (correspondenceEntry.contains("id")) {
-                        id = correspondenceEntry["id"].toString();
+                    //! IDs of exisiting poses. We need IDs to be able to
+                    //! modify poses but if we are not the creator of the
+                    //! pose we thus have to add an ID.
+                    if (poseEntry.contains("id")) {
+                        id = poseEntry["id"].toString();
                     } else {
-                        id = GeneralHelper::createCorrespondenceId(image, objectModel);
+                        id = GeneralHelper::createPoseId(image, objectModel);
                         //! No ID attatched to the entry yet -> write it to the file
-                        //! to be able to identify the correspondences later
-                        QJsonObject modifiedEntry(correspondenceEntry);
+                        //! to be able to identify the poses later
+                        QJsonObject modifiedEntry(poseEntry);
                         modifiedEntry["id"] = id;
                         entriesForImage.replace(index, modifiedEntry);
                         jsonObject[imagePath] = entriesForImage;
                         documentDirty = true;
                     }
 
-                    correspondences.append(Correspondence(id,
+                    poses.append(Pose(id,
                                                                  qtTranslationVector,
                                                                  rotationMatrix,
                                                                  image,
@@ -379,7 +379,7 @@ QList<Correspondence> JsonLoadAndStoreStrategy::loadCorrespondences(const QList<
         }
     }
 
-    return correspondences;
+    return poses;
 }
 
 bool JsonLoadAndStoreStrategy::setImagesPath(const QDir &path) {
@@ -420,23 +420,23 @@ QDir JsonLoadAndStoreStrategy::getObjectModelsPath() const {
     return objectModelsPath;
 }
 
-bool JsonLoadAndStoreStrategy::setCorrespondencesFilePath(const QDir &path) {
+bool JsonLoadAndStoreStrategy::setPosesFilePath(const QDir &path) {
     if (!QFileInfo(path.path()).exists())
         return false;
-    if (correspondencesFilePath == path)
+    if (posesFilePath == path)
         return true;
 
-    watcher.removePath(correspondencesFilePath.path());
+    watcher.removePath(posesFilePath.path());
     watcher.addPath(path.path());
-    correspondencesFilePath = path;
+    posesFilePath = path;
 
-    Q_EMIT correspondencesChanged();
+    Q_EMIT posesChanged();
 
     return true;
 }
 
-QDir JsonLoadAndStoreStrategy::getCorrespondencesFilePath() const {
-    return correspondencesFilePath.path();
+QDir JsonLoadAndStoreStrategy::getPosesFilePath() const {
+    return posesFilePath.path();
 }
 
 void JsonLoadAndStoreStrategy::setSegmentationImagesPath(const QDir &path) {
@@ -456,17 +456,17 @@ void JsonLoadAndStoreStrategy::onDirectoryChanged(const QString &path) {
         Q_EMIT imagesChanged();
     } else if (path == objectModelsPath.path()) {
         Q_EMIT objectModelsChanged();
-    } else if (path == correspondencesFilePath.path()) {
-        Q_EMIT correspondencesChanged();
+    } else if (path == posesFilePath.path()) {
+        Q_EMIT posesChanged();
     }
 }
 
 void JsonLoadAndStoreStrategy::onFileChanged(const QString &filePath) {
-    // Only for images and object models, because storing correspondences
-    // at the correspondence file path will trigger this signal as well,
+    // Only for images and object models, because storing poses
+    // at the pose file path will trigger this signal as well,
     // but we already updated the program accordingly (of course)
-    if (filePath == correspondencesFilePath.path()) {
-        Q_EMIT correspondencesChanged();
+    if (filePath == posesFilePath.path()) {
+        Q_EMIT posesChanged();
     } else if (filePath.contains(imagesPath.path())
                && IMAGE_FILES_EXTENSIONS.contains(filePath.right(4))) {
         Q_EMIT imagesChanged();

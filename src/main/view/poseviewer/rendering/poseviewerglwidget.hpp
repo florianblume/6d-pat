@@ -1,10 +1,10 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
-#include "model/correspondence.hpp"
-#include "view/correspondenceviewer/rendering/backgroundimagerenderable.hpp"
-#include "view/correspondenceviewer/rendering/correspondencerenderable.hpp"
-#include "view/correspondenceviewer/rendering/clickvisualizationoverlay.hpp"
+#include "model/pose.hpp"
+#include "view/poseviewer/rendering/backgroundimagerenderable.hpp"
+#include "view/poseviewer/rendering/poserenderable.hpp"
+#include "view/poseviewer/rendering/clickvisualizationoverlay.hpp"
 
 #include <QString>
 #include <QList>
@@ -19,31 +19,31 @@
 #include <QOpenGLFramebufferObject>
 
 typedef QSharedPointer<BackgroundImageRenderable> BackgroundImageRenderablePtr;
-typedef QSharedPointer<CorrespondenceRenderable> CorrespondenceRenderablePtr;
+typedef QSharedPointer<PoseRenderable> PoseRenderablePtr;
 typedef QSharedPointer<QOpenGLShaderProgram> QOpenGLShaderProgramPtr;
 
-class CorrespondenceViewerGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_0
+class PoseViewerGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_0
 {
     Q_OBJECT
 
 public:
-    explicit CorrespondenceViewerGLWidget(QWidget *parent = 0);
-    void setBackgroundImageAndCorrespondences(const QString& image,
+    explicit PoseViewerGLWidget(QWidget *parent = 0);
+    void setBackgroundImageAndPoses(const QString& image,
                                               QMatrix3x3 cameraMatrix,
-                                              QList<Correspondence> &correspondences);
+                                              QList<Pose> &poses);
     void setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix);
-    void addCorrespondence(const Correspondence &correspondence);
-    void updateCorrespondence(const Correspondence &correspondence);
-    void removeCorrespondence(const QString &id);
-    void removeCorrespondences();
-    CorrespondenceRenderable *getObjectModelRenderable(
-            const Correspondence &correspondence);
+    void addPose(const Pose &pose);
+    void updatePose(const Pose &pose);
+    void removePose(const QString &id);
+    void removePoses();
+    PoseRenderable *getObjectModelRenderable(
+            const Pose &pose);
     void setObjectsOpacity(float opacity);
     void addClick(QPoint position, QColor color);
     void removeClicks();
     void reset();
 
-    ~CorrespondenceViewerGLWidget();
+    ~PoseViewerGLWidget();
 
 Q_SIGNALS:
     void positionClicked(QPoint position);
@@ -60,7 +60,7 @@ private:
     void setBackgroundImage(const QString& image,
                             QMatrix3x3 cameraMatrix,
                             bool update);
-    void addCorrespondence(const Correspondence &correspondence, bool update);
+    void addPose(const Pose &pose, bool update);
 
     void initializeBackgroundProgram();
     void initializeObjectProgram();
@@ -70,7 +70,7 @@ private:
     QOpenGLShaderProgramPtr backgroundProgram;
     QMatrix4x4 backgroundProjectionMatrix;
 
-    QVector<CorrespondenceRenderablePtr> correspondenceRenderables;
+    QVector<PoseRenderablePtr> poseRenderables;
     QOpenGLShaderProgramPtr objectsProgram;
     int projectionMatrixLoc;
     int normalMatrixLoc;

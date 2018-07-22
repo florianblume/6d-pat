@@ -10,8 +10,8 @@ SettingsGeneralPage::SettingsGeneralPage(QWidget *parent) :
     ui->setupUi(this);
     QtAwesome* awesome = new QtAwesome( qApp );
     awesome->initFontAwesome();
-    ui->buttonCorrespondencesPath->setFont(awesome->font(20));
-    ui->buttonCorrespondencesPath->setIcon(awesome->icon(fa::folderopen));
+    ui->buttonPosesPath->setFont(awesome->font(20));
+    ui->buttonPosesPath->setIcon(awesome->icon(fa::folderopen));
     ui->buttonImagesPath->setFont(awesome->font(20));
     ui->buttonImagesPath->setIcon(awesome->icon(fa::folderopen));
     ui->buttonObjectModelsPath->setFont(awesome->font(20));
@@ -29,7 +29,7 @@ void SettingsGeneralPage::setPreferences(Preferences *preferences) {
     this->preferences = preferences;
     ui->editImagesPath->setText(preferences->getImagesPath());
     ui->editObjectModelsPath->setText(preferences->getObjectModelsPath());
-    ui->editCorrespondencesPath->setText(preferences->getCorrespondencesFilePath());
+    ui->editPosesPath->setText(preferences->getPosesFilePath());
     ui->editSegmentationImagesPath->setText(preferences->getSegmentationImagesPath());
 }
 
@@ -74,11 +74,11 @@ void SettingsGeneralPage::buttonObjectModelsPathClicked() {
     }
 }
 
-void SettingsGeneralPage::buttonCorrespondencesPathClicked() {
-    QString newPath = openFileDialogForPath(ui->editCorrespondencesPath->text());
+void SettingsGeneralPage::buttonPosesPathClicked() {
+    QString newPath = openFileDialogForPath(ui->editPosesPath->text());
     if (newPath.compare("") != 0) {
-        ui->editCorrespondencesPath->setText(newPath);
-        preferences->setCorrespondencesFilePath(newPath);
+        ui->editPosesPath->setText(newPath);
+        preferences->setPosesFilePath(newPath);
     }
 }
 

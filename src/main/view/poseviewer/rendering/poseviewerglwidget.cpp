@@ -1,4 +1,4 @@
-#include "view/correspondenceviewer/rendering/correspondenceviewerglwidget.hpp"
+#include "view/poseviewer/rendering/poseviewerglwidget.hpp"
 #include "misc/global.h"
 
 #include <QFrame>
@@ -16,7 +16,7 @@
 #define PROGRAM_TEXCOORD_ATTRIBUTE 1
 #define PROGRAM_NORMAL_ATTRIBUTE 1
 
-CorrespondenceViewerGLWidget::CorrespondenceViewerGLWidget(QWidget *parent)
+PoseViewerGLWidget::PoseViewerGLWidget(QWidget *parent)
     : QOpenGLWidget(parent) {
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -32,85 +32,85 @@ CorrespondenceViewerGLWidget::CorrespondenceViewerGLWidget(QWidget *parent)
     clickOverlay->resize(this->size());
 }
 
-void CorrespondenceViewerGLWidget::setBackgroundImageAndCorrespondences(const QString &image,
+void PoseViewerGLWidget::setBackgroundImageAndPoses(const QString &image,
                                                                         QMatrix3x3 cameraMatrix,
-                                                                        QList<Correspondence> &correspondences) {
+                                                                        QList<Pose> &poses) {
     // Update only at the end
     setBackgroundImage(image, cameraMatrix, false);
-    for (Correspondence &correspondence : correspondences) {
-        addCorrespondence(correspondence, false);
+    for (Pose &pose : poses) {
+        addPose(pose, false);
     }
     update();
 }
 
-CorrespondenceViewerGLWidget::~CorrespondenceViewerGLWidget()
+PoseViewerGLWidget::~PoseViewerGLWidget()
 {
     makeCurrent();
     // To invoke destructors
     backgroundImageRenderable.reset();
-    removeCorrespondences();
+    removePoses();
     doneCurrent();
 }
 
-void CorrespondenceViewerGLWidget::setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix) {
+void PoseViewerGLWidget::setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix) {
     setBackgroundImage(image, cameraMatrix, true);
 }
 
-void CorrespondenceViewerGLWidget::addCorrespondence(const Correspondence &correspondence) {
-    addCorrespondence(correspondence, true);
+void PoseViewerGLWidget::addPose(const Pose &pose) {
+    addPose(pose, true);
 }
 
-void CorrespondenceViewerGLWidget::updateCorrespondence(const Correspondence &correspondence) {
-    CorrespondenceRenderable *renderable = getObjectModelRenderable(correspondence);
-    renderable->setPosition(correspondence.getPosition());
-    renderable->setRotation(correspondence.getRotation());
+void PoseViewerGLWidget::updatePose(const Pose &pose) {
+    PoseRenderable *renderable = getObjectModelRenderable(pose);
+    renderable->setPosition(pose.getPosition());
+    renderable->setRotation(pose.getRotation());
     update();
 }
 
-void CorrespondenceViewerGLWidget::removeCorrespondence(const QString &id) {
-    for (int index = 0; index < correspondenceRenderables.size(); index++) {
-        if (correspondenceRenderables[index]->getCorrespondenceId() == id) {
-            correspondenceRenderables.remove(index);
+void PoseViewerGLWidget::removePose(const QString &id) {
+    for (int index = 0; index < poseRenderables.size(); index++) {
+        if (poseRenderables[index]->getPoseId() == id) {
+            poseRenderables.remove(index);
             break;
         }
     }
     update();
 }
 
-void CorrespondenceViewerGLWidget::removeCorrespondences() {
-    correspondenceRenderables.clear();
+void PoseViewerGLWidget::removePoses() {
+    poseRenderables.clear();
     update();
 }
 
-CorrespondenceRenderable *CorrespondenceViewerGLWidget::getObjectModelRenderable(const Correspondence &correspondence) {
-    for (CorrespondenceRenderablePtr &ptr : correspondenceRenderables) {
-        if (ptr->getCorrespondenceId() == correspondence.getID()) {
+PoseRenderable *PoseViewerGLWidget::getObjectModelRenderable(const Pose &pose) {
+    for (PoseRenderablePtr &ptr : poseRenderables) {
+        if (ptr->getPoseId() == pose.getID()) {
             return ptr.data();
         }
     }
     return Q_NULLPTR;
 }
 
-void CorrespondenceViewerGLWidget::setObjectsOpacity(float opacity) {
+void PoseViewerGLWidget::setObjectsOpacity(float opacity) {
     this->opacity = opacity;
     update();
 }
 
-void CorrespondenceViewerGLWidget::addClick(QPoint position, QColor color) {
+void PoseViewerGLWidget::addClick(QPoint position, QColor color) {
     clickOverlay->addClickedPoint(position, color);
 }
 
-void CorrespondenceViewerGLWidget::removeClicks() {
+void PoseViewerGLWidget::removeClicks() {
     clickOverlay->removeClickedPoints();
 }
 
-void CorrespondenceViewerGLWidget::reset() {
+void PoseViewerGLWidget::reset() {
     removeClicks();
-    removeCorrespondences();
+    removePoses();
     backgroundImageRenderable.reset();
 }
 
-void CorrespondenceViewerGLWidget::initializeGL() {
+void PoseViewerGLWidget::initializeGL() {
     initializeOpenGLFunctions();
 
     glEnable(GL_DEPTH_TEST);
@@ -121,12 +121,12 @@ void CorrespondenceViewerGLWidget::initializeGL() {
     initializeObjectProgram();
 }
 
-void CorrespondenceViewerGLWidget::initializeBackgroundProgram() {
+void PoseViewerGLWidget::initializeBackgroundProgram() {
     backgroundProgram.reset(new QOpenGLShaderProgram);
     backgroundProgram->addShaderFromSourceFile(
-                QOpenGLShader::Vertex, ":/shaders/correspondenceviewer/background.vert");
+                QOpenGLShader::Vertex, ":/shaders/poseviewer/background.vert");
     backgroundProgram->addShaderFromSourceFile(
-                QOpenGLShader::Fragment, ":/shaders/correspondenceviewer/background.frag");
+                QOpenGLShader::Fragment, ":/shaders/poseviewer/background.frag");
     backgroundProgram->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
     backgroundProgram->bindAttributeLocation("texCoord", PROGRAM_TEXCOORD_ATTRIBUTE);
     backgroundProgram->link();
@@ -136,19 +136,19 @@ void CorrespondenceViewerGLWidget::initializeBackgroundProgram() {
     backgroundProgram->release();
 }
 
-void CorrespondenceViewerGLWidget::initializeObjectProgram() {
+void PoseViewerGLWidget::initializeObjectProgram() {
     // Init objects shader program
     objectsProgram.reset(new QOpenGLShaderProgram);
     objectsProgram->addShaderFromSourceFile(
-                QOpenGLShader::Vertex, ":/shaders/correspondenceviewer/object.vert");
+                QOpenGLShader::Vertex, ":/shaders/poseviewer/object.vert");
     objectsProgram->addShaderFromSourceFile(
-                QOpenGLShader::Fragment, ":/shaders/correspondenceviewer/object.frag");
+                QOpenGLShader::Fragment, ":/shaders/poseviewer/object.frag");
     objectsProgram->bindAttributeLocation("vertex", PROGRAM_VERTEX_ATTRIBUTE);
     objectsProgram->bindAttributeLocation("normal", PROGRAM_NORMAL_ATTRIBUTE);
     objectsProgram->link();
 }
 
-void CorrespondenceViewerGLWidget::paintGL() {
+void PoseViewerGLWidget::paintGL() {
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glDisable(GL_BLEND);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -184,7 +184,7 @@ void CorrespondenceViewerGLWidget::paintGL() {
         lightPosLoc = objectsProgram->uniformLocation("lightPos");
         opacityLoc = objectsProgram->uniformLocation("opacity");
 
-        for (CorrespondenceRenderablePtr &renderable : correspondenceRenderables) {
+        for (PoseRenderablePtr &renderable : poseRenderables) {
             QOpenGLVertexArrayObject::Binder vaoBinder(renderable->getVertexArrayObject());
 
             // Light position is fixed.
@@ -206,11 +206,11 @@ void CorrespondenceViewerGLWidget::paintGL() {
     objectsProgram->release();
 }
 
-void CorrespondenceViewerGLWidget::mousePressEvent(QMouseEvent *event) {
+void PoseViewerGLWidget::mousePressEvent(QMouseEvent *event) {
     lastPos = event->globalPos() - QPoint(geometry().x(), geometry().y());
 }
 
-void CorrespondenceViewerGLWidget::mouseMoveEvent(QMouseEvent *event) {
+void PoseViewerGLWidget::mouseMoveEvent(QMouseEvent *event) {
     if (event->buttons() & Qt::LeftButton) {
         QPoint newPosition = event->globalPos();
         newPosition.setX(newPosition.x() - lastPos.x());
@@ -220,14 +220,14 @@ void CorrespondenceViewerGLWidget::mouseMoveEvent(QMouseEvent *event) {
     }
 }
 
-void CorrespondenceViewerGLWidget::mouseReleaseEvent(QMouseEvent *event) {
+void PoseViewerGLWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (!mouseMoved && !backgroundImageRenderable.isNull()) {
         Q_EMIT positionClicked(event->pos());
     }
     mouseMoved = false;
 }
 
-void CorrespondenceViewerGLWidget::setBackgroundImage(const QString &image,
+void PoseViewerGLWidget::setBackgroundImage(const QString &image,
                                                       QMatrix3x3 cameraMatrix,
                                                       bool update) {
     QImage loadedImage(QUrl::fromLocalFile(image).path());
@@ -257,13 +257,13 @@ void CorrespondenceViewerGLWidget::setBackgroundImage(const QString &image,
         this->update();
 }
 
-void CorrespondenceViewerGLWidget::addCorrespondence(const Correspondence &correspondence,
+void PoseViewerGLWidget::addPose(const Pose &pose,
                                                      bool update) {
     makeCurrent();
-    CorrespondenceRenderablePtr renderable(new CorrespondenceRenderable(correspondence,
+    PoseRenderablePtr renderable(new PoseRenderable(pose,
                                                                   PROGRAM_VERTEX_ATTRIBUTE,
                                                                   PROGRAM_NORMAL_ATTRIBUTE));
-    correspondenceRenderables.append(renderable);
+    poseRenderables.append(renderable);
     doneCurrent();
     if (update)
         this->update();
