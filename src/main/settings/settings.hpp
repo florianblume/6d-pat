@@ -5,12 +5,12 @@
 #include <QString>
 #include <QMap>
 
-class Preferences
+class Settings
 {
 public:
-    Preferences(QString identifier);
-    Preferences(const Preferences &preferences);
-    ~Preferences();
+    Settings(QString identifier);
+    Settings(const Settings &preferences);
+    ~Settings();
 
     void setSegmentationCodeForObjectModel(const QString &identifier, const QString &code);
     void removeSegmentationCodeForObjectModel(const QString &identifier);

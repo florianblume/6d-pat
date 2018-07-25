@@ -110,7 +110,7 @@ bool CachingModelManager::addObjectImagePose(Image *image,
                                              _objectModel);
     // TODO: add accepted
 
-    if (!loadAndStoreStrategy.persistObjectImagePose(&pose, false)) {
+    if (!loadAndStoreStrategy.persistPose(&pose, false)) {
         //! if there is an error persisting the pose for any reason we should not add the pose to this manager
         return false;
     }
@@ -147,7 +147,7 @@ bool CachingModelManager::updateObjectImagePose(const QString &id,
 
     // TODO: set accepted
 
-    if (!loadAndStoreStrategy.persistObjectImagePose(pose, false)) {
+    if (!loadAndStoreStrategy.persistPose(pose, false)) {
         // if there is an error persisting the pose for any reason we should not keep the new values
         pose->setPosition(previousPosition);
         pose->setRotation(previousRotation);
@@ -173,7 +173,7 @@ bool CachingModelManager::removeObjectImagePose(const QString &id) {
         return false;
     }
 
-    if (!loadAndStoreStrategy.persistObjectImagePose(pose, true)) {
+    if (!loadAndStoreStrategy.persistPose(pose, true)) {
         //! there was an error persistently removing the corresopndence, maybe wrong folder, maybe the pose didn't exist
         //! thus it doesn't make sense to remove the pose from this manager
         return false;

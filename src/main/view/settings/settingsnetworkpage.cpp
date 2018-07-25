@@ -24,7 +24,7 @@ SettingsNetworkPage::~SettingsNetworkPage() {
     delete ui;
 }
 
-void SettingsNetworkPage::setPreferences(Preferences *preferences) {
+void SettingsNetworkPage::setPreferences(Settings *preferences) {
     this->preferences = preferences;
     ui->editTrainingScriptPath->setText(preferences->getTrainingScriptPath());
     ui->editInferenceScriptPath->setText(preferences->getInferenceScriptPath());

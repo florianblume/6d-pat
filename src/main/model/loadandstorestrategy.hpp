@@ -4,6 +4,8 @@
 #include "pose.hpp"
 #include "image.hpp"
 #include "objectmodel.hpp"
+#include "settings/settingsstore.hpp"
+
 #include <QObject>
 #include <QString>
 #include <QList>
@@ -22,6 +24,9 @@ class LoadAndStoreStrategy : public QObject {
 
 public:
 
+    LoadAndStoreStrategy(SettingsStore *settingsStore,
+                         const QString &settingsIdentifier);
+
     virtual ~LoadAndStoreStrategy();
 
     /*!
@@ -31,7 +36,7 @@ public:
      * \param deletePose indicates whether the pose should be persistently deleted
      * \return true if persisting the object image pose was successful, false if not
      */
-    virtual bool persistObjectImagePose(Pose *objectImagePose,
+    virtual bool persistPose(Pose *objectImagePose,
                                                   bool deletePose) = 0;
 
     /*!
@@ -52,16 +57,13 @@ public:
      * \return the list of all stored poses
      */
     virtual QList<Pose> loadPoses(const QList<Image> &images,
-                                                      const QList<ObjectModel> &objectModels) = 0;
+                                  const QList<ObjectModel> &objectModels) = 0;
 
-    /*!
-     * \brief pathExists Checks whether the given path exists on the file system and is accessible.
-     * \param path the path that is to be checked
-     * \return true if the path exists and is accessible, false if not
-     */
-    bool pathExists(const QDir &path);
+    void setSettingsStore(SettingsStore *value);
 
-Q_SIGNALS:
+    void setSettingsIdentifier(const QString &value);
+
+signals:
 
     void imagesChanged();
     void failedToLoadImages(const QString& message);
@@ -70,6 +72,13 @@ Q_SIGNALS:
     void posesChanged();
     void failedToLoadPoses(const QString &message);
     void failedToPersistPose(const QString &message);
+
+protected slots:
+    virtual void onSettingsChanged(const QString settingsIdentifier) = 0;
+
+protected:
+    SettingsStore *settingsStore;
+    QString settingsIdentifier;
 
 };
 

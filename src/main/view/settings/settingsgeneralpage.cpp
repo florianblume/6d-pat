@@ -25,7 +25,7 @@ SettingsGeneralPage::~SettingsGeneralPage()
     delete ui;
 }
 
-void SettingsGeneralPage::setPreferences(Preferences *preferences) {
+void SettingsGeneralPage::setPreferences(Settings *preferences) {
     this->preferences = preferences;
     ui->editImagesPath->setText(preferences->getImagesPath());
     ui->editObjectModelsPath->setText(preferences->getObjectModelsPath());

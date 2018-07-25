@@ -21,7 +21,7 @@ SettingsSegmentationCodesPage::~SettingsSegmentationCodesPage()
     delete ui;
 }
 
-void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Preferences *preferences,
+void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *preferences,
                                                                    QList<ObjectModel> objectModels) {
     this->preferences = preferences;
     this->objectModels = std::move(objectModels);

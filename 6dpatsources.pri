@@ -16,8 +16,6 @@ HEADERS  += \
     $$PWD/src/main/model/jsonloadandstorestrategy.hpp \
     $$PWD/src/main/model/pose.hpp \
     $$PWD/src/main/misc/global.h \
-    $$PWD/src/main/misc/preferences/preferences.hpp \
-    $$PWD/src/main/misc/preferences/preferencesstore.hpp \
     $$PWD/src/main/view/misc/displayhelper.h \
     $$PWD/src/main/view/mainwindow.hpp \
     $$PWD/src/main/view/breadcrumb/breadcrumbview.hpp \
@@ -45,7 +43,9 @@ HEADERS  += \
     $$PWD/src/main/controller/neuralnetworkrunnable.hpp \
     $$PWD/src/main/view/neuralnetworkdialog/neuralnetworkdialog.hpp \
     $$PWD/src/main/view/gallery/resizeimagesrunnable.h \
-    $$PWD/src/main/view/neuralnetworkprogressview/networkprogressview.hpp
+    $$PWD/src/main/view/neuralnetworkprogressview/networkprogressview.hpp \
+    $$PWD/src/main/settings/settings.hpp \
+    $$PWD/src/main/settings/settingsstore.hpp
 
 SOURCES += \
     $$PWD/src/main/view/mainwindow.cpp \
@@ -76,8 +76,6 @@ SOURCES += \
     $$PWD/src/main/view/poseeditor/poseeditor.cpp \
     $$PWD/src/main/view/poseeditor/rendering/poseeditorglwidget.cpp \
     $$PWD/src/main/view/poseeditor/rendering/objectmodelrenderable.cpp \
-    $$PWD/src/main/misc/preferences/preferencesstore.cpp\
-    $$PWD/src/main/misc/preferences/preferences.cpp \
     $$PWD/src/main/misc/generalhelper.cpp \
     $$PWD/src/main/view/misc/displayhelper.cpp \
     $$PWD/src/main/view/gallery/rendering/offscreenrenderer.cpp \
@@ -85,7 +83,9 @@ SOURCES += \
     $$PWD/src/main/controller/neuralnetworkrunnable.cpp \
     $$PWD/src/main/view/neuralnetworkdialog/neuralnetworkdialog.cpp \
     $$PWD/src/main/view/gallery/resizeimagesrunnable.cpp \
-    $$PWD/src/main/view/neuralnetworkprogressview/networkprogressview.cpp
+    $$PWD/src/main/view/neuralnetworkprogressview/networkprogressview.cpp \
+    $$PWD/src/main/settings/settings.cpp \
+    $$PWD/src/main/settings/settingsstore.cpp
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \
@@ -104,9 +104,6 @@ RESOURCES += \
     $$PWD/6dpatsources.qrc
 
 INCLUDEPATH += $$PWD/src/main \
-    $$PWD/src/main/model \
-    $$PWD/src/main/view \
-    $$PWD/src/main/controller \
     $$PWD/3dparty/QtAwesome \
     /usr/local/include/opencv \
     /usr/local/include/assimp

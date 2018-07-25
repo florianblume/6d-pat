@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include "view/navigationcontrols/navigationcontrols.hpp"
-#include "misc/preferences/preferencesstore.hpp"
+#include "settings/settingsstore.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
 #include "view/neuralnetworkprogressview/networkprogressview.hpp"
@@ -75,7 +75,7 @@ public:
      */
     void setModelManager(ModelManager* modelManager);
 
-    void setPreferencesStore(PreferencesStore *preferencesStore);
+    void setPreferencesStore(SettingsStore *preferencesStore);
 
     /*!
      * \brief getCurrentlyViewedImage returns the image currently selected in the images
@@ -278,7 +278,7 @@ private:
     // been added, etc.
     QLabel *statusBarLabel = new QLabel();
 
-    PreferencesStore *preferencesStore = Q_NULLPTR;
+    SettingsStore *preferencesStore = Q_NULLPTR;
     ModelManager* modelManager;
 
     // Used to write and read main view related settings, like position etc.
@@ -315,7 +315,7 @@ private Q_SLOTS:
     // right clicks in the image to start creating a pose
     void onImageClicked(Image* image, QPoint position);
 
-    void onPreferencesChanged(const QString &identifier);
+    void onSettingsChanged(const QString &identifier);
 
     void onActionAboutTriggered();
     void onActionExitTriggered();

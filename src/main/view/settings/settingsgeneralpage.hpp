@@ -1,7 +1,7 @@
 #ifndef SETTINGSGENERALPAGE_H
 #define SETTINGSGENERALPAGE_H
 
-#include "misc/preferences/preferences.hpp"
+#include "settings/settings.hpp"
 #include <QWidget>
 
 using namespace std;
@@ -17,7 +17,7 @@ class SettingsGeneralPage : public QWidget
 public:
     explicit SettingsGeneralPage(QWidget *parent = 0);
     ~SettingsGeneralPage();
-    void setPreferences(Preferences *preferences);
+    void setPreferences(Settings *preferences);
 
 private Q_SLOTS:
     void buttonImagesPathClicked();
@@ -27,7 +27,7 @@ private Q_SLOTS:
 
 private:
     Ui::SettingsGeneralPage *ui;
-    Preferences *preferences;
+    Settings *preferences;
     QString openFolderDialogForPath(QString path);
     QString openFileDialogForPath(QString path);
 };

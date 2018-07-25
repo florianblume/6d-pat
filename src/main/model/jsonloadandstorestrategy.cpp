@@ -3,6 +3,7 @@
 
 #include <opencv2/core/mat.hpp>
 
+#include <QSharedPointer>
 #include <QDirIterator>
 #include <QCollator>
 #include <QFileInfo>
@@ -11,6 +12,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QMap>
+#include <QDir>
 
 const QStringList JsonLoadAndStoreStrategy::OBJECT_MODEL_FILES_EXTENSIONS =
                                             QStringList({"*.obj", "*.ply", "*.3ds", "*.fbx"});
@@ -23,42 +25,31 @@ static QString convertPathToSuffxFileName(const QString &pathToConvert,
     return QFileInfo(pathToConvert).completeBaseName() + suffix + extension;
 }
 
-JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy() {
+JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy(SettingsStore *settingsStore,
+                                                   const QString settingsIdentifier) :
+    LoadAndStoreStrategy(settingsStore, settingsIdentifier) {
     connectWatcherSignals();
-}
-
-JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy(const QDir &imagesPath,
-                                                   const QDir &segmentationImagesPath,
-                                                   const QDir &objectModelsPath,
-                                                   const QDir &posesFilePath)
-    : imagesPath(imagesPath),
-      segmentationImagesPath(segmentationImagesPath),
-      objectModelsPath(objectModelsPath),
-      posesFilePath(posesFilePath) {
-    watcher.addPaths(QStringList() << imagesPath.path()
-                                   << segmentationImagesPath.path()
-                                   << objectModelsPath.path()
-                                   << posesFilePath.path());
-    connectWatcherSignals();
+    // Simply call settings changed to load the paths, etc
+    onSettingsChanged(settingsIdentifier);
 }
 
 JsonLoadAndStoreStrategy::~JsonLoadAndStoreStrategy() {
 }
 
-bool JsonLoadAndStoreStrategy::persistObjectImagePose(
+bool JsonLoadAndStoreStrategy::persistPose(
         Pose *objectImagePose, bool deletePose) {
     // no need to check whether paths exist because setters do so already
 
     //! we do not need to throw an exception here, the only time the path cannot exist
     //! is if this strategy was constructed with an empty path, all other methods of
     //! setting the path check if the path exists
-    if (!QFileInfo(posesFilePath.path()).exists()) {
+    if (!QFileInfo(posesFilePath).exists()) {
         Q_EMIT failedToPersistPose("The specified JSON file does not exist.");
         return false;
     }
 
     //! Read in the camera parameters from the JSON file
-    QFile jsonFile(posesFilePath.path());
+    QFile jsonFile(posesFilePath);
     if (jsonFile.open(QFile::ReadWrite)) {
         QByteArray data = jsonFile.readAll();
         QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
@@ -177,19 +168,19 @@ QList<Image> JsonLoadAndStoreStrategy::loadImages() {
     //! we do not need to throw an exception here, the only time the path cannot exist
     //! is if this strategy was constructed with an empty path, all other methods of
     //! setting the path check if the path exists
-    if (!pathExists(imagesPath)) {
-        Q_EMIT failedToLoadImages("The specified images path does not exist.");
+    if (!QFileInfo(imagesPath).exists()) {
+        emit failedToLoadImages("The specified images path does not exist.");
         return images;
-    } else if (segmentationImagesPath.path() != "" && !pathExists(segmentationImagesPath)) {
-        Q_EMIT failedToLoadImages("The specified segmentation images path does not exist.");
+    } else if (segmentationImagesPath != "" && !QFileInfo(segmentationImagesPath).exists()) {
+        emit failedToLoadImages("The specified segmentation images path does not exist.");
         return images;
     }
 
-    QStringList imageFiles = imagesPath.entryList(IMAGE_FILES_EXTENSIONS, QDir::Files, QDir::Name);
+    QStringList imageFiles = QDir(imagesPath).entryList(IMAGE_FILES_EXTENSIONS, QDir::Files, QDir::Name);
     QStringList segmentationImageFiles =
-            segmentationImagesPath.entryList(IMAGE_FILES_EXTENSIONS, QDir::Files, QDir::Name);
+            QDir(segmentationImagesPath).entryList(IMAGE_FILES_EXTENSIONS, QDir::Files, QDir::Name);
     // Also ensure that the number of elements is the same
-    bool segmentationImagesPathSet = segmentationImagesPath.path() != ""
+    bool segmentationImagesPathSet = segmentationImagesPath != ""
             && imageFiles.size() == segmentationImageFiles.size();
 
     // Sort both list the have the corresponding image and segmentation image at the
@@ -213,7 +204,7 @@ QList<Image> JsonLoadAndStoreStrategy::loadImages() {
         });
 
     //! Read in the camera parameters from the JSON file
-    QFile jsonFile(imagesPath.filePath("info.json"));
+    QFile jsonFile(QDir(imagesPath).filePath("info.json"));
     if (imageFiles.size() > 0 && jsonFile.open(QFile::ReadOnly)) {
         QByteArray data = jsonFile.readAll();
         QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
@@ -223,15 +214,16 @@ QList<Image> JsonLoadAndStoreStrategy::loadImages() {
             QString imageFilename = QFileInfo(image).fileName();
             if (segmentationImagesPathSet) {
                 QString segmentationImageFile = segmentationImageFiles[i];
-                QString segmentationImageFilePath = segmentationImagesPath.absoluteFilePath(segmentationImageFile);
+                QString segmentationImageFilePath =
+                        QDir(segmentationImagesPath).absoluteFilePath(segmentationImageFile);
                 images.push_back(createImageWithJsonParams(imageFilename,
                                                            segmentationImageFilePath,
-                                                           imagesPath.path(),
+                                                           imagesPath,
                                                            jsonObject));
             } else {
                 images.push_back(createImageWithJsonParams(imageFilename,
                                                            "",
-                                                           imagesPath.path(),
+                                                           imagesPath,
                                                            jsonObject));
             }
         }
@@ -249,12 +241,12 @@ QList<ObjectModel> JsonLoadAndStoreStrategy::loadObjectModels() {
     QList<ObjectModel> objectModels;
 
     //! See explanation under loadImages for why we don't throw an exception here
-    if (!pathExists(objectModelsPath.path())) {
+    if (!QFileInfo(objectModelsPath).exists()) {
         Q_EMIT failedToLoadObjectModels("The specified path does not exist.");
         return objectModels;
     }
 
-    QDirIterator it(objectModelsPath.path(), OBJECT_MODEL_FILES_EXTENSIONS, QDir::Files, QDirIterator::Subdirectories);
+    QDirIterator it(objectModelsPath, OBJECT_MODEL_FILES_EXTENSIONS, QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         QFileInfo fileInfo(it.next());
         //! We store only the filename as object model path, because that's
@@ -301,12 +293,12 @@ QList<Pose> JsonLoadAndStoreStrategy::loadPoses(const QList<Image> &images, cons
     QList<Pose> poses;
 
     //! See loadImages for why we don't throw an exception here
-    if (!QFileInfo(posesFilePath.path()).exists()) {
+    if (!QFileInfo(posesFilePath).exists()) {
         Q_EMIT failedToLoadPoses("The specified path does not exist.");
         return poses;
     }
 
-    QFile jsonFile(posesFilePath.path());
+    QFile jsonFile(posesFilePath);
     if (jsonFile.open(QFile::ReadWrite)) {
         QMap<QString, const Image*> imageMap = createImageMap(images);
         QMap<QString, const ObjectModel*> objectModelMap = createObjectModelMap(objectModels);
@@ -382,14 +374,31 @@ QList<Pose> JsonLoadAndStoreStrategy::loadPoses(const QList<Image> &images, cons
     return poses;
 }
 
-bool JsonLoadAndStoreStrategy::setImagesPath(const QDir &path) {
-    if (!pathExists(path))
+void JsonLoadAndStoreStrategy::onSettingsChanged(const QString settingsIdentifier) {
+    QSharedPointer<Settings> settings
+            = settingsStore->loadPreferencesByIdentifier(settingsIdentifier);
+    if (settings->getImagesPath() != imagesPath) {
+        setImagesPath(settings->getImagesPath());
+    }
+    if (settings->getSegmentationImagesPath() != segmentationImagesPath) {
+        setSegmentationImagesPath(settings->getSegmentationImagesPath());
+    }
+    if (settings->getObjectModelsPath() != objectModelsPath) {
+        setObjectModelsPath(settings->getObjectModelsPath());
+    }
+    if (settings->getPosesFilePath() != posesFilePath) {
+        setPosesFilePath(settings->getPosesFilePath());
+    }
+}
+
+bool JsonLoadAndStoreStrategy::setImagesPath(const QString &path) {
+    if (!QFileInfo(path).exists())
         return false;
     if (imagesPath == path)
         return true;
 
-    watcher.removePath(imagesPath.path());
-    watcher.addPath(path.path());
+    watcher.removePath(imagesPath);
+    watcher.addPath(path);
     imagesPath = path;
 
     Q_EMIT imagesChanged();
@@ -397,18 +406,14 @@ bool JsonLoadAndStoreStrategy::setImagesPath(const QDir &path) {
     return true;
 }
 
-QDir JsonLoadAndStoreStrategy::getImagesPath() const {
-    return  imagesPath.path();
-}
-
-bool JsonLoadAndStoreStrategy::setObjectModelsPath(const QDir &path) {
-    if (!pathExists(path))
+bool JsonLoadAndStoreStrategy::setObjectModelsPath(const QString &path) {
+    if (!QFileInfo(path).exists())
         return false;
     if (objectModelsPath == path)
         return true;
 
-    watcher.removePath(objectModelsPath.path());
-    watcher.addPath(path.path());
+    watcher.removePath(objectModelsPath);
+    watcher.addPath(path);
     objectModelsPath = path;
 
     Q_EMIT objectModelsChanged();
@@ -416,18 +421,14 @@ bool JsonLoadAndStoreStrategy::setObjectModelsPath(const QDir &path) {
     return true;
 }
 
-QDir JsonLoadAndStoreStrategy::getObjectModelsPath() const {
-    return objectModelsPath;
-}
-
-bool JsonLoadAndStoreStrategy::setPosesFilePath(const QDir &path) {
-    if (!QFileInfo(path.path()).exists())
+bool JsonLoadAndStoreStrategy::setPosesFilePath(const QString &path) {
+    if (!QFileInfo(path).exists())
         return false;
     if (posesFilePath == path)
         return true;
 
-    watcher.removePath(posesFilePath.path());
-    watcher.addPath(path.path());
+    watcher.removePath(posesFilePath);
+    watcher.addPath(path);
     posesFilePath = path;
 
     Q_EMIT posesChanged();
@@ -435,11 +436,7 @@ bool JsonLoadAndStoreStrategy::setPosesFilePath(const QDir &path) {
     return true;
 }
 
-QDir JsonLoadAndStoreStrategy::getPosesFilePath() const {
-    return posesFilePath.path();
-}
-
-void JsonLoadAndStoreStrategy::setSegmentationImagesPath(const QDir &path) {
+void JsonLoadAndStoreStrategy::setSegmentationImagesPath(const QString &path) {
     //! Only set suffix if it differs from the suffix before because we then have to reload images
     if (segmentationImagesPath != path) {
         segmentationImagesPath = path;
@@ -447,16 +444,12 @@ void JsonLoadAndStoreStrategy::setSegmentationImagesPath(const QDir &path) {
     }
 }
 
-QDir JsonLoadAndStoreStrategy::getSegmentationImagesPath() {
-    return segmentationImagesPath;
-}
-
 void JsonLoadAndStoreStrategy::onDirectoryChanged(const QString &path) {
-    if (path == imagesPath.path()) {
+    if (path == imagesPath) {
         Q_EMIT imagesChanged();
-    } else if (path == objectModelsPath.path()) {
+    } else if (path == objectModelsPath) {
         Q_EMIT objectModelsChanged();
-    } else if (path == posesFilePath.path()) {
+    } else if (path == posesFilePath) {
         Q_EMIT posesChanged();
     }
 }
@@ -465,14 +458,14 @@ void JsonLoadAndStoreStrategy::onFileChanged(const QString &filePath) {
     // Only for images and object models, because storing poses
     // at the pose file path will trigger this signal as well,
     // but we already updated the program accordingly (of course)
-    if (filePath == posesFilePath.path()) {
-        Q_EMIT posesChanged();
-    } else if (filePath.contains(imagesPath.path())
+    if (filePath == posesFilePath) {
+        emit posesChanged();
+    } else if (filePath.contains(imagesPath)
                && IMAGE_FILES_EXTENSIONS.contains(filePath.right(4))) {
-        Q_EMIT imagesChanged();
-    } else if (filePath.contains(objectModelsPath.path())
+        emit imagesChanged();
+    } else if (filePath.contains(objectModelsPath)
                && OBJECT_MODEL_FILES_EXTENSIONS.contains(filePath.right(4))) {
-        Q_EMIT objectModelsChanged();
+        emit objectModelsChanged();
     }
 }
 

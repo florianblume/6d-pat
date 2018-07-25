@@ -3,7 +3,7 @@
 
 #include "model/cachingmodelmanager.hpp"
 #include "model/jsonloadandstorestrategy.hpp"
-#include "misc/preferences/preferencesstore.hpp"
+#include "settings/settingsstore.hpp"
 #include "view/mainwindow.hpp"
 #include "misc/global.h"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
@@ -11,6 +11,8 @@
 #include "controller/posecreator.hpp"
 #include "controller/neuralnetworkcontroller.hpp"
 
+#include <QScopedPointer>
+#include <QSharedPointer>
 #include <QMap>
 #include <QList>
 
@@ -36,15 +38,16 @@ public:
 
 private:
 
-    JsonLoadAndStoreStrategy strategy;
-    CachingModelManager modelManager;
+    QScopedPointer<JsonLoadAndStoreStrategy> strategy;
+    QScopedPointer<CachingModelManager> modelManager;
     UniquePointer<PoseCreator> poseCreator;
     QScopedPointer<NeuralNetworkController> networkController;
     MainWindow mainWindow;
 
     QMap<QString, ObjectModel*> segmentationCodes;
-    UniquePointer<PreferencesStore> preferencesStore{ new PreferencesStore() };
-    UniquePointer<Preferences> currentPreferences;
+    QSharedPointer<SettingsStore> settingsStore;
+    QSharedPointer<Settings> currentSettings;
+    QString settingsIdentifier = "default";
 
     GalleryImageModel *galleryImageModel = Q_NULLPTR;
     GalleryObjectModelModel *galleryObjectModelModel = Q_NULLPTR;
@@ -60,9 +63,7 @@ private Q_SLOTS:
     // from the menu or aborts creation in another way
     void onPoseCreationInterrupted();
     void onPoseCreationAborted();
-    void onImagePathChanged(const QString &newPath);
-    void onObjectModelsPathChanged(const QString &newPath);
-    void onPreferencesChanged(const QString &identifier);
+    void onSettingsChanged(const QString &identifier);
     void resetPoseCreation();
     void onPoseCreationRequested();
     void onPosePredictionRequested();

@@ -1,10 +1,11 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-#include "misc/preferences/preferencesstore.hpp"
+#include "settings/settingsstore.hpp"
 #include <QDialog>
 #include <QAbstractButton>
 #include <QList>
+#include <QSharedPointer>
 
 namespace Ui {
 class SettingsDialog;
@@ -17,8 +18,8 @@ class SettingsDialog : public QDialog
 public:
     explicit SettingsDialog(QWidget *parent = 0);
     ~SettingsDialog();
-    void setPreferencesStoreAndObjectModels(PreferencesStore *preferencesStore,
-                                        const QString &currentPreferencesIdentifier,
+    void setPreferencesStoreAndObjectModels(SettingsStore *settingsStore,
+                                        const QString &currentSettingsIdentifier,
                                         const QList<ObjectModel> &objectModels);
 
 public Q_SLOTS:
@@ -26,9 +27,9 @@ public Q_SLOTS:
 
 private:
     Ui::SettingsDialog *ui;
-    PreferencesStore *preferencesStore;
-    UniquePointer<Preferences> preferences;
-    QString currentPreferencesIdentifier;
+    SettingsStore *settingsStore;
+    QSharedPointer<Settings> settings;
+    QString currentSettingsIdentifier;
 
 private Q_SLOTS:
     void onListWidgetClicked(const QModelIndex &index);

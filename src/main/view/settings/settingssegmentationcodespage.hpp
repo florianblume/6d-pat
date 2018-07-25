@@ -1,7 +1,7 @@
 #ifndef SETTINGSSEGMENTATIONCODESPAGE_H
 #define SETTINGSSEGMENTATIONCODESPAGE_H
 
-#include "misc/preferences/preferences.hpp"
+#include "settings/settings.hpp"
 #include "model/objectmodel.hpp"
 #include <QWidget>
 
@@ -16,12 +16,12 @@ class SettingsSegmentationCodesPage : public QWidget
 public:
     explicit SettingsSegmentationCodesPage(QWidget *parent = 0);
     ~SettingsSegmentationCodesPage();
-    void setPreferencesAndObjectModels(Preferences *preferences,
+    void setPreferencesAndObjectModels(Settings *preferences,
                                         QList<ObjectModel> objectModels);
 
 private:
     Ui::SettingsSegmentationCodesPage *ui;
-    Preferences *preferences;
+    Settings *preferences;
     QList<ObjectModel> objectModels;
 
 private Q_SLOTS:

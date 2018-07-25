@@ -21,10 +21,6 @@ MainWindow::MainWindow(QWidget *parent) :
             this, &MainWindow::poseCreationAborted);
     connect(ui->galleryRight, &Gallery::selectedItemChanged,
             this, &MainWindow::poseCreationAborted);
-    connect(ui->navigationLeft, SIGNAL(pathChanged(QString)),
-            this, SIGNAL(imagesPathChanged(QString)));
-    connect(ui->navigationRight, SIGNAL(pathChanged(QString)),
-            this, SIGNAL(objectModelsPathChanged(QString)));
 }
 
 MainWindow::~MainWindow() {
@@ -131,14 +127,14 @@ void MainWindow::resetPoseViewer() {
     ui->poseViewer->reset();
 }
 
-void MainWindow::setPreferencesStore(PreferencesStore *preferencesStore) {
+void MainWindow::setPreferencesStore(SettingsStore *preferencesStore) {
     if (this->preferencesStore) {
         disconnect(this->preferencesStore, SIGNAL(preferencesChanged(QString)),
-                   this, SLOT(onPreferencesChanged(QString)));
+                   this, SLOT(onSettingsChanged(QString)));
     }
     this->preferencesStore = preferencesStore;
-    connect(preferencesStore, SIGNAL(preferencesChanged(QString)),
-            this, SLOT(onPreferencesChanged(QString)));
+    connect(preferencesStore, SIGNAL(settingsChanged(QString)),
+            this, SLOT(onSettingsChanged(QString)));
 }
 
 Image *MainWindow::getCurrentlyViewedImage() {
@@ -224,13 +220,13 @@ void MainWindow::onSelectedImageChanged(int index) {
 }
 
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
-    UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier("default");
+    QSharedPointer<Settings> preferences = preferencesStore->loadPreferencesByIdentifier("default");
     preferences->setImagesPath(path);
     preferencesStore->savePreferences(preferences.get());
 }
 
 void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
-    UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier("default");
+    QSharedPointer<Settings> preferences = preferencesStore->loadPreferencesByIdentifier("default");
     preferences->setObjectModelsPath(path);
     preferencesStore->savePreferences(preferences.get());
 }
@@ -278,8 +274,8 @@ void MainWindow::hideNetworkProgressView() {
     QApplication::restoreOverrideCursor();
 }
 
-void MainWindow::onPreferencesChanged(const QString &identifier) {
-    UniquePointer<Preferences> preferences = preferencesStore->loadPreferencesByIdentifier(identifier);
+void MainWindow::onSettingsChanged(const QString &identifier) {
+    QSharedPointer<Settings> preferences = preferencesStore->loadPreferencesByIdentifier(identifier);
     setPathOnLeftBreadcrumbView(preferences->getImagesPath());
     setPathOnRightBreadcrumbView(preferences->getObjectModelsPath());
     onPoseCreationReset();

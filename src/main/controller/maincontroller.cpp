@@ -9,33 +9,32 @@
 
 // Empty initialization of strategy so that we can set the path later and do so
 // in a background thread to keep application reactive
-MainController::MainController() :
-    strategy(),
-    modelManager(strategy) {
-    connect(preferencesStore.get(), SIGNAL(preferencesChanged(QString)),
-            this, SLOT(onPreferencesChanged(QString)));
-    poseCreator.reset(new PoseCreator(0, &modelManager));
+MainController::MainController() {
+    settingsStore.reset(new SettingsStore());
+    strategy.reset(new JsonLoadAndStoreStrategy(settingsStore.data(),
+                                                settingsIdentifier));
+    modelManager.reset(new CachingModelManager(*strategy.data()));
+    connect(settingsStore.data(), SIGNAL(settingsChanged(QString)),
+            this, SLOT(onSettingsChanged(QString)));
+    poseCreator.reset(new PoseCreator(0, modelManager.data()));
     // Whenever the user clicks the create button in the pose editor we need to reset
     // the controller as well
-    connect(&modelManager, SIGNAL(poseAdded(QString)),
+    connect(modelManager.data(), SIGNAL(poseAdded(QString)),
             this, SLOT(resetPoseCreation()));
-    connect(&modelManager, SIGNAL(poseDeleted(QString)),
+    connect(modelManager.data(), SIGNAL(poseDeleted(QString)),
             this, SLOT(resetPoseCreation()));
-    connect(&strategy, SIGNAL(failedToLoadImages(QString)), this, SLOT(onFailedToLoadImages(QString)));
+    connect(strategy.data(), SIGNAL(failedToLoadImages(QString)), this, SLOT(onFailedToLoadImages(QString)));
 }
 
 MainController::~MainController() {
-    preferencesStore->savePreferences(currentPreferences.get());
+    // Unnecessary, we save preferences anyway when editing them
+    //settingsStore->savePreferences(currentSettings.get());
     delete galleryImageModel;
     delete galleryObjectModelModel;
 }
 
 void MainController::initialize() {
-    currentPreferences = std::move(preferencesStore->loadPreferencesByIdentifier("default"));
-    strategy.setImagesPath(currentPreferences->getImagesPath());
-    strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
-    strategy.setPosesFilePath(currentPreferences->getPosesFilePath());
-    strategy.setSegmentationImagesPath(currentPreferences->getSegmentationImagesPath());
+    currentSettings = settingsStore->loadPreferencesByIdentifier(settingsIdentifier);
     initializeMainWindow();
 }
 
@@ -43,37 +42,29 @@ void MainController::initializeMainWindow() {
     // Notifies the main window of the initialization process so that it can display a message etc.
     mainWindow.onInitializationStarted();
 
-    mainWindow.setPreferencesStore(preferencesStore.get());
+    mainWindow.setPreferencesStore(settingsStore.get());
 
     //! The reason why the breadcrumbs receive an object of the path type of the boost filesystem library
     //! is because the breadcrumb views have to split the path to show it.
-    mainWindow.setPathOnLeftBreadcrumbView(strategy.getImagesPath().path());
-    mainWindow.setPathOnRightBreadcrumbView(strategy.getObjectModelsPath().path());
-    mainWindow.setPathOnLeftNavigationControls(QString(strategy.getImagesPath().path()));
-    mainWindow.setPathOnRightNavigationControls(QString(strategy.getObjectModelsPath().path()));
+    mainWindow.setPathOnLeftBreadcrumbView(currentSettings->getImagesPath());
+    mainWindow.setPathOnRightBreadcrumbView(currentSettings->getObjectModelsPath());
+    mainWindow.setPathOnLeftNavigationControls(QString(currentSettings->getImagesPath()));
+    mainWindow.setPathOnRightNavigationControls(QString(currentSettings->getObjectModelsPath()));
 
     // The models do not need to notify the gallery of any changes on the data because the list view
     // has its own update loop, i.e. automatically fetches new data
-    galleryImageModel = new GalleryImageModel(&modelManager);
+    galleryImageModel = new GalleryImageModel(modelManager.data());
     mainWindow.setGalleryImageModel(galleryImageModel);
-    galleryObjectModelModel = new GalleryObjectModelModel(&modelManager);
+    galleryObjectModelModel = new GalleryObjectModelModel(modelManager.data());
     setSegmentationCodesOnGalleryObjectModelModel();
     mainWindow.setGalleryObjectModelModel(galleryObjectModelModel);
-    mainWindow.setModelManager(&modelManager);
+    mainWindow.setModelManager(modelManager.data());
 
     // Delegation of user clicks to this controller
     connect(&mainWindow, SIGNAL(imageClicked(Image*,QPoint)),
             this, SLOT(onImageClicked(Image*,QPoint)));
     connect(&mainWindow, SIGNAL(objectModelClicked(ObjectModel*,QVector3D)),
             this, SLOT(onObjectModelClicked(ObjectModel*,QVector3D)));
-
-    // Delegation of new paths set in the navigation controls of the UI to this controller
-    connect(&mainWindow, SIGNAL(imagesPathChanged(QString)),
-            this, SLOT(onImagePathChanged(QString)));
-    connect(&mainWindow, SIGNAL(objectModelsPathChanged(QString)),
-            this, SLOT(onObjectModelsPathChanged(QString)));
-
-    // ## Pose stuff
 
     // Delegation of pose creator actions to the window
     connect(poseCreator.get(), SIGNAL(poseCreationAborted()),
@@ -101,7 +92,7 @@ void MainController::initializeMainWindow() {
 }
 
 void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
-    galleryObjectModelModel->setSegmentationCodesForObjectModels(currentPreferences->getSegmentationCodes());
+    galleryObjectModelModel->setSegmentationCodesForObjectModels(currentSettings->getSegmentationCodes());
 }
 
 void MainController::onImageClicked(Image* image, QPoint position) {
@@ -130,18 +121,6 @@ void MainController::onPoseCreationAborted() {
     resetPoseCreation();
 }
 
-void MainController::onImagePathChanged(const QString &newPath) {
-    this->strategy.setImagesPath(newPath);
-    this->currentPreferences->setImagesPath(newPath);
-    resetPoseCreation();
-}
-
-void MainController::onObjectModelsPathChanged(const QString &newPath) {
-    this->strategy.setObjectModelsPath(newPath);
-    this->currentPreferences->setObjectModelsPath(newPath);
-    resetPoseCreation();
-}
-
 void MainController::showView() {
     mainWindow.show();
     mainWindow.raise();
@@ -166,7 +145,7 @@ void MainController::onPosePredictionRequestedForImages(QList<Image> images) {
 }
 
 void MainController::performPosePredictionForImages(QList<Image> images) {
-    if (currentPreferences->getSegmentationImagesPath() == "") {
+    if (currentSettings->getSegmentationImagesPath() == "") {
         mainWindow.displayWarning("Segmentation images path not set", "The path to the segmentation "
                                                                       "images has to "
                                                    "be set in order to run network prediction.");
@@ -174,21 +153,21 @@ void MainController::performPosePredictionForImages(QList<Image> images) {
     }
     if (networkController.isNull()) {
         networkController.reset(
-                    new NeuralNetworkController(currentPreferences->getPythonInterpreterPath(),
-                                                currentPreferences->getTrainingScriptPath(),
-                                                currentPreferences->getInferenceScriptPath()));
+                    new NeuralNetworkController(currentSettings->getPythonInterpreterPath(),
+                                                currentSettings->getTrainingScriptPath(),
+                                                currentSettings->getInferenceScriptPath()));
         connect(networkController.data(), &NeuralNetworkController::inferenceFinished,
                 this, &MainController::onNetworkInferenceFinished);
     } else {
-        networkController->setPythonInterpreter(currentPreferences->getPythonInterpreterPath());
-        networkController->setTrainPythonScript(currentPreferences->getTrainingScriptPath());
-        networkController->setInferencePythonScript(currentPreferences->getInferenceScriptPath());
+        networkController->setPythonInterpreter(currentSettings->getPythonInterpreterPath());
+        networkController->setTrainPythonScript(currentSettings->getTrainingScriptPath());
+        networkController->setInferencePythonScript(currentSettings->getInferenceScriptPath());
     }
     networkController->setImages(images.toVector());
-    networkController->setPosesFilePath(strategy.getPosesFilePath().path());
-    networkController->setImagesPath(currentPreferences->getImagesPath());
-    networkController->setSegmentationImagesPath(currentPreferences->getSegmentationImagesPath());
-    networkController->inference(currentPreferences->getNetworkConfigPath());
+    networkController->setPosesFilePath(currentSettings->getPosesFilePath());
+    networkController->setImagesPath(currentSettings->getImagesPath());
+    networkController->setSegmentationImagesPath(currentSettings->getSegmentationImagesPath());
+    networkController->inference(currentSettings->getNetworkConfigPath());
 }
 
 void MainController::onNetworkTrainingFinished() {
@@ -200,7 +179,7 @@ void MainController::onNetworkInferenceFinished() {
 }
 
 void MainController::onFailedToLoadImages(const QString &message){
-    QString imagesPath = strategy.getImagesPath().path();
+    QString imagesPath = currentSettings->getImagesPath();
     if (imagesPath != "." && imagesPath != "") {
         //! "." is the default path and will likely never be used as image path, thus
         //! do not display any warning - otherwise the warning would pop up three times
@@ -210,17 +189,9 @@ void MainController::onFailedToLoadImages(const QString &message){
     }
 }
 
-void MainController::onPreferencesChanged(const QString &identifier) {
-    currentPreferences = std::move(preferencesStore->loadPreferencesByIdentifier(identifier));
-    // Do checks to avoid unnecessary reloads
-    if (currentPreferences->getImagesPath().compare(strategy.getImagesPath().path()) != 0)
-        strategy.setImagesPath(currentPreferences->getImagesPath());
-    if (currentPreferences->getObjectModelsPath().compare(strategy.getObjectModelsPath().path()) != 0)
-        strategy.setObjectModelsPath(currentPreferences->getObjectModelsPath());
-    if (currentPreferences->getPosesFilePath().compare(strategy.getPosesFilePath().path()) != 0)
-        strategy.setPosesFilePath(currentPreferences->getPosesFilePath());
-    if (currentPreferences->getSegmentationImagesPath().compare(strategy.getSegmentationImagesPath().path()) != 0)
-        strategy.setSegmentationImagesPath(currentPreferences->getSegmentationImagesPath());
+void MainController::onSettingsChanged(const QString &identifier) {
+    currentSettings = settingsStore->loadPreferencesByIdentifier(identifier);
+    // Load and store strategy updates itself
     setSegmentationCodesOnGalleryObjectModelModel();
     poseCreator->abortCreation();
 }

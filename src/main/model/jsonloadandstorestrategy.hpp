@@ -2,7 +2,6 @@
 #define TEXTFILELOADANDSTORESTRATEGY_H
 
 #include "loadandstorestrategy.hpp"
-#include <QDir>
 #include <QString>
 #include <QStringList>
 #include <QList>
@@ -28,7 +27,8 @@ public:
      * \brief TextFileLoadAndStoreStrategy Constructor of this strategy. The paths MUST be set aferwards to use it
      * properly, otherwise the strategy won't deliver any content.
      */
-    JsonLoadAndStoreStrategy();
+    JsonLoadAndStoreStrategy(SettingsStore *settingsStore,
+                             const QString settingsIdentifier);
 
     /*!
      * \brief TextFileLoadAndStoreStrategy Convenience constructor setting the paths already.
@@ -36,15 +36,11 @@ public:
      * \param _objectModelsPath
      * \param _posesPath
      */
-    JsonLoadAndStoreStrategy(const QDir &imagesPath,
-                             const QDir &segmentationImagesPath,
-                             const QDir &objectModelsPath,
-                             const QDir &posesFilePath);
+    JsonLoadAndStoreStrategy();
 
     ~JsonLoadAndStoreStrategy();
 
-    bool persistObjectImagePose(Pose *objectImagePose,
-                                          bool deletePose) override;
+    bool persistPose(Pose *pose, bool deletePose) override;
 
     QList<Image> loadImages() override;
 
@@ -66,84 +62,33 @@ public:
     QList<Pose> loadPoses(const QList<Image> &images,
                                               const QList<ObjectModel> &objectModels) override;
 
-    /*!
-     * \brief setImagesPath Sets the path to the folder where the images that are to be annotated are located. After setting the
-     * path the manager will automatically try to load the images and also their respective segmentation using the pattern for
-     * segmentation image names.
-     * \param path the path to the folder where the images are located
-     * \return true if the path is a valid path on the filesystem, false otherwise
-     */
-    bool setImagesPath(const QDir &path);
+protected slots:
+    void onSettingsChanged(const QString settingsIdentifier) override;
 
-    /*!
-     * \brief getImagesPath Returns the path that this manager uses to load images.
-     * \return the path that this manager uses to load images
-     */
-    QDir getImagesPath() const;
-
-    /*!
-     * \brief setObjectModelsPath Sets the path to the folder where the object models are located. After setting the path the
-     * manager will automatically try to load the objects.
-     * \param path the path to the folder where the objects are located
-     * \return true if the path is a valid path on the filesystem, false otherwise
-     */
-    bool setObjectModelsPath(const QDir &path);
-
-    /*!
-     * \brief getObjectModelsPath Returns the path that this manager uses to load object models.
-     * \return the path that this manager uses to load object models
-     */
-    QDir getObjectModelsPath() const;
-
-    /*!
-     * \brief setPosesPath Sets the path to the folder where object image poses are stored at. After setting
-     * the path the manager will automatically try to load the already existing poses and will store all future
-     * poses at this location.
-     * \param path the path where the manager should store poses at or where some poses already exist that
-     * are meant to be loaded
-     * \return true if the path is a valid path on the filesystem, false otherwise
-     */
-    bool setPosesFilePath(const QDir &path);
-
-    /*!
-     * \brief getPosesPath Returns the path that this manager uses to store and load poses.
-     * \return the path that this manager uses to store and load poses
-     */
-    QDir getPosesFilePath() const;
-
-    /*!
-     * \brief setSegmentationImageFilesSuffix sets the given suffix as the suffix to be used
-     * when loading segmentation images. Segmentation images have to be in the same folder as
-     * the actual images.
-     * \param suffix the suffix to be used for segmentation images
-     */
-    void setSegmentationImagesPath(const QDir &path);
-
-    /*!
-     * \brief getSegmentationImageFilesSuffix returns the suffix that is used to load
-     * segementation images from the folder of images.
-     * \return the suffix that is used to load segmentation images
-     */
-    QDir getSegmentationImagesPath();
-
-private Q_SLOTS:
+private slots:
     void onDirectoryChanged(const QString &path);
     void onFileChanged(const QString &filePath);
 
 private:
 
     //! Stores the path to the folder that holds the images
-    QDir imagesPath;
+    QString imagesPath;
     //! Stores the path to the folder that holds the object models
-    QDir objectModelsPath;
+    QString objectModelsPath;
     //! Stores the path to the already created poses
-    QDir posesFilePath;
+    QString posesFilePath;
     //! Stores the suffix that is used to try to load segmentation images
-    QDir segmentationImagesPath;
+    QString segmentationImagesPath;
 
     QFileSystemWatcher watcher;
 
     void connectWatcherSignals();
+
+    //! Internal methods to react to path changes
+    bool setImagesPath(const QString &path);
+    void setSegmentationImagesPath(const QString &path);
+    bool setObjectModelsPath(const QString &path);
+    bool setPosesFilePath(const QString &path);
 };
 
 #endif // TEXTFILELOADANDSTORESTRATEGY_H
