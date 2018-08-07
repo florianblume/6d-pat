@@ -1,4 +1,4 @@
-QT       += core gui concurrent
+QT       += core gui
 
 CONFIG += c++11
 
@@ -9,10 +9,9 @@ include(./3dparty/QtAwesome/QtAwesome.pri)
 INCLUDEPATH += $$PWD/src/main \
     $$PWD/3dparty/QtAwesome \
     /usr/include/opencv \
-    /usr/local/include/assimp
+    /usr/include/assimp
 
-LIBS += -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d \
-        -L/usr/local/lib -lassimp
+LIBS += -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d -lassimp
 
 HEADERS  += \
     $$PWD/src/main/controller/maincontroller.hpp \

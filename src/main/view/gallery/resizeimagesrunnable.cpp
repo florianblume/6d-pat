@@ -1,5 +1,7 @@
 #include "resizeimagesrunnable.h"
 
+#include <QUrl>
+
 ResizeImagesRunnable::ResizeImagesRunnable(const QList<Image> images) :
     images(images) {
 

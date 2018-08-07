@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 TEMPLATE = app
-TARGET = Otiat
+TARGET = 6D-PAT
 
 include(./6dpatsources.pri)
 
