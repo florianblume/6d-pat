@@ -29,3 +29,6 @@ INCLUDEPATH += /path/to/qt5.XX/5.XX/gcc_64/include
 LIBS += -L/path/to/qt5.XX/5.XX/gcc_64/lib -lQt5Core -lQt5Gui
         -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d -lassimp
 ```
+Instead of building the program from sources you can also use the pre-built binaries in the folder of the same name. This version expects Qt version 5.9 at apt's default installation location (`/usr/lib/x86_64-linux-gnu`) together with OpenCV and Assimp.
+
+# Getting Started
