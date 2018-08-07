@@ -72,3 +72,22 @@ Click on an image and afterwards on an object model. The program should look lik
 ![6D-PAT with annotations](https://i.imgur.com/MyHoIhT.png "6D-PAT with annotations")
 
 The images in object models in the picture are from the (T-Less dataset)[http://cmp.felk.cvut.cz/t-less/]. A script to convert the T-Less camera matrix format and ground-truth poses format to the one expected by the program can be found in the utility folder of the FlowerPower repository.
+
+The components marked in the picture are the following ones:
+
+**A**: The currently selected path to load images from.
+**B**: The gallery showing the loaded images.
+**C**: The pose viewer that is able to display a selected image, as well as renders any annoated poses.
+**D**: The currently selected path to load object models from.
+**E**: The gallery showing the loaded object models.
+**F**: The pose editor that is able to display selected object models, which can be rotated using the mouse and moved around using the arrow keys, and allows editing exisiting poses and to recover new ones.
+
+## Additional Setup
+
+When segmentation images exist, you can set the color of the respective tool in the settings view under "Codes". If a segmentation image contains a color that has no object model assigned, all object models will be displayed.
+
+To setup the neural network, open the settings view and click on "Network":
+
+![6D-PAT neural network settings](https://i.imgur.com/J8TPxuK.png "6D-PAT neural network settings")
+
+You can there set the path to you Python interpreter, the training and the inference script. The scrpits are expect to be from the FlowerPower repository. Follow the instructions in that repository to setup a Anaconda environment properly. You have to use the Python interpreter from that environment in order to run the network correctly. As of now, the training script cannot be run yet from within the program. You also have to set the path to the network JSON configuration that you created to run the FlowerPower network in inference mode after training it (again, please refer to the manual in the repository how to set up the network, etc.)
