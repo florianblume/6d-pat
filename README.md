@@ -91,3 +91,25 @@ To setup the neural network, open the settings view and click on "Network":
 ![6D-PAT neural network settings](https://i.imgur.com/J8TPxuK.png "6D-PAT neural network settings")
 
 You can there set the path to you Python interpreter, the training and the inference script. The scrpits are expect to be from the FlowerPower repository. Follow the instructions in that repository to setup a Anaconda environment properly. You have to use the Python interpreter from that environment in order to run the network correctly. As of now, the training script cannot be run yet from within the program. You also have to set the path to the network JSON configuration that you created to run the FlowerPower network in inference mode after training it (again, please refer to the manual in the repository how to set up the network, etc.)
+
+# Recovering Poses
+
+To start recovering poses, follow these steps:
+1. Select an image
+2. Select the corresponding object model
+3. Rotate the object model to a similar position as visible in the image
+4. Click on the image on a characteristic point of the object
+5. Click the same point on the 3D model - the program will show the number of click points at the bottom left
+6. Repeat setps 4 - 5 until at least 4 correspondences were created - more correspondences help to make the pose more accurate
+7. Click the "Create" button at the bottom of the pose editor
+8. You should see the recovered pose on the image
+9. To refine the pose, select it from the drop down and edit it using the controls
+10. After pose refinement, don't forget to press "Save"
+
+![The pose recover process](https://i.imgur.com/JiQqxwv.png "The pose recover process")
+
+You can always abort the creation process from the edit menu. To use the neural network on the current image, press the "Predict" button (not visible in the image). To run network inference on multiple images select "Network" from the menu and select the images to run inference on. The program automatically writes the images into the image list defined in the config and sets the proper poses file (the one that you selected in the settings).
+
+You can also remove poses using the "Remove" button and adjust the transparency of the objects on the image using the slider labled "Transparency". This allows you to see the image behind overlapping object models.
+
+**Hurray! You're good to go and can now annotate millions of images!**
