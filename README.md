@@ -112,4 +112,12 @@ You can always abort the creation process from the edit menu. To use the neural 
 
 You can also remove poses using the "Remove" button and adjust the transparency of the objects on the image using the slider labled "Transparency". This allows you to see the image behind overlapping object models.
 
-**Hurray! You're good to go and can now annotate millions of images!**
+# Hurray! You're good to go and can now annotate millions of images!
+
+**Some more screenshots of the program:**
+
+The program showing the T-Less ground-truth poses:
+![The program showing the T-Less ground-truth poses](https://i.imgur.com/U7UuETx.png "The program showing the T-Less ground-truth poses")
+
+The program showing the corresponding segmentation mask, which were rendered manually beforehand using the ground-truth files of T-Less. The toggle is highlighted with the green rectangle:
+![TThe program showing the corresponding segmentation mask, which were rendered manually beforehand using the ground-truth files of T-Less](https://i.imgur.com/lWNDisG.png "The program showing the corresponding segmentation mask, which were rendered manually beforehand using the ground-truth files of T-Less. The toggle is highlighted with the green rectangle.")
