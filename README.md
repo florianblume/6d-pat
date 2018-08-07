@@ -1,19 +1,31 @@
-# Otiat
-Object To Image Annotation Tool - is a tool that allows the user to load a set of images and also a set of 3D 
-models and annotate where in the 2D image the 3D object ist placed. After learning the annotations of the user 
-the program is able to offer placement suggestions.
+![The 6D-PAT logo](https://i.imgur.com/P7YhNz5.png "The 6D-PAT logo")
 
-## Notes
+# 6D - Pose Annotation Tool (6D-PAT)
 
-This project uses the Qt3D rendering framework which comes a long with some peculiarities. For this reason, 
-and also for general documentation we want to record them here.
+6D-PAT is a program that enables users to recover poses of 3D object models on images. It allows to view images of a folder in a gallery and select those images for annotation. Likewise, it can display 3D models contained in a folder in a gallery and offers a 3D viewer. The displayed image an object model can then be used to annotate the pose of the object on the image. It also offers basic functionality of using a neural network written in Python to predict poses for images.
 
-* In contrast to the example offscreen renderer (https://github.com/Sonnentierchen/Qt3D-OfflineRenderer), in this project using setScale on 3D objects causes them to be always drawn from the same angle regardless of the set camera, and also in addition to the correct rendering, i.e. the object is displayed twice, so don't use setScale.
+**Requirements and Setup are only provided for Ubuntu. Given the portability of the used frameworks a setup on Windows, etc. should be possible, as well.**
 
-## External Dependencies
+# Requirements
 
-Here we will list everything that is needed to successfully run the application.
+1. Qt >= 5.6
+2. OpenCV >= 3.2
+3. Assimp >= 4.1
+4. OpenGL >= 3.0
 
-* Qt5.9 **DOES NOT WORK WITH Qt5.10 YET**
-* OpenCV (https://opencv.org/): Clone from git and build. If the path to OpenCV that is stored in the project's file (OtiatSources.pro) differs from the path that your OpenCV installation is located at, adjust it.
-* Python 3.6: Adjust the paths to Python in OtiatSources.pro.
+# Setup
+
+1. To install Qt, open the terminal and execute `sudo apt install qt5-default`.
+2. To install OpenCV, open the terminal and execute `sudo apt install libopencv-dev`.
+3. To install Assimp. open the terminal and execute `sudo apt install libassimp-dev`.
+4. OpenGL should be installed in Ubuntu alread.
+
+You can also build 1 - 3 from the respective sources. Please refer to the documentations how to achieve this. If you want to use your custom built OpenCV and Assimp you have to adjust the `INCLUDEPATH` and `LIBS` variable in 6dpatsources.pri. For example, change the path to the OpenCV include files from `/usr/include/opencv` to `/usr/local/include/opencv`.
+
+Please be aware that the OpenCV and Assimp libraries are currently loaded from `/usr/lib/x86_64-linux-gnu`, where `apt` installs them. If you want to use a different Qt version than the one installed by `apt` you have to include the Qt libraries manually before including OpenCV and Assimp. The `INCLUDEPATH` AND `LIBS` variables could look like this in this case:
+```
+INCLUDEPATH += /path/to/qt5.XX/5.XX/gcc_64/include
+
+LIBS += -L/path/to/qt5.XX/5.XX/gcc_64/lib -lQt5Core -lQt5Gui
+        -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d -lassimp
+```
