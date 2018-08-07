@@ -42,7 +42,7 @@ void MainController::initializeMainWindow() {
     // Notifies the main window of the initialization process so that it can display a message etc.
     mainWindow.onInitializationStarted();
 
-    mainWindow.setPreferencesStore(settingsStore.get());
+    mainWindow.setPreferencesStore(settingsStore.data());
 
     //! The reason why the breadcrumbs receive an object of the path type of the boost filesystem library
     //! is because the breadcrumb views have to split the path to show it.

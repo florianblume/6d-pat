@@ -6,6 +6,14 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 include(./3dparty/QtAwesome/QtAwesome.pri)
 
+INCLUDEPATH += $$PWD/src/main \
+    $$PWD/3dparty/QtAwesome \
+    /usr/include/opencv \
+    /usr/local/include/assimp
+
+LIBS += -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d \
+        -L/usr/local/lib -lassimp
+
 HEADERS  += \
     $$PWD/src/main/controller/maincontroller.hpp \
     $$PWD/src/main/model/cachingmodelmanager.hpp \
@@ -102,11 +110,3 @@ FORMS    += \
 
 RESOURCES += \
     $$PWD/6dpatsources.qrc
-
-INCLUDEPATH += $$PWD/src/main \
-    $$PWD/3dparty/QtAwesome \
-    /usr/local/include/opencv \
-    /usr/local/include/assimp
-
-LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d \
-        -L/usr/local/lib -lassimp

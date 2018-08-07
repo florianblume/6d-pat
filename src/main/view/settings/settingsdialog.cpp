@@ -29,16 +29,16 @@ void SettingsDialog::setPreferencesStoreAndObjectModels(SettingsStore *settingsS
     this->settingsStore = settingsStore;
     settings = settingsStore->loadPreferencesByIdentifier(currentSettingsIdentifier);
     this->currentSettingsIdentifier = currentSettingsIdentifier;
-    ui->pageGeneral->setPreferences(settings.get());
-    ui->pageNetwork->setPreferences(settings.get());
-    ui->pageSegmentationCodes->setPreferencesAndObjectModels(settings.get(), objectModels);
+    ui->pageGeneral->setPreferences(settings.data());
+    ui->pageNetwork->setPreferences(settings.data());
+    ui->pageSegmentationCodes->setPreferencesAndObjectModels(settings.data(), objectModels);
 }
 
 //! The weird connection in the UI file of the dialog's method clicked(QAbstractButton)
 //! comes from that the dialog somehow doesn't fire its accepted() method...
 void SettingsDialog::onAccepted(QAbstractButton* button) {
     if (ui->buttonBox->buttonRole(button) == QDialogButtonBox::ApplyRole) {
-        settingsStore->savePreferences(settings.get());
+        settingsStore->savePreferences(settings.data());
         close();
     }
 }

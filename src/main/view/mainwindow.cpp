@@ -222,13 +222,13 @@ void MainWindow::onSelectedImageChanged(int index) {
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
     QSharedPointer<Settings> preferences = preferencesStore->loadPreferencesByIdentifier("default");
     preferences->setImagesPath(path);
-    preferencesStore->savePreferences(preferences.get());
+    preferencesStore->savePreferences(preferences.data());
 }
 
 void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
     QSharedPointer<Settings> preferences = preferencesStore->loadPreferencesByIdentifier("default");
     preferences->setObjectModelsPath(path);
-    preferencesStore->savePreferences(preferences.get());
+    preferencesStore->savePreferences(preferences.data());
 }
 
 void MainWindow::displayWarning(const QString &title, const QString &text) {
