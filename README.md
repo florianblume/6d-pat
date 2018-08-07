@@ -57,7 +57,7 @@ Select the folder, where your images reside. The program can load `png` and `jpg
 
 The `image_file_name` is the filename without the full path but including extension, e.g. `0000.jpg`. If you do not have such a file (also in a different format) and you don't know how to create one, please be referred to the (*FlowerPower Neural Network* repository)[https://github.com/Sonnentierchen/flowerpower_nn], which provides a Python function in its utility folder that can create a default camera info file. Be aware, that to recover the poses the real camera matrices should be used.
 
-If you have segmentation images corresponding to your images you can select the respective folder. Leave it like it is otherwise. The program will only load the segmentation images, if their number matches the number of images. If the loading of segmentation images worked correctly, you will be able to switch to viewing it after selecting an image and clicking the toggle at the bottom of the pose viewer (see image further below).
+If you have segmentation images corresponding to your images you can select the respective folder. Leave it like it is otherwise. The program will only load the segmentation images, if their number matches the number of images. If the loading of segmentation images worked correctly, you will be able to switch to viewing it after selecting an image and clicking the toggle at the bottom of the pose viewer (see image further below). This allows you to see misaligned poses better.
 
 Now, also set the path to the object models that you want to use to recover poses. The program is able to load all 3D formats supported by Assimp.
 
