@@ -5,6 +5,7 @@
 #include "view/poseeditor/rendering/poseeditorglwidget.hpp"
 
 #include <opencv2/core/mat.hpp>
+#include <QtGlobal>
 #include <QUrl>
 #include <QThread>
 #include <QMessageBox>
@@ -38,6 +39,13 @@ PoseEditor::PoseEditor(QWidget *parent, ModelManager *modelManager) :
         connect(modelManager, SIGNAL(posesChanged()),
                 this, SLOT(onPosesChanged()));
     }
+
+    connect(ui->openGLWidget, &PoseEditorGLWidget::rotationXChanged,
+            this, &PoseEditor::onGLWidgetXRotationChanged);
+    connect(ui->openGLWidget, &PoseEditorGLWidget::rotationYChanged,
+            this, &PoseEditor::onGLWidgetYRotationChanged);
+    connect(ui->openGLWidget, &PoseEditorGLWidget::rotationZChanged,
+            this, &PoseEditor::onGLWidgetZRotationChanged);
 }
 
 PoseEditor::~PoseEditor()
@@ -136,23 +144,27 @@ void PoseEditor::addPosesToComboBoxPoses(
     ignoreValueChanges = false;
 }
 
+cv::Mat qtMatrixToOpenCVMatrix(const QMatrix3x3 matrix) {
+    cv::Mat result = (cv::Mat_<float>(3,3) <<
+           matrix(0, 0),
+           matrix(0, 1),
+           matrix(0, 2),
+           matrix(1, 0),
+           matrix(1, 1),
+           matrix(1, 2),
+           matrix(2, 0),
+           matrix(2, 1),
+           matrix(2, 2));
+    return result;
+}
+
 void PoseEditor::setPoseValuesOnControls(Pose *pose) {
     QVector3D position = pose->getPosition();
     ignoreValueChanges = true;
     ui->spinBoxTranslationX->setValue(position.x());
     ui->spinBoxTranslationY->setValue(position.y());
     ui->spinBoxTranslationZ->setValue(position.z());
-    QMatrix3x3 rotation = pose->getRotation();
-    cv::Mat rotationMatrix = (cv::Mat_<float>(3,3) <<
-           rotation(0, 0),
-           rotation(0, 1),
-           rotation(0, 2),
-           rotation(1, 0),
-           rotation(1, 1),
-           rotation(1, 2),
-           rotation(2, 0),
-           rotation(2, 1),
-           rotation(2, 2));
+    cv::Mat rotationMatrix = qtMatrixToOpenCVMatrix(pose->getRotation());
     cv::Vec3f rotationVector = GeneralHelper::rotationMatrixToEulerAngles(rotationMatrix);
     ui->spinBoxRotationX->setValue(rotationVector[0]);
     ui->spinBoxRotationY->setValue(rotationVector[1]);
@@ -205,6 +217,25 @@ void PoseEditor::onPoseDeleted(const QString& /* pose */) {
     // Just select the default entry
     ui->comboBoxPose->setCurrentIndex(0);
     onComboBoxPoseIndexChanged(0);
+}
+
+void PoseEditor::onGLWidgetXRotationChanged(float angle) {
+    if (currentPose && !qFuzzyCompare(-angle, (float) ui->spinBoxRotationX->value())) {
+        // Somehow we need to invert the x value - it is unclear why
+        ui->spinBoxRotationX->setValue((double) -angle);
+    }
+}
+
+void PoseEditor::onGLWidgetYRotationChanged(float angle) {
+    if (currentPose && !qFuzzyCompare(angle, (float) ui->spinBoxRotationY->value())) {
+        ui->spinBoxRotationY->setValue((double) angle);
+    }
+}
+
+void PoseEditor::onGLWidgetZRotationChanged(float angle) {
+    if (currentPose && !qFuzzyCompare(angle, (float) ui->spinBoxRotationZ->value())) {
+        ui->spinBoxRotationZ->setValue((double) angle);
+    }
 }
 
 void PoseEditor::onButtonRemoveClicked() {
@@ -355,6 +386,12 @@ void PoseEditor::setPoseToEdit(Pose *pose) {
     setEnabledPoseEditorControls(true);
     setPoseValuesOnControls(pose);
     ui->openGLWidget->setObjectModel(pose->getObjectModel());
+    cv::Mat rotationMatrix = qtMatrixToOpenCVMatrix(pose->getRotation());
+    cv::Vec3f rotationVector = GeneralHelper::rotationMatrixToEulerAngles(rotationMatrix);
+    // Somehow we need to invert the x value - it is unclear why
+    ui->openGLWidget->setRotationOfObjectModel(QVector3D(-rotationVector[0],
+                                                         rotationVector[1],
+                                                         rotationVector[2]));
     ui->buttonSave->setEnabled(false);
     Q_EMIT poseCreationAborted();
 }

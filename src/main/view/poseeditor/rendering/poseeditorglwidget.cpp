@@ -38,6 +38,18 @@ void PoseEditorGLWidget::setObjectModel(const ObjectModel *objectModel) {
     update();
 }
 
+void PoseEditorGLWidget::setRotationOfObjectModel(QVector3D rotation) {
+    if (!objectModelRenderable.isNull()) {
+        int x = rotation.x() * 16;
+        int y = rotation.y() * 16;
+        int z = rotation.z() * 16;
+        setXRotation(x);
+        setYRotation(y);
+        setZRotation(z);
+        update();
+    }
+}
+
 PoseEditorGLWidget::~PoseEditorGLWidget()
 {
     makeCurrent();
@@ -61,6 +73,7 @@ void PoseEditorGLWidget::setXRotation(int angle)
     qNormalizeAngle(angle);
     if (angle != xRot) {
         xRot = angle;
+        emit rotationXChanged(xRot / 16.f);
         update();
     }
 }
@@ -70,6 +83,7 @@ void PoseEditorGLWidget::setYRotation(int angle)
     qNormalizeAngle(angle);
     if (angle != yRot) {
         yRot = angle;
+        emit rotationYChanged(yRot / 16.f);
         update();
     }
 }
@@ -79,6 +93,7 @@ void PoseEditorGLWidget::setZRotation(int angle)
     qNormalizeAngle(angle);
     if (angle != zRot) {
         zRot = angle;
+        emit rotationZChanged(zRot / 16.f);
         update();
     }
 }

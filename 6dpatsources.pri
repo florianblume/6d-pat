@@ -11,7 +11,7 @@ INCLUDEPATH += $$PWD/src/main \
     /usr/include/opencv \
     /usr/include/assimp
 
-LIBS += -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d -lassimp
+LIBS += -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_calib3d -lassimp
 
 HEADERS  += \
     $$PWD/src/main/controller/maincontroller.hpp \
@@ -45,19 +45,18 @@ HEADERS  += \
     $$PWD/src/main/misc/generalhelper.h \
     $$PWD/src/main/view/gallery/rendering/offscreenrenderer.hpp \
     $$PWD/src/main/controller/neuralnetworkcontroller.hpp \
-    $$PWD/src/main/controller/posecreator.hpp \
     $$PWD/src/main/view/settings/settingsnetworkpage.hpp \
     $$PWD/src/main/controller/neuralnetworkrunnable.hpp \
     $$PWD/src/main/view/neuralnetworkdialog/neuralnetworkdialog.hpp \
     $$PWD/src/main/view/gallery/resizeimagesrunnable.h \
     $$PWD/src/main/view/neuralnetworkprogressview/networkprogressview.hpp \
     $$PWD/src/main/settings/settings.hpp \
-    $$PWD/src/main/settings/settingsstore.hpp
+    $$PWD/src/main/settings/settingsstore.hpp \
+    $$PWD/src/main/controller/poserecoverer.hpp
 
 SOURCES += \
     $$PWD/src/main/view/mainwindow.cpp \
     $$PWD/src/main/controller/maincontroller.cpp \
-    $$PWD/src/main/controller/posecreator.cpp \
     $$PWD/src/main/model/image.cpp \
     $$PWD/src/main/model/objectmodel.cpp \
     $$PWD/src/main/model/loadandstorestrategy.cpp \
@@ -92,7 +91,8 @@ SOURCES += \
     $$PWD/src/main/view/gallery/resizeimagesrunnable.cpp \
     $$PWD/src/main/view/neuralnetworkprogressview/networkprogressview.cpp \
     $$PWD/src/main/settings/settings.cpp \
-    $$PWD/src/main/settings/settingsstore.cpp
+    $$PWD/src/main/settings/settingsstore.cpp \
+    $$PWD/src/main/controller/poserecoverer.cpp
 
 FORMS    += \
     $$PWD/src/main/view/mainwindow.ui \

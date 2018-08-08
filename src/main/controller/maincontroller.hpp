@@ -8,7 +8,7 @@
 #include "misc/global.h"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
-#include "controller/posecreator.hpp"
+#include "controller/poserecoverer.hpp"
 #include "controller/neuralnetworkcontroller.hpp"
 
 #include <QScopedPointer>

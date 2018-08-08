@@ -31,6 +31,7 @@ class PoseEditorGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_0
 public:
     explicit PoseEditorGLWidget(QWidget *parent = 0);
     void setObjectModel(const ObjectModel *objectModel);
+    void setRotationOfObjectModel(QVector3D rotation);
     void addClick(QVector3D position, QColor color);
     void removeClicks();
     void reset();
@@ -39,6 +40,9 @@ public:
 
 Q_SIGNALS:
     void positionClicked(QVector3D position);
+    void rotationXChanged(float angle);
+    void rotationYChanged(float angle);
+    void rotationZChanged(float angle);
 
 protected:
     void initializeGL() override;

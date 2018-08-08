@@ -122,6 +122,10 @@ private Q_SLOTS:
     void onPoseAdded(const QString &pose);
     void onPoseDeleted(const QString &pose);
 
+    void onGLWidgetXRotationChanged(float angle);
+    void onGLWidgetYRotationChanged(float angle);
+    void onGLWidgetZRotationChanged(float angle);
+
     void onSpinBoxTranslationXValueChanged(double);
     void onSpinBoxTranslationYValueChanged(double);
     void onSpinBoxTranslationZValueChanged(double);
