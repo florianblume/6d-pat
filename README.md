@@ -12,6 +12,7 @@
 2. OpenCV >= 4.0
 3. Assimp >= 4.1
 4. OpenGL >= 3.0
+5. g++ >= 7.3
 
 # Setup
 
