@@ -38,15 +38,6 @@ JsonLoadAndStoreStrategy::~JsonLoadAndStoreStrategy() {
 
 bool JsonLoadAndStoreStrategy::persistPose(
         Pose *objectImagePose, bool deletePose) {
-    // no need to check whether paths exist because setters do so already
-
-    //! we do not need to throw an exception here, the only time the path cannot exist
-    //! is if this strategy was constructed with an empty path, all other methods of
-    //! setting the path check if the path exists
-    if (!QFileInfo(posesFilePath).exists()) {
-        Q_EMIT failedToPersistPose("The specified JSON file does not exist.");
-        return false;
-    }
 
     //! Read in the camera parameters from the JSON file
     QFile jsonFile(posesFilePath);

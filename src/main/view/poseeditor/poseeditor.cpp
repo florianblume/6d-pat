@@ -273,8 +273,10 @@ void PoseEditor::onSpinBoxTranslationZValueChanged(double /* value */) {
 }
 
 void PoseEditor::onSpinBoxRotationXValueChanged(double /* value */) {
-    if (!ignoreValueChanges)
+    if (!ignoreValueChanges) {
         updateCurrentlyEditedPose();
+        ui->buttonSave->setEnabled(true);
+    }
 }
 
 void PoseEditor::onSpinBoxRotationYValueChanged(double /* value */) {

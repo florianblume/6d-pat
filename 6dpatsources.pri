@@ -8,10 +8,11 @@ include(./3dparty/QtAwesome/QtAwesome.pri)
 
 INCLUDEPATH += $$PWD/src/main \
     $$PWD/3dparty/QtAwesome \
-    /usr/include/opencv \
+    /usr/local/include/opencv \
     /usr/include/assimp
 
-LIBS += -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_calib3d -lassimp
+LIBS += -L/usr/local/lib/ -lopencv_core -lopencv_calib3d \
+        -L/usr/lib/ -lassimp
 
 HEADERS  += \
     $$PWD/src/main/controller/maincontroller.hpp \
