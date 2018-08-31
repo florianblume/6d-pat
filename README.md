@@ -9,16 +9,18 @@
 # Requirements
 
 1. Qt >= 5.6
-2. OpenCV >= 3.2
+2. OpenCV >= 4.0
 3. Assimp >= 4.1
 4. OpenGL >= 3.0
+5. g++ >= 7.3
 
 # Setup
 
 1. To install Qt, open the terminal and execute `sudo apt install qt5-default`.
-2. To install OpenCV, open the terminal and execute `sudo apt install libopencv-dev`.
-3. To install Assimp. open the terminal and execute `sudo apt install libassimp-dev`.
-4. OpenGL should be installed in Ubuntu alread.
+2. To be able to debug the program or build for other operating systems install Qt-Creator `sudo apt install qtcreator`
+3. Please build OpenCV yourself, if you haven't done so already. The OpenCV version that is installable under Linux does not output correct poses. You can download OpenCV from [here](https://github.com/opencv/opencv). A tutorial how to make OpenCV can be found [here](https://docs.opencv.org/3.4/d7/d9f/tutorial_linux_install.html).
+4. To install Assimp. open the terminal and execute `sudo apt install libassimp-dev`.
+5. OpenGL should be installed in Ubuntu already.
 
 You can also build 1 - 3 from the respective sources. Please refer to the documentations how to achieve this. If you want to use your custom built OpenCV and Assimp you have to adjust the `INCLUDEPATH` and `LIBS` variable in 6dpatsources.pri. For example, change the path to the OpenCV include files from `/usr/include/opencv` to `/usr/local/include/opencv`.
 
