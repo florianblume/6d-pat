@@ -45,7 +45,7 @@ void GalleryObjectModelModel::startRenderingObjectModels() {
     renderThreadPool.clear();
     for (ObjectModel &objectModel : objectModelsCache) {
         OffscreenRenderer *offscreenRenderer =
-                new OffscreenRenderer(objectModel, QSize(100, 100));
+                new OffscreenRenderer(&mutex, objectModel, QSize(100, 100));
         connect(offscreenRenderer, &OffscreenRenderer::imageReady,
                 [this, offscreenRenderer](){onObjectModelRendered(offscreenRenderer);});
         renderThreadPool.start(offscreenRenderer);

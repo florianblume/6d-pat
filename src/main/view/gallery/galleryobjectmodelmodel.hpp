@@ -9,6 +9,7 @@
 #include <QVector>
 #include <QRgb>
 #include <QThreadPool>
+#include <QMutex>
 
 /*!
  * \brief The GalleryObjectModelModel class provides object model images to the Gallery.
@@ -51,6 +52,7 @@ private:
     ModelManager* modelManager;
     QList<ObjectModel> objectModelsCache;
     QThreadPool renderThreadPool;
+    QMutex mutex;
     QMap<QString,QImage> renderedObjectsModels;
     QList<Image> imagesCache;
     QMap<QString, QString> codes;

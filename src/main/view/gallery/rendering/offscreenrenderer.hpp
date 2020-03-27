@@ -3,6 +3,7 @@
 
 #include "model/objectmodel.hpp"
 
+#include <QMutex>
 #include <QSize>
 #include <QImage>
 #include <QOpenGLContext>
@@ -23,7 +24,7 @@ class OffscreenRenderer : public QObject, public QRunnable {
     Q_OBJECT
 
 public:
-    OffscreenRenderer(const ObjectModel &objectModel, const QSize &size);
+    OffscreenRenderer(QMutex *mutex, const ObjectModel &objectModel, const QSize &size);
     void run() override;
     QImage getImage();
     ObjectModel getObjectModel();
@@ -32,6 +33,7 @@ Q_SIGNALS:
     void imageReady();
 
 private:
+    QMutex *mutex;
     ObjectModel objectModel;
     QImage image;
     QSize size;

@@ -7,9 +7,10 @@
 #define PROGRAM_VERTEX_ATTRIBUTE 0
 #define PROGRAM_NORMAL_ATTRIBUTE 1
 
-OffscreenRenderer::OffscreenRenderer(const ObjectModel &objectModel, const QSize &size) :
+OffscreenRenderer::OffscreenRenderer(QMutex *mutex, const ObjectModel &objectModel, const QSize &size) :
     objectModel(objectModel),
-    size(size) {
+    size(size),
+    mutex(mutex) {
     surfaceFormat.setMajorVersion(3);
     surfaceFormat.setMinorVersion(0);
     surfaceFormat.setDepthBufferSize(DEPTH_BUFFER_SIZE);
@@ -19,6 +20,7 @@ OffscreenRenderer::OffscreenRenderer(const ObjectModel &objectModel, const QSize
 }
 
 void OffscreenRenderer::run() {
+    mutex->lock();
     context = new QOpenGLContext();
     context->setFormat(surfaceFormat);
     context->create();
@@ -85,6 +87,7 @@ void OffscreenRenderer::run() {
     delete surface;
     delete objectsProgram;
     delete renderFbo;
+    mutex->unlock();
 }
 
 QImage OffscreenRenderer::getImage() {
