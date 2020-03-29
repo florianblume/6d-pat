@@ -3,14 +3,15 @@
 #include "view/poseeditor/rendering/objectmodelrenderable.hpp"
 #include <QThread>
 #include <QOpenGLFunctions>
+#include <QGuiApplication>
+#include <QDebug>
 
 #define PROGRAM_VERTEX_ATTRIBUTE 0
 #define PROGRAM_NORMAL_ATTRIBUTE 1
 
-OffscreenRenderer::OffscreenRenderer(QMutex *mutex, const ObjectModel &objectModel, const QSize &size) :
-    objectModel(objectModel),
-    size(size),
-    mutex(mutex) {
+OffscreenRenderer::OffscreenRenderer(const QList<ObjectModel> &objectModels, const QSize &size) :
+    objectModels(objectModels),
+    size(size) {
     surfaceFormat.setMajorVersion(3);
     surfaceFormat.setMinorVersion(0);
     surfaceFormat.setDepthBufferSize(DEPTH_BUFFER_SIZE);
@@ -19,20 +20,17 @@ OffscreenRenderer::OffscreenRenderer(QMutex *mutex, const ObjectModel &objectMod
     surfaceFormat.setOption(QSurfaceFormat::DeprecatedFunctions);
 }
 
-void OffscreenRenderer::run() {
-    mutex->lock();
+void OffscreenRenderer::render() {
     context = new QOpenGLContext();
     context->setFormat(surfaceFormat);
     context->create();
-    //context->moveToThread(QThread::currentThread());
+    context->moveToThread(QThread::currentThread());
     surface = new QOffscreenSurface();
     surface->setFormat(context->format());
     surface->create();
-    //surface->moveToThread(QThread::currentThread());
+    surface->moveToThread(QThread::currentThread());
     context->makeCurrent(surface);
-
     objectsProgram = new QOpenGLShaderProgram;
-    // TODO: load custom shader that writes segmentations as well for clicking
     objectsProgram->addShaderFromSourceFile(
                 QOpenGLShader::Vertex, ":/shaders/gallery/object.vert");
     objectsProgram->addShaderFromSourceFile(
@@ -49,51 +47,55 @@ void OffscreenRenderer::run() {
     muliSampleFormat.setInternalTextureFormat(GL_RGBA);
     renderFbo = new QOpenGLFramebufferObject(size, muliSampleFormat);
     renderFbo->bind();
-    glClearColor(1.0, 1.0, 1.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
-
     objectsProgram->bind();
-    ObjectModelRenderable renderable(objectModel,
-                                     PROGRAM_VERTEX_ATTRIBUTE,
-                                     PROGRAM_NORMAL_ATTRIBUTE);
 
-    QOpenGLVertexArrayObject::Binder vaoBinder(
-                renderable.getVertexArrayObject());
+    for (int i = 0; i < objectModels.size() && running == 1; i++) {
+        ObjectModel objectModel = objectModels[i];
+        ObjectModelRenderable renderable(objectModel,
+                                         PROGRAM_VERTEX_ATTRIBUTE,
+                                         PROGRAM_NORMAL_ATTRIBUTE);
 
-    objectsProgram->setUniformValue("lightPos", QVector3D(0, 0, 2 * renderable.getLargestVertexValue()));
+        QOpenGLVertexArrayObject::Binder vaoBinder(
+                    renderable.getVertexArrayObject());
 
-    modelMatrix.setToIdentity();
-    modelMatrix.rotate(90.0, QVector3D(1.0, 0.0, 0.0));
-    viewMatrix.setToIdentity();
-    viewMatrix.translate(QVector3D(0, 0, -3 * renderable.getLargestVertexValue()));
-    projectionMatrix.setToIdentity();
-    projectionMatrix.perspective(45.f, size.width() / (float) size.height(), nearPlane, farPlane);
-    QMatrix4x4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
-    objectsProgram->setUniformValue("projectionMatrix", modelViewProjectionMatrix);
+        objectsProgram->setUniformValue("lightPos", QVector3D(0, 0, 2 * renderable.getLargestVertexValue()));
 
-    QMatrix4x4 modelViewMatrix = viewMatrix * modelMatrix;
-    QMatrix3x3 normalMatrix = modelViewMatrix.normalMatrix();
-    objectsProgram->setUniformValue("normalMatrix", normalMatrix);
+        modelMatrix.setToIdentity();
+        modelMatrix.rotate(90.0, QVector3D(1.0, 0.0, 0.0));
+        viewMatrix.setToIdentity();
+        viewMatrix.translate(QVector3D(0, 0, -3 * renderable.getLargestVertexValue()));
+        projectionMatrix.setToIdentity();
+        projectionMatrix.perspective(45.f, size.width() / (float) size.height(), nearPlane, farPlane);
+        QMatrix4x4 modelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix;
+        objectsProgram->setUniformValue("projectionMatrix", modelViewProjectionMatrix);
 
-    glDrawElements(GL_TRIANGLES, renderable.getIndicesCount(), GL_UNSIGNED_INT, 0);
-    objectsProgram->release();
-    context->functions()->glFlush();
-    image = renderFbo->toImage();
-    renderFbo->release();
-    context->doneCurrent();
-    Q_EMIT imageReady();
-    delete context;
-    delete surface;
+        QMatrix4x4 modelViewMatrix = viewMatrix * modelMatrix;
+        QMatrix3x3 normalMatrix = modelViewMatrix.normalMatrix();
+        objectsProgram->setUniformValue("normalMatrix", normalMatrix);
+
+        glClearColor(0.0, 1.0, 1.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glDrawElements(GL_TRIANGLES, renderable.getIndicesCount(), GL_UNSIGNED_INT, 0);
+        context->functions()->glFlush();
+        QImage image = renderFbo->toImage();
+        Q_EMIT imageRendered(objectModel.getPath(), i, image);
+    }
+    shutdown();
+    Q_EMIT renderingFinished();
+}
+
+void OffscreenRenderer::stop() {
+    // exits the rendering loop when starting to render the next object
+    running = 0;
+}
+
+void OffscreenRenderer::shutdown() {
+    context->makeCurrent(surface);
     delete objectsProgram;
     delete renderFbo;
-    mutex->unlock();
-}
-
-QImage OffscreenRenderer::getImage() {
-    return image;
-}
-
-ObjectModel OffscreenRenderer::getObjectModel() {
-    return objectModel;
+    context->doneCurrent();
+    delete context;
+    // schedule this to be deleted only after we're done cleaning up
+    surface->deleteLater();
 }

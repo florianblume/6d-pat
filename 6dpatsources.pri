@@ -8,7 +8,7 @@ include(./3dparty/QtAwesome/QtAwesome.pri)
 
 INCLUDEPATH += $$PWD/src/main \
     $$PWD/3dparty/QtAwesome \
-    /usr/local/include/opencv \
+    /usr/local/include/opencv4 \
     /usr/include/assimp
 
 LIBS += -L/usr/local/lib/ -lopencv_core -lopencv_calib3d \

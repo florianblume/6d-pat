@@ -8,8 +8,10 @@
 #include <QMap>
 #include <QVector>
 #include <QRgb>
-#include <QThreadPool>
-#include <QMutex>
+#include <QThread>
+#include <QScopedPointer>
+
+typedef QScopedPointer<OffscreenRenderer> OffscreenRendererPtr;
 
 /*!
  * \brief The GalleryObjectModelModel class provides object model images to the Gallery.
@@ -51,9 +53,11 @@ private:
 
     ModelManager* modelManager;
     QList<ObjectModel> objectModelsCache;
-    QThreadPool renderThreadPool;
-    QMutex mutex;
     QMap<QString,QImage> renderedObjectsModels;
+    OffscreenRenderer *offscreenRenderer = Q_NULLPTR;
+    QThread *offscreenRendererThread;
+    void shutdownOffscreenRenderer();
+    void renderObjectModels();
     QList<Image> imagesCache;
     QMap<QString, QString> codes;
     //! We need this in case that an object model will not be displayed due to its color
@@ -66,14 +70,13 @@ private:
     //! when the renderer returns
     uint currentlyRenderedImageIndex = 0;
     QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
-    void startRenderingObjectModels();
 
 private Q_SLOTS:
 
     bool isNumberOfToolsCorrect() const;
     void onObjectModelsChanged();
     void onImagesChanged();
-    void onObjectModelRendered(OffscreenRenderer *offscreenRenderer);
+    void onObjectModelRendered(const QString &objectModel, int index, const QImage &image);
 
 };
 
