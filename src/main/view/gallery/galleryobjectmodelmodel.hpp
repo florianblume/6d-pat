@@ -55,7 +55,7 @@ private:
     QList<ObjectModel> objectModelsCache;
     QMap<QString,QImage> renderedObjectsModels;
     OffscreenRenderer *offscreenRenderer = Q_NULLPTR;
-    QThread *offscreenRendererThread;
+    QThread *offscreenRendererThread = Q_NULLPTR;
     void shutdownOffscreenRenderer();
     void renderObjectModels();
     QList<Image> imagesCache;

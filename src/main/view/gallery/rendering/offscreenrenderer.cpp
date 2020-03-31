@@ -24,11 +24,11 @@ void OffscreenRenderer::render() {
     context = new QOpenGLContext();
     context->setFormat(surfaceFormat);
     context->create();
-    context->moveToThread(QThread::currentThread());
+    //context->moveToThread(QThread::currentThread());
     surface = new QOffscreenSurface();
     surface->setFormat(context->format());
     surface->create();
-    surface->moveToThread(QThread::currentThread());
+    //surface->moveToThread(QThread::currentThread());
     context->makeCurrent(surface);
     objectsProgram = new QOpenGLShaderProgram;
     objectsProgram->addShaderFromSourceFile(
@@ -39,17 +39,18 @@ void OffscreenRenderer::render() {
     objectsProgram->bindAttributeLocation("normal", PROGRAM_NORMAL_ATTRIBUTE);
     objectsProgram->link();
 
-    // Initialize the buffers and renderer
     QOpenGLFramebufferObjectFormat muliSampleFormat;
     muliSampleFormat.setAttachment(QOpenGLFramebufferObject::Depth);
     muliSampleFormat.setSamples(NUMBER_OF_SAMPLES);
     muliSampleFormat.setTextureTarget(GL_TEXTURE_2D);
-    muliSampleFormat.setInternalTextureFormat(GL_RGBA);
+    muliSampleFormat.setInternalTextureFormat(GL_RGB);
+
+    // Initialize the buffer
     renderFbo = new QOpenGLFramebufferObject(size, muliSampleFormat);
-    renderFbo->bind();
-    objectsProgram->bind();
 
     for (int i = 0; i < objectModels.size() && running == 1; i++) {
+        renderFbo->bind();
+        objectsProgram->bind();
         ObjectModel objectModel = objectModels[i];
         ObjectModelRenderable renderable(objectModel,
                                          PROGRAM_VERTEX_ATTRIBUTE,
@@ -73,13 +74,15 @@ void OffscreenRenderer::render() {
         QMatrix3x3 normalMatrix = modelViewMatrix.normalMatrix();
         objectsProgram->setUniformValue("normalMatrix", normalMatrix);
 
-        glClearColor(0.0, 1.0, 1.0, 1.0);
+        glClearColor(1.0, 1.0, 1.0, 0.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glDrawElements(GL_TRIANGLES, renderable.getIndicesCount(), GL_UNSIGNED_INT, 0);
         context->functions()->glFlush();
         QImage image = renderFbo->toImage();
         Q_EMIT imageRendered(objectModel.getPath(), i, image);
+        objectsProgram->release();
+        renderFbo->release();
     }
     shutdown();
     Q_EMIT renderingFinished();
