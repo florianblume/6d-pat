@@ -32,7 +32,16 @@ jobs:
         modules: 'qtcore qtgui'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
     - name: Cache OpenCV
-      run: sudo apt-get update
+      id: cache-opencv
+      uses: actions/cache@v1
+      with:
+        path: ../OpenCV
+        key: ${{ runner.os }}-OpenCV-Cache
+    - name: Install OpenCV
+      uses: florianblume/install-opencv-action@v1
+      with:
+        install-deps: 'true'
+        cached: ${{ steps.cache-opencv.outputs.cache-hit }}
     - name: qmake
       run: qmake 6D-PAT.pro
     - name: make
