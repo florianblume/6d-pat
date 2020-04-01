@@ -1,9 +1,0 @@
-Steps to rename a class with form:
-1. Refactor and rename
-2. Rename the folders
-3. Fix .pri project file
-4. Check for all occurences in the main form, including the widget promotions
-5. Check for all occurences in the form of the renamed class, including the "main" widget
-6. Clean
-7. Qmake
-8. Build

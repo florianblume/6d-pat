@@ -56,8 +56,10 @@ void GalleryObjectModelModel::renderObjectModels() {
     renderedObjectsModels.clear();
 
     offscreenRenderer = new OffscreenRenderer(objectModelsCache, QSize(100, 100));
-    offscreenRendererThread = QThread::create([this]{ offscreenRenderer->render(); });
+    offscreenRendererThread = new QThread();
 
+    connect(offscreenRendererThread, &QThread::started,
+            offscreenRenderer, &OffscreenRenderer::render);
     connect(offscreenRenderer, &OffscreenRenderer::imageRendered,
             this, &GalleryObjectModelModel::onObjectModelRendered);
     connect(offscreenRenderer, &OffscreenRenderer::renderingFinished,
