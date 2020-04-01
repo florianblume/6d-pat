@@ -58,7 +58,7 @@ RUN git clone https://github.com/opencv/opencv.git && \
       -D WITH_OPENGL=ON \
       -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules \
       -D BUILD_EXAMPLES=ON .. && \
-    make -j 6 && \
+    make -j6 && \
     make install && \
     make clean && \
     tar -czvf ${libPath}/opencv.tar.gz /usr/local/lib/libopencv_calib3d.so /usr/local/lib/libopencv_calib3d.so.4.*
@@ -78,7 +78,7 @@ RUN git clone https://github.com/florianblume/6d-pat && \
     mkdir build && \
     cd build && \
     qmake ../6D-PAT.pro && \
-    make -j 6
+    make -j6
 
 #FROM ubuntu AS runtime
 

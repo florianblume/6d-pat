@@ -4,10 +4,10 @@ CONFIG += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-include(./3dparty/QtAwesome/QtAwesome.pri)
+include(./src/3rdparty/QtAwesome/QtAwesome.pri)
 
 INCLUDEPATH += $$PWD/src/main \
-    $$PWD/3dparty/QtAwesome \
+    $$PWD/src/3rdparty/QtAwesome \
     /usr/local/include/opencv4 \
     /usr/include/assimp
 
