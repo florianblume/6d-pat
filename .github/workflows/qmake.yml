@@ -1,4 +1,4 @@
-name: qmake
+name: Build
 
 on:
   push:
@@ -32,8 +32,6 @@ jobs:
         modules: 'qtcore qtgui'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
     - name: Cache OpenCV
-      run: sudo apt-get update
-    - name: Cache Assimp
       run: sudo apt-get update
     - name: qmake-project
       run: qmake -project
