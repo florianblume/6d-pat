@@ -26,8 +26,10 @@ class OffscreenRenderer : public QObject {
 
 public:
     OffscreenRenderer(const QList<ObjectModel> &objectModels, const QSize &size);
-    void render();
     void stop();
+
+public Q_SLOTS:
+    void render();
 
 Q_SIGNALS:
     void imageRendered(const QString &objectModel, int index, const QImage &renderedImage);
