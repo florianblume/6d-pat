@@ -1,4 +1,4 @@
-name: Qt CI
+name: qmake
 
 on:
   push:
@@ -13,6 +13,12 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: Dependencies [Ubuntu]
+      run: |
+        sudo apt-get update
+        sudo apt-get install git build-essential cmake libace-dev coinor-libipopt-dev  libboost-system-dev libboost-filesystem-dev \
+                             libboost-thread-dev liborocos-kdl-dev libeigen3-dev swig qtbase5-dev qtdeclarative5-dev qtmultimedia5-dev \
+                             libxml2-dev liburdfdom-dev libtinyxml-dev liburdfdom-dev liboctave-dev python-dev valgrind libassimp-dev
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
@@ -26,7 +32,9 @@ jobs:
         modules: 'qtcore qtgui'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
     - name: Cache OpenCV
+      run: sudo apt-get update
     - name: Cache Assimp
+      run: sudo apt-get update
     - name: qmake-project
       run: qmake -project
     - name: qmake
