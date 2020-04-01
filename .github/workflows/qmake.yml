@@ -33,9 +33,7 @@ jobs:
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
     - name: Cache OpenCV
       run: sudo apt-get update
-    - name: qmake-project
-      run: qmake -project
     - name: qmake
-      run: qmake
+      run: qmake 6D-PAT.pro
     - name: make
       run: make
