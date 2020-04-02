@@ -1,6 +1,6 @@
 #include "settingsgeneralpage.hpp"
 #include "ui_settingsgeneralpage.h"
-#include <3dparty/QtAwesome/QtAwesome.h>
+#include "src/3rdparty/QtAwesome/QtAwesome.h"
 #include <QFileDialog>
 
 SettingsGeneralPage::SettingsGeneralPage(QWidget *parent) :
