@@ -1,4 +1,4 @@
-FROM vookimedlo/ubuntu-clang:clang_bionic AS builder
+FROM ubuntu:latest AS builder
 
 ARG prefix=/usr/local
 ARG binPath=$prefix/bin
@@ -36,8 +36,8 @@ RUN apt-get update \
       libx11-6 \
       libx11-xcb1 \
       software-properties-common \
-      cmake \
-      qt5-default qt5-image-formats-plugins \
+      cmake \ 
+      qt5-default \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR ${libPath}
@@ -61,23 +61,7 @@ RUN git clone https://github.com/opencv/opencv.git && \
     make -j4 && \
     make install && \
     make clean && \
-    tar -czvf ${libPath}/opencv.tar.gz /usr/local/lib/libopencv_calib3d.so /usr/local/lib/libopencv_calib3d.so.4.* /usr/local/lib/libopencv_core.so /usr/local/lib/libopencv_core.so.4.*
-
-# Download and install assimp
-RUN apt-get update && \
-    apt-get install -y \
-    assimp-utils \
-    libassimp-dev
-
-WORKDIR ${prefix}
-
-# Download and build 6D-PAT
-RUN git clone https://github.com/florianblume/6d-pat && \
-    cd 6d-pat && \
-    mkdir build && \
-    cd build && \
-    qmake ../6D-PAT.pro && \
-    make -j4
+    tar -czvf ${libPath}/opencv.tar.gz /usr/local/lib/libopencv* /usr/local/include/opencv4
 
 FROM ubuntu AS runtime
 
@@ -85,25 +69,21 @@ ARG prefix=/usr/local
 ARG binPath=$prefix/bin
 ARG libPath=$prefix/lib
 
-WORKDIR ${prefix}
-
-# Download and install assimp because it needs it to run, this step rarely changes so execute it first for caching purposes
-RUN apt-get update && \
-    apt-get install -y \
-    libtbb2 \
-    assimp-utils \
-    libassimp-dev \
-    qt5-default
+RUN apt-get update \
+    && apt-get install -y \
+      libglu1-mesa-dev libxrender1 libxkbcommon-x11-0 \
+      g++ \
+      gcc \
+      build-essential \
+      libtbb2 \
+      cmake \ 
+      qt5-default \
+      libassimp-dev
 
 # Copy compiled libraries
 COPY --from=builder ${libPath}/opencv.tar.gz ${libPath}/opencv.tar.gz
 RUN tar -xvf ${libPath}/opencv.tar.gz -C / && rm ${libPath}/opencv.tar.gz
 
-# Copy program
-COPY --from=builder /usr/local/6d-pat/build/6D-PAT 6d-pat/6D-PAT
-
-RUN ldconfig /usr/local/lib
 RUN export LD_LIBRARY_PATH="/lib:/usr/lib:/usr/local/lib"
-RUN ldconfig -v
-
-CMD /usr/local/6d-pat/6D-PAT
+RUN ldconfig /usr/local/lib
+RUN ldconfig
