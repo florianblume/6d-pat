@@ -11,7 +11,7 @@ jobs:
 
     runs-on: ubuntu-latest
     
-    container: florianblume/opencv
+    container: florianblume/opencv:test
     
     steps:
     - uses: actions/checkout@v2
