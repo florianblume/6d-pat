@@ -2,8 +2,7 @@
 #define GLWIDGET_H
 
 #include "model/pose.hpp"
-#include "view/poseeditor/rendering/poseeditorglwidget.hpp"
-#include "view/poseeditor/rendering/objectmodelrenderable.hpp"
+#include "view/rendering/objectmodelrenderable.hpp"
 
 #include <QString>
 #include <QTimer>

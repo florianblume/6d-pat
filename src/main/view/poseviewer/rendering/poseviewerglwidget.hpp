@@ -2,8 +2,8 @@
 #define GLWIDGET_H
 
 #include "model/pose.hpp"
-#include "view/poseviewer/rendering/backgroundimagerenderable.hpp"
-#include "view/poseviewer/rendering/poserenderable.hpp"
+#include "view/rendering/backgroundimagerenderable.hpp"
+#include "view/rendering/poserenderable.hpp"
 #include "view/poseviewer/rendering/clickvisualizationoverlay.hpp"
 
 #include <QString>

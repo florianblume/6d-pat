@@ -32,6 +32,9 @@ HEADERS  += \
     $$PWD/src/main/view/gallery/galleryobjectmodelmodel.hpp \
     $$PWD/src/main/view/gallery/iconexpandinglistview.hpp \
     $$PWD/src/main/view/navigationcontrols/navigationcontrols.hpp \
+    $$PWD/src/main/view/rendering/backgroundimagerenderable.hpp \
+    $$PWD/src/main/view/rendering/objectmodelrenderable.hpp \
+    $$PWD/src/main/view/rendering/poserenderable.hpp \
     $$PWD/src/main/view/settings/settingsdialog.hpp \
     $$PWD/src/main/view/settings/settingsgeneralpage.hpp \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.hpp \
@@ -71,6 +74,9 @@ SOURCES += \
     $$PWD/src/main/view/gallery/galleryimagemodel.cpp \
     $$PWD/src/main/view/gallery/galleryobjectmodelmodel.cpp \
     $$PWD/src/main/view/gallery/iconexpandinglistview.cpp \
+    $$PWD/src/main/view/rendering/backgroundimagerenderable.cpp \
+    $$PWD/src/main/view/rendering/objectmodelrenderable.cpp \
+    $$PWD/src/main/view/rendering/poserenderable.cpp \
     $$PWD/src/main/view/settings/settingsdialog.cpp \
     $$PWD/src/main/view/settings/settingsgeneralpage.cpp \
     $$PWD/src/main/view/settings/settingsnetworkpage.cpp \

@@ -1,4 +1,4 @@
-#include "view/poseeditor/rendering/objectmodelrenderable.hpp"
+#include "objectmodelrenderable.hpp"
 
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
