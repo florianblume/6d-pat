@@ -2,7 +2,7 @@
 
 # 6D - Pose Annotation Tool (6D-PAT)
 
-![Build](https://github.com/florianblume/6d-pat/workflows/Build/badge.svg)
+![Build](https://github.com/florianblume/6d-pat/workflows/Build/badge.svg) [![CodeFactor](https://www.codefactor.io/repository/github/florianblume/6d-pat/badge)](https://www.codefactor.io/repository/github/florianblume/6d-pat)
 
 6D-PAT is a program that enables users to recover poses of 3D object models on images. It allows to view images of a folder in a gallery and select those images for annotation. Likewise, it can display 3D models contained in a folder in a gallery and offers a 3D viewer. The displayed image an object model can then be used to annotate the pose of the object on the image. It also offers basic functionality of using a neural network written in Python to predict poses for images.
 
