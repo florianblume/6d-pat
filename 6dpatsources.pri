@@ -39,7 +39,6 @@ HEADERS  += \
     $$PWD/src/main/view/settings/settingsgeneralpage.hpp \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.hpp \
     $$PWD/src/main/view/poseviewer/poseviewer.hpp \
-    $$PWD/src/main/view/poseviewer/rendering/backgroundimagerenderable.hpp \
     $$PWD/src/main/view/poseviewer/rendering/poseviewerglwidget.hpp \
     $$PWD/src/main/view/poseviewer/rendering/clickvisualizationoverlay.hpp \
     $$PWD/src/main/view/poseviewer/rendering/poserenderable.hpp \
@@ -82,13 +81,10 @@ SOURCES += \
     $$PWD/src/main/view/settings/settingsnetworkpage.cpp \
     $$PWD/src/main/view/settings/settingssegmentationcodespage.cpp \
     $$PWD/src/main/view/poseviewer/poseviewer.cpp \
-    $$PWD/src/main/view/poseviewer/rendering/backgroundimagerenderable.cpp \
     $$PWD/src/main/view/poseviewer/rendering/poseviewerglwidget.cpp \
-    $$PWD/src/main/view/poseviewer/rendering/poserenderable.cpp \
     $$PWD/src/main/view/poseviewer/rendering/clickvisualizationoverlay.cpp \
     $$PWD/src/main/view/poseeditor/poseeditor.cpp \
     $$PWD/src/main/view/poseeditor/rendering/poseeditorglwidget.cpp \
-    $$PWD/src/main/view/poseeditor/rendering/objectmodelrenderable.cpp \
     $$PWD/src/main/misc/generalhelper.cpp \
     $$PWD/src/main/view/misc/displayhelper.cpp \
     $$PWD/src/main/view/gallery/rendering/offscreenrenderer.cpp \

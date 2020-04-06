@@ -1,6 +1,7 @@
-#ifndef OBJECTMODELRENDERABLE_H
-#define OBJECTMODELRENDERABLE_H
+#ifndef POSERENDERABLE_H
+#define POSERENDERABLE_H
 
+#include "objectmodelrenderable.hpp"
 #include "model/pose.hpp"
 
 #include <assimp/mesh.h>
@@ -19,15 +20,13 @@
 //! essentially (i.e. displays an object model) but takes in a pose
 //! to compute the position of the object according to the pose.
 //!
-class PoseRenderable
+class PoseRenderable : public ObjectModelRenderable
 {
 public:
     PoseRenderable(const Pose &pose,
                           int vertexAttributeLoc,
                           int normalAttributeLoc);
-    QOpenGLVertexArrayObject *getVertexArrayObject();
     QString getPoseId();
-    int getIndicesCount();
     QMatrix4x4 getModelViewMatrix();
     ObjectModel getObjectModel();
     QVector3D getPosition();
@@ -40,24 +39,11 @@ public:
 
 private:
     QString poseId;
-    ObjectModel objectModel;
     QVector3D position;
     QMatrix3x3 rotation;
-
-    QOpenGLVertexArrayObject vao;
-    QOpenGLBuffer vertexBuffer;
-    QOpenGLBuffer normalBuffer;
-    QOpenGLBuffer indexBuffer;
-    QVector<GLfloat> vertices;
-    QVector<GLfloat> normals;
-    QVector<GLuint> indices;
-    int vertexAttributeLoc = 0;
-    int normalAttributeLoc = 0;
-    QMatrix4x4 viewModelMatrix;
+    QMatrix4x4 modelViewMatrix;
 
     void computeModelViewMatrix();
-    void processMesh(aiMesh *mesh);
-    void populateVertexArrayObject();
 };
 
-#endif // OBJECTMODELRENDERABLE_H
+#endif // POSERENDERABLE_H

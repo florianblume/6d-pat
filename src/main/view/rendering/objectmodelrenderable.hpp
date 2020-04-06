@@ -9,6 +9,7 @@
 #include <QMatrix3x3>
 #include <QMatrix4x4>
 #include <QVector3D>
+#include <QList>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 
@@ -18,12 +19,13 @@ public:
     ObjectModelRenderable(const ObjectModel &objectModel,
                           int vertexAttributeLoc,
                           int normalAttributeLoc);
+    void render();
     QOpenGLVertexArrayObject *getVertexArrayObject();
     int getIndicesCount();
     ObjectModel getObjectModel();
     float getLargestVertexValue();
 
-private:
+protected:
     ObjectModel objectModel;
 
     QOpenGLVertexArrayObject vao;
