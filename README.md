@@ -2,7 +2,7 @@
 
 # 6D - Pose Annotation Tool (6D-PAT)
 
-![Build](https://github.com/florianblume/6d-pat/workflows/Build/badge.svg) [![CodeFactor](https://www.codefactor.io/repository/github/florianblume/6d-pat/badge)](https://www.codefactor.io/repository/github/florianblume/6d-pat)
+![Build](https://github.com/florianblume/6d-pat/workflows/Build/badge.svg) [![CodeFactor](https://www.codefactor.io/repository/github/florianblume/6d-pat/badge)](https://www.codefactor.io/repository/github/florianblume/6d-pat)  [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/florianblume/6d-pat/issues) 
 
 ### What is it?
 
