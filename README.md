@@ -4,7 +4,13 @@
 
 ![Build](https://github.com/florianblume/6d-pat/workflows/Build/badge.svg) [![CodeFactor](https://www.codefactor.io/repository/github/florianblume/6d-pat/badge)](https://www.codefactor.io/repository/github/florianblume/6d-pat)
 
-6D-PAT is a program that enables users to recover poses of 3D object models on images. It allows to view images of a folder in a gallery and select those images for annotation. Likewise, it can display 3D models contained in a folder in a gallery and offers a 3D viewer. The displayed image an object model can then be used to annotate the pose of the object on the image. It also offers basic functionality of using a neural network written in Python to predict poses for images.
+### What is it?
+
+With 6D-PAT you can create 6D annotations on images for 6D pose estimation, i.e. annotate 2D images with the 3D rotation and 3D translation of 3D models.
+
+### How does it work?
+
+The program allows you to select a folder and view the images contained in it in a gallery. Selecting one of the images will display it at a larger scale to create new 6D pose annotations. The 3D models for those annotations are displayed in a second gallery which also loads the models from a specified folder. In the 3D viewer of the program, you can inspect a selected 3D model, rotate it and use it to create a new pose annotation.
 
 **Requirements and Setup are only provided for Ubuntu. Given the portability of the used frameworks a setup on Windows, etc. should be possible, as well.**
 
@@ -25,7 +31,11 @@
 5. OpenGL should be installed in Ubuntu already.
 6. Open Qt-Creator installed in step 2 and open the project. You should now be able to run (i.e. build) the program.
 
+### Including custom-built libraries
+
 You can also build 1 - 3 from the respective sources. Please refer to the documentations how to achieve this. If you want to use your custom built OpenCV and Assimp you have to adjust the `INCLUDEPATH` and `LIBS` variable in 6dpatsources.pri. For example, change the path to the OpenCV include files from `/usr/include/opencv` to `/usr/local/include/opencv`.
+
+### Manually including Qt libraries
 
 Please be aware that the OpenCV and Assimp libraries are currently loaded from `/usr/lib/x86_64-linux-gnu`, where `apt` installs them. If you want to use a different Qt version than the one installed by `apt` you have to include the Qt libraries manually before including OpenCV and Assimp. The `INCLUDEPATH` AND `LIBS` variables could look like this in this case (leave the rest of the `INCLUDEPATH` of course):
 ```
