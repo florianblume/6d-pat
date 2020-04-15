@@ -14,7 +14,9 @@ The program allows you to select a folder and view the images contained in it in
 
 **Requirements and Setup are only provided for Ubuntu. Given the portability of the used frameworks a setup on Windows, etc. should be possible, as well.**
 
-# Requirements
+# Manual Installation
+
+## Requirements
 
 1. Qt >= 5.6
 2. OpenCV >= 4.0
@@ -22,7 +24,7 @@ The program allows you to select a folder and view the images contained in it in
 4. OpenGL >= 3.0
 5. g++ >= 7.3
 
-# Setup
+## Setup
 
 1. To install Qt, open the terminal and execute `sudo apt install qt5-default`.
 2. To be able to build or debug the program, install Qt-Creator `sudo apt install qtcreator`.
@@ -30,6 +32,18 @@ The program allows you to select a folder and view the images contained in it in
 4. To install Assimp. open the terminal and execute `sudo apt install libassimp-dev`.
 5. OpenGL should be installed in Ubuntu already.
 6. Open Qt-Creator installed in step 2 and open the project. You should now be able to run (i.e. build) the program.
+
+# Docker
+
+You can use the pre-built Docker image [florianblume/6dpat](https://hub.docker.com/repository/docker/florianblume/6dpat) and run 6D-PAT by first running
+
+    xhost +local:root
+
+and then
+
+    docker run -ti --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix florianblume/6dpat
+
+I feel like it feels a bit laggy but if you want to try out the program without going through the installation process this is your best shot.
 
 ### Including custom-built libraries
 

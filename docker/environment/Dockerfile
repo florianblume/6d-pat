@@ -1,4 +1,4 @@
-FROM ubuntu:latest AS builder
+FROM ubuntu:19.10 AS builder
 
 ARG prefix=/usr/local
 ARG binPath=$prefix/bin
@@ -63,7 +63,7 @@ RUN git clone https://github.com/opencv/opencv.git && \
     make clean && \
     tar -czvf ${libPath}/opencv.tar.gz /usr/local/lib/libopencv* /usr/local/include/opencv4
 
-FROM ubuntu AS runtime
+FROM ubuntu:19.10 AS runtime
 
 ARG prefix=/usr/local
 ARG binPath=$prefix/bin
@@ -84,6 +84,4 @@ RUN apt-get update \
 COPY --from=builder ${libPath}/opencv.tar.gz ${libPath}/opencv.tar.gz
 RUN tar -xvf ${libPath}/opencv.tar.gz -C / && rm ${libPath}/opencv.tar.gz
 
-RUN export LD_LIBRARY_PATH="/lib:/usr/lib:/usr/local/lib"
 RUN ldconfig /usr/local/lib
-RUN ldconfig

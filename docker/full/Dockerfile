@@ -1,4 +1,4 @@
-FROM vookimedlo/ubuntu-clang:clang_bionic AS builder
+FROM ubuntu:19.10 AS builder
 
 ARG prefix=/usr/local
 ARG binPath=$prefix/bin
@@ -60,8 +60,12 @@ RUN git clone https://github.com/opencv/opencv.git && \
       -D BUILD_EXAMPLES=ON .. && \
     make -j4 && \
     make install && \
-    make clean && \
-    tar -czvf ${libPath}/opencv.tar.gz /usr/local/lib/libopencv_calib3d.so /usr/local/lib/libopencv_calib3d.so.4.* /usr/local/lib/libopencv_core.so /usr/local/lib/libopencv_core.so.4.*
+    make clean
+RUN tar -czvf ${libPath}/opencv.tar.gz /usr/local/lib/libopencv_calib3d.so /usr/local/lib/libopencv_calib3d.so.4* \
+                                       /usr/local/lib/libopencv_core.so /usr/local/lib/libopencv_core.so.4* \
+                                       /usr/local/lib/libopencv_features2d.so /usr/local/lib/libopencv_features2d.so.4* \
+                                       /usr/local/lib/libopencv_flann.so /usr/local/lib/libopencv_flann.so.4*\
+                                       /usr/local/lib/libopencv_imgproc.so /usr/local/lib/libopencv_imgproc.so.4*
 
 # Download and install assimp
 RUN apt-get update && \
@@ -79,7 +83,7 @@ RUN git clone https://github.com/florianblume/6d-pat && \
     qmake ../6D-PAT.pro && \
     make -j4
 
-FROM ubuntu AS runtime
+FROM ubuntu:19.10 AS runtime
 
 ARG prefix=/usr/local
 ARG binPath=$prefix/bin
@@ -103,7 +107,5 @@ RUN tar -xvf ${libPath}/opencv.tar.gz -C / && rm ${libPath}/opencv.tar.gz
 COPY --from=builder /usr/local/6d-pat/build/6D-PAT 6d-pat/6D-PAT
 
 RUN ldconfig /usr/local/lib
-RUN export LD_LIBRARY_PATH="/lib:/usr/lib:/usr/local/lib"
-RUN ldconfig -v
 
 CMD /usr/local/6d-pat/6D-PAT
