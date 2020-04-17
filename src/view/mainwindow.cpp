@@ -141,7 +141,7 @@ Image *MainWindow::getCurrentlyViewedImage() {
     return ui->poseViewer->getCurrentlyViewedImage();
 }
 
-void MainWindow::resizeEvent(QResizeEvent *event) {
+void MainWindow::resizeEvent(QResizeEvent *) {
     if (!networkProgressView.isNull()) {
         networkProgressView->setGeometry(0, 0, this->width(), this->height());
     }

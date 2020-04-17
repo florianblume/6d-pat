@@ -1,7 +1,7 @@
 #include "gallery.hpp"
 #include "ui_gallery.h"
 #include "misc/generalhelper.h"
-#include "src/3rdparty/QtAwesome/QtAwesome.h"
+#include "3rdparty/QtAwesome/QtAwesome.h"
 #include <QAbstractItemView>
 #include <QScrollBar>
 #include <QTimer>

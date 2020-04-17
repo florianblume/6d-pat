@@ -12,11 +12,14 @@
         <file alias="object.frag">resources/shaders/poseeditor/object.frag</file>
     </qresource>
     <qresource prefix="/images">
-        <file alias="about.png">resources/about.png</file>
-        <file alias="icon.png">resources/icon.png</file>
+        <file alias="about.png">resources/images/about.png</file>
+        <file alias="icon.png">resources/images/icon.png</file>
     </qresource>
     <qresource prefix="/shaders/gallery">
         <file alias="object.vert">resources/shaders/gallery/object.vert</file>
         <file alias="object.frag">resources/shaders/gallery/object.frag</file>
+    </qresource>
+    <qresource prefix="/">
+        <file alias="splash.png">resources/images/splash.png</file>
     </qresource>
 </RCC>

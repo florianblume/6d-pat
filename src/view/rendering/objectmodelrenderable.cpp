@@ -99,7 +99,6 @@ void ObjectModelRenderable::processMesh(aiMesh *mesh) {
 void ObjectModelRenderable::populateVertexArrayObject() {
     vao.create();
     QOpenGLVertexArrayObject::Binder vaoBinder(&vao);
-    QOpenGLContext *context = QOpenGLContext::currentContext();
     QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
     // Setup the vertex buffer object.

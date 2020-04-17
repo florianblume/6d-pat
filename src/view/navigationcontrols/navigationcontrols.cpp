@@ -1,6 +1,6 @@
 #include "navigationcontrols.hpp"
 #include "ui_navigationcontrols.h"
-#include "src/3rdparty/QtAwesome/QtAwesome.h"
+#include "3rdparty/QtAwesome/QtAwesome.h"
 #include <QFileDialog>
 
 NavigationControls::NavigationControls(QWidget *parent) :

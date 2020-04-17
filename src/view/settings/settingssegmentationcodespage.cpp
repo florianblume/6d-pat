@@ -1,7 +1,7 @@
 #include "settingssegmentationcodespage.hpp"
 #include "ui_settingssegmentationcodespage.h"
 #include "misc/generalhelper.h"
-#include "src/3rdparty/QtAwesome/QtAwesome.h"
+#include "3rdparty/QtAwesome/QtAwesome.h"
 #include <QPushButton>
 #include <QColorDialog>
 

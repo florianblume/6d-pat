@@ -1,29 +1,25 @@
-#include "controller/maincontroller.hpp"
-#include "misc/global.h"
-#include <QSurfaceFormat>
-#include <QSplashScreen>
-#include <QPixmap>
-#include <QApplication>
-#include <QThread>
+#include "mainapplication.hpp"
 
-int main(int argc, char *argv[]) {
+MainApplication::MainApplication(int &argc, char **argv, int) : QApplication(argc, argv) {
+
+}
+
+int MainApplication::exec() {
     qSetMessagePattern("[%{function}] (%{type}): %{message}");
-    QApplication app(argc, argv);
 
     QPixmap pixmap(":/splash.png");
     QSplashScreen splash(pixmap);
     //splash.setWindowFlag(Qt::WindowStaysOnTopHint, true);
     splash.show();
     splash.raise();
-    app.processEvents();
+    processEvents();
 
     MainController m;
 
-
     QSurfaceFormat format;
-    format.setDepthBufferSize(DEPTH_BUFFER_SIZE);
-    format.setStencilBufferSize(STENCIL_BUFFER_SIZE);
-    format.setSamples(NUMBER_OF_SAMPLES);
+    format.setDepthBufferSize(24);
+    format.setStencilBufferSize(0);
+    format.setSamples(4);
     format.setProfile(QSurfaceFormat::CoreProfile);
     format.setVersion(3, 0);
     QSurfaceFormat::setDefaultFormat(format);
@@ -33,5 +29,5 @@ int main(int argc, char *argv[]) {
     m.initialize();
     m.showView();
     splash.close();
-    return app.exec();
+    return QApplication::exec();
 }

@@ -5,8 +5,8 @@
 
 NeuralNetworkDialog::NeuralNetworkDialog(QWidget *parent, ModelManager *manager) :
     QDialog(parent),
-    modelManager(manager),
-    ui(new Ui::NeuralNetworkDialog) {
+    ui(new Ui::NeuralNetworkDialog),
+    modelManager(manager) {
     ui->setupUi(this);
     fillItemsList();
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
@@ -21,7 +21,7 @@ void NeuralNetworkDialog::accept() {
     emit networkPredictionRequestedForImages(getSelectedImages());
 }
 
-void NeuralNetworkDialog::showEvent(QShowEvent *ev) {
+void NeuralNetworkDialog::showEvent(QShowEvent*) {
     fillItemsList();
 }
 
@@ -49,12 +49,13 @@ void NeuralNetworkDialog::fillItemsList() {
     }
 }
 
-void NeuralNetworkDialog::onItemChanged(QListWidgetItem *item) {
+void NeuralNetworkDialog::onItemChanged(QListWidgetItem*) {
     QListWidgetItem* _item = 0;
     bool hasItemChecked = false;
     for(int i = 0; i < ui->listWidget->count(); ++i){
         _item = ui->listWidget->item(i);
         if (_item->checkState() == Qt::Checked) {
+            //TODO this can be made simpler by having a counter for checked items
             // We found one checked item -> enable ok
             hasItemChecked = true;
             break;
