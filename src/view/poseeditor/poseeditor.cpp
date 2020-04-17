@@ -1,7 +1,7 @@
 #include "poseeditor.hpp"
 #include "ui_poseeditor.h"
-#include "misc/generalhelper.h"
-#include "view/misc/displayhelper.h"
+#include "misc/generalhelper.hpp"
+#include "view/misc/displayhelper.hpp"
 #include "view/poseeditor/rendering/poseeditorglwidget.hpp"
 
 #include <opencv2/core/mat.hpp>

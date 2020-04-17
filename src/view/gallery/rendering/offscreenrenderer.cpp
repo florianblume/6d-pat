@@ -1,5 +1,5 @@
 #include "offscreenrenderer.hpp"
-#include "misc/global.h"
+#include "misc/global.hpp"
 #include "view/rendering/objectmodelrenderable.hpp"
 #include <QThread>
 #include <QOpenGLFunctions>

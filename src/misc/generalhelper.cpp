@@ -1,4 +1,4 @@
-#include "generalhelper.h"
+#include "generalhelper.hpp"
 
 namespace GeneralHelper {
 

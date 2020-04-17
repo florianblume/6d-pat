@@ -5,7 +5,7 @@
 #include "model/jsonloadandstorestrategy.hpp"
 #include "settings/settingsstore.hpp"
 #include "view/mainwindow.hpp"
-#include "misc/global.h"
+#include "misc/global.hpp"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
 #include "controller/poserecoverer.hpp"

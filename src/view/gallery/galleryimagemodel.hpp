@@ -2,7 +2,7 @@
 #define GALLERYIMAGEMODEL_H
 
 #include "model/modelmanager.hpp"
-#include "resizeimagesrunnable.h"
+#include "resizeimagesrunnable.hpp"
 
 #include <QAbstractListModel>
 #include <QImage>

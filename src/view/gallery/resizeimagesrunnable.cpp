@@ -1,4 +1,4 @@
-#include "resizeimagesrunnable.h"
+#include "resizeimagesrunnable.hpp"
 
 #include <QUrl>
 

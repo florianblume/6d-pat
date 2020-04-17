@@ -1,5 +1,5 @@
 #include "galleryobjectmodelmodel.hpp"
-#include "misc/generalhelper.h"
+#include "misc/generalhelper.hpp"
 #include <QIcon>
 #include <QPainter>
 #include <QDir>

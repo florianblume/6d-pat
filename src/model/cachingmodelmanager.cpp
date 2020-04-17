@@ -1,5 +1,5 @@
 #include "cachingmodelmanager.hpp"
-#include "misc/generalhelper.h"
+#include "misc/generalhelper.hpp"
 
 CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy) : ModelManager(loadAndStoreStrategy) {
     images = loadAndStoreStrategy.loadImages();

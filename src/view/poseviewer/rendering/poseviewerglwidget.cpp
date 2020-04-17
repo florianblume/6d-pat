@@ -1,5 +1,5 @@
 #include "view/poseviewer/rendering/poseviewerglwidget.hpp"
-#include "misc/global.h"
+#include "misc/global.hpp"
 
 #include <QFrame>
 #include <QImage>

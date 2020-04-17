@@ -30,7 +30,7 @@ HEADERS  += \
     $$PWD/model/objectmodel.hpp \
     $$PWD/model/jsonloadandstorestrategy.hpp \
     $$PWD/model/pose.hpp \
-    $$PWD/view/misc/displayhelper.h \
+    $$PWD/view/misc/displayhelper.hpp \
     $$PWD/view/mainwindow.hpp \
     $$PWD/view/breadcrumb/breadcrumbview.hpp \
     $$PWD/view/gallery/gallery.hpp \
@@ -52,15 +52,15 @@ HEADERS  += \
     $$PWD/view/gallery/rendering/offscreenrenderer.hpp \
     $$PWD/view/settings/settingsnetworkpage.hpp \
     $$PWD/view/neuralnetworkdialog/neuralnetworkdialog.hpp \
-    $$PWD/view/gallery/resizeimagesrunnable.h \
+    $$PWD/view/gallery/resizeimagesrunnable.hpp \
     $$PWD/view/neuralnetworkprogressview/networkprogressview.hpp \
     $$PWD/settings/settings.hpp \
     $$PWD/settings/settingsstore.hpp \
     $$PWD/controller/poserecoverer.hpp \
     $$PWD/controller/neuralnetworkcontroller.hpp \
     $$PWD/controller/neuralnetworkrunnable.hpp \
-    $$PWD/misc/generalhelper.h \
-    $$PWD/misc/global.h
+    $$PWD/misc/generalhelper.hpp \
+    $$PWD/misc/global.hpp
 
 SOURCES += \
     $$PWD/main.cpp \

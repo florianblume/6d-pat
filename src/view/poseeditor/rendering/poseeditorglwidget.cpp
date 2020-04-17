@@ -1,5 +1,5 @@
 #include "view/poseeditor/rendering/poseeditorglwidget.hpp"
-#include "misc/global.h"
+#include "misc/global.hpp"
 
 #include <cmath>
 #include <QFrame>

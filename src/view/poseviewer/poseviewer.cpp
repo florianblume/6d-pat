@@ -1,6 +1,6 @@
 #include "poseviewer.hpp"
 #include "ui_poseviewer.h"
-#include "view/misc/displayhelper.h"
+#include "view/misc/displayhelper.hpp"
 
 #include "math.h"
 

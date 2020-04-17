@@ -2,7 +2,7 @@
 #define CORRESPONDENCEEDITORCONTROLS_H
 
 #include "model/modelmanager.hpp"
-#include "misc/global.h"
+#include "misc/global.hpp"
 #include <QWidget>
 #include <QFrame>
 
