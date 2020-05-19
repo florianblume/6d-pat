@@ -3,6 +3,7 @@
 
 #include "model/modelmanager.hpp"
 #include "misc/global.hpp"
+#include "view/poseeditor/poseeditor3dwindow.hpp"
 #include <QWidget>
 #include <QFrame>
 
@@ -91,6 +92,8 @@ Q_SIGNALS:
 private:
     Ui::PoseEditor *ui;
     ModelManager *modelManager;
+
+    PoseEditor3DWindow *poseEditor3DWindow;
 
     UniquePointer<ObjectModel> currentObjectModel;
     UniquePointer<Pose> currentPose;

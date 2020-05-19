@@ -1,11 +1,29 @@
+lessThan(QT_MAJOR_VERSION, 5) {
+    error(Needs at least Qt > 5.9 to run - found $$QT_VERSION.)
+} else {
+    lessThan(QT_MINOR_VERSION, 9) {
+        error(Needs at least Qt > 5.9 to run - found $$QT_VERSION.)
+    }
+}
+
+# If you have installed Assimp to a different location, remove the check or alter the location
+!exists(/usr/lib/x86_64-linux-gnu/libassimp.so) {
+    error(Assimp not found. Please install libassimp-dev.)
+}
+
+# If you have installed OpenCV to a different location, remove the check or alter the location
+!exists(/usr/local/lib/libopencv_core.so){
+    error(OpenCV not found. Please install it.)
+}
+
 include(../defaults.pri)
 include(./3rdparty/QtAwesome/QtAwesome.pri)
 
-TARGET = 6dpat_lib
+TARGET = 6DPAT
 
 TEMPLATE = app
 
-QT     += core gui widgets
+QT     += core gui widgets 3dcore 3dextras 3drender
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -48,7 +66,7 @@ HEADERS  += \
     $$PWD/view/poseviewer/rendering/poseviewerglwidget.hpp \
     $$PWD/view/poseviewer/rendering/clickvisualizationoverlay.hpp \
     $$PWD/view/poseeditor/poseeditor.hpp \
-    $$PWD/view/poseeditor/rendering/poseeditorglwidget.hpp \
+    $$PWD/view/poseeditor/poseeditor3dwindow.hpp \
     $$PWD/view/gallery/rendering/offscreenrenderer.hpp \
     $$PWD/view/settings/settingsnetworkpage.hpp \
     $$PWD/view/neuralnetworkdialog/neuralnetworkdialog.hpp \
@@ -91,7 +109,7 @@ SOURCES += \
     $$PWD/view/poseviewer/rendering/poseviewerglwidget.cpp \
     $$PWD/view/poseviewer/rendering/clickvisualizationoverlay.cpp \
     $$PWD/view/poseeditor/poseeditor.cpp \
-    $$PWD/view/poseeditor/rendering/poseeditorglwidget.cpp \
+    $$PWD/view/poseeditor/poseeditor3dwindow.cpp \
     $$PWD/view/neuralnetworkdialog/neuralnetworkdialog.cpp \
     $$PWD/view/gallery/resizeimagesrunnable.cpp \
     $$PWD/view/neuralnetworkprogressview/networkprogressview.cpp \

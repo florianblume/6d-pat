@@ -1245,7 +1245,7 @@ QPushButton:pressed {
     </widget>
    </item>
    <item row="0" column="0" colspan="2">
-    <widget class="QFrame" name="graphicsFrameContainer">
+    <widget class="QFrame" name="graphicsContainer">
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
@@ -1271,25 +1271,11 @@ QPushButton:pressed {
       <property name="bottomMargin">
        <number>10</number>
       </property>
-      <item>
-       <widget class="PoseEditorGLWidget" name="openGLWidget">
-        <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>PoseEditorGLWidget</class>
-   <extends>QOpenGLWidget</extends>
-   <header>view/poseeditor/rendering/poseeditorglwidget.hpp</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>

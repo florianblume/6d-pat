@@ -2,7 +2,6 @@
 #include "ui_poseeditor.h"
 #include "misc/generalhelper.hpp"
 #include "view/misc/displayhelper.hpp"
-#include "view/poseeditor/rendering/poseeditorglwidget.hpp"
 
 #include <opencv2/core/mat.hpp>
 #include <QtGlobal>
@@ -17,12 +16,16 @@
 PoseEditor::PoseEditor(QWidget *parent, ModelManager *modelManager) :
     QWidget(parent),
     ui(new Ui::PoseEditor),
-    modelManager(modelManager)
+    modelManager(modelManager),
+    poseEditor3DWindow(new PoseEditor3DWindow)
 {
     ui->setupUi(this);
 
-    connect(ui->openGLWidget, SIGNAL(positionClicked(QVector3D)),
-            this, SLOT(onObjectModelClickedAt(QVector3D)));
+    connect(poseEditor3DWindow, &PoseEditor3DWindow::positionClicked,
+            this, &PoseEditor::onObjectModelClickedAt);
+    QWidget *poseEditor3DWindowContainer = QWidget::createWindowContainer(poseEditor3DWindow);
+    ui->graphicsContainer->layout()->addWidget(poseEditor3DWindowContainer);
+
     if (modelManager) {
         // Whenever a pose has been added it was created through the editor, i.e. we have
         // to remove all visualizations because the pose creation process was finished
@@ -39,13 +42,6 @@ PoseEditor::PoseEditor(QWidget *parent, ModelManager *modelManager) :
         connect(modelManager, SIGNAL(posesChanged()),
                 this, SLOT(onPosesChanged()));
     }
-
-    connect(ui->openGLWidget, &PoseEditorGLWidget::rotationXChanged,
-            this, &PoseEditor::onGLWidgetXRotationChanged);
-    connect(ui->openGLWidget, &PoseEditorGLWidget::rotationYChanged,
-            this, &PoseEditor::onGLWidgetYRotationChanged);
-    connect(ui->openGLWidget, &PoseEditorGLWidget::rotationZChanged,
-            this, &PoseEditor::onGLWidgetZRotationChanged);
 }
 
 PoseEditor::~PoseEditor()
@@ -210,7 +206,7 @@ void PoseEditor::onPoseAdded(const QString &pose) {
     ui->buttonCreate->setEnabled(false);
     // Gets enabled somehow
     ui->buttonSave->setEnabled(false);
-    ui->openGLWidget->removeClicks();
+    poseEditor3DWindow->removeClicks();
 }
 
 void PoseEditor::onPoseDeleted(const QString& /* pose */) {
@@ -362,7 +358,7 @@ void PoseEditor::setObjectModel(ObjectModel *objectModel) {
     // the None entry would inhibit this
     // ui->comboBoxPose->setCurrentIndex(0);
     currentObjectModel.reset(new ObjectModel(*objectModel));
-    ui->openGLWidget->setObjectModel(objectModel);
+    poseEditor3DWindow->setObjectModel(objectModel);
     Q_EMIT poseCreationAborted();
 }
 
@@ -387,19 +383,19 @@ void PoseEditor::setPoseToEdit(Pose *pose) {
     currentObjectModel.reset(new ObjectModel(*pose->getObjectModel()));
     setEnabledPoseEditorControls(true);
     setPoseValuesOnControls(pose);
-    ui->openGLWidget->setObjectModel(pose->getObjectModel());
+    poseEditor3DWindow->setObjectModel(pose->getObjectModel());
     cv::Mat rotationMatrix = qtMatrixToOpenCVMatrix(pose->getRotation());
     cv::Vec3f rotationVector = GeneralHelper::rotationMatrixToEulerAngles(rotationMatrix);
     // Somehow we need to invert the x value - it is unclear why
-    ui->openGLWidget->setRotationOfObjectModel(QVector3D(-rotationVector[0],
-                                                         rotationVector[1],
-                                                         rotationVector[2]));
+    poseEditor3DWindow->setRotationOfObjectModel(QVector3D(-rotationVector[0],
+                                                        rotationVector[1],
+                                                        rotationVector[2]));
     ui->buttonSave->setEnabled(false);
     Q_EMIT poseCreationAborted();
 }
 
 void PoseEditor::removeClickVisualizations(){
-    ui->openGLWidget->removeClicks();
+    poseEditor3DWindow->removeClicks();
 }
 
 void PoseEditor::onPoseCreationAborted() {
@@ -412,12 +408,12 @@ void PoseEditor::onPosePointFinished(QVector3D point3D,
                                                          int minimumNumberOfPoints) {
     ui->buttonCreate->setEnabled(currentNumberOfPoints >= minimumNumberOfPoints);
     QColor color = DisplayHelper::colorForPosePointIndex(currentNumberOfPoints - 1);
-    ui->openGLWidget->addClick(point3D, color);
+    poseEditor3DWindow->addClick(point3D, color);
 }
 
 void PoseEditor::reset() {
     qDebug() << "Resetting pose editor.";
-    ui->openGLWidget->reset();
+    poseEditor3DWindow->reset();
     currentObjectModel.reset();
     currentPose.reset();
     resetControlsValues();

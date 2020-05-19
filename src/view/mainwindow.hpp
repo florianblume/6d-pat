@@ -24,13 +24,22 @@ class MainWindow : public QMainWindow {
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
 
     //! Overriden from QWidget.
     /*!
       \param event the closing event
     */
-    virtual void closeEvent(QCloseEvent *event);
-    ~MainWindow();
+    virtual void closeEvent(QCloseEvent *event) override;
+
+    void resizeEvent(QResizeEvent *event) override;
+
+    /*!
+     * \brief mousePressEvent to catch clicks of the user after
+     * clicking on the image to restore the normal cursor, etc
+     * \param event
+     */
+    void mouseReleaseEvent(QMouseEvent*) override;
 
     /*!
      * \brief onInitializationStarted can be called when the external process that initializes this
@@ -84,15 +93,7 @@ public:
      */
     Image *getCurrentlyViewedImage();
 
-    void resizeEvent(QResizeEvent *event) override;
-
 public Q_SLOTS:
-    /*!
-     * \brief mousePressEvent to catch clicks of the user after
-     * clicking on the image to restore the normal cursor, etc
-     * \param event
-     */
-    void mouseReleaseEvent(QMouseEvent*) override;
 
     //! The slot that catches the Q_EMITted signal when the 3D model in the lower right pose controls
     //! is clicked (see PoseEditorControls)
