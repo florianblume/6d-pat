@@ -45,11 +45,11 @@ and then
 
 I feel like it feels a bit laggy but if you want to try out the program without going through the installation process this is your best shot.
 
-### Including custom-built libraries
+# Including custom-built libraries
 
 You can also build 1 - 3 from the respective sources. Please refer to the documentations how to achieve this. If you want to use your custom built OpenCV and Assimp you have to adjust the `INCLUDEPATH` and `LIBS` variable in 6dpatsources.pri. For example, change the path to the OpenCV include files from `/usr/include/opencv` to `/usr/local/include/opencv`.
 
-### Manually including Qt libraries
+# Manually including Qt libraries
 
 Please be aware that the OpenCV and Assimp libraries are currently loaded from `/usr/lib/x86_64-linux-gnu`, where `apt` installs them. If you want to use a different Qt version than the one installed by `apt` you have to include the Qt libraries manually before including OpenCV and Assimp. The `INCLUDEPATH` AND `LIBS` variables could look like this in this case (leave the rest of the `INCLUDEPATH` of course):
 ```
