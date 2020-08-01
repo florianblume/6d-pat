@@ -11,6 +11,7 @@
 #include <Qt3DCore/QEntity>
 #include <Qt3DRender/QSceneLoader>
 #include <Qt3DRender/QObjectPicker>
+#include <Qt3DExtras/QOrbitCameraController>
 
 class PoseEditor3DWindow : public Qt3DExtras::Qt3DWindow
 {
@@ -19,7 +20,6 @@ class PoseEditor3DWindow : public Qt3DExtras::Qt3DWindow
 public:
     explicit PoseEditor3DWindow();
     void setObjectModel(const ObjectModel &objectModel);
-    void setRotationOfObjectModel(QVector3D rotation);
     void addClick(QVector3D position, QColor color);
     void removeClicks();
     void reset();
@@ -40,6 +40,7 @@ private:
     QVector<Qt3DCore::QEntity*> clickSpheres;
     Qt3DRender::QSceneLoader *sceneLoader;
     Qt3DRender::QObjectPicker *picker;
+    Qt3DExtras::QOrbitCameraController *cameraController;
 
     Qt3DCore::QEntity* createClickSphere(QVector3D position);
 };

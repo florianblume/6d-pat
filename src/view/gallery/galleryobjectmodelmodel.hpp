@@ -2,7 +2,8 @@
 #define GALLERYOBJECTMODELMODEL_H
 
 #include "model/modelmanager.hpp"
-#include "view/gallery/rendering/offscreenrenderer.hpp"
+#include "rendering/offscreenengine.h"
+
 #include <QAbstractListModel>
 #include <QPixmap>
 #include <QMap>
@@ -10,8 +11,7 @@
 #include <QRgb>
 #include <QThread>
 #include <QScopedPointer>
-
-typedef QScopedPointer<OffscreenRenderer> OffscreenRendererPtr;
+#include <QSize>
 
 /*!
  * \brief The GalleryObjectModelModel class provides object model images to the Gallery.
@@ -54,9 +54,7 @@ private:
     ModelManager* modelManager;
     QList<ObjectModel> objectModelsCache;
     QMap<QString,QImage> renderedObjectsModels;
-    OffscreenRenderer *offscreenRenderer = Q_NULLPTR;
-    QThread *offscreenRendererThread = Q_NULLPTR;
-    void shutdownOffscreenRenderer();
+    OffscreenEngine offscreenEngine{QSize(300, 300)};
     void renderObjectModels();
     QList<Image> imagesCache;
     QMap<QString, QString> codes;
@@ -76,7 +74,7 @@ private Q_SLOTS:
     bool isNumberOfToolsCorrect() const;
     void onObjectModelsChanged();
     void onImagesChanged();
-    void onObjectModelRendered(const QString &objectModel, int index, const QImage &image);
+    void onObjectModelRendered(QImage image);
 
 };
 

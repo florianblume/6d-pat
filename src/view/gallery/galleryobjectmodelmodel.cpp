@@ -17,13 +17,10 @@ GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager) : m
             this, SLOT(onImagesChanged()));
     connect(modelManager, SIGNAL(imagesChanged()),
             this, SLOT(onObjectModelsChanged()));
+    connect(&offscreenEngine, &OffscreenEngine::imageReady, this, &GalleryObjectModelModel::onObjectModelRendered);
 }
 
 GalleryObjectModelModel::~GalleryObjectModelModel() {
-    // Otherwise the application crashes because the render threads
-    // try to access attributes of this class. Disconnect() does not
-    // seem to solve the problem, i.e. we wait here.
-    shutdownOffscreenRenderer();
 }
 
 QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectModel, int role) const {
@@ -40,42 +37,11 @@ QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectMo
     return QVariant();
 }
 
-void GalleryObjectModelModel::shutdownOffscreenRenderer() {
-    if (offscreenRendererThread) {
-        offscreenRenderer->stop();
-        offscreenRendererThread->quit();
-        offscreenRendererThread->wait();
-        // No need to delete the renderer or thread here because we quit the rendering
-        // which emits the rendering finished signal which in turn causes both objects
-        // to be deleted and set to Q_NULLPTR (see connections in renderObjectModels()).
-    }
-}
-
 void GalleryObjectModelModel::renderObjectModels() {
-    shutdownOffscreenRenderer();
-    renderedObjectsModels.clear();
-
-    offscreenRenderer = new OffscreenRenderer(objectModelsCache, QSize(100, 100));
-    offscreenRendererThread = new QThread();
-
-    connect(offscreenRendererThread, &QThread::started,
-            offscreenRenderer, &OffscreenRenderer::render);
-    connect(offscreenRenderer, &OffscreenRenderer::imageRendered,
-            this, &GalleryObjectModelModel::onObjectModelRendered);
-    connect(offscreenRenderer, &OffscreenRenderer::renderingFinished,
-            offscreenRendererThread, &QThread::quit);
-    connect(offscreenRenderer, &OffscreenRenderer::renderingFinished,
-            offscreenRenderer, &OffscreenRenderer::deleteLater);
-    connect(offscreenRenderer, &OffscreenRenderer::destroyed,
-            [this]{ this->offscreenRenderer = Q_NULLPTR; });
-
-    connect(offscreenRendererThread, &QThread::finished,
-            offscreenRendererThread, &QThread::deleteLater);
-    connect(offscreenRendererThread, &QThread::destroyed,
-            [this]{ this->offscreenRendererThread = Q_NULLPTR; });
-
-    offscreenRenderer->moveToThread(offscreenRendererThread);
-    offscreenRendererThread->start();
+    if (objectModelsCache.count() > 0) {
+        offscreenEngine.setObjectModel(objectModelsCache[0]);
+        offscreenEngine.requestImage();
+    }
 }
 
 //! Implementations of QAbstractListModel
@@ -230,10 +196,18 @@ void GalleryObjectModelModel::onImagesChanged() {
     Q_EMIT dataChanged(top, bottom);
 }
 
-void GalleryObjectModelModel::onObjectModelRendered(const QString &objectModel, int imageIndex, const QImage &image) {
+void GalleryObjectModelModel::onObjectModelRendered(QImage image) {
+    QString objectModel = objectModelsCache[currentlyRenderedImageIndex].getPath();
     qDebug() << "Preview rendering finished for " + objectModel;
     renderedObjectsModels.insert(objectModel, image);
-    QModelIndex top = index(imageIndex, 0);
-    QModelIndex bottom = index(imageIndex + 1, 0);
+    QModelIndex top = index(currentlyRenderedImageIndex, 0);
+    QModelIndex bottom = index(currentlyRenderedImageIndex + 1, 0);
     Q_EMIT dataChanged(top, bottom);
+    if (currentlyRenderedImageIndex < objectModelsCache.size()) {
+        currentlyRenderedImageIndex++;
+        offscreenEngine.setObjectModel(objectModelsCache[currentlyRenderedImageIndex]);
+        offscreenEngine.requestImage();
+    } else {
+        currentlyRenderedImageIndex = 0;
+    }
 }

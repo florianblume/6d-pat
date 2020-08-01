@@ -32,11 +32,9 @@ CONFIG += c++11
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 
-INCLUDEPATH += /usr/local/include/opencv4 \
-#               /usr/include/assimp
+INCLUDEPATH += /usr/local/include/opencv4
 
-LIBS += -L/usr/local/lib/ -lopencv_core -lopencv_calib3d \
-#         -L/usr/lib/ -lassimp
+LIBS += -L/usr/local/lib/ -lopencv_core -lopencv_calib3d
 
 HEADERS  += \
     $$PWD/mainapplication.hpp \
@@ -67,7 +65,6 @@ HEADERS  += \
     $$PWD/view/poseviewer/rendering/clickvisualizationoverlay.hpp \
     $$PWD/view/poseeditor/poseeditor.hpp \
     $$PWD/view/poseeditor/poseeditor3dwindow.hpp \
-    $$PWD/view/gallery/rendering/offscreenrenderer.hpp \
     $$PWD/view/settings/settingsnetworkpage.hpp \
     $$PWD/view/neuralnetworkdialog/neuralnetworkdialog.hpp \
     $$PWD/view/gallery/resizeimagesrunnable.hpp \
@@ -78,7 +75,9 @@ HEADERS  += \
     $$PWD/controller/neuralnetworkcontroller.hpp \
     $$PWD/controller/neuralnetworkrunnable.hpp \
     $$PWD/misc/generalhelper.hpp \
-    $$PWD/misc/global.hpp
+    $$PWD/misc/global.hpp \
+    $$PWD/view/gallery/rendering/offscreenengine.h \
+    $$PWD/view/gallery/rendering/texturerendertarget.h
 
 SOURCES += \
     $$PWD/main.cpp \
@@ -114,13 +113,14 @@ SOURCES += \
     $$PWD/view/gallery/resizeimagesrunnable.cpp \
     $$PWD/view/neuralnetworkprogressview/networkprogressview.cpp \
     $$PWD/view/misc/displayhelper.cpp \
-    $$PWD/view/gallery/rendering/offscreenrenderer.cpp \
     $$PWD/controller/neuralnetworkcontroller.cpp \
     $$PWD/controller/neuralnetworkrunnable.cpp \
     $$PWD/controller/poserecoverer.cpp \
     $$PWD/settings/settings.cpp \
     $$PWD/settings/settingsstore.cpp \
-    $$PWD/misc/generalhelper.cpp
+    $$PWD/misc/generalhelper.cpp \
+    $$PWD/view/gallery/rendering/offscreenengine.cpp \
+    $$PWD/view/gallery/rendering/texturerendertarget.cpp
 
 FORMS    += \
     $$PWD/view/mainwindow.ui \

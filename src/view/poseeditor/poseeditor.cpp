@@ -385,11 +385,6 @@ void PoseEditor::setPoseToEdit(Pose *pose) {
     setPoseValuesOnControls(pose);
     poseEditor3DWindow->setObjectModel(*pose->getObjectModel());
     cv::Mat rotationMatrix = qtMatrixToOpenCVMatrix(pose->getRotation());
-    cv::Vec3f rotationVector = GeneralHelper::rotationMatrixToEulerAngles(rotationMatrix);
-    // Somehow we need to invert the x value - it is unclear why
-    poseEditor3DWindow->setRotationOfObjectModel(QVector3D(-rotationVector[0],
-                                                        rotationVector[1],
-                                                        rotationVector[2]));
     ui->buttonSave->setEnabled(false);
     Q_EMIT poseCreationAborted();
 }
