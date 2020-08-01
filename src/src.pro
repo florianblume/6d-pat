@@ -33,10 +33,10 @@ CONFIG += c++11
 DEFINES += QT_DEPRECATED_WARNINGS
 
 INCLUDEPATH += /usr/local/include/opencv4 \
-               /usr/include/assimp
+#               /usr/include/assimp
 
 LIBS += -L/usr/local/lib/ -lopencv_core -lopencv_calib3d \
-        -L/usr/lib/ -lassimp
+#         -L/usr/lib/ -lassimp
 
 HEADERS  += \
     $$PWD/mainapplication.hpp \

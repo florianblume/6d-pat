@@ -3,8 +3,8 @@
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <QtGlobal>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
+//#include <assimp/postprocess.h>
+//#include <assimp/scene.h>
 
 ObjectModelRenderable::ObjectModelRenderable(const ObjectModel &objectModel,
                                              int vertexAttributeLoc,
@@ -16,6 +16,7 @@ ObjectModelRenderable::ObjectModelRenderable(const ObjectModel &objectModel,
     vertexAttributeLoc(vertexAttributeLoc),
     normalAttributeLoc(normalAttributeLoc) {
 
+    /*
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(objectModel.getAbsolutePath().toStdString(),
                                              aiProcess_GenSmoothNormals |
@@ -30,6 +31,7 @@ ObjectModelRenderable::ObjectModelRenderable(const ObjectModel &objectModel,
         }
         populateVertexArrayObject();
     }
+    */
 }
 
 QOpenGLVertexArrayObject *ObjectModelRenderable::getVertexArrayObject() {

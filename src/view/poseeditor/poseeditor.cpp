@@ -358,7 +358,7 @@ void PoseEditor::setObjectModel(ObjectModel *objectModel) {
     // the None entry would inhibit this
     // ui->comboBoxPose->setCurrentIndex(0);
     currentObjectModel.reset(new ObjectModel(*objectModel));
-    poseEditor3DWindow->setObjectModel(objectModel);
+    poseEditor3DWindow->setObjectModel(*objectModel);
     Q_EMIT poseCreationAborted();
 }
 
@@ -383,7 +383,7 @@ void PoseEditor::setPoseToEdit(Pose *pose) {
     currentObjectModel.reset(new ObjectModel(*pose->getObjectModel()));
     setEnabledPoseEditorControls(true);
     setPoseValuesOnControls(pose);
-    poseEditor3DWindow->setObjectModel(pose->getObjectModel());
+    poseEditor3DWindow->setObjectModel(*pose->getObjectModel());
     cv::Mat rotationMatrix = qtMatrixToOpenCVMatrix(pose->getRotation());
     cv::Vec3f rotationVector = GeneralHelper::rotationMatrixToEulerAngles(rotationMatrix);
     // Somehow we need to invert the x value - it is unclear why

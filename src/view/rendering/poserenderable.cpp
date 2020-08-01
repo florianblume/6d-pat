@@ -2,8 +2,8 @@
 
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
+//#include <assimp/postprocess.h>
+//#include <assimp/scene.h>
 
 PoseRenderable::PoseRenderable(const Pose &pose,
                                int vertexAttributeLoc,
@@ -14,6 +14,7 @@ PoseRenderable::PoseRenderable(const Pose &pose,
     rotation(pose.getRotation()) {
 
     computeModelViewMatrix();
+    /*
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(objectModel.getAbsolutePath().toStdString(),
                                              aiProcess_GenSmoothNormals |
@@ -26,6 +27,7 @@ PoseRenderable::PoseRenderable(const Pose &pose,
         this->processMesh(scene->mMeshes[0]);
     }
     populateVertexArrayObject();
+    */
 }
 
 QMatrix4x4 PoseRenderable::getModelViewMatrix() {
