@@ -5,8 +5,13 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QCheckBox>
+#include <QSharedPointer>
+#include <QList>
+#include <QThread>
+#include <QApplication>
 
-GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager) : modelManager(modelManager) {
+GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager)
+    : modelManager(modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
     objectModelsCache = std::move(modelManager->getObjectModels());
     renderObjectModels();
@@ -100,6 +105,15 @@ int GalleryObjectModelModel::rowCount(const QModelIndex &/* parent */) const {
 
 void GalleryObjectModelModel::setSegmentationCodesForObjectModels(QMap<QString, QString> codes) {
     this->codes = std::move(codes);
+}
+
+void GalleryObjectModelModel::setPreviewRenderingSize(QSize size) {
+    offscreenEngine.setSize(size);
+    renderObjectModels();
+}
+
+QSize GalleryObjectModelModel::previewRenderingSize() {
+    return offscreenEngine.size();
 }
 
 bool GalleryObjectModelModel::isNumberOfToolsCorrect() const {
@@ -203,8 +217,8 @@ void GalleryObjectModelModel::onObjectModelRendered(QImage image) {
     QModelIndex top = index(currentlyRenderedImageIndex, 0);
     QModelIndex bottom = index(currentlyRenderedImageIndex + 1, 0);
     Q_EMIT dataChanged(top, bottom);
+    currentlyRenderedImageIndex++;
     if (currentlyRenderedImageIndex < objectModelsCache.size()) {
-        currentlyRenderedImageIndex++;
         offscreenEngine.setObjectModel(objectModelsCache[currentlyRenderedImageIndex]);
         offscreenEngine.requestImage();
     } else {

@@ -19,6 +19,7 @@ OffscreenEngine::OffscreenEngine(const QSize &size) {
     // in setSceneRoot().
     Qt3DCore::QEntityPtr root(new Qt3DCore::QEntity());
     renderSettings = new Qt3DRender::QRenderSettings(root.data());
+    renderSettings->setRenderPolicy(Qt3DRender::QRenderSettings::OnDemand);
     root->addComponent(renderSettings);
 
     // Firstly, create the offscreen surface. This will take the place
@@ -40,7 +41,7 @@ OffscreenEngine::OffscreenEngine(const QSize &size) {
     renderTargetSelector->setTarget(textureTarget);
 
     clearBuffers = new Qt3DRender::QClearBuffers(renderTargetSelector);
-    clearBuffers->setClearColor(Qt::black);
+    clearBuffers->setClearColor(Qt::white);
     clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthBuffer);
 
     viewport = new Qt3DRender::QViewport(renderTargetSelector);
@@ -56,14 +57,13 @@ OffscreenEngine::OffscreenEngine(const QSize &size) {
     aspectEngine->setRootEntity(root);
 
     sceneRoot = new Qt3DCore::QEntity(root.get());
-    sceneLoader = new Qt3DRender::QSceneLoader(sceneRoot);
-    sceneRoot->addComponent(sceneLoader);
-    connect(sceneLoader, &Qt3DRender::QSceneLoader::statusChanged, this, &OffscreenEngine::onSceneLoaderStatusChanged);
+    objectRenderable = new ObjectRenderable(sceneRoot);
+    connect(objectRenderable, &ObjectRenderable::statusChanged, this, &OffscreenEngine::onSceneLoaderStatusChanged);
 
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(sceneRoot);
     light = new Qt3DRender::QPointLight(lightEntity);
     light->setColor("white");
-    light->setIntensity(1.0);
+    light->setIntensity(0.7);
     Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
     lightEntity->addComponent(light);
     lightEntity->addComponent(lightTransform);
@@ -85,36 +85,39 @@ OffscreenEngine::~OffscreenEngine() {
 }
 
 void OffscreenEngine::setObjectModel(const ObjectModel &objectModel) {
-    sceneLoader->setSource(QUrl::fromLocalFile(objectModel.getAbsolutePath()));
+    objectRenderable->setObjectModel(&objectModel);
 }
 
-void OffscreenEngine::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status) {
-    if (status == Qt3DRender::QSceneLoader::Ready) {
-        camera->viewAll();
-        // TODO: This is super ugly
-        Qt3DCore::QEntity *entity = sceneLoader->entities()[0];
-        Qt3DCore::QNodeVector entites = entity->childNodes();
-        for (Qt3DCore::QNode *node : entites) {
-            Qt3DCore::QNodeVector entities2 = node->childNodes();
-            for (Qt3DCore::QNode *node : entities2) {
-                if (Qt3DExtras::QPhongMaterial * v = dynamic_cast<Qt3DExtras::QPhongMaterial *>(node)) {
-                    v->setAmbient(QColor(150, 150, 150));
-                    v->setDiffuse(QColor(130, 130, 130));
-                }
-            }
-        }
-    }
+void OffscreenEngine::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status) {
+    camera->viewAll();
 }
 
 void OffscreenEngine::onRenderCaptureReady() {
-    QImage image = reply->image();
-    delete reply;
-    Q_EMIT imageReady(image);
+    if (!initialized) {
+        // First image captured is always without the object somehow, i.e. we need to render again
+        initialized = true;
+        delete reply;
+        requestImage();
+    } else {
+        initialized = false;
+        QImage image = reply->image();
+        delete reply;
+        Q_EMIT imageReady(image);
+    }
 }
 
 void OffscreenEngine::setSize(const QSize &size) {
     textureTarget->setSize(size);
     renderSurfaceSelector->setExternalRenderTargetSize(size);
+    Q_EMIT sizeChanged(size);
+}
+
+QSize OffscreenEngine::size() {
+    return textureTarget->getSize();
+}
+
+void OffscreenEngine::setBackgroundColor(QColor color) {
+    clearBuffers->setClearColor(color);
 }
 
 void OffscreenEngine::requestImage() {

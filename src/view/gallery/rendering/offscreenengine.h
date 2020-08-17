@@ -3,6 +3,7 @@
 
 #include "texturerendertarget.h"
 #include "model/objectmodel.hpp"
+#include "view/rendering/objectrenderable.hpp"
 
 #include <QObject>
 
@@ -35,18 +36,23 @@ class OffscreenEngine : public QObject
 
     Q_OBJECT
 
+    Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
+
 public:
     OffscreenEngine(const QSize &size);
     ~OffscreenEngine();
 
     void setObjectModel(const ObjectModel &objectModel);
+    void setBackgroundColor(QColor color);
     void setSize(const QSize &size);
+    QSize size();
 
 public Q_SLOTS:
     void requestImage();
 
 Q_SIGNALS:
     void imageReady(QImage image);
+    void sizeChanged(QSize newSize);
 
 private Q_SLOTS:
     void onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status);
@@ -72,8 +78,10 @@ private:
 
     Qt3DRender::QRenderCaptureReply *reply;
 
-    Qt3DRender::QSceneLoader *sceneLoader;
+    ObjectRenderable *objectRenderable;
     Qt3DRender::QPointLight *light;
+
+    bool initialized = false;
 };
 
 #endif // OFFSCREENENGINE_H

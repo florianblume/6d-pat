@@ -49,60 +49,28 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     connect(picker, &Qt3DRender::QObjectPicker::clicked,
            [this](Qt3DRender::QPickEvent *pickEvent){Q_EMIT positionClicked(pickEvent->localIntersection());});
     // Needs to be placed after setRootEntity on the window because it doesn't work otherwise -> leave it here
-    sceneLoader = new Qt3DRender::QSceneLoader(rootEntity);
-    rootEntity->addComponent(sceneLoader);
-    connect(sceneLoader, &Qt3DRender::QSceneLoader::statusChanged, this, &PoseEditor3DWindow::onSceneLoaderStatusChanged);
+    objectRenderable = new ObjectRenderable(rootEntity);
+    connect(objectRenderable, &ObjectRenderable::statusChanged, this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
 
 }
 
 PoseEditor3DWindow::~PoseEditor3DWindow() {
 }
 
-void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
-    sceneLoader->setSource(QUrl::fromLocalFile(objectModel.getAbsolutePath()));
+void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status) {
+    camera()->viewAll();
 }
 
-void PoseEditor3DWindow::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status) {
-    if (status == Qt3DRender::QSceneLoader::Ready) {
-        camera()->viewAll();
-        // TODO: This is super ugly
-        Qt3DCore::QEntity *entity = sceneLoader->entities()[0];
-        Qt3DCore::QNodeVector entites = entity->childNodes();
-        for (Qt3DCore::QNode *node : entites) {
-            Qt3DCore::QNodeVector entities2 = node->childNodes();
-            for (Qt3DCore::QNode *node : entities2) {
-                if (Qt3DExtras::QPhongMaterial * v = dynamic_cast<Qt3DExtras::QPhongMaterial *>(node)) {
-                    v->setAmbient(QColor(150, 150, 150));
-                    v->setDiffuse(QColor(130, 130, 130));
-                }
-            }
-        }
-    }
+void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
+    objectRenderable->setObjectModel(&objectModel);
 }
 
 void PoseEditor3DWindow::addClick(QVector3D position, QColor color) {
-    Qt3DCore::QEntity *sphereEntity = new Qt3DCore::QEntity(rootEntity);
-    Qt3DExtras::QSphereMesh *sphereMesh = new Qt3DExtras::QSphereMesh(sphereEntity);
-    sphereMesh->setRings(30);
-    sphereMesh->setSlices(30);
-    sphereMesh->setRadius(0.1);
-    Qt3DCore::QTransform *sphereTransform = new Qt3DCore::QTransform(sphereEntity);
-    sphereTransform->setTranslation(position);
-    Qt3DExtras::QPhongMaterial *sphereMaterial = new Qt3DExtras::QPhongMaterial(sphereEntity);
-    sphereMaterial->setAmbient(color);
-    sphereEntity->addComponent(sphereMesh);
-    sphereEntity->addComponent(sphereTransform);
-    sphereEntity->addComponent(sphereMaterial);
-    clickSpheres.append(sphereEntity);
+    objectRenderable->addClick(position, color);
 }
 
 void PoseEditor3DWindow::removeClicks() {
-    for (Qt3DCore::QEntity *sphereEntity : clickSpheres) {
-        Qt3DCore::QNode *nullParent = Q_NULLPTR;
-        sphereEntity->setParent(nullParent);
-        sphereEntity->deleteLater();
-    }
-    clickSpheres.clear();
+    objectRenderable->removeClicks();
 }
 
 void PoseEditor3DWindow::reset() {

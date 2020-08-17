@@ -21,6 +21,8 @@ class GalleryObjectModelModel : public QAbstractListModel
 {
     Q_OBJECT
 
+    Q_PROPERTY(QSize previewRenderingSize READ previewRenderingSize WRITE setPreviewRenderingSize)
+
 public:
 
     explicit GalleryObjectModelModel(ModelManager* modelManager);
@@ -30,6 +32,8 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex&) const;
     void setSegmentationCodesForObjectModels(QMap<QString, QString> codes);
+    void setPreviewRenderingSize(QSize size);
+    QSize previewRenderingSize();
 
 public Q_SLOTS:
 

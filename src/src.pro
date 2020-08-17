@@ -77,7 +77,8 @@ HEADERS  += \
     $$PWD/misc/generalhelper.hpp \
     $$PWD/misc/global.hpp \
     $$PWD/view/gallery/rendering/offscreenengine.h \
-    $$PWD/view/gallery/rendering/texturerendertarget.h
+    $$PWD/view/gallery/rendering/texturerendertarget.h \
+    view/rendering/objectrenderable.hpp
 
 SOURCES += \
     $$PWD/main.cpp \
@@ -120,7 +121,8 @@ SOURCES += \
     $$PWD/settings/settingsstore.cpp \
     $$PWD/misc/generalhelper.cpp \
     $$PWD/view/gallery/rendering/offscreenengine.cpp \
-    $$PWD/view/gallery/rendering/texturerendertarget.cpp
+    $$PWD/view/gallery/rendering/texturerendertarget.cpp \
+    view/rendering/objectrenderable.cpp
 
 FORMS    += \
     $$PWD/view/mainwindow.ui \

@@ -1,12 +1,36 @@
-#version 130
-in vec4 vertex;
-in vec3 normal;
-out vec3 vert;
-out vec3 vertNormal;
-uniform mat4 projectionMatrix;
-uniform mat3 normalMatrix;
-void main() {
-           vert = vertex.xyz;
-           vertNormal = normalMatrix * normal;
-           gl_Position = projectionMatrix * vertex;
+#version 150 core
+
+in vec3 vertexPosition;
+in vec3 vertexNormal;
+in vec4 vertexTangent;
+in vec2 vertexTexCoord;
+
+out vec3 worldPosition;
+out vec3 worldNormal;
+out vec4 worldTangent;
+out vec2 texCoord;
+out vec3 interpolatedVertex;
+
+uniform mat4 modelMatrix;
+uniform mat3 modelNormalMatrix;
+uniform mat4 modelViewProjection;
+
+uniform float texCoordScale;
+
+void main()
+{
+    // Pass through interpolated vertex position
+    interpolatedVertex = vertexPosition.xyz;
+
+    // Pass through scaled texture coordinates
+    texCoord = vertexTexCoord * texCoordScale;
+
+    // Transform position, normal, and tangent to world space
+    worldPosition = vec3(modelMatrix * vec4(vertexPosition, 1.0));
+    worldNormal = normalize(modelNormalMatrix * vertexNormal);
+    worldTangent.xyz = normalize(vec3(modelMatrix * vec4(vertexTangent.xyz, 0.0)));
+    worldTangent.w = vertexTangent.w;
+
+    // Calculate vertex position in clip coordinates
+    gl_Position = modelViewProjection * vec4(vertexPosition, 1.0);
 }
