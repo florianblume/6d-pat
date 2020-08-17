@@ -1,4 +1,27 @@
 {
+    "prototypes": {
+        "renderClicks": {
+            "inputs": ["clicks[10]", "colors[10]", "currentColor"],
+            "outputs": ["result"],
+            "parameters": {
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec4"
+                 }
+             },
+             "rules": [{
+                "format": {
+                    "api": "OpenGLCoreProfile",
+                    "major": 3,
+                    "minor": 0
+                 },
+                 "headerSnippets": [
+                    "#pragma include :shaders/poseeditor/clicksRendering.inc.frag"
+                 ],
+                 "substitution": "vec4 $result = renderClicks($clicks, $colors, $currentColor);"
+            }]
+        }
+    },
     "nodes": [
         {
             "uuid": "{00000000-0000-0000-0000-000000000001}",
@@ -270,6 +293,40 @@
             "type": "phongFunction"
         },
         {
+            "uuid": "{00000000-0000-0000-0000-000000000026}",
+            "type": "input",
+            "parameters": {
+                "name": "clicks[10]",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Uniform"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec3"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000027}",
+            "type": "input",
+            "parameters": {
+                "name": "colors[10]",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Uniform"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec3"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000028}",
+            "type": "renderClicks"
+        },
+        {
             "uuid": "{00000000-0000-0000-0000-000000000025}",
             "type": "fragColor"
         }
@@ -457,8 +514,26 @@
             "targetPort": "shininess"
         },
         {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000026}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000028}",
+            "targetPort": "clicks"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000027}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000028}",
+            "targetPort": "colors"
+        },
+        {
             "sourceUuid": "{00000000-0000-0000-0000-000000000024}",
             "sourcePort": "outputColor",
+            "targetUuid": "{00000000-0000-0000-0000-000000000028}",
+            "targetPort": "currentColor"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000028}",
+            "sourcePort": "result",
             "targetUuid": "{00000000-0000-0000-0000-000000000025}",
             "targetPort": "fragColor"
         }

@@ -12,11 +12,6 @@
 #include <Qt3DCore/QEntity>
 #include <Qt3DRender/QSceneLoader>
 
-struct ClickColorPair {
-    QVector3D click;
-    QColor color;
-};
-
 class ObjectRenderable : public Qt3DCore::QEntity
 {
     Q_OBJECT
@@ -46,7 +41,9 @@ private Q_SLOTS:
 
 private:
     bool m_selected;
-    QVector<ClickColorPair> m_clicks;
+    QVector<QVector3D> m_clicks{QVector3D(0, 0, 0)};
+    QVector<QVector3D> m_clickColors{QVector3D(0, 0, 0)};
+
 
     Qt3DRender::QSceneLoader *m_sceneLoader;
 

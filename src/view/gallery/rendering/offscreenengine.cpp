@@ -63,7 +63,7 @@ OffscreenEngine::OffscreenEngine(const QSize &size) {
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(sceneRoot);
     light = new Qt3DRender::QPointLight(lightEntity);
     light->setColor("white");
-    light->setIntensity(0.7);
+    light->setIntensity(0.5);
     Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
     lightEntity->addComponent(light);
     lightEntity->addComponent(lightTransform);
