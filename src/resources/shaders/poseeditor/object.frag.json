@@ -1,4 +1,18 @@
 {
+    "prototypes": {
+        "renderClicks": {
+            "inputs": ["interpolatedVertex", "clicks", "colors", "clickCount", "currentColor"],
+            "outputs": ["result"],
+            "parameters": {
+                "type": { "type": "QShaderLanguage::VariableType", "value": "QShaderLanguage::Vec4"}
+            },
+            "rules": [{
+                "format": { "api": "OpenGLCoreProfile", "major": 3,"minor": 0 },
+                "headerSnippets": ["#pragma include :shaders/poseeditor/renderClicks.inc.frag"],
+                "substitution": "vec4 $result = renderClicks($interpolatedVertex, $clicks, $colors, $clickCount, $currentColor);"
+            }]
+        }
+    },
     "nodes": [
         {
             "uuid": "{00000000-0000-0000-0000-000000000001}",
@@ -271,6 +285,70 @@
         },
         {
             "uuid": "{00000000-0000-0000-0000-000000000025}",
+            "type": "input",
+            "parameters": {
+                "name": "interpolatedVertex",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Uniform"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec3"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000026}",
+            "type": "input",
+            "parameters": {
+                "name": "clicks",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Uniform"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Sampler1D"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000027}",
+            "type": "input",
+            "parameters": {
+                "name": "colors",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Uniform"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Sampler1D"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000028}",
+            "type": "input",
+            "parameters": {
+                "name": "clickCount",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Uniform"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Int"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000029}",
+            "type": "renderClicks"
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000030}",
             "type": "fragColor"
         }
     ],
@@ -459,7 +537,37 @@
         {
             "sourceUuid": "{00000000-0000-0000-0000-000000000024}",
             "sourcePort": "outputColor",
-            "targetUuid": "{00000000-0000-0000-0000-000000000025}",
+            "targetUuid": "{00000000-0000-0000-0000-000000000029}",
+            "targetPort": "currentColor"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000025}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000029}",
+            "targetPort": "interpolatedVertex"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000026}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000029}",
+            "targetPort": "clicks"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000027}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000029}",
+            "targetPort": "colors"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000028}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000029}",
+            "targetPort": "clickCount"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000029}",
+            "sourcePort": "result",
+            "targetUuid": "{00000000-0000-0000-0000-000000000030}",
             "targetPort": "fragColor"
         }
     ]

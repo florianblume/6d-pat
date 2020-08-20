@@ -2,7 +2,7 @@
 #define GLWIDGET_H
 
 #include "model/objectmodel.hpp"
-#include "view/rendering/objectrenderable.hpp"
+#include "view/rendering/objectmodelrenderable.hpp"
 
 #include <QString>
 #include <QVector>
@@ -39,7 +39,7 @@ private:
     Qt3DCore::QEntity *rootEntity;
     Qt3DRender::QObjectPicker *picker;
     Qt3DExtras::QOrbitCameraController *cameraController;
-    ObjectRenderable *objectRenderable;
+    ObjectModelRenderable *objectModelRenderable;
 };
 
 #endif

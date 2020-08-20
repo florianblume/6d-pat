@@ -9,8 +9,8 @@
         <file alias="objectcoords.vert">resources/shaders/poseeditor/objectcoords.vert</file>
         <file alias="objectcoords.frag">resources/shaders/poseeditor/objectcoords.frag</file>
         <file alias="object.vert">resources/shaders/poseeditor/object.vert</file>
-        <file alias="object.graph">resources/shaders/poseeditor/object.graph</file>
-        <file alias="clicksRendering.inc.frag">resources/shaders/poseeditor/clicksRendering.inc.frag</file>
+        <file alias="object.frag.json">resources/shaders/poseeditor/object.frag.json</file>
+        <file alias="renderClicks.inc.frag">resources/shaders/poseeditor/renderClicks.inc.frag</file>
     </qresource>
     <qresource prefix="/images">
         <file alias="about.png">resources/images/about.png</file>

@@ -49,8 +49,8 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     connect(picker, &Qt3DRender::QObjectPicker::clicked,
            [this](Qt3DRender::QPickEvent *pickEvent){Q_EMIT positionClicked(pickEvent->localIntersection());});
     // Needs to be placed after setRootEntity on the window because it doesn't work otherwise -> leave it here
-    objectRenderable = new ObjectRenderable(rootEntity);
-    connect(objectRenderable, &ObjectRenderable::statusChanged, this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
+    objectModelRenderable = new ObjectModelRenderable(rootEntity);
+    connect(objectModelRenderable, &ObjectModelRenderable::statusChanged, this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
 
 }
 
@@ -62,19 +62,19 @@ void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoade
 }
 
 void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
-    objectRenderable->setObjectModel(&objectModel);
-    objectRenderable->setEnabled(true);
+    objectModelRenderable->setObjectModel(&objectModel);
+    objectModelRenderable->setEnabled(true);
 }
 
 void PoseEditor3DWindow::addClick(QVector3D position, QColor color) {
-    objectRenderable->addClick(position, color);
+    objectModelRenderable->addClick(position, color);
 }
 
 void PoseEditor3DWindow::removeClicks() {
-    objectRenderable->removeClicks();
+    objectModelRenderable->removeClicks();
 }
 
 void PoseEditor3DWindow::reset() {
     removeClicks();
-    objectRenderable->setEnabled(false);
+    objectModelRenderable->setEnabled(false);
 }

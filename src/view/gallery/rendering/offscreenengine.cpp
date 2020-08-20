@@ -57,8 +57,8 @@ OffscreenEngine::OffscreenEngine(const QSize &size) {
     aspectEngine->setRootEntity(root);
 
     sceneRoot = new Qt3DCore::QEntity(root.get());
-    objectRenderable = new ObjectRenderable(sceneRoot);
-    connect(objectRenderable, &ObjectRenderable::statusChanged, this, &OffscreenEngine::onSceneLoaderStatusChanged);
+    objectModelRenderable = new ObjectModelRenderable(sceneRoot);
+    connect(objectModelRenderable, &ObjectModelRenderable::statusChanged, this, &OffscreenEngine::onSceneLoaderStatusChanged);
 
     Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(sceneRoot);
     light = new Qt3DRender::QPointLight(lightEntity);
@@ -85,7 +85,7 @@ OffscreenEngine::~OffscreenEngine() {
 }
 
 void OffscreenEngine::setObjectModel(const ObjectModel &objectModel) {
-    objectRenderable->setObjectModel(&objectModel);
+    objectModelRenderable->setObjectModel(&objectModel);
 }
 
 void OffscreenEngine::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status) {

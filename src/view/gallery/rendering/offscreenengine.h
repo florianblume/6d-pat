@@ -3,7 +3,7 @@
 
 #include "texturerendertarget.h"
 #include "model/objectmodel.hpp"
-#include "view/rendering/objectrenderable.hpp"
+#include "view/rendering/objectmodelrenderable.hpp"
 
 #include <QObject>
 
@@ -78,7 +78,7 @@ private:
 
     Qt3DRender::QRenderCaptureReply *reply;
 
-    ObjectRenderable *objectRenderable;
+    ObjectModelRenderable *objectModelRenderable;
     Qt3DRender::QPointLight *light;
 
     bool initialized = false;

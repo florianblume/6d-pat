@@ -23,7 +23,7 @@ TARGET = 6DPAT
 
 TEMPLATE = app
 
-QT     += core gui widgets 3dcore 3dextras 3drender
+QT     += core gui widgets 3dcore 3dextras 3drender 3drender-private
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -55,7 +55,7 @@ HEADERS  += \
     $$PWD/view/gallery/iconexpandinglistview.hpp \
     $$PWD/view/navigationcontrols/navigationcontrols.hpp \
     $$PWD/view/rendering/backgroundimagerenderable.hpp \
-    $$PWD/view/rendering/objectmodelrenderable.hpp \
+    $$PWD/view/rendering/objectrenderable2.hpp \
     $$PWD/view/rendering/poserenderable.hpp \
     $$PWD/view/settings/settingsdialog.hpp \
     $$PWD/view/settings/settingsgeneralpage.hpp \
@@ -78,7 +78,9 @@ HEADERS  += \
     $$PWD/misc/global.hpp \
     $$PWD/view/gallery/rendering/offscreenengine.h \
     $$PWD/view/gallery/rendering/texturerendertarget.h \
-    view/rendering/objectrenderable.hpp
+    view/rendering/datatextureimage.h \
+    view/rendering/datatextureimage_p.h \
+    view/rendering/objectmodelrenderable.hpp
 
 SOURCES += \
     $$PWD/main.cpp \
@@ -99,7 +101,7 @@ SOURCES += \
     $$PWD/view/gallery/galleryobjectmodelmodel.cpp \
     $$PWD/view/gallery/iconexpandinglistview.cpp \
     $$PWD/view/rendering/backgroundimagerenderable.cpp \
-    $$PWD/view/rendering/objectmodelrenderable.cpp \
+    $$PWD/view/rendering/objectrenderable2.cpp \
     $$PWD/view/rendering/poserenderable.cpp \
     $$PWD/view/settings/settingsdialog.cpp \
     $$PWD/view/settings/settingsgeneralpage.cpp \
@@ -122,7 +124,8 @@ SOURCES += \
     $$PWD/misc/generalhelper.cpp \
     $$PWD/view/gallery/rendering/offscreenengine.cpp \
     $$PWD/view/gallery/rendering/texturerendertarget.cpp \
-    view/rendering/objectrenderable.cpp
+    view/rendering/datatextureimage.cpp \
+    view/rendering/objectmodelrenderable.cpp
 
 FORMS    += \
     $$PWD/view/mainwindow.ui \

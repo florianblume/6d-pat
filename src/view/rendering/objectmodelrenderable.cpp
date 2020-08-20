@@ -1,133 +1,125 @@
 #include "objectmodelrenderable.hpp"
 
-#include <QOpenGLContext>
-#include <QOpenGLFunctions>
-#include <QtGlobal>
-//#include <assimp/postprocess.h>
-//#include <assimp/scene.h>
+#include <QColor>
+#include <QUrl>
 
-ObjectModelRenderable::ObjectModelRenderable(const ObjectModel &objectModel,
-                                             int vertexAttributeLoc,
-                                             int normalAttributeLoc) :
-    objectModel(objectModel),
-    vertexBuffer(QOpenGLBuffer::VertexBuffer),
-    normalBuffer(QOpenGLBuffer::VertexBuffer),
-    indexBuffer(QOpenGLBuffer::IndexBuffer),
-    vertexAttributeLoc(vertexAttributeLoc),
-    normalAttributeLoc(normalAttributeLoc) {
+#include <Qt3DCore/QNode>
+#include <Qt3DCore/QNodeVector>
+#include <Qt3DExtras/QPhongMaterial>
+#include <Qt3DRender/QShaderProgramBuilder>
+#include <Qt3DRender/QEffect>
+#include <Qt3DRender/QParameter>
+#include <Qt3DRender/QShaderProgram>
 
-    /*
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(objectModel.getAbsolutePath().toStdString(),
-                                             aiProcess_GenSmoothNormals |
-                                             aiProcess_CalcTangentSpace |
-                                             aiProcess_Triangulate |
-                                             aiProcess_JoinIdenticalVertices |
-                                             aiProcess_SortByPType
-                                             );
-    if (scene) {
-        for (uint i = 0; i < scene->mNumMeshes; i++) {
-            processMesh(scene->mMeshes[0]);
+#include <QThread>
+
+#include <QTextCodec>
+
+ObjectModelRenderable::ObjectModelRenderable(Qt3DCore::QEntity *parent)
+    : Qt3DCore::QEntity(parent) {
+    initialize();
+}
+
+ObjectModelRenderable::ObjectModelRenderable(Qt3DCore::QEntity *parent, const ObjectModel *objectModel)
+    : Qt3DCore::QEntity(parent) {
+    initialize();
+    setObjectModel(objectModel);
+}
+
+void ObjectModelRenderable::initialize() {
+    m_sceneLoader = new Qt3DRender::QSceneLoader(this);
+    this->addComponent(m_sceneLoader);
+    connect(m_sceneLoader, &Qt3DRender::QSceneLoader::statusChanged, this, &ObjectModelRenderable::onSceneLoaderStatusChanged);
+
+    clicksTexture = new Qt3DRender::QTexture1D();
+    clicksTextureImage = new DataTextureImage(clicksTexture);
+    clicksTexture->addTextureImage(clicksTextureImage);
+
+    colorsTexture = new Qt3DRender::QTexture1D();
+    colorsTextureImage = new DataTextureImage(colorsTexture);
+    colorsTexture->addTextureImage(colorsTextureImage);
+}
+
+Qt3DRender::QSceneLoader::Status ObjectModelRenderable::status() const {
+    return m_sceneLoader->status();
+}
+
+bool ObjectModelRenderable::isSelected() const {
+    return m_selected;
+}
+
+void ObjectModelRenderable::setObjectModel(const ObjectModel *objectModel) {
+    m_sceneLoader->setSource(QUrl::fromLocalFile(objectModel->getAbsolutePath()));
+}
+
+void ObjectModelRenderable::addClick(QVector3D click, QColor color) {
+    m_clicks.append(click);
+    if (clicksParameter)
+        clicksTextureImage->setData(m_clicks);
+    m_clickColors.append(QVector3D(color.red() / 255.f,
+                               color.green() / 255.f,
+                               color.blue() / 255.f));
+    if (colorsParameter)
+        colorsTextureImage->setData(m_clickColors);
+    Q_EMIT clicksChanged();
+}
+
+void ObjectModelRenderable::setSelected(bool selected) {
+    // TODO
+    Q_EMIT selectedChanged(selected);
+}
+
+void ObjectModelRenderable::removeClicks() {
+    m_clicks.clear();
+    if (clicksParameter)
+        clicksParameter->setValue(m_clicks.constData());
+    m_clickColors.clear();
+    if (colorsParameter)
+        colorsParameter->setValue(m_clickColors.constData());
+    Q_EMIT clicksChanged();
+}
+
+void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status) {
+    if (status == Qt3DRender::QSceneLoader::Ready) {
+        qDebug() << "calling thread" << QThread::currentThread();
+        // TODO: This is super ugly
+        Qt3DCore::QEntity *entity = m_sceneLoader->entities()[0];
+        Qt3DCore::QNodeVector entities = entity->childNodes();
+        for (Qt3DCore::QNode *node : entities) {
+            Qt3DCore::QNodeVector entities2 = node->childNodes();
+            for (Qt3DCore::QNode *node : entities2) {
+                if (Qt3DExtras::QPhongMaterial * v = dynamic_cast<Qt3DExtras::QPhongMaterial *>(node)) {
+                    v->setAmbient(QColor(150, 150, 150));
+                    v->setDiffuse(QColor(130, 130, 130));
+                }
+                Qt3DCore::QNodeVector entities3 = node->childNodes();
+                for (Qt3DCore::QNode *node : entities3) {
+                    if (Qt3DRender::QShaderProgramBuilder * v = dynamic_cast<Qt3DRender::QShaderProgramBuilder *>(node)) {
+                        v->setFragmentShaderGraph(QUrl("qrc:/shaders/poseeditor/object.frag.json"));
+                    } else if (Qt3DRender::QEffect * v = dynamic_cast<Qt3DRender::QEffect *>(node)) {
+                        clicksParameter = new Qt3DRender::QParameter(QStringLiteral("clicks"), clicksTexture);
+                        v->addParameter(clicksParameter);
+                        colorsParameter = new Qt3DRender::QParameter(QStringLiteral("colors"), colorsTexture);
+                        v->addParameter(colorsParameter);
+                        clickCountParameter = new Qt3DRender::QParameter(QStringLiteral("clickCount"), m_clicks.count());
+                        v->addParameter(clickCountParameter);
+                    }
+                    Qt3DCore::QNodeVector entities4 = node->childNodes();
+                    for (Qt3DCore::QNode *node : entities4) {
+                        if (Qt3DRender::QShaderProgramBuilder * v = dynamic_cast<Qt3DRender::QShaderProgramBuilder *>(node)) {
+                            v->setFragmentShaderGraph(QUrl("qrc:/shaders/poseeditor/object.frag.json"));
+                        } else if (Qt3DRender::QEffect * v = dynamic_cast<Qt3DRender::QEffect *>(node)) {
+                            clicksParameter = new Qt3DRender::QParameter(QStringLiteral("clicks"), clicksTexture);
+                            v->addParameter(clicksParameter);
+                            colorsParameter = new Qt3DRender::QParameter(QStringLiteral("colors"), colorsTexture);
+                            v->addParameter(colorsParameter);
+                            clickCountParameter = new Qt3DRender::QParameter(QStringLiteral("clickCount"), m_clicks.count());
+                            v->addParameter(clickCountParameter);
+                        }
+                    }
+                }
+            }
         }
-        populateVertexArrayObject();
     }
-    */
+    Q_EMIT statusChanged(status);
 }
-
-QOpenGLVertexArrayObject *ObjectModelRenderable::getVertexArrayObject() {
-    return &vao;
-}
-
-int ObjectModelRenderable::getIndicesCount() {
-    return indices.size();
-}
-
-ObjectModel ObjectModelRenderable::getObjectModel() {
-    return objectModel;
-}
-
-float ObjectModelRenderable::getLargestVertexValue() {
-    return largestVertexValue;
-}
-
-// Private functions from here
-
-void ObjectModelRenderable::processMesh(aiMesh *mesh) {
-    // Get Vertices
-    if (mesh->mNumVertices > 0)
-    {
-        for (uint ii = 0; ii < mesh->mNumVertices; ++ii)
-        {
-            aiVector3D &vec = mesh->mVertices[ii];
-
-            vertices.push_back(vec.x);
-            vertices.push_back(vec.y);
-            vertices.push_back(vec.z);
-
-            float m = qMax(vec.x, vec.y);
-            m = qMax(m, vec.z);
-            if (m > largestVertexValue)
-                largestVertexValue = m;
-        }
-    }
-
-    // Get Normals
-    if (mesh->HasNormals())
-    {
-        for (uint ii = 0; ii < mesh->mNumVertices; ++ii)
-        {
-            aiVector3D &vec = mesh->mNormals[ii];
-            normals.push_back(vec.x);
-            normals.push_back(vec.y);
-            normals.push_back(vec.z);
-        };
-    }
-
-    // Get mesh indexes
-    for (uint t = 0; t < mesh->mNumFaces; ++t)
-    {
-        aiFace* face = &mesh->mFaces[t];
-        if (face->mNumIndices != 3)
-        {
-            continue;
-        }
-
-        indices.push_back(face->mIndices[0]);
-        indices.push_back(face->mIndices[1]);
-        indices.push_back(face->mIndices[2]);
-    }
-}
-
-void ObjectModelRenderable::populateVertexArrayObject() {
-    vao.create();
-    QOpenGLVertexArrayObject::Binder vaoBinder(&vao);
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-
-    // Setup the vertex buffer object.
-    vertexBuffer.create();
-    vertexBuffer.bind();
-    vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    vertexBuffer.allocate(vertices.constData(),
-                                    vertices.size() * sizeof(GLfloat));
-    vertexBuffer.bind();
-    f->glEnableVertexAttribArray(vertexAttributeLoc);
-    f->glVertexAttribPointer(vertexAttributeLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
-
-    // Setup the normal buffer object.
-    normalBuffer.create();
-    normalBuffer.bind();
-    normalBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    normalBuffer.allocate(normals.constData(),
-                                    normals.size() * sizeof(GLfloat));
-    normalBuffer.bind();
-    f->glEnableVertexAttribArray(normalAttributeLoc);
-    f->glVertexAttribPointer(normalAttributeLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
-
-    // Setup the index buffer object.
-    indexBuffer.create();
-    indexBuffer.bind();
-    indexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    indexBuffer.allocate(indices.constData(),
-                                   indices.size() * sizeof(GLint));
-}
-

@@ -1,7 +1,7 @@
 #ifndef POSERENDERABLE_H
 #define POSERENDERABLE_H
 
-#include "objectmodelrenderable.hpp"
+#include "objectrenderable2.hpp"
 #include "model/pose.hpp"
 
 #include <assimp/mesh.h>
