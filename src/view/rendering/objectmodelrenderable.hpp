@@ -3,7 +3,6 @@
 
 #include "misc/global.hpp"
 #include "model/objectmodel.hpp"
-#include "view/rendering/datatextureimage.h"
 
 #include <QObject>
 #include <QVector3D>
@@ -44,16 +43,12 @@ private Q_SLOTS:
 
 private:
     bool m_selected;
-    QVector<QVector3D> m_clicks{QVector3D(0, 0, 0)};
-    QVector<QVector3D> m_clickColors{QVector3D(0, 0, 0)};
+    QVector<QVector3D> m_clicks;
+    QVector<QVector3D> m_clickColors;
 
     Qt3DRender::QSceneLoader *m_sceneLoader = Q_NULLPTR;
     Qt3DRender::QParameter *clicksParameter = Q_NULLPTR;
-    Qt3DRender::QTexture1D *clicksTexture = Q_NULLPTR;
-    DataTextureImage *clicksTextureImage = Q_NULLPTR;
     Qt3DRender::QParameter *colorsParameter = Q_NULLPTR;
-    Qt3DRender::QTexture1D *colorsTexture = Q_NULLPTR;
-    DataTextureImage *colorsTextureImage = Q_NULLPTR;
     Qt3DRender::QParameter *clickCountParameter = Q_NULLPTR;
 
     void initialize();

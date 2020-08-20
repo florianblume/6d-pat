@@ -71,13 +71,17 @@ OffscreenEngine::OffscreenEngine(const QSize &size) {
 }
 
 OffscreenEngine::~OffscreenEngine() {
-    // Setting a null root entity shuts down the engine.
-    aspectEngine->setRootEntity(Qt3DCore::QEntityPtr());
+    objectModelRenderable->setParent((Qt3DCore::QNode *) 0);
+    objectModelRenderable->deleteLater();
 
     // Not sure if the following is strictly required, as it may
     // happen automatically when the engine is destroyed.
     aspectEngine->unregisterAspect(logicAspect);
     aspectEngine->unregisterAspect(renderAspect);
+
+    // Setting a null root entity shuts down the engine.
+    aspectEngine->setRootEntity(Qt3DCore::QEntityPtr());
+
     delete logicAspect;
     delete renderAspect;
 

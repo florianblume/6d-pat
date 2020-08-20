@@ -1,71 +1,121 @@
 #include "datatextureimage.h"
 #include "datatextureimage_p.h"
 
-#include <QByteArray>
-#include <Qt3DRender/QTextureImageData>
+/*!
+    \class Qt3DRender::QPaintedTextureImage
+    \inmodule Qt3DRender
+    \since 5.8
+    \brief A QAbstractTextureImage that can be written through a QPainter.
+    A QPaintedTextureImage provides a way to specify a texture image
+    (and thus an OpenGL texture) through a QPainter. The width and height of the
+    texture image can be specified through the width and height or size
+    properties.
+    A QPaintedTextureImage must be subclassed and the virtual paint() function
+    implemented. Each time update() is called on the QPaintedTextureImage,
+    the paint() function is invoked and the resulting image is uploaded.
+    The QPaintedTextureImage must be attached to some QAbstractTexture.
+ */
 
-DataTextureImage::DataTextureImage(Qt3DCore::QNode *parent)
-    : Qt3DRender::QAbstractTextureImage(parent) {
-    setLayer(0);
-    setMipLevel(0);
+
+
+TestPaintedTextureImagePrivate::TestPaintedTextureImagePrivate()
+     : m_generation(0)
+{
 }
 
-DataTextureImage::~DataTextureImage() {
-
+TestPaintedTextureImagePrivate::~TestPaintedTextureImagePrivate()
+{
 }
 
-QVector<QVector3D> DataTextureImage::data() const {
-    Q_D(const DataTextureImage);
+void TestPaintedTextureImagePrivate::updateData()
+{
+    ++m_generation;
+    m_currentGenerator = QSharedPointer<PaintedTextureImageDataGenerator>::create(m_data, m_generation, q_func()->id());
+    q_func()->notifyDataGeneratorChanged();
+}
+
+TestPaintedTextureImage::TestPaintedTextureImage(Qt3DCore::QNode *parent)
+    : QAbstractTextureImage(*new TestPaintedTextureImagePrivate, parent)
+{
+}
+
+TestPaintedTextureImage::~TestPaintedTextureImage()
+{
+}
+
+QVector<QVector3D> TestPaintedTextureImage::data() {
+    Q_D(TestPaintedTextureImage);
     return d->m_data;
 }
 
-void DataTextureImage::update(const QRect &rect) {
+int TestPaintedTextureImage::width()
+{
+    Q_D(TestPaintedTextureImage);
+    return d->m_data.count();
+}
+
+int TestPaintedTextureImage::height()
+{
+    return 1;
+}
+
+/*!
+   Schedules the painted texture's paint() function to be called,
+   which in turn uploads the new image to the GPU.
+   Parameter \a rect is currently unused.
+*/
+void TestPaintedTextureImage::update(const QRect &rect)
+{
     Q_UNUSED(rect);
-    Q_D(DataTextureImage);
+    Q_D(TestPaintedTextureImage);
 
     d->updateData();
 }
 
-void DataTextureImage::setData(QVector<QVector3D> newData) {
-    Q_D(DataTextureImage);
+void TestPaintedTextureImage::setData(QVector<QVector3D> newData) {
+    Q_D(TestPaintedTextureImage);
     if (d->m_data != newData) {
         d->m_data = newData;
-        Q_EMIT dataChanged(newData);
         d->updateData();
     }
 }
 
-Qt3DRender::QTextureImageDataGeneratorPtr DataTextureImage::dataGenerator() const {
-    Q_D(const DataTextureImage);
-    return d->m_currentGenerator;
+/*!
+    \fn Qt3DRender::QPaintedTextureImage::paint(QPainter *painter)
+    Paints the texture image with the specified QPainter object \a painter.
+*/
+Qt3DRender::QTextureImageDataGeneratorPtr TestPaintedTextureImage::dataGenerator() const
+{
+    Q_D(const TestPaintedTextureImage);
+    Qt3DRender::QTextureImageDataGeneratorPtr generator = d->m_currentGenerator;
+    if (generator.isNull()) {
+        generator = QSharedPointer<PaintedTextureImageDataGenerator>::create(d->m_data, d->m_generation, id());
+    }
+    return generator;
 }
 
-void DataTextureImagePrivate::updateData() {
-    ++m_generation;
-    m_currentGenerator = QSharedPointer<DataTextureImageDataGenerator>::create(m_data, m_generation, q_func()->id());
-    q_func()->notifyDataGeneratorChanged();
-}
 
-DataTextureImageDataGenerator::DataTextureImageDataGenerator(const QVector<QVector3D> &data, int gen, Qt3DCore::QNodeId texId)
-    : m_data(data)
+PaintedTextureImageDataGenerator::PaintedTextureImageDataGenerator(const QVector<QVector3D> &data, int gen, Qt3DCore::QNodeId texId)
+    : m_data(data)    // pixels are implicitly shared, no copying
     , m_generation(gen)
-    , m_dataTextureImageId(texId) {
-
+    , m_paintedTextureImageId(texId)
+{
 }
 
-DataTextureImageDataGenerator::~DataTextureImageDataGenerator() {
-
+PaintedTextureImageDataGenerator::~PaintedTextureImageDataGenerator()
+{
 }
 
-Qt3DRender::QTextureImageDataPtr DataTextureImageDataGenerator::operator ()() {
+Qt3DRender::QTextureImageDataPtr PaintedTextureImageDataGenerator::operator ()()
+{
     Qt3DRender::QTextureImageDataPtr textureData = Qt3DRender::QTextureImageDataPtr::create();
 
     // Convert data to float array
     float floatData[m_data.count() * 3];
-    for (int i = 0; i < m_data.count(); i +=3) {
-        floatData[i] = m_data[i].x();
-        floatData[i + 1] = m_data[i].y();
-        floatData[i + 2] = m_data[i].z();
+    for (int i = 0; i < m_data.count() * 3; i +=3) {
+        floatData[i] = m_data[i / 3].x();
+        floatData[i + 1] = m_data[i / 3].y();
+        floatData[i + 2] = m_data[i / 3].z();
     }
 
     QByteArray array;
@@ -76,10 +126,19 @@ Qt3DRender::QTextureImageDataPtr DataTextureImageDataGenerator::operator ()() {
     textureData->setFormat(QOpenGLTexture::RGB32F);
     textureData->setPixelType(QOpenGLTexture::Float32);
     textureData->setPixelFormat(QOpenGLTexture::RGB);
+
+    textureData->setWidth(m_data.count());
+    textureData->setHeight(1);
+    textureData->setDepth(1);
+    textureData->setFaces(1);
+    textureData->setMipLevels(1);
+    textureData->setLayers(1);
+    textureData->setTarget(QOpenGLTexture::Target1D);
     return textureData;
 }
 
-bool DataTextureImageDataGenerator::operator ==(const Qt3DRender::QTextureImageDataGenerator &other) const {
-    const DataTextureImageDataGenerator *otherFunctor = functor_cast<DataTextureImageDataGenerator>(&other);
-        return (otherFunctor != nullptr && otherFunctor->m_generation == m_generation && otherFunctor->m_dataTextureImageId == m_dataTextureImageId);
+bool PaintedTextureImageDataGenerator::operator ==(const Qt3DRender::QTextureImageDataGenerator &other) const
+{
+    const PaintedTextureImageDataGenerator *otherFunctor = functor_cast<PaintedTextureImageDataGenerator>(&other);
+    return (otherFunctor != nullptr && otherFunctor->m_generation == m_generation && otherFunctor->m_paintedTextureImageId == m_paintedTextureImageId);
 }

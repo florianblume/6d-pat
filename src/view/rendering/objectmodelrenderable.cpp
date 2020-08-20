@@ -11,10 +11,6 @@
 #include <Qt3DRender/QParameter>
 #include <Qt3DRender/QShaderProgram>
 
-#include <QThread>
-
-#include <QTextCodec>
-
 ObjectModelRenderable::ObjectModelRenderable(Qt3DCore::QEntity *parent)
     : Qt3DCore::QEntity(parent) {
     initialize();
@@ -30,14 +26,6 @@ void ObjectModelRenderable::initialize() {
     m_sceneLoader = new Qt3DRender::QSceneLoader(this);
     this->addComponent(m_sceneLoader);
     connect(m_sceneLoader, &Qt3DRender::QSceneLoader::statusChanged, this, &ObjectModelRenderable::onSceneLoaderStatusChanged);
-
-    clicksTexture = new Qt3DRender::QTexture1D();
-    clicksTextureImage = new DataTextureImage(clicksTexture);
-    clicksTexture->addTextureImage(clicksTextureImage);
-
-    colorsTexture = new Qt3DRender::QTexture1D();
-    colorsTextureImage = new DataTextureImage(colorsTexture);
-    colorsTexture->addTextureImage(colorsTextureImage);
 }
 
 Qt3DRender::QSceneLoader::Status ObjectModelRenderable::status() const {
@@ -55,12 +43,14 @@ void ObjectModelRenderable::setObjectModel(const ObjectModel *objectModel) {
 void ObjectModelRenderable::addClick(QVector3D click, QColor color) {
     m_clicks.append(click);
     if (clicksParameter)
-        clicksTextureImage->setData(m_clicks);
+        clicksParameter->setValue(m_clicks.constData());
     m_clickColors.append(QVector3D(color.red() / 255.f,
                                color.green() / 255.f,
                                color.blue() / 255.f));
     if (colorsParameter)
-        colorsTextureImage->setData(m_clickColors);
+        colorsParameter->setValue(m_clickColors.constData());
+    if (clickCountParameter)
+        clickCountParameter->setValue(m_clicks.count());
     Q_EMIT clicksChanged();
 }
 
@@ -76,12 +66,13 @@ void ObjectModelRenderable::removeClicks() {
     m_clickColors.clear();
     if (colorsParameter)
         colorsParameter->setValue(m_clickColors.constData());
+    if (clickCountParameter)
+        clickCountParameter->setValue(m_clicks.count());
     Q_EMIT clicksChanged();
 }
 
 void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status) {
     if (status == Qt3DRender::QSceneLoader::Ready) {
-        qDebug() << "calling thread" << QThread::currentThread();
         // TODO: This is super ugly
         Qt3DCore::QEntity *entity = m_sceneLoader->entities()[0];
         Qt3DCore::QNodeVector entities = entity->childNodes();
@@ -95,11 +86,12 @@ void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader:
                 Qt3DCore::QNodeVector entities3 = node->childNodes();
                 for (Qt3DCore::QNode *node : entities3) {
                     if (Qt3DRender::QShaderProgramBuilder * v = dynamic_cast<Qt3DRender::QShaderProgramBuilder *>(node)) {
+                        connect(v, &Qt3DRender::QShaderProgramBuilder::fragmentShaderGraphChanged, [v](){qDebug() << v->fragmentShaderCode();});
                         v->setFragmentShaderGraph(QUrl("qrc:/shaders/poseeditor/object.frag.json"));
                     } else if (Qt3DRender::QEffect * v = dynamic_cast<Qt3DRender::QEffect *>(node)) {
-                        clicksParameter = new Qt3DRender::QParameter(QStringLiteral("clicks"), clicksTexture);
+                        clicksParameter = new Qt3DRender::QParameter(QStringLiteral("clicks"), m_clicks.constData());
                         v->addParameter(clicksParameter);
-                        colorsParameter = new Qt3DRender::QParameter(QStringLiteral("colors"), colorsTexture);
+                        colorsParameter = new Qt3DRender::QParameter(QStringLiteral("colors"), m_clickColors.constData());
                         v->addParameter(colorsParameter);
                         clickCountParameter = new Qt3DRender::QParameter(QStringLiteral("clickCount"), m_clicks.count());
                         v->addParameter(clickCountParameter);
@@ -107,11 +99,12 @@ void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader:
                     Qt3DCore::QNodeVector entities4 = node->childNodes();
                     for (Qt3DCore::QNode *node : entities4) {
                         if (Qt3DRender::QShaderProgramBuilder * v = dynamic_cast<Qt3DRender::QShaderProgramBuilder *>(node)) {
+                            connect(v, &Qt3DRender::QShaderProgramBuilder::fragmentShaderGraphChanged, [v](){qDebug() << v->fragmentShaderCode();});
                             v->setFragmentShaderGraph(QUrl("qrc:/shaders/poseeditor/object.frag.json"));
                         } else if (Qt3DRender::QEffect * v = dynamic_cast<Qt3DRender::QEffect *>(node)) {
-                            clicksParameter = new Qt3DRender::QParameter(QStringLiteral("clicks"), clicksTexture);
+                            clicksParameter = new Qt3DRender::QParameter(QStringLiteral("clicks"), m_clicks.constData());
                             v->addParameter(clicksParameter);
-                            colorsParameter = new Qt3DRender::QParameter(QStringLiteral("colors"), colorsTexture);
+                            colorsParameter = new Qt3DRender::QParameter(QStringLiteral("colors"), m_clickColors.constData());
                             v->addParameter(colorsParameter);
                             clickCountParameter = new Qt3DRender::QParameter(QStringLiteral("clickCount"), m_clicks.count());
                             v->addParameter(clickCountParameter);
