@@ -9,6 +9,9 @@
 #include <Qt3DRender/QShaderProgramBuilder>
 #include <Qt3DRender/QEffect>
 #include <Qt3DRender/QParameter>
+#include <Qt3DRender/QShaderProgram>
+
+#include <QThread>
 
 #include <QTextCodec>
 
@@ -43,9 +46,13 @@ void ObjectRenderable::setObjectModel(const ObjectModel *objectModel) {
 
 void ObjectRenderable::addClick(QVector3D click, QColor color) {
     m_clicks.append(click);
+    if (clicksParameter)
+        clicksParameter->setValue(m_clicks.constData());
     m_clickColors.append(QVector3D(color.red() / 255.f,
                                color.green() / 255.f,
                                color.blue() / 255.f));
+    if (colorsParameter)
+        colorsParameter->setValue(m_clickColors.constData());
     Q_EMIT clicksChanged();
 }
 
@@ -56,12 +63,17 @@ void ObjectRenderable::setSelected(bool selected) {
 
 void ObjectRenderable::removeClicks() {
     m_clicks.clear();
+    if (clicksParameter)
+        clicksParameter->setValue(m_clicks.constData());
     m_clickColors.clear();
+    if (colorsParameter)
+        colorsParameter->setValue(m_clickColors.constData());
     Q_EMIT clicksChanged();
 }
 
 void ObjectRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status) {
     if (status == Qt3DRender::QSceneLoader::Ready) {
+        qDebug() << "calling thread" << QThread::currentThread();
         // TODO: This is super ugly
         Qt3DCore::QEntity *entity = m_sceneLoader->entities()[0];
         Qt3DCore::QNodeVector entities = entity->childNodes();
@@ -75,21 +87,21 @@ void ObjectRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Stat
                 Qt3DCore::QNodeVector entities3 = node->childNodes();
                 for (Qt3DCore::QNode *node : entities3) {
                     if (Qt3DRender::QShaderProgramBuilder * v = dynamic_cast<Qt3DRender::QShaderProgramBuilder *>(node)) {
-                        v->setFragmentShaderGraph(QUrl(QStringLiteral("qrc:/shaders/poseeditor/object.graph")));
+                        v->setFragmentShaderGraph(QUrl("qrc:/shaders/poseeditor/object.graph"));
                     } else if (Qt3DRender::QEffect * v = dynamic_cast<Qt3DRender::QEffect *>(node)) {
-                        Qt3DRender::QParameter *clicksParameter = new Qt3DRender::QParameter(QStringLiteral("clicks"), m_clicks.constData());
+                        clicksParameter = new Qt3DRender::QParameter(QStringLiteral("clicks"), m_clicks.constData());
                         v->addParameter(clicksParameter);
-                        Qt3DRender::QParameter *colorsParameter = new Qt3DRender::QParameter(QStringLiteral("colors"), m_clickColors.constData());
+                        colorsParameter = new Qt3DRender::QParameter(QStringLiteral("colors"), m_clickColors.constData());
                         v->addParameter(colorsParameter);
                     }
                     Qt3DCore::QNodeVector entities4 = node->childNodes();
                     for (Qt3DCore::QNode *node : entities4) {
                         if (Qt3DRender::QShaderProgramBuilder * v = dynamic_cast<Qt3DRender::QShaderProgramBuilder *>(node)) {
-                            v->setFragmentShaderGraph(QUrl(QStringLiteral("qrc:/shaders/poseeditor/object.graph")));
+                            v->setFragmentShaderGraph(QUrl("qrc:/shaders/poseeditor/object.graph"));
                         } else if (Qt3DRender::QEffect * v = dynamic_cast<Qt3DRender::QEffect *>(node)) {
-                            Qt3DRender::QParameter *clicksParameter = new Qt3DRender::QParameter(QStringLiteral("clicks"), m_clicks.constData());
+                            clicksParameter = new Qt3DRender::QParameter(QStringLiteral("clicks"), m_clicks.constData());
                             v->addParameter(clicksParameter);
-                            Qt3DRender::QParameter *colorsParameter = new Qt3DRender::QParameter(QStringLiteral("colors"), m_clickColors.constData());
+                            colorsParameter = new Qt3DRender::QParameter(QStringLiteral("colors"), m_clickColors.constData());
                             v->addParameter(colorsParameter);
                         }
                     }

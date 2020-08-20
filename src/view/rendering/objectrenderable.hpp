@@ -11,6 +11,7 @@
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DRender/QSceneLoader>
+#include <Qt3DRender/QParameter>
 
 class ObjectRenderable : public Qt3DCore::QEntity
 {
@@ -44,8 +45,9 @@ private:
     QVector<QVector3D> m_clicks{QVector3D(0, 0, 0)};
     QVector<QVector3D> m_clickColors{QVector3D(0, 0, 0)};
 
-
-    Qt3DRender::QSceneLoader *m_sceneLoader;
+    Qt3DRender::QSceneLoader *m_sceneLoader = Q_NULLPTR;
+    Qt3DRender::QParameter *clicksParameter = Q_NULLPTR;
+    Qt3DRender::QParameter *colorsParameter = Q_NULLPTR;
 
     void initialize();
 };

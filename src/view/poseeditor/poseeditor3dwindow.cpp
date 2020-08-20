@@ -63,6 +63,7 @@ void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoade
 
 void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
     objectRenderable->setObjectModel(&objectModel);
+    objectRenderable->setEnabled(true);
 }
 
 void PoseEditor3DWindow::addClick(QVector3D position, QColor color) {
@@ -75,4 +76,5 @@ void PoseEditor3DWindow::removeClicks() {
 
 void PoseEditor3DWindow::reset() {
     removeClicks();
+    objectRenderable->setEnabled(false);
 }
