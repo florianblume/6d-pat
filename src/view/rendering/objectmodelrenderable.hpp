@@ -3,6 +3,7 @@
 
 #include "misc/global.hpp"
 #include "model/objectmodel.hpp"
+#include "view/rendering/objectmodelrenderablematerial.h"
 
 #include <QObject>
 #include <QVector3D>
@@ -11,7 +12,6 @@
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DRender/QSceneLoader>
-#include <Qt3DRender/QParameter>
 #include <Qt3DRender/QTexture>
 
 class ObjectModelRenderable : public Qt3DCore::QEntity
@@ -43,13 +43,9 @@ private Q_SLOTS:
 
 private:
     bool m_selected;
-    QVector<QVector3D> m_clicks;
-    QVector<QVector3D> m_clickColors;
 
     Qt3DRender::QSceneLoader *m_sceneLoader = Q_NULLPTR;
-    Qt3DRender::QParameter *clicksParameter = Q_NULLPTR;
-    Qt3DRender::QParameter *colorsParameter = Q_NULLPTR;
-    Qt3DRender::QParameter *clickCountParameter = Q_NULLPTR;
+    ObjectModelRenderableMaterial *m_material = Q_NULLPTR;
 
     void initialize();
 };

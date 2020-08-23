@@ -23,7 +23,7 @@ TARGET = 6DPAT
 
 TEMPLATE = app
 
-QT     += core gui widgets 3dcore 3dextras 3drender 3drender-private
+QT     += core gui widgets 3dcore 3dextras 3drender
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -78,9 +78,8 @@ HEADERS  += \
     $$PWD/misc/global.hpp \
     $$PWD/view/gallery/rendering/offscreenengine.h \
     $$PWD/view/gallery/rendering/texturerendertarget.h \
-    view/rendering/datatextureimage.h \
-    view/rendering/datatextureimage_p.h \
-    view/rendering/objectmodelrenderable.hpp
+    view/rendering/objectmodelrenderable.hpp \
+    view/rendering/objectmodelrenderablematerial.h
 
 SOURCES += \
     $$PWD/main.cpp \
@@ -124,8 +123,8 @@ SOURCES += \
     $$PWD/misc/generalhelper.cpp \
     $$PWD/view/gallery/rendering/offscreenengine.cpp \
     $$PWD/view/gallery/rendering/texturerendertarget.cpp \
-    view/rendering/datatextureimage.cpp \
-    view/rendering/objectmodelrenderable.cpp
+    view/rendering/objectmodelrenderable.cpp \
+    view/rendering/objectmodelrenderablematerial.cpp
 
 FORMS    += \
     $$PWD/view/mainwindow.ui \

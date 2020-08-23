@@ -13,7 +13,7 @@ uniform vec3 eyePosition;
 in vec3 worldNormal;
 in vec2 texCoord;
 uniform vec4 ka;
-uniform sampler2D diffuseTexture;
+uniform vec4 diffuse;
 uniform vec4 ks;
 uniform float shininess;
 
@@ -193,7 +193,7 @@ out vec4 fragColor;
 
 void main()
 {
-    vec4 currentColor = phongFunction(ka, texture(diffuseTexture, texCoord), ks, shininess, worldPosition, normalize(((eyePosition - worldPosition))), normalize(worldNormal));
+    vec4 currentColor = phongFunction(ka, diffuse, ks, shininess, worldPosition, normalize(((eyePosition - worldPosition))), normalize(worldNormal));
     bool isClicked = false;
     bool isAroundClick = false;
     int index = 0;
