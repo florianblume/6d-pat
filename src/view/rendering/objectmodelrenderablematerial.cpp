@@ -18,13 +18,14 @@ ObjectModelRenderableMaterial::ObjectModelRenderableMaterial(Qt3DCore::QNode *pa
       , m_clickColorsParameter(new Qt3DRender::QParameter(QStringLiteral("colors[0]"), QVariantList()))
       , m_clickCountParameter(new Qt3DRender::QParameter(QStringLiteral("clickCount"), 0))
       , m_useDiffuseTextureParameter(new Qt3DRender::QParameter(QStringLiteral("useDiffuseTexture"), QVariant::fromValue(withTexture)))
+      , m_circumfenceParameter(new Qt3DRender::QParameter(QStringLiteral("circumfence"), 0.001f))
       , m_technique(new Qt3DRender::QTechnique())
       , m_renderPass(new Qt3DRender::QRenderPass())
       , m_shaderProgram(new Qt3DRender::QShaderProgram())
       , m_filterKey(new Qt3DRender::QFilterKey)
 {
-    m_shaderProgram->setVertexShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/poseeditor/object.vert"))));
-    m_shaderProgram->setFragmentShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/poseeditor/object.frag"))));
+    m_shaderProgram->setVertexShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/object.vert"))));
+    m_shaderProgram->setFragmentShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/object.frag"))));
 
     m_effect->addParameter(m_diffuseParameter);
 
@@ -56,6 +57,7 @@ ObjectModelRenderableMaterial::ObjectModelRenderableMaterial(Qt3DCore::QNode *pa
     m_effect->addParameter(m_clicksParameter);
     m_effect->addParameter(m_clickColorsParameter);
     m_effect->addParameter(m_useDiffuseTextureParameter);
+    m_effect->addParameter(m_circumfenceParameter);
 
     setEffect(m_effect);
 }
@@ -128,6 +130,10 @@ void ObjectModelRenderableMaterial::addClick(QVector3D click, QColor color) {
         colors << color;
     }
     m_clickColorsParameter->setValue(QVariantList() << colors);
+}
+
+void ObjectModelRenderableMaterial::setCirumfence(float circumfence) {
+    m_circumfenceParameter->setValue(circumfence);
 }
 
 void ObjectModelRenderableMaterial::removeClicks() {

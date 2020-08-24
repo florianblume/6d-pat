@@ -5,23 +5,16 @@
         <file alias="background.vert">resources/shaders/poseviewer/background.vert</file>
         <file alias="background.frag">resources/shaders/poseviewer/background.frag</file>
     </qresource>
-    <qresource prefix="/shaders/poseeditor">
-        <file alias="objectcoords.vert">resources/shaders/poseeditor/objectcoords.vert</file>
-        <file alias="objectcoords.frag">resources/shaders/poseeditor/objectcoords.frag</file>
-        <file alias="object.vert">resources/shaders/poseeditor/object.vert</file>
-        <file alias="object.frag">resources/shaders/poseeditor/object.frag</file>
-        <file alias="renderClicks.inc.frag">resources/shaders/poseeditor/renderClicks.inc.frag</file>
-        <file alias="object_without_texture.frag">resources/shaders/poseeditor/object_without_texture.frag</file>
-    </qresource>
     <qresource prefix="/images">
         <file alias="about.png">resources/images/about.png</file>
         <file alias="icon.png">resources/images/icon.png</file>
     </qresource>
-    <qresource prefix="/shaders/gallery">
-        <file alias="object.vert">resources/shaders/gallery/object.vert</file>
-        <file alias="object.frag">resources/shaders/gallery/object.frag</file>
-    </qresource>
     <qresource prefix="/">
         <file alias="splash.png">resources/images/splash.png</file>
+    </qresource>
+    <qresource prefix="/shaders">
+        <file alias="object.frag">resources/shaders/object.frag</file>
+        <file alias="object.vert">resources/shaders/object.vert</file>
+        <file alias="phong.inc.frag">resources/shaders/phong.inc.frag</file>
     </qresource>
 </RCC>

@@ -10,7 +10,14 @@
 #include <Qt3DRender/QEffect>
 #include <Qt3DRender/QParameter>
 #include <Qt3DRender/QShaderProgram>
+#include <Qt3DRender/QGeometryRenderer>
+#include <Qt3DRender/QGeometry>
+#include <Qt3DRender/QAttribute>
 #include <Qt3DExtras/QDiffuseMapMaterial>
+#include <Qt3DExtras/QDiffuseSpecularMapMaterial>
+#include <Qt3DExtras/QNormalDiffuseMapMaterial>
+#include <Qt3DExtras/QNormalDiffuseMapAlphaMaterial>
+#include <Qt3DExtras/QNormalDiffuseSpecularMapMaterial>
 
 ObjectModelRenderable::ObjectModelRenderable(Qt3DCore::QEntity *parent)
     : Qt3DCore::QEntity(parent) {
@@ -38,6 +45,7 @@ bool ObjectModelRenderable::isSelected() const {
 }
 
 void ObjectModelRenderable::setObjectModel(const ObjectModel *objectModel) {
+    m_sceneLoader->setEnabled(false);
     m_sceneLoader->setSource(QUrl::fromLocalFile(objectModel->getAbsolutePath()));
 }
 
@@ -60,40 +68,64 @@ void ObjectModelRenderable::removeClicks() {
 
 void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status) {
     if (status == Qt3DRender::QSceneLoader::Ready) {
-        // TODO: This is super ugly
+        m_sceneLoader->setEnabled(true);
         Qt3DCore::QEntity *entity = m_sceneLoader->entities()[0];
-        Qt3DCore::QNodeVector entities = entity->childNodes();
-        for (Qt3DCore::QNode *node : entities) {
-            Qt3DCore::QNodeVector entities2 = node->childNodes();
-            //qDebug() << "entities2" << entities2;
-            for (Qt3DCore::QNode *node : entities2) {
-                if (Qt3DExtras::QPhongMaterial * v = dynamic_cast<Qt3DExtras::QPhongMaterial *>(node)) {
-                    Qt3DCore::QEntity *test = (Qt3DCore::QEntity *) v->parent();
-                    v->setAmbient(Qt::red);
-                    test->removeComponent(v);
+        Qt3DCore::QNodeVector children = entity->childNodes();
+        for (Qt3DCore::QNode *node : children) {
+            Qt3DCore::QNodeVector subChildren = node->childNodes();
+            for (Qt3DCore::QNode *subChild : subChildren) {
+                if (Qt3DExtras::QPhongMaterial * phongMaterial = dynamic_cast<Qt3DExtras::QPhongMaterial *>(subChild)) {
+                    // In this case, the scene loader loaded a model without texture. We'll replace that phong material
+                    // with our own that can visualize clicks.
+                    Qt3DCore::QEntity *phongMaterialParent = (Qt3DCore::QEntity *) phongMaterial->parent();
+                    phongMaterialParent->removeComponent(phongMaterial);
 
+                    m_material = new ObjectModelRenderableMaterial(phongMaterialParent, false);
+                    m_material->setSpecular(phongMaterial->specular());
+                    // Better visible without shininess
+                    m_material->setShininess(0.f);
 
-                    m_material = new ObjectModelRenderableMaterial(entity, false);
-                    m_material->setSpecular(v->specular());
-                    m_material->setShininess(v->shininess());
-
-                    test->addComponent(m_material);
+                    phongMaterialParent->addComponent(m_material);
+                } else if (Qt3DRender::QGeometryRenderer * geometryRenderer = dynamic_cast<Qt3DRender::QGeometryRenderer *>(subChild)) {
+                    Qt3DRender::QGeometry *geometry = geometryRenderer->geometry();
+                    connect(geometry, &Qt3DRender::QGeometry::maxExtentChanged, [geometry, this](){
+                        QVector3D diff = geometry->maxExtent() - geometry->minExtent();
+                        m_material->setCirumfence(diff.length() / 300.f);
+                    });
                 }
-                Qt3DCore::QNodeVector entities3 = node->childNodes();
-                Qt3DCore::QEntity *entity = (Qt3DCore::QEntity *)node;
-                for (Qt3DCore::QNode *node2 : entities3) {
-                    if (Qt3DExtras::QDiffuseMapMaterial * v2 = dynamic_cast<Qt3DExtras::QDiffuseMapMaterial *>(node2)) {
-                        m_material = new ObjectModelRenderableMaterial(entity, true);
-                        m_material->setAmbient(v2->ambient());
-                        m_material->setDiffuseTexture(v2->diffuse());
-                        m_material->setSpecular(v2->specular());
-                        m_material->setShininess(v2->shininess());
-                        m_material->setTextureScale(v2->textureScale());
 
-                        Qt3DCore::QEntity *entity = (Qt3DCore::QEntity *)node;
-                        entity->removeComponent(v2);
-                        v2->deleteLater();
-                        entity->addComponent(m_material);
+                Qt3DCore::QEntity *subChildEntity = (Qt3DCore::QEntity *)subChild;
+                Qt3DCore::QNodeVector subSubChildren = subChild->childNodes();
+                for (Qt3DCore::QNode *subSubChild : subSubChildren) {
+                    bool isMaterial = false;
+                    // In this case we have a textured object
+                    // This is ugly but as long as the shader graphs don't support arrays (i.e. vec3 clicks[10]) we have to check
+                    // all the default materials so that the objects get rendered properly
+                    if (dynamic_cast<Qt3DExtras::QDiffuseMapMaterial *>(subSubChild) ||
+                        dynamic_cast<Qt3DExtras::QDiffuseSpecularMapMaterial *>(subSubChild) ||
+                        dynamic_cast<Qt3DExtras::QNormalDiffuseMapMaterial *>(subSubChild) ||
+                        dynamic_cast<Qt3DExtras::QNormalDiffuseMapAlphaMaterial *>(subSubChild) ||
+                        dynamic_cast<Qt3DExtras::QNormalDiffuseSpecularMapMaterial *>(subSubChild)) {
+                        m_material = new ObjectModelRenderableMaterial(subChildEntity, true);
+                        m_material->setAmbient(subSubChild->property("ambient").value<QColor>());
+                        m_material->setDiffuseTexture(subSubChild->property("diffuse").value<Qt3DRender::QAbstractTexture*>());
+                        m_material->setSpecular(subSubChild->property("specular").value<QColor>());
+                        // Better visible without shininess
+                        m_material->setShininess(0.f);
+                        m_material->setTextureScale(subSubChild->property("textureScale").toFloat());
+                        isMaterial = true;
+                    } else if (Qt3DRender::QGeometryRenderer * geometryRenderer = dynamic_cast<Qt3DRender::QGeometryRenderer *>(subChild)) {
+                        Qt3DRender::QGeometry *geometry = geometryRenderer->geometry();
+                        connect(geometry, &Qt3DRender::QGeometry::maxExtentChanged, [geometry, this](){
+                            QVector3D diff = geometry->maxExtent() - geometry->minExtent();
+                            m_material->setCirumfence(diff.length() / 300.f);
+                        });
+                    }
+                    if (isMaterial) {
+                        Qt3DCore::QComponent *oldMaterial = dynamic_cast<Qt3DCore::QComponent *>(subSubChild);
+                        subChildEntity->removeComponent(oldMaterial);
+                        oldMaterial->deleteLater();
+                        subChildEntity->addComponent(m_material);
                     }
                 }
             }

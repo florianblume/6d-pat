@@ -41,6 +41,7 @@ public Q_SLOTS:
     void setTextureScale(float textureScale);
     void setDiffuseColor(const QColor &color);
     void addClick(QVector3D click, QColor color);
+    void setCirumfence(float circumfence);
     void removeClicks();
 
 Q_SIGNALS:
@@ -63,6 +64,7 @@ private:
     Qt3DRender::QParameter *m_clickColorsParameter;
     Qt3DRender::QParameter *m_clickCountParameter;
     Qt3DRender::QParameter *m_useDiffuseTextureParameter;
+    Qt3DRender::QParameter *m_circumfenceParameter;
     Qt3DRender::QTechnique *m_technique;
     Qt3DRender::QRenderPass *m_renderPass;
     Qt3DRender::QShaderProgram *m_shaderProgram;
