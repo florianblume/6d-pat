@@ -9,6 +9,7 @@
 #include <QVector3D>
 #include <QVector>
 #include <QColor>
+#include <QTimer>
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DRender/QSceneLoader>
@@ -43,6 +44,7 @@ private Q_SLOTS:
 
 private:
     bool m_selected;
+    QTimer timer;
 
     Qt3DRender::QSceneLoader *m_sceneLoader = Q_NULLPTR;
     ObjectModelRenderableMaterial *m_material = Q_NULLPTR;

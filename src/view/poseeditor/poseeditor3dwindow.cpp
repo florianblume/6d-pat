@@ -55,6 +55,8 @@ PoseEditor3DWindow::PoseEditor3DWindow()
 }
 
 PoseEditor3DWindow::~PoseEditor3DWindow() {
+    objectModelRenderable->setParent((Qt3DCore::QNode *) 0);
+    objectModelRenderable->deleteLater();
 }
 
 void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status) {

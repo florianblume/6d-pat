@@ -14,6 +14,7 @@ in vec3 worldNormal;
 in vec2 texCoord;
 uniform vec4 ka;
 uniform vec4 diffuse;
+//uniform sampler2D diffuseTexture;
 uniform vec4 ks;
 uniform float shininess;
 
@@ -183,10 +184,11 @@ vec4 phongFunction(const in vec4 ambient,
 }
 
 #line 12
-uniform vec3 interpolatedVertex;
+in vec3 interpolatedVertex;
 uniform vec3 clicks[10];
 uniform vec3 colors[10];
 uniform int clickCount;
+//uniform float circumfence;
 
 #line 18
 out vec4 fragColor;
@@ -198,6 +200,7 @@ void main()
     bool isAroundClick = false;
     int index = 0;
     float circumfence = 0.2;
+
     for (int i = 0; i < clickCount; i++)
     {
        vec3 click = clicks[i];
@@ -212,10 +215,12 @@ void main()
            isAroundClick = true;
            index = i;
        }
-       if (isClicked || isAroundClick)
+       if (isClicked)
        {
           currentColor = vec4(colors[i], 1.0);
+          break;
        }
     }
+
     fragColor = currentColor;
 }

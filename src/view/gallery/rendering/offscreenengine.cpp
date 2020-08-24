@@ -76,16 +76,11 @@ OffscreenEngine::~OffscreenEngine() {
 
     // Not sure if the following is strictly required, as it may
     // happen automatically when the engine is destroyed.
+    objectModelRenderable->setParent((Qt3DCore::QNode *) 0);
+    connect(objectModelRenderable, &QObject::destroyed, this, &OffscreenEngine::shutdown);
+    objectModelRenderable->deleteLater();
     aspectEngine->unregisterAspect(logicAspect);
     aspectEngine->unregisterAspect(renderAspect);
-
-    // Setting a null root entity shuts down the engine.
-    aspectEngine->setRootEntity(Qt3DCore::QEntityPtr());
-
-    delete logicAspect;
-    delete renderAspect;
-
-    delete aspectEngine;
 }
 
 void OffscreenEngine::setObjectModel(const ObjectModel &objectModel) {
@@ -108,6 +103,17 @@ void OffscreenEngine::onRenderCaptureReady() {
         delete reply;
         Q_EMIT imageReady(image);
     }
+}
+
+void OffscreenEngine::shutdown() {
+
+    // Setting a null root entity shuts down the engine.
+    aspectEngine->setRootEntity(Qt3DCore::QEntityPtr());
+
+    logicAspect->deleteLater();
+    renderAspect->deleteLater();
+
+    aspectEngine->deleteLater();
 }
 
 void OffscreenEngine::setSize(const QSize &size) {

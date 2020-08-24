@@ -1,28 +1,7 @@
-#version 140
-#ifdef GL_KHR_blend_equation_advanced
-#extension GL_ARB_fragment_coord_conventions : enable
-#extension GL_KHR_blend_equation_advanced : enable
-#endif
-#define lowp
-#define mediump
-#define highp
-#line 1
-
-in vec3 worldPosition;
-uniform vec3 eyePosition;
-in vec3 worldNormal;
-in vec2 texCoord;
-uniform vec4 ka;
-uniform sampler2D diffuseTexture;
-uniform vec4 ks;
-uniform float shininess;
-
 /****************************************************************************
 **
 ** Copyright (C) 2017 Klaralvdalens Datakonsult AB (KDAB).
 ** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the Qt3D module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** Commercial License Usage
@@ -66,6 +45,26 @@ uniform float shininess;
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+
+#version 140
+#ifdef GL_KHR_blend_equation_advanced
+#extension GL_ARB_fragment_coord_conventions : enable
+#extension GL_KHR_blend_equation_advanced : enable
+#endif
+#define lowp
+#define mediump
+#define highp
+#line 1
+
+in vec3 worldPosition;
+uniform vec3 eyePosition;
+in vec3 worldNormal;
+in vec2 texCoord;
+uniform vec4 ka;
+uniform sampler2D diffuseTexture;
+uniform vec4 diffuse;
+uniform vec4 ks;
+uniform float shininess;
 
 const int MAX_LIGHTS = 8;
 const int TYPE_POINT = 0;
@@ -183,21 +182,29 @@ vec4 phongFunction(const in vec4 ambient,
 }
 
 #line 12
-uniform vec3 interpolatedVertex;
+in vec3 interpolatedVertex;
 uniform vec3 clicks[10];
 uniform vec3 colors[10];
 uniform int clickCount;
+uniform bool useDiffuseTexture;
 
 #line 18
 out vec4 fragColor;
 
 void main()
 {
-    vec4 currentColor = phongFunction(ka, texture(diffuseTexture, texCoord), ks, shininess, worldPosition, normalize(((eyePosition - worldPosition))), normalize(worldNormal));
+    vec4 finalDiffuse;
+    if (useDiffuseTexture) {
+        finalDiffuse = texture2D(diffuseTexture, texCoord);
+    } else {
+        finalDiffuse = diffuse;
+    }
+    vec4 currentColor = phongFunction(ka, finalDiffuse, ks, shininess, worldPosition, normalize(((eyePosition - worldPosition))), normalize(worldNormal));
     bool isClicked = false;
     bool isAroundClick = false;
     int index = 0;
     float circumfence = 0.2;
+
     for (int i = 0; i < clickCount; i++)
     {
        vec3 click = clicks[i];
@@ -212,10 +219,12 @@ void main()
            isAroundClick = true;
            index = i;
        }
-       if (isClicked || isAroundClick)
+       if (isClicked)
        {
           currentColor = vec4(colors[i], 1.0);
+          break;
        }
     }
+
     fragColor = currentColor;
 }

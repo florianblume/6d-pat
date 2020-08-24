@@ -57,6 +57,7 @@ Q_SIGNALS:
 private Q_SLOTS:
     void onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status);
     void onRenderCaptureReady();
+    void shutdown();
 
 private:
     // We need all of the following in order to render a scene:

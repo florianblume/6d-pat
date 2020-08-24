@@ -61,7 +61,6 @@ void ObjectModelRenderable::removeClicks() {
 void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status) {
     if (status == Qt3DRender::QSceneLoader::Ready) {
         // TODO: This is super ugly
-        //qDebug() << m_sceneLoader->entities();
         Qt3DCore::QEntity *entity = m_sceneLoader->entities()[0];
         Qt3DCore::QNodeVector entities = entity->childNodes();
         for (Qt3DCore::QNode *node : entities) {
@@ -69,45 +68,30 @@ void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader:
             //qDebug() << "entities2" << entities2;
             for (Qt3DCore::QNode *node : entities2) {
                 if (Qt3DExtras::QPhongMaterial * v = dynamic_cast<Qt3DExtras::QPhongMaterial *>(node)) {
+                    Qt3DCore::QEntity *test = (Qt3DCore::QEntity *) v->parent();
                     v->setAmbient(Qt::red);
-                    /*
-                    if (m_material) {
-                        m_material->setParent((Qt3DCore::QNode *)0);
-                        m_material->deleteLater();
-                    }
-                    */
-                    /*
+                    test->removeComponent(v);
+
+
                     m_material = new ObjectModelRenderableMaterial(entity, false);
-                    m_material->setAmbient(v->ambient());
                     m_material->setSpecular(v->specular());
                     m_material->setShininess(v->shininess());
-                    m_material->setDiffuseColor(Qt::red);
 
-                    v->setParent((Qt3DCore::QNode *) 0);
-                    entity->removeComponent(v);
-                    */
-                    //entity->addComponent(m_material);
-                    //v->deleteLater();
+                    test->addComponent(m_material);
                 }
                 Qt3DCore::QNodeVector entities3 = node->childNodes();
-                //qDebug() << "entities3" << entities3;
                 Qt3DCore::QEntity *entity = (Qt3DCore::QEntity *)node;
                 for (Qt3DCore::QNode *node2 : entities3) {
                     if (Qt3DExtras::QDiffuseMapMaterial * v2 = dynamic_cast<Qt3DExtras::QDiffuseMapMaterial *>(node2)) {
-                        if (m_material) {
-                            m_material->setParent((Qt3DCore::QNode *)0);
-                            m_material->deleteLater();
-                        }
                         m_material = new ObjectModelRenderableMaterial(entity, true);
                         m_material->setAmbient(v2->ambient());
-                        m_material->setDiffuse(v2->diffuse());
+                        m_material->setDiffuseTexture(v2->diffuse());
                         m_material->setSpecular(v2->specular());
                         m_material->setShininess(v2->shininess());
                         m_material->setTextureScale(v2->textureScale());
 
                         Qt3DCore::QEntity *entity = (Qt3DCore::QEntity *)node;
                         entity->removeComponent(v2);
-                        v2->setParent((Qt3DCore::QNode *) 0);
                         v2->deleteLater();
                         entity->addComponent(m_material);
                     }

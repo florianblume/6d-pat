@@ -20,7 +20,7 @@ class ObjectModelRenderableMaterial : public Qt3DRender::QMaterial
     Q_PROPERTY(QColor ambient READ ambient WRITE setAmbient NOTIFY ambientChanged)
     Q_PROPERTY(QColor specular READ specular WRITE setSpecular NOTIFY specularChanged)
     Q_PROPERTY(float shininess READ shininess WRITE setShininess NOTIFY shininessChanged)
-    Q_PROPERTY(Qt3DRender::QAbstractTexture *diffuse READ diffuse WRITE setDiffuse NOTIFY diffuseChanged)
+    Q_PROPERTY(Qt3DRender::QAbstractTexture *diffuse READ diffuse WRITE setDiffuseTexture NOTIFY diffuseChanged)
     Q_PROPERTY(float textureScale READ textureScale WRITE setTextureScale NOTIFY textureScaleChanged)
 
 public:
@@ -33,17 +33,11 @@ public:
     Qt3DRender::QAbstractTexture *diffuse() const;
     float textureScale() const;
 
-    Qt3DRender::QParameter *colorsParameter() const;
-    void setColorsParameter(Qt3DRender::QParameter *colorsParameter);
-
-    Qt3DRender::QParameter *diffuseParameter() const;
-    void setDiffuseParameter(Qt3DRender::QParameter *diffuseParameter);
-
 public Q_SLOTS:
     void setAmbient(const QColor &color);
     void setSpecular(const QColor &specular);
     void setShininess(float shininess);
-    void setDiffuse(Qt3DRender::QAbstractTexture *diffuse);
+    void setDiffuseTexture(Qt3DRender::QAbstractTexture *diffuse);
     void setTextureScale(float textureScale);
     void setDiffuseColor(const QColor &color);
     void addClick(QVector3D click, QColor color);
@@ -65,14 +59,14 @@ private:
     Qt3DRender::QParameter *m_specularParameter;
     Qt3DRender::QParameter *m_shininessParameter;
     Qt3DRender::QParameter *m_textureScaleParameter;
+    Qt3DRender::QParameter *m_clicksParameter;
+    Qt3DRender::QParameter *m_clickColorsParameter;
+    Qt3DRender::QParameter *m_clickCountParameter;
+    Qt3DRender::QParameter *m_useDiffuseTextureParameter;
     Qt3DRender::QTechnique *m_technique;
     Qt3DRender::QRenderPass *m_renderPass;
     Qt3DRender::QShaderProgram *m_shaderProgram;
     Qt3DRender::QFilterKey *m_filterKey;
-
-    Qt3DRender::QParameter *m_clicksParameter;
-    Qt3DRender::QParameter *m_clickColorsParameter;
-    Qt3DRender::QParameter *m_clickCountParameter;
 
     QVector<QVector3D> m_clicks;
     QVector<QVector3D> m_clickColors;

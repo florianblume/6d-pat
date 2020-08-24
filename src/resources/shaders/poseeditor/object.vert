@@ -20,7 +20,7 @@ uniform float texCoordScale;
 void main()
 {
     // Pass through interpolated vertex position
-    interpolatedVertex = vertexPosition.xyz;
+    interpolatedVertex = vertexPosition;
 
     // Pass through scaled texture coordinates
     texCoord = vertexTexCoord * texCoordScale;
