@@ -45,6 +45,8 @@ bool ObjectModelRenderable::isSelected() const {
 }
 
 void ObjectModelRenderable::setObjectModel(const ObjectModel *objectModel) {
+    m_selected = false;
+    removeClicks();
     m_sceneLoader->setEnabled(false);
     m_sceneLoader->setSource(QUrl::fromLocalFile(objectModel->getAbsolutePath()));
 }
@@ -56,7 +58,9 @@ void ObjectModelRenderable::addClick(QVector3D click, QColor color) {
 }
 
 void ObjectModelRenderable::setSelected(bool selected) {
-    // TODO
+    if (m_material)
+        m_material->setSelected(selected);
+    m_selected = selected;
     Q_EMIT selectedChanged(selected);
 }
 
@@ -84,6 +88,7 @@ void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader:
                     m_material->setSpecular(phongMaterial->specular());
                     // Better visible without shininess
                     m_material->setShininess(0.f);
+                    m_material->setSelected(m_selected);
 
                     phongMaterialParent->addComponent(m_material);
                 } else if (Qt3DRender::QGeometryRenderer * geometryRenderer = dynamic_cast<Qt3DRender::QGeometryRenderer *>(subChild)) {
@@ -113,6 +118,7 @@ void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader:
                         // Better visible without shininess
                         m_material->setShininess(0.f);
                         m_material->setTextureScale(subSubChild->property("textureScale").toFloat());
+                        m_material->setSelected(m_selected);
                         isMaterial = true;
                     } else if (Qt3DRender::QGeometryRenderer * geometryRenderer = dynamic_cast<Qt3DRender::QGeometryRenderer *>(subChild)) {
                         Qt3DRender::QGeometry *geometry = geometryRenderer->geometry();

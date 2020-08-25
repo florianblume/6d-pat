@@ -60,6 +60,7 @@ public:
     void setPathOnLeftNavigationControls(const QString &path);
     void setPathOnRightNavigationControls(const QString &path);
     void resetPoseViewer();
+    void abortPoseCreation();
 
     void setStatusBarText(const QString& text);
 

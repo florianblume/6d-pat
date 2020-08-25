@@ -127,7 +127,7 @@ public:
 
     /*!
      * \brief reload reads all data from the persitence storage again and
-     * Q_EMITs the corresponding signals.
+     * emits the corresponding signals.
      */
     virtual void reload() = 0;
 

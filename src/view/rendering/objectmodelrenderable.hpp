@@ -43,7 +43,7 @@ private Q_SLOTS:
     void onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status);
 
 private:
-    bool m_selected;
+    bool m_selected = false;
     QTimer timer;
 
     Qt3DRender::QSceneLoader *m_sceneLoader = Q_NULLPTR;

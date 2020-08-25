@@ -23,7 +23,10 @@ MainController::MainController() {
             this, SLOT(resetPoseCreation()));
     connect(modelManager.data(), SIGNAL(poseDeleted(QString)),
             this, SLOT(resetPoseCreation()));
-    connect(strategy.data(), SIGNAL(failedToLoadImages(QString)), this, SLOT(onFailedToLoadImages(QString)));
+    connect(strategy.data(), &LoadAndStoreStrategy::failedToLoadImages, this, &MainController::onFailedToLoadImages);
+    connect(strategy.data(), &LoadAndStoreStrategy::failedToLoadObjectModels, this, &MainController::onFailedToLoadObjectModels);
+    connect(strategy.data(), &LoadAndStoreStrategy::failedToLoadPoses, this, &MainController::onFailedToLoadPoses);
+    connect(strategy.data(), &LoadAndStoreStrategy::failedToPersistPose, this, &MainController::onFailedToPersistPose);
 }
 
 MainController::~MainController() {
@@ -187,6 +190,19 @@ void MainController::onFailedToLoadImages(const QString &message){
         //! images extension, the paths, etc.
         mainWindow.displayWarning("Error loading images", message);
     }
+}
+
+void MainController::onFailedToLoadObjectModels(const QString &message) {
+    mainWindow.displayWarning("Error loading object models", message);
+}
+
+void MainController::onFailedToLoadPoses(const QString &message) {
+    mainWindow.displayWarning("Error loading poses", message);
+}
+
+void MainController::onFailedToPersistPose(const QString &message) {
+    mainWindow.displayWarning("Error persisting pose", message);
+    mainWindow.abortPoseCreation();
 }
 
 void MainController::onSettingsChanged(const QString &identifier) {

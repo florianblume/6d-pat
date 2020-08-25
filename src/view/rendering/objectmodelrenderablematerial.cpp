@@ -1,6 +1,7 @@
 #include "objectmodelrenderablematerial.h"
 
 #include <QVector3D>
+#include <QVector4D>
 #include <Qt3DRender/QGraphicsApiFilter>
 #include <Qt3DRender/QAbstractTextureImage>
 
@@ -19,6 +20,7 @@ ObjectModelRenderableMaterial::ObjectModelRenderableMaterial(Qt3DCore::QNode *pa
       , m_clickCountParameter(new Qt3DRender::QParameter(QStringLiteral("clickCount"), 0))
       , m_useDiffuseTextureParameter(new Qt3DRender::QParameter(QStringLiteral("useDiffuseTexture"), QVariant::fromValue(withTexture)))
       , m_circumfenceParameter(new Qt3DRender::QParameter(QStringLiteral("circumfence"), 0.001f))
+      , m_selectedParameter(new Qt3DRender::QParameter(QStringLiteral("selected"), QVector4D(0.f, 0.f, 0.f, 0.f)))
       , m_technique(new Qt3DRender::QTechnique())
       , m_renderPass(new Qt3DRender::QRenderPass())
       , m_shaderProgram(new Qt3DRender::QShaderProgram())
@@ -58,6 +60,7 @@ ObjectModelRenderableMaterial::ObjectModelRenderableMaterial(Qt3DCore::QNode *pa
     m_effect->addParameter(m_clickColorsParameter);
     m_effect->addParameter(m_useDiffuseTextureParameter);
     m_effect->addParameter(m_circumfenceParameter);
+    m_effect->addParameter(m_selectedParameter);
 
     setEffect(m_effect);
 }
@@ -83,7 +86,11 @@ Qt3DRender::QAbstractTexture *ObjectModelRenderableMaterial::diffuse() const {
 }
 
 float ObjectModelRenderableMaterial::textureScale() const {
-    return m_textureScaleParameter->value().toFloat();;
+    return m_textureScaleParameter->value().toFloat();
+}
+
+bool ObjectModelRenderableMaterial::isSelected() const {
+    return m_selected;
 }
 
 void ObjectModelRenderableMaterial::setAmbient(const QColor &color) {
@@ -134,6 +141,16 @@ void ObjectModelRenderableMaterial::addClick(QVector3D click, QColor color) {
 
 void ObjectModelRenderableMaterial::setCirumfence(float circumfence) {
     m_circumfenceParameter->setValue(circumfence);
+}
+
+void ObjectModelRenderableMaterial::setSelected(bool selected) {
+    m_selected = selected;
+    if (selected) {
+        m_selectedParameter->setValue(QVector4D(0.2, 0.1, 0.0, 0.0));
+    } else {
+        m_selectedParameter->setValue(QVector4D(0.0, 0.0, 0.0, 0.0));
+    }
+    Q_EMIT selectedChanged(selected);
 }
 
 void ObjectModelRenderableMaterial::removeClicks() {

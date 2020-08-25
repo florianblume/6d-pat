@@ -22,6 +22,7 @@ class ObjectModelRenderableMaterial : public Qt3DRender::QMaterial
     Q_PROPERTY(float shininess READ shininess WRITE setShininess NOTIFY shininessChanged)
     Q_PROPERTY(Qt3DRender::QAbstractTexture *diffuse READ diffuse WRITE setDiffuseTexture NOTIFY diffuseChanged)
     Q_PROPERTY(float textureScale READ textureScale WRITE setTextureScale NOTIFY textureScaleChanged)
+    Q_PROPERTY(bool selected READ isSelected WRITE setSelected NOTIFY selectedChanged)
 
 public:
     ObjectModelRenderableMaterial(Qt3DCore::QNode *parent = nullptr, bool withTexture = true);
@@ -32,6 +33,7 @@ public:
     float shininess() const;
     Qt3DRender::QAbstractTexture *diffuse() const;
     float textureScale() const;
+    bool isSelected() const;
 
 public Q_SLOTS:
     void setAmbient(const QColor &color);
@@ -42,6 +44,7 @@ public Q_SLOTS:
     void setDiffuseColor(const QColor &color);
     void addClick(QVector3D click, QColor color);
     void setCirumfence(float circumfence);
+    void setSelected(bool selected);
     void removeClicks();
 
 Q_SIGNALS:
@@ -50,6 +53,7 @@ Q_SIGNALS:
     void specularChanged(const QColor &specular);
     void shininessChanged(float shininess);
     void textureScaleChanged(float textureScale);
+    void selectedChanged(bool selected);
 
 private:
     Qt3DRender::QEffect *m_effect;
@@ -65,6 +69,7 @@ private:
     Qt3DRender::QParameter *m_clickCountParameter;
     Qt3DRender::QParameter *m_useDiffuseTextureParameter;
     Qt3DRender::QParameter *m_circumfenceParameter;
+    Qt3DRender::QParameter *m_selectedParameter;
     Qt3DRender::QTechnique *m_technique;
     Qt3DRender::QRenderPass *m_renderPass;
     Qt3DRender::QShaderProgram *m_shaderProgram;
@@ -72,6 +77,8 @@ private:
 
     QVector<QVector3D> m_clicks;
     QVector<QVector3D> m_clickColors;
+
+    bool m_selected = false;
 };
 
 #endif // OBJECTMODELMATERIAL_H

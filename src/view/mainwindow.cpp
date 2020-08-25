@@ -127,6 +127,11 @@ void MainWindow::resetPoseViewer() {
     ui->poseViewer->reset();
 }
 
+void MainWindow::abortPoseCreation() {
+    onActionReloadViewsTriggered();
+    Q_EMIT poseCreationAborted();
+}
+
 void MainWindow::setPreferencesStore(SettingsStore *preferencesStore) {
     if (this->preferencesStore) {
         disconnect(this->preferencesStore, SIGNAL(preferencesChanged(QString)),

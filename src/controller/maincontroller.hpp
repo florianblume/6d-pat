@@ -72,6 +72,9 @@ private Q_SLOTS:
     void onNetworkTrainingFinished();
     void onNetworkInferenceFinished();
     void onFailedToLoadImages(const QString &message);
+    void onFailedToLoadObjectModels(const QString &message);
+    void onFailedToLoadPoses(const QString &message);
+    void onFailedToPersistPose(const QString &message);
 };
 
 #endif // MAINCONTROLLER_H
