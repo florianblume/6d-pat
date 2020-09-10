@@ -1,19 +1,17 @@
 #ifndef POSERENDERABLE_H
 #define POSERENDERABLE_H
 
-#include "objectrenderable2.hpp"
+#include "objectmodelrenderable.hpp"
 #include "model/pose.hpp"
 
-#include <assimp/mesh.h>
-#include <assimp/Importer.hpp>
 
 #include <QVector>
 #include <QVector3D>
-#include <QOpenGLVertexArrayObject>
-#include <QOpenGLBuffer>
-#include <QOpenGLTexture>
 #include <QMatrix3x3>
 #include <QMatrix4x4>
+
+#include <Qt3DCore/QEntity>
+#include <Qt3DCore/QTransform>
 
 //!
 //! \brief The PoseRenderable class is only an object model renderable
@@ -23,9 +21,8 @@
 class PoseRenderable : public ObjectModelRenderable
 {
 public:
-    PoseRenderable(const Pose &pose,
-                          int vertexAttributeLoc,
-                          int normalAttributeLoc);
+    PoseRenderable(Qt3DCore::QEntity *parent,
+                   const Pose &pose);
     QString getPoseId();
     QMatrix4x4 getModelViewMatrix();
     ObjectModel getObjectModel();
@@ -38,10 +35,11 @@ public:
     bool operator==(const PoseRenderable &other);
 
 private:
-    QString poseId;
-    QVector3D position;
-    QMatrix3x3 rotation;
+    Pose pose;
+
     QMatrix4x4 modelViewMatrix;
+
+    Qt3DCore::QTransform *transform;
 
     void computeModelViewMatrix();
 };

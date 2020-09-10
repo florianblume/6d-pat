@@ -110,10 +110,10 @@ void OffscreenEngine::shutdown() {
     // Setting a null root entity shuts down the engine.
     aspectEngine->setRootEntity(Qt3DCore::QEntityPtr());
 
-    logicAspect->deleteLater();
-    renderAspect->deleteLater();
+    delete aspectEngine;
 
-    aspectEngine->deleteLater();
+    delete logicAspect;
+    delete renderAspect;
 }
 
 void OffscreenEngine::setSize(const QSize &size) {

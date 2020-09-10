@@ -5,7 +5,8 @@
 #include "model/objectmodel.hpp"
 #include "model/pose.hpp"
 #include "model/modelmanager.hpp"
-#include "rendering/poseviewerglwidget.hpp"
+#include "poseviewer3dwindow.hpp"
+#include "moveablecontainerwidget.hpp"
 
 #include <QList>
 #include <QMap>
@@ -16,8 +17,11 @@
 #include <QTimer>
 
 namespace Ui {
-class PoseViewer;
+    class PoseViewer;
 }
+
+class PoseViewer3DWidget;
+class MoveableContainerWidget;
 
 /*!
  * \brief The PoseEditor class holds the image that is to be annotated and allows
@@ -37,7 +41,7 @@ public:
      * \param modelManager the manager to be set, must not be null
      */
     void setModelManager(ModelManager* modelManager);
-    Image *getCurrentlyViewedImage();
+    Image *currentlyViewedImage();
 
 public Q_SLOTS:
     /*!
@@ -83,44 +87,11 @@ public Q_SLOTS:
 
     void onPoseUpdated(Pose *pose);
 
-    /*!
-     * \brief onOpacityForObjectModelsChanged slot for when the opacity of the object models is changed.
-     * \param opacity the new opacity of the object models that are displayed
-     */
-    void onOpacityChangeStarted(int opacity);
-
-    void onOpacityChangeEnded();
-
 Q_SIGNALS:
     /*!
-     * \brief imageClicked Q_EMITted when the displayed image is clicked anywhere
+     * \brief imageClicked emitted when the displayed image is clicked anywhere
      */
     void imageClicked(Image *image, QPoint position);
-    /*!
-     * \brief poseClicked Q_EMITted when a displayed object model is clicked
-     */
-    void poseClicked(Pose *pose);
-
-private:
-
-    Ui::PoseViewer *ui;
-    QtAwesome* awesome;
-    ModelManager* modelManager;
-
-    // All necessary stuff for 3D
-    qreal objectsOpacity = 1.f;
-    QTimer *opacityTimer = 0;
-
-    // Store the last clicked position, so that we can visualize it if the user calls the respective
-    // function.
-    QPoint lastClickedPosition;
-    QScopedPointer<Image> currentlyDisplayedImage;
-
-    // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
-    // segmentation image
-    bool showingNormalImage = true;
-
-    void connectModelManagerSlots();
 
 private Q_SLOTS:
     /*!
@@ -135,7 +106,26 @@ private Q_SLOTS:
     void onPosesChanged();
     void onImagesChanged();
     void onObjectModelsChanged();
-    void updateOpacity();
+
+private:
+    Ui::PoseViewer *ui;
+    // QWidget::createWindowContainer takes ownership -> no need for a smart pointer here
+    PoseViewer3DWidget *poseViewer3DWidget;
+    MoveableContainerWidget *moveableContainerWidget;
+
+    QtAwesome* awesome;
+    ModelManager* modelManager;
+
+    // Store the last clicked position, so that we can visualize it if the user calls the respective
+    // function.
+    QPoint lastClickedPosition;
+    QScopedPointer<Image> currentlyDisplayedImage;
+
+    // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
+    // segmentation image
+    bool showingNormalImage = true;
+
+    void connectModelManagerSlots();
 };
 
 #endif // CORRESPONDENCEEDITOR_H

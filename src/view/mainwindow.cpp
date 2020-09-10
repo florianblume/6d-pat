@@ -143,7 +143,7 @@ void MainWindow::setPreferencesStore(SettingsStore *preferencesStore) {
 }
 
 Image *MainWindow::getCurrentlyViewedImage() {
-    return ui->poseViewer->getCurrentlyViewedImage();
+    return ui->poseViewer->currentlyViewedImage();
 }
 
 void MainWindow::resizeEvent(QResizeEvent *) {

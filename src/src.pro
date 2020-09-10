@@ -32,9 +32,11 @@ CONFIG += c++11
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 
-INCLUDEPATH += /usr/local/include/opencv4
+INCLUDEPATH += /usr/local/include/opencv4 \
+            += ../../../include
 
-LIBS += -L/usr/local/lib/ -lopencv_core -lopencv_calib3d
+LIBS += -L/usr/local/lib/ -lopencv_core -lopencv_calib3d \
+        -L../../../lib/ -lqt3dwidget
 
 HEADERS  += \
     $$PWD/mainapplication.hpp \
@@ -55,14 +57,13 @@ HEADERS  += \
     $$PWD/view/gallery/iconexpandinglistview.hpp \
     $$PWD/view/navigationcontrols/navigationcontrols.hpp \
     $$PWD/view/rendering/backgroundimagerenderable.hpp \
-    $$PWD/view/rendering/objectrenderable2.hpp \
     $$PWD/view/rendering/poserenderable.hpp \
     $$PWD/view/settings/settingsdialog.hpp \
     $$PWD/view/settings/settingsgeneralpage.hpp \
     $$PWD/view/settings/settingssegmentationcodespage.hpp \
     $$PWD/view/poseviewer/poseviewer.hpp \
-    $$PWD/view/poseviewer/rendering/poseviewerglwidget.hpp \
-    $$PWD/view/poseviewer/rendering/clickvisualizationoverlay.hpp \
+    $$PWD/view/poseviewer/poseviewer3dwindow.hpp \
+    $$PWD/view/poseviewer/moveablecontainerwidget.hpp \
     $$PWD/view/poseeditor/poseeditor.hpp \
     $$PWD/view/poseeditor/poseeditor3dwindow.hpp \
     $$PWD/view/settings/settingsnetworkpage.hpp \
@@ -78,8 +79,9 @@ HEADERS  += \
     $$PWD/misc/global.hpp \
     $$PWD/view/gallery/rendering/offscreenengine.h \
     $$PWD/view/gallery/rendering/texturerendertarget.h \
-    view/rendering/objectmodelrenderable.hpp \
-    view/rendering/objectmodelrenderablematerial.h
+    $$PWD/view/rendering/objectmodelrenderable.hpp \
+    $$PWD/view/rendering/objectmodelrenderablematerial.h \
+    view/rendering/flippedtextureimage.h
 
 SOURCES += \
     $$PWD/main.cpp \
@@ -100,15 +102,14 @@ SOURCES += \
     $$PWD/view/gallery/galleryobjectmodelmodel.cpp \
     $$PWD/view/gallery/iconexpandinglistview.cpp \
     $$PWD/view/rendering/backgroundimagerenderable.cpp \
-    $$PWD/view/rendering/objectrenderable2.cpp \
     $$PWD/view/rendering/poserenderable.cpp \
     $$PWD/view/settings/settingsdialog.cpp \
     $$PWD/view/settings/settingsgeneralpage.cpp \
     $$PWD/view/settings/settingsnetworkpage.cpp \
     $$PWD/view/settings/settingssegmentationcodespage.cpp \
     $$PWD/view/poseviewer/poseviewer.cpp \
-    $$PWD/view/poseviewer/rendering/poseviewerglwidget.cpp \
-    $$PWD/view/poseviewer/rendering/clickvisualizationoverlay.cpp \
+    $$PWD/view/poseviewer/poseviewer3dwindow.cpp \
+    $$PWD/view/poseviewer/moveablecontainerwidget.cpp \
     $$PWD/view/poseeditor/poseeditor.cpp \
     $$PWD/view/poseeditor/poseeditor3dwindow.cpp \
     $$PWD/view/neuralnetworkdialog/neuralnetworkdialog.cpp \
@@ -123,8 +124,9 @@ SOURCES += \
     $$PWD/misc/generalhelper.cpp \
     $$PWD/view/gallery/rendering/offscreenengine.cpp \
     $$PWD/view/gallery/rendering/texturerendertarget.cpp \
-    view/rendering/objectmodelrenderable.cpp \
-    view/rendering/objectmodelrenderablematerial.cpp
+    $$PWD/view/rendering/objectmodelrenderable.cpp \
+    $$PWD/view/rendering/objectmodelrenderablematerial.cpp \
+    view/rendering/flippedtextureimage.cpp
 
 FORMS    += \
     $$PWD/view/mainwindow.ui \

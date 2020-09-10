@@ -37,12 +37,12 @@ public:
     void showView();
 
 private:
+    MainWindow mainWindow;
 
     QScopedPointer<JsonLoadAndStoreStrategy> strategy;
     QScopedPointer<CachingModelManager> modelManager;
-    UniquePointer<PoseCreator> poseCreator;
+    QScopedPointer<PoseCreator> poseCreator;
     QScopedPointer<NeuralNetworkController> networkController;
-    MainWindow mainWindow;
 
     QMap<QString, ObjectModel*> segmentationCodes;
     QSharedPointer<SettingsStore> settingsStore;

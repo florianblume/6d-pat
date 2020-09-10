@@ -68,6 +68,8 @@ private:
     Qt3DRender::QRenderCapture *renderCapture;          // The render capture node, which is appended to the frame graph.
     Qt3DCore::QEntity *sceneRoot;                         // The scene root, which becomes a child of the engine's root entity.
 
+    Qt3DCore::QEntityPtr root;
+
     TextureRenderTarget *textureTarget;
     QOffscreenSurface *offscreenSurface;
     Qt3DRender::QRenderSurfaceSelector *renderSurfaceSelector;

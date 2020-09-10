@@ -1,33 +1,9 @@
 #include "poserenderable.hpp"
 
-#include <QOpenGLContext>
-#include <QOpenGLFunctions>
-//#include <assimp/postprocess.h>
-//#include <assimp/scene.h>
-
-PoseRenderable::PoseRenderable(const Pose &pose,
-                               int vertexAttributeLoc,
-                               int normalAttributeLoc) :
-    ObjectModelRenderable(*pose.getObjectModel(), vertexAttributeLoc, normalAttributeLoc),
-    poseId(pose.getID()),
-    position(pose.getPosition()),
-    rotation(pose.getRotation()) {
-
-    computeModelViewMatrix();
-    /*
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(objectModel.getAbsolutePath().toStdString(),
-                                             aiProcess_GenSmoothNormals |
-                                             aiProcess_CalcTangentSpace |
-                                             aiProcess_Triangulate |
-                                             aiProcess_JoinIdenticalVertices |
-                                             aiProcess_SortByPType
-                                             );
-    for (uint i = 0; i < scene->mNumMeshes; i++) {
-        this->processMesh(scene->mMeshes[0]);
-    }
-    populateVertexArrayObject();
-    */
+PoseRenderable::PoseRenderable(Qt3DCore::QEntity *parent,
+                               const Pose &pose) :
+    ObjectModelRenderable(parent, pose.getObjectModel()),
+    pose(pose) {
 }
 
 QMatrix4x4 PoseRenderable::getModelViewMatrix() {
@@ -35,38 +11,35 @@ QMatrix4x4 PoseRenderable::getModelViewMatrix() {
 }
 
 ObjectModel PoseRenderable::getObjectModel() {
-    return objectModel;
+    return *pose.getObjectModel();
 }
 
 QVector3D PoseRenderable::getPosition() {
-    return position;
+    return pose.getPosition();
 }
 
 void PoseRenderable::setPosition(QVector3D position) {
-    this->position = position;
-    computeModelViewMatrix();
+    pose.setPosition(position);
 }
 
 QMatrix3x3 PoseRenderable::getRotation() {
-    return rotation;
+    return pose.getRotation();
 }
 
 void PoseRenderable::setRotation(QMatrix3x3 rotation) {
-    this->rotation = rotation;
-    computeModelViewMatrix();
+    pose.setRotation(rotation);
 }
 
 QString PoseRenderable::getPoseId() {
-    return poseId;
+    return pose.getID();
 }
 
 bool PoseRenderable::operator==(const PoseRenderable &other) {
-    return poseId == other.poseId;
+    return pose.getID() == other.pose.getID();
 }
 
-// Private functions from here
-
 void PoseRenderable::computeModelViewMatrix() {
+    /*
     modelViewMatrix = QMatrix4x4(rotation);
     modelViewMatrix(0, 3) = position[0];
     modelViewMatrix(1, 3) = position[1];
@@ -76,4 +49,5 @@ void PoseRenderable::computeModelViewMatrix() {
     yz_flip(1, 1) = -1;
     yz_flip(2, 2) = -1;
     modelViewMatrix = yz_flip * modelViewMatrix;
+    */
 }

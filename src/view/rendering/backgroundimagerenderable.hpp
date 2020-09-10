@@ -2,6 +2,7 @@
 #define BACKGROUNDIMAGERENDERABLE_H
 
 #include "model/image.hpp"
+#include "view/rendering/flippedtextureimage.h"
 
 #include <QString>
 #include <QScopedPointer>
@@ -11,31 +12,28 @@
 #include <QOpenGLTexture>
 #include <QMatrix4x4>
 
-typedef QScopedPointer<QOpenGLTexture> QOpenGLTexturePtr;
+#include <Qt3DCore/QNode>
+#include <Qt3DCore/QEntity>
+#include <Qt3DCore/QTransform>
+#include <Qt3DRender/QTexture>
+#include <Qt3DExtras/QPlaneMesh>
+#include <Qt3DExtras/QTextureMaterial>
+#include <Qt3DRender/QTextureImage>
 
-class BackgroundImageRenderable
+class BackgroundImageRenderable : public Qt3DCore::QEntity
 {
 public:
-    BackgroundImageRenderable(const QString &image,
-                              int vertexAttributeLoc,
-                              int texCoordAttributeLoc);
+    BackgroundImageRenderable(Qt3DCore::QNode *parent,
+                              const QString &image);
     ~BackgroundImageRenderable();
     void setImage(const QString &image);
-    QOpenGLVertexArrayObject *getVertexArrayObject();
-    QOpenGLTexture *getTexture();
 
 private:
-    QString image;
-    QOpenGLVertexArrayObject vao;
-    QOpenGLBuffer vbo;
-    QVector<GLfloat> vertexData;
-    QOpenGLTexturePtr texture;
-    int vertexAttributeLoc = 0;
-    int texCoordAttributeLoc = 0;
-
-    void createGeometry();
-    void createTexture();
-    void populateVertexArrayObject();
+    Qt3DExtras::QPlaneMesh *backgroundImageMesh;
+    Qt3DCore::QTransform *backgroundImageTransform;
+    Qt3DExtras::QTextureMaterial *backgroundImageMaterial;
+    Qt3DRender::QTexture2D *backgroundImageTexture;
+    Qt3DRender::QTextureImage *backgroundImageTextureImage;
 
 };
 

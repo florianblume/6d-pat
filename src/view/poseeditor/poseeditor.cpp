@@ -17,9 +17,9 @@ PoseEditor::PoseEditor(QWidget *parent, ModelManager *modelManager) :
     QWidget(parent),
     ui(new Ui::PoseEditor),
     modelManager(modelManager),
-    poseEditor3DWindow(new PoseEditor3DWindow)
-{
+    poseEditor3DWindow(new PoseEditor3DWindow) {
     ui->setupUi(this);
+    ui->buttonPredict->setEnabled(false);
 
     connect(poseEditor3DWindow, &PoseEditor3DWindow::positionClicked,
             this, &PoseEditor::onObjectModelClickedAt);
@@ -44,8 +44,7 @@ PoseEditor::PoseEditor(QWidget *parent, ModelManager *modelManager) :
     }
 }
 
-PoseEditor::~PoseEditor()
-{
+PoseEditor::~PoseEditor() {
     delete ui;
 }
 
@@ -399,8 +398,8 @@ void PoseEditor::onPoseCreationAborted() {
 }
 
 void PoseEditor::onPosePointFinished(QVector3D point3D,
-                                                         int currentNumberOfPoints,
-                                                         int minimumNumberOfPoints) {
+                                     int currentNumberOfPoints,
+                                     int minimumNumberOfPoints) {
     ui->buttonCreate->setEnabled(currentNumberOfPoints >= minimumNumberOfPoints);
     QColor color = DisplayHelper::colorForPosePointIndex(currentNumberOfPoints - 1);
     poseEditor3DWindow->addClick(point3D, color);
