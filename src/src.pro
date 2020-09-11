@@ -62,8 +62,7 @@ HEADERS  += \
     $$PWD/view/settings/settingsgeneralpage.hpp \
     $$PWD/view/settings/settingssegmentationcodespage.hpp \
     $$PWD/view/poseviewer/poseviewer.hpp \
-    $$PWD/view/poseviewer/poseviewer3dwindow.hpp \
-    $$PWD/view/poseviewer/moveablecontainerwidget.hpp \
+    $$PWD/view/poseviewer/poseviewer3dwidget.hpp \
     $$PWD/view/poseeditor/poseeditor.hpp \
     $$PWD/view/poseeditor/poseeditor3dwindow.hpp \
     $$PWD/view/settings/settingsnetworkpage.hpp \
@@ -80,8 +79,7 @@ HEADERS  += \
     $$PWD/view/gallery/rendering/offscreenengine.h \
     $$PWD/view/gallery/rendering/texturerendertarget.h \
     $$PWD/view/rendering/objectmodelrenderable.hpp \
-    $$PWD/view/rendering/objectmodelrenderablematerial.h \
-    view/rendering/flippedtextureimage.h
+    $$PWD/view/rendering/objectmodelrenderablematerial.h
 
 SOURCES += \
     $$PWD/main.cpp \
@@ -108,8 +106,7 @@ SOURCES += \
     $$PWD/view/settings/settingsnetworkpage.cpp \
     $$PWD/view/settings/settingssegmentationcodespage.cpp \
     $$PWD/view/poseviewer/poseviewer.cpp \
-    $$PWD/view/poseviewer/poseviewer3dwindow.cpp \
-    $$PWD/view/poseviewer/moveablecontainerwidget.cpp \
+    $$PWD/view/poseviewer/poseviewer3dwidget.cpp \
     $$PWD/view/poseeditor/poseeditor.cpp \
     $$PWD/view/poseeditor/poseeditor3dwindow.cpp \
     $$PWD/view/neuralnetworkdialog/neuralnetworkdialog.cpp \
@@ -125,8 +122,7 @@ SOURCES += \
     $$PWD/view/gallery/rendering/offscreenengine.cpp \
     $$PWD/view/gallery/rendering/texturerendertarget.cpp \
     $$PWD/view/rendering/objectmodelrenderable.cpp \
-    $$PWD/view/rendering/objectmodelrenderablematerial.cpp \
-    view/rendering/flippedtextureimage.cpp
+    $$PWD/view/rendering/objectmodelrenderablematerial.cpp
 
 FORMS    += \
     $$PWD/view/mainwindow.ui \

@@ -12,12 +12,11 @@ PoseViewer::PoseViewer(QWidget *parent, ModelManager* modelManager) :
     modelManager(modelManager)
 {
     ui->setupUi(this);
-    ui->graphicsContainer->resize(this->size());
+
+    poseViewer3DWidget->setParent(ui->graphicsContainer);
 
     connect(poseViewer3DWidget, &PoseViewer3DWidget::positionClicked,
             this, &PoseViewer::onImageClicked);
-    moveableContainerWidget = new MoveableContainerWidget(ui->graphicsContainer);
-    moveableContainerWidget->setContainedChild(poseViewer3DWidget);
 
     awesome->initFontAwesome();
 
@@ -100,7 +99,7 @@ void PoseViewer::connectModelManagerSlots() {
 
 void PoseViewer::reset() {
     qDebug() << "Resetting pose viewer.";
-    //ui->openGLWidget->reset();
+    poseViewer3DWidget->reset();
     ui->buttonResetPosition->setEnabled(false);
     ui->buttonSwitchView->setEnabled(false);
     currentlyDisplayedImage.reset();
@@ -146,14 +145,13 @@ void PoseViewer::onPoseUpdated(Pose *pose){
 void PoseViewer::switchImage() {
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
     showingNormalImage = !showingNormalImage;
-    /*
+
     if (showingNormalImage)
-        ui->openGLWidget->setBackgroundImage(currentlyDisplayedImage->getAbsoluteImagePath(),
+        poseViewer3DWidget->setBackgroundImage(currentlyDisplayedImage->getAbsoluteImagePath(),
                                              currentlyDisplayedImage->getCameraMatrix());
     else
-        ui->openGLWidget->setBackgroundImage(currentlyDisplayedImage->getAbsoluteSegmentationImagePath(),
+        poseViewer3DWidget->setBackgroundImage(currentlyDisplayedImage->getAbsoluteSegmentationImagePath(),
                                              currentlyDisplayedImage->getCameraMatrix());
-                                             */
 
     if (showingNormalImage)
         qDebug() << "Setting viewer to display normal image.";
@@ -163,8 +161,7 @@ void PoseViewer::switchImage() {
 }
 
 void PoseViewer::resetPositionOfGraphicsView() {
-    //QRect geo = ui->openGLWidget->geometry();
-    //ui->openGLWidget->setGeometry(0, 0, geo.width(), geo.height());
+    poseViewer3DWidget->setGeometry(0, 0, poseViewer3DWidget->width(), poseViewer3DWidget->height());
 }
 
 void PoseViewer::onImageClicked(QPoint point) {
@@ -175,16 +172,14 @@ void PoseViewer::onImageClicked(QPoint point) {
 }
 
 void PoseViewer::onPoseDeleted(const QString &id) {
-    //ui->openGLWidget->removePose(id);
+    poseViewer3DWidget->removePose(id);
 }
 
 void PoseViewer::onPoseAdded(const QString &id) {
     QSharedPointer<Pose> pose = modelManager->getPoseById(id);
-    /*
     if (!pose.isNull())
-        ui->openGLWidget->addPose(*pose.data());
-    ui->openGLWidget->removeClicks();
-    */
+        poseViewer3DWidget->addPose(*pose.data());
+    poseViewer3DWidget->removeClicks();
 }
 
 void PoseViewer::onPosesChanged() {

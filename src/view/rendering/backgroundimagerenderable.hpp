@@ -2,7 +2,6 @@
 #define BACKGROUNDIMAGERENDERABLE_H
 
 #include "model/image.hpp"
-#include "view/rendering/flippedtextureimage.h"
 
 #include <QString>
 #include <QScopedPointer>
@@ -34,7 +33,6 @@ private:
     Qt3DExtras::QTextureMaterial *backgroundImageMaterial;
     Qt3DRender::QTexture2D *backgroundImageTexture;
     Qt3DRender::QTextureImage *backgroundImageTextureImage;
-
 };
 
 #endif // BACKGROUNDIMAGERENDERABLE_H

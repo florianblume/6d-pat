@@ -30,6 +30,10 @@ void PoseRenderable::setRotation(QMatrix3x3 rotation) {
     pose.setRotation(rotation);
 }
 
+Qt3DRender::QFrameGraphNode *PoseRenderable::frameGraph() {
+    return layerFilter;
+}
+
 QString PoseRenderable::getPoseId() {
     return pose.getID();
 }

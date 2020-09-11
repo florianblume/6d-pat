@@ -10,7 +10,7 @@ BackgroundImageRenderable::BackgroundImageRenderable(Qt3DCore::QNode *parent,
     : Qt3DCore::QEntity(parent) {
     backgroundImageMesh = new Qt3DExtras::QPlaneMesh();
     backgroundImageMesh->setWidth(2);
-    backgroundImageMesh->setWidth(1);
+    backgroundImageMesh->setHeight(2);
     backgroundImageMaterial = new Qt3DExtras::QTextureMaterial();
     // Texture is flipped so we must flip the y coordinate
     float transform[9] = {1, 0, 0, 0, -1, 0, 0, 0, 1};

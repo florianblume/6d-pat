@@ -12,6 +12,12 @@
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DCore/QTransform>
+#include <Qt3DRender/QLayerFilter>
+#include <Qt3DRender/QLayer>
+#include <Qt3DRender/QCameraSelector>
+#include <Qt3DRender/QCamera>
+#include <Qt3DRender/QObjectPicker>
+#include <Qt3DRender/QFrameGraphNode>
 
 //!
 //! \brief The PoseRenderable class is only an object model renderable
@@ -30,12 +36,19 @@ public:
     void setPosition(QVector3D position);
     QMatrix3x3 getRotation();
     void setRotation(QMatrix3x3 rotation);
+    Qt3DRender::QFrameGraphNode *frameGraph();
 
     // To retrieve the respective renderable
     bool operator==(const PoseRenderable &other);
 
 private:
     Pose pose;
+
+    Qt3DRender::QLayerFilter *layerFilter;
+    Qt3DRender::QLayer *layer;
+    Qt3DRender::QCameraSelector *cameraSelector;
+    Qt3DRender::QCamera *camera;
+    Qt3DRender::QObjectPicker *picker;
 
     QMatrix4x4 modelViewMatrix;
 

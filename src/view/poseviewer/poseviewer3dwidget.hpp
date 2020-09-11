@@ -19,6 +19,9 @@
 #include <Qt3DRender/QViewport>
 #include <Qt3DRender/QNoDraw>
 #include <Qt3DRender/QNoDepthMask>
+#include <Qt3DRender/QDepthTest>
+#include <Qt3DRender/QLayerFilter>
+#include <Qt3DRender/QLayer>
 
 class PoseViewer3DWidget : public Qt3DWidget
 {
@@ -67,17 +70,23 @@ private:
     Qt3DRender::QNoDraw *noDraw;
 
     // Background branch
+    Qt3DRender::QLayerFilter *backgroundLayerFilter;
+    Qt3DRender::QLayer *backgroundLayer;
     BackgroundImageRenderable *backgroundImageRenderable = Q_NULLPTR;
     Qt3DRender::QCamera *backgroundCamera;
     Qt3DRender::QCameraSelector *backgroundCameraSelector;
     Qt3DRender::QNoDepthMask *backgroundNoDepthMask;
 
-    // Clickoverlay branch
-    //BackgroundImageRenderable *backgroundImageRenderable = Q_NULLPTR;
-    Qt3DRender::QCamera *clickoverlayCamera;
-    Qt3DRender::QCameraSelector *clickoverlayCameraSelector;
+    // Poses branch
+    Qt3DRender::QDepthTest *posesDepthTest;
 
-    QVector<PoseRenderable *> poseRenderables;
+    // Clickoverlay branch
+    Qt3DRender::QLayerFilter *clickOverlayLayerFilter;
+    Qt3DRender::QLayer *clickOverlayLayer;
+    Qt3DRender::QCameraSelector *clickOverlayCameraSelector;
+    Qt3DRender::QCamera *clickOverlayCamera;
+
+    QList<PoseRenderable *> poseRenderables;
     QMatrix4x4 projectionMatrix;
 
     // To handle dragging of the widget and clicking

@@ -5,8 +5,7 @@
 #include "model/objectmodel.hpp"
 #include "model/pose.hpp"
 #include "model/modelmanager.hpp"
-#include "poseviewer3dwindow.hpp"
-#include "moveablecontainerwidget.hpp"
+#include "poseviewer3dwidget.hpp"
 
 #include <QList>
 #include <QMap>
@@ -111,7 +110,6 @@ private:
     Ui::PoseViewer *ui;
     // QWidget::createWindowContainer takes ownership -> no need for a smart pointer here
     PoseViewer3DWidget *poseViewer3DWidget;
-    MoveableContainerWidget *moveableContainerWidget;
 
     QtAwesome* awesome;
     ModelManager* modelManager;
