@@ -31,7 +31,7 @@ PoseViewer3DWidget::~PoseViewer3DWidget() {
     // TODO texture doesn't get cleaned up because in Qt3dWidget we have to set
     // a new context so that we don't run into a deadlock
     backgroundImageRenderable->setParent((Qt3DCore::QNode *) 0);
-    backgroundImageRenderable->deleteLater();
+    delete backgroundImageRenderable;
 }
 
 void PoseViewer3DWidget::initializeQt3D() {
@@ -77,7 +77,7 @@ void PoseViewer3DWidget::setBackgroundImageAndPoses(const QString &image,
                                                     QList<Pose> &poses) {
     setBackgroundImage(image, cameraMatrix);
     for (Pose &pose : poses) {
-        //addPose(pose, false);
+        addPose(pose);
     }
 }
 
@@ -99,17 +99,20 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
     float q = -(farPlane + nearPlane) / depth;
     float qn = -2 * (farPlane * nearPlane) / depth;
     const QMatrix3x3 K = cameraMatrix;
-    // TODO need to set on every pose renderable's camera
     projectionMatrix = QMatrix4x4(2 * K(0, 0) / w, -2 * K(0, 1) / w, (-2 * K(0, 2) + w) / w, 0,
                                                 0,  2 * K(1, 1) / h,  (2 * K(1 ,2) - h) / h, 0,
                                                 0,                0,                      q, qn,
                                                 0,                0,                     -1, 0);
+    for (PoseRenderable *renderable : poseRenderables) {
+        renderable->setProjectionMatrix(projectionMatrix);
+    }
     backgroundImageRenderable->setEnabled(true);
 }
 
 void PoseViewer3DWidget::addPose(const Pose &pose) {
     PoseRenderable *poseRenderable = new PoseRenderable(root, pose);
     poseRenderable->frameGraph()->setParent(posesDepthTest);
+    poseRenderables.append(poseRenderable);
 }
 
 void PoseViewer3DWidget::updatePose(const Pose &pose) {
@@ -153,14 +156,15 @@ PoseRenderable *PoseViewer3DWidget::getObjectModelRenderable(const Pose &pose) {
 }
 
 void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
+    // TODO
 }
 
 void PoseViewer3DWidget::addClick(QPoint position, QColor color) {
-    //clickOverlay->addClickedPoint(position, color);
+    // TODO
 }
 
 void PoseViewer3DWidget::removeClicks() {
-    //clickOverlay->removeClickedPoints();
+    // TODO
 }
 
 void PoseViewer3DWidget::reset() {
@@ -176,6 +180,7 @@ void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
+    // TODO
     // Left mouse to select objects and rotate them, right
     // to move the widget
     if (event->buttons() & Qt::LeftButton) {
