@@ -1447,15 +1447,8 @@
     <addaction name="actionTutorial"/>
     <addaction name="actionAbout"/>
    </widget>
-   <widget class="QMenu" name="menuNetwork">
-    <property name="title">
-     <string>Network</string>
-    </property>
-    <addaction name="actionPredict"/>
-   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
-   <addaction name="menuNetwork"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>

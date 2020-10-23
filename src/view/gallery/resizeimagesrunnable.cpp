@@ -13,7 +13,6 @@ void ResizeImagesRunnable::run() {
         if (stopProcess) {
             break;
         }
-        //beginInsertRows(QModelIndex(), resizedImagesCache.size(), resizedImagesCache.size());
         QImage loadedImage(QUrl::fromLocalFile(image.getAbsoluteImagePath()).path());
         // No one is going to view images larger than 300 px height
         loadedImage = loadedImage.scaledToHeight(300);

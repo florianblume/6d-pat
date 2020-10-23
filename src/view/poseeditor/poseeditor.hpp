@@ -4,8 +4,12 @@
 #include "model/modelmanager.hpp"
 #include "misc/global.hpp"
 #include "view/poseeditor/poseeditor3dwindow.hpp"
+#include "view/poseeditor/listviewposesmodel.h"
 #include <QWidget>
 #include <QFrame>
+#include <QItemSelection>
+#include <QStringListModel>
+#include <QListView>
 
 namespace Ui {
 class PoseEditor;
@@ -101,6 +105,7 @@ private:
     // model we can restore the list of all poses available for the currently viewed image
     Image currentlySelectedImage;
 
+    QStringListModel *listViewPosesModel;
     bool ignoreValueChanges = false;
 
     void setEnabledPoseEditorControls(bool enabled);
@@ -149,6 +154,13 @@ private Q_SLOTS:
 
     //! React to signal from the model manager
     void onPosesChanged();
+
+    /*!
+     * \brief onSelectedPoseChanged Reacts to the user selecting a different pose from
+     * the poses list view.
+     */
+    void onSelectedPoseChanged(const QItemSelection &selected,
+                               const QItemSelection &deselected);
 
 };
 

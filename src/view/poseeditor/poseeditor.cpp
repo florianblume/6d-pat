@@ -11,7 +11,8 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSizePolicy>
-#include <QTimer>
+#include <QItemSelectionRange>
+#include <QStringList>
 
 PoseEditor::PoseEditor(QWidget *parent, ModelManager *modelManager) :
     QWidget(parent),
@@ -19,12 +20,16 @@ PoseEditor::PoseEditor(QWidget *parent, ModelManager *modelManager) :
     modelManager(modelManager),
     poseEditor3DWindow(new PoseEditor3DWindow) {
     ui->setupUi(this);
-    ui->buttonPredict->setEnabled(false);
 
     connect(poseEditor3DWindow, &PoseEditor3DWindow::positionClicked,
             this, &PoseEditor::onObjectModelClickedAt);
     QWidget *poseEditor3DWindowContainer = QWidget::createWindowContainer(poseEditor3DWindow);
     ui->graphicsContainer->layout()->addWidget(poseEditor3DWindowContainer);
+
+    listViewPosesModel = new QStringListModel();
+    ui->listViewPoses->setModel(listViewPosesModel);
+    connect(ui->listViewPoses->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &PoseEditor::onSelectedPoseChanged);
 
     if (modelManager) {
         // Whenever a pose has been added it was created through the editor, i.e. we have
@@ -76,6 +81,7 @@ void PoseEditor::setModelManager(ModelManager *modelManager) {
 }
 
 void PoseEditor::setEnabledPoseEditorControls(bool enabled) {
+    // TODO could add elements to a list and loop over the list
     ui->spinBoxTranslationX->setEnabled(enabled);
     ui->spinBoxTranslationY->setEnabled(enabled);
     ui->spinBoxTranslationZ->setEnabled(enabled);
@@ -85,7 +91,6 @@ void PoseEditor::setEnabledPoseEditorControls(bool enabled) {
     // The next line is the difference to setEnabledAllControls
     ui->buttonRemove->setEnabled(enabled);
     ui->buttonSave->setEnabled(enabled);
-    ui->sliderOpacity->setEnabled(enabled);
 }
 
 void PoseEditor::setEnabledAllControls(bool enabled) {
@@ -95,12 +100,10 @@ void PoseEditor::setEnabledAllControls(bool enabled) {
     ui->spinBoxRotationX->setEnabled(enabled);
     ui->spinBoxRotationY->setEnabled(enabled);
     ui->spinBoxRotationZ->setEnabled(enabled);
-    ui->sliderOpacity->setEnabled(enabled);
     ui->buttonRemove->setEnabled(enabled);
     ui->buttonCreate->setEnabled(enabled);
-    ui->comboBoxPose->setEnabled(enabled);
+    ui->listViewPoses->setEnabled(enabled);
     ui->buttonSave->setEnabled(enabled);
-    ui->buttonPredict->setEnabled(enabled);
 }
 
 void PoseEditor::resetControlsValues() {
@@ -112,34 +115,37 @@ void PoseEditor::resetControlsValues() {
     ui->spinBoxRotationZ->setValue(0);
 }
 
-void PoseEditor::addPosesToComboBoxPoses(
-        const Image *image, const QString &poseToSelect) {
-    ui->comboBoxPose->clear();
+void PoseEditor::addPosesToComboBoxPoses(const Image *image,
+                                         const QString &poseToSelect) {
     QList<Pose> poses =
             modelManager->getPosesForImage(*image);
     ignoreValueChanges = true;
-    if (poses.size() > 0) {
-        ui->comboBoxPose->setEnabled(true);
-        ui->comboBoxPose->addItem("None");
-        ui->comboBoxPose->setCurrentIndex(0);
-        ui->sliderOpacity->setEnabled(true);
-    }
+    QStringList list("None");
     int index = 1;
-    for (Pose pose : poses) {
-        // We need to ignore the combo box changes first, so that the view
-        // doesn't update and crash the program
+    bool poseSelected = false;
+    for (Pose &pose : poses) {
         QString id = pose.getID();
-        ui->comboBoxPose->addItem(id);
-        if (poseToSelect == pose.getID()) {
-            setPoseValuesOnControls(&pose);
-            ui->comboBoxPose->setCurrentIndex(index);
+        list << id;
+        if (id == poseToSelect) {
+            QModelIndex indexToSelect = ui->listViewPoses->model()->index(0, index);
+            ui->listViewPoses->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect);
+            poseSelected = true;
         }
         index++;
+    }
+    listViewPosesModel->setStringList(list);
+    if (poses.size() > 0) {
+        ui->listViewPoses->setEnabled(true);
+    }
+    if (!poseSelected) {
+        QModelIndex indexToSelect = ui->listViewPoses->model()->index(0, 0);
+        ui->listViewPoses->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect);
     }
     ignoreValueChanges = false;
 }
 
 cv::Mat qtMatrixToOpenCVMatrix(const QMatrix3x3 matrix) {
+    // TODO this should go in a helper class
     cv::Mat result = (cv::Mat_<float>(3,3) <<
            matrix(0, 0),
            matrix(0, 1),
@@ -154,6 +160,7 @@ cv::Mat qtMatrixToOpenCVMatrix(const QMatrix3x3 matrix) {
 }
 
 void PoseEditor::setPoseValuesOnControls(Pose *pose) {
+    // TODO connect the signals that are to be added to the Pose class directly to the UI elements
     QVector3D position = pose->getPosition();
     ignoreValueChanges = true;
     ui->spinBoxTranslationX->setValue(position.x());
@@ -178,15 +185,17 @@ void PoseEditor::onObjectModelClickedAt(QVector3D position) {
 }
 
 void PoseEditor::updateCurrentlyEditedPose() {
+    // TODO this can be removed completely when the class Pose gets signals
+    // that can be directly connected to the UI elements
     if (currentPose) {
-        currentPose->setPosition(QVector3D(
-                                           ui->spinBoxTranslationX->value(),
+        currentPose->setPosition(QVector3D(ui->spinBoxTranslationX->value(),
                                            ui->spinBoxTranslationY->value(),
                                            ui->spinBoxTranslationZ->value()));
         cv::Vec3f rotation(ui->spinBoxRotationX->value(),
                              ui->spinBoxRotationY->value(),
                              ui->spinBoxRotationZ->value());
         cv::Mat rotMatrix = GeneralHelper::eulerAnglesToRotationMatrix(rotation);
+        // TODO compute the rotation matrix in the Pose class directly whenever the rotation changes and store it there
         // Somehow the matrix is transposed.. but transposing yields weird results
         float values[] = {
                 rotMatrix.at<float>(0, 0), rotMatrix.at<float>(1, 0), rotMatrix.at<float>(2, 0),
@@ -199,6 +208,7 @@ void PoseEditor::updateCurrentlyEditedPose() {
 }
 
 void PoseEditor::onPoseAdded(const QString &pose) {
+    // TODO make signals like poseAdded transmit smart pointers to the new objects
     QSharedPointer<Pose> actualPose = modelManager->getPoseById(pose);
     Pose *c = actualPose.data();
     addPosesToComboBoxPoses(c->getImage(), pose);
@@ -210,7 +220,8 @@ void PoseEditor::onPoseAdded(const QString &pose) {
 
 void PoseEditor::onPoseDeleted(const QString& /* pose */) {
     // Just select the default entry
-    ui->comboBoxPose->setCurrentIndex(0);
+    ui->listViewPoses->selectionModel()->select(ui->listViewPoses->model()->index(0, 0),
+                                                QItemSelectionModel::ClearAndSelect);
     onComboBoxPoseIndexChanged(0);
 }
 
@@ -241,14 +252,13 @@ void PoseEditor::onButtonRemoveClicked() {
         addPosesToComboBoxPoses(&currentlySelectedImage);
     } else {
         reset();
-        //! But we need to re-enable the predict button, as the viewer is still displaying the image
-        ui->buttonPredict->setEnabled(true);
     }
 }
 
 void PoseEditor::onSpinBoxTranslationXValueChanged(double /* value */) {
     if (!ignoreValueChanges) {
         updateCurrentlyEditedPose();
+        // TODO create markDirty() function
         ui->buttonSave->setEnabled(true);
     }
 }
@@ -256,6 +266,7 @@ void PoseEditor::onSpinBoxTranslationXValueChanged(double /* value */) {
 void PoseEditor::onSpinBoxTranslationYValueChanged(double /* value */) {
     if (!ignoreValueChanges) {
         updateCurrentlyEditedPose();
+        // TODO create markDirty() function
         ui->buttonSave->setEnabled(true);
     }
 }
@@ -263,6 +274,7 @@ void PoseEditor::onSpinBoxTranslationYValueChanged(double /* value */) {
 void PoseEditor::onSpinBoxTranslationZValueChanged(double /* value */) {
     if (!ignoreValueChanges) {
         updateCurrentlyEditedPose();
+        // TODO create markDirty() function
         ui->buttonSave->setEnabled(true);
     }
 }
@@ -270,6 +282,7 @@ void PoseEditor::onSpinBoxTranslationZValueChanged(double /* value */) {
 void PoseEditor::onSpinBoxRotationXValueChanged(double /* value */) {
     if (!ignoreValueChanges) {
         updateCurrentlyEditedPose();
+        // TODO create markDirty() function
         ui->buttonSave->setEnabled(true);
     }
 }
@@ -277,6 +290,7 @@ void PoseEditor::onSpinBoxRotationXValueChanged(double /* value */) {
 void PoseEditor::onSpinBoxRotationYValueChanged(double /* value */) {
     if (!ignoreValueChanges) {
         updateCurrentlyEditedPose();
+        // TODO create markDirty() function
         ui->buttonSave->setEnabled(true);
     }
 }
@@ -284,15 +298,18 @@ void PoseEditor::onSpinBoxRotationYValueChanged(double /* value */) {
 void PoseEditor::onSpinBoxRotationZValueChanged(double) {
     if (!ignoreValueChanges) {
         updateCurrentlyEditedPose();
+        // TODO create markDirty() function
         ui->buttonSave->setEnabled(true);
     }
 }
 
+// TODO remove
 void PoseEditor::onButtonPredictClicked() {
     Q_EMIT buttonPredictClicked();
 }
 
 void PoseEditor::onButtonCreateClicked() {
+    // TODO add dirty flag instead of testing save button
     if (ui->buttonSave->isEnabled()) {
         int result = QMessageBox::warning(this,
                              "Pose creation",
@@ -340,8 +357,28 @@ void PoseEditor::onSliderOpacityReleased() {
 
 void PoseEditor::onPosesChanged() {
     reset();
-    ui->buttonPredict->setEnabled(true);
     addPosesToComboBoxPoses(&currentlySelectedImage);
+}
+
+void PoseEditor::onSelectedPoseChanged(const QItemSelection &selected, const QItemSelection &/*deselected*/) {
+    QItemSelectionRange range = selected.front();
+    int index = range.top();
+    if (index < 0 || ignoreValueChanges)
+        return;
+    else if (index == 0) {
+        // First index is placeholder
+        poseEditor3DWindow->reset();
+        setEnabledPoseEditorControls(false);
+        currentPose.reset();
+        resetControlsValues();
+        // Gets enabled somehow
+        ui->buttonSave->setEnabled(false);
+    } else {
+        QList<Pose> posesForImage =
+                modelManager->getPosesForImage(currentlySelectedImage);
+        Pose pose = posesForImage.at(--index);
+        setPoseToEdit(&pose);
+    }
 }
 
 void PoseEditor::setObjectModel(ObjectModel *objectModel) {
@@ -352,6 +389,9 @@ void PoseEditor::setObjectModel(ObjectModel *objectModel) {
     }
 
     qDebug() << "Setting object model (" + objectModel->getPath() + ") to display.";
+    // ToDo: Alter functionality so that the PoseEditor warns the user when the click an object
+    // model or image from the gallery when they have unsaved changes and whether they want to save them
+    // --> Makes more sense than keeping the currently edited values
     // If the user has edited a pose they need to be able to save
     // them even when viewing a different object model, setting the index to
     // the None entry would inhibit this
@@ -363,10 +403,8 @@ void PoseEditor::setObjectModel(ObjectModel *objectModel) {
 
 void PoseEditor::onSelectedImageChanged(int index) {
     reset();
-    ui->sliderOpacity->setEnabled(true);
     currentlySelectedImage = modelManager->getImages().at(index);
     addPosesToComboBoxPoses(&currentlySelectedImage);
-    ui->buttonPredict->setEnabled(true);
 }
 
 void PoseEditor::setPoseToEdit(Pose *pose) {
@@ -410,6 +448,7 @@ void PoseEditor::reset() {
     poseEditor3DWindow->reset();
     currentObjectModel.reset();
     currentPose.reset();
+    listViewPosesModel->setStringList(QStringList());
     resetControlsValues();
     setEnabledAllControls(false);
 }
