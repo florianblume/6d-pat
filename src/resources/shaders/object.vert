@@ -14,6 +14,8 @@ out vec3 interpolatedVertex;
 uniform mat4 modelMatrix;
 uniform mat3 modelNormalMatrix;
 uniform mat4 modelViewProjection;
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
 
 uniform float texCoordScale;
 
@@ -32,5 +34,5 @@ void main()
     worldTangent.w = vertexTangent.w;
 
     // Calculate vertex position in clip coordinates
-    gl_Position = modelViewProjection * vec4(vertexPosition, 1.0);
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vertexPosition, 1.0);
 }

@@ -71,6 +71,7 @@ private:
     //! Store the index of the currently rendered image to be able to set the correct image
     //! when the renderer returns
     uint currentlyRenderedImageIndex = 0;
+    bool renderingObjectModels = false;
     QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
 
 private Q_SLOTS:

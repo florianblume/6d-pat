@@ -23,7 +23,7 @@ TARGET = 6DPAT
 
 TEMPLATE = app
 
-QT     += core gui widgets 3dcore 3dextras 3drender
+QT     += core gui widgets 3dcore 3dextras 3drender 3drender-private
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use

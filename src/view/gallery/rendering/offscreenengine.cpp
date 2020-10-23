@@ -44,6 +44,8 @@ OffscreenEngine::OffscreenEngine(const QSize &size) {
     clearBuffers->setClearColor(Qt::white);
     clearBuffers->setBuffers(Qt3DRender::QClearBuffers::ColorDepthBuffer);
 
+    noDraw = new Qt3DRender::QNoDraw(clearBuffers);
+
     viewport = new Qt3DRender::QViewport(renderTargetSelector);
     viewport->setNormalizedRect(QRectF(0.0, 0.0, 1.0, 1.0));
 

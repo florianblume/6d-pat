@@ -44,6 +44,8 @@ QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectMo
 
 void GalleryObjectModelModel::renderObjectModels() {
     if (objectModelsCache.count() > 0) {
+        currentlyRenderedImageIndex = 0;
+        renderingObjectModels = true;
         offscreenEngine.setObjectModel(objectModelsCache[0]);
         offscreenEngine.requestImage();
     }
@@ -87,7 +89,7 @@ int GalleryObjectModelModel::rowCount(const QModelIndex &/* parent */) const {
                 .getSegmentationImagePath().isEmpty())
             ||
          !isNumberOfToolsCorrect()) {
-        return objectModelsCache.size();
+        return renderedObjectsModels.size();
     }
 
     int count = 0;
@@ -223,5 +225,6 @@ void GalleryObjectModelModel::onObjectModelRendered(QImage image) {
         offscreenEngine.requestImage();
     } else {
         currentlyRenderedImageIndex = 0;
+        renderingObjectModels = false;
     }
 }

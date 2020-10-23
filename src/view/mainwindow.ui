@@ -1681,22 +1681,6 @@
   <connection>
    <sender>navigationLeft</sender>
    <signal>pathChanged(QString)</signal>
-   <receiver>galleryRight</receiver>
-   <slot>reset()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>223</x>
-     <y>196</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>675</x>
-     <y>121</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>navigationLeft</sender>
-   <signal>pathChanged(QString)</signal>
    <receiver>breadcrumbLeft</receiver>
    <slot>setPathToShow(QString)</slot>
    <hints>
@@ -1707,22 +1691,6 @@
     <hint type="destinationlabel">
      <x>223</x>
      <y>46</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>galleryRight</sender>
-   <signal>selectedItemChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>onSelectedObjectModelChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>449</x>
-     <y>299</y>
     </hint>
    </hints>
   </connection>
@@ -1866,38 +1834,6 @@
     </hint>
     <hint type="destinationlabel">
      <x>223</x>
-     <y>138</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>navigationRight</sender>
-   <signal>navigateLeft()</signal>
-   <receiver>galleryRight</receiver>
-   <slot>selectPrevious()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>213</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>675</x>
-     <y>138</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>navigationRight</sender>
-   <signal>navigateRight()</signal>
-   <receiver>galleryRight</receiver>
-   <slot>selectNext()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>213</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>675</x>
      <y>138</y>
     </hint>
    </hints>
@@ -2171,6 +2107,70 @@
     <hint type="destinationlabel">
      <x>449</x>
      <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>galleryRight</sender>
+   <signal>selectedItemChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onSelectedObjectModelChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>navigationRight</sender>
+   <signal>navigateRight()</signal>
+   <receiver>galleryRight</receiver>
+   <slot>selectNext()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>213</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>138</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>navigationLeft</sender>
+   <signal>pathChanged(QString)</signal>
+   <receiver>galleryRight</receiver>
+   <slot>reset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>196</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>121</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>navigationRight</sender>
+   <signal>navigateLeft()</signal>
+   <receiver>galleryRight</receiver>
+   <slot>selectPrevious()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>213</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>

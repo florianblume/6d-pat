@@ -24,6 +24,7 @@
 #include <Qt3DRender/QRenderTargetSelector>
 #include <Qt3DRender/QViewport>
 #include <Qt3DRender/QClearBuffers>
+#include <Qt3DRender/QNoDraw>
 #include <Qt3DRender/QCameraSelector>
 #include <Qt3DRender/QCamera>
 #include <Qt3DRender/QSceneLoader>
@@ -76,6 +77,7 @@ private:
     Qt3DRender::QRenderTargetSelector *renderTargetSelector;
     Qt3DRender::QViewport *viewport;
     Qt3DRender::QClearBuffers *clearBuffers;
+    Qt3DRender::QNoDraw *noDraw;
     Qt3DRender::QCameraSelector *cameraSelector;
     Qt3DRender::QCamera *camera;
 

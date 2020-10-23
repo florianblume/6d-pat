@@ -44,6 +44,7 @@ void PoseViewer3DWidget::initializeQt3D() {
     clearBuffers->setParent(viewport);
     clearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
     clearBuffers->setClearColor(Qt::white);
+    noDraw->setParent(clearBuffers);
 
     // Second branch that draws the background image
     backgroundLayerFilter->setParent(viewport);
@@ -61,8 +62,10 @@ void PoseViewer3DWidget::initializeQt3D() {
     // posesDepthTest -> Nothing to do here, the poses all have their
     // own layer filter so that the other objects don't get drawn with
     // their parameters
+    posesDepthTest->setParent(viewport);
+    posesDepthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
 
-    // Fourth branch drawing the clicks
+    // Fourth branch draws the clicks
     clickOverlayLayerFilter->setParent(viewport);
     clickOverlayLayerFilter->addLayer(clickOverlayLayer);
     clickOverlayCameraSelector->setParent(clickOverlayLayerFilter);
@@ -85,7 +88,6 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
     QImage loadedImage(image);
     qDebug() << loadedImage.size();
     this->resize(loadedImage.size());
-    //this->parentWidget()->resize(loadedImage.size());
     if (backgroundImageRenderable == Q_NULLPTR) {
         backgroundImageRenderable = new BackgroundImageRenderable(root, image);
         backgroundImageRenderable->addComponent(backgroundLayer);
@@ -116,6 +118,7 @@ void PoseViewer3DWidget::addPose(const Pose &pose) {
 }
 
 void PoseViewer3DWidget::updatePose(const Pose &pose) {
+    // ToDo connect signals of Pose when values change to update slots of PoseRenderable
     PoseRenderable *renderable = getObjectModelRenderable(pose);
     renderable->setPosition(pose.getPosition());
     renderable->setRotation(pose.getRotation());

@@ -4,12 +4,12 @@
 #include "objectmodelrenderable.hpp"
 #include "model/pose.hpp"
 
-
 #include <QVector>
 #include <QVector3D>
 #include <QMatrix3x3>
 #include <QMatrix4x4>
 
+#include <Qt3DRender/QPickEvent>
 #include <Qt3DCore/QEntity>
 #include <Qt3DCore/QTransform>
 #include <Qt3DRender/QLayerFilter>
@@ -43,9 +43,9 @@ public:
     // To retrieve the respective renderable
     bool operator==(const PoseRenderable &other);
 
-Q_SIGNALS:
-    void clicked(Qt3DRender::QPickEvent *pickEvent);
-    void moved(Qt3DRender::QPickEvent *pickEvent);
+//Q_SIGNALS:
+    //void clicked(Qt3DRender::QPickEvent *pickEvent);
+    //void moved(Qt3DRender::QPickEvent *pickEvent);
 
 private:
     Pose pose;

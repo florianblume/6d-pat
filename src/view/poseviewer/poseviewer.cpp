@@ -64,7 +64,7 @@ Image *PoseViewer::currentlyViewedImage() {
 void PoseViewer::setImage(Image *image) {
     currentlyDisplayedImage.reset(new Image(*image));
 
-    //ui->openGLWidget->removePoses();
+    poseViewer3DWidget->removePoses();
     ui->buttonResetPosition->setEnabled(true);
 
     qDebug() << "Displaying image (" + currentlyDisplayedImage->getImagePath() + ").";
@@ -116,10 +116,8 @@ void PoseViewer::reloadPoses() {
 
 void PoseViewer::visualizeLastClickedPosition(int posePointIndex) {
     Q_ASSERT(posePointIndex >= 0);
-    /*
-    ui->openGLWidget->addClick(lastClickedPosition,
+    poseViewer3DWidget->addClick(lastClickedPosition,
               DisplayHelper::colorForPosePointIndex(posePointIndex));
-              */
 }
 
 void PoseViewer::onPoseCreationAborted() {
@@ -127,7 +125,7 @@ void PoseViewer::onPoseCreationAborted() {
 }
 
 void PoseViewer::removePositionVisualizations() {
-    //ui->openGLWidget->removeClicks();
+    poseViewer3DWidget->removeClicks();
 }
 
 void PoseViewer::onPosePointStarted(QPoint /* point2D */,
@@ -138,9 +136,11 @@ void PoseViewer::onPosePointStarted(QPoint /* point2D */,
     visualizeLastClickedPosition(currentNumberOfPoints);
 }
 
+/*
 void PoseViewer::onPoseUpdated(Pose *pose){
     //ui->openGLWidget->updatePose(*pose);
 }
+*/
 
 void PoseViewer::switchImage() {
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
@@ -148,10 +148,10 @@ void PoseViewer::switchImage() {
 
     if (showingNormalImage)
         poseViewer3DWidget->setBackgroundImage(currentlyDisplayedImage->getAbsoluteImagePath(),
-                                             currentlyDisplayedImage->getCameraMatrix());
+                                               currentlyDisplayedImage->getCameraMatrix());
     else
         poseViewer3DWidget->setBackgroundImage(currentlyDisplayedImage->getAbsoluteSegmentationImagePath(),
-                                             currentlyDisplayedImage->getCameraMatrix());
+                                               currentlyDisplayedImage->getCameraMatrix());
 
     if (showingNormalImage)
         qDebug() << "Setting viewer to display normal image.";

@@ -15,6 +15,8 @@
 #include <QtAwesome.h>
 #include <QTimer>
 
+#include <Qt3DRender/QPickEvent>
+
 namespace Ui {
     class PoseViewer;
 }
@@ -84,7 +86,7 @@ public Q_SLOTS:
     */
     void onPosePointStarted(QPoint, int currentNumberOfPoints, int);
 
-    void onPoseUpdated(Pose *pose);
+    //void onPoseUpdated(Pose *pose);
 
 Q_SIGNALS:
     /*!
