@@ -21,10 +21,12 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       backgroundCameraSelector(new Qt3DRender::QCameraSelector),
       backgroundNoDepthMask(new Qt3DRender::QNoDepthMask),
       posesDepthTest(new Qt3DRender::QDepthTest),
-      clickOverlayLayerFilter(new Qt3DRender::QLayerFilter),
-      clickOverlayLayer(new Qt3DRender::QLayer),
-      clickOverlayCameraSelector(new Qt3DRender::QCameraSelector),
-      clickOverlayCamera(new Qt3DRender::QCamera) {
+      clickVisualizationLayerFilter(new Qt3DRender::QLayerFilter),
+      clickVisualizationLayer(new Qt3DRender::QLayer),
+      clickVisualizationCameraSelector(new Qt3DRender::QCameraSelector),
+      clickVisualizationCamera(new Qt3DRender::QCamera),
+      clickVisualizationDepthTest(new Qt3DRender::QDepthTest),
+      clickVisualizationRenderable(new ClickVisualizationRenderable) {
 }
 
 PoseViewer3DWidget::~PoseViewer3DWidget() {
@@ -65,11 +67,25 @@ void PoseViewer3DWidget::initializeQt3D() {
     posesDepthTest->setParent(viewport);
     posesDepthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
 
+    clearBuffers2 = new Qt3DRender::QClearBuffers(viewport);
+    clearBuffers2->setBuffers(Qt3DRender::QClearBuffers::DepthBuffer);
+    noDraw2 = new Qt3DRender::QNoDraw(clearBuffers2);
+
     // Fourth branch draws the clicks
-    clickOverlayLayerFilter->setParent(viewport);
-    clickOverlayLayerFilter->addLayer(clickOverlayLayer);
-    clickOverlayCameraSelector->setParent(clickOverlayLayerFilter);
-    clickOverlayCameraSelector->setCamera(clickOverlayCamera);
+    clickVisualizationLayerFilter->setParent(viewport);
+    clickVisualizationLayerFilter->addLayer(clickVisualizationLayer);
+    clickVisualizationCameraSelector->setParent(clickVisualizationLayerFilter);
+    clickVisualizationCamera->setParent(clickVisualizationCameraSelector);
+    clickVisualizationCamera->lens()->setOrthographicProjection(0, this->size().width(),
+                                                          0, this->size().height(),
+                                                          0.1f, 1000.f);
+    clickVisualizationCamera->setPosition(QVector3D(0, 0, 1));
+    clickVisualizationCamera->setViewCenter(QVector3D(0, 0, 0));
+    clickVisualizationCamera->setUpVector(QVector3D(0, 1, 0));
+    clickVisualizationCameraSelector->setCamera(clickVisualizationCamera);
+    clickVisualizationRenderable->setParent(root);
+    clickVisualizationRenderable->addComponent(clickVisualizationLayer);
+    clickVisualizationRenderable->setSize(this->size());
     // TODO Set up camera and plane and material
 
     setActiveFrameGraph(renderSurfaceSelector);
@@ -163,11 +179,11 @@ void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
 }
 
 void PoseViewer3DWidget::addClick(QPoint position, QColor color) {
-    // TODO
+    clickVisualizationRenderable->addClick(position);
 }
 
 void PoseViewer3DWidget::removeClicks() {
-    // TODO
+    clickVisualizationRenderable->removeClicks();
 }
 
 void PoseViewer3DWidget::reset() {
@@ -176,6 +192,11 @@ void PoseViewer3DWidget::reset() {
     if (backgroundImageRenderable != Q_NULLPTR) {
         backgroundImageRenderable->setEnabled(false);
     }
+}
+
+void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
+    Qt3DWidget::resizeEvent(event);
+    clickVisualizationRenderable->setSize(event->size());
 }
 
 void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {

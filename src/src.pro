@@ -80,7 +80,9 @@ HEADERS  += \
     $$PWD/view/gallery/rendering/texturerendertarget.h \
     $$PWD/view/rendering/objectmodelrenderable.hpp \
     $$PWD/view/rendering/objectmodelrenderablematerial.h \
-    view/poseeditor/listviewposesmodel.h
+    view/poseeditor/listviewposesmodel.h \
+    view/rendering/clickvisualizationmaterial.hpp \
+    view/rendering/clickvisualizationrenderable.hpp
 
 SOURCES += \
     $$PWD/main.cpp \
@@ -124,7 +126,9 @@ SOURCES += \
     $$PWD/view/gallery/rendering/texturerendertarget.cpp \
     $$PWD/view/rendering/objectmodelrenderable.cpp \
     $$PWD/view/rendering/objectmodelrenderablematerial.cpp \
-    view/poseeditor/listviewposesmodel.cpp
+    view/poseeditor/listviewposesmodel.cpp \
+    view/rendering/clickvisualizationmaterial.cpp \
+    view/rendering/clickvisualizationrenderable.cpp
 
 FORMS    += \
     $$PWD/view/mainwindow.ui \
