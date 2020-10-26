@@ -4,6 +4,11 @@
 #include "model/image.hpp"
 
 #include <QString>
+#include <QScopedPointer>
+#include <QVector>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLBuffer>
+#include <QOpenGLTexture>
 #include <QMatrix4x4>
 
 #include <Qt3DCore/QNode>

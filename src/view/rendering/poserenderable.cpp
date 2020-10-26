@@ -10,11 +10,6 @@ PoseRenderable::PoseRenderable(Qt3DCore::QEntity *parent,
         camera(new Qt3DRender::QCamera),
         picker(new Qt3DRender::QObjectPicker),
         transform(new Qt3DCore::QTransform) {
-    connect(this, &PoseRenderable::statusChanged, [this](Qt3DRender::QSceneLoader::Status status){
-        if (status == Qt3DRender::QSceneLoader::Ready) {
-            this->camera->viewAll();
-        }
-    });
     this->addComponent(layer);
     layerFilter->addLayer(layer);
     cameraSelector->setParent(layerFilter);
