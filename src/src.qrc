@@ -1,10 +1,4 @@
 <RCC>
-    <qresource prefix="/shaders/poseviewer">
-        <file alias="object.vert">resources/shaders/poseviewer/object.vert</file>
-        <file alias="object.frag">resources/shaders/poseviewer/object.frag</file>
-        <file alias="background.vert">resources/shaders/poseviewer/background.vert</file>
-        <file alias="background.frag">resources/shaders/poseviewer/background.frag</file>
-    </qresource>
     <qresource prefix="/images">
         <file alias="about.png">resources/images/about.png</file>
         <file alias="icon.png">resources/images/icon.png</file>
@@ -16,5 +10,7 @@
         <file alias="object.frag">resources/shaders/object.frag</file>
         <file alias="object.vert">resources/shaders/object.vert</file>
         <file alias="phong.inc.frag">resources/shaders/phong.inc.frag</file>
+        <file alias="clicks.frag">resources/shaders/clicks.frag</file>
+        <file alias="clicks.vert">resources/shaders/clicks.vert</file>
     </qresource>
 </RCC>

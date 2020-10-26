@@ -12,7 +12,6 @@
 #include <Qt3DCore/QEntity>
 #include <Qt3DCore/QTransform>
 #include <Qt3DExtras/QPlaneMesh>
-#include <Qt3DExtras/QPhongMaterial>
 
 class ClickVisualizationRenderable : public Qt3DCore::QEntity
 {
@@ -26,8 +25,7 @@ public:
 private:
     Qt3DExtras::QPlaneMesh *mesh;
     Qt3DCore::QTransform *transform;
-    //ClickVisualizationMaterial *material;
-    Qt3DExtras::QPhongMaterial *material;
+    ClickVisualizationMaterial *material;
 };
 
 #endif // CLICKVISUALIZATIONRENDERABLE_H

@@ -136,7 +136,7 @@ void ObjectModelRenderableMaterial::addClick(QVector3D click, QColor color) {
     for (QVector3D color : m_clickColors) {
         colors << color;
     }
-    m_clickColorsParameter->setValue(QVariantList() << colors);
+    m_clickColorsParameter->setValue(colors);
 }
 
 void ObjectModelRenderableMaterial::setCirumfence(float circumfence) {
