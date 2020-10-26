@@ -4,6 +4,7 @@
 #include "model/pose.hpp"
 #include "view/rendering/backgroundimagerenderable.hpp"
 #include "view/rendering/poserenderable.hpp"
+#include "view/rendering/clickvisualizationrenderable.hpp"
 #include "qt3dwidget.h"
 
 #include <QString>
@@ -11,6 +12,7 @@
 #include <QSharedPointer>
 #include <QVector>
 #include <QMatrix4x4>
+#include <QResizeEvent>
 
 #include <Qt3DRender/QRenderSurfaceSelector>
 #include <Qt3DRender/QClearBuffers>
@@ -46,6 +48,7 @@ public:
     void addClick(QPoint position, QColor color);
     void removeClicks();
     void reset();
+    void resizeEvent(QResizeEvent *event) override;
 
     ~PoseViewer3DWidget();
 
@@ -69,22 +72,25 @@ private:
     Qt3DRender::QClearBuffers *clearBuffers;
     Qt3DRender::QNoDraw *noDraw;
 
+    // Same camera for background image and click visualization overlay
+    Qt3DRender::QCamera *planeCamera;
+
     // Background branch
     Qt3DRender::QLayerFilter *backgroundLayerFilter;
     Qt3DRender::QLayer *backgroundLayer;
-    BackgroundImageRenderable *backgroundImageRenderable = Q_NULLPTR;
-    Qt3DRender::QCamera *backgroundCamera;
     Qt3DRender::QCameraSelector *backgroundCameraSelector;
     Qt3DRender::QNoDepthMask *backgroundNoDepthMask;
+    BackgroundImageRenderable *backgroundImageRenderable = Q_NULLPTR;
 
     // Poses branch
     Qt3DRender::QDepthTest *posesDepthTest;
 
     // Clickoverlay branch
-    Qt3DRender::QLayerFilter *clickOverlayLayerFilter;
-    Qt3DRender::QLayer *clickOverlayLayer;
-    Qt3DRender::QCameraSelector *clickOverlayCameraSelector;
-    Qt3DRender::QCamera *clickOverlayCamera;
+    Qt3DRender::QLayerFilter *clickVisualizationLayerFilter;
+    Qt3DRender::QLayer *clickVisualizationLayer;
+    Qt3DRender::QDepthTest *clickVisualizationDepthTest;
+    Qt3DRender::QCameraSelector *clickVisualizationCameraSelector;
+    ClickVisualizationRenderable *clickVisualizationRenderable;
 
     QList<PoseRenderable *> poseRenderables;
     QMatrix4x4 projectionMatrix;

@@ -15,16 +15,17 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       viewport(new Qt3DRender::QViewport),
       clearBuffers(new Qt3DRender::QClearBuffers),
       noDraw(new Qt3DRender::QNoDraw),
+      planeCamera(new Qt3DRender::QCamera),
       backgroundLayerFilter(new Qt3DRender::QLayerFilter),
       backgroundLayer(new Qt3DRender::QLayer),
-      backgroundCamera(new Qt3DRender::QCamera),
       backgroundCameraSelector(new Qt3DRender::QCameraSelector),
       backgroundNoDepthMask(new Qt3DRender::QNoDepthMask),
       posesDepthTest(new Qt3DRender::QDepthTest),
-      clickOverlayLayerFilter(new Qt3DRender::QLayerFilter),
-      clickOverlayLayer(new Qt3DRender::QLayer),
-      clickOverlayCameraSelector(new Qt3DRender::QCameraSelector),
-      clickOverlayCamera(new Qt3DRender::QCamera) {
+      clickVisualizationLayerFilter(new Qt3DRender::QLayerFilter),
+      clickVisualizationLayer(new Qt3DRender::QLayer),
+      clickVisualizationDepthTest(new Qt3DRender::QDepthTest),
+      clickVisualizationCameraSelector(new Qt3DRender::QCameraSelector),
+      clickVisualizationRenderable(new ClickVisualizationRenderable(root)) {
 }
 
 PoseViewer3DWidget::~PoseViewer3DWidget() {
@@ -46,16 +47,17 @@ void PoseViewer3DWidget::initializeQt3D() {
     clearBuffers->setClearColor(Qt::white);
     noDraw->setParent(clearBuffers);
 
+    planeCamera->setParent(root);
+    planeCamera->lens()->setOrthographicProjection(-1, 1, -1, 1, 0.1f, 1000.f);
+    planeCamera->setPosition(QVector3D(0, 0, 1));
+    planeCamera->setViewCenter(QVector3D(0, 0, 0));
+    planeCamera->setUpVector(QVector3D(0, 1, 0));
+
     // Second branch that draws the background image
     backgroundLayerFilter->setParent(viewport);
     backgroundLayerFilter->addLayer(backgroundLayer);
     backgroundCameraSelector->setParent(backgroundLayerFilter);
-    backgroundCamera->setParent(backgroundCameraSelector);
-    backgroundCamera->lens()->setOrthographicProjection(-1, 1, -1, 1, 0.1f, 1000.f);
-    backgroundCamera->setPosition(QVector3D(0, 0, 1));
-    backgroundCamera->setViewCenter(QVector3D(0, 0, 0));
-    backgroundCamera->setUpVector(QVector3D(0, 1, 0));
-    backgroundCameraSelector->setCamera(backgroundCamera);
+    backgroundCameraSelector->setCamera(planeCamera);
     backgroundNoDepthMask->setParent(backgroundCameraSelector);
 
     // Third branch that draws the poses
@@ -66,11 +68,13 @@ void PoseViewer3DWidget::initializeQt3D() {
     posesDepthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
 
     // Fourth branch draws the clicks
-    clickOverlayLayerFilter->setParent(viewport);
-    clickOverlayLayerFilter->addLayer(clickOverlayLayer);
-    clickOverlayCameraSelector->setParent(clickOverlayLayerFilter);
-    clickOverlayCameraSelector->setCamera(clickOverlayCamera);
-    // TODO Set up camera and plane and material
+    clickVisualizationLayerFilter->setParent(viewport);
+    clickVisualizationLayerFilter->addLayer(clickVisualizationLayer);
+    clickVisualizationDepthTest->setDepthFunction(Qt3DRender::QDepthTest::Always);
+    clickVisualizationCameraSelector->setParent(clickVisualizationDepthTest);
+    clickVisualizationCameraSelector->setCamera(planeCamera);
+    clickVisualizationRenderable->addComponent(clickVisualizationLayer);
+    clickVisualizationRenderable->setSize(this->size());
 
     setActiveFrameGraph(renderSurfaceSelector);
 }
@@ -163,11 +167,11 @@ void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
 }
 
 void PoseViewer3DWidget::addClick(QPoint position, QColor color) {
-    // TODO
+    clickVisualizationRenderable->addClick(position);
 }
 
 void PoseViewer3DWidget::removeClicks() {
-    // TODO
+    clickVisualizationRenderable->removeClicks();
 }
 
 void PoseViewer3DWidget::reset() {
@@ -176,6 +180,10 @@ void PoseViewer3DWidget::reset() {
     if (backgroundImageRenderable != Q_NULLPTR) {
         backgroundImageRenderable->setEnabled(false);
     }
+}
+
+void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
+    clickVisualizationRenderable->setSize(event->size());
 }
 
 void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
