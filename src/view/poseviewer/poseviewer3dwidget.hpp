@@ -72,13 +72,11 @@ private:
     Qt3DRender::QClearBuffers *clearBuffers;
     Qt3DRender::QNoDraw *noDraw;
 
-    // Same camera for background image and click visualization overlay
-    Qt3DRender::QCamera *planeCamera;
-
     // Background branch
     Qt3DRender::QLayerFilter *backgroundLayerFilter;
     Qt3DRender::QLayer *backgroundLayer;
     Qt3DRender::QCameraSelector *backgroundCameraSelector;
+    Qt3DRender::QCamera *backgroundCamera;
     Qt3DRender::QNoDepthMask *backgroundNoDepthMask;
     BackgroundImageRenderable *backgroundImageRenderable = Q_NULLPTR;
 
@@ -90,10 +88,10 @@ private:
     Qt3DRender::QLayer *clickVisualizationLayer;
     Qt3DRender::QDepthTest *clickVisualizationDepthTest;
     Qt3DRender::QCameraSelector *clickVisualizationCameraSelector;
+    Qt3DRender::QCamera *clickVisualizationCamera;
     ClickVisualizationRenderable *clickVisualizationRenderable;
 
     QList<PoseRenderable *> poseRenderables;
-    QMatrix4x4 projectionMatrix;
 
     // To handle dragging of the widget and clicking
     QPoint lastPos;

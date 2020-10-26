@@ -1,23 +1,31 @@
 #include "clickvisualizationrenderable.hpp"
 
 ClickVisualizationRenderable::ClickVisualizationRenderable(Qt3DCore::QNode *parent)
-    : PlaneRenderable(parent) {
-    textureImage = new ClickVisualizationTextureImage;
-    texture->addTextureImage(textureImage);
+    : Qt3DCore::QEntity(parent) {
+    mesh = new Qt3DExtras::QPlaneMesh();
+    mesh->setWidth(1);
+    mesh->setHeight(1);
+    transform = new Qt3DCore::QTransform();
+    transform->setRotationX(90);
+    material = new ClickVisualizationMaterial;
+    this->addComponent(mesh);
+    this->addComponent(material);
+    this->addComponent(transform);
 }
 
 void ClickVisualizationRenderable::addClick(QPoint click) {
-    textureImage->addClick(click);
+    material->addClick(click);
 }
 
 void ClickVisualizationRenderable::removeClick(QPoint click) {
-    textureImage->removeClick(click);
+    material->removeClick(click);
 }
 
 void ClickVisualizationRenderable::removeClicks() {
-    textureImage->removeClicks();
+    material->removeClicks();
 }
 
 void ClickVisualizationRenderable::setSize(QSize size) {
-    textureImage->setSize(size);
+    mesh->setWidth(size.width());
+    mesh->setHeight(size.height());
 }

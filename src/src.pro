@@ -81,9 +81,8 @@ HEADERS  += \
     $$PWD/view/rendering/objectmodelrenderable.hpp \
     $$PWD/view/rendering/objectmodelrenderablematerial.h \
     view/poseeditor/listviewposesmodel.h \
-    view/rendering/clickvisualizationrenderable.hpp \
-    view/rendering/clickvisualizationtextureimage.hpp \
-    view/rendering/planerenderable.hpp
+    view/rendering/clickvisualizationmaterial.hpp \
+    view/rendering/clickvisualizationrenderable.hpp
 
 SOURCES += \
     $$PWD/main.cpp \
@@ -128,9 +127,8 @@ SOURCES += \
     $$PWD/view/rendering/objectmodelrenderable.cpp \
     $$PWD/view/rendering/objectmodelrenderablematerial.cpp \
     view/poseeditor/listviewposesmodel.cpp \
-    view/rendering/clickvisualizationrenderable.cpp \
-    view/rendering/clickvisualizationtextureimage.cpp \
-    view/rendering/planerenderable.cpp
+    view/rendering/clickvisualizationmaterial.cpp \
+    view/rendering/clickvisualizationrenderable.cpp
 
 FORMS    += \
     $$PWD/view/mainwindow.ui \

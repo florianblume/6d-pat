@@ -15,17 +15,12 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       viewport(new Qt3DRender::QViewport),
       clearBuffers(new Qt3DRender::QClearBuffers),
       noDraw(new Qt3DRender::QNoDraw),
-      planeCamera(new Qt3DRender::QCamera),
       backgroundLayerFilter(new Qt3DRender::QLayerFilter),
       backgroundLayer(new Qt3DRender::QLayer),
       backgroundCameraSelector(new Qt3DRender::QCameraSelector),
+      backgroundCamera(new Qt3DRender::QCamera),
       backgroundNoDepthMask(new Qt3DRender::QNoDepthMask),
-      posesDepthTest(new Qt3DRender::QDepthTest),
-      clickVisualizationLayerFilter(new Qt3DRender::QLayerFilter),
-      clickVisualizationLayer(new Qt3DRender::QLayer),
-      clickVisualizationDepthTest(new Qt3DRender::QDepthTest),
-      clickVisualizationCameraSelector(new Qt3DRender::QCameraSelector),
-      clickVisualizationRenderable(new ClickVisualizationRenderable(root)) {
+      posesDepthTest(new Qt3DRender::QDepthTest) {
 }
 
 PoseViewer3DWidget::~PoseViewer3DWidget() {
@@ -44,37 +39,34 @@ void PoseViewer3DWidget::initializeQt3D() {
     // First branch that clears the buffers
     clearBuffers->setParent(viewport);
     clearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
-    clearBuffers->setClearColor(Qt::white);
+    clearBuffers->setClearColor(Qt::blue);
     noDraw->setParent(clearBuffers);
-
-    planeCamera->setParent(root);
-    planeCamera->lens()->setOrthographicProjection(-1, 1, -1, 1, 0.1f, 1000.f);
-    planeCamera->setPosition(QVector3D(0, 0, 1));
-    planeCamera->setViewCenter(QVector3D(0, 0, 0));
-    planeCamera->setUpVector(QVector3D(0, 1, 0));
 
     // Second branch that draws the background image
     backgroundLayerFilter->setParent(viewport);
     backgroundLayerFilter->addLayer(backgroundLayer);
     backgroundCameraSelector->setParent(backgroundLayerFilter);
-    backgroundCameraSelector->setCamera(planeCamera);
+    backgroundCamera->setParent(backgroundCameraSelector);
+    backgroundCamera->lens()->setOrthographicProjection(-1, 1, -1, 1, 0.1f, 1000.f);
+    backgroundCamera->setPosition(QVector3D(0, 0, 1));
+    backgroundCamera->setViewCenter(QVector3D(0, 0, 0));
+    backgroundCamera->setUpVector(QVector3D(0, 1, 0));
+    backgroundCameraSelector->setCamera(backgroundCamera);
     backgroundNoDepthMask->setParent(backgroundCameraSelector);
 
     // Third branch that draws the poses
     // posesDepthTest -> Nothing to do here, the poses all have their
     // own layer filter so that the other objects don't get drawn with
     // their parameters
-    posesDepthTest->setParent(viewport);
-    posesDepthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
 
-    // Fourth branch draws the clicks
-    clickVisualizationLayerFilter->setParent(viewport);
-    clickVisualizationLayerFilter->addLayer(clickVisualizationLayer);
-    clickVisualizationDepthTest->setDepthFunction(Qt3DRender::QDepthTest::Always);
-    clickVisualizationCameraSelector->setParent(clickVisualizationDepthTest);
-    clickVisualizationCameraSelector->setCamera(planeCamera);
-    clickVisualizationRenderable->addComponent(clickVisualizationLayer);
-    clickVisualizationRenderable->setSize(this->size());
+    // Fourth branch drawing the clicks
+    /*
+    clickOverlayLayerFilter->setParent(viewport);
+    clickOverlayLayerFilter->addLayer(clickOverlayLayer);
+    clickOverlayCameraSelector->setParent(clickOverlayLayerFilter);
+    clickOverlayCameraSelector->setCamera(clickOverlayCamera);
+    */
+    // TODO Set up camera and plane and material
 
     setActiveFrameGraph(renderSurfaceSelector);
 }
@@ -105,7 +97,7 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
     float q = -(farPlane + nearPlane) / depth;
     float qn = -2 * (farPlane * nearPlane) / depth;
     const QMatrix3x3 K = cameraMatrix;
-    projectionMatrix = QMatrix4x4(2 * K(0, 0) / w, -2 * K(0, 1) / w, (-2 * K(0, 2) + w) / w, 0,
+    QMatrix4x4 projectionMatrix = QMatrix4x4(2 * K(0, 0) / w, -2 * K(0, 1) / w, (-2 * K(0, 2) + w) / w, 0,
                                                 0,  2 * K(1, 1) / h,  (2 * K(1 ,2) - h) / h, 0,
                                                 0,                0,                      q, qn,
                                                 0,                0,                     -1, 0);
@@ -167,11 +159,11 @@ void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
 }
 
 void PoseViewer3DWidget::addClick(QPoint position, QColor color) {
-    clickVisualizationRenderable->addClick(position);
+    //clickVisualizationRenderable->addClick(position);
 }
 
 void PoseViewer3DWidget::removeClicks() {
-    clickVisualizationRenderable->removeClicks();
+    //clickVisualizationRenderable->removeClicks();
 }
 
 void PoseViewer3DWidget::reset() {
@@ -183,7 +175,7 @@ void PoseViewer3DWidget::reset() {
 }
 
 void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
-    clickVisualizationRenderable->setSize(event->size());
+    //clickVisualizationRenderable->setSize(event->size());
 }
 
 void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
