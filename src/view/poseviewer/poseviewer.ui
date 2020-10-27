@@ -153,7 +153,10 @@
        </widget>
       </item>
       <item>
-       <widget class="QSlider" name="horizontalSlider">
+       <widget class="QSlider" name="sliderTransparency">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -454,11 +457,28 @@ QPushButton:pressed {
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>sliderTransparency</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>PoseViewer</receiver>
+   <slot>onOpacityChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>imageClicked(Image*,QPoint)</signal>
   <slot>switchImage()</slot>
   <slot>imageClicked(QPoint)</slot>
   <slot>resetPositionOfGraphicsView()</slot>
+  <slot>onOpacityChanged(int)</slot>
  </slots>
 </ui>

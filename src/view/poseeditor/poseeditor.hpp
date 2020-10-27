@@ -3,7 +3,7 @@
 
 #include "model/modelmanager.hpp"
 #include "misc/global.hpp"
-#include "view/poseeditor/poseeditor3dwindow.hpp"
+#include "view/poseeditor/poseeditor3dwidget.hpp"
 #include "view/poseeditor/listviewposesmodel.h"
 #include <QWidget>
 #include <QFrame>
@@ -64,8 +64,8 @@ public Q_SLOTS:
      * \param minimumNumberOfPoints the total number required to be able to create an actual ObjectImage Pose
      */
     void onPosePointFinished(QVector3D point3D,
-                                       int currentNumberOfPoints,
-                                       int minimumNumberOfPoints);
+                             int currentNumberOfPoints,
+                             int minimumNumberOfPoints);
     /*!
      * \brief reset resets this view, i.e. clears the displayed object models
      */

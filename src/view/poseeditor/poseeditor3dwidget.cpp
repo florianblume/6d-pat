@@ -1,4 +1,4 @@
-#include "view/poseeditor/poseeditor3dwindow.hpp"
+#include "view/poseeditor/poseeditor3dwidget.hpp"
 #include "misc/global.hpp"
 
 #include <QVector3D>
@@ -68,8 +68,8 @@ void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
     objectModelRenderable->setEnabled(true);
 }
 
-void PoseEditor3DWindow::addClick(QVector3D position, QColor color) {
-    objectModelRenderable->addClick(position, color);
+void PoseEditor3DWindow::addClick(QVector3D position) {
+    objectModelRenderable->addClick(position);
 }
 
 void PoseEditor3DWindow::removeClicks() {

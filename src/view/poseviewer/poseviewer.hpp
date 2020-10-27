@@ -86,7 +86,7 @@ public Q_SLOTS:
     */
     void onPosePointStarted(QPoint, int currentNumberOfPoints, int);
 
-    //void onPoseUpdated(Pose *pose);
+    void onPoseUpdated(Pose *pose);
 
 Q_SIGNALS:
     /*!
@@ -99,6 +99,7 @@ private Q_SLOTS:
      * \brief showSegmentationImage is there for the switch view button
      */
     void switchImage();
+    void onOpacityChanged(int opacity);
     void resetPositionOfGraphicsView();
     void onImageClicked(QPoint point);
     // Private slot listening to model manager
@@ -110,7 +111,6 @@ private Q_SLOTS:
 
 private:
     Ui::PoseViewer *ui;
-    // QWidget::createWindowContainer takes ownership -> no need for a smart pointer here
     PoseViewer3DWidget *poseViewer3DWidget;
 
     QtAwesome* awesome;

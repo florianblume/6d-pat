@@ -19,6 +19,7 @@ class ClickVisualizationRenderable : public Qt3DCore::QEntity
 public:
     ClickVisualizationRenderable(Qt3DCore::QNode *parent = Q_NULLPTR);
     void addClick(QPoint click);
+    void removeLastClick();
     void removeClicks();
     void setSize(QSize size);
 

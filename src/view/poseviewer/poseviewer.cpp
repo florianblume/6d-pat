@@ -66,6 +66,7 @@ void PoseViewer::setImage(Image *image) {
 
     poseViewer3DWidget->removePoses();
     ui->buttonResetPosition->setEnabled(true);
+    ui->sliderTransparency->setEnabled(false);
 
     qDebug() << "Displaying image (" + currentlyDisplayedImage->getImagePath() + ").";
 
@@ -84,7 +85,7 @@ void PoseViewer::setImage(Image *image) {
                                     currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
     QList<Pose> posesForImage = modelManager->getPosesForImage(*image);
     poseViewer3DWidget->setBackgroundImageAndPoses(toDisplay, image->getCameraMatrix(), posesForImage);
-
+    ui->sliderTransparency->setEnabled(posesForImage.size() > 0);
 }
 
 void PoseViewer::connectModelManagerSlots() {
@@ -116,8 +117,7 @@ void PoseViewer::reloadPoses() {
 
 void PoseViewer::visualizeLastClickedPosition(int posePointIndex) {
     Q_ASSERT(posePointIndex >= 0);
-    poseViewer3DWidget->addClick(lastClickedPosition,
-              DisplayHelper::colorForPosePointIndex(posePointIndex));
+    poseViewer3DWidget->addClick(lastClickedPosition);
 }
 
 void PoseViewer::onPoseCreationAborted() {
@@ -129,18 +129,16 @@ void PoseViewer::removePositionVisualizations() {
 }
 
 void PoseViewer::onPosePointStarted(QPoint /* point2D */,
-                                                         int currentNumberOfPoints,
-                                                         int /* minimumNumberOfPoints */) {
+                                    int currentNumberOfPoints,
+                                    int /* minimumNumberOfPoints */) {
     // We can use the number of points as index directly, because the number of points only increases
     // after the user successfully clicked a 2D location and the corresponding 3D point
     visualizeLastClickedPosition(currentNumberOfPoints);
 }
 
-/*
 void PoseViewer::onPoseUpdated(Pose *pose){
-    //ui->openGLWidget->updatePose(*pose);
+    poseViewer3DWidget->updatePose(*pose);
 }
-*/
 
 void PoseViewer::switchImage() {
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
@@ -160,6 +158,10 @@ void PoseViewer::switchImage() {
 
 }
 
+void PoseViewer::onOpacityChanged(int opacity) {
+    poseViewer3DWidget->setObjectsOpacity(opacity / 100.0);
+}
+
 void PoseViewer::resetPositionOfGraphicsView() {
     poseViewer3DWidget->setGeometry(0, 0, poseViewer3DWidget->width(), poseViewer3DWidget->height());
 }
@@ -177,8 +179,10 @@ void PoseViewer::onPoseDeleted(const QString &id) {
 
 void PoseViewer::onPoseAdded(const QString &id) {
     QSharedPointer<Pose> pose = modelManager->getPoseById(id);
-    if (!pose.isNull())
+    if (!pose.isNull()) {
         poseViewer3DWidget->addPose(*pose.data());
+        ui->sliderTransparency->setEnabled(true);
+    }
     poseViewer3DWidget->removeClicks();
 }
 

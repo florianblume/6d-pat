@@ -131,11 +131,12 @@ void PoseViewer3DWidget::addPose(const Pose &pose) {
     PoseRenderable *poseRenderable = new PoseRenderable(root, pose);
     poseRenderable->frameGraph()->setParent(posesDepthTest);
     poseRenderables.append(poseRenderable);
+    poseRenderableForId[pose.getID()] = poseRenderable;
 }
 
 void PoseViewer3DWidget::updatePose(const Pose &pose) {
     // ToDo connect signals of Pose when values change to update slots of PoseRenderable
-    PoseRenderable *renderable = getObjectModelRenderable(pose);
+    PoseRenderable *renderable = poseRenderableForId[pose.getID()];
     renderable->setPosition(pose.getPosition());
     renderable->setRotation(pose.getRotation());
 }
@@ -147,6 +148,7 @@ void PoseViewer3DWidget::removePose(const QString &id) {
             // Remove related framegraph
             renderable->frameGraph()->setParent((Qt3DCore::QNode *) 0);
             poseRenderables.removeAt(index);
+            poseRenderableForId.remove(id);
             // This also deletes the renderable
             renderable->setParent((Qt3DCore::QNode *) 0);
             break;
@@ -163,22 +165,16 @@ void PoseViewer3DWidget::removePoses() {
         renderable->setParent((Qt3DCore::QNode *) 0);
     }
     poseRenderables.clear();
-}
-
-PoseRenderable *PoseViewer3DWidget::getObjectModelRenderable(const Pose &pose) {
-    for (PoseRenderable *poseRenderable : poseRenderables) {
-        if (poseRenderable->getPoseId() == pose.getID()) {
-            return poseRenderable;
-        }
-    }
-    return Q_NULLPTR;
+    poseRenderableForId.clear();
 }
 
 void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
-    // TODO
+    for (PoseRenderable *poseRenderable : poseRenderables) {
+        poseRenderable->setOpacity(opacity);
+    }
 }
 
-void PoseViewer3DWidget::addClick(QPoint position, QColor color) {
+void PoseViewer3DWidget::addClick(QPoint position) {
     clickVisualizationRenderable->addClick(position);
 }
 

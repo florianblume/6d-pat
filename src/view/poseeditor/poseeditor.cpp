@@ -439,8 +439,7 @@ void PoseEditor::onPosePointFinished(QVector3D point3D,
                                      int currentNumberOfPoints,
                                      int minimumNumberOfPoints) {
     ui->buttonCreate->setEnabled(currentNumberOfPoints >= minimumNumberOfPoints);
-    QColor color = DisplayHelper::colorForPosePointIndex(currentNumberOfPoints - 1);
-    poseEditor3DWindow->addClick(point3D, color);
+    poseEditor3DWindow->addClick(point3D);
 }
 
 void PoseEditor::reset() {

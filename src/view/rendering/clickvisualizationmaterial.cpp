@@ -49,31 +49,40 @@ ClickVisualizationMaterial::ClickVisualizationMaterial(Qt3DCore::QNode *parent)
 }
 
 void ClickVisualizationMaterial::addClick(QPoint click) {
-    QVector2D clickToAdd((float) click.x(), height - (float) click.y());
-    clicks << clickToAdd;
+    m_clicks.append(click);
+    uploadClicksToParameters();
+}
 
-    QVariantList colors;
-    for (int i = 0; i < clicks.count(); i++) {
-        QColor c = DisplayHelper::colorForPosePointIndex(i);
-        colors.append(QVector3D(c.red() / 255.f, c.green() / 255.f, c.blue() / 255.f));
-    }
-
-    m_clickColorsParameter->setValue(colors);
-    m_clicksParameter->setValue(clicks);
-    m_clickCountParameter->setValue(clicks.size());
+void ClickVisualizationMaterial::removeLastClick() {
+    m_clicks.removeLast();
+    uploadClicksToParameters();
 }
 
 void ClickVisualizationMaterial::removeClicks() {
-    clicks.clear();
+    m_clicks.clear();
     m_clicksParameter->setValue(QVariantList());
     m_clickCountParameter->setValue(0);
     m_clickColorsParameter->setValue(QVariantList());
 }
 
 void ClickVisualizationMaterial::setSize(QSize size) {
-    if (clicks.size() > 0) {
+    if (m_clicks.size() > 0) {
         qWarning() << "Setting height on ClickVisualizationOverlay but some points have been "
                       "altered using the old height already. Please clear the clicks before changing the height.";
     }
-    this->height = size.height();
+    this->m_height = size.height();
+}
+
+void ClickVisualizationMaterial::uploadClicksToParameters() {
+    QVariantList _clicks;
+    QVariantList colors;
+    for (int i = 0; i < m_clicks.count(); i++) {
+        QPoint click = m_clicks[i];
+        _clicks << QVector2D(click.x(), m_height - click.y());
+        QColor c = DisplayHelper::colorForPosePointIndex(i);
+        colors << QVector3D(c.red() / 255.f, c.green() / 255.f, c.blue() / 255.f);
+    }
+    m_clickColorsParameter->setValue(colors);
+    m_clicksParameter->setValue(_clicks);
+    m_clickCountParameter->setValue(m_clicks.size());
 }

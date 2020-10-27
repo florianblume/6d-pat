@@ -51,9 +51,9 @@ void ObjectModelRenderable::setObjectModel(const ObjectModel *objectModel) {
     m_sceneLoader->setSource(QUrl::fromLocalFile(objectModel->getAbsolutePath()));
 }
 
-void ObjectModelRenderable::addClick(QVector3D click, QColor color) {
+void ObjectModelRenderable::addClick(QVector3D click) {
     if (m_material)
-        m_material->addClick(click, color);
+        m_material->addClick(click);
     Q_EMIT clicksChanged();
 }
 
@@ -64,6 +64,10 @@ void ObjectModelRenderable::setSelected(bool selected) {
     Q_EMIT selectedChanged(selected);
 }
 
+void ObjectModelRenderable::setOpacity(float opacity) {
+    m_material->setOpacity(opacity);
+}
+
 void ObjectModelRenderable::removeClicks() {
     if (m_material)
         m_material->removeClicks();
@@ -71,6 +75,10 @@ void ObjectModelRenderable::removeClicks() {
 }
 
 void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status) {
+    /*
+     * This function is ugly but there is no way (that I know of) to get around it.
+     * We have to adjust the shaders of the loaded objects to be able to visualize clicks.
+     */
     if (status == Qt3DRender::QSceneLoader::Ready) {
         m_sceneLoader->setEnabled(true);
         Qt3DCore::QEntity *entity = m_sceneLoader->entities()[0];

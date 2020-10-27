@@ -1,4 +1,5 @@
 #include "objectmodelrenderablematerial.h"
+#include "view/misc/displayhelper.hpp"
 
 #include <QVector3D>
 #include <QVector4D>
@@ -21,6 +22,7 @@ ObjectModelRenderableMaterial::ObjectModelRenderableMaterial(Qt3DCore::QNode *pa
       , m_useDiffuseTextureParameter(new Qt3DRender::QParameter(QStringLiteral("useDiffuseTexture"), QVariant::fromValue(withTexture)))
       , m_circumfenceParameter(new Qt3DRender::QParameter(QStringLiteral("circumfence"), 0.001f))
       , m_selectedParameter(new Qt3DRender::QParameter(QStringLiteral("selected"), QVector4D(0.f, 0.f, 0.f, 0.f)))
+      , m_opacityParameter(new Qt3DRender::QParameter(QStringLiteral("opacity"), 1.0))
       , m_technique(new Qt3DRender::QTechnique())
       , m_renderPass(new Qt3DRender::QRenderPass())
       , m_shaderProgram(new Qt3DRender::QShaderProgram())
@@ -123,22 +125,6 @@ void ObjectModelRenderableMaterial::setDiffuseColor(const QColor &color) {
     m_diffuseParameter->setValue(color);
 }
 
-void ObjectModelRenderableMaterial::addClick(QVector3D click, QColor color) {
-    m_clicks.append(click);
-    m_clickColors.append(QVector3D(color.red() / 255.f, color.green() / 255.f, color.blue() / 255.f));
-    m_clickCountParameter->setValue(m_clicks.count());
-    QVariantList clicks;
-    for (QVector3D click : m_clicks) {
-        clicks << click;
-    }
-    m_clicksParameter->setValue(clicks);
-    QVariantList colors;
-    for (QVector3D color : m_clickColors) {
-        colors << color;
-    }
-    m_clickColorsParameter->setValue(colors);
-}
-
 void ObjectModelRenderableMaterial::setCirumfence(float circumfence) {
     m_circumfenceParameter->setValue(circumfence);
 }
@@ -153,10 +139,40 @@ void ObjectModelRenderableMaterial::setSelected(bool selected) {
     Q_EMIT selectedChanged(selected);
 }
 
+void ObjectModelRenderableMaterial::setOpacity(float opacity) {
+    if (opacity < 0.0 || opacity > 1.0) {
+        qWarning() << "Opacity values should range in [0, 1].";
+    }
+    m_opacityParameter->setValue(opacity);
+}
+
+void ObjectModelRenderableMaterial::addClick(QVector3D click) {
+    m_clicks.append(click);
+    uploadClicksToParameters();
+}
+
+void ObjectModelRenderableMaterial::removeLastClick() {
+    m_clicks.removeLast();
+    uploadClicksToParameters();
+}
+
 void ObjectModelRenderableMaterial::removeClicks() {
     m_clicks.clear();
     m_clickColors.clear();
     m_clicksParameter->setValue(m_clicks.constData());
     m_clickColorsParameter->setValue(m_clickColors.constData());
+    m_clickCountParameter->setValue(m_clicks.count());
+}
+
+void ObjectModelRenderableMaterial::uploadClicksToParameters() {
+    QVariantList clicks;
+    QVariantList colors;
+    for (int i = 0; i < m_clicks.size(); i++) {
+        clicks << m_clicks[i];
+        QColor c = DisplayHelper::colorForPosePointIndex(i);
+        colors << QVector3D(c.red() / 255.f, c.green() / 255.f, c.blue() / 255.f);
+    }
+    m_clicksParameter->setValue(clicks);
+    m_clickColorsParameter->setValue(colors);
     m_clickCountParameter->setValue(m_clicks.count());
 }

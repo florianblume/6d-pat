@@ -17,6 +17,10 @@ void ClickVisualizationRenderable::addClick(QPoint click) {
     material->addClick(click);
 }
 
+void ClickVisualizationRenderable::removeLastClick() {
+    material->removeLastClick();
+}
+
 void ClickVisualizationRenderable::removeClicks() {
     material->removeClicks();
 }

@@ -35,8 +35,9 @@ public:
 
 public Q_SLOTS:
     void setObjectModel(const ObjectModel *m_objectModel);
-    void addClick(QVector3D click, QColor color);
+    void addClick(QVector3D click);
     void setSelected(bool selected);
+    void setOpacity(float opacity);
     void removeClicks();
 
 private Q_SLOTS:

@@ -9,6 +9,7 @@
 
 #include <QString>
 #include <QList>
+#include <QMap>
 #include <QSharedPointer>
 #include <QVector>
 #include <QMatrix4x4>
@@ -45,7 +46,7 @@ public:
     PoseRenderable *getObjectModelRenderable(
             const Pose &pose);
     void setObjectsOpacity(float opacity);
-    void addClick(QPoint position, QColor color);
+    void addClick(QPoint position);
     void removeClicks();
     void reset();
     void resizeEvent(QResizeEvent *event) override;
@@ -96,6 +97,7 @@ private:
     ClickVisualizationRenderable *clickVisualizationRenderable;
 
     QList<PoseRenderable *> poseRenderables;
+    QMap<QString, PoseRenderable*> poseRenderableForId;
     QMatrix4x4 projectionMatrix;
 
     // To handle dragging of the widget and clicking

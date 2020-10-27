@@ -20,7 +20,7 @@ class PoseEditor3DWindow : public Qt3DExtras::Qt3DWindow
 public:
     explicit PoseEditor3DWindow();
     void setObjectModel(const ObjectModel &objectModel);
-    void addClick(QVector3D position, QColor color);
+    void addClick(QVector3D position);
     void removeClicks();
     void reset();
 

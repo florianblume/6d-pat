@@ -76,6 +76,7 @@ uniform int clickCount;
 uniform bool useDiffuseTexture;
 uniform float circumfence;
 uniform vec4 selected;
+uniform float opacity;
 
 #line 18
 out vec4 fragColor;
@@ -91,6 +92,7 @@ void main()
     vec4 currentColor = phongFunction(ka, finalDiffuse, ks, shininess, worldPosition, normalize(((eyePosition - worldPosition))), normalize(worldNormal));
 
     currentColor -= selected;
+    currentColor = vec4(vec3(currentColor), opacity);
 
     bool isClicked = false;
     bool isAroundClick = false;
@@ -112,7 +114,7 @@ void main()
        }
        if (isClicked)
        {
-          currentColor = vec4(colors[i], 1.0);
+          currentColor = vec4(colors[i], opacity);
           break;
        }
     }

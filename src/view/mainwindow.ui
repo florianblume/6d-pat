@@ -1993,41 +1993,9 @@
   </connection>
   <connection>
    <sender>poseEditor</sender>
-   <signal>opacityChangeStarted(int)</signal>
-   <receiver>poseViewer</receiver>
-   <slot>onOpacityChangeStarted(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>401</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
-     <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>poseEditor</sender>
    <signal>poseUpdated(Pose*)</signal>
    <receiver>poseViewer</receiver>
    <slot>onPoseUpdated(Pose*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>401</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
-     <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>poseEditor</sender>
-   <signal>opacityChangeEnded()</signal>
-   <receiver>poseViewer</receiver>
-   <slot>onOpacityChangeEnded()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>675</x>

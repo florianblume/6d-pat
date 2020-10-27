@@ -42,9 +42,11 @@ public Q_SLOTS:
     void setDiffuseTexture(Qt3DRender::QAbstractTexture *diffuse);
     void setTextureScale(float textureScale);
     void setDiffuseColor(const QColor &color);
-    void addClick(QVector3D click, QColor color);
     void setCirumfence(float circumfence);
     void setSelected(bool selected);
+    void setOpacity(float opacity);
+    void addClick(QVector3D click);
+    void removeLastClick();
     void removeClicks();
 
 Q_SIGNALS:
@@ -56,6 +58,8 @@ Q_SIGNALS:
     void selectedChanged(bool selected);
 
 private:
+    void uploadClicksToParameters();
+
     Qt3DRender::QEffect *m_effect;
     Qt3DRender::QAbstractTexture *m_diffuseTexture;
     Qt3DRender::QParameter *m_ambientParameter;
@@ -70,6 +74,7 @@ private:
     Qt3DRender::QParameter *m_useDiffuseTextureParameter;
     Qt3DRender::QParameter *m_circumfenceParameter;
     Qt3DRender::QParameter *m_selectedParameter;
+    Qt3DRender::QParameter *m_opacityParameter;
     Qt3DRender::QTechnique *m_technique;
     Qt3DRender::QRenderPass *m_renderPass;
     Qt3DRender::QShaderProgram *m_shaderProgram;
