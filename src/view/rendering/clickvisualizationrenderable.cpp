@@ -28,5 +28,4 @@ void ClickVisualizationRenderable::removeClicks() {
 void ClickVisualizationRenderable::setSize(QSize size) {
     mesh->setWidth(size.width());
     mesh->setHeight(size.height());
-    material->setSize(size);
 }

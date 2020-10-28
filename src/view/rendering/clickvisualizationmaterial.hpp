@@ -25,11 +25,8 @@ public:
     void addClick(QPoint click);
     void removeLastClick();
     void removeClicks();
-    void setSize(QSize size);
 
 private:
-    int m_height = 0;
-
     void uploadClicksToParameters();
     QVector<QPoint> m_clicks;
 

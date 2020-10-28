@@ -65,24 +65,16 @@ void ClickVisualizationMaterial::removeClicks() {
     m_clickColorsParameter->setValue(QVariantList());
 }
 
-void ClickVisualizationMaterial::setSize(QSize size) {
-    if (m_clicks.size() > 0) {
-        qWarning() << "Setting height on ClickVisualizationOverlay but some points have been "
-                      "altered using the old height already. Please clear the clicks before changing the height.";
-    }
-    this->m_height = size.height();
-}
-
 void ClickVisualizationMaterial::uploadClicksToParameters() {
-    QVariantList _clicks;
+    QVariantList clicks;
     QVariantList colors;
     for (int i = 0; i < m_clicks.count(); i++) {
         QPoint click = m_clicks[i];
-        _clicks << QVector2D(click.x(), m_height - click.y());
+        clicks << QVector2D(click.x(), click.y());
         QColor c = DisplayHelper::colorForPosePointIndex(i);
         colors << QVector3D(c.red() / 255.f, c.green() / 255.f, c.blue() / 255.f);
     }
     m_clickColorsParameter->setValue(colors);
-    m_clicksParameter->setValue(_clicks);
+    m_clicksParameter->setValue(clicks);
     m_clickCountParameter->setValue(m_clicks.size());
 }
