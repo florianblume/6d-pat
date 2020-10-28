@@ -8,26 +8,32 @@
 BackgroundImageRenderable::BackgroundImageRenderable(Qt3DCore::QNode *parent,
                                                      const QString &image)
     : Qt3DCore::QEntity(parent) {
-    backgroundImageMesh = new Qt3DExtras::QPlaneMesh();
-    backgroundImageMesh->setWidth(2);
-    backgroundImageMesh->setHeight(2);
-    backgroundImageMaterial = new Qt3DExtras::QTextureMaterial();
-    backgroundImageTexture = new Qt3DRender::QTexture2D();
-    backgroundImageTextureImage = new Qt3DRender::QTextureImage();
-    backgroundImageTextureImage->setSource(QUrl::fromLocalFile(image));
-    backgroundImageTextureImage->setMirrored(true);
-    backgroundImageTexture->addTextureImage(backgroundImageTextureImage);
-    backgroundImageMaterial->setTexture(backgroundImageTexture);
-    backgroundImageTransform = new Qt3DCore::QTransform();
-    backgroundImageTransform->setRotationX(90);
-    this->addComponent(backgroundImageMesh);
-    this->addComponent(backgroundImageMaterial);
-    this->addComponent(backgroundImageTransform);
+    mesh = new Qt3DExtras::QPlaneMesh();
+    mesh->setWidth(2);
+    mesh->setHeight(2);
+    material = new Qt3DExtras::QTextureMaterial();
+    texture = new Qt3DRender::QTexture2D();
+    textureImage = new Qt3DRender::QTextureImage();
+    textureImage->setSource(QUrl::fromLocalFile(image));
+    textureImage->setMirrored(true);
+    texture->addTextureImage(textureImage);
+    material->setTexture(texture);
+    transform = new Qt3DCore::QTransform();
+    transform->setRotationX(90);
+    objectPicker = new Qt3DRender::QObjectPicker();
+    connect(objectPicker, &Qt3DRender::QObjectPicker::clicked, this, &BackgroundImageRenderable::clicked);
+    connect(objectPicker, &Qt3DRender::QObjectPicker::moved, this, &BackgroundImageRenderable::moved);
+    objectPicker->setDragEnabled(true);
+    objectPicker->setHoverEnabled(true);
+    this->addComponent(mesh);
+    this->addComponent(material);
+    this->addComponent(transform);
+    this->addComponent(objectPicker);
 }
 
 BackgroundImageRenderable::~BackgroundImageRenderable() {
 }
 
 void BackgroundImageRenderable::setImage(const QString &image) {
-    backgroundImageTextureImage->setSource(QUrl::fromLocalFile(image));
+    textureImage->setSource(QUrl::fromLocalFile(image));
 }

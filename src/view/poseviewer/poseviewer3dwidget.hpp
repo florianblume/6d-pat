@@ -93,7 +93,7 @@ private:
     Qt3DRender::QLayer *clickVisualizationLayer;
     Qt3DRender::QCameraSelector *clickVisualizationCameraSelector;
     Qt3DRender::QCamera *clickVisualizationCamera;
-    Qt3DRender::QDepthTest *clickVisualizationDepthTest;
+    Qt3DRender::QNoDepthMask *clickVisualizationNoDepthMask;
     ClickVisualizationRenderable *clickVisualizationRenderable;
 
     QList<PoseRenderable *> poseRenderables;

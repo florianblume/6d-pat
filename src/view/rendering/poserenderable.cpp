@@ -10,18 +10,16 @@ PoseRenderable::PoseRenderable(Qt3DCore::QEntity *parent,
         camera(new Qt3DRender::QCamera),
         picker(new Qt3DRender::QObjectPicker),
         transform(new Qt3DCore::QTransform) {
-    this->addComponent(layer);
     layerFilter->addLayer(layer);
     cameraSelector->setParent(layerFilter);
     cameraSelector->setCamera(camera);
-    this->addComponent(picker);
     picker->setHoverEnabled(true);
-    //connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &PoseRenderable::clicked);
-    //connect(picker, &Qt3DRender::QObjectPicker::moved, this, &PoseRenderable::moved);
+    picker->setDragEnabled(true);
+    connect(picker, &Qt3DRender::QObjectPicker::clicked, this, &PoseRenderable::clicked);
+    connect(picker, &Qt3DRender::QObjectPicker::moved, this, &PoseRenderable::moved);
+    this->addComponent(layer);
+    this->addComponent(picker);
     this->addComponent(transform);
-    this->camera->setViewCenter({0, 0, -1});
-    this->camera->setPosition({0, 0, 0});
-    this->camera->setUpVector({0, 1, 0});
 }
 
 QMatrix4x4 PoseRenderable::getModelViewMatrix() {

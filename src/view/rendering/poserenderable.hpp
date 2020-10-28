@@ -4,6 +4,7 @@
 #include "objectmodelrenderable.hpp"
 #include "model/pose.hpp"
 
+#include <QObject>
 #include <QVector>
 #include <QVector3D>
 #include <QMatrix3x3>
@@ -20,6 +21,9 @@
 #include <Qt3DRender/QFrameGraphNode>
 #include <Qt3DRender/QParameter>
 
+#include <Qt3DExtras/QSphereMesh>
+#include <Qt3DExtras/QPhongMaterial>
+
 //!
 //! \brief The PoseRenderable class is only an object model renderable
 //! essentially (i.e. displays an object model) but takes in a pose
@@ -27,6 +31,8 @@
 //!
 class PoseRenderable : public ObjectModelRenderable
 {
+    Q_OBJECT
+
 public:
     PoseRenderable(Qt3DCore::QEntity *parent,
                    const Pose &pose);
@@ -43,9 +49,9 @@ public:
     // To retrieve the respective renderable
     bool operator==(const PoseRenderable &other);
 
-//Q_SIGNALS:
-    //void clicked(Qt3DRender::QPickEvent *pickEvent);
-    //void moved(Qt3DRender::QPickEvent *pickEvent);
+Q_SIGNALS:
+    void clicked(Qt3DRender::QPickEvent *pickEvent);
+    void moved(Qt3DRender::QPickEvent *pickEvent);
 
 private:
     Pose pose;

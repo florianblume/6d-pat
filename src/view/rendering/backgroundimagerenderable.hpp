@@ -8,6 +8,8 @@
 
 #include <Qt3DCore/QNode>
 #include <Qt3DCore/QEntity>
+#include <Qt3DRender/QObjectPicker>
+#include <Qt3DRender/QPickEvent>
 #include <Qt3DCore/QTransform>
 #include <Qt3DRender/QTexture>
 #include <Qt3DExtras/QPlaneMesh>
@@ -16,18 +18,25 @@
 
 class BackgroundImageRenderable : public Qt3DCore::QEntity
 {
+    Q_OBJECT
+
 public:
     BackgroundImageRenderable(Qt3DCore::QNode *parent,
                               const QString &image);
     ~BackgroundImageRenderable();
     void setImage(const QString &image);
 
+Q_SIGNALS:
+    void clicked(Qt3DRender::QPickEvent *pickEvent);
+    void moved(Qt3DRender::QPickEvent *pickEvent);
+
 private:
-    Qt3DExtras::QPlaneMesh *backgroundImageMesh;
-    Qt3DCore::QTransform *backgroundImageTransform;
-    Qt3DExtras::QTextureMaterial *backgroundImageMaterial;
-    Qt3DRender::QTexture2D *backgroundImageTexture;
-    Qt3DRender::QTextureImage *backgroundImageTextureImage;
+    Qt3DExtras::QPlaneMesh *mesh;
+    Qt3DCore::QTransform *transform;
+    Qt3DExtras::QTextureMaterial *material;
+    Qt3DRender::QTexture2D *texture;
+    Qt3DRender::QTextureImage *textureImage;
+    Qt3DRender::QObjectPicker *objectPicker;
 };
 
 #endif // BACKGROUNDIMAGERENDERABLE_H

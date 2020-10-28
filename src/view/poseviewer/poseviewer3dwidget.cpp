@@ -6,6 +6,7 @@
 #include <QMouseEvent>
 
 #include <Qt3DRender/QCameraLens>
+#include <Qt3DRender/QPickingSettings>
 
 PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
     : Qt3DWidget(parent),
@@ -25,13 +26,11 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       clickVisualizationLayer(new Qt3DRender::QLayer),
       clickVisualizationCameraSelector(new Qt3DRender::QCameraSelector),
       clickVisualizationCamera(new Qt3DRender::QCamera),
-      clickVisualizationDepthTest(new Qt3DRender::QDepthTest),
+      clickVisualizationNoDepthMask(new Qt3DRender::QNoDepthMask),
       clickVisualizationRenderable(new ClickVisualizationRenderable) {
 }
 
 PoseViewer3DWidget::~PoseViewer3DWidget() {
-    // TODO texture doesn't get cleaned up because in Qt3dWidget we have to set
-    // a new context so that we don't run into a deadlock
     backgroundImageRenderable->setParent((Qt3DCore::QNode *) 0);
     delete backgroundImageRenderable;
 }
@@ -64,6 +63,7 @@ void PoseViewer3DWidget::initializeQt3D() {
     posesDepthTest->setParent(viewport);
     posesDepthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
 
+    // We need to clear the depth buffer so that we can draw the click overlay
     clearBuffers2 = new Qt3DRender::QClearBuffers(viewport);
     clearBuffers2->setBuffers(Qt3DRender::QClearBuffers::DepthBuffer);
     noDraw2 = new Qt3DRender::QNoDraw(clearBuffers2);
@@ -80,12 +80,14 @@ void PoseViewer3DWidget::initializeQt3D() {
     clickVisualizationCamera->setViewCenter(QVector3D(0, 0, 0));
     clickVisualizationCamera->setUpVector(QVector3D(0, 1, 0));
     clickVisualizationCameraSelector->setCamera(clickVisualizationCamera);
+    clickVisualizationNoDepthMask->setParent(clickVisualizationCameraSelector);
     clickVisualizationRenderable->setParent(root);
     clickVisualizationRenderable->addComponent(clickVisualizationLayer);
     clickVisualizationRenderable->setSize(this->size());
 
     // No need to set a QRenderSurfaceSelector because this is already in the Qt3DWidget
     setActiveFrameGraph(viewport);
+    renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
 }
 
 void PoseViewer3DWidget::setBackgroundImageAndPoses(const QString &image,
@@ -104,6 +106,8 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
     if (backgroundImageRenderable == Q_NULLPTR) {
         backgroundImageRenderable = new BackgroundImageRenderable(root, image);
         backgroundImageRenderable->addComponent(backgroundLayer);
+        connect(backgroundImageRenderable, &BackgroundImageRenderable::moved, [](){qDebug() << "moved";});
+        connect(backgroundImageRenderable, &BackgroundImageRenderable::clicked, [](){qDebug() << "clicked";});
     } else {
         backgroundImageRenderable->setImage(image);
     }
@@ -129,6 +133,7 @@ void PoseViewer3DWidget::addPose(const Pose &pose) {
     poseRenderable->frameGraph()->setParent(posesDepthTest);
     poseRenderables.append(poseRenderable);
     poseRenderableForId[pose.getID()] = poseRenderable;
+    poseRenderable->setProjectionMatrix(projectionMatrix);
 }
 
 void PoseViewer3DWidget::updatePose(const Pose &pose) {
@@ -207,6 +212,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
         move(newPosition);
         mouseMoved = true;
     }
+    Qt3DWidget::mouseMoveEvent(event);
 }
 
 void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
