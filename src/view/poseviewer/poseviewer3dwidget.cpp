@@ -39,9 +39,6 @@ PoseViewer3DWidget::~PoseViewer3DWidget() {
 void PoseViewer3DWidget::initializeQt3D() {
     setRootEntity(root);
 
-    renderSurfaceSelector->setSurface(surface());
-    viewport->setParent(renderSurfaceSelector);
-
     // First branch that clears the buffers
     clearBuffers->setParent(viewport);
     clearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
@@ -77,8 +74,8 @@ void PoseViewer3DWidget::initializeQt3D() {
     clickVisualizationCameraSelector->setParent(clickVisualizationLayerFilter);
     clickVisualizationCamera->setParent(clickVisualizationCameraSelector);
     clickVisualizationCamera->lens()->setOrthographicProjection(0, this->size().width(),
-                                                          0, this->size().height(),
-                                                          0.1f, 1000.f);
+                                                                0, this->size().height(),
+                                                                0.1f, 1000.f);
     clickVisualizationCamera->setPosition(QVector3D(0, 0, 1));
     clickVisualizationCamera->setViewCenter(QVector3D(0, 0, 0));
     clickVisualizationCamera->setUpVector(QVector3D(0, 1, 0));
@@ -86,9 +83,9 @@ void PoseViewer3DWidget::initializeQt3D() {
     clickVisualizationRenderable->setParent(root);
     clickVisualizationRenderable->addComponent(clickVisualizationLayer);
     clickVisualizationRenderable->setSize(this->size());
-    // TODO Set up camera and plane and material
 
-    setActiveFrameGraph(renderSurfaceSelector);
+    // No need to set a QRenderSurfaceSelector because this is already in the Qt3DWidget
+    setActiveFrameGraph(viewport);
 }
 
 void PoseViewer3DWidget::setBackgroundImageAndPoses(const QString &image,

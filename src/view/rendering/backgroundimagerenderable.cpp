@@ -12,11 +12,6 @@ BackgroundImageRenderable::BackgroundImageRenderable(Qt3DCore::QNode *parent,
     backgroundImageMesh->setWidth(2);
     backgroundImageMesh->setHeight(2);
     backgroundImageMaterial = new Qt3DExtras::QTextureMaterial();
-    // Texture is flipped so we must flip the y coordinate
-    float transform[9] = {1, 0, 0, 0, -1, 0, 0, 0, 1};
-    backgroundImageMaterial->setTextureTransform(QMatrix3x3(transform));
-    // Because y coordinates are then negative we need to move the coordinates up
-    backgroundImageMaterial->setTextureOffset({0, 1});
     backgroundImageTexture = new Qt3DRender::QTexture2D();
     backgroundImageTextureImage = new Qt3DRender::QTextureImage();
     backgroundImageTextureImage->setSource(QUrl::fromLocalFile(image));

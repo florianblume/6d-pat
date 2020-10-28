@@ -1,12 +1,7 @@
 #ifndef QT3DWIDGET_H
 #define QT3DWIDGET_H
 
-
-#include <Qt3DRender/qt3drender_global.h>
-
-#include <QMutex>
-#include <QtCore/QtGlobal>
-#include <QOffscreenSurface>
+#include <QMainWindow>
 #include <QOpenGLWidget>
 #include <Qt3DCore/QEntity>
 #include <Qt3DCore/QAbstractAspect>
@@ -15,15 +10,9 @@
 #include <Qt3DRender/QRenderSettings>
 #include <Qt3DRender/QCamera>
 
-#if defined(QT3DWIDGETLIB_LIBRARY)
-#  define QT3DWIDGETLIB_EXPORT Q_DECL_EXPORT
-#else
-#  define QT3DWIDGETLIB_EXPORT Q_DECL_IMPORT
-#endif
-
 class Qt3DWidgetPrivate;
 
-class QT3DWIDGETLIB_EXPORT Qt3DWidget : public QOpenGLWidget {
+class Qt3DWidget : public QOpenGLWidget {
     Q_OBJECT
 
 public:
@@ -35,8 +24,6 @@ public:
     void registerAspect(Qt3DCore::QAbstractAspect *aspect);
     void registerAspect(const QString &name);
 
-    void setUpdateFrequency(int milliseconds);
-
     void setRootEntity(Qt3DCore::QEntity *root);
 
     void setActiveFrameGraph(Qt3DRender::QFrameGraphNode *activeFrameGraph);
@@ -46,11 +33,6 @@ public:
     Qt3DRender::QCamera *camera() const;
     Qt3DRender::QRenderSettings *renderSettings() const;
 
-    QOffscreenSurface *surface() const;
-
-    // Method to override to initialize Qt3D like setting the root entity
-    // and the framegraph. This method is called after the widget has been
-    // initialized.
     virtual void initializeQt3D();
 
 public Q_SLOTS:
@@ -59,11 +41,11 @@ public Q_SLOTS:
 Q_SIGNALS:
 
 protected:
+    void showEvent(QShowEvent *e) override;
     Qt3DWidgetPrivate *d_ptr;
 
 private:
     Q_DECLARE_PRIVATE(Qt3DWidget)
-    QMutex setFramegraphMutex;
 
 };
 
