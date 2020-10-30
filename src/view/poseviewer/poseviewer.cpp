@@ -67,6 +67,7 @@ void PoseViewer::setImage(Image *image) {
     poseViewer3DWidget->removePoses();
     ui->buttonResetPosition->setEnabled(true);
     ui->sliderTransparency->setEnabled(false);
+    ui->sliderTransparency->setValue(100);
 
     qDebug() << "Displaying image (" + currentlyDisplayedImage->getImagePath() + ").";
 
