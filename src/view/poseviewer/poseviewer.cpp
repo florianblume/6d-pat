@@ -68,6 +68,7 @@ void PoseViewer::setImage(Image *image) {
     ui->buttonResetPosition->setEnabled(true);
     ui->sliderTransparency->setEnabled(false);
     ui->sliderTransparency->setValue(100);
+    ui->sliderZoom->setEnabled(true);
 
     qDebug() << "Displaying image (" + currentlyDisplayedImage->getImagePath() + ").";
 
@@ -104,6 +105,8 @@ void PoseViewer::reset() {
     poseViewer3DWidget->reset();
     ui->buttonResetPosition->setEnabled(false);
     ui->buttonSwitchView->setEnabled(false);
+    ui->sliderTransparency->setEnabled(false);
+    ui->sliderZoom->setEnabled(false);
     currentlyDisplayedImage.reset();
 }
 
@@ -164,24 +167,43 @@ void PoseViewer::onOpacityChanged(int opacity) {
 }
 
 void PoseViewer::onZoomChanged(int zoom) {
+    int direction = zoom < this->zoom ? -1 : 1;
+    this->zoom = zoom;
+    qDebug() << zoom;
     if (zoom == 1) {
-        this->zoom = 0.25;
+        this->zoomMultiplier = 0.5f;
     } else if (zoom == 2) {
-        this->zoom = 0.5;
+        this->zoomMultiplier = 1.f;
     } else if (zoom == 3) {
-        this->zoom = 1.f;
-    } else if (zoom == 4) {
-        this->zoom = 2.f;
-    } else if (zoom == 5) {
-        this->zoom = 4.f;
+        this->zoomMultiplier = 2.f;
     }
-    QRect oldRect = poseViewer3DWidget->geometry();
-    poseViewer3DWidget->resize(QSize(this->size().width() * zoom, this->size().height() * zoom));
-    QRect newRect = poseViewer3DWidget->geometry();
-    poseViewer3DWidget->setGeometry(oldRect.x(),
-                                    oldRect.y(),
-                                    newRect.width(),
-                                    newRect.height());
+    if (!resizeAnimation) {
+        resizeAnimation = new QPropertyAnimation(poseViewer3DWidget, "geometry");
+    } else {
+        resizeAnimation->stop();
+    }
+    int oldWidth = poseViewer3DWidget->width();
+    int oldHeight = poseViewer3DWidget->height();
+    int newWidth = 0;
+    int newHeight = 0;
+    if (zoom == 2) {
+        newWidth = poseViewer3DWidget->imageSize().width();
+        newHeight = poseViewer3DWidget->imageSize().height();
+    } else {
+        newWidth = oldWidth * this->zoomMultiplier;
+        newHeight = oldHeight * this->zoomMultiplier;
+    }
+    resizeAnimation->setDuration(250);
+    QPoint position = poseViewer3DWidget->pos();
+    resizeAnimation->setStartValue(QRect(position.x(),
+                                         position.y(),
+                                         oldWidth,
+                                         oldHeight));
+    resizeAnimation->setEndValue(QRect(position.x() - (newWidth - oldWidth) / 2,
+                                       position.y() - (newHeight - oldHeight) / 2,
+                                       poseViewer3DWidget->imageSize().width() * this->zoomMultiplier,
+                                       poseViewer3DWidget->imageSize().height() * this->zoomMultiplier));
+    resizeAnimation->start();
 }
 
 void PoseViewer::resetPositionOfGraphicsView() {
@@ -192,7 +214,7 @@ void PoseViewer::onImageClicked(QPoint point) {
     qDebug() << "Image (" + currentlyDisplayedImage->getImagePath() + ") clicked at: (" +
                 QString::number(point.x()) + ", " + QString::number(point.y()) + ").";
     lastClickedPosition = point;
-    Q_EMIT imageClicked(currentlyDisplayedImage.data(), point / zoom);
+    Q_EMIT imageClicked(currentlyDisplayedImage.data(), point / zoomMultiplier);
 }
 
 void PoseViewer::onPoseDeleted(const QString &id) {

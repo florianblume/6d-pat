@@ -48,11 +48,13 @@ public:
     void setObjectsOpacity(float opacity);
     void addClick(QPoint position);
     void removeClicks();
+    QSize imageSize() const;
     void reset();
     void resizeEvent(QResizeEvent *event) override;
     //void resize(int w, int h);
 
     ~PoseViewer3DWidget();
+
 
 Q_SIGNALS:
     void positionClicked(QPoint position);
@@ -109,6 +111,8 @@ private:
     QPoint lastPos;
     bool mouseDown = false;
     bool mouseMoved = false;
+
+    QSize m_imageSize;
 
     float farPlane = 2000.f;
     float nearPlane = 100.f;

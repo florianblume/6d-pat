@@ -154,6 +154,9 @@
       </item>
       <item>
        <widget class="QSlider" name="sliderZoom">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -167,19 +170,19 @@
          <number>1</number>
         </property>
         <property name="maximum">
-         <number>5</number>
+         <number>3</number>
         </property>
         <property name="singleStep">
          <number>1</number>
         </property>
         <property name="value">
-         <number>3</number>
+         <number>2</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
         <property name="invertedAppearance">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="tickPosition">
          <enum>QSlider::NoTicks</enum>

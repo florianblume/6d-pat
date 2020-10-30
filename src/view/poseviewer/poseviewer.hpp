@@ -14,6 +14,7 @@
 #include <QScopedPointer>
 #include <QtAwesome.h>
 #include <QTimer>
+#include <QPropertyAnimation>
 
 #include <Qt3DRender/QPickEvent>
 
@@ -126,7 +127,9 @@ private:
     // segmentation image
     bool showingNormalImage = true;
 
-    float zoom = 1.f;
+    int zoom = 3;
+    float zoomMultiplier = 1.f;
+    QPropertyAnimation *resizeAnimation = Q_NULLPTR;
 
     void connectModelManagerSlots();
 };

@@ -107,7 +107,7 @@ void PoseViewer3DWidget::setBackgroundImageAndPoses(const QString &image,
 
 void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix) {
     QImage loadedImage(image);
-    qDebug() << loadedImage.size();
+    this->m_imageSize = loadedImage.size();
     this->resize(loadedImage.size());
     if (backgroundImageRenderable == Q_NULLPTR) {
         backgroundImageRenderable = new BackgroundImageRenderable(root, image);
@@ -191,8 +191,11 @@ void PoseViewer3DWidget::reset() {
 }
 
 void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
-    clickVisualizationRenderable->setSize(event->size());
     Qt3DWidget::resizeEvent(event);
+    clickVisualizationRenderable->setSize(event->size());
+    //clickVisualizationCamera->lens()->setOrthographicProjection(0, this->size().width(),
+    //                                                            0, this->size().height(),
+    //                                                            0.1f, 1000.f);
 }
 
 /*
@@ -225,4 +228,9 @@ void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
         Q_EMIT positionClicked(event->pos());
     }
     mouseMoved = false;
+}
+
+QSize PoseViewer3DWidget::imageSize() const
+{
+    return m_imageSize;
 }
