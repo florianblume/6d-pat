@@ -153,6 +153,43 @@
        </widget>
       </item>
       <item>
+       <widget class="QSlider" name="sliderZoom">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Zoom in and out.</string>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>5</number>
+        </property>
+        <property name="singleStep">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <number>3</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="invertedAppearance">
+         <bool>true</bool>
+        </property>
+        <property name="tickPosition">
+         <enum>QSlider::NoTicks</enum>
+        </property>
+        <property name="tickInterval">
+         <number>1</number>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QSlider" name="sliderTransparency">
         <property name="enabled">
          <bool>false</bool>
@@ -165,6 +202,9 @@
         </property>
         <property name="toolTip">
          <string>Controls the transparency of objects.</string>
+        </property>
+        <property name="minimum">
+         <number>0</number>
         </property>
         <property name="maximum">
          <number>100</number>
@@ -476,6 +516,22 @@ QPushButton:pressed {
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>sliderZoom</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>PoseViewer</receiver>
+   <slot>onZoomChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>201</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>imageClicked(Image*,QPoint)</signal>
@@ -483,5 +539,6 @@ QPushButton:pressed {
   <slot>imageClicked(QPoint)</slot>
   <slot>resetPositionOfGraphicsView()</slot>
   <slot>onOpacityChanged(int)</slot>
+  <slot>onZoomChanged(int)</slot>
  </slots>
 </ui>

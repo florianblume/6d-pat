@@ -191,9 +191,16 @@ void PoseViewer3DWidget::reset() {
 }
 
 void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
-    Qt3DWidget::resizeEvent(event);
     clickVisualizationRenderable->setSize(event->size());
+    Qt3DWidget::resizeEvent(event);
 }
+
+/*
+void PoseViewer3DWidget::resize(int w, int h) {
+    Qt3DWidget::resize(w, h);
+    clickVisualizationRenderable->setSize(QSize(w, h));
+}
+*/
 
 void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
     lastPos = event->globalPos() - QPoint(geometry().x(), geometry().y());

@@ -50,6 +50,7 @@ public:
     void removeClicks();
     void reset();
     void resizeEvent(QResizeEvent *event) override;
+    //void resize(int w, int h);
 
     ~PoseViewer3DWidget();
 

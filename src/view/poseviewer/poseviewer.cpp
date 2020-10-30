@@ -2,7 +2,7 @@
 #include "ui_poseviewer.h"
 #include "view/misc/displayhelper.hpp"
 
-#include "math.h"
+#include <QRect>
 
 PoseViewer::PoseViewer(QWidget *parent, ModelManager* modelManager) :
     QWidget(parent),
@@ -163,6 +163,27 @@ void PoseViewer::onOpacityChanged(int opacity) {
     poseViewer3DWidget->setObjectsOpacity(opacity / 100.0);
 }
 
+void PoseViewer::onZoomChanged(int zoom) {
+    if (zoom == 1) {
+        this->zoom = 0.25;
+    } else if (zoom == 2) {
+        this->zoom = 0.5;
+    } else if (zoom == 3) {
+        this->zoom = 1.f;
+    } else if (zoom == 4) {
+        this->zoom = 2.f;
+    } else if (zoom == 5) {
+        this->zoom = 4.f;
+    }
+    QRect oldRect = poseViewer3DWidget->geometry();
+    poseViewer3DWidget->resize(QSize(this->size().width() * zoom, this->size().height() * zoom));
+    QRect newRect = poseViewer3DWidget->geometry();
+    poseViewer3DWidget->setGeometry(oldRect.x(),
+                                    oldRect.y(),
+                                    newRect.width(),
+                                    newRect.height());
+}
+
 void PoseViewer::resetPositionOfGraphicsView() {
     poseViewer3DWidget->setGeometry(0, 0, poseViewer3DWidget->width(), poseViewer3DWidget->height());
 }
@@ -171,7 +192,7 @@ void PoseViewer::onImageClicked(QPoint point) {
     qDebug() << "Image (" + currentlyDisplayedImage->getImagePath() + ") clicked at: (" +
                 QString::number(point.x()) + ", " + QString::number(point.y()) + ").";
     lastClickedPosition = point;
-    Q_EMIT imageClicked(currentlyDisplayedImage.data(), point);
+    Q_EMIT imageClicked(currentlyDisplayedImage.data(), point / zoom);
 }
 
 void PoseViewer::onPoseDeleted(const QString &id) {

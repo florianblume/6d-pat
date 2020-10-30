@@ -100,6 +100,7 @@ private Q_SLOTS:
      */
     void switchImage();
     void onOpacityChanged(int opacity);
+    void onZoomChanged(int zoom);
     void resetPositionOfGraphicsView();
     void onImageClicked(QPoint point);
     // Private slot listening to model manager
@@ -124,6 +125,8 @@ private:
     // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
     // segmentation image
     bool showingNormalImage = true;
+
+    float zoom = 1.f;
 
     void connectModelManagerSlots();
 };
