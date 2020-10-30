@@ -45,9 +45,13 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     this->renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
 
     picker = new Qt3DRender::QObjectPicker(rootEntity);
+    picker->setHoverEnabled(true);
+    picker->setDragEnabled(true);
     rootEntity->addComponent(picker);
     connect(picker, &Qt3DRender::QObjectPicker::clicked,
            [this](Qt3DRender::QPickEvent *pickEvent){Q_EMIT positionClicked(pickEvent->localIntersection());});
+    connect(picker, &Qt3DRender::QObjectPicker::moved,
+           [](Qt3DRender::QPickEvent *pickEvent){qDebug() << pickEvent->localIntersection();});
     // Needs to be placed after setRootEntity on the window because it doesn't work otherwise -> leave it here
     objectModelRenderable = new ObjectModelRenderable(rootEntity);
     connect(objectModelRenderable, &ObjectModelRenderable::statusChanged, this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);

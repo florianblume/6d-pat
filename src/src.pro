@@ -58,6 +58,7 @@ HEADERS  += \
     view/navigationcontrols/navigationcontrols.hpp \
     view/rendering/backgroundimagerenderable.hpp \
     view/rendering/poserenderable.hpp \
+    view/rendering/test.h \
     view/settings/settingsdialog.hpp \
     view/settings/settingsgeneralpage.hpp \
     view/settings/settingssegmentationcodespage.hpp \
@@ -104,6 +105,7 @@ SOURCES += \
     view/gallery/iconexpandinglistview.cpp \
     view/rendering/backgroundimagerenderable.cpp \
     view/rendering/poserenderable.cpp \
+    view/rendering/test.cpp \
     view/settings/settingsdialog.cpp \
     view/settings/settingsgeneralpage.cpp \
     view/settings/settingsnetworkpage.cpp \

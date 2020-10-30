@@ -82,6 +82,10 @@ private:
     BackgroundImageRenderable *backgroundImageRenderable = Q_NULLPTR;
 
     // Poses branch
+    Qt3DRender::QLayerFilter *posesLayerFilter;
+    Qt3DRender::QLayer *posesLayer;
+    Qt3DRender::QCamera *posesCamera;
+    Qt3DRender::QCameraSelector *posesCameraSelector;
     Qt3DRender::QDepthTest *posesDepthTest;
 
     // Clear depth buffer before drawing clicks

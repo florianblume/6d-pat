@@ -31,7 +31,7 @@ public:
      * \param _objectModel the associated object model
      */
     Pose(QString id, QVector3D position, QMatrix3x3 rotation,
-                              const Image* image, const ObjectModel* objectModel);
+         const Image* image, const ObjectModel* objectModel);
 
     /*!
      * \brief ObjectImagePose copy constructor for class ObjectImagePose.

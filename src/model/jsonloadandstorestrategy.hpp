@@ -60,7 +60,7 @@ public:
      * \throws an exception if the path to the folder that should hold the poses has not been set previously
      */
     QList<Pose> loadPoses(const QList<Image> &images,
-                                              const QList<ObjectModel> &objectModels) override;
+                          const QList<ObjectModel> &objectModels) override;
 
 protected slots:
     void onSettingsChanged(const QString settingsIdentifier) override;

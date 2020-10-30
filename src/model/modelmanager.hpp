@@ -90,7 +90,7 @@ public:
      * \return all poses of the given image and given object model
      */
     virtual QList<Pose> getPosesForImageAndObjectModel(const Image& image,
-                                                          const ObjectModel& objectModel) = 0;
+                                                       const ObjectModel& objectModel) = 0;
 
     /*!
      * \brief addObjectImagePose Adds a new ObjectImagePose to the poses managed by this manager.
@@ -100,9 +100,9 @@ public:
      * \return true if creating and persisting the pose was successful
      */
     virtual bool addObjectImagePose(Image *image,
-                                              ObjectModel *objectModel,
-                                              QVector3D position,
-                                              QMatrix3x3 rotation) = 0;
+                                    ObjectModel *objectModel,
+                                    QVector3D position,
+                                    QMatrix3x3 rotation) = 0;
 
     /*!
      * \brief addObjectImagePose Updates the given ObjectImagePose and automatically persists it according to the
@@ -113,8 +113,8 @@ public:
      * pose or persisting it has failed
      */
     virtual bool updateObjectImagePose(const QString &id,
-                                                 QVector3D position,
-                                                 QMatrix3x3 rotation) = 0;
+                                       QVector3D position,
+                                       QMatrix3x3 rotation) = 0;
 
     /*!
      * \brief removeObjectImagePose Removes the given ObjectImagePose if it is present in the list

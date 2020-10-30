@@ -14,6 +14,7 @@
 #include <Qt3DCore/QEntity>
 #include <Qt3DRender/QSceneLoader>
 #include <Qt3DRender/QTexture>
+#include <Qt3DRender/QObjectPicker>
 
 class ObjectModelRenderable : public Qt3DCore::QEntity
 {
@@ -49,6 +50,7 @@ private:
 
     Qt3DRender::QSceneLoader *m_sceneLoader = Q_NULLPTR;
     ObjectModelRenderableMaterial *m_material = Q_NULLPTR;
+    Qt3DRender::QObjectPicker *picker;
 
     void initialize();
 };

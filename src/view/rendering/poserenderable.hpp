@@ -34,8 +34,8 @@ class PoseRenderable : public ObjectModelRenderable
     Q_OBJECT
 
 public:
-    PoseRenderable(Qt3DCore::QEntity *parent,
-                   const Pose &pose);
+    PoseRenderable(Qt3DCore::QEntity *parent, const Pose &pose);
+
     QString getPoseId();
     QMatrix4x4 getModelViewMatrix();
     ObjectModel getObjectModel();
@@ -65,8 +65,6 @@ private:
     QMatrix4x4 modelViewMatrix;
 
     Qt3DCore::QTransform *transform;
-
-    void computeModelViewMatrix();
 };
 
 #endif // POSERENDERABLE_H

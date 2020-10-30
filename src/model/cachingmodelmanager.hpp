@@ -39,13 +39,13 @@ public:
             const ObjectModel &objectModel) override;
 
     bool addObjectImagePose(Image *image,
-                                      ObjectModel *objectModel,
-                                      QVector3D position,
-                                      QMatrix3x3 rotation) override;
+                            ObjectModel *objectModel,
+                            QVector3D position,
+                            QMatrix3x3 rotation) override;
 
     bool updateObjectImagePose(const QString &id,
-                                         QVector3D position,
-                                         QMatrix3x3 rotation) override;
+                               QVector3D position,
+                               QMatrix3x3 rotation) override;
 
     bool removeObjectImagePose(const QString &id) override;
 

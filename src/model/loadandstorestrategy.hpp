@@ -37,7 +37,7 @@ public:
      * \return true if persisting the object image pose was successful, false if not
      */
     virtual bool persistPose(Pose *objectImagePose,
-                                                  bool deletePose) = 0;
+                             bool deletePose) = 0;
 
     /*!
      * \brief loadImages Loads the images.
