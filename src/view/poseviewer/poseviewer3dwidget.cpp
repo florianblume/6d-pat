@@ -215,7 +215,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
 
 void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (!mouseMoved && backgroundImageRenderable != Q_NULLPTR) {
-        //Q_EMIT positionClicked(event->pos());
+        Q_EMIT positionClicked(event->pos());
     }
     mouseMoved = false;
 }
