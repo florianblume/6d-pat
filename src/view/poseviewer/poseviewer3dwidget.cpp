@@ -1,8 +1,6 @@
 #include "poseviewer3dwidget.hpp"
 #include "misc/global.hpp"
 
-#include "view/rendering/test.h"
-
 #include <QFrame>
 #include <QImage>
 #include <QMouseEvent>
@@ -66,11 +64,7 @@ void PoseViewer3DWidget::initializeQt3D() {
     noDraw2 = new Qt3DRender::QNoDraw(clearBuffers2);
 
     // Third branch that draws the poses
-    // posesDepthTest -> Nothing to do here, the poses all have their
-    // own layer filter so that the other objects don't get drawn with
-    // their parameters
-    //posesLayerFilter->setParent(viewport);
-    //posesLayerFilter->addLayer(posesLayer);
+    // We don't need a layer filter here because only the poses travel through this branch somehow
     posesCameraSelector->setParent(viewport);
     posesCameraSelector->setCamera(posesCamera);
     posesCamera->setPosition({0, 0, 0});
@@ -80,8 +74,6 @@ void PoseViewer3DWidget::initializeQt3D() {
     posesDepthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
 
     setActiveFrameGraph(viewport);
-
-    /*
 
     // Fourth branch draws the clicks
     clickVisualizationLayerFilter->setParent(viewport);
@@ -102,7 +94,6 @@ void PoseViewer3DWidget::initializeQt3D() {
 
     // No need to set a QRenderSurfaceSelector because this is already in the Qt3DWidget
     renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
-    */
 }
 
 void PoseViewer3DWidget::setBackgroundImageAndPoses(const QString &image,
@@ -119,7 +110,7 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
     qDebug() << loadedImage.size();
     this->resize(loadedImage.size() / 2);
     if (backgroundImageRenderable == Q_NULLPTR) {
-        backgroundImageRenderable = new BackgroundImageRenderable(nullptr, image);
+        backgroundImageRenderable = new BackgroundImageRenderable(root, image);
         backgroundImageRenderable->addComponent(backgroundLayer);
     } else {
         backgroundImageRenderable->setImage(image);
@@ -141,7 +132,7 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
 
 void PoseViewer3DWidget::addPose(const Pose &pose) {
     PoseRenderable *poseRenderable = new PoseRenderable(root, pose);
-    poseRenderable->addComponent(posesLayer);
+    //poseRenderable->addComponent(posesLayer);
     poseRenderables.append(poseRenderable);
     poseRenderableForId[pose.getID()] = poseRenderable;
 }
@@ -158,7 +149,6 @@ void PoseViewer3DWidget::removePose(const QString &id) {
         if (poseRenderables[index]->getPoseId() == id) {
             PoseRenderable *renderable = poseRenderables[index];
             // Remove related framegraph
-            //renderable->frameGraph()->setParent((Qt3DCore::QNode *) 0);
             poseRenderables.removeAt(index);
             poseRenderableForId.remove(id);
             // This also deletes the renderable
@@ -225,7 +215,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
 
 void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (!mouseMoved && backgroundImageRenderable != Q_NULLPTR) {
-        Q_EMIT positionClicked(event->pos());
+        //Q_EMIT positionClicked(event->pos());
     }
     mouseMoved = false;
 }

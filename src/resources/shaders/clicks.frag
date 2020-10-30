@@ -16,12 +16,12 @@ void main(void)
 
     for (int i = 0; i < clickCount; i++)
     {
-       vec2 delta = abs(gl_FragCoord.xy - clicks[i]);
-       if (pow(delta.r, 2) + pow(delta.g, 2) <= pow(circumfence, 2))
-       {
+        vec2 delta = abs(gl_FragCoord.xy - clicks[i]);
+        if (pow(delta.r, 2) + pow(delta.g, 2) <= pow(circumfence, 2))
+        {
           fragColor = vec4(colors[i], 1);
           return;
-       }
+        }
     }
     discard;
 }

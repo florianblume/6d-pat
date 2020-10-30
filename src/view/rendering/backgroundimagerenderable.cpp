@@ -15,7 +15,7 @@ BackgroundImageRenderable::BackgroundImageRenderable(Qt3DCore::QNode *parent,
     texture = new Qt3DRender::QTexture2D();
     textureImage = new Qt3DRender::QTextureImage();
     textureImage->setSource(QUrl::fromLocalFile(image));
-    textureImage->setMirrored(true);
+    textureImage->setMirrored(false);
     texture->addTextureImage(textureImage);
     material->setTexture(texture);
     transform = new Qt3DCore::QTransform();

@@ -63,6 +63,7 @@ ObjectModelRenderableMaterial::ObjectModelRenderableMaterial(Qt3DCore::QNode *pa
     m_effect->addParameter(m_useDiffuseTextureParameter);
     m_effect->addParameter(m_circumfenceParameter);
     m_effect->addParameter(m_selectedParameter);
+    m_effect->addParameter(m_opacityParameter);
 
     setEffect(m_effect);
 }

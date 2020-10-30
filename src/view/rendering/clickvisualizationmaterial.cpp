@@ -49,6 +49,7 @@ ClickVisualizationMaterial::ClickVisualizationMaterial(Qt3DCore::QNode *parent)
 }
 
 void ClickVisualizationMaterial::addClick(QPoint click) {
+    click.setY(height - click.y());
     m_clicks.append(click);
     uploadClicksToParameters();
 }
@@ -63,6 +64,10 @@ void ClickVisualizationMaterial::removeClicks() {
     m_clicksParameter->setValue(QVariantList());
     m_clickCountParameter->setValue(0);
     m_clickColorsParameter->setValue(QVariantList());
+}
+
+void ClickVisualizationMaterial::setHeight(int height) {
+    this->height = height;
 }
 
 void ClickVisualizationMaterial::uploadClicksToParameters() {

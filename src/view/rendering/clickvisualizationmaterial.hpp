@@ -25,10 +25,12 @@ public:
     void addClick(QPoint click);
     void removeLastClick();
     void removeClicks();
+    void setHeight(int height);
 
 private:
     void uploadClicksToParameters();
     QVector<QPoint> m_clicks;
+    int height = 0;
 
     Qt3DRender::QEffect *m_effect;
     Qt3DRender::QTechnique *m_technique;
