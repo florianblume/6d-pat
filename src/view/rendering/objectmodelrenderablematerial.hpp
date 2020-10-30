@@ -13,6 +13,8 @@
 #include <Qt3DRender/QRenderPass>
 #include <Qt3DRender/QShaderProgram>
 #include <Qt3DRender/QFilterKey>
+#include <Qt3DRender/QBlendEquation>
+#include <Qt3DRender/QBlendEquationArguments>
 
 class ObjectModelRenderableMaterial : public Qt3DRender::QMaterial
 {
@@ -79,6 +81,8 @@ private:
     Qt3DRender::QRenderPass *m_renderPass;
     Qt3DRender::QShaderProgram *m_shaderProgram;
     Qt3DRender::QFilterKey *m_filterKey;
+    Qt3DRender::QBlendEquationArguments *m_blendState;
+    Qt3DRender::QBlendEquation *m_blendEquation;
 
     QVector<QVector3D> m_clicks;
     QVector<QVector3D> m_clickColors;

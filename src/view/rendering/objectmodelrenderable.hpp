@@ -3,7 +3,7 @@
 
 #include "misc/global.hpp"
 #include "model/objectmodel.hpp"
-#include "view/rendering/objectmodelrenderablematerial.h"
+#include "view/rendering/objectmodelrenderablematerial.hpp"
 
 #include <QObject>
 #include <QVector3D>

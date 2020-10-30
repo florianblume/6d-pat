@@ -1,4 +1,4 @@
-#include "objectmodelrenderablematerial.h"
+#include "objectmodelrenderablematerial.hpp"
 #include "view/misc/displayhelper.hpp"
 
 #include <QVector3D>
@@ -22,11 +22,13 @@ ObjectModelRenderableMaterial::ObjectModelRenderableMaterial(Qt3DCore::QNode *pa
       , m_useDiffuseTextureParameter(new Qt3DRender::QParameter(QStringLiteral("useDiffuseTexture"), QVariant::fromValue(withTexture)))
       , m_circumfenceParameter(new Qt3DRender::QParameter(QStringLiteral("circumfence"), 0.001f))
       , m_selectedParameter(new Qt3DRender::QParameter(QStringLiteral("selected"), QVector4D(0.f, 0.f, 0.f, 0.f)))
-      , m_opacityParameter(new Qt3DRender::QParameter(QStringLiteral("opacity"), 1.0))
+      , m_opacityParameter(new Qt3DRender::QParameter(QStringLiteral("opacity"), 1.0f))
       , m_technique(new Qt3DRender::QTechnique())
       , m_renderPass(new Qt3DRender::QRenderPass())
       , m_shaderProgram(new Qt3DRender::QShaderProgram())
-      , m_filterKey(new Qt3DRender::QFilterKey)
+      , m_filterKey(new Qt3DRender::QFilterKey())
+      , m_blendState(new Qt3DRender::QBlendEquationArguments())
+      , m_blendEquation(new Qt3DRender::QBlendEquation())
 {
     m_shaderProgram->setVertexShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/object.vert"))));
     m_shaderProgram->setFragmentShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/object.frag"))));
@@ -46,6 +48,13 @@ ObjectModelRenderableMaterial::ObjectModelRenderableMaterial(Qt3DCore::QNode *pa
     m_filterKey->setValue(QStringLiteral("forward"));
 
     m_technique->addFilterKey(m_filterKey);
+
+    m_blendState->setSourceRgb(Qt3DRender::QBlendEquationArguments::SourceAlpha);
+    m_blendState->setDestinationRgb(Qt3DRender::QBlendEquationArguments::OneMinusSourceAlpha);
+    m_blendEquation->setBlendFunction(Qt3DRender::QBlendEquation::Add);
+
+    m_renderPass->addRenderState(m_blendState);
+    m_renderPass->addRenderState(m_blendEquation);
 
     m_renderPass->setShaderProgram(m_shaderProgram);
 

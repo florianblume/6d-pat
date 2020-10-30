@@ -57,6 +57,7 @@ HEADERS  += \
     view/gallery/iconexpandinglistview.hpp \
     view/navigationcontrols/navigationcontrols.hpp \
     view/rendering/backgroundimagerenderable.hpp \
+    view/rendering/objectmodelrenderablematerial.hpp \
     view/rendering/poserenderable.hpp \
     view/settings/settingsdialog.hpp \
     view/settings/settingsgeneralpage.hpp \
@@ -79,7 +80,6 @@ HEADERS  += \
     view/gallery/rendering/offscreenengine.h \
     view/gallery/rendering/texturerendertarget.h \
     view/rendering/objectmodelrenderable.hpp \
-    view/rendering/objectmodelrenderablematerial.h \
     view/poseeditor/listviewposesmodel.h \
     view/rendering/clickvisualizationmaterial.hpp \
     view/rendering/clickvisualizationrenderable.hpp
