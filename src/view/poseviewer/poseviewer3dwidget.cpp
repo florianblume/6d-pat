@@ -108,7 +108,7 @@ void PoseViewer3DWidget::setBackgroundImageAndPoses(const QString &image,
 void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix) {
     QImage loadedImage(image);
     qDebug() << loadedImage.size();
-    this->resize(loadedImage.size() / 2);
+    this->resize(loadedImage.size());
     if (backgroundImageRenderable == Q_NULLPTR) {
         backgroundImageRenderable = new BackgroundImageRenderable(root, image);
         backgroundImageRenderable->addComponent(backgroundLayer);
