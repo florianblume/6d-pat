@@ -1,10 +1,10 @@
 #include "pose.hpp"
 
 Pose::Pose(QString id,
-                                                     QVector3D position,
-                                                     QMatrix3x3 rotation,
-                                                     const Image* image,
-                                                     const ObjectModel* objectModel)
+            QVector3D position,
+            QMatrix3x3 rotation,
+            ImagePtr image,
+            ObjectModelPtr objectModel)
     : position(position),
       rotation(rotation),
       image(image),
@@ -28,19 +28,19 @@ QMatrix3x3 Pose::getRotation() const {
     return rotation;
 }
 
-const Image* Pose::getImage() const {
+ImagePtr Pose::getImage() const {
     return image;
 }
 
-const ObjectModel* Pose::getObjectModel() const {
+ObjectModelPtr Pose::getObjectModel() const {
     return objectModel;
 }
 
-void Pose::setPosition(QVector3D position) {
+void Pose::setPosition(const QVector3D &position) {
     this->position = position;
 }
 
-void Pose::setRotation(QMatrix3x3 rotation) {
+void Pose::setRotation(const QMatrix3x3 &rotation) {
     this->rotation = std::move(rotation);
 }
 

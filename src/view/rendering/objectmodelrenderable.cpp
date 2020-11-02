@@ -24,7 +24,7 @@ ObjectModelRenderable::ObjectModelRenderable(Qt3DCore::QEntity *parent)
     initialize();
 }
 
-ObjectModelRenderable::ObjectModelRenderable(Qt3DCore::QEntity *parent, const ObjectModel *objectModel)
+ObjectModelRenderable::ObjectModelRenderable(Qt3DCore::QEntity *parent, const ObjectModel &objectModel)
     : Qt3DCore::QEntity(parent) {
     initialize();
     setObjectModel(objectModel);
@@ -44,16 +44,15 @@ bool ObjectModelRenderable::isSelected() const {
     return m_selected;
 }
 
-void ObjectModelRenderable::setObjectModel(const ObjectModel *objectModel) {
+void ObjectModelRenderable::setObjectModel(const ObjectModel &objectModel) {
     m_selected = false;
-    removeClicks();
     m_sceneLoader->setEnabled(false);
-    m_sceneLoader->setSource(QUrl::fromLocalFile(objectModel->getAbsolutePath()));
+    m_sceneLoader->setSource(QUrl::fromLocalFile(objectModel.getAbsolutePath()));
 }
 
-void ObjectModelRenderable::addClick(QVector3D click) {
+void ObjectModelRenderable::setClicks(QVector<QVector3D> clicks) {
     if (m_material)
-        m_material->addClick(click);
+        m_material->setClicks(clicks);
     Q_EMIT clicksChanged();
 }
 
@@ -66,12 +65,6 @@ void ObjectModelRenderable::setSelected(bool selected) {
 
 void ObjectModelRenderable::setOpacity(float opacity) {
     m_material->setOpacity(opacity);
-}
-
-void ObjectModelRenderable::removeClicks() {
-    if (m_material)
-        m_material->removeClicks();
-    Q_EMIT clicksChanged();
 }
 
 void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status) {

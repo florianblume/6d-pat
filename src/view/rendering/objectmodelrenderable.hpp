@@ -30,16 +30,15 @@ Q_SIGNALS:
 
 public:
     ObjectModelRenderable(Qt3DCore::QEntity *parent);
-    ObjectModelRenderable(Qt3DCore::QEntity *parent, const ObjectModel *m_objectModel);
+    ObjectModelRenderable(Qt3DCore::QEntity *parent, const ObjectModel &m_objectModel);
     Qt3DRender::QSceneLoader::Status status() const;
     bool isSelected() const;
 
 public Q_SLOTS:
-    void setObjectModel(const ObjectModel *m_objectModel);
-    void addClick(QVector3D click);
+    void setObjectModel(const ObjectModel &m_objectModel);
+    void setClicks(QVector<QVector3D> clicks);
     void setSelected(bool selected);
     void setOpacity(float opacity);
-    void removeClicks();
 
 private Q_SLOTS:
     void onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status);
@@ -50,7 +49,7 @@ private:
 
     Qt3DRender::QSceneLoader *m_sceneLoader = Q_NULLPTR;
     ObjectModelRenderableMaterial *m_material = Q_NULLPTR;
-    Qt3DRender::QObjectPicker *picker;
+    Qt3DRender::QObjectPicker *m_picker;
 
     void initialize();
 };

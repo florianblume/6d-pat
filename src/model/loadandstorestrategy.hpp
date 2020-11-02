@@ -36,28 +36,28 @@ public:
      * \param deletePose indicates whether the pose should be persistently deleted
      * \return true if persisting the object image pose was successful, false if not
      */
-    virtual bool persistPose(Pose *objectImagePose,
+    virtual bool persistPose(const Pose &objectImagePose,
                              bool deletePose) = 0;
 
     /*!
      * \brief loadImages Loads the images.
      * \return the list of images
      */
-    virtual QList<Image> loadImages() = 0;
+    virtual QList<ImagePtr> loadImages() = 0;
 
     /*!
      * \brief loadObjectModels Loads the object models.
      * \return the list of object models
      */
-    virtual QList<ObjectModel> loadObjectModels() = 0;
+    virtual QList<ObjectModelPtr> loadObjectModels() = 0;
 
     /*!
      * \brief loadPoses Loads the poses at the given path. How the poses
      * are stored depends on the strategy.
      * \return the list of all stored poses
      */
-    virtual QList<Pose> loadPoses(const QList<Image> &images,
-                                  const QList<ObjectModel> &objectModels) = 0;
+    virtual QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
+                                     const QList<ObjectModelPtr> &objectModels) = 0;
 
     void setSettingsStore(SettingsStore *value);
 
@@ -74,7 +74,7 @@ signals:
     void failedToPersistPose(const QString &message);
 
 protected slots:
-    virtual void onSettingsChanged(const QString settingsIdentifier) = 0;
+    virtual void onSettingsChanged(const QString &settingsIdentifier) = 0;
 
 protected:
     SettingsStore *settingsStore;

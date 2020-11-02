@@ -30,7 +30,7 @@ public:
 
 private:
     ModelManager *modelManager;
-    QList<Image> imagesCache;
+    QList<ImagePtr> imagesCache;
     ResizeImagesRunnable *resizeImagesRunnable = Q_NULLPTR;
     QThreadPool resizeImagesThreadpool;
     QMap<QString, QImage> resizedImagesCache;
@@ -40,7 +40,7 @@ private:
     void resizeImages();
 
 private Q_SLOTS:
-    void onImageResized(int imageIndex, QString imagePath, QImage resizedImage);
+    void onImageResized(int imageIndex, const QString &imagePath, const QImage &resizedImage);
     void onImagesChanged();
 
 };

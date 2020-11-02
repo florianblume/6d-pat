@@ -6,6 +6,7 @@
 #include <QVector3D>
 #include <QMatrix3x3>
 #include <QString>
+#include <QSharedPointer>
 
 //! This class represents a match between an object model and an image, i.e. stores where the object is located on the image and
 //! how it is rotated.
@@ -16,9 +17,9 @@ private:
     //! The rotation of the object on the image.
     QMatrix3x3 rotation;
     //! The image associated with this corresopndence.
-    const Image* image;
+    ImagePtr image;
     //! The object model associated with this pose.
-    const ObjectModel* objectModel;
+    ObjectModelPtr objectModel;
     //! The ID of the pose. This is necessary becuase images might contain some objects multiple times.
     QString id;
 
@@ -31,7 +32,7 @@ public:
      * \param _objectModel the associated object model
      */
     Pose(QString id, QVector3D position, QMatrix3x3 rotation,
-         const Image* image, const ObjectModel* objectModel);
+         ImagePtr image, ObjectModelPtr objectModel);
 
     /*!
      * \brief ObjectImagePose copy constructor for class ObjectImagePose.
@@ -56,16 +57,16 @@ public:
      * \brief getImage Returns the image associated with this pose.
      * \return the image associated with this pose
      */
-    const Image* getImage() const;
+    ImagePtr getImage() const;
     /*!
      * \brief getObjectModel Returns the object model associated with this pose.
      * \return the object model associated with this pose
      */
-    const ObjectModel* getObjectModel() const;
+    ObjectModelPtr getObjectModel() const;
 
-    void setPosition(QVector3D position);
+    void setPosition(const QVector3D &position);
 
-    void setRotation(QMatrix3x3 rotation);
+    void setRotation(const QMatrix3x3 &rotation);
     /*!
      * \brief getID Returns the unique ID of this pose.
      * \return the unique ID of this pose
@@ -82,5 +83,7 @@ public:
     Pose& operator=(const Pose &other);
 
 };
+
+typedef QSharedPointer<Pose> PosePtr;
 
 #endif // OBJECTIMAGECORRESPONDENCE_H

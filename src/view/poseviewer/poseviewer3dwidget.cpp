@@ -97,11 +97,11 @@ void PoseViewer3DWidget::initializeQt3D() {
 }
 
 void PoseViewer3DWidget::setBackgroundImageAndPoses(const QString &image,
-                                                    QMatrix3x3 cameraMatrix,
-                                                    QList<Pose> &poses) {
+                                                    const QMatrix3x3 &cameraMatrix,
+                                                    const QList<PosePtr> &poses) {
     setBackgroundImage(image, cameraMatrix);
-    for (Pose &pose : poses) {
-        addPose(pose);
+    for (const PosePtr &pose : poses) {
+        addPose(*pose);
     }
 }
 
@@ -197,13 +197,6 @@ void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
     //                                                            0, this->size().height(),
     //                                                            0.1f, 1000.f);
 }
-
-/*
-void PoseViewer3DWidget::resize(int w, int h) {
-    Qt3DWidget::resize(w, h);
-    clickVisualizationRenderable->setSize(QSize(w, h));
-}
-*/
 
 void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
     lastPos = event->globalPos() - QPoint(geometry().x(), geometry().y());

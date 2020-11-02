@@ -2,6 +2,7 @@
 #define OBJECTMODEL_H
 
 #include <QString>
+#include <QSharedPointer>
 
 //! Class ObjectModel stores the URL to the 3D model of the object.
 class ObjectModel {
@@ -48,5 +49,7 @@ public:
 
     ObjectModel& operator=(const ObjectModel &other);
 };
+
+typedef QSharedPointer<ObjectModel> ObjectModelPtr;
 
 #endif // OBJECTMODEL_H

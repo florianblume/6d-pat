@@ -8,7 +8,7 @@
 #include "misc/global.hpp"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
-#include "controller/poserecoverer.hpp"
+#include "model/poserecoverer.hpp"
 #include "controller/neuralnetworkcontroller.hpp"
 
 #include <QScopedPointer>
@@ -41,7 +41,7 @@ private:
 
     QScopedPointer<JsonLoadAndStoreStrategy> strategy;
     QScopedPointer<CachingModelManager> modelManager;
-    QScopedPointer<PoseCreator> poseCreator;
+    QScopedPointer<PoseRecoverer> poseCreator;
     QScopedPointer<NeuralNetworkController> networkController;
 
     QMap<QString, ObjectModel*> segmentationCodes;

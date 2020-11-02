@@ -49,21 +49,21 @@ public:
      * \brief getImages Returns the list of all images loaded by this manager.
      * \return the list of all images loaded by this manager
      */
-   virtual QList<Image> getImages() const = 0;
+   virtual QList<ImagePtr> getImages() const = 0;
 
     /*!
      * \brief getPosesForImage Returns all ObjectImagePoses for the image at the given path.
      * \param imagePath the path of the image
      * \return the list of poses of the image at the given path
      */
-    virtual QList<Pose> getPosesForImage(const Image& image) const = 0;
+    virtual QList<PosePtr> getPosesForImage(const Image& image) const = 0;
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
      * \param objectModels the list that the object models are to be added to
      * \return the list of all objects models loaded by this manager
      */
-    virtual QList<ObjectModel> getObjectModels() const = 0;
+    virtual QList<ObjectModelPtr> getObjectModels() const = 0;
 
     /*!
      * \brief getPosesForObjectModels Returns all ObjectImagePoses for the object model at the given path.
@@ -71,16 +71,16 @@ public:
      * \param poses the list that the poses are to be added to
      * \return the list of poses of the object model at the given path
      */
-    virtual QList<Pose> getPosesForObjectModel(const ObjectModel& objectModel) = 0;
+    virtual QList<PosePtr> getPosesForObjectModel(const ObjectModel& objectModel) const = 0;
 
     /*!
      * \brief getPoses Returns the poses maintained by this manager.
      * \param poses the list that the poses are to be added to
      * \return the list of poses maintained by this manager
      */
-    virtual QList<Pose> getPoses() = 0;
+    virtual QList<PosePtr> getPoses() const = 0;
 
-    virtual QSharedPointer<Pose> getPoseById(const QString &id) = 0;
+    virtual PosePtr getPoseById(const QString &id) const = 0;
 
     /*!
      * \brief getPosesForImageAndObjectModel Returns all poses for the given image and object model.
@@ -89,8 +89,8 @@ public:
      * \param poses the list that the poses are to be added to
      * \return all poses of the given image and given object model
      */
-    virtual QList<Pose> getPosesForImageAndObjectModel(const Image& image,
-                                                       const ObjectModel& objectModel) = 0;
+    virtual QList<PosePtr> getPosesForImageAndObjectModel(const Image& image,
+                                                          const ObjectModel& objectModel) = 0;
 
     /*!
      * \brief addObjectImagePose Adds a new ObjectImagePose to the poses managed by this manager.
@@ -99,10 +99,10 @@ public:
      * this manager and added to the list of managed poses
      * \return true if creating and persisting the pose was successful
      */
-    virtual bool addObjectImagePose(Image *image,
-                                    ObjectModel *objectModel,
-                                    QVector3D position,
-                                    QMatrix3x3 rotation) = 0;
+    virtual bool addPose(const Image &image,
+                         const ObjectModel &objectModel,
+                         const QVector3D &position,
+                         const QMatrix3x3 &rotation) = 0;
 
     /*!
      * \brief addObjectImagePose Updates the given ObjectImagePose and automatically persists it according to the
@@ -112,9 +112,9 @@ public:
      * \return true if updating  and also persisting the pose was successful, false if this manager does not manage the given
      * pose or persisting it has failed
      */
-    virtual bool updateObjectImagePose(const QString &id,
-                                       QVector3D position,
-                                       QMatrix3x3 rotation) = 0;
+    virtual bool updatePose(const QString &id,
+                            const QVector3D &position,
+                            const QMatrix3x3 &rotation) = 0;
 
     /*!
      * \brief removeObjectImagePose Removes the given ObjectImagePose if it is present in the list
@@ -123,7 +123,7 @@ public:
      * \return true if the pose was present and removing it, i.e. also removing it from the filesystem was
      * successful
      */
-    virtual bool removeObjectImagePose(const QString &id) = 0;
+    virtual bool removePose(const QString &id) = 0;
 
     /*!
      * \brief reload reads all data from the persitence storage again and
@@ -138,12 +138,12 @@ Q_SIGNALS:
     /*!
      * \brief posesChanged called when all the poses change, e.g. when the path
      * to the poses is edited, etc. A call to the pose update function will result
-     * in the poseUpdated() signal to be Q_EMITted. Same holds for adding and deleting poses.
+     * in the poseUpdated() signal to be emitted. Same holds for adding and deleting poses.
      */
     void posesChanged();
-    void poseAdded(const QString &id);
-    void poseUpdated(const QString &id);
-    void poseDeleted(const QString &id);
+    void poseAdded(PosePtr pose);
+    void poseUpdated(PosePtr pose);
+    void poseDeleted(PosePtr pose);
 
 };
 

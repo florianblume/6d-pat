@@ -2,17 +2,17 @@
 
 PoseRenderable::PoseRenderable(Qt3DCore::QEntity *parent,
                                const Pose &pose) :
-        ObjectModelRenderable(parent, pose.getObjectModel()),
+        ObjectModelRenderable(parent, *pose.getObjectModel()),
         pose(pose),
-        picker(new Qt3DRender::QObjectPicker),
+        m_picker(new Qt3DRender::QObjectPicker),
         transform(new Qt3DCore::QTransform) {
     transform->setRotation(QQuaternion::fromRotationMatrix(pose.getRotation()));
     transform->setTranslation(pose.getPosition());
     addComponent(transform);
-    addComponent(picker);
-    picker->setHoverEnabled(true);
-    picker->setDragEnabled(true);
-    connect(picker, &Qt3DRender::QObjectPicker::clicked, [this](Qt3DRender::QPickEvent *e){
+    addComponent(m_picker);
+    m_picker->setHoverEnabled(true);
+    m_picker->setDragEnabled(true);
+    connect(m_picker, &Qt3DRender::QObjectPicker::clicked, [this](Qt3DRender::QPickEvent *e){
         if (e->button() == Qt3DRender::QPickEvent::RightButton)
             this->setSelected(this->isSelected() ? false : true);
     });

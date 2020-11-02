@@ -24,14 +24,14 @@ namespace GeneralHelper {
 
     QColor colorFromSegmentationCode(const QString &segmentationCode);
 
-    QString createPoseId(const Image* image, const ObjectModel *objectModel);
+    QString createPoseId(const Image &image, const ObjectModel &objectModel);
 
     // Calculates rotation matrix to euler angles
     // The result is the same as MATLAB except the order
     // of the euler angles ( x and z are swapped ).
-    cv::Vec3f rotationMatrixToEulerAngles(cv::Mat &R);
+    cv::Vec3f rotationMatrixToEulerAngles(const cv::Mat &R);
 
-    cv::Mat eulerAnglesToRotationMatrix(cv::Vec3f theta);
+    cv::Mat eulerAnglesToRotationMatrix(const cv::Vec3f &theta);
 
 }
 

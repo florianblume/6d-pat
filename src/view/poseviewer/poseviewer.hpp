@@ -5,6 +5,7 @@
 #include "model/objectmodel.hpp"
 #include "model/pose.hpp"
 #include "model/modelmanager.hpp"
+#include "model/poserecoverer.hpp"
 #include "poseviewer3dwidget.hpp"
 
 #include <QList>

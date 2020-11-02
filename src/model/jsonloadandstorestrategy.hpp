@@ -40,11 +40,11 @@ public:
 
     ~JsonLoadAndStoreStrategy();
 
-    bool persistPose(Pose *pose, bool deletePose) override;
+    bool persistPose(const Pose &pose, bool deletePose) override;
 
-    QList<Image> loadImages() override;
+    QList<ImagePtr> loadImages() override;
 
-    QList<ObjectModel> loadObjectModels() override;
+    QList<ObjectModelPtr> loadObjectModels() override;
 
     /*!
      * \brief loadPoses Loads the poses at the given path. How the poses are stored depends on the
@@ -59,11 +59,11 @@ public:
      * \return the list of all stored poses
      * \throws an exception if the path to the folder that should hold the poses has not been set previously
      */
-    QList<Pose> loadPoses(const QList<Image> &images,
-                          const QList<ObjectModel> &objectModels) override;
+    QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
+                             const QList<ObjectModelPtr> &objectModels) override;
 
 protected slots:
-    void onSettingsChanged(const QString settingsIdentifier) override;
+    void onSettingsChanged(const QString &settingsIdentifier) override;
 
 private slots:
     void onDirectoryChanged(const QString &path);

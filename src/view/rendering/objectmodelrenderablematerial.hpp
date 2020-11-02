@@ -47,9 +47,7 @@ public Q_SLOTS:
     void setCirumfence(float circumfence);
     void setSelected(bool selected);
     void setOpacity(float opacity);
-    void addClick(QVector3D click);
-    void removeLastClick();
-    void removeClicks();
+    void setClicks(QVector<QVector3D> clicks);
 
 Q_SIGNALS:
     void ambientChanged(const QColor &ambient);
@@ -60,8 +58,6 @@ Q_SIGNALS:
     void selectedChanged(bool selected);
 
 private:
-    void uploadClicksToParameters();
-
     Qt3DRender::QEffect *m_effect;
     Qt3DRender::QAbstractTexture *m_diffuseTexture;
     Qt3DRender::QParameter *m_ambientParameter;
@@ -83,9 +79,6 @@ private:
     Qt3DRender::QFilterKey *m_filterKey;
     Qt3DRender::QBlendEquationArguments *m_blendState;
     Qt3DRender::QBlendEquation *m_blendEquation;
-
-    QVector<QVector3D> m_clicks;
-    QVector<QVector3D> m_clickColors;
 
     bool m_selected = false;
 };

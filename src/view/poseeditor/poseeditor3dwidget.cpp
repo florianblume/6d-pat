@@ -40,7 +40,8 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
     lightTransform->setTranslation(cameraEntity->position());
     lightEntity->addComponent(lightTransform);
-    connect(camera(), &Qt3DRender::QCamera::positionChanged, [lightTransform, this](){lightTransform->setTranslation(this->camera()->position());});
+    connect(camera(), &Qt3DRender::QCamera::positionChanged,
+            [lightTransform, this](){lightTransform->setTranslation(this->camera()->position());});
 
     this->renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
 
@@ -68,19 +69,15 @@ void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoade
 }
 
 void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
-    objectModelRenderable->setObjectModel(&objectModel);
+    objectModelRenderable->setObjectModel(objectModel);
     objectModelRenderable->setEnabled(true);
 }
 
-void PoseEditor3DWindow::addClick(QVector3D position) {
-    objectModelRenderable->addClick(position);
-}
-
-void PoseEditor3DWindow::removeClicks() {
-    objectModelRenderable->removeClicks();
+void PoseEditor3DWindow::setClicks(const QVector<QVector3D> &clicks) {
+    objectModelRenderable->setClicks(clicks);
 }
 
 void PoseEditor3DWindow::reset() {
-    removeClicks();
+    setClicks(QVector<QVector3D>());
     objectModelRenderable->setEnabled(false);
 }

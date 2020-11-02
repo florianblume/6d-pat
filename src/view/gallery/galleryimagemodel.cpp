@@ -23,7 +23,7 @@ QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
     if (index.row() >= imagesCache.size())
         return QVariant();
 
-    QString imagePath = imagesCache[index.row()].getImagePath();
+    QString imagePath = imagesCache[index.row()]->getImagePath();
     if (role == Qt::DecorationRole) {
         if (resizedImagesCache.contains(imagePath)) {
             return QIcon(QPixmap::fromImage(resizedImagesCache[imagePath]));
@@ -60,7 +60,7 @@ void GalleryImageModel::resizeImages() {
     resizeImagesThreadpool.start(resizeImagesRunnable);
 }
 
-void GalleryImageModel::onImageResized(int imageIndex, QString imagePath, QImage resizedImage) {
+void GalleryImageModel::onImageResized(int imageIndex, const QString &imagePath, const QImage &resizedImage) {
     resizedImagesCache[imagePath] = resizedImage;
     QModelIndex top = index(imageIndex, 0);
     QModelIndex bottom = index(imageIndex, 0);

@@ -35,9 +35,9 @@ public:
 
     void initializeQt3D() override;
 
-    void setBackgroundImageAndPoses(const QString& image,
-                                    QMatrix3x3 cameraMatrix,
-                                    QList<Pose> &poses);
+    void setBackgroundImageAndPoses(const QString &image,
+                                    const QMatrix3x3 &cameraMatrix,
+                                    const QList<PosePtr> &poses);
     void setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix);
     void addPose(const Pose &pose);
     void updatePose(const Pose &pose);

@@ -31,8 +31,8 @@ public:
     //! Implementations of QAbstractListModel
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex&) const;
-    void setSegmentationCodesForObjectModels(QMap<QString, QString> codes);
-    void setPreviewRenderingSize(QSize size);
+    void setSegmentationCodesForObjectModels(const QMap<QString, QString> &codes);
+    void setPreviewRenderingSize(const QSize &size);
     QSize previewRenderingSize();
 
 public Q_SLOTS:
@@ -56,11 +56,11 @@ Q_SIGNALS:
 private:
 
     ModelManager* modelManager;
-    QList<ObjectModel> objectModelsCache;
-    QMap<QString,QImage> renderedObjectsModels;
+    QList<ObjectModelPtr> objectModelsCache;
+    QMap<QString, QImage> renderedObjectsModels;
     OffscreenEngine offscreenEngine{QSize(300, 300)};
     void renderObjectModels();
-    QList<Image> imagesCache;
+    QList<ImagePtr> imagesCache;
     QMap<QString, QString> codes;
     //! We need this in case that an object model will not be displayed due to its color
     //! which then "tears" a hole into the indices
@@ -70,7 +70,7 @@ private:
     int currentSelectedImageIndex = -1;
     //! Store the index of the currently rendered image to be able to set the correct image
     //! when the renderer returns
-    uint currentlyRenderedImageIndex = 0;
+    int currentlyRenderedImageIndex = 0;
     bool renderingObjectModels = false;
     QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
 
@@ -79,7 +79,7 @@ private Q_SLOTS:
     bool isNumberOfToolsCorrect() const;
     void onObjectModelsChanged();
     void onImagesChanged();
-    void onObjectModelRendered(QImage image);
+    void onObjectModelRendered(const QImage &image);
 
 };
 

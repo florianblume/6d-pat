@@ -16,7 +16,7 @@ MainController::MainController() {
     modelManager.reset(new CachingModelManager(*strategy.data()));
     connect(settingsStore.data(), SIGNAL(settingsChanged(QString)),
             this, SLOT(onSettingsChanged(QString)));
-    poseCreator.reset(new PoseCreator(0, modelManager.data()));
+    poseCreator.reset(new PoseRecoverer(0, modelManager.data()));
     // Whenever the user clicks the create button in the pose editor we need to reset
     // the controller as well
     connect(modelManager.data(), SIGNAL(poseAdded(QString)),
@@ -63,28 +63,6 @@ void MainController::initializeMainWindow() {
     mainWindow.setGalleryObjectModelModel(galleryObjectModelModel);
     mainWindow.setModelManager(modelManager.data());
 
-    // Delegation of user clicks to this controller
-    connect(&mainWindow, SIGNAL(imageClicked(Image*,QPoint)),
-            this, SLOT(onImageClicked(Image*,QPoint)));
-    connect(&mainWindow, SIGNAL(objectModelClicked(ObjectModel*,QVector3D)),
-            this, SLOT(onObjectModelClicked(ObjectModel*,QVector3D)));
-
-    // Delegation of pose creator actions to the window
-    connect(poseCreator.get(), SIGNAL(poseCreationAborted()),
-            &mainWindow, SLOT(onPoseCreationReset()));
-    connect(poseCreator.get(), &PoseCreator::posePointStarted,
-            &mainWindow, &MainWindow::onPosePointStarted);
-    connect(poseCreator.get(), &PoseCreator::posePointFinished,
-            &mainWindow, &MainWindow::onPosePointFinished);
-
-    // Delegate of user interactions to the controller
-    connect(&mainWindow, SIGNAL(poseCreationInterrupted()),
-            this, SLOT(onPoseCreationInterrupted()));
-    connect(&mainWindow, SIGNAL(poseCreationAborted()),
-            this, SLOT(onPoseCreationAborted()));
-    connect(&mainWindow, SIGNAL(requestPoseCreation()),
-            this, SLOT(onPoseCreationRequested()));
-
     connect(&mainWindow, &MainWindow::posePredictionRequested,
             this, &MainController::onPosePredictionRequested);
     connect(&mainWindow, &MainWindow::posePredictionRequestedForImages,
@@ -98,45 +76,9 @@ void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
     galleryObjectModelModel->setSegmentationCodesForObjectModels(currentSettings->getSegmentationCodes());
 }
 
-void MainController::onImageClicked(Image* image, QPoint position) {
-    if (poseCreator->getState() != PoseCreator::State::PosePointStarted) {
-        // We can set the image here everytime, if it differs from the previously one, the creator will
-        // automatically reset the points etc.
-        poseCreator->setImage(image);
-        poseCreator->startPosePoint(position);
-    }
-}
-
-void MainController::onObjectModelClicked(ObjectModel* objectModel, QVector3D position) {
-    if (poseCreator->isImageSet() && poseCreator->getState() ==
-                                               PoseCreator::State::PosePointStarted) {
-        poseCreator->setObjectModel(objectModel);
-        poseCreator->finishPosePoint(position);
-    }
-}
-
-
-void MainController::onPoseCreationInterrupted() {
-    // nothing to do here
-}
-
-void MainController::onPoseCreationAborted() {
-    resetPoseCreation();
-}
-
 void MainController::showView() {
     mainWindow.show();
     mainWindow.raise();
-}
-
-void MainController::resetPoseCreation() {
-    poseCreator->abortCreation();
-}
-
-void MainController::onPoseCreationRequested() {
-    // The user can't request this before all the requirements are met because the creat button
-    // is not enabled earlier
-    poseCreator->createPose();
 }
 
 void MainController::onPosePredictionRequested() {
@@ -209,5 +151,5 @@ void MainController::onSettingsChanged(const QString &identifier) {
     currentSettings = settingsStore->loadPreferencesByIdentifier(identifier);
     // Load and store strategy updates itself
     setSegmentationCodesOnGalleryObjectModelModel();
-    poseCreator->abortCreation();
+    poseCreator->reset();
 }

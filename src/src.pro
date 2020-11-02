@@ -72,7 +72,7 @@ HEADERS  += \
     view/neuralnetworkprogressview/networkprogressview.hpp \
     settings/settings.hpp \
     settings/settingsstore.hpp \
-    controller/poserecoverer.hpp \
+    model/poserecoverer.hpp \
     controller/neuralnetworkcontroller.hpp \
     controller/neuralnetworkrunnable.hpp \
     misc/generalhelper.hpp \
@@ -80,7 +80,6 @@ HEADERS  += \
     view/gallery/rendering/offscreenengine.h \
     view/gallery/rendering/texturerendertarget.h \
     view/rendering/objectmodelrenderable.hpp \
-    view/poseeditor/listviewposesmodel.h \
     view/rendering/clickvisualizationmaterial.hpp \
     view/rendering/clickvisualizationrenderable.hpp
 
@@ -118,7 +117,7 @@ SOURCES += \
     view/misc/displayhelper.cpp \
     controller/neuralnetworkcontroller.cpp \
     controller/neuralnetworkrunnable.cpp \
-    controller/poserecoverer.cpp \
+    model/poserecoverer.cpp \
     settings/settings.cpp \
     settings/settingsstore.cpp \
     misc/generalhelper.cpp \
@@ -126,7 +125,6 @@ SOURCES += \
     view/gallery/rendering/texturerendertarget.cpp \
     view/rendering/objectmodelrenderable.cpp \
     view/rendering/objectmodelrenderablematerial.cpp \
-    view/poseeditor/listviewposesmodel.cpp \
     view/rendering/clickvisualizationmaterial.cpp \
     view/rendering/clickvisualizationrenderable.cpp
 

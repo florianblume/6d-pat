@@ -240,22 +240,22 @@ void MainWindow::displayWarning(const QString &title, const QString &text) {
     QMessageBox::warning(this, title, text);
 }
 
-void MainWindow::onPosePointStarted(QPoint point2D, int currentNumberOfPoints, int requiredNumberOfPoints) {
+void MainWindow::onPosePointStarted(QPoint point2D) {
     setStatusBarText("Please select the corresponding 3D point [" +
                                 QString::number(currentNumberOfPoints)
                                 + " of min. " +
                                 QString::number(requiredNumberOfPoints)
                      + "].");
-    Q_EMIT posePointStarted(point2D, currentNumberOfPoints, requiredNumberOfPoints);
+    Q_EMIT onPoint2DAdded(point2D, currentNumberOfPoints, requiredNumberOfPoints);
 }
 
-void MainWindow::onPosePointFinished(QVector3D point3D, int currentNumberOfPoints, int requiredNumberOfPoints) {
+void MainWindow::onPosePointFinished(QVector3D point3D) {
     setStatusBarText("Please select another pose point [" +
                                 QString::number(currentNumberOfPoints)
                                 + " of min. " +
                                 QString::number(requiredNumberOfPoints)
                      + "].");
-    Q_EMIT posePointFinished(point3D, currentNumberOfPoints, requiredNumberOfPoints);
+    Q_EMIT onPoint3DAdded(point3D, currentNumberOfPoints, requiredNumberOfPoints);
 }
 
 void MainWindow::onPoseCreated() {
@@ -277,6 +277,11 @@ void MainWindow::onPoseCreationRequested() {
 void MainWindow::hideNetworkProgressView() {
     networkProgressView->hide();
     QApplication::restoreOverrideCursor();
+}
+
+void MainWindow::setPoseRecoverer(PoseRecoverer *poseRecoverer)
+{
+    this->poseRecoverer = poseRecoverer;
 }
 
 void MainWindow::onSettingsChanged(const QString &identifier) {

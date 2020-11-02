@@ -22,95 +22,94 @@ void CachingModelManager::createConditionalCache() {
     posesForImages.clear();
     posesForObjectModels.clear();
     for (int i = 0; i < poses.size(); i++) {
-        Pose &pose = poses[i];
+        PosePtr pose = poses[i];
 
         //! Setup cache of poses that can be retrieved via an image
-        QList<Pose> &posesForImage =
-                posesForImages[pose.getImage()->getImagePath()];
+        QList<PosePtr> &posesForImage =
+                posesForImages[pose->getImage()->getImagePath()];
         posesForImage.append(pose);
 
         //! Setup cache of poses that can be retrieved via an object model
-        QList<Pose> &posesForObjectModel =
-                posesForObjectModels[pose.getObjectModel()->getPath()];
+        QList<PosePtr> &posesForObjectModel =
+                posesForObjectModels[pose->getObjectModel()->getPath()];
         posesForObjectModel.append(pose);
     }
 }
 
-QList<Image> CachingModelManager::getImages() const {
+QList<ImagePtr> CachingModelManager::getImages() const {
     return images;
 }
 
-QList<Pose> CachingModelManager::getPosesForImage(const Image &image) const  {
+QList<PosePtr> CachingModelManager::getPosesForImage(const Image &image) const  {
     if (posesForImages.find(image.getImagePath()) != posesForImages.end()) {
         return posesForImages[image.getImagePath()];
     }
 
-    return QList<Pose>();
+    return QList<PosePtr>();
 }
 
-QList<ObjectModel> CachingModelManager::getObjectModels() const {
+QList<ObjectModelPtr> CachingModelManager::getObjectModels() const {
     return objectModels;
 }
 
-QList<Pose> CachingModelManager::getPosesForObjectModel(const ObjectModel &objectModel) {
+QList<PosePtr> CachingModelManager::getPosesForObjectModel(const ObjectModel &objectModel) const {
     if (posesForObjectModels.find(objectModel.getPath()) != posesForObjectModels.end()) {
         return posesForObjectModels[objectModel.getPath()];
     }
 
-    return QList<Pose>();
+    return QList<PosePtr>();
 }
 
-QList<Pose> CachingModelManager::getPoses() {
+QList<PosePtr> CachingModelManager::getPoses() const {
     return poses;
 }
 
-QSharedPointer<Pose> CachingModelManager::getPoseById(const QString &id) {
-    QSharedPointer<Pose> result;
+PosePtr CachingModelManager::getPoseById(const QString &id) const {
+    PosePtr result;
     auto itObj = std::find_if(
         poses.begin(), poses.end(),
-        [id](Pose o) { return o.getID() == id; }
+        [id](PosePtr o) { return o->getID() == id; }
     );
     if (itObj != poses.end()) {
-        result.reset(new Pose(*itObj));
+        result = *itObj;
     }
     return result;
 }
 
-QList<Pose> CachingModelManager::getPosesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) {
-    QList<Pose> posesForImageAndObjectModel;
-    for (Pose &pose : posesForImages[image.getImagePath()]) {
-        if (pose.getObjectModel()->getPath().compare(objectModel.getPath()) == 0) {
+QList<PosePtr> CachingModelManager::getPosesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) {
+    QList<PosePtr> posesForImageAndObjectModel;
+    for (PosePtr &pose : posesForImages[image.getImagePath()]) {
+        if (pose->getObjectModel()->getPath().compare(objectModel.getPath()) == 0) {
            posesForImageAndObjectModel.append(pose);
         }
     }
     return posesForImageAndObjectModel;
 }
 
-bool CachingModelManager::addObjectImagePose(Image *image,
-                                                       ObjectModel *objectModel,
-                                                       QVector3D position,
-                                                       QMatrix3x3 rotation) {
+bool CachingModelManager::addPose(const Image &image,
+                                  const ObjectModel &objectModel,
+                                  const QVector3D &position,
+                                  const QMatrix3x3 &rotation) {
 
-    QList<Image>::iterator imageIterator = find(images.begin(), images.end(), *image);
+    QList<ImagePtr>::iterator imageIterator = find(images.begin(), images.end(), image);
     if (imageIterator == images.end())
         return false;
 
-    QList<ObjectModel>::iterator objectModelIterator = find(objectModels.begin(), objectModels.end(), *objectModel);
+    QList<ObjectModelPtr>::iterator objectModelIterator = find(objectModels.begin(), objectModels.end(), objectModel);
     if (objectModelIterator == objectModels.end())
         return false;
 
     // IMPORTANT: Use the iterator values, they return the actually managed image and object model
     // and not what the user passed (and maybe created somewhere else but with the right paths)
-    Image *_image = &*imageIterator;
-    ObjectModel *_objectModel = &*objectModelIterator;
-    Pose pose(GeneralHelper::createPoseId(_image, _objectModel),
-                                             position,
-                                             rotation,
-                                             _image,
-                                             _objectModel);
-    // TODO: add accepted
+    ImagePtr _image = *imageIterator;
+    ObjectModelPtr _objectModel = *objectModelIterator;
+    PosePtr pose(new Pose(GeneralHelper::createPoseId(*_image, *_objectModel),
+                                                      position,
+                                                      rotation,
+                                                      _image,
+                                                      _objectModel));
 
-    if (!loadAndStoreStrategy.persistPose(&pose, false)) {
+    if (!loadAndStoreStrategy.persistPose(*pose, false)) {
         //! if there is an error persisting the pose for any reason we should not add the pose to this manager
         return false;
     }
@@ -120,22 +119,24 @@ bool CachingModelManager::addObjectImagePose(Image *image,
 
     createConditionalCache();
 
-    Q_EMIT poseAdded(pose.getID());
+    Q_EMIT poseAdded(pose);
 
     return true;
 }
 
-bool CachingModelManager::updateObjectImagePose(const QString &id,
-                                                          QVector3D position,
-                                                          QMatrix3x3 rotation) {
-    Pose *pose = Q_NULLPTR;
+bool CachingModelManager::updatePose(const QString &id,
+                                     const QVector3D &position,
+                                     const QMatrix3x3 &rotation) {
+    PosePtr pose;
     for (int i = 0; i < poses.size(); i++) {
-        if (poses[i].getID() == id)
-            pose = &poses[i];
+        if (poses[i]->getID() == id) {
+            pose = poses[i];
+            break;
+        }
     }
 
-    if (!pose) {
-        //! this manager does not manager the given pose
+    if (pose.isNull()) {
+        //! this manager does not manage the given pose
         return false;
     }
 
@@ -145,9 +146,7 @@ bool CachingModelManager::updateObjectImagePose(const QString &id,
     pose->setPosition(position);
     pose->setRotation(rotation);
 
-    // TODO: set accepted
-
-    if (!loadAndStoreStrategy.persistPose(pose, false)) {
+    if (!loadAndStoreStrategy.persistPose(*pose, false)) {
         // if there is an error persisting the pose for any reason we should not keep the new values
         pose->setPosition(previousPosition);
         pose->setRotation(previousRotation);
@@ -156,16 +155,16 @@ bool CachingModelManager::updateObjectImagePose(const QString &id,
 
     createConditionalCache();
 
-    Q_EMIT poseUpdated(pose->getID());
+    Q_EMIT poseUpdated(pose);
 
     return true;
 }
 
-bool CachingModelManager::removeObjectImagePose(const QString &id) {
-    Pose *pose = Q_NULLPTR;
+bool CachingModelManager::removePose(const QString &id) {
+    PosePtr pose;
     for (int i = 0; i < poses.size(); i++) {
-        if (poses[i].getID() == id)
-            pose = &poses[i];
+        if (poses[i]->getID() == id)
+            pose = poses[i];
     }
 
     if (!pose) {
@@ -173,20 +172,20 @@ bool CachingModelManager::removeObjectImagePose(const QString &id) {
         return false;
     }
 
-    if (!loadAndStoreStrategy.persistPose(pose, true)) {
+    if (!loadAndStoreStrategy.persistPose(*pose, true)) {
         //! there was an error persistently removing the corresopndence, maybe wrong folder, maybe the pose didn't exist
         //! thus it doesn't make sense to remove the pose from this manager
         return false;
     }
 
     for (int i = 0; i < poses.size(); i++) {
-        if (poses.at(i).getID() == id)
+        if (poses.at(i)->getID() == id)
             poses.removeAt(i);
     }
 
     createConditionalCache();
 
-    Q_EMIT poseDeleted(id);
+    Q_EMIT poseDeleted(pose);
 
     return true;
 }

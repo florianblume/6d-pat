@@ -23,13 +23,13 @@ namespace GeneralHelper {
         return QColor(splitCode.at(0).toInt(), splitCode.at(1).toInt(), splitCode.at(2).toInt());
     }
 
-    QString createPoseId(const Image* image, const ObjectModel *objectModel) {
+    QString createPoseId(const Image &image, const ObjectModel &objectModel) {
         QDateTime date = QDateTime::currentDateTime();;
         //! We include the date as part of the identifier - this actually makes
         //! the ID quite long but still better readable than a UUID
-        QString id = QFileInfo(image->getImagePath()).completeBaseName()
+        QString id = QFileInfo(image.getImagePath()).completeBaseName()
                    + "_"
-                   + QFileInfo(objectModel->getPath()).completeBaseName()
+                   + QFileInfo(objectModel.getPath()).completeBaseName()
                    + "_"
                    + date.toString("d.M.yy_HH:mm:ss");
         return id;
@@ -38,7 +38,7 @@ namespace GeneralHelper {
     // Calculates rotation matrix to euler angles
     // The result is the same as MATLAB except the order
     // of the euler angles ( x and z are swapped ).
-    cv::Vec3f rotationMatrixToEulerAngles(cv::Mat &R) {
+    cv::Vec3f rotationMatrixToEulerAngles(const cv::Mat &R) {
 
         float sy = sqrt(R.at<float>(0,0) * R.at<float>(0,0) +  R.at<float>(0,1) * R.at<float>(0,1) );
 
@@ -54,19 +54,19 @@ namespace GeneralHelper {
         return (cv::Vec3f(x, y, z) * -180.f) / M_PI;
     }
 
-    cv::Mat eulerAnglesToRotationMatrix(cv::Vec3f theta) {
+    cv::Mat eulerAnglesToRotationMatrix(const cv::Vec3f &theta) {
+        cv::Vec3f _theta = theta;
+        _theta *= M_PI;
+        _theta /= -180.f;
 
-        theta *= M_PI;
-        theta /= -180.f;
+        float s1 = sin(_theta[0]);
+        float c1 = cos(_theta[0]);
 
-        float s1 = sin(theta[0]);
-        float c1 = cos(theta[0]);
+        float s2 = sin(_theta[1]);
+        float c2 = cos(_theta[1]);
 
-        float s2 = sin(theta[1]);
-        float c2 = cos(theta[1]);
-
-        float s3 = sin(theta[2]);
-        float c3 = cos(theta[2]);
+        float s3 = sin(_theta[2]);
+        float c3 = cos(_theta[2]);
 
         // Calculate rotation about x axis
         cv::Mat R_x = (cv::Mat_<float>(3,3) <<

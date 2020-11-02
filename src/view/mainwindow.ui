@@ -1736,22 +1736,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>poseViewer</sender>
-   <signal>imageClicked(Image*,QPoint)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>onImageClicked(Image*,QPoint)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>223</x>
-     <y>401</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>MainWindow</sender>
    <signal>selectedObjectModelChanged(ObjectModel*)</signal>
    <receiver>poseEditor</receiver>
@@ -1764,22 +1748,6 @@
     <hint type="destinationlabel">
      <x>675</x>
      <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>poseEditor</sender>
-   <signal>objectModelClickedAt(ObjectModel*,QVector3D)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>onObjectModelClicked(ObjectModel*,QVector3D)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>401</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>449</x>
-     <y>299</y>
     </hint>
    </hints>
   </connection>
@@ -1896,86 +1864,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>MainWindow</sender>
-   <signal>posePointStarted(QPoint,int,int)</signal>
-   <receiver>poseViewer</receiver>
-   <slot>onPosePointStarted(QPoint,int,int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
-     <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>MainWindow</sender>
-   <signal>posePointFinished(QVector3D,int,int)</signal>
-   <receiver>poseEditor</receiver>
-   <slot>onPosePointFinished(QVector3D,int,int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>675</x>
-     <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>poseEditor</sender>
-   <signal>buttonCreateClicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>onPoseCreationRequested()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>401</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>MainWindow</sender>
-   <signal>poseCreationAborted()</signal>
-   <receiver>poseEditor</receiver>
-   <slot>onPoseCreationAborted()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>675</x>
-     <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>MainWindow</sender>
-   <signal>poseCreationAborted()</signal>
-   <receiver>poseViewer</receiver>
-   <slot>onPoseCreationAborted()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
-     <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>galleryLeft</sender>
    <signal>selectedItemChanged(int)</signal>
    <receiver>poseEditor</receiver>
@@ -2004,22 +1892,6 @@
     <hint type="destinationlabel">
      <x>223</x>
      <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>poseEditor</sender>
-   <signal>poseCreationAborted()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>onActionAbortCreationTriggered()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>401</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>449</x>
-     <y>299</y>
     </hint>
    </hints>
   </connection>

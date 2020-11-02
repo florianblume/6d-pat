@@ -85,7 +85,7 @@ void PoseViewer::setImage(Image *image) {
     }
     QString toDisplay = showingNormalImage ?  currentlyDisplayedImage->getAbsoluteImagePath() :
                                     currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
-    QList<Pose> posesForImage = modelManager->getPosesForImage(*image);
+    QList<PosePtr> posesForImage = modelManager->getPosesForImage(*image);
     poseViewer3DWidget->setBackgroundImageAndPoses(toDisplay, image->getCameraMatrix(), posesForImage);
     ui->sliderTransparency->setEnabled(posesForImage.size() > 0);
 }
@@ -167,9 +167,7 @@ void PoseViewer::onOpacityChanged(int opacity) {
 }
 
 void PoseViewer::onZoomChanged(int zoom) {
-    int direction = zoom < this->zoom ? -1 : 1;
     this->zoom = zoom;
-    qDebug() << zoom;
     if (zoom == 1) {
         this->zoomMultiplier = 0.5f;
     } else if (zoom == 2) {
@@ -177,33 +175,10 @@ void PoseViewer::onZoomChanged(int zoom) {
     } else if (zoom == 3) {
         this->zoomMultiplier = 2.f;
     }
-    if (!resizeAnimation) {
-        resizeAnimation = new QPropertyAnimation(poseViewer3DWidget, "geometry");
-    } else {
-        resizeAnimation->stop();
-    }
-    int oldWidth = poseViewer3DWidget->width();
-    int oldHeight = poseViewer3DWidget->height();
-    int newWidth = 0;
-    int newHeight = 0;
-    if (zoom == 2) {
-        newWidth = poseViewer3DWidget->imageSize().width();
-        newHeight = poseViewer3DWidget->imageSize().height();
-    } else {
-        newWidth = oldWidth * this->zoomMultiplier;
-        newHeight = oldHeight * this->zoomMultiplier;
-    }
-    resizeAnimation->setDuration(250);
-    QPoint position = poseViewer3DWidget->pos();
-    resizeAnimation->setStartValue(QRect(position.x(),
-                                         position.y(),
-                                         oldWidth,
-                                         oldHeight));
-    resizeAnimation->setEndValue(QRect(position.x() - (newWidth - oldWidth) / 2,
-                                       position.y() - (newHeight - oldHeight) / 2,
-                                       poseViewer3DWidget->imageSize().width() * this->zoomMultiplier,
-                                       poseViewer3DWidget->imageSize().height() * this->zoomMultiplier));
-    resizeAnimation->start();
+    poseViewer3DWidget->setGeometry(QRect(poseViewer3DWidget->x(),
+                                          poseViewer3DWidget->y(),
+                                          poseViewer3DWidget->imageSize().width() * this->zoomMultiplier,
+                                          poseViewer3DWidget->imageSize().height() * this->zoomMultiplier));
 }
 
 void PoseViewer::resetPositionOfGraphicsView() {

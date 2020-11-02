@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QMatrix3x3>
+#include <QSharedPointer>
 
 /*!
  * \brief The Image class holds the path to the actual image, as well as, if provided the path to the already segmented image.
@@ -80,5 +81,7 @@ private:
     QMatrix3x3 cameraMatrix;
 
 };
+
+typedef QSharedPointer<Image> ImagePtr;
 
 #endif // IMAGE_H

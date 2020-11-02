@@ -45,7 +45,7 @@ Q_SIGNALS:
 private:
     Pose pose;
 
-    Qt3DRender::QObjectPicker *picker;
+    Qt3DRender::QObjectPicker *m_picker;
     Qt3DCore::QTransform *transform;
 };
 

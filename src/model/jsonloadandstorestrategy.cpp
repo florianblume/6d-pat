@@ -36,8 +36,7 @@ JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy(SettingsStore *settingsStore,
 JsonLoadAndStoreStrategy::~JsonLoadAndStoreStrategy() {
 }
 
-bool JsonLoadAndStoreStrategy::persistPose(
-        Pose *objectImagePose, bool deletePose) {
+bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool deletePose) {
 
     // Read in the camera parameters from the JSON file
     QFileInfo info(posesFilePath);
@@ -48,7 +47,7 @@ bool JsonLoadAndStoreStrategy::persistPose(
             QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
             QJsonObject jsonObject = jsonDocument.object();
 
-            QString imagePath = objectImagePose->getImage()->getImagePath();
+            QString imagePath = objectImagePose.getImage()->getImagePath();
             QJsonArray entriesForImage;
 
             if (deletePose) {
@@ -57,7 +56,7 @@ bool JsonLoadAndStoreStrategy::persistPose(
                     int index = 0;
                     for(const QJsonValue &entry : entriesForImage) {
                         QJsonObject entryObject = entry.toObject();
-                        if (entryObject["id"] == objectImagePose->getID()) {
+                        if (entryObject["id"] == objectImagePose.getID()) {
                             entriesForImage.removeAt(index);
                         }
                         index++;
@@ -66,12 +65,12 @@ bool JsonLoadAndStoreStrategy::persistPose(
                 }
             } else {
                 //! Preparation of 3D data for the JSON file
-                QMatrix3x3 rotationMatrix = objectImagePose->getRotation();
+                QMatrix3x3 rotationMatrix = objectImagePose.getRotation();
                 QJsonArray rotationMatrixArray;
                 rotationMatrixArray << rotationMatrix(0, 0) << rotationMatrix(0, 1) << rotationMatrix(0, 2)
                                     << rotationMatrix(1, 0) << rotationMatrix(1, 1) << rotationMatrix(1, 2)
                                     << rotationMatrix(2, 0) << rotationMatrix(2, 1) << rotationMatrix(2, 2);
-                QVector3D positionVector = objectImagePose->getPosition();
+                QVector3D positionVector = objectImagePose.getPosition();
                 QJsonArray positionVectorArray;
                 positionVectorArray << positionVector[0] << positionVector[1] << positionVector[2];
                 //! Check if any entries for the image exist
@@ -86,14 +85,14 @@ bool JsonLoadAndStoreStrategy::persistPose(
                     int index = 0;
                     //! Create new entry object, as we can't modify the exisiting ones directly somehow
                     QJsonObject entry;
-                    entry["id"] = objectImagePose->getID();
-                    entry["obj"] = objectImagePose->getObjectModel()->getPath();
+                    entry["id"] = objectImagePose.getID();
+                    entry["obj"] = objectImagePose.getObjectModel()->getPath();
                     entry["R"] = rotationMatrixArray;
                     entry["t"] = positionVectorArray;
 
                     for(const QJsonValue &_entry : entriesForImage) {
                         QJsonObject entryObject = _entry.toObject();
-                        if (entryObject["id"] == objectImagePose->getID()) {
+                        if (entryObject["id"] == objectImagePose.getID()) {
                             entryFound = true;
                             entriesForImage[index] = entry;
                         }
@@ -105,8 +104,8 @@ bool JsonLoadAndStoreStrategy::persistPose(
                     }
                 } else {
                     QJsonObject newEntry;
-                    newEntry["id"] = objectImagePose->getID();
-                    newEntry["obj"] = objectImagePose->getObjectModel()->getPath();
+                    newEntry["id"] = objectImagePose.getID();
+                    newEntry["obj"] = objectImagePose.getObjectModel()->getPath();
                     newEntry["t"] = positionVectorArray;
                     newEntry["R"] = rotationMatrixArray;
                     entriesForImage << newEntry;
@@ -141,8 +140,8 @@ static QMatrix3x3 rotVectorFromJsonRotMatrix(QJsonArray &jsonRotationMatrix) {
     return rotationMatrix;
 }
 
-static Image createImageWithJsonParams(const QString& filename, const QString &segmentationFilename,
-                                       const QString &imagesPath, QJsonObject &json) {
+static ImagePtr createImageWithJsonParams(const QString& filename, const QString &segmentationFilename,
+                                          const QString &imagesPath, QJsonObject &json) {
     QJsonObject parameters = json[filename].toObject();
     QJsonArray cameraMatrix = parameters["K"].toArray();
     float values[9] = {
@@ -156,11 +155,11 @@ static Image createImageWithJsonParams(const QString& filename, const QString &s
         (float) cameraMatrix[7].toDouble(),
         (float) cameraMatrix[8].toDouble()};
     QMatrix3x3 qtCameraMatrix = QMatrix3x3(values);
-    return Image(filename, segmentationFilename, imagesPath, qtCameraMatrix);
+    return ImagePtr(new Image(filename, segmentationFilename, imagesPath, qtCameraMatrix));
 }
 
-QList<Image> JsonLoadAndStoreStrategy::loadImages() {
-    QList<Image> images;
+QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
+    QList<ImagePtr> images;
 
     // we do not need to throw an exception here, the only time the path cannot exist
     // is if this strategy was constructed with an empty path, all other methods of
@@ -234,8 +233,8 @@ QList<Image> JsonLoadAndStoreStrategy::loadImages() {
     return images;
 }
 
-QList<ObjectModel> JsonLoadAndStoreStrategy::loadObjectModels() {
-    QList<ObjectModel> objectModels;
+QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
+    QList<ObjectModelPtr> objectModels;
 
     // See explanation under loadImages for why we don't throw an exception here
     QFileInfo info(objectModelsPath);
@@ -252,7 +251,7 @@ QList<ObjectModel> JsonLoadAndStoreStrategy::loadObjectModels() {
         QFileInfo fileInfo(it.next());
         // We store only the filename as object model path, because that's
         // the format of the ground truth file used by the neural network
-        ObjectModel objectModel(fileInfo.fileName(), fileInfo.absolutePath());
+        ObjectModelPtr objectModel(new ObjectModel(fileInfo.fileName(), fileInfo.absolutePath()));
         objectModels.append(objectModel);
     }
 
@@ -270,28 +269,29 @@ QList<ObjectModel> JsonLoadAndStoreStrategy::loadObjectModels() {
     return objectModels;
 }
 
-QMap<QString, const Image*> createImageMap(const QList<Image> &images) {
-    QMap<QString, const Image*> imageMap;
+QMap<QString, ImagePtr> createImageMap(const QList<ImagePtr> &images) {
+    QMap<QString, ImagePtr> imageMap;
 
     for (int i = 0; i < images.size(); i++) {
-        imageMap[images.at(i).getImagePath()] = &(images.at(i));
+        imageMap[images.at(i)->getImagePath()] = images.at(i);
     }
 
     return imageMap;
 }
 
-QMap<QString,const ObjectModel*> createObjectModelMap(const QList<ObjectModel> &objectModels) {
-    QMap<QString, const ObjectModel*> objectModelMap;
+QMap<QString, ObjectModelPtr> createObjectModelMap(const QList<ObjectModelPtr> &objectModels) {
+    QMap<QString, ObjectModelPtr> objectModelMap;
 
     for (int i = 0; i < objectModels.size(); i++) {
-        objectModelMap[objectModels.at(i).getPath()] = &(objectModels.at(i));
+        objectModelMap[objectModels.at(i)->getPath()] = objectModels.at(i);
     }
 
     return objectModelMap;
 }
 
-QList<Pose> JsonLoadAndStoreStrategy::loadPoses(const QList<Image> &images, const QList<ObjectModel> &objectModels) {
-    QList<Pose> poses;
+QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images,
+                                                const QList<ObjectModelPtr> &objectModels) {
+    QList<PosePtr> poses;
 
     //! See loadImages for why we don't throw an exception here
     if (!QFileInfo(posesFilePath).exists()) {
@@ -301,8 +301,8 @@ QList<Pose> JsonLoadAndStoreStrategy::loadPoses(const QList<Image> &images, cons
 
     QFile jsonFile(posesFilePath);
     if (jsonFile.open(QFile::ReadWrite)) {
-        QMap<QString, const Image*> imageMap = createImageMap(images);
-        QMap<QString, const ObjectModel*> objectModelMap = createObjectModelMap(objectModels);
+        QMap<QString, ImagePtr> imageMap = createImageMap(images);
+        QMap<QString, ObjectModelPtr> objectModelMap = createObjectModelMap(objectModels);
         QByteArray data = jsonFile.readAll();
         QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
         QJsonObject jsonObject = jsonDocument.object();
@@ -330,8 +330,8 @@ QList<Pose> JsonLoadAndStoreStrategy::loadPoses(const QList<Image> &images, cons
                                                           (float) translation[2].toDouble());
 
                 QString objectModelPath = poseEntry["obj"].toString();
-                const Image *image = imageMap.value(imagePath);
-                const ObjectModel *objectModel = objectModelMap.value(objectModelPath);
+                ImagePtr image = imageMap.value(imagePath);
+                ObjectModelPtr objectModel = objectModelMap.value(objectModelPath);
 
                 if (image && objectModel) {
                     //! If either is NULL, we do not manage the image or object model
@@ -345,7 +345,7 @@ QList<Pose> JsonLoadAndStoreStrategy::loadPoses(const QList<Image> &images, cons
                     if (poseEntry.contains("id")) {
                         id = poseEntry["id"].toString();
                     } else {
-                        id = GeneralHelper::createPoseId(image, objectModel);
+                        id = GeneralHelper::createPoseId(*image, *objectModel);
                         //! No ID attatched to the entry yet -> write it to the file
                         //! to be able to identify the poses later
                         QJsonObject modifiedEntry(poseEntry);
@@ -355,11 +355,12 @@ QList<Pose> JsonLoadAndStoreStrategy::loadPoses(const QList<Image> &images, cons
                         documentDirty = true;
                     }
 
-                    poses.append(Pose(id,
-                                                                 qtTranslationVector,
-                                                                 rotationMatrix,
-                                                                 image,
-                                                                 objectModel));
+                    PosePtr pose(new Pose(id,
+                                          qtTranslationVector,
+                                          rotationMatrix,
+                                          image,
+                                          objectModel));
+                    poses.append(pose);
                 }
                 index++;
             }
@@ -375,7 +376,7 @@ QList<Pose> JsonLoadAndStoreStrategy::loadPoses(const QList<Image> &images, cons
     return poses;
 }
 
-void JsonLoadAndStoreStrategy::onSettingsChanged(const QString settingsIdentifier) {
+void JsonLoadAndStoreStrategy::onSettingsChanged(const QString &settingsIdentifier) {
     QSharedPointer<Settings> settings
             = settingsStore->loadPreferencesByIdentifier(settingsIdentifier);
     if (settings->getImagesPath() != imagesPath) {

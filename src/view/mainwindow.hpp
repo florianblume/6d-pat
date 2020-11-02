@@ -7,6 +7,8 @@
 #include "view/gallery/galleryobjectmodelmodel.hpp"
 #include "view/neuralnetworkprogressview/networkprogressview.hpp"
 #include "view/neuralnetworkdialog/neuralnetworkdialog.hpp"
+#include "model/poserecoverer.hpp"
+
 #include <QGuiApplication>
 #include <QMainWindow>
 #include <QMouseEvent>
@@ -86,6 +88,8 @@ public:
     void setModelManager(ModelManager* modelManager);
 
     void setPreferencesStore(SettingsStore *preferencesStore);
+
+    void setPoseRecoverer(PoseRecoverer *poseRecoverer);
 
     /*!
      * \brief getCurrentlyViewedImage returns the image currently selected in the images
@@ -182,58 +186,23 @@ public Q_SLOTS:
     void hideNetworkProgressView();
 
 Q_SIGNALS:
-    /*!
-     * \brief imageClicked Q_EMITted when the image in the pose viewer is clicked.
-     * \param image the image that was clicked
-     * \param position the position where it was clicked
-     */
-    void imageClicked(Image* image, QPoint position);
 
-    /*!
-     * \brief objectModelClicked Q_EMITted when the object model displayed in the pose editor
-     * is clicked.
-     * \param objectModel the object model that was clicked
-     * \param position the position where it was clicked
-     */
-    void objectModelClicked(ObjectModel* objectModel, QVector3D position);
-
-    /*!
-     * \brief selectedObjectModelChanged is triggered after the index of the object model is received.
-     * \param objectModel the actual object model retrieved from the index
-     */
-    void selectedObjectModelChanged(ObjectModel *objectModel);
-
-    /*!
-     * \brief selectedImageChanged is Q_EMITted when the image selected in the gallery changes.
-     * \param index the index of the new image
-     */
-    void selectedImageChanged(Image *image);
+    void selectedObjectModelChanged(const ObjectModel &objectModel);
+    void selectedImageChanged(const Image &image);
 
     /*!
      * \brief onPosePointCreationInitiated is Q_EMITted whenever the window receives a signal
      * that a pose point has been started (i.e. a 2D point was added to the pose
      * creator, this is what we hide here).
-     * \param point2D the 2D location of the pose point to be created
-     * \param currentNumberOfPoints the number of currently added pose points
-     * \param requiredNumberOfPoints the number of totally required pose points to create
-     * a new pose
      */
-    void posePointStarted(QPoint point2D,
-                                    int currentNumberOfPoints,
-                                    int minimumNumberOfPoints);
+    void onPoint2DAdded(QPoint point2D);
 
     /*!
      * \brief onPosePointAdded is Q_EMITted whenever the window receives a signal that
      * a pose point has been added (i.e. to the pose creator, this is what we
      * hide here).
-     * \param point3D the 3D location of the pose point to be created
-     * \param currentNumberOfPoints the number of currently added pose points
-     * \param requiredNumberOfPoints the number of totally required pose points to create
-     * a new pose
      */
-    void posePointFinished(QVector3D point3D,
-                                     int currentNumberOfPoints,
-                                     int minimumNumberOfPoints);
+    void onPoint3DAdded(QVector3D point3D);
 
     /*!
      * \brief poseCreationInterrupted this signal is Q_EMITted when the user clicks the
@@ -282,6 +251,7 @@ private:
 
     SettingsStore *preferencesStore = Q_NULLPTR;
     ModelManager* modelManager;
+    PoseRecoverer *poseRecoverer;
 
     // Used to write and read main view related settings, like position etc.
     void writeSettings();
