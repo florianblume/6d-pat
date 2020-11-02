@@ -4,7 +4,7 @@
 #include "loadandstorestrategy.hpp"
 #include <QString>
 #include <QStringList>
-#include <QList>
+#include <QVector>
 #include <QFileSystemWatcher>
 
 /*!
@@ -42,9 +42,9 @@ public:
 
     bool persistPose(const Pose &pose, bool deletePose) override;
 
-    QList<ImagePtr> loadImages() override;
+    QVector<ImagePtr> loadImages() override;
 
-    QList<ObjectModelPtr> loadObjectModels() override;
+    QVector<ObjectModelPtr> loadObjectModels() override;
 
     /*!
      * \brief loadPoses Loads the poses at the given path. How the poses are stored depends on the
@@ -59,8 +59,8 @@ public:
      * \return the list of all stored poses
      * \throws an exception if the path to the folder that should hold the poses has not been set previously
      */
-    QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
-                             const QList<ObjectModelPtr> &objectModels) override;
+    QVector<PosePtr> loadPoses(const QVector<ImagePtr> &images,
+                               const QVector<ObjectModelPtr> &objectModels) override;
 
 protected slots:
     void onSettingsChanged(const QString &settingsIdentifier) override;

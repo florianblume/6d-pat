@@ -2,7 +2,7 @@
 #define GALLERYOBJECTMODELMODEL_H
 
 #include "model/modelmanager.hpp"
-#include "rendering/offscreenengine.h"
+#include "rendering/offscreenengine.hpp"
 
 #include <QAbstractListModel>
 #include <QPixmap>
@@ -56,11 +56,11 @@ Q_SIGNALS:
 private:
 
     ModelManager* modelManager;
-    QList<ObjectModelPtr> objectModelsCache;
+    QVector<ObjectModelPtr> objectModelsCache;
     QMap<QString, QImage> renderedObjectsModels;
     OffscreenEngine offscreenEngine{QSize(300, 300)};
     void renderObjectModels();
-    QList<ImagePtr> imagesCache;
+    QVector<ImagePtr> imagesCache;
     QMap<QString, QString> codes;
     //! We need this in case that an object model will not be displayed due to its color
     //! which then "tears" a hole into the indices

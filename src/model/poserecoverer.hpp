@@ -51,7 +51,7 @@ public:
 
 Q_SIGNALS:
     void poseRecoveringAborted();
-    void poseRecovered(PosePtr pose);
+    void poseRecovered();
     void correspondencesChanged();
     void stateChanged(State state);
 

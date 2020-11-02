@@ -15,7 +15,6 @@
 #include <QScopedPointer>
 #include <QtAwesome.h>
 #include <QTimer>
-#include <QPropertyAnimation>
 
 #include <Qt3DRender/QPickEvent>
 
@@ -36,65 +35,23 @@ class PoseViewer : public QWidget
     Q_OBJECT
 
 public:
-    explicit PoseViewer(QWidget *parent = 0, ModelManager* modelManager = 0);
+    explicit PoseViewer(QWidget *parent = 0);
     ~PoseViewer();
-    /*!
-     * \brief setModelManager sets the model manager that this pose editor uses.
-     * The model manager is expected to not be null.
-     * \param modelManager the manager to be set, must not be null
-     */
-    void setModelManager(ModelManager* modelManager);
-    Image *currentlyViewedImage();
+    ImagePtr currentlyViewedImage();
+
+    void setModelManager(ModelManager *value);
+    void setPoseRecoverer(PoseRecoverer *value);
 
 public Q_SLOTS:
-    /*!
-     * \brief setImage sets the image that this PoseEditor displays.
-     * \param index the index of the image to be displayed
-     */
-    void setImage(Image *image);
-
-    /*!
-     * \brief reset resets the view to display nothing.
-     */
+    void setImage(ImagePtr image);
     void reset();
-
     void reloadPoses();
-
-    /*!
-     * \brief visualizeLastClickedPosition draws a point at the position that the user last clicked.
-     * The color is retrieved using the provided index from the DisplayHelper.
-     * \param posePointIndex the index of the pose point, e.g. 1 if it is the
-     * second time the user clicked the image to create a pose
-     */
-    void visualizeLastClickedPosition(int posePointIndex);
-
-    /*!
-     * \brief onPoseCreationAborted reacts to the signal indicating that the process
-     * of creating a new pose was aborted by the user.
-     */
     void onPoseCreationAborted();
-
-    /*!
-     * \brief removePositionVisualizations removes all visualized points from the image.
-     */
-    void removePositionVisualizations();
-
-    /*!
-    * \brief onPosePointFinished is the slot that handles whenever the user wants to create
-    * a pose point that consists of a 2D location and a 3D point on the object model.
-    * \param point2D the 2D point on the image
-    * \param currentNumberOfPoints the current number of pose points
-    * \param minimumNumberOfPoints the total number required to be able to create an actual ObjectImage Pose
-    */
-    void onPosePointStarted(QPoint, int currentNumberOfPoints, int);
-
-    void onPoseUpdated(Pose *pose);
+    void onCorrespondencesChanged();
+    void onPoseUpdated(PosePtr pose);
 
 Q_SIGNALS:
-    /*!
-     * \brief imageClicked emitted when the displayed image is clicked anywhere
-     */
-    void imageClicked(Image *image, QPoint position);
+    void imageClicked(ImagePtr image, QPoint position);
 
 private Q_SLOTS:
     /*!
@@ -118,11 +75,12 @@ private:
 
     QtAwesome* awesome;
     ModelManager* modelManager;
+    PoseRecoverer* poseRecoverer;
 
     // Store the last clicked position, so that we can visualize it if the user calls the respective
     // function.
     QPoint lastClickedPosition;
-    QScopedPointer<Image> currentlyDisplayedImage;
+    ImagePtr currentlyDisplayedImage;
 
     // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
     // segmentation image
@@ -130,7 +88,6 @@ private:
 
     int zoom = 3;
     float zoomMultiplier = 1.f;
-    QPropertyAnimation *resizeAnimation = Q_NULLPTR;
 
     void connectModelManagerSlots();
 };

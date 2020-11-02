@@ -158,8 +158,8 @@ static ImagePtr createImageWithJsonParams(const QString& filename, const QString
     return ImagePtr(new Image(filename, segmentationFilename, imagesPath, qtCameraMatrix));
 }
 
-QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
-    QList<ImagePtr> images;
+QVector<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
+    QVector<ImagePtr> images;
 
     // we do not need to throw an exception here, the only time the path cannot exist
     // is if this strategy was constructed with an empty path, all other methods of
@@ -233,8 +233,8 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     return images;
 }
 
-QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
-    QList<ObjectModelPtr> objectModels;
+QVector<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
+    QVector<ObjectModelPtr> objectModels;
 
     // See explanation under loadImages for why we don't throw an exception here
     QFileInfo info(objectModelsPath);
@@ -261,15 +261,15 @@ QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
     std::sort(
         objectModels.begin(),
         objectModels.end(),
-        [&collator](const ObjectModel &o1, const ObjectModel &o2)
+        [&collator](ObjectModelPtr o1, ObjectModelPtr o2)
         {
-            return collator.compare(o1.getPath(), o2.getPath()) < 0;
+            return collator.compare(o1->getPath(), o2->getPath()) < 0;
         });
 
     return objectModels;
 }
 
-QMap<QString, ImagePtr> createImageMap(const QList<ImagePtr> &images) {
+QMap<QString, ImagePtr> createImageMap(const QVector<ImagePtr> &images) {
     QMap<QString, ImagePtr> imageMap;
 
     for (int i = 0; i < images.size(); i++) {
@@ -279,7 +279,7 @@ QMap<QString, ImagePtr> createImageMap(const QList<ImagePtr> &images) {
     return imageMap;
 }
 
-QMap<QString, ObjectModelPtr> createObjectModelMap(const QList<ObjectModelPtr> &objectModels) {
+QMap<QString, ObjectModelPtr> createObjectModelMap(const QVector<ObjectModelPtr> &objectModels) {
     QMap<QString, ObjectModelPtr> objectModelMap;
 
     for (int i = 0; i < objectModels.size(); i++) {
@@ -289,9 +289,9 @@ QMap<QString, ObjectModelPtr> createObjectModelMap(const QList<ObjectModelPtr> &
     return objectModelMap;
 }
 
-QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images,
-                                                const QList<ObjectModelPtr> &objectModels) {
-    QList<PosePtr> poses;
+QVector<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QVector<ImagePtr> &images,
+                                                     const QVector<ObjectModelPtr> &objectModels) {
+    QVector<PosePtr> poses;
 
     //! See loadImages for why we don't throw an exception here
     if (!QFileInfo(posesFilePath).exists()) {

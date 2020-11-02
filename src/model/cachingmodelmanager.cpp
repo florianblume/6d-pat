@@ -25,42 +25,42 @@ void CachingModelManager::createConditionalCache() {
         PosePtr pose = poses[i];
 
         //! Setup cache of poses that can be retrieved via an image
-        QList<PosePtr> &posesForImage =
+        QVector<PosePtr> &posesForImage =
                 posesForImages[pose->getImage()->getImagePath()];
         posesForImage.append(pose);
 
         //! Setup cache of poses that can be retrieved via an object model
-        QList<PosePtr> &posesForObjectModel =
+        QVector<PosePtr> &posesForObjectModel =
                 posesForObjectModels[pose->getObjectModel()->getPath()];
         posesForObjectModel.append(pose);
     }
 }
 
-QList<ImagePtr> CachingModelManager::getImages() const {
+QVector<ImagePtr> CachingModelManager::getImages() const {
     return images;
 }
 
-QList<PosePtr> CachingModelManager::getPosesForImage(const Image &image) const  {
+QVector<PosePtr> CachingModelManager::getPosesForImage(const Image &image) const  {
     if (posesForImages.find(image.getImagePath()) != posesForImages.end()) {
         return posesForImages[image.getImagePath()];
     }
 
-    return QList<PosePtr>();
+    return QVector<PosePtr>();
 }
 
-QList<ObjectModelPtr> CachingModelManager::getObjectModels() const {
+QVector<ObjectModelPtr> CachingModelManager::getObjectModels() const {
     return objectModels;
 }
 
-QList<PosePtr> CachingModelManager::getPosesForObjectModel(const ObjectModel &objectModel) const {
+QVector<PosePtr> CachingModelManager::getPosesForObjectModel(const ObjectModel &objectModel) const {
     if (posesForObjectModels.find(objectModel.getPath()) != posesForObjectModels.end()) {
         return posesForObjectModels[objectModel.getPath()];
     }
 
-    return QList<PosePtr>();
+    return QVector<PosePtr>();
 }
 
-QList<PosePtr> CachingModelManager::getPoses() const {
+QVector<PosePtr> CachingModelManager::getPoses() const {
     return poses;
 }
 
@@ -76,8 +76,8 @@ PosePtr CachingModelManager::getPoseById(const QString &id) const {
     return result;
 }
 
-QList<PosePtr> CachingModelManager::getPosesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) {
-    QList<PosePtr> posesForImageAndObjectModel;
+QVector<PosePtr> CachingModelManager::getPosesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) {
+    QVector<PosePtr> posesForImageAndObjectModel;
     for (PosePtr &pose : posesForImages[image.getImagePath()]) {
         if (pose->getObjectModel()->getPath().compare(objectModel.getPath()) == 0) {
            posesForImageAndObjectModel.append(pose);
@@ -91,11 +91,15 @@ bool CachingModelManager::addPose(const Image &image,
                                   const QVector3D &position,
                                   const QMatrix3x3 &rotation) {
 
-    QList<ImagePtr>::iterator imageIterator = find(images.begin(), images.end(), image);
+    QVector<ImagePtr>::iterator imageIterator = find(images.begin(),
+                                                   images.end(),
+                                                   ImagePtr(new Image(image)));
     if (imageIterator == images.end())
         return false;
 
-    QList<ObjectModelPtr>::iterator objectModelIterator = find(objectModels.begin(), objectModels.end(), objectModel);
+    QVector<ObjectModelPtr>::iterator objectModelIterator = find(objectModels.begin(),
+                                                                 objectModels.end(),
+                                                                 ObjectModelPtr(new ObjectModel(objectModel)));
     if (objectModelIterator == objectModels.end())
         return false;
 

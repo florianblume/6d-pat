@@ -98,7 +98,7 @@ void PoseViewer3DWidget::initializeQt3D() {
 
 void PoseViewer3DWidget::setBackgroundImageAndPoses(const QString &image,
                                                     const QMatrix3x3 &cameraMatrix,
-                                                    const QList<PosePtr> &poses) {
+                                                    const QVector<PosePtr> &poses) {
     setBackgroundImage(image, cameraMatrix);
     for (const PosePtr &pose : poses) {
         addPose(*pose);
@@ -174,16 +174,12 @@ void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
     }
 }
 
-void PoseViewer3DWidget::addClick(QPoint position) {
-    clickVisualizationRenderable->addClick(position);
-}
-
-void PoseViewer3DWidget::removeClicks() {
-    clickVisualizationRenderable->removeClicks();
+void PoseViewer3DWidget::setClicks(const QVector<QPoint> &clicks) {
+    clickVisualizationRenderable->setClicks(clicks);
 }
 
 void PoseViewer3DWidget::reset() {
-    removeClicks();
+    setClicks({});
     removePoses();
     if (backgroundImageRenderable != Q_NULLPTR) {
         backgroundImageRenderable->setEnabled(false);

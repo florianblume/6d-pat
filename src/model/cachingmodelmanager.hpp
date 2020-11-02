@@ -22,21 +22,20 @@ public:
 
     ~CachingModelManager();
 
-    QList<ImagePtr> getImages() const override;
+    QVector<ImagePtr> getImages() const override;
 
-    QList<PosePtr> getPosesForImage(const Image &image) const override;
+    QVector<PosePtr> getPosesForImage(const Image &image) const override;
 
-    QList<ObjectModelPtr> getObjectModels() const override;
+    QVector<ObjectModelPtr> getObjectModels() const override;
 
-    QList<PosePtr> getPosesForObjectModel(const ObjectModel &objectModel) const override;
+    QVector<PosePtr> getPosesForObjectModel(const ObjectModel &objectModel) const override;
 
-    QList<PosePtr> getPoses() const override;
+    QVector<PosePtr> getPoses() const override;
 
     PosePtr getPoseById(const QString &id) const override;
 
-    QList<PosePtr> getPosesForImageAndObjectModel(
-            const Image &image,
-            const ObjectModel &objectModel) override;
+    QVector<PosePtr> getPosesForImageAndObjectModel(const Image &image,
+                                                    const ObjectModel &objectModel) override;
 
     bool addPose(const Image &image,
                  const ObjectModel &objectModel,
@@ -55,15 +54,15 @@ private:
     //! The pattern that is used to load maybe existing segmentation images
     QString segmentationImagePattern;
     //! The list of the loaded images
-    QList<ImagePtr> images;
+    QVector<ImagePtr> images;
     //! Convenience map to store poses for images
-    QMap<QString, QList<PosePtr>> posesForImages;
+    QMap<QString, QVector<PosePtr>> posesForImages;
     //! The list of the loaded object models
-    QList<ObjectModelPtr> objectModels;
+    QVector<ObjectModelPtr> objectModels;
     //! Convenience map to store poses for object models
-    QMap<QString, QList<PosePtr>> posesForObjectModels;
+    QMap<QString, QVector<PosePtr>> posesForObjectModels;
     //! The list of the object image poses
-    QList<PosePtr> poses;
+    QVector<PosePtr> poses;
     /*!
      * \brief createConditionalCache sets up the cache of poses that
      * can be retrieved for an image or for an object model.

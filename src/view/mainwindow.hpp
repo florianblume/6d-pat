@@ -86,9 +86,7 @@ public:
      * \param modelManager the model manager that the editor uses to load correspondeces, update them, etc...
      */
     void setModelManager(ModelManager* modelManager);
-
     void setPreferencesStore(SettingsStore *preferencesStore);
-
     void setPoseRecoverer(PoseRecoverer *poseRecoverer);
 
     /*!
@@ -96,13 +94,9 @@ public:
      * gallery and displayed by the pose viewer.
      * \return the image currently displayed
      */
-    Image *getCurrentlyViewedImage();
+    ImagePtr getCurrentlyViewedImage();
 
 public Q_SLOTS:
-
-    //! The slot that catches the Q_EMITted signal when the 3D model in the lower right pose controls
-    //! is clicked (see PoseEditorControls)
-    void onObjectModelClicked(ObjectModel* objectModel, QVector3D position);
 
     /*!
      * \brief onSelectedObjectModelChanged will be called from the right gallery that displays
@@ -141,26 +135,6 @@ public Q_SLOTS:
     void displayWarning(const QString &title, const QString& text);
 
     /*!
-     * \brief onPosePointCreationInitiated can be called when the user clicked the image
-     * but not the object model yet, to indicate that the program recieved the click correctly.
-     * \param point2D the 2D location of the pose point to be created
-     * \param currentNumberOfPoints the number of currently added pose points
-     * \param requiredNumberOfPoints the number of totally required pose points to create
-     * a new pose
-     */
-    void onPosePointStarted(QPoint point2D, int currentNumberOfPoints, int minimumNumberOfPoints);
-
-    /*!
-     * \brief onPosePointAdded can be called when the user clicked the image and then
-     * the object and as a result the number of added corresponding points changes.
-     * \param point3D the 3D location of the pose point to be created
-     * \param currentNumberOfPoints the number of currently added pose points
-     * \param requiredNumberOfPoints the number of totally required pose points to create
-     * a new pose
-     */
-    void onPosePointFinished(QVector3D point3D, int currentNumberOfPoints, int minimumNumberOfPoints);
-
-    /*!
      * \brief poseCreated can be called when the process of creating a pose
      * finished successfully.
      */
@@ -187,8 +161,8 @@ public Q_SLOTS:
 
 Q_SIGNALS:
 
-    void selectedObjectModelChanged(const ObjectModel &objectModel);
-    void selectedImageChanged(const Image &image);
+    void selectedObjectModelChanged(ObjectModelPtr objectModel);
+    void selectedImageChanged(ImagePtr image);
 
     /*!
      * \brief onPosePointCreationInitiated is Q_EMITted whenever the window receives a signal
@@ -240,7 +214,7 @@ Q_SIGNALS:
     void objectModelsPathChanged(const QString &newPath);
 
     void posePredictionRequested();
-    void posePredictionRequestedForImages(QList<Image> images);
+    void posePredictionRequestedForImages(QVector<ImagePtr> images);
 
 private:
     Ui::MainWindow *ui;
@@ -283,10 +257,6 @@ private:
     static QString SPLITTER_RIGHT_SIZE_BOTTOM_KEY;
 
 private Q_SLOTS:
-    // Mouse event receivers of the bottom left widget to draw a line behind the mouse when the user
-    // right clicks in the image to start creating a pose
-    void onImageClicked(Image* image, QPoint position);
-
     void onSettingsChanged(const QString &identifier);
 
     void onActionAboutTriggered();
@@ -295,7 +265,7 @@ private Q_SLOTS:
     void onActionAbortCreationTriggered();
     void onActionReloadViewsTriggered();
     void onActionNetworkPredictTriggered();
-    void onPosePredictionRequestedForImages(QList<Image> images);
+    void onPosePredictionRequestedForImages(QVector<ImagePtr> images);
     void onPosePredictionRequested();
 };
 

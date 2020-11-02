@@ -57,18 +57,12 @@ private:
     void setSegmentationCodesOnGalleryObjectModelModel();
 
 private Q_SLOTS:
-    void onImageClicked(Image* image, QPoint position);
-    void onObjectModelClicked(ObjectModel* objectModel, QVector3D position);
-    // The slots that will be called from the main window when the user selects abort creation
-    // from the menu or aborts creation in another way
-    void onPoseCreationInterrupted();
-    void onPoseCreationAborted();
     void onSettingsChanged(const QString &identifier);
     void resetPoseCreation();
     void onPoseCreationRequested();
     void onPosePredictionRequested();
-    void onPosePredictionRequestedForImages(QList<Image> images);
-    void performPosePredictionForImages(QList<Image> images);
+    void onPosePredictionRequestedForImages(const QVector<ImagePtr> &images);
+    void performPosePredictionForImages(const QVector<ImagePtr> &images);
     void onNetworkTrainingFinished();
     void onNetworkInferenceFinished();
     void onFailedToLoadImages(const QString &message);

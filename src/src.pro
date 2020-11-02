@@ -48,6 +48,8 @@ HEADERS  += \
     model/objectmodel.hpp \
     model/jsonloadandstorestrategy.hpp \
     model/pose.hpp \
+    view/gallery/rendering/offscreenengine.hpp \
+    view/gallery/rendering/texturerendertarget.hpp \
     view/misc/displayhelper.hpp \
     view/mainwindow.hpp \
     view/breadcrumb/breadcrumbview.hpp \
@@ -77,8 +79,6 @@ HEADERS  += \
     controller/neuralnetworkrunnable.hpp \
     misc/generalhelper.hpp \
     misc/global.hpp \
-    view/gallery/rendering/offscreenengine.h \
-    view/gallery/rendering/texturerendertarget.h \
     view/rendering/objectmodelrenderable.hpp \
     view/rendering/clickvisualizationmaterial.hpp \
     view/rendering/clickvisualizationrenderable.hpp

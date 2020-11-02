@@ -35,10 +35,10 @@ void NeuralNetworkDialog::onButtonNoneClicked() {
 
 void NeuralNetworkDialog::fillItemsList() {
     ui->listWidget->clear();
-    QList<Image> images = modelManager->getImages();
+    QVector<ImagePtr> images = modelManager->getImages();
     QStringList model;
-    for (Image image : images) {
-        model << image.getImagePath();
+    for (const ImagePtr &image : images) {
+        model << image->getImagePath();
     }
     ui->listWidget->addItems(model);
     QListWidgetItem* item = 0;
@@ -72,9 +72,9 @@ void NeuralNetworkDialog::setCheckStateOnItems(Qt::CheckState state) {
     }
 }
 
-QList<Image> NeuralNetworkDialog::getSelectedImages() {
-    QList<Image> result;
-    QList<Image> images = modelManager->getImages();
+QVector<ImagePtr> NeuralNetworkDialog::getSelectedImages() {
+    QVector<ImagePtr> result;
+    QVector<ImagePtr> images = modelManager->getImages();
     QListWidgetItem* item = 0;
     for(int i = 0; i < ui->listWidget->count(); ++i){
         item = ui->listWidget->item(i);

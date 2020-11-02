@@ -17,12 +17,6 @@ MainController::MainController() {
     connect(settingsStore.data(), SIGNAL(settingsChanged(QString)),
             this, SLOT(onSettingsChanged(QString)));
     poseCreator.reset(new PoseRecoverer(0, modelManager.data()));
-    // Whenever the user clicks the create button in the pose editor we need to reset
-    // the controller as well
-    connect(modelManager.data(), SIGNAL(poseAdded(QString)),
-            this, SLOT(resetPoseCreation()));
-    connect(modelManager.data(), SIGNAL(poseDeleted(QString)),
-            this, SLOT(resetPoseCreation()));
     connect(strategy.data(), &LoadAndStoreStrategy::failedToLoadImages, this, &MainController::onFailedToLoadImages);
     connect(strategy.data(), &LoadAndStoreStrategy::failedToLoadObjectModels, this, &MainController::onFailedToLoadObjectModels);
     connect(strategy.data(), &LoadAndStoreStrategy::failedToLoadPoses, this, &MainController::onFailedToLoadPoses);
@@ -82,14 +76,14 @@ void MainController::showView() {
 }
 
 void MainController::onPosePredictionRequested() {
-    performPosePredictionForImages(QList<Image>() << *mainWindow.getCurrentlyViewedImage());
+    performPosePredictionForImages(QVector<ImagePtr>() << mainWindow.getCurrentlyViewedImage());
 }
 
-void MainController::onPosePredictionRequestedForImages(QList<Image> images) {
+void MainController::onPosePredictionRequestedForImages(const QVector<ImagePtr> &images) {
     performPosePredictionForImages(images);
 }
 
-void MainController::performPosePredictionForImages(QList<Image> images) {
+void MainController::performPosePredictionForImages(const QVector<ImagePtr> &images) {
     if (currentSettings->getSegmentationImagesPath() == "") {
         mainWindow.displayWarning("Segmentation images path not set", "The path to the segmentation "
                                                                       "images has to "
@@ -108,7 +102,7 @@ void MainController::performPosePredictionForImages(QList<Image> images) {
         networkController->setTrainPythonScript(currentSettings->getTrainingScriptPath());
         networkController->setInferencePythonScript(currentSettings->getInferenceScriptPath());
     }
-    networkController->setImages(images.toVector());
+    networkController->setImages(images);
     networkController->setPosesFilePath(currentSettings->getPosesFilePath());
     networkController->setImagesPath(currentSettings->getImagesPath());
     networkController->setSegmentationImagesPath(currentSettings->getSegmentationImagesPath());

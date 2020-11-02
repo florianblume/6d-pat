@@ -22,9 +22,9 @@ SettingsSegmentationCodesPage::~SettingsSegmentationCodesPage()
 }
 
 void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *preferences,
-                                                                   QList<ObjectModel> objectModels) {
+                                                                  const QVector<ObjectModelPtr> &objectModels) {
     this->preferences = preferences;
-    this->objectModels = std::move(objectModels);
+    this->objectModels = objectModels;
 
     if (!preferences)
         return;
@@ -33,17 +33,17 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *pref
     awesome->initFontAwesome();
 
     int i = 0;
-    for(const ObjectModel &objectModel : this->objectModels) {
-        const QString &code = preferences->getSegmentationCodeForObjectModel(objectModel.getPath());
+    for(const ObjectModelPtr &objectModel : this->objectModels) {
+        const QString &code = preferences->getSegmentationCodeForObjectModel(objectModel->getPath());
         ui->tableSegmentationCodes->insertRow(i);
-        ui->tableSegmentationCodes->setItem(i, 0, new QTableWidgetItem(objectModel.getPath()));
+        ui->tableSegmentationCodes->setItem(i, 0, new QTableWidgetItem(objectModel->getPath()));
         if (code.compare("") != 0) {
             QColor color = GeneralHelper::colorFromSegmentationCode(code);
             QTableWidgetItem *tableItem = new QTableWidgetItem();
             tableItem->setToolTip("[" + QString::number(color.red()) + ", "
                                   + QString::number(color.green()) + ", "
                                   + QString::number(color.blue()));
-            tableItem->setBackgroundColor(QColor(color));
+            tableItem->setBackground(QColor(color));
             ui->tableSegmentationCodes->setItem(i, 1, tableItem);
         } else {
             ui->tableSegmentationCodes->setItem(i, 1, new QTableWidgetItem("Undefined"));
@@ -82,17 +82,17 @@ void SettingsSegmentationCodesPage::showColorDialog(int index) {
         return;
 
     QString colorCode = GeneralHelper::segmentationCodeFromColor(color);
-    const ObjectModel &objectModel = objectModels.at(index);
-    preferences->setSegmentationCodeForObjectModel(objectModel.getPath(), colorCode);
+    const ObjectModelPtr &objectModel = objectModels.at(index);
+    preferences->setSegmentationCodeForObjectModel(objectModel->getPath(), colorCode);
     QTableWidgetItem *item = ui->tableSegmentationCodes->item(index, 1);
     item->setText("");
-    item->setBackgroundColor(color);
+    item->setBackground(color);
 }
 
 void SettingsSegmentationCodesPage::removeColor(int index) {
-    const ObjectModel &objectModel = objectModels.at(index);
-    preferences->removeSegmentationCodeForObjectModel(objectModel.getPath());
+    const ObjectModelPtr &objectModel = objectModels.at(index);
+    preferences->removeSegmentationCodeForObjectModel(objectModel->getPath());
     QTableWidgetItem *item = ui->tableSegmentationCodes->item(index, 1);
-    item->setBackgroundColor(QColor(255, 255, 255));
+    item->setBackground(QColor(255, 255, 255));
     item->setText("Undefined");
 }

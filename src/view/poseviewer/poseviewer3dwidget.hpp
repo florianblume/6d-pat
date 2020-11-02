@@ -37,7 +37,7 @@ public:
 
     void setBackgroundImageAndPoses(const QString &image,
                                     const QMatrix3x3 &cameraMatrix,
-                                    const QList<PosePtr> &poses);
+                                    const QVector<PosePtr> &poses);
     void setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix);
     void addPose(const Pose &pose);
     void updatePose(const Pose &pose);
@@ -46,8 +46,7 @@ public:
     PoseRenderable *getObjectModelRenderable(
             const Pose &pose);
     void setObjectsOpacity(float opacity);
-    void addClick(QPoint position);
-    void removeClicks();
+    void setClicks(const QVector<QPoint> &clicks);
     QSize imageSize() const;
     void reset();
     void resizeEvent(QResizeEvent *event) override;
@@ -103,7 +102,7 @@ private:
     Qt3DRender::QNoDepthMask *clickVisualizationNoDepthMask;
     ClickVisualizationRenderable *clickVisualizationRenderable;
 
-    QList<PoseRenderable *> poseRenderables;
+    QVector<PoseRenderable *> poseRenderables;
     QMap<QString, PoseRenderable*> poseRenderableForId;
     QMatrix4x4 projectionMatrix;
 

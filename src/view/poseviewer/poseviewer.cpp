@@ -4,19 +4,17 @@
 
 #include <QRect>
 
-PoseViewer::PoseViewer(QWidget *parent, ModelManager* modelManager) :
-    QWidget(parent),
-    ui(new Ui::PoseViewer),
-    poseViewer3DWidget(new PoseViewer3DWidget),
-    awesome(new QtAwesome( qApp )),
-    modelManager(modelManager)
-{
+PoseViewer::PoseViewer(QWidget *parent) :
+        QWidget(parent),
+        ui(new Ui::PoseViewer),
+        poseViewer3DWidget(new PoseViewer3DWidget),
+        awesome(new QtAwesome( qApp )) {
+    Q_ASSERT(modelManager);
+    Q_ASSERT(poseRecoverer);
+
     ui->setupUi(this);
 
     poseViewer3DWidget->setParent(ui->graphicsContainer);
-
-    connect(poseViewer3DWidget, &PoseViewer3DWidget::positionClicked,
-            this, &PoseViewer::onImageClicked);
 
     awesome->initFontAwesome();
 
@@ -31,38 +29,20 @@ PoseViewer::PoseViewer(QWidget *parent, ModelManager* modelManager) :
     ui->buttonResetPosition->setToolTip("Click to reset the position of the image.");
     ui->buttonResetPosition->setEnabled(false);
 
-    if (modelManager) {
-        connectModelManagerSlots();
-    }
-
-    //connect(ui->openGLWidget, SIGNAL(positionClicked(QPoint)), this, SLOT(onImageClicked(QPoint)));
+    connect(poseViewer3DWidget, &PoseViewer3DWidget::positionClicked,
+            this, &PoseViewer::onImageClicked);
 }
 
 PoseViewer::~PoseViewer() {
     delete ui;
 }
 
-void PoseViewer::setModelManager(ModelManager* modelManager) {
-    Q_ASSERT(modelManager != Q_NULLPTR);
-    if (this->modelManager) {
-        disconnect(modelManager, SIGNAL(posesChanged()), this, SLOT(onPosesChanged()));
-        disconnect(modelManager, SIGNAL(poseAdded(QString)),
-                   this, SLOT(onPoseAdded(QString)));
-        disconnect(modelManager, SIGNAL(poseDeleted(QString)),
-                   this, SLOT(onPoseDeleted(QString)));
-        disconnect(this->modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
-        disconnect(this->modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
-    }
-    this->modelManager = modelManager;
-    connectModelManagerSlots();
+ImagePtr PoseViewer::currentlyViewedImage() {
+    return currentlyDisplayedImage;
 }
 
-Image *PoseViewer::currentlyViewedImage() {
-    return currentlyDisplayedImage.data();
-}
-
-void PoseViewer::setImage(Image *image) {
-    currentlyDisplayedImage.reset(new Image(*image));
+void PoseViewer::setImage(ImagePtr image) {
+    currentlyDisplayedImage = image;
 
     poseViewer3DWidget->removePoses();
     ui->buttonResetPosition->setEnabled(true);
@@ -85,7 +65,7 @@ void PoseViewer::setImage(Image *image) {
     }
     QString toDisplay = showingNormalImage ?  currentlyDisplayedImage->getAbsoluteImagePath() :
                                     currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
-    QList<PosePtr> posesForImage = modelManager->getPosesForImage(*image);
+    QVector<PosePtr> posesForImage = modelManager->getPosesForImage(*image);
     poseViewer3DWidget->setBackgroundImageAndPoses(toDisplay, image->getCameraMatrix(), posesForImage);
     ui->sliderTransparency->setEnabled(posesForImage.size() > 0);
 }
@@ -112,35 +92,21 @@ void PoseViewer::reset() {
 
 void PoseViewer::reloadPoses() {
     if (!currentlyDisplayedImage.isNull()) {
-        Image image = *(currentlyDisplayedImage.data());
-        setImage(&image);
+        setImage(currentlyDisplayedImage);
     } else {
         reset();
     }
 }
 
-void PoseViewer::visualizeLastClickedPosition(int posePointIndex) {
-    Q_ASSERT(posePointIndex >= 0);
-    poseViewer3DWidget->addClick(lastClickedPosition);
-}
-
 void PoseViewer::onPoseCreationAborted() {
-    removePositionVisualizations();
+    poseViewer3DWidget->setClicks({});
 }
 
-void PoseViewer::removePositionVisualizations() {
-    poseViewer3DWidget->removeClicks();
+void PoseViewer::onCorrespondencesChanged() {
+    poseViewer3DWidget->setClicks(poseRecoverer->points2D());
 }
 
-void PoseViewer::onPosePointStarted(QPoint /* point2D */,
-                                    int currentNumberOfPoints,
-                                    int /* minimumNumberOfPoints */) {
-    // We can use the number of points as index directly, because the number of points only increases
-    // after the user successfully clicked a 2D location and the corresponding 3D point
-    visualizeLastClickedPosition(currentNumberOfPoints);
-}
-
-void PoseViewer::onPoseUpdated(Pose *pose){
+void PoseViewer::onPoseUpdated(PosePtr pose){
     poseViewer3DWidget->updatePose(*pose);
 }
 
@@ -189,7 +155,7 @@ void PoseViewer::onImageClicked(QPoint point) {
     qDebug() << "Image (" + currentlyDisplayedImage->getImagePath() + ") clicked at: (" +
                 QString::number(point.x()) + ", " + QString::number(point.y()) + ").";
     lastClickedPosition = point;
-    Q_EMIT imageClicked(currentlyDisplayedImage.data(), point / zoomMultiplier);
+    Q_EMIT imageClicked(currentlyDisplayedImage, point / zoomMultiplier);
 }
 
 void PoseViewer::onPoseDeleted(const QString &id) {
@@ -202,7 +168,7 @@ void PoseViewer::onPoseAdded(const QString &id) {
         poseViewer3DWidget->addPose(*pose.data());
         ui->sliderTransparency->setEnabled(true);
     }
-    poseViewer3DWidget->removeClicks();
+    poseViewer3DWidget->setClicks({});
 }
 
 void PoseViewer::onPosesChanged() {
@@ -215,4 +181,19 @@ void PoseViewer::onImagesChanged() {
 
 void PoseViewer::onObjectModelsChanged() {
     reset();
+}
+
+void PoseViewer::setPoseRecoverer(PoseRecoverer *value) {
+    Q_ASSERT(value);
+    if (this->poseRecoverer) {
+        disconnect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
+                   this, &PoseViewer::onCorrespondencesChanged);
+    }
+    poseRecoverer = value;
+}
+
+void PoseViewer::setModelManager(ModelManager *value) {
+    Q_ASSERT(value);
+    modelManager = value;
+    connectModelManagerSlots();
 }

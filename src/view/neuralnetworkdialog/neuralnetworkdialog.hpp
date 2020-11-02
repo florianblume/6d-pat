@@ -20,7 +20,7 @@ public:
     void accept() override;
 
 signals:
-    void networkPredictionRequestedForImages(QList<Image> images);
+    void networkPredictionRequestedForImages(QVector<ImagePtr> images);
 
 protected:
       void showEvent(QShowEvent *ev) override;
@@ -36,7 +36,7 @@ private:
 
     void fillItemsList();
     void setCheckStateOnItems(Qt::CheckState state);
-    QList<Image> getSelectedImages();
+    QVector<ImagePtr> getSelectedImages();
 };
 
 #endif // NEURALNETWORKDIALOG_H

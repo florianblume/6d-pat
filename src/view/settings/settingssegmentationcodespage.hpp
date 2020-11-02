@@ -17,12 +17,12 @@ public:
     explicit SettingsSegmentationCodesPage(QWidget *parent = 0);
     ~SettingsSegmentationCodesPage();
     void setPreferencesAndObjectModels(Settings *preferences,
-                                        QList<ObjectModel> objectModels);
+                                       const QVector<ObjectModelPtr> &objectModels);
 
 private:
     Ui::SettingsSegmentationCodesPage *ui;
     Settings *preferences;
-    QList<ObjectModel> objectModels;
+    QVector<ObjectModelPtr> objectModels;
 
 private Q_SLOTS:
     void showColorDialog(int index);

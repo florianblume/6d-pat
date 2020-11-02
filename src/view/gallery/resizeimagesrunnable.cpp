@@ -2,7 +2,7 @@
 
 #include <QUrl>
 
-ResizeImagesRunnable::ResizeImagesRunnable(const QList<ImagePtr> &images) :
+ResizeImagesRunnable::ResizeImagesRunnable(const QVector<ImagePtr> &images) :
     images(images) {
 
 }

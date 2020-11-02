@@ -14,11 +14,9 @@
 #include <QItemSelectionRange>
 #include <QStringList>
 
-PoseEditor::PoseEditor(QWidget *parent, ModelManager *modelManager, PoseRecoverer *poseRecoverer) :
+PoseEditor::PoseEditor(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::PoseEditor),
-    modelManager(modelManager),
-    poseRecoverer(poseRecoverer),
     poseEditor3DWindow(new PoseEditor3DWindow) {
     ui->setupUi(this);
 
@@ -31,23 +29,6 @@ PoseEditor::PoseEditor(QWidget *parent, ModelManager *modelManager, PoseRecovere
     ui->listViewPoses->setModel(listViewPosesModel);
     connect(ui->listViewPoses->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &PoseEditor::onSelectedPoseChanged);
-
-    if (modelManager) {
-        // Whenever a pose has been added it was created through the editor, i.e. we have
-        // to remove all visualizations because the pose creation process was finished
-        connect(modelManager, SIGNAL(poseAdded(QString)),
-                this, SLOT(onPoseAdded(QString)));
-        connect(modelManager, SIGNAL(poseDeleted(QString)),
-                this, SLOT(onPoseDeleted(QString)));
-        // Reset view when object models are changed of course but also when the
-        // images change because that might imply a change in the object models, too
-        connect(modelManager, SIGNAL(objectModelsChanged()),
-                this, SLOT(reset()));
-        connect(modelManager, SIGNAL(imagesChanged()),
-                this, SLOT(reset()));
-        connect(modelManager, SIGNAL(posesChanged()),
-                this, SLOT(onPosesChanged()));
-    }
 }
 
 PoseEditor::~PoseEditor() {
@@ -79,6 +60,15 @@ void PoseEditor::setModelManager(ModelManager *modelManager) {
             this, SLOT(reset()));
     connect(modelManager, SIGNAL(posesChanged()),
             this, SLOT(onPosesChanged()));
+}
+
+void PoseEditor::setPoseRecoverer(PoseRecoverer *poseRecoverer) {
+    Q_ASSERT(poseRecoverer);
+    if (this->poseRecoverer) {
+        disconnect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
+                   this, &PoseEditor::onCorrespondencesChanged);
+    }
+    this->poseRecoverer = poseRecoverer;
 }
 
 void PoseEditor::setEnabledPoseEditorControls(bool enabled) {
@@ -118,7 +108,7 @@ void PoseEditor::resetControlsValues() {
 
 void PoseEditor::addPosesToComboBoxPoses(const Image &image,
                                          const QString &poseToSelect) {
-    QList<PosePtr> poses =
+    QVector<PosePtr> poses =
             modelManager->getPosesForImage(image);
     ignoreValueChanges = true;
     QStringList list("None");
@@ -224,7 +214,7 @@ void PoseEditor::onPoseDeleted(PosePtr /*pose*/) {
 
 void PoseEditor::onButtonRemoveClicked() {
     modelManager->removePose(currentPose->getID());
-    QList<PosePtr> poses = modelManager->getPosesForImage(*currentlySelectedImage);
+    QVector<PosePtr> poses = modelManager->getPosesForImage(*currentlySelectedImage);
     if (poses.size() > 0) {
         // This reloads the drop down list and does everything else
         addPosesToComboBoxPoses(*currentlySelectedImage);
@@ -313,7 +303,7 @@ void PoseEditor::onComboBoxPoseIndexChanged(int index) {
         currentPose.reset();
         resetControlsValues();
     } else {
-        QList<PosePtr> posesForImage =
+        QVector<PosePtr> posesForImage =
                 modelManager->getPosesForImage(*currentlySelectedImage);
         PosePtr pose = posesForImage.at(--index);
         setPoseToEdit(pose);
@@ -339,7 +329,7 @@ void PoseEditor::onSelectedPoseChanged(const QItemSelection &selected, const QIt
         // Gets enabled somehow
         ui->buttonSave->setEnabled(false);
     } else {
-        QList<PosePtr> posesForImage =
+        QVector<PosePtr> posesForImage =
                 modelManager->getPosesForImage(*currentlySelectedImage);
         PosePtr pose = posesForImage.at(--index);
         setPoseToEdit(pose);

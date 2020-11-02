@@ -21,11 +21,12 @@ class PoseEditor : public QWidget
     Q_OBJECT
 
 public:
-    explicit PoseEditor(QWidget *parent = Q_NULLPTR,
-                        ModelManager *modelManager = Q_NULLPTR,
-                        PoseRecoverer *poseRecoverer = Q_NULLPTR);
+    explicit PoseEditor(QWidget *parent = Q_NULLPTR);
     ~PoseEditor();
+    // Need setters because the forms file can't create the widget
+    // by passing the two
     void setModelManager(ModelManager *modelManager);
+    void setPoseRecoverer(PoseRecoverer* poseRecoverer);
     bool isDisplayingObjectModel();
 
 public Q_SLOTS:

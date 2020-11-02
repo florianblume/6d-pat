@@ -30,7 +30,7 @@ public:
 
 private:
     ModelManager *modelManager;
-    QList<ImagePtr> imagesCache;
+    QVector<ImagePtr> imagesCache;
     ResizeImagesRunnable *resizeImagesRunnable = Q_NULLPTR;
     QThreadPool resizeImagesThreadpool;
     QMap<QString, QImage> resizedImagesCache;

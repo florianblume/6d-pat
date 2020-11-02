@@ -1,4 +1,4 @@
-#include "offscreenengine.h"
+#include "offscreenengine.hpp"
 
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DCore/QTransform>
@@ -69,7 +69,8 @@ OffscreenEngine::OffscreenEngine(const QSize &size) {
     Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
     lightEntity->addComponent(light);
     lightEntity->addComponent(lightTransform);
-    connect(camera, &Qt3DRender::QCamera::positionChanged, [this, lightTransform](){lightTransform->setTranslation(this->camera->position());});
+    connect(camera, &Qt3DRender::QCamera::positionChanged,
+            [this, lightTransform](){lightTransform->setTranslation(this->camera->position());});
 }
 
 OffscreenEngine::~OffscreenEngine() {
@@ -86,7 +87,7 @@ OffscreenEngine::~OffscreenEngine() {
 }
 
 void OffscreenEngine::setObjectModel(const ObjectModel &objectModel) {
-    objectModelRenderable->setObjectModel(&objectModel);
+    objectModelRenderable->setObjectModel(objectModel);
 }
 
 void OffscreenEngine::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status) {
@@ -101,9 +102,8 @@ void OffscreenEngine::onRenderCaptureReady() {
         requestImage();
     } else {
         initialized = false;
-        QImage image = reply->image();
+        Q_EMIT imageReady(reply->image());
         delete reply;
-        Q_EMIT imageReady(image);
     }
 }
 
@@ -128,7 +128,7 @@ QSize OffscreenEngine::size() {
     return textureTarget->getSize();
 }
 
-void OffscreenEngine::setBackgroundColor(QColor color) {
+void OffscreenEngine::setBackgroundColor(const QColor &color) {
     clearBuffers->setClearColor(color);
 }
 

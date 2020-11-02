@@ -142,7 +142,7 @@ void MainWindow::setPreferencesStore(SettingsStore *preferencesStore) {
             this, SLOT(onSettingsChanged(QString)));
 }
 
-Image *MainWindow::getCurrentlyViewedImage() {
+ImagePtr MainWindow::getCurrentlyViewedImage() {
     return ui->poseViewer->currentlyViewedImage();
 }
 
@@ -163,64 +163,18 @@ void MainWindow::mouseReleaseEvent(QMouseEvent* /* event */) {
 void MainWindow::setStatusBarText(const QString& text) {
     statusBarLabel->setText(text);
 }
-//! Mouse handling, i.e. clicking in the lower left widget and dragging a line to the lower right widget
-void MainWindow::onImageClicked(Image* image, QPoint position) {
-    //! No need to check for whether the right widget was clicked because the only time this method
-    //! will be called is when the object image picker received a click on the image
-    if (ui->poseEditor->isDisplayingObjectModel()) {
-        if (poseCreationInProgress) {
-            displayWarning("Pose creation", "You need to click"
-                                                      " the object model"
-                                                      " to add the 2D-3D"
-                                                      " pose.");
-        } else {
-            QGuiApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
-            poseCreationInProgress = true;
-            Q_EMIT imageClicked(image, position);
-        }
-    } else {
-        QMessageBox::warning(this, "Select object model first", "Please select an object model from the list\n"
-                                                                "of object models first before trying to create\n"
-                                                                "a new pose.");
-    }
-}
-
-void MainWindow::onObjectModelClicked(ObjectModel* objectModel, QVector3D position) {
-    if (!poseCreationInProgress) {
-        // Do not show this warning as clicking the 3D model focuses the viewer
-        // and enables moving around with the arrow keys
-        /*
-        displayWarning("Pose creation", "You need to click a position on"
-                                                  " the image first before selecting"
-                                                  " the corresponding 3D position.");
-                                                  */
-    }
-    QGuiApplication::restoreOverrideCursor();
-    poseCreationInProgress = false;
-    // The user might click on the overlay before he starts to create a pose,
-    // i.e. the overlay is not visible yet and not created. But as soon as the user clicks
-    // the image and then the object, this adds a pose point and the overlay
-    // should be hidden.
-    Q_EMIT objectModelClicked(objectModel, position);
-}
 
 void MainWindow::onSelectedObjectModelChanged(int index) {
-    QList<ObjectModel> objectModels = modelManager->getObjectModels();
+    QVector<ObjectModelPtr> objectModels = modelManager->getObjectModels();
     Q_ASSERT(index >= 0 && index < objectModels.size());
-    // Ok as long as the addressees are in the same thread and directly process the event.
-    ObjectModel *model = new ObjectModel(objectModels.at(index));
-    Q_EMIT selectedObjectModelChanged(model);
-    delete model;
+    Q_EMIT selectedObjectModelChanged(objectModels[index]);
     onPoseCreationReset();
 }
 
 void MainWindow::onSelectedImageChanged(int index) {
-    QList<Image> images = modelManager->getImages();
+    QVector<ImagePtr> images = modelManager->getImages();
     Q_ASSERT(index >= 0 && index < images.size());
-    // Ok as long as the addressees are in the same thread and directly process the event.
-    Image *image = new Image(images.at(index));
-    Q_EMIT selectedImageChanged(image);
-    delete image;
+    Q_EMIT selectedImageChanged(images[index]);
     onPoseCreationReset();
 }
 
@@ -240,38 +194,14 @@ void MainWindow::displayWarning(const QString &title, const QString &text) {
     QMessageBox::warning(this, title, text);
 }
 
-void MainWindow::onPosePointStarted(QPoint point2D) {
-    setStatusBarText("Please select the corresponding 3D point [" +
-                                QString::number(currentNumberOfPoints)
-                                + " of min. " +
-                                QString::number(requiredNumberOfPoints)
-                     + "].");
-    Q_EMIT onPoint2DAdded(point2D, currentNumberOfPoints, requiredNumberOfPoints);
-}
-
-void MainWindow::onPosePointFinished(QVector3D point3D) {
-    setStatusBarText("Please select another pose point [" +
-                                QString::number(currentNumberOfPoints)
-                                + " of min. " +
-                                QString::number(requiredNumberOfPoints)
-                     + "].");
-    Q_EMIT onPoint3DAdded(point3D, currentNumberOfPoints, requiredNumberOfPoints);
-}
-
 void MainWindow::onPoseCreated() {
-    onPoseCreationReset();
 }
 
 void MainWindow::onPoseCreationReset() {
     setStatusBarText("Ready.");
-    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
-    poseCreationInProgress = false;
 }
 
 void MainWindow::onPoseCreationRequested() {
-    setStatusBarText("Creating pose...");
-    Q_EMIT requestPoseCreation();
-    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 }
 
 void MainWindow::hideNetworkProgressView() {
@@ -322,14 +252,14 @@ void MainWindow::onActionSettingsTriggered()
 {
     SettingsDialog* settingsDialog = new SettingsDialog(this);
     settingsDialog->setPreferencesStoreAndObjectModels(preferencesStore,
-                                                   "default",
-                                                   modelManager->getObjectModels());
+                                                       "default",
+                                                       modelManager->getObjectModels());
     settingsDialog->show();
 }
 
 void MainWindow::onActionAbortCreationTriggered() {
     setStatusBarText("Ready.");
-    Q_EMIT poseCreationAborted();
+    poseRecoverer->reset();
 }
 
 void MainWindow::onActionReloadViewsTriggered() {
@@ -345,7 +275,7 @@ void MainWindow::onActionNetworkPredictTriggered() {
     neuralNetworkDialog->show();
 }
 
-void MainWindow::onPosePredictionRequestedForImages(QList<Image> images) {
+void MainWindow::onPosePredictionRequestedForImages(QVector<ImagePtr> images) {
     if (networkProgressView.isNull()) {
         networkProgressView.reset(new NetworkProgressView(this));
     }

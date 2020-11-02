@@ -48,38 +48,20 @@ ClickVisualizationMaterial::ClickVisualizationMaterial(Qt3DCore::QNode *parent)
     setEffect(m_effect);
 }
 
-void ClickVisualizationMaterial::addClick(QPoint click) {
-    click.setY(height - click.y());
-    m_clicks.append(click);
-    uploadClicksToParameters();
-}
-
-void ClickVisualizationMaterial::removeLastClick() {
-    m_clicks.removeLast();
-    uploadClicksToParameters();
-}
-
-void ClickVisualizationMaterial::removeClicks() {
-    m_clicks.clear();
-    m_clicksParameter->setValue(QVariantList());
-    m_clickCountParameter->setValue(0);
-    m_clickColorsParameter->setValue(QVariantList());
-}
-
-void ClickVisualizationMaterial::setHeight(int height) {
-    this->height = height;
-}
-
-void ClickVisualizationMaterial::uploadClicksToParameters() {
-    QVariantList clicks;
+void ClickVisualizationMaterial::setClicks(const QVector<QPoint> &clicks) {
+    QVariantList _clicks;
     QVariantList colors;
-    for (int i = 0; i < m_clicks.count(); i++) {
-        QPoint click = m_clicks[i];
-        clicks << QVector2D(click.x(), click.y());
+    for (int i = 0; i < clicks.count(); i++) {
+        QPoint click = clicks[i];
+        _clicks << QVector2D(click.x(), click.y());
         QColor c = DisplayHelper::colorForPosePointIndex(i);
         colors << QVector3D(c.red() / 255.f, c.green() / 255.f, c.blue() / 255.f);
     }
     m_clickColorsParameter->setValue(colors);
-    m_clicksParameter->setValue(clicks);
-    m_clickCountParameter->setValue(m_clicks.size());
+    m_clicksParameter->setValue(_clicks);
+    m_clickCountParameter->setValue(clicks.size());
+}
+
+void ClickVisualizationMaterial::setHeight(int height) {
+    this->height = height;
 }

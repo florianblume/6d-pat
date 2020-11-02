@@ -185,10 +185,10 @@ bool PoseRecoverer::recoverPose() {
         rotMatrix.at<float>(1, 0), rotMatrix.at<float>(1, 1), rotMatrix.at<float>(1, 2),
         rotMatrix.at<float>(2, 0), rotMatrix.at<float>(2, 1), rotMatrix.at<float>(2, 2)
     });
-    bool success = m_modelManager->addPose(m_image.get(),
-                                                      m_objectModel.get(),
-                                                      position,
-                                                      rotationMatrix);
+    bool success = m_modelManager->addPose(*m_image,
+                                           *m_objectModel,
+                                           position,
+                                           rotationMatrix);
 
     points2D().clear();
     points3D().clear();
@@ -203,6 +203,14 @@ bool PoseRecoverer::isImageSet() {
 
 bool PoseRecoverer::isObjectModelSet() {
     return !m_objectModel.isNull();
+}
+
+QVector<QPoint> PoseRecoverer::points2D() {
+    return m_points2D;
+}
+
+QVector<QVector3D> PoseRecoverer::points3D() {
+    return m_points3D;
 }
 
 int PoseRecoverer::numberOfCompleteCorrespondences() {

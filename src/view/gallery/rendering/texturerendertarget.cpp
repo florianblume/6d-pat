@@ -1,4 +1,4 @@
-#include "texturerendertarget.h"
+#include "texturerendertarget.hpp"
 
 TextureRenderTarget::TextureRenderTarget(Qt3DCore::QNode *parent, 
                                          const QSize &size,

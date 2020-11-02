@@ -6,7 +6,7 @@
 #include "loadandstorestrategy.hpp"
 #include <QObject>
 #include <QString>
-#include <QList>
+#include <QVector>
 #include <QSharedPointer>
 
 using namespace std;
@@ -49,21 +49,21 @@ public:
      * \brief getImages Returns the list of all images loaded by this manager.
      * \return the list of all images loaded by this manager
      */
-   virtual QList<ImagePtr> getImages() const = 0;
+   virtual QVector<ImagePtr> getImages() const = 0;
 
     /*!
      * \brief getPosesForImage Returns all ObjectImagePoses for the image at the given path.
      * \param imagePath the path of the image
      * \return the list of poses of the image at the given path
      */
-    virtual QList<PosePtr> getPosesForImage(const Image& image) const = 0;
+    virtual QVector<PosePtr> getPosesForImage(const Image& image) const = 0;
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
      * \param objectModels the list that the object models are to be added to
      * \return the list of all objects models loaded by this manager
      */
-    virtual QList<ObjectModelPtr> getObjectModels() const = 0;
+    virtual QVector<ObjectModelPtr> getObjectModels() const = 0;
 
     /*!
      * \brief getPosesForObjectModels Returns all ObjectImagePoses for the object model at the given path.
@@ -71,14 +71,14 @@ public:
      * \param poses the list that the poses are to be added to
      * \return the list of poses of the object model at the given path
      */
-    virtual QList<PosePtr> getPosesForObjectModel(const ObjectModel& objectModel) const = 0;
+    virtual QVector<PosePtr> getPosesForObjectModel(const ObjectModel& objectModel) const = 0;
 
     /*!
      * \brief getPoses Returns the poses maintained by this manager.
      * \param poses the list that the poses are to be added to
      * \return the list of poses maintained by this manager
      */
-    virtual QList<PosePtr> getPoses() const = 0;
+    virtual QVector<PosePtr> getPoses() const = 0;
 
     virtual PosePtr getPoseById(const QString &id) const = 0;
 
@@ -89,7 +89,7 @@ public:
      * \param poses the list that the poses are to be added to
      * \return all poses of the given image and given object model
      */
-    virtual QList<PosePtr> getPosesForImageAndObjectModel(const Image& image,
+    virtual QVector<PosePtr> getPosesForImageAndObjectModel(const Image& image,
                                                           const ObjectModel& objectModel) = 0;
 
     /*!
