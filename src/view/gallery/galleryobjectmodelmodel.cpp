@@ -92,8 +92,6 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
     }
 
     if (showObjectModel) {
-        qDebug() << "index" << index.row();
-        qDebug() << renderedObjectsModels.size();
         if (index.row() < renderedObjectsModels.size()) {
             return dataForObjectModel(*objectModel, role);
         } else {

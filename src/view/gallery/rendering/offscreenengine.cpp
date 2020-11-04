@@ -101,6 +101,7 @@ void OffscreenEngine::onRenderCaptureReady() {
         delete reply;
         requestImage();
     } else {
+        qDebug() << "render capture ready";
         initialized = false;
         Q_EMIT imageReady(reply->image());
         delete reply;
@@ -108,7 +109,6 @@ void OffscreenEngine::onRenderCaptureReady() {
 }
 
 void OffscreenEngine::shutdown() {
-
     // Setting a null root entity shuts down the engine.
     aspectEngine->setRootEntity(Qt3DCore::QEntityPtr());
 
@@ -134,5 +134,6 @@ void OffscreenEngine::setBackgroundColor(const QColor &color) {
 
 void OffscreenEngine::requestImage() {
     reply = renderCapture->requestCapture();
+    qDebug() << "requested image";
     connect(reply, &Qt3DRender::QRenderCaptureReply::completed, this, &OffscreenEngine::onRenderCaptureReady);
 }
