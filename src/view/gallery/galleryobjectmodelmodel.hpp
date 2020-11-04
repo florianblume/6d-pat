@@ -2,7 +2,7 @@
 #define GALLERYOBJECTMODELMODEL_H
 
 #include "model/modelmanager.hpp"
-#include "rendering/offscreenengine.hpp"
+#include "view/gallery/rendering/offscreenengine.hpp"
 
 #include <QAbstractListModel>
 #include <QPixmap>
@@ -12,8 +12,6 @@
 #include <QThread>
 #include <QScopedPointer>
 #include <QSize>
-#include <QMovie>
-#include <QIcon>
 
 /*!
  * \brief The GalleryObjectModelModel class provides object model images to the Gallery.
@@ -26,17 +24,19 @@ class GalleryObjectModelModel : public QAbstractListModel
     Q_PROPERTY(QSize previewRenderingSize READ previewRenderingSize WRITE setPreviewRenderingSize)
 
 public:
+
     explicit GalleryObjectModelModel(ModelManager* modelManager);
     ~GalleryObjectModelModel();
 
     //! Implementations of QAbstractListModel
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex&) const;
-    void setSegmentationCodesForObjectModels(const QMap<QString, QString> &codes);
-    void setPreviewRenderingSize(const QSize &size);
+    void setSegmentationCodesForObjectModels(QMap<QString, QString> codes);
+    void setPreviewRenderingSize(QSize size);
     QSize previewRenderingSize();
 
 public Q_SLOTS:
+
     /*!
      * \brief onSelectedImageChanged sets the index of the currently selected image on this
      * model. When the index changes the object models will be reloaded, and if possible,
@@ -46,23 +46,18 @@ public Q_SLOTS:
     void onSelectedImageChanged(int index);
 
 Q_SIGNALS:
+
     //!
     //! \brief displayedObjectModelsChanged this signal is Q_EMITted, whenever the object models
     //! to display change, e.g. because the user clicked a different image.
     //!
     void displayedObjectModelsChanged();
 
-private Q_SLOTS:
-    bool isNumberOfToolsCorrect() const;
-    void onObjectModelsChanged();
-    void onImagesChanged();
-    void onObjectModelRendered(const QImage &image);
-    void onLoadingMovieFrameChanged();
-
 private:
+
     ModelManager* modelManager;
     QVector<ObjectModelPtr> objectModelsCache;
-    QMap<QString, QImage> renderedObjectsModels;
+    QMap<QString,QImage> renderedObjectsModels;
     OffscreenEngine offscreenEngine{QSize(300, 300)};
     void renderObjectModels();
     QVector<ImagePtr> imagesCache;
@@ -79,8 +74,12 @@ private:
     bool renderingObjectModels = false;
     QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
 
-    QMovie *loadingMovie;
-    QIcon currentLoadingMovieIcon;
+private Q_SLOTS:
+
+    bool isNumberOfToolsCorrect() const;
+    void onObjectModelsChanged();
+    void onImagesChanged();
+    void onObjectModelRendered(QImage image);
 
 };
 

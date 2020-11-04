@@ -11,28 +11,23 @@
 #include <QApplication>
 
 GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager)
-    : modelManager(modelManager)
-    , loadingMovie(new QMovie(":/images/loading.gif")){
-
+    : modelManager(modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
     objectModelsCache = modelManager->getObjectModels();
     renderObjectModels();
     imagesCache = modelManager->getImages();
-    connect(modelManager, &ModelManager::objectModelsChanged,
-            this, &GalleryObjectModelModel::onObjectModelsChanged);
-    connect(modelManager, &ModelManager::imagesChanged,
-            this, &GalleryObjectModelModel::onImagesChanged);
-    connect(modelManager, &ModelManager::imagesChanged,
-            this, &GalleryObjectModelModel::onObjectModelsChanged);
+    // Create default index mapping
+    createIndexMapping();
+    connect(modelManager, SIGNAL(objectModelsChanged()),
+            this, SLOT(onObjectModelsChanged()));
+    connect(modelManager, SIGNAL(imagesChanged()),
+            this, SLOT(onImagesChanged()));
+    connect(modelManager, SIGNAL(imagesChanged()),
+            this, SLOT(onObjectModelsChanged()));
     connect(&offscreenEngine, &OffscreenEngine::imageReady, this, &GalleryObjectModelModel::onObjectModelRendered);
-
-    connect(loadingMovie, &QMovie::frameChanged, this, &GalleryObjectModelModel::onLoadingMovieFrameChanged);
-    loadingMovie->start();
 }
 
 GalleryObjectModelModel::~GalleryObjectModelModel() {
-    loadingMovie->stop();
-    delete loadingMovie;
 }
 
 QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectModel, int role) const {
@@ -63,39 +58,30 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
     //! If for some weird coincidence (maybe deletion of a object model on the filesystem) the passed index
     //! is out of bounds simply return a QVariant, the next time the data method is called everything should
     //! be finde again
-    if (!modelManager || index.row() >= objectModelsCache.size())
+    if (!modelManager || index.row() >= renderedObjectsModels.size())
         return QVariant();
 
-    bool showObjectModel = false;
-
     ObjectModelPtr objectModel = objectModelsCache.at(indexMapping.value(index.row()));
+
     if (currentSelectedImageIndex == -1) {
-        showObjectModel = true;
-    } else {
-        ImagePtr currentlySelectedImage = imagesCache.at(currentSelectedImageIndex);
-        if (codes.size() == 0
-                || currentlySelectedImage->getSegmentationImagePath().isEmpty()
-                || !isNumberOfToolsCorrect()) {
-            //! If no codes at all were set or if the currently selected image does not provide segmentation images
-            //! simply display all available object models
-            showObjectModel = true;
-        } else if (codes.contains(objectModel->getPath())) {
-            //! If any codes are set only display the appropriate object models
-            QString code = codes[objectModel->getPath()];
-            if (code.compare("") != 0) {
-                QColor color = GeneralHelper::colorFromSegmentationCode(code);
-                if (colorsOfCurrentImage.contains(color)) {
-                    showObjectModel = true;
-                }
-            }
-        }
+        return dataForObjectModel(*objectModel, role);
     }
 
-    if (showObjectModel) {
+    ImagePtr currentlySelectedImage = imagesCache.at(currentSelectedImageIndex);
+    if (codes.size() == 0
+            || currentlySelectedImage->getSegmentationImagePath().isEmpty()
+            || !isNumberOfToolsCorrect()) {
+        //! If no codes at all were set or if the currently selected image does not provide segmentation images
+        //! simply display all available object models
         return dataForObjectModel(*objectModel, role);
-        if (index.row() < renderedObjectsModels.size()) {
-        } else {
-            return currentLoadingMovieIcon;
+    } else if (codes.contains(objectModel->getPath())) {
+        //! If any codes are set only display the appropriate object models
+        QString code = codes[objectModel->getPath()];
+        if (code.compare("") != 0) {
+            QColor color = GeneralHelper::colorFromSegmentationCode(code);
+            if (colorsOfCurrentImage.contains(color)) {
+                return dataForObjectModel(*objectModel, role);
+            }
         }
     }
 
@@ -103,16 +89,16 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
 }
 
 int GalleryObjectModelModel::rowCount(const QModelIndex &/* parent */) const {
-    if (currentSelectedImageIndex == -1) {
-        return objectModelsCache.size();
-    }
     bool noCodes = codes.size() == 0;
-    bool noSegmentationMasks = currentSelectedImageIndex != -1
-                                && imagesCache.at(currentSelectedImageIndex)
-                                        ->getSegmentationImagePath().isEmpty();
-    bool toolsIncorrect = !isNumberOfToolsCorrect();
-    if (noCodes || noSegmentationMasks || toolsIncorrect) {
-        return objectModelsCache.size();
+    bool noSegmentationImages = (currentSelectedImageIndex != -1
+                                    && imagesCache.at(currentSelectedImageIndex)
+                                        ->getSegmentationImagePath().isEmpty());
+    if (noCodes || noSegmentationImages || !isNumberOfToolsCorrect()) {
+        return renderedObjectsModels.size();
+    }
+
+    if (currentSelectedImageIndex == -1) {
+        return renderedObjectsModels.size();
     }
 
     int count = 0;
@@ -128,11 +114,11 @@ int GalleryObjectModelModel::rowCount(const QModelIndex &/* parent */) const {
     return count;
 }
 
-void GalleryObjectModelModel::setSegmentationCodesForObjectModels(const QMap<QString, QString> &codes) {
-    this->codes = codes;
+void GalleryObjectModelModel::setSegmentationCodesForObjectModels(QMap<QString, QString> codes) {
+    this->codes = std::move(codes);
 }
 
-void GalleryObjectModelModel::setPreviewRenderingSize(const QSize &size) {
+void GalleryObjectModelModel::setPreviewRenderingSize(QSize size) {
     offscreenEngine.setSize(size);
     renderObjectModels();
 }
@@ -167,7 +153,7 @@ void GalleryObjectModelModel::onSelectedImageChanged(int index) {
         currentSelectedImageIndex = index;
         colorsOfCurrentImage.clear();
         indexMapping.clear();
-        ImagePtr image = imagesCache.at(currentSelectedImageIndex);
+        const ImagePtr& image = imagesCache.at(currentSelectedImageIndex);
 
         //! If we find an segmentation image update the colors that are used to filter tools
         if (image->getSegmentationImagePath().compare("") != 0) {
@@ -185,14 +171,11 @@ void GalleryObjectModelModel::onSelectedImageChanged(int index) {
 void GalleryObjectModelModel::createIndexMapping() {
     indexMapping.clear();
     if (currentSelectedImageIndex != -1) {
-        ImagePtr image = imagesCache.at(currentSelectedImageIndex);
-        if (image->getSegmentationImagePath().compare("") == 0 ||
-                !isNumberOfToolsCorrect()) {
-            //! We don't have a segmentation image, i.e. fill the mapping with the defaults
-            for (int i = 0; i < objectModelsCache.size(); i++) {
-                indexMapping[i] = i;
-            }
-        } else {
+        const ImagePtr& image = imagesCache.at(currentSelectedImageIndex);
+        if (image->getSegmentationImagePath().compare("") != 0 &&
+                isNumberOfToolsCorrect()) {
+            // This is the case when the number of colors in the segmentation image equals
+            // the number of tools and the an image has been selected for display
             int count = 0;
             int realIndex = 0;
             for (const ObjectModelPtr &model : objectModelsCache) {
@@ -206,7 +189,15 @@ void GalleryObjectModelModel::createIndexMapping() {
                 }
                 realIndex++;
             }
+            // Return here because we created the index mapping
+            return;
         }
+    }
+
+    // This is the mapping for when the number of colors in the segmentation image doesn't
+    // match the number of tools or when the user hasn't selected an object model to display yet
+    for (int i = 0; i < objectModelsCache.size(); i++) {
+        indexMapping[i] = i;
     }
 }
 
@@ -229,17 +220,17 @@ void GalleryObjectModelModel::onImagesChanged() {
     // When the images change, the last selected image gets deselected
     // This means we have to reset the index
     currentSelectedImageIndex = -1;
-    imagesCache = modelManager->getImages();
+    objectModelsCache = modelManager->getObjectModels();
     QModelIndex top = index(0, 0);
     QModelIndex bottom = index(objectModelsCache.size() - 1, 0);
     Q_EMIT dataChanged(top, bottom);
 }
 
-void GalleryObjectModelModel::onObjectModelRendered(const QImage &image) {
+void GalleryObjectModelModel::onObjectModelRendered(QImage image) {
     QString objectModel = objectModelsCache[currentlyRenderedImageIndex]->getPath();
     qDebug() << "Preview rendering finished for " + objectModel;
     renderedObjectsModels.insert(objectModel, image);
-    QModelIndex top = index(currentlyRenderedImageIndex, 0);
+    QModelIndex top = index(0, 0);
     QModelIndex bottom = index(currentlyRenderedImageIndex + 1, 0);
     Q_EMIT dataChanged(top, bottom);
     currentlyRenderedImageIndex++;
@@ -249,14 +240,5 @@ void GalleryObjectModelModel::onObjectModelRendered(const QImage &image) {
     } else {
         currentlyRenderedImageIndex = 0;
         renderingObjectModels = false;
-    }
-}
-
-void GalleryObjectModelModel::onLoadingMovieFrameChanged() {
-    currentLoadingMovieIcon = loadingMovie->currentPixmap();
-    if (renderedObjectsModels.size() < objectModelsCache.size()) {
-        QModelIndex top = index(currentlyRenderedImageIndex, 0);
-        QModelIndex bottom = index(objectModelsCache.size(), 0);
-        Q_EMIT dataChanged(top, bottom);
     }
 }

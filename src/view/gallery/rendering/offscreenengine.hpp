@@ -1,7 +1,7 @@
 #ifndef OFFSCREENENGINE_H
 #define OFFSCREENENGINE_H
 
-#include "texturerendertarget.hpp"
+#include "view/gallery/rendering/texturerendertarget.hpp"
 #include "model/objectmodel.hpp"
 #include "view/rendering/objectmodelrenderable.hpp"
 
@@ -37,12 +37,14 @@ class OffscreenEngine : public QObject
 
     Q_OBJECT
 
+    Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
+
 public:
     OffscreenEngine(const QSize &size);
     ~OffscreenEngine();
 
     void setObjectModel(const ObjectModel &objectModel);
-    void setBackgroundColor(const QColor &color);
+    void setBackgroundColor(QColor color);
     void setSize(const QSize &size);
     QSize size();
 

@@ -1,5 +1,4 @@
 #include "offscreenengine.hpp"
-
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DCore/QTransform>
 
@@ -69,11 +68,13 @@ OffscreenEngine::OffscreenEngine(const QSize &size) {
     Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
     lightEntity->addComponent(light);
     lightEntity->addComponent(lightTransform);
-    connect(camera, &Qt3DRender::QCamera::positionChanged,
-            [this, lightTransform](){lightTransform->setTranslation(this->camera->position());});
+    connect(camera, &Qt3DRender::QCamera::positionChanged, [this, lightTransform](){lightTransform->setTranslation(this->camera->position());});
 }
 
 OffscreenEngine::~OffscreenEngine() {
+    //objectModelRenderable->setParent((Qt3DCore::QNode *) 0);
+    //objectModelRenderable->deleteLater();
+
     // Not sure if the following is strictly required, as it may
     // happen automatically when the engine is destroyed.
     objectModelRenderable->setParent((Qt3DCore::QNode *) 0);
@@ -99,16 +100,19 @@ void OffscreenEngine::onRenderCaptureReady() {
         requestImage();
     } else {
         initialized = false;
-        Q_EMIT imageReady(reply->image());
+        QImage image = reply->image();
         delete reply;
+        Q_EMIT imageReady(image);
     }
 }
 
 void OffscreenEngine::shutdown() {
+
     // Setting a null root entity shuts down the engine.
     aspectEngine->setRootEntity(Qt3DCore::QEntityPtr());
 
     delete aspectEngine;
+
     delete logicAspect;
     delete renderAspect;
 }
@@ -123,7 +127,7 @@ QSize OffscreenEngine::size() {
     return textureTarget->getSize();
 }
 
-void OffscreenEngine::setBackgroundColor(const QColor &color) {
+void OffscreenEngine::setBackgroundColor(QColor color) {
     clearBuffers->setClearColor(color);
 }
 
