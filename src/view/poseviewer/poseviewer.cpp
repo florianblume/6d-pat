@@ -56,6 +56,8 @@ void PoseViewer::setModelManager(ModelManager *value) {
                    this, &PoseViewer::onPoseAdded);
         disconnect(modelManager, &ModelManager::poseDeleted,
                    this, &PoseViewer::onPoseDeleted);
+        disconnect(modelManager, &ModelManager::poseUpdated,
+                   this, &PoseViewer::onPoseUpdated);
         disconnect(modelManager, &ModelManager::imagesChanged, this, &PoseViewer::reset);
         disconnect(modelManager, &ModelManager::objectModelsChanged, this, &PoseViewer::reset);
         disconnect(modelManager, &ModelManager::posesChanged, this, &PoseViewer::onPosesChanged);
@@ -65,6 +67,8 @@ void PoseViewer::setModelManager(ModelManager *value) {
             this, &PoseViewer::onPoseAdded);
     connect(modelManager, &ModelManager::poseDeleted,
             this, &PoseViewer::onPoseDeleted);
+    connect(modelManager, &ModelManager::poseUpdated,
+            this, &PoseViewer::onPoseUpdated);
     connect(modelManager, &ModelManager::imagesChanged, this, &PoseViewer::reset);
     connect(modelManager, &ModelManager::objectModelsChanged, this, &PoseViewer::reset);
     connect(modelManager, &ModelManager::posesChanged, this, &PoseViewer::onPosesChanged);
@@ -81,6 +85,7 @@ void PoseViewer::setImage(ImagePtr image) {
     currentlyDisplayedImage = image;
 
     poseViewer3DWidget->removePoses();
+    poseViewer3DWidget->setClicks({});
     ui->buttonResetPosition->setEnabled(true);
     ui->sliderTransparency->setEnabled(false);
     ui->sliderTransparency->setValue(100);
@@ -191,19 +196,17 @@ void PoseViewer::resetPositionOfGraphicsView() {
 void PoseViewer::onImageClicked(QPoint point) {
     qDebug() << "Image (" + currentlyDisplayedImage->getImagePath() + ") clicked at: (" +
                 QString::number(point.x()) + ", " + QString::number(point.y()) + ").";
-    lastClickedPosition = point;
-    Q_EMIT imageClicked(currentlyDisplayedImage, point / zoomMultiplier);
+    poseRecoverer->add2DPoint(point);
 }
 
 void PoseViewer::onPoseDeleted(PosePtr pose) {
     poseViewer3DWidget->removePose(pose->id());
+    poseViewer3DWidget->setClicks({});
 }
 
 void PoseViewer::onPoseAdded(PosePtr pose) {
-    if (!pose.isNull()) {
-        poseViewer3DWidget->addPose(*pose);
-        ui->sliderTransparency->setEnabled(true);
-    }
+    poseViewer3DWidget->addPose(*pose);
+    ui->sliderTransparency->setEnabled(true);
     poseViewer3DWidget->setClicks({});
 }
 

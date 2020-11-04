@@ -33,7 +33,7 @@ public:
         ReadyForPoseCreation
     };
 
-    explicit PoseRecoverer(QObject *parent = nullptr, ModelManager *modelManager = nullptr);
+    explicit PoseRecoverer(ModelManager *modelManager = nullptr);
     void setModelManager(ModelManager *modelManager);
     State state();
     void setMinimumNumberOfPoints(int numberOfPoints);

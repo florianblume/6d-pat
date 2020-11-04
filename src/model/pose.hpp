@@ -6,12 +6,22 @@
 #include <QVector3D>
 #include <QMatrix3x3>
 #include <QString>
-#include <QSharedPointer>
+#include <QQuaternion>
 
 //! This class represents a match between an object model and an image, i.e. stores where the object is located on the image and
 //! how it is rotated.
 class Pose {
 public:
+    //! Constructor of class ObjectImagePose.
+    /*!
+     * \brief ObjectImagePose Constructs an ObjectImagePose and assigns the passed values.
+     * \param id the ID of the pose
+     * \param image the associated image
+     * \param objectModel the associated object model
+     */
+    Pose(QString id, QVector3D position, QQuaternion rotation,
+         ImagePtr image, ObjectModelPtr objectModel);
+
     //! Constructor of class ObjectImagePose.
     /*!
      * \brief ObjectImagePose Constructs an ObjectImagePose and assigns the passed values.
@@ -39,7 +49,7 @@ public:
      * \brief getRotation Returns the rotation of the object on the image.
      * \return the rotation of the image
      */
-    QMatrix3x3 rotation() const;
+    QQuaternion rotation() const;
 
     /*!
      * \brief getImage Returns the image associated with this pose.
@@ -53,9 +63,6 @@ public:
      */
     ObjectModelPtr objectModel() const;
 
-    void setPosition(const QVector3D &position);
-
-    void setRotation(const QMatrix3x3 &rotation);
     /*!
      * \brief getID Returns the unique ID of this pose.
      * \return the unique ID of this pose
@@ -71,11 +78,21 @@ public:
 
     Pose& operator=(const Pose &other);
 
+public Q_SLOTS:
+    void setPosition(const QVector3D &position);
+    void setRotation(const QMatrix3x3 &rotation);
+    void setRotation(const QQuaternion &rotation);
+
+
+Q_SIGNALS:
+    void positionChanged(QVector3D position);
+    void rotationChanged(QQuaternion rotation);
+
 private:
     //! The position of the object on the image. The value z is the depth, i.e. how large the object ist.
     QVector3D m_position;
     //! The rotation of the object on the image.
-    QMatrix3x3 m_rotation;
+    QQuaternion m_rotation;
     //! The image associated with this corresopndence.
     ImagePtr m_image;
     //! The object model associated with this pose.

@@ -1573,20 +1573,20 @@
    <header>view/poseeditor/poseeditor.hpp</header>
    <container>1</container>
    <slots>
-    <signal>objectModelClickedAt(ObjectModel*,QVector3D)</signal>
+    <signal>objectModelClickedAt(ObjectModelPtr,QVector3D)</signal>
     <signal>buttonCreateClicked()</signal>
     <signal>opacityChangeStarted(int)</signal>
-    <signal>poseUpdated(Pose*)</signal>
+    <signal>poseUpdated(PosePtr)</signal>
     <signal>opacityChangeEnded()</signal>
     <signal>poseCreationAborted()</signal>
     <signal>buttonPredictClicked()</signal>
     <slot>reset()</slot>
-    <slot>setObjectModel(ObjectModel*)</slot>
-    <slot>setObjectModel(int)</slot>
+    <slot>setObjectModel(ObjectModelPtr)</slot>
     <slot>onPosePointFinished(QVector3D,int,int)</slot>
     <slot>removePositionVisualizations()</slot>
     <slot>onPoseCreationAborted()</slot>
     <slot>onSelectedImageChanged(int)</slot>
+    <slot>onSelectedObjectModelChanged(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -1851,22 +1851,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionPredict</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>onActionNetworkPredictTriggered()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>navigationRight</sender>
    <signal>navigateRight()</signal>
    <receiver>galleryRight</receiver>
@@ -1926,6 +1910,22 @@
     </hint>
     <hint type="destinationlabel">
      <x>223</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>galleryRight</sender>
+   <signal>selectedItemChanged(int)</signal>
+   <receiver>poseEditor</receiver>
+   <slot>onSelectedObjectModelChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>675</x>
      <y>401</y>
     </hint>
    </hints>

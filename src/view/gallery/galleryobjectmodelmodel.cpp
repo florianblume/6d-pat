@@ -11,21 +11,28 @@
 #include <QApplication>
 
 GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager)
-    : modelManager(modelManager) {
+    : modelManager(modelManager)
+    , loadingMovie(new QMovie(":/images/loading.gif")){
+
     Q_ASSERT(modelManager != Q_NULLPTR);
     objectModelsCache = modelManager->getObjectModels();
     renderObjectModels();
     imagesCache = modelManager->getImages();
-    connect(modelManager, SIGNAL(objectModelsChanged()),
-            this, SLOT(onObjectModelsChanged()));
-    connect(modelManager, SIGNAL(imagesChanged()),
-            this, SLOT(onImagesChanged()));
-    connect(modelManager, SIGNAL(imagesChanged()),
-            this, SLOT(onObjectModelsChanged()));
+    connect(modelManager, &ModelManager::objectModelsChanged,
+            this, &GalleryObjectModelModel::onObjectModelsChanged);
+    connect(modelManager, &ModelManager::imagesChanged,
+            this, &GalleryObjectModelModel::onImagesChanged);
+    connect(modelManager, &ModelManager::imagesChanged,
+            this, &GalleryObjectModelModel::onObjectModelsChanged);
     connect(&offscreenEngine, &OffscreenEngine::imageReady, this, &GalleryObjectModelModel::onObjectModelRendered);
+
+    connect(loadingMovie, &QMovie::frameChanged, this, &GalleryObjectModelModel::onLoadingMovieFrameChanged);
+    loadingMovie->start();
 }
 
 GalleryObjectModelModel::~GalleryObjectModelModel() {
+    loadingMovie->stop();
+    delete loadingMovie;
 }
 
 QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectModel, int role) const {
@@ -56,25 +63,41 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
     //! If for some weird coincidence (maybe deletion of a object model on the filesystem) the passed index
     //! is out of bounds simply return a QVariant, the next time the data method is called everything should
     //! be finde again
-    if (currentSelectedImageIndex == -1 || !modelManager || index.row() >= objectModelsCache.size())
+    if (!modelManager || index.row() >= objectModelsCache.size())
         return QVariant();
 
+    bool showObjectModel = false;
+
     ObjectModelPtr objectModel = objectModelsCache.at(indexMapping.value(index.row()));
-    ImagePtr currentlySelectedImage = imagesCache.at(currentSelectedImageIndex);
-    if (codes.size() == 0
-            || currentlySelectedImage->getSegmentationImagePath().isEmpty()
-            || !isNumberOfToolsCorrect()) {
-        //! If no codes at all were set or if the currently selected image does not provide segmentation images
-        //! simply display all available object models
-        return dataForObjectModel(*objectModel, role);
-    } else if (codes.contains(objectModel->getPath())) {
-        //! If any codes are set only display the appropriate object models
-        QString code = codes[objectModel->getPath()];
-        if (code.compare("") != 0) {
-            QColor color = GeneralHelper::colorFromSegmentationCode(code);
-            if (colorsOfCurrentImage.contains(color)) {
-                return dataForObjectModel(*objectModel, role);
+    if (currentSelectedImageIndex == -1) {
+        showObjectModel = true;
+    } else {
+        ImagePtr currentlySelectedImage = imagesCache.at(currentSelectedImageIndex);
+        if (codes.size() == 0
+                || currentlySelectedImage->getSegmentationImagePath().isEmpty()
+                || !isNumberOfToolsCorrect()) {
+            //! If no codes at all were set or if the currently selected image does not provide segmentation images
+            //! simply display all available object models
+            showObjectModel = true;
+        } else if (codes.contains(objectModel->getPath())) {
+            //! If any codes are set only display the appropriate object models
+            QString code = codes[objectModel->getPath()];
+            if (code.compare("") != 0) {
+                QColor color = GeneralHelper::colorFromSegmentationCode(code);
+                if (colorsOfCurrentImage.contains(color)) {
+                    showObjectModel = true;
+                }
             }
+        }
+    }
+
+    if (showObjectModel) {
+        qDebug() << "index" << index.row();
+        qDebug() << renderedObjectsModels.size();
+        if (index.row() < renderedObjectsModels.size()) {
+            return dataForObjectModel(*objectModel, role);
+        } else {
+            return currentLoadingMovieIcon;
         }
     }
 
@@ -82,14 +105,16 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
 }
 
 int GalleryObjectModelModel::rowCount(const QModelIndex &/* parent */) const {
-    if (codes.size() == 0
-            ||
-        (currentSelectedImageIndex != -1
-            && imagesCache.at(currentSelectedImageIndex)
-                ->getSegmentationImagePath().isEmpty())
-            ||
-         !isNumberOfToolsCorrect()) {
-        return renderedObjectsModels.size();
+    if (currentSelectedImageIndex == -1) {
+        return objectModelsCache.size();
+    }
+    bool noCodes = codes.size() == 0;
+    bool noSegmentationMasks = currentSelectedImageIndex != -1
+                                && imagesCache.at(currentSelectedImageIndex)
+                                        ->getSegmentationImagePath().isEmpty();
+    bool toolsIncorrect = !isNumberOfToolsCorrect();
+    if (noCodes || noSegmentationMasks || toolsIncorrect) {
+        return objectModelsCache.size();
     }
 
     int count = 0;
@@ -226,5 +251,14 @@ void GalleryObjectModelModel::onObjectModelRendered(const QImage &image) {
     } else {
         currentlyRenderedImageIndex = 0;
         renderingObjectModels = false;
+    }
+}
+
+void GalleryObjectModelModel::onLoadingMovieFrameChanged() {
+    currentLoadingMovieIcon = loadingMovie->currentPixmap();
+    if (renderedObjectsModels.size() < objectModelsCache.size()) {
+        QModelIndex top = index(currentlyRenderedImageIndex, 0);
+        QModelIndex bottom = index(objectModelsCache.size(), 0);
+        Q_EMIT dataChanged(top, bottom);
     }
 }

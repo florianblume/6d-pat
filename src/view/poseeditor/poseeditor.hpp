@@ -36,36 +36,10 @@ public Q_SLOTS:
     void setPoseToEdit(PosePtr pose);
     void onPoseCreationAborted();
     void reset();
-    // For PoseRecoverer
-    void onCorrespondencesChanged();
 
 Q_SIGNALS:
     void buttonPredictClicked();
     void poseUpdated(PosePtr pose);
-
-private:
-    Ui::PoseEditor *ui;
-    // Q_NULLPTR important for first check
-    ModelManager *modelManager = Q_NULLPTR;
-    PoseRecoverer *poseRecoverer = Q_NULLPTR;
-
-    PoseEditor3DWindow *poseEditor3DWindow;
-
-    ObjectModelPtr currentObjectModel;
-    PosePtr currentPose;
-
-    // We need to store what image the user currently views that in case that they select an object
-    // model we can restore the list of all poses available for the currently viewed image
-    ImagePtr currentlySelectedImage;
-
-    QStringListModel *listViewPosesModel;
-    bool ignoreValueChanges = false;
-
-    void setEnabledPoseEditorControls(bool enabled);
-    void setEnabledAllControls(bool enabled);
-    void resetControlsValues();
-    void addPosesToComboBoxPoses(const Image &image, const QString &poseToSelect = "");
-    void setPoseValuesOnControls(const Pose &pose);
 
 private Q_SLOTS:
     /*!
@@ -80,14 +54,9 @@ private Q_SLOTS:
     void onPoseAdded(PosePtr pose);
     void onPoseDeleted(PosePtr pose);
 
-    void onSpinBoxTranslationXValueChanged(double);
-    void onSpinBoxTranslationYValueChanged(double);
-    void onSpinBoxTranslationZValueChanged(double);
-    void onSpinBoxRotationXValueChanged(double);
-    void onSpinBoxRotationYValueChanged(double);
-    void onSpinBoxRotationZValueChanged(double);
     void onButtonCreateClicked();
     void onButtonSaveClicked();
+    void onButtonDuplicateClicked();
     /*!
      * \brief removeCurrentlyEditedPose gets called when the user wants to remove the
      * currenlty edited pose from the currenlty displayed image.
@@ -98,12 +67,44 @@ private Q_SLOTS:
     //! React to signal from the model manager
     void onPosesChanged();
 
+    // For PoseRecoverer
+    void onCorrespondencesChanged();;
+
     /*!
      * \brief onSelectedPoseChanged Reacts to the user selecting a different pose from
      * the poses list view.
      */
     void onSelectedPoseChanged(const QItemSelection &selected,
                                const QItemSelection &deselected);
+    void onSpinBoxValueChanged(QString /*value*/);
+
+private:
+    Ui::PoseEditor *ui;
+    // Q_NULLPTR important for first check
+    ModelManager *modelManager = Q_NULLPTR;
+    PoseRecoverer *poseRecoverer = Q_NULLPTR;
+
+    PoseEditor3DWindow *poseEditor3DWindow;
+
+    ObjectModelPtr currentlySelectedObjectModel;
+    PosePtr currentlySelectedPose;
+    // To see whether it is necessary to enable the save button
+    // and warn the user whether they want to save the modifications
+    // when e.g. changing the selected image
+    bool poseDirty = false;
+
+    // We need to store what image the user currently views that in case that they select an object
+    // model we can restore the list of all poses available for the currently viewed image
+    ImagePtr currentlySelectedImage;
+
+    QStringListModel *listViewPosesModel;
+    bool ignoreValueChanges = false;
+
+    void setEnabledPoseEditorControls(bool enabled);
+    void setEnabledAllControls(bool enabled);
+    void resetControlsValues();
+    void addPosesToComboBoxPoses(const Image &image, const QString &poseToSelect = "");
+    void setPoseValuesOnControls(const Pose &pose);
 
 };
 

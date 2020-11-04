@@ -12,6 +12,8 @@
 #include <QThread>
 #include <QScopedPointer>
 #include <QSize>
+#include <QMovie>
+#include <QIcon>
 
 /*!
  * \brief The GalleryObjectModelModel class provides object model images to the Gallery.
@@ -24,7 +26,6 @@ class GalleryObjectModelModel : public QAbstractListModel
     Q_PROPERTY(QSize previewRenderingSize READ previewRenderingSize WRITE setPreviewRenderingSize)
 
 public:
-
     explicit GalleryObjectModelModel(ModelManager* modelManager);
     ~GalleryObjectModelModel();
 
@@ -36,7 +37,6 @@ public:
     QSize previewRenderingSize();
 
 public Q_SLOTS:
-
     /*!
      * \brief onSelectedImageChanged sets the index of the currently selected image on this
      * model. When the index changes the object models will be reloaded, and if possible,
@@ -46,15 +46,20 @@ public Q_SLOTS:
     void onSelectedImageChanged(int index);
 
 Q_SIGNALS:
-
     //!
     //! \brief displayedObjectModelsChanged this signal is Q_EMITted, whenever the object models
     //! to display change, e.g. because the user clicked a different image.
     //!
     void displayedObjectModelsChanged();
 
-private:
+private Q_SLOTS:
+    bool isNumberOfToolsCorrect() const;
+    void onObjectModelsChanged();
+    void onImagesChanged();
+    void onObjectModelRendered(const QImage &image);
+    void onLoadingMovieFrameChanged();
 
+private:
     ModelManager* modelManager;
     QVector<ObjectModelPtr> objectModelsCache;
     QMap<QString, QImage> renderedObjectsModels;
@@ -74,12 +79,8 @@ private:
     bool renderingObjectModels = false;
     QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
 
-private Q_SLOTS:
-
-    bool isNumberOfToolsCorrect() const;
-    void onObjectModelsChanged();
-    void onImagesChanged();
-    void onObjectModelRendered(const QImage &image);
+    QMovie *loadingMovie;
+    QIcon currentLoadingMovieIcon;
 
 };
 

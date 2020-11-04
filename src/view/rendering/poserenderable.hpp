@@ -30,10 +30,9 @@ public:
     QString poseID();
     ObjectModel objectModel();
     QVector3D position();
-    void setPosition(QVector3D position);
-    QMatrix3x3 rotation();
-    void setRotation(QMatrix3x3 rotation);
-    void setProjectionMatrix(QMatrix4x4 projectionMatrix);
+    void setPosition(const QVector3D &position);
+    QQuaternion rotation();
+    void setRotation(const QQuaternion &rotation);
 
     // To retrieve the respective renderable
     bool operator==(const PoseRenderable &other);

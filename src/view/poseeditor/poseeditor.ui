@@ -636,6 +636,89 @@
           </widget>
          </item>
          <item>
+          <widget class="QGroupBox" name="groupBoxRotation_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>130</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Copy From</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <property name="leftMargin">
+             <number>5</number>
+            </property>
+            <property name="topMargin">
+             <number>5</number>
+            </property>
+            <property name="rightMargin">
+             <number>5</number>
+            </property>
+            <property name="bottomMargin">
+             <number>5</number>
+            </property>
+            <property name="spacing">
+             <number>5</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="QListView" name="listViewImages">
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Plain</enum>
+              </property>
+              <property name="lineWidth">
+               <number>0</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="buttonCopy">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+  background-color: #cecece;
+}
+
+QPushButton:hover:!pressed {
+  border: 1px solid #75c1ff;
+  background-color: #c6e5ff;
+}
+
+QPushButton:pressed {
+  border: 1px solid #5eb6ff;
+  background-color: #9ed2ff;
+}</string>
+              </property>
+              <property name="text">
+               <string>Copy</string>
+              </property>
+              <property name="flat">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QFrame" name="frame">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -790,6 +873,9 @@
              </disabled>
             </palette>
            </property>
+           <property name="toolTip">
+            <string>Recovers the pose using the clicked 2D - 3D correspondences.</string>
+           </property>
            <property name="autoFillBackground">
             <bool>false</bool>
            </property>
@@ -809,7 +895,7 @@ QPushButton:pressed {
 }</string>
            </property>
            <property name="text">
-            <string>Create</string>
+            <string>Recover</string>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -917,6 +1003,9 @@ QPushButton:pressed {
               </colorrole>
              </disabled>
             </palette>
+           </property>
+           <property name="toolTip">
+            <string>Removes the currently selected pose.</string>
            </property>
            <property name="autoFillBackground">
             <bool>false</bool>
@@ -1046,6 +1135,9 @@ QPushButton:pressed {
              </disabled>
             </palette>
            </property>
+           <property name="toolTip">
+            <string>Saves the modifications applied to the currently selected pose.</string>
+           </property>
            <property name="autoFillBackground">
             <bool>false</bool>
            </property>
@@ -1066,6 +1158,43 @@ QPushButton:pressed {
            </property>
            <property name="text">
             <string>Save</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="buttonDuplicate">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Duplicates the currently selected pose.</string>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton {
+  background-color: #cecece;
+}
+
+QPushButton:hover:!pressed {
+  border: 1px solid #75c1ff;
+  background-color: #c6e5ff;
+}
+
+QPushButton:pressed {
+  border: 1px solid #5eb6ff;
+  background-color: #9ed2ff;
+}</string>
+           </property>
+           <property name="text">
+            <string>Duplicate</string>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -1145,54 +1274,6 @@ QPushButton:pressed {
    </hints>
   </connection>
   <connection>
-   <sender>spinBoxTranslationX</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onSpinBoxTranslationXValueChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>214</x>
-     <y>213</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxTranslationY</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onSpinBoxTranslationYValueChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>214</x>
-     <y>245</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxTranslationZ</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onSpinBoxTranslationZValueChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>214</x>
-     <y>277</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>buttonRemove</sender>
    <signal>clicked()</signal>
    <receiver>PoseEditor</receiver>
@@ -1201,54 +1282,6 @@ QPushButton:pressed {
     <hint type="sourcelabel">
      <x>359</x>
      <y>333</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxRotationX</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onSpinBoxRotationXValueChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>359</x>
-     <y>225</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxRotationY</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onSpinBoxRotationYValueChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>359</x>
-     <y>257</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxRotationZ</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onSpinBoxRotationZValueChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>359</x>
-     <y>289</y>
     </hint>
     <hint type="destinationlabel">
      <x>314</x>
@@ -1272,20 +1305,128 @@ QPushButton:pressed {
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonDuplicate</sender>
+   <signal>clicked()</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onButtonDuplicateClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>384</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxRotationX</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onSpinBoxValueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>304</x>
+     <y>155</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxRotationY</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onSpinBoxValueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>304</x>
+     <y>227</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxRotationZ</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onSpinBoxValueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>304</x>
+     <y>191</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxTranslationX</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onSpinBoxValueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>176</x>
+     <y>155</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxTranslationY</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onSpinBoxValueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>176</x>
+     <y>191</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxTranslationZ</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onSpinBoxValueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>176</x>
+     <y>227</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onButtonCreateClicked()</slot>
   <slot>onComboBoxPoseIndexChanged(int)</slot>
   <slot>onSliderOpacityValueChanged(int)</slot>
-  <slot>onSpinBoxTranslationXValueChanged(double)</slot>
-  <slot>onSpinBoxTranslationYValueChanged(double)</slot>
-  <slot>onSpinBoxRotationXValueChanged(double)</slot>
-  <slot>onSpinBoxRotationYValueChanged(double)</slot>
-  <slot>onSpinBoxRotationZValueChanged(double)</slot>
-  <slot>onSpinBoxTranslationZValueChanged(double)</slot>
   <slot>onButtonRemoveClicked()</slot>
   <slot>onButtonSaveClicked()</slot>
   <slot>onSliderOpacityReleased()</slot>
   <slot>onButtonPredictClicked()</slot>
+  <slot>onButtonDuplicateClicked()</slot>
+  <slot>onSpinBoxValueChanged()</slot>
  </slots>
 </ui>

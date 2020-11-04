@@ -2,7 +2,7 @@
 
 Pose::Pose(QString id,
             QVector3D position,
-            QMatrix3x3 rotation,
+            QQuaternion rotation,
             ImagePtr image,
             ObjectModelPtr objectModel)
     : m_position(position),
@@ -10,6 +10,10 @@ Pose::Pose(QString id,
       m_image(image),
       m_objectModel(objectModel),
       m_id(id) {
+}
+
+Pose::Pose(QString id, QVector3D position, QMatrix3x3 rotation, ImagePtr image, ObjectModelPtr objectModel)
+    : Pose(id, position, QQuaternion::fromRotationMatrix(rotation), image, objectModel) {
 }
 
 Pose::Pose(const Pose &other)
@@ -24,7 +28,7 @@ QVector3D Pose::position() const {
     return m_position;
 }
 
-QMatrix3x3 Pose::rotation() const {
+QQuaternion Pose::rotation() const {
     return m_rotation;
 }
 
@@ -41,7 +45,11 @@ void Pose::setPosition(const QVector3D &position) {
 }
 
 void Pose::setRotation(const QMatrix3x3 &rotation) {
-    this->m_rotation = std::move(rotation);
+    this->m_rotation = QQuaternion::fromRotationMatrix(rotation);
+}
+
+void Pose::setRotation(const QQuaternion &rotation) {
+    this->m_rotation = rotation;
 }
 
 QString Pose::id() const {

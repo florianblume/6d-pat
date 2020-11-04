@@ -8,31 +8,48 @@
 #include <QLayout>
 
 //! The main window of the application that holds the individual components.<
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent, ModelManager *modelManager, SettingsStore *settingsStore, const QString &settingsIdentifier, PoseRecoverer *poseRecoverer) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow) {
+    ui(new Ui::MainWindow),
+    settingsStore(settingsStore),
+    modelManager(modelManager),
+    settingsIdentifier(settingsIdentifier) {
+
     ui->setupUi(this);
-    readSettings();
+
     statusBar()->addPermanentWidget(statusBarLabel, 1);
     setStatusBarText(QString("Loading..."));
+
+    // Have to set it this way because you can't use special
+    // constructors when using UI forms
+    ui->poseViewer->setModelManager(modelManager);
+    ui->poseEditor->setModelManager(modelManager);
+
+    connect(settingsStore, &SettingsStore::settingsChanged,
+            this, &MainWindow::onSettingsChanged);
+    readSettings();
+
+    ui->poseViewer->setPoseRecoverer(poseRecoverer);
+    ui->poseEditor->setPoseRecoverer(poseRecoverer);
+
+    galleryImageModel = new GalleryImageModel(modelManager);
+    setGalleryImageModel(galleryImageModel);
+    galleryObjectModelModel = new GalleryObjectModelModel(modelManager);
+    setGalleryObjectModelModel(galleryObjectModelModel);
+
+    setPathsOnGalleriesAndBreadcrumbs();
 
     // If the selected image changes, we also need to cancel any started creation of a pose
     connect(ui->galleryLeft, &Gallery::selectedItemChanged,
             this, &MainWindow::poseCreationAborted);
     connect(ui->galleryRight, &Gallery::selectedItemChanged,
             this, &MainWindow::poseCreationAborted);
+
+    setStatusBarText("Ready.");
 }
 
 MainWindow::~MainWindow() {
     delete ui;
-}
-
-void MainWindow::onInitializationStarted() {
-    setStatusBarText("Initializing...");
-}
-
-void MainWindow::onInitializationCompleted() {
-    setStatusBarText("Ready.");
 }
 
 //! This function persistently stores settings of the application.
@@ -87,22 +104,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     event->accept();
 }
 
-void MainWindow::setPathOnLeftBreadcrumbView(const QString &pathToShow) {
-    ui->breadcrumbLeft->setPathToShow(pathToShow);
-}
-
-void MainWindow::setPathOnRightBreadcrumbView(const QString &pathToShow) {
-    ui->breadcrumbRight->setPathToShow(pathToShow);
-}
-
-void MainWindow::setPathOnLeftNavigationControls(const QString &path) {
-    ui->navigationLeft->setPathToOpen(path);
-}
-
-void MainWindow::setPathOnRightNavigationControls(const QString &path) {
-    ui->navigationRight->setPathToOpen(path);
-}
-
 void MainWindow::setGalleryImageModel(GalleryImageModel* model) {
     this->ui->galleryLeft->setModel(model);
 }
@@ -117,77 +118,29 @@ void MainWindow::setGalleryObjectModelModel(GalleryObjectModelModel* model) {
     connect(model, &GalleryObjectModelModel::displayedObjectModelsChanged, ui->galleryRight, &Gallery::reset);
 }
 
-void MainWindow::setModelManager(ModelManager* modelManager) {
-    this->modelManager = modelManager;
-    ui->poseViewer->setModelManager(modelManager);
-    ui->poseEditor->setModelManager(modelManager);
-}
-
-void MainWindow::resetPoseViewer() {
-    ui->poseViewer->reset();
-}
-
 void MainWindow::abortPoseCreation() {
     onActionReloadViewsTriggered();
     Q_EMIT poseCreationAborted();
-}
-
-void MainWindow::setPreferencesStore(SettingsStore *preferencesStore) {
-    if (this->preferencesStore) {
-        disconnect(this->preferencesStore, SIGNAL(preferencesChanged(QString)),
-                   this, SLOT(onSettingsChanged(QString)));
-    }
-    this->preferencesStore = preferencesStore;
-    connect(preferencesStore, SIGNAL(settingsChanged(QString)),
-            this, SLOT(onSettingsChanged(QString)));
 }
 
 ImagePtr MainWindow::getCurrentlyViewedImage() {
     return ui->poseViewer->currentlyViewedImage();
 }
 
-void MainWindow::resizeEvent(QResizeEvent *) {
-    if (!networkProgressView.isNull()) {
-        networkProgressView->setGeometry(0, 0, this->width(), this->height());
-    }
-}
-
-void MainWindow::mouseReleaseEvent(QMouseEvent* /* event */) {
-    if (poseCreationInProgress) {
-        // Reset pose creation because the user clicked anywhere
-        onPoseCreationReset();
-        Q_EMIT poseCreationAborted();
-    }
-}
-
 void MainWindow::setStatusBarText(const QString& text) {
     statusBarLabel->setText(text);
 }
 
-void MainWindow::onSelectedObjectModelChanged(int index) {
-    QVector<ObjectModelPtr> objectModels = modelManager->getObjectModels();
-    Q_ASSERT(index >= 0 && index < objectModels.size());
-    Q_EMIT selectedObjectModelChanged(objectModels[index]);
-    onPoseCreationReset();
-}
-
-void MainWindow::onSelectedImageChanged(int index) {
-    QVector<ImagePtr> images = modelManager->getImages();
-    Q_ASSERT(index >= 0 && index < images.size());
-    Q_EMIT selectedImageChanged(images[index]);
-    onPoseCreationReset();
-}
-
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
-    QSharedPointer<Settings> preferences = preferencesStore->loadPreferencesByIdentifier("default");
+    QSharedPointer<Settings> preferences = settingsStore->loadPreferencesByIdentifier("default");
     preferences->setImagesPath(path);
-    preferencesStore->savePreferences(preferences.data());
+    settingsStore->savePreferences(preferences.data());
 }
 
 void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
-    QSharedPointer<Settings> preferences = preferencesStore->loadPreferencesByIdentifier("default");
+    QSharedPointer<Settings> preferences = settingsStore->loadPreferencesByIdentifier("default");
     preferences->setObjectModelsPath(path);
-    preferencesStore->savePreferences(preferences.data());
+    settingsStore->savePreferences(preferences.data());
 }
 
 void MainWindow::displayWarning(const QString &title, const QString &text) {
@@ -197,30 +150,22 @@ void MainWindow::displayWarning(const QString &title, const QString &text) {
 void MainWindow::onPoseCreated() {
 }
 
-void MainWindow::onPoseCreationReset() {
-    setStatusBarText("Ready.");
-}
-
-void MainWindow::onPoseCreationRequested() {
-}
-
-void MainWindow::hideNetworkProgressView() {
-    networkProgressView->hide();
-    QApplication::restoreOverrideCursor();
-}
-
-void MainWindow::setPoseRecoverer(PoseRecoverer *poseRecoverer)
-{
-    this->poseRecoverer = poseRecoverer;
-    ui->poseViewer->setPoseRecoverer(poseRecoverer);
-    ui->poseEditor->setPoseRecoverer(poseRecoverer);
+void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
+    QSharedPointer<Settings> settings = settingsStore->loadPreferencesByIdentifier(settingsIdentifier);
+    galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->getSegmentationCodes());
+    ui->breadcrumbLeft->setPathToShow(settings->getImagesPath());
+    ui->breadcrumbRight->setPathToShow(settings->getObjectModelsPath());
+    ui->navigationLeft->setPathToOpen(QString(settings->getImagesPath()));
+    ui->navigationRight->setPathToOpen(QString(settings->getObjectModelsPath()));
 }
 
 void MainWindow::onSettingsChanged(const QString &identifier) {
-    QSharedPointer<Settings> preferences = preferencesStore->loadPreferencesByIdentifier(identifier);
-    setPathOnLeftBreadcrumbView(preferences->getImagesPath());
-    setPathOnRightBreadcrumbView(preferences->getObjectModelsPath());
-    onPoseCreationReset();
+    if (settingsIdentifier != identifier) {
+        return;
+    }
+    QSharedPointer<Settings> settings = settingsStore->loadPreferencesByIdentifier(identifier);
+    galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->getSegmentationCodes());
+    setPathsOnGalleriesAndBreadcrumbs();
 }
 
 void MainWindow::onActionAboutTriggered() {
@@ -253,7 +198,7 @@ void MainWindow::onActionExitTriggered()
 void MainWindow::onActionSettingsTriggered()
 {
     SettingsDialog* settingsDialog = new SettingsDialog(this);
-    settingsDialog->setPreferencesStoreAndObjectModels(preferencesStore,
+    settingsDialog->setPreferencesStoreAndObjectModels(settingsStore,
                                                        "default",
                                                        modelManager->getObjectModels());
     settingsDialog->show();
@@ -266,35 +211,7 @@ void MainWindow::onActionAbortCreationTriggered() {
 
 void MainWindow::onActionReloadViewsTriggered() {
     modelManager->reload();
-}
-
-void MainWindow::onActionNetworkPredictTriggered() {
-    if (neuralNetworkDialog.isNull()) {
-        neuralNetworkDialog.reset(new NeuralNetworkDialog(this, modelManager));
-        connect(neuralNetworkDialog.data(), &NeuralNetworkDialog::networkPredictionRequestedForImages,
-                this, &MainWindow::onPosePredictionRequestedForImages);
-    }
-    neuralNetworkDialog->show();
-}
-
-void MainWindow::onPosePredictionRequestedForImages(QVector<ImagePtr> images) {
-    if (networkProgressView.isNull()) {
-        networkProgressView.reset(new NetworkProgressView(this));
-    }
-    networkProgressView->show();
-    networkProgressView->setGeometry(QRect(0, 0, this->width(), this->height()));
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    emit posePredictionRequestedForImages(images);
-}
-
-void MainWindow::onPosePredictionRequested() {
-    if (networkProgressView.isNull()) {
-        networkProgressView.reset(new NetworkProgressView(this));
-    }
-    networkProgressView->show();
-    networkProgressView->setGeometry(QRect(0, 0, this->width(), this->height()));
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    Q_EMIT posePredictionRequested();
+    setStatusBarText("Ready.");
 }
 
 QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";

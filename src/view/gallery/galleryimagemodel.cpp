@@ -8,8 +8,8 @@ GalleryImageModel::GalleryImageModel(ModelManager* modelManager) {
     this->modelManager = modelManager;
     imagesCache = modelManager->getImages();
     resizeImages();
-    connect(modelManager, SIGNAL(imagesChanged()),
-            this, SLOT(onImagesChanged()));
+    connect(modelManager, &ModelManager::imagesChanged,
+            this, &GalleryImageModel::onImagesChanged);
 }
 
 GalleryImageModel::~GalleryImageModel() {

@@ -65,7 +65,7 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
                 }
             } else {
                 //! Preparation of 3D data for the JSON file
-                QMatrix3x3 rotationMatrix = objectImagePose.rotation();
+                QMatrix3x3 rotationMatrix = objectImagePose.rotation().toRotationMatrix();
                 QJsonArray rotationMatrixArray;
                 rotationMatrixArray << rotationMatrix(0, 0) << rotationMatrix(0, 1) << rotationMatrix(0, 2)
                                     << rotationMatrix(1, 0) << rotationMatrix(1, 1) << rotationMatrix(1, 2)

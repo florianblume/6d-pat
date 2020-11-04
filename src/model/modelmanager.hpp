@@ -132,7 +132,6 @@ public:
     virtual void reload() = 0;
 
 Q_SIGNALS:
-
     void imagesChanged();
     void objectModelsChanged();
     /*!

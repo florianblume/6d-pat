@@ -7,8 +7,7 @@
 #include <QImage>
 #include <QDebug>
 
-PoseRecoverer::PoseRecoverer(QObject *parent, ModelManager *modelManager) :
-    QObject(parent),
+PoseRecoverer::PoseRecoverer(ModelManager *modelManager) :
     m_modelManager(modelManager) {
     Q_ASSERT(modelManager);
     connect(modelManager, &ModelManager::imagesChanged, this, &PoseRecoverer::reset);
@@ -26,8 +25,12 @@ PoseRecoverer::State PoseRecoverer::state() {
 }
 
 void PoseRecoverer::reset() {
-    m_image.reset();
-    m_objectModel.reset();
+    if (!m_image.isNull()) {
+        m_image.reset();
+    }
+    if (!m_objectModel.isNull()) {
+        m_objectModel.reset();
+    }
     m_points2D.clear();
     m_points3D.clear();
     m_state = State::Empty;

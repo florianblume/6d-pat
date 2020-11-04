@@ -2,6 +2,7 @@
     <qresource prefix="/images">
         <file alias="about.png">resources/images/about.png</file>
         <file alias="icon.png">resources/images/icon.png</file>
+        <file alias="loading.gif">resources/images/loading.gif</file>
     </qresource>
     <qresource prefix="/">
         <file alias="splash.png">resources/images/splash.png</file>

@@ -145,7 +145,7 @@ bool CachingModelManager::updatePose(const QString &id,
     }
 
     QVector3D previousPosition = pose->position();
-    QMatrix3x3 previousRotation = pose->rotation();
+    QMatrix3x3 previousRotation = pose->rotation().toRotationMatrix() ;
 
     pose->setPosition(position);
     pose->setRotation(rotation);

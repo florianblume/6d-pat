@@ -12,6 +12,7 @@
 #include <QLabel>
 #include <QSizePolicy>
 #include <QItemSelectionRange>
+#include <QDoubleSpinBox>
 #include <QStringList>
 
 PoseEditor::PoseEditor(QWidget *parent) :
@@ -67,8 +68,14 @@ void PoseEditor::setPoseRecoverer(PoseRecoverer *poseRecoverer) {
     if (this->poseRecoverer) {
         disconnect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
                    this, &PoseEditor::onCorrespondencesChanged);
+        disconnect(poseRecoverer, &PoseRecoverer::poseRecovered,
+                   this, &PoseEditor::onCorrespondencesChanged);
     }
     this->poseRecoverer = poseRecoverer;
+    connect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
+            this, &PoseEditor::onCorrespondencesChanged);
+    connect(poseRecoverer, &PoseRecoverer::poseRecovered,
+            this, &PoseEditor::onCorrespondencesChanged);
 }
 
 void PoseEditor::setEnabledPoseEditorControls(bool enabled) {
@@ -82,6 +89,7 @@ void PoseEditor::setEnabledPoseEditorControls(bool enabled) {
     // The next line is the difference to setEnabledAllControls
     ui->buttonRemove->setEnabled(enabled);
     ui->buttonSave->setEnabled(enabled);
+    ui->buttonDuplicate->setEnabled(enabled);
 }
 
 void PoseEditor::setEnabledAllControls(bool enabled) {
@@ -95,6 +103,7 @@ void PoseEditor::setEnabledAllControls(bool enabled) {
     ui->buttonCreate->setEnabled(enabled);
     ui->listViewPoses->setEnabled(enabled);
     ui->buttonSave->setEnabled(enabled);
+    ui->buttonDuplicate->setEnabled(enabled);
 }
 
 void PoseEditor::resetControlsValues() {
@@ -135,21 +144,6 @@ void PoseEditor::addPosesToComboBoxPoses(const Image &image,
     ignoreValueChanges = false;
 }
 
-cv::Mat qtMatrixToOpenCVMatrix(const QMatrix3x3 matrix) {
-    // TODO this should go in a helper class
-    cv::Mat result = (cv::Mat_<float>(3,3) <<
-           matrix(0, 0),
-           matrix(0, 1),
-           matrix(0, 2),
-           matrix(1, 0),
-           matrix(1, 1),
-           matrix(1, 2),
-           matrix(2, 0),
-           matrix(2, 1),
-           matrix(2, 2));
-    return result;
-}
-
 void PoseEditor::setPoseValuesOnControls(const Pose &pose) {
     // TODO connect the signals that are to be added to the Pose class directly to the UI elements
     QVector3D position = pose.position();
@@ -157,16 +151,23 @@ void PoseEditor::setPoseValuesOnControls(const Pose &pose) {
     ui->spinBoxTranslationX->setValue(position.x());
     ui->spinBoxTranslationY->setValue(position.y());
     ui->spinBoxTranslationZ->setValue(position.z());
-    cv::Mat rotationMatrix = qtMatrixToOpenCVMatrix(pose.rotation());
-    cv::Vec3f rotationVector = GeneralHelper::rotationMatrixToEulerAngles(rotationMatrix);
+    QVector3D rotationVector = pose.rotation().toEulerAngles();
     ui->spinBoxRotationX->setValue(rotationVector[0]);
     ui->spinBoxRotationY->setValue(rotationVector[1]);
     ui->spinBoxRotationZ->setValue(rotationVector[2]);
     ignoreValueChanges = false;
 }
 
+void PoseEditor::onSpinBoxValueChanged(QString) {
+    if (!ignoreValueChanges) {
+        updateCurrentlyEditedPose();
+        ui->buttonSave->setEnabled(true);
+        poseDirty = true;
+    }
+}
+
 void PoseEditor::onObjectModelClickedAt(const QVector3D &position) {
-    qDebug() << "Object model (" + currentObjectModel->getPath() + ") clicked at: (" +
+    qDebug() << "Object model (" + currentlySelectedObjectModel->getPath() + ") clicked at: (" +
                 QString::number(position.x())
                 + ", "
                 + QString::number(position.y())
@@ -175,33 +176,25 @@ void PoseEditor::onObjectModelClickedAt(const QVector3D &position) {
 }
 
 void PoseEditor::updateCurrentlyEditedPose() {
-    // TODO this can be removed completely when the class Pose gets signals
-    // that can be directly connected to the UI elements
-    if (currentPose) {
-        currentPose->setPosition(QVector3D(ui->spinBoxTranslationX->value(),
+    if (currentlySelectedPose) {
+        currentlySelectedPose->setPosition(QVector3D(ui->spinBoxTranslationX->value(),
                                            ui->spinBoxTranslationY->value(),
                                            ui->spinBoxTranslationZ->value()));
-        cv::Vec3f rotation(ui->spinBoxRotationX->value(),
-                             ui->spinBoxRotationY->value(),
-                             ui->spinBoxRotationZ->value());
-        cv::Mat rotMatrix = GeneralHelper::eulerAnglesToRotationMatrix(rotation);
-        // TODO compute the rotation matrix in the Pose class directly whenever the rotation changes and store it there
-        // Somehow the matrix is transposed.. but transposing yields weird results
-        float values[] = {
-                rotMatrix.at<float>(0, 0), rotMatrix.at<float>(1, 0), rotMatrix.at<float>(2, 0),
-                rotMatrix.at<float>(0, 1), rotMatrix.at<float>(1, 1), rotMatrix.at<float>(2, 1),
-                rotMatrix.at<float>(0, 2), rotMatrix.at<float>(1, 2), rotMatrix.at<float>(2, 2)};
-        QMatrix3x3 qtRotationMatrix = QMatrix3x3(values);
-        currentPose->setRotation(qtRotationMatrix);
-        Q_EMIT poseUpdated(currentPose);
+        QVector3D rotation(ui->spinBoxRotationX->value(),
+                           ui->spinBoxRotationY->value(),
+                           ui->spinBoxRotationZ->value());
+        currentlySelectedPose->setRotation(QQuaternion::fromEulerAngles(rotation));
+        Q_EMIT poseUpdated(currentlySelectedPose);
     }
 }
 
 void PoseEditor::onPoseAdded(PosePtr pose) {
-    addPosesToComboBoxPoses(*pose->image(), pose->id());
+    addPosesToComboBoxPoses(*currentlySelectedImage, pose->id());
     ui->buttonCreate->setEnabled(false);
     // Gets enabled somehow
     ui->buttonSave->setEnabled(false);
+    ui->buttonDuplicate->setEnabled(true);
+    ui->buttonRemove->setEnabled(true);
     poseEditor3DWindow->setClicks({});
 }
 
@@ -213,7 +206,7 @@ void PoseEditor::onPoseDeleted(PosePtr /*pose*/) {
 }
 
 void PoseEditor::onButtonRemoveClicked() {
-    modelManager->removePose(currentPose->id());
+    modelManager->removePose(currentlySelectedPose->id());
     QVector<PosePtr> poses = modelManager->getPosesForImage(*currentlySelectedImage);
     if (poses.size() > 0) {
         // This reloads the drop down list and does everything else
@@ -223,57 +216,8 @@ void PoseEditor::onButtonRemoveClicked() {
     }
 }
 
-void PoseEditor::onSpinBoxTranslationXValueChanged(double /* value */) {
-    if (!ignoreValueChanges) {
-        updateCurrentlyEditedPose();
-        // TODO create markDirty() function
-        ui->buttonSave->setEnabled(true);
-    }
-}
-
-void PoseEditor::onSpinBoxTranslationYValueChanged(double /* value */) {
-    if (!ignoreValueChanges) {
-        updateCurrentlyEditedPose();
-        // TODO create markDirty() function
-        ui->buttonSave->setEnabled(true);
-    }
-}
-
-void PoseEditor::onSpinBoxTranslationZValueChanged(double /* value */) {
-    if (!ignoreValueChanges) {
-        updateCurrentlyEditedPose();
-        // TODO create markDirty() function
-        ui->buttonSave->setEnabled(true);
-    }
-}
-
-void PoseEditor::onSpinBoxRotationXValueChanged(double /* value */) {
-    if (!ignoreValueChanges) {
-        updateCurrentlyEditedPose();
-        // TODO create markDirty() function
-        ui->buttonSave->setEnabled(true);
-    }
-}
-
-void PoseEditor::onSpinBoxRotationYValueChanged(double /* value */) {
-    if (!ignoreValueChanges) {
-        updateCurrentlyEditedPose();
-        // TODO create markDirty() function
-        ui->buttonSave->setEnabled(true);
-    }
-}
-
-void PoseEditor::onSpinBoxRotationZValueChanged(double) {
-    if (!ignoreValueChanges) {
-        updateCurrentlyEditedPose();
-        // TODO create markDirty() function
-        ui->buttonSave->setEnabled(true);
-    }
-}
-
 void PoseEditor::onButtonCreateClicked() {
-    // TODO add dirty flag instead of testing save button
-    if (ui->buttonSave->isEnabled()) {
+    if (poseDirty) {
         int result = QMessageBox::warning(this,
                              "Pose creation",
                              "Creating a pose will discard your unsaved"
@@ -288,10 +232,21 @@ void PoseEditor::onButtonCreateClicked() {
 }
 
 void PoseEditor::onButtonSaveClicked() {
-    modelManager->updatePose(currentPose->id(),
-                                        currentPose->position(),
-                                        currentPose->rotation());
+    // Any errors occuring in the model manager while saving will be handled
+    // by the maincontroller
+    modelManager->updatePose(currentlySelectedPose->id(),
+                             currentlySelectedPose->position(),
+                             currentlySelectedPose->rotation().toRotationMatrix());
     ui->buttonSave->setEnabled(false);
+}
+
+void PoseEditor::onButtonDuplicateClicked() {
+    // Any errors occuring in the model manager while saving will be handled
+    // by the maincontroller
+    modelManager->addPose(*currentlySelectedImage,
+                          *currentlySelectedPose->objectModel(),
+                          currentlySelectedPose->position(),
+                          currentlySelectedPose->rotation().toRotationMatrix());
 }
 
 void PoseEditor::onComboBoxPoseIndexChanged(int index) {
@@ -300,7 +255,7 @@ void PoseEditor::onComboBoxPoseIndexChanged(int index) {
     else if (index == 0) {
         // First index is placeholder
         setEnabledPoseEditorControls(false);
-        currentPose.reset();
+        currentlySelectedPose.reset();
         resetControlsValues();
     } else {
         QVector<PosePtr> posesForImage =
@@ -324,7 +279,7 @@ void PoseEditor::onSelectedPoseChanged(const QItemSelection &selected, const QIt
         // First index is placeholder
         poseEditor3DWindow->reset();
         setEnabledPoseEditorControls(false);
-        currentPose.reset();
+        currentlySelectedPose.reset();
         resetControlsValues();
         // Gets enabled somehow
         ui->buttonSave->setEnabled(false);
@@ -351,7 +306,7 @@ void PoseEditor::setObjectModel(ObjectModelPtr objectModel) {
     // them even when viewing a different object model, setting the index to
     // the None entry would inhibit this
     // ui->comboBoxPose->setCurrentIndex(0);
-    currentObjectModel = objectModel;
+    currentlySelectedObjectModel = objectModel;
     poseEditor3DWindow->setObjectModel(*objectModel);
 }
 
@@ -379,12 +334,11 @@ void PoseEditor::setPoseToEdit(PosePtr pose) {
 
     qDebug() << "Setting pose (" + pose->id() + ", " + pose->image()->getImagePath()
                 + ", " + pose->objectModel()->getPath() + ") to display.";
-    currentPose = pose;
-    currentObjectModel.reset(new ObjectModel(*pose->objectModel()));
+    currentlySelectedPose = pose;
+    currentlySelectedObjectModel.reset(new ObjectModel(*pose->objectModel()));
     setEnabledPoseEditorControls(true);
     setPoseValuesOnControls(*pose);
     poseEditor3DWindow->setObjectModel(*pose->objectModel());
-    cv::Mat rotationMatrix = qtMatrixToOpenCVMatrix(pose->rotation());
     ui->buttonSave->setEnabled(false);
 }
 
@@ -400,13 +354,13 @@ void PoseEditor::onCorrespondencesChanged() {
 void PoseEditor::reset() {
     qDebug() << "Resetting pose editor.";
     poseEditor3DWindow->reset();
-    currentObjectModel.reset();
-    currentPose.reset();
+    currentlySelectedObjectModel.reset();
+    currentlySelectedPose.reset();
     listViewPosesModel->setStringList(QStringList());
     resetControlsValues();
     setEnabledAllControls(false);
 }
 
 bool PoseEditor::isDisplayingObjectModel() {
-    return !currentObjectModel.isNull();
+    return !currentlySelectedObjectModel.isNull();
 }

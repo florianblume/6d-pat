@@ -28,6 +28,10 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex &) const;
 
+private Q_SLOTS:
+    void onImageResized(int imageIndex, const QString &imagePath, const QImage &resizedImage);
+    void onImagesChanged();
+
 private:
     ModelManager *modelManager;
     QVector<ImagePtr> imagesCache;
@@ -38,10 +42,6 @@ private:
 
     void threadedResizeImages();
     void resizeImages();
-
-private Q_SLOTS:
-    void onImageResized(int imageIndex, const QString &imagePath, const QImage &resizedImage);
-    void onImagesChanged();
 
 };
 

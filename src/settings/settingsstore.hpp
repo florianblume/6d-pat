@@ -13,9 +13,9 @@ class SettingsStore : public QObject
 
 public:
     SettingsStore();
-    QSharedPointer<Settings> createEmptyPreferences(const QString &identifier);
+    SettingsPtr createEmptyPreferences(const QString &identifier);
     void savePreferences(Settings *settingsPointer);
-    QSharedPointer<Settings> loadPreferencesByIdentifier(const QString &identifier);
+    SettingsPtr loadPreferencesByIdentifier(const QString &identifier);
 
 signals:
     void settingsChanged(const QString &identifier);

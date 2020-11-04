@@ -25,7 +25,9 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent, ModelManager *modelManager,
+                        SettingsStore *settingsStore, const QString &settingsIdentifier,
+                        PoseRecoverer *poseRecoverer);
     ~MainWindow();
 
     //! Overriden from QWidget.
@@ -34,60 +36,9 @@ public:
     */
     virtual void closeEvent(QCloseEvent *event) override;
 
-    void resizeEvent(QResizeEvent *event) override;
-
-    /*!
-     * \brief mousePressEvent to catch clicks of the user after
-     * clicking on the image to restore the normal cursor, etc
-     * \param event
-     */
-    void mouseReleaseEvent(QMouseEvent*) override;
-
-    /*!
-     * \brief onInitializationStarted can be called when the external process that initializes this
-     * window has started the initialization process. The initialization can be settings paths, etc.
-     */
-    void onInitializationStarted();
-
-    /*!
-     * \brief onInitializationCompleted can be called when the external process that initializes this
-     * window has finished the initizliation process.
-     */
-    void onInitializationCompleted();
-
-    //! Various functions to initialize or alter the state of the window and its components.
-    //! Most should be self-explanatory.
-    void setPathOnLeftBreadcrumbView(const QString &pathToShow);
-    void setPathOnRightBreadcrumbView(const QString &pathToShow);
-    void setPathOnLeftNavigationControls(const QString &path);
-    void setPathOnRightNavigationControls(const QString &path);
-    void resetPoseViewer();
     void abortPoseCreation();
 
     void setStatusBarText(const QString& text);
-
-    /*!
-     * \brief setGalleryImageModel Sets the model for the gallery view of images on the left side.
-     * \param model the model that holds the images for the gallery
-     */
-    void setGalleryImageModel(GalleryImageModel* model);
-
-    /*!
-     * \brief setGalleryObjectModelModel Sets the model for the gallery that displays the 3D models
-     * on the right side.
-     * \param model the model that holds the 3D objects for the gallery
-     */
-    void setGalleryObjectModelModel(GalleryObjectModelModel* model);
-
-    /*!
-     * \brief setModelManagerForPoseEditor sets the model manager for the pose editor.
-     * This method passes the model manager directly because th editor has to access its functions at various
-     * places making a proxy inbetween to complex.
-     * \param modelManager the model manager that the editor uses to load correspondeces, update them, etc...
-     */
-    void setModelManager(ModelManager* modelManager);
-    void setPreferencesStore(SettingsStore *preferencesStore);
-    void setPoseRecoverer(PoseRecoverer *poseRecoverer);
 
     /*!
      * \brief getCurrentlyViewedImage returns the image currently selected in the images
@@ -97,21 +48,6 @@ public:
     ImagePtr getCurrentlyViewedImage();
 
 public Q_SLOTS:
-
-    /*!
-     * \brief onSelectedObjectModelChanged will be called from the right gallery that displays
-     * objects models so that the main view can retrieve the actual object model an pass it on
-     * to the pose editor controls.
-     */
-    void onSelectedObjectModelChanged(int index);
-
-    /*!
-     * \brief onSelectedImageChanged will be called from the left gallery that displays
-     * images so that the main view can retrieve the actual image and pass it on to the pose
-     * viewer.
-     * \param index the index of the selected image
-     */
-    void onSelectedImageChanged(int index);
 
     /*!
      * \brief onImagesPathChangedByNavigation called when the images path is changed by the
@@ -140,29 +76,7 @@ public Q_SLOTS:
      */
     void onPoseCreated();
 
-    /*!
-     * \brief onPoseCreationReset can be called when the process of pose
-     * creation was reset for whatever reason.
-     */
-    void onPoseCreationReset();
-
-    /*!
-     * \brief onPoseCreationRequested can be called to request the creation of an
-     * ObjectImagePose. The caller has to make sure, that the prerequisities (e.g.
-     * enough pose points that the user clicked) are met.
-     */
-    void onPoseCreationRequested();
-
-    /*!
-     * \brief hideNetworkProgressView will be called externaly when the network has finished
-     * its progress
-     */
-    void hideNetworkProgressView();
-
 Q_SIGNALS:
-
-    void selectedObjectModelChanged(ObjectModelPtr objectModel);
-    void selectedImageChanged(ImagePtr image);
 
     /*!
      * \brief onPosePointCreationInitiated is Q_EMITted whenever the window receives a signal
@@ -213,9 +127,6 @@ Q_SIGNALS:
      */
     void objectModelsPathChanged(const QString &newPath);
 
-    void posePredictionRequested();
-    void posePredictionRequestedForImages(QVector<ImagePtr> images);
-
 private:
     Ui::MainWindow *ui;
 
@@ -223,13 +134,17 @@ private:
     // been added, etc.
     QLabel *statusBarLabel = new QLabel();
 
-    SettingsStore *preferencesStore = Q_NULLPTR;
+    SettingsStore *settingsStore = Q_NULLPTR;
     ModelManager* modelManager;
     PoseRecoverer *poseRecoverer;
 
-    // Used to write and read main view related settings, like position etc.
-    void writeSettings();
-    void readSettings();
+    void setPathsOnGalleriesAndBreadcrumbs();
+
+    void setGalleryImageModel(GalleryImageModel* model);
+    void setGalleryObjectModelModel(GalleryObjectModelModel* model);
+
+    GalleryImageModel *galleryImageModel = Q_NULLPTR;
+    GalleryObjectModelModel *galleryObjectModelModel = Q_NULLPTR;
 
     // To indicate whether to Q_EMIT signal pose
     // creation aborted when the user clicks anywhere on
@@ -239,6 +154,11 @@ private:
     QScopedPointer<NetworkProgressView> networkProgressView;
     QScopedPointer<NeuralNetworkDialog> neuralNetworkDialog;
 
+    // Used to write and read main view related settings, like position etc.
+    void writeSettings();
+    void readSettings();
+
+    QString settingsIdentifier;
     // The name of the settings - QT requests this to store settings "offline"
     static QString SETTINGS_NAME;
     // Same as above
@@ -258,15 +178,11 @@ private:
 
 private Q_SLOTS:
     void onSettingsChanged(const QString &identifier);
-
     void onActionAboutTriggered();
     void onActionExitTriggered();
     void onActionSettingsTriggered();
     void onActionAbortCreationTriggered();
     void onActionReloadViewsTriggered();
-    void onActionNetworkPredictTriggered();
-    void onPosePredictionRequestedForImages(QVector<ImagePtr> images);
-    void onPosePredictionRequested();
 };
 
 #endif // MAINWINDOW_H

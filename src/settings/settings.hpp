@@ -4,6 +4,7 @@
 #include "model/objectmodel.hpp"
 #include <QString>
 #include <QMap>
+#include <QSharedPointer>
 
 class Settings
 {
@@ -59,5 +60,7 @@ private:
 
     QString identifier;
 };
+
+typedef QSharedPointer<Settings> SettingsPtr;
 
 #endif // SETTINGSITEM_H
