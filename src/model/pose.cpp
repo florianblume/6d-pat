@@ -5,58 +5,58 @@ Pose::Pose(QString id,
             QMatrix3x3 rotation,
             ImagePtr image,
             ObjectModelPtr objectModel)
-    : position(position),
-      rotation(rotation),
-      image(image),
-      objectModel(objectModel),
-      id(id) {
+    : m_position(position),
+      m_rotation(rotation),
+      m_image(image),
+      m_objectModel(objectModel),
+      m_id(id) {
 }
 
 Pose::Pose(const Pose &other)
-    : position(other.position),
-      rotation(other.rotation),
-      image(other.image),
-      objectModel(other.objectModel),
-      id(other.id) {
+    : m_position(other.m_position),
+      m_rotation(other.m_rotation),
+      m_image(other.m_image),
+      m_objectModel(other.m_objectModel),
+      m_id(other.m_id) {
 }
 
-QVector3D Pose::getPosition() const {
-    return position;
+QVector3D Pose::position() const {
+    return m_position;
 }
 
-QMatrix3x3 Pose::getRotation() const {
-    return rotation;
+QMatrix3x3 Pose::rotation() const {
+    return m_rotation;
 }
 
-ImagePtr Pose::getImage() const {
-    return image;
+ImagePtr Pose::image() const {
+    return m_image;
 }
 
-ObjectModelPtr Pose::getObjectModel() const {
-    return objectModel;
+ObjectModelPtr Pose::objectModel() const {
+    return m_objectModel;
 }
 
 void Pose::setPosition(const QVector3D &position) {
-    this->position = position;
+    this->m_position = position;
 }
 
 void Pose::setRotation(const QMatrix3x3 &rotation) {
-    this->rotation = std::move(rotation);
+    this->m_rotation = std::move(rotation);
 }
 
-QString Pose::getID() const {
-    return id;
+QString Pose::id() const {
+    return m_id;
 }
 
 bool Pose::operator==(const Pose& objectImagePose) {
-    return id.compare(objectImagePose.getID()) == 0;
+    return m_id.compare(objectImagePose.id()) == 0;
 }
 
 Pose& Pose::operator=(const Pose &other) {
-    id = other.id;
-    image = other.image;
-    objectModel = other.objectModel;
-    position = other.position;
-    rotation = other.rotation;
+    m_id = other.m_id;
+    m_image = other.m_image;
+    m_objectModel = other.m_objectModel;
+    m_position = other.m_position;
+    m_rotation = other.m_rotation;
     return *this;
 }

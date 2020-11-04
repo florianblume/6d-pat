@@ -10,7 +10,10 @@
 PoseRecoverer::PoseRecoverer(QObject *parent, ModelManager *modelManager) :
     QObject(parent),
     m_modelManager(modelManager) {
-
+    Q_ASSERT(modelManager);
+    connect(modelManager, &ModelManager::imagesChanged, this, &PoseRecoverer::reset);
+    connect(modelManager, &ModelManager::objectModelsChanged, this, &PoseRecoverer::reset);
+    connect(modelManager, &ModelManager::posesChanged, this, &PoseRecoverer::reset);
 }
 
 void PoseRecoverer::setModelManager(ModelManager *modelManager) {
@@ -28,7 +31,7 @@ void PoseRecoverer::reset() {
     m_points2D.clear();
     m_points3D.clear();
     m_state = State::Empty;
-    Q_EMIT poseRecoveringAborted();
+    Q_EMIT stateChanged(m_state);
 }
 
 void PoseRecoverer::setMinimumNumberOfPoints(int numberOfPoints) {

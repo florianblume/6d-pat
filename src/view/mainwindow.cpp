@@ -212,6 +212,8 @@ void MainWindow::hideNetworkProgressView() {
 void MainWindow::setPoseRecoverer(PoseRecoverer *poseRecoverer)
 {
     this->poseRecoverer = poseRecoverer;
+    ui->poseViewer->setPoseRecoverer(poseRecoverer);
+    ui->poseEditor->setPoseRecoverer(poseRecoverer);
 }
 
 void MainWindow::onSettingsChanged(const QString &identifier) {

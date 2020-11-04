@@ -134,19 +134,19 @@ void PoseViewer3DWidget::addPose(const Pose &pose) {
     PoseRenderable *poseRenderable = new PoseRenderable(root, pose);
     //poseRenderable->addComponent(posesLayer);
     poseRenderables.append(poseRenderable);
-    poseRenderableForId[pose.getID()] = poseRenderable;
+    poseRenderableForId[pose.id()] = poseRenderable;
 }
 
 void PoseViewer3DWidget::updatePose(const Pose &pose) {
     // ToDo connect signals of Pose when values change to update slots of PoseRenderable
-    PoseRenderable *renderable = poseRenderableForId[pose.getID()];
-    renderable->setPosition(pose.getPosition());
-    renderable->setRotation(pose.getRotation());
+    PoseRenderable *renderable = poseRenderableForId[pose.id()];
+    renderable->setPosition(pose.position());
+    renderable->setRotation(pose.rotation());
 }
 
 void PoseViewer3DWidget::removePose(const QString &id) {
     for (int index = 0; index < poseRenderables.size(); index++) {
-        if (poseRenderables[index]->getPoseId() == id) {
+        if (poseRenderables[index]->poseID() == id) {
             PoseRenderable *renderable = poseRenderables[index];
             // Remove related framegraph
             poseRenderables.removeAt(index);

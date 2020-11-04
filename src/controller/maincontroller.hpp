@@ -58,8 +58,6 @@ private:
 
 private Q_SLOTS:
     void onSettingsChanged(const QString &identifier);
-    void resetPoseCreation();
-    void onPoseCreationRequested();
     void onPosePredictionRequested();
     void onPosePredictionRequestedForImages(const QVector<ImagePtr> &images);
     void performPosePredictionForImages(const QVector<ImagePtr> &images);

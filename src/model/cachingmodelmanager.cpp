@@ -26,12 +26,12 @@ void CachingModelManager::createConditionalCache() {
 
         //! Setup cache of poses that can be retrieved via an image
         QVector<PosePtr> &posesForImage =
-                posesForImages[pose->getImage()->getImagePath()];
+                posesForImages[pose->image()->getImagePath()];
         posesForImage.append(pose);
 
         //! Setup cache of poses that can be retrieved via an object model
         QVector<PosePtr> &posesForObjectModel =
-                posesForObjectModels[pose->getObjectModel()->getPath()];
+                posesForObjectModels[pose->objectModel()->getPath()];
         posesForObjectModel.append(pose);
     }
 }
@@ -68,7 +68,7 @@ PosePtr CachingModelManager::getPoseById(const QString &id) const {
     PosePtr result;
     auto itObj = std::find_if(
         poses.begin(), poses.end(),
-        [id](PosePtr o) { return o->getID() == id; }
+        [id](PosePtr o) { return o->id() == id; }
     );
     if (itObj != poses.end()) {
         result = *itObj;
@@ -79,7 +79,7 @@ PosePtr CachingModelManager::getPoseById(const QString &id) const {
 QVector<PosePtr> CachingModelManager::getPosesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) {
     QVector<PosePtr> posesForImageAndObjectModel;
     for (PosePtr &pose : posesForImages[image.getImagePath()]) {
-        if (pose->getObjectModel()->getPath().compare(objectModel.getPath()) == 0) {
+        if (pose->objectModel()->getPath().compare(objectModel.getPath()) == 0) {
            posesForImageAndObjectModel.append(pose);
         }
     }
@@ -133,7 +133,7 @@ bool CachingModelManager::updatePose(const QString &id,
                                      const QMatrix3x3 &rotation) {
     PosePtr pose;
     for (int i = 0; i < poses.size(); i++) {
-        if (poses[i]->getID() == id) {
+        if (poses[i]->id() == id) {
             pose = poses[i];
             break;
         }
@@ -144,8 +144,8 @@ bool CachingModelManager::updatePose(const QString &id,
         return false;
     }
 
-    QVector3D previousPosition = pose->getPosition();
-    QMatrix3x3 previousRotation = pose->getRotation();
+    QVector3D previousPosition = pose->position();
+    QMatrix3x3 previousRotation = pose->rotation();
 
     pose->setPosition(position);
     pose->setRotation(rotation);
@@ -167,7 +167,7 @@ bool CachingModelManager::updatePose(const QString &id,
 bool CachingModelManager::removePose(const QString &id) {
     PosePtr pose;
     for (int i = 0; i < poses.size(); i++) {
-        if (poses[i]->getID() == id)
+        if (poses[i]->id() == id)
             pose = poses[i];
     }
 
@@ -183,7 +183,7 @@ bool CachingModelManager::removePose(const QString &id) {
     }
 
     for (int i = 0; i < poses.size(); i++) {
-        if (poses.at(i)->getID() == id)
+        if (poses.at(i)->id() == id)
             poses.removeAt(i);
     }
 

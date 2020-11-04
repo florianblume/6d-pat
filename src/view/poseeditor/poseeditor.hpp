@@ -31,7 +31,8 @@ public:
 
 public Q_SLOTS:
     void setObjectModel(ObjectModelPtr objectModel);
-    void onSelectedImageChanged(ImagePtr image);
+    void onSelectedObjectModelChanged(int index);
+    void onSelectedImageChanged(int index);
     void setPoseToEdit(PosePtr pose);
     void onPoseCreationAborted();
     void reset();
@@ -44,8 +45,9 @@ Q_SIGNALS:
 
 private:
     Ui::PoseEditor *ui;
-    ModelManager *modelManager;
-    PoseRecoverer *poseRecoverer;
+    // Q_NULLPTR important for first check
+    ModelManager *modelManager = Q_NULLPTR;
+    PoseRecoverer *poseRecoverer = Q_NULLPTR;
 
     PoseEditor3DWindow *poseEditor3DWindow;
 

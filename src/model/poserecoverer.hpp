@@ -22,6 +22,7 @@ class PoseRecoverer : public QObject
 {
 
     Q_OBJECT
+
 public:
 
     enum State {
@@ -35,7 +36,6 @@ public:
     explicit PoseRecoverer(QObject *parent = nullptr, ModelManager *modelManager = nullptr);
     void setModelManager(ModelManager *modelManager);
     State state();
-    void reset();
     void setMinimumNumberOfPoints(int numberOfPoints);
     int minimumNumberOfPoints();
     void setImage(ImagePtr image);
@@ -49,8 +49,10 @@ public:
     QVector<QPoint> points2D();
     QVector<QVector3D> points3D();
 
+public Q_SLOTS:
+    void reset();
+
 Q_SIGNALS:
-    void poseRecoveringAborted();
     void poseRecovered();
     void correspondencesChanged();
     void stateChanged(State state);

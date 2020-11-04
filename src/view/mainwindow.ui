@@ -1553,15 +1553,18 @@
    <header>view/poseviewer/poseviewer.hpp</header>
    <container>1</container>
    <slots>
+    <signal>imageClicked(ImagePtr,QPoint)</signal>
     <signal>imageClicked(Image*,QPoint)</signal>
-    <slot>setImage(Image*)</slot>
+    <slot>setImage(ImagePtr)</slot>
     <slot>reset()</slot>
-    <slot>onPosePointStarted(QPoint,int,int)</slot>
     <slot>removePositionVisualizations()</slot>
     <slot>onPoseCreationAborted()</slot>
     <slot>onOpacityChangeStarted(int)</slot>
-    <slot>onPoseUpdated(Pose*)</slot>
     <slot>onOpacityChangeEnded()</slot>
+    <slot>onSelectedImageChanged(int)</slot>
+    <slot>setImage(Image*)</slot>
+    <slot>onPosePointStarted(QPoint,int,int)</slot>
+    <slot>onPoseUpdated(Pose*)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -1736,38 +1739,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>MainWindow</sender>
-   <signal>selectedObjectModelChanged(ObjectModel*)</signal>
-   <receiver>poseEditor</receiver>
-   <slot>setObjectModel(ObjectModel*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>675</x>
-     <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>galleryLeft</sender>
-   <signal>selectedItemChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>onSelectedImageChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>223</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>navigationLeft</sender>
    <signal>navigateLeft()</signal>
    <receiver>galleryLeft</receiver>
@@ -1848,22 +1819,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>MainWindow</sender>
-   <signal>selectedImageChanged(Image*)</signal>
-   <receiver>poseViewer</receiver>
-   <slot>setImage(Image*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
-     <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>galleryLeft</sender>
    <signal>selectedItemChanged(int)</signal>
    <receiver>poseEditor</receiver>
@@ -1875,22 +1830,6 @@
     </hint>
     <hint type="destinationlabel">
      <x>675</x>
-     <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>poseEditor</sender>
-   <signal>poseUpdated(Pose*)</signal>
-   <receiver>poseViewer</receiver>
-   <slot>onPoseUpdated(Pose*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>401</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
      <y>401</y>
     </hint>
    </hints>
@@ -1912,22 +1851,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>poseEditor</sender>
-   <signal>buttonPredictClicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>onPosePredictionRequested()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>401</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionPredict</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -1936,22 +1859,6 @@
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>449</x>
-     <y>299</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>galleryRight</sender>
-   <signal>selectedItemChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>onSelectedObjectModelChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>121</y>
     </hint>
     <hint type="destinationlabel">
      <x>449</x>
@@ -2004,6 +1911,22 @@
     <hint type="destinationlabel">
      <x>675</x>
      <y>138</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>galleryLeft</sender>
+   <signal>selectedItemChanged(int)</signal>
+   <receiver>poseViewer</receiver>
+   <slot>onSelectedImageChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>401</y>
     </hint>
    </hints>
   </connection>

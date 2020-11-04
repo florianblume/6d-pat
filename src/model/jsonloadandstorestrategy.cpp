@@ -47,7 +47,7 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
             QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
             QJsonObject jsonObject = jsonDocument.object();
 
-            QString imagePath = objectImagePose.getImage()->getImagePath();
+            QString imagePath = objectImagePose.image()->getImagePath();
             QJsonArray entriesForImage;
 
             if (deletePose) {
@@ -56,7 +56,7 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
                     int index = 0;
                     for(const QJsonValue &entry : entriesForImage) {
                         QJsonObject entryObject = entry.toObject();
-                        if (entryObject["id"] == objectImagePose.getID()) {
+                        if (entryObject["id"] == objectImagePose.id()) {
                             entriesForImage.removeAt(index);
                         }
                         index++;
@@ -65,12 +65,12 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
                 }
             } else {
                 //! Preparation of 3D data for the JSON file
-                QMatrix3x3 rotationMatrix = objectImagePose.getRotation();
+                QMatrix3x3 rotationMatrix = objectImagePose.rotation();
                 QJsonArray rotationMatrixArray;
                 rotationMatrixArray << rotationMatrix(0, 0) << rotationMatrix(0, 1) << rotationMatrix(0, 2)
                                     << rotationMatrix(1, 0) << rotationMatrix(1, 1) << rotationMatrix(1, 2)
                                     << rotationMatrix(2, 0) << rotationMatrix(2, 1) << rotationMatrix(2, 2);
-                QVector3D positionVector = objectImagePose.getPosition();
+                QVector3D positionVector = objectImagePose.position();
                 QJsonArray positionVectorArray;
                 positionVectorArray << positionVector[0] << positionVector[1] << positionVector[2];
                 //! Check if any entries for the image exist
@@ -85,14 +85,14 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
                     int index = 0;
                     //! Create new entry object, as we can't modify the exisiting ones directly somehow
                     QJsonObject entry;
-                    entry["id"] = objectImagePose.getID();
-                    entry["obj"] = objectImagePose.getObjectModel()->getPath();
+                    entry["id"] = objectImagePose.id();
+                    entry["obj"] = objectImagePose.objectModel()->getPath();
                     entry["R"] = rotationMatrixArray;
                     entry["t"] = positionVectorArray;
 
                     for(const QJsonValue &_entry : entriesForImage) {
                         QJsonObject entryObject = _entry.toObject();
-                        if (entryObject["id"] == objectImagePose.getID()) {
+                        if (entryObject["id"] == objectImagePose.id()) {
                             entryFound = true;
                             entriesForImage[index] = entry;
                         }
@@ -104,8 +104,8 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
                     }
                 } else {
                     QJsonObject newEntry;
-                    newEntry["id"] = objectImagePose.getID();
-                    newEntry["obj"] = objectImagePose.getObjectModel()->getPath();
+                    newEntry["id"] = objectImagePose.id();
+                    newEntry["obj"] = objectImagePose.objectModel()->getPath();
                     newEntry["t"] = positionVectorArray;
                     newEntry["R"] = rotationMatrixArray;
                     entriesForImage << newEntry;

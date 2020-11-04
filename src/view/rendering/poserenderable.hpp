@@ -27,11 +27,11 @@ class PoseRenderable : public ObjectModelRenderable
 public:
     PoseRenderable(Qt3DCore::QEntity *parent, const Pose &pose);
 
-    QString getPoseId();
-    ObjectModel getObjectModel();
-    QVector3D getPosition();
+    QString poseID();
+    ObjectModel objectModel();
+    QVector3D position();
     void setPosition(QVector3D position);
-    QMatrix3x3 getRotation();
+    QMatrix3x3 rotation();
     void setRotation(QMatrix3x3 rotation);
     void setProjectionMatrix(QMatrix4x4 projectionMatrix);
 

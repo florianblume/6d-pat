@@ -38,28 +38,28 @@ PoseEditor::~PoseEditor() {
 void PoseEditor::setModelManager(ModelManager *modelManager) {
     Q_ASSERT(modelManager);
     if (this->modelManager) {
-        disconnect(this->modelManager, SIGNAL(poseAdded(QString)),
-                   this, SLOT(onPoseAdded(QString)));
-        disconnect(this->modelManager, SIGNAL(poseDeleted(QString)),
-                this, SLOT(poseDeleted(QString)));
-        disconnect(modelManager, SIGNAL(objectModelsChanged()),
-                this, SLOT(reset()));
-        disconnect(modelManager, SIGNAL(imagesChanged()),
-                this, SLOT(reset()));
-        disconnect(modelManager, SIGNAL(posesChanged()),
-                this, SLOT(onPosesChanged()));
+        disconnect(modelManager, &ModelManager::poseAdded,
+                   this, &PoseEditor::onPoseAdded);
+        disconnect(modelManager, &ModelManager::poseDeleted,
+                   this, &PoseEditor::onPoseDeleted);
+        disconnect(modelManager, &ModelManager::objectModelsChanged,
+                   this, &PoseEditor::reset);
+        disconnect(modelManager, &ModelManager::imagesChanged,
+                   this, &PoseEditor::reset);
+        disconnect(modelManager, &ModelManager::posesChanged,
+                   this, &PoseEditor::onPosesChanged);
     }
     this->modelManager = modelManager;
-    connect(modelManager, SIGNAL(poseAdded(QString)),
-            this, SLOT(onPoseAdded(QString)));
-    connect(modelManager, SIGNAL(poseDeleted(QString)),
-            this, SLOT(onPoseDeleted(QString)));
-    connect(modelManager, SIGNAL(objectModelsChanged()),
-            this, SLOT(reset()));
-    connect(modelManager, SIGNAL(imagesChanged()),
-            this, SLOT(reset()));
-    connect(modelManager, SIGNAL(posesChanged()),
-            this, SLOT(onPosesChanged()));
+    connect(modelManager, &ModelManager::poseAdded,
+            this, &PoseEditor::onPoseAdded);
+    connect(modelManager, &ModelManager::poseDeleted,
+            this, &PoseEditor::onPoseDeleted);
+    connect(modelManager, &ModelManager::objectModelsChanged,
+            this, &PoseEditor::reset);
+    connect(modelManager, &ModelManager::imagesChanged,
+            this, &PoseEditor::reset);
+    connect(modelManager, &ModelManager::posesChanged,
+            this, &PoseEditor::onPosesChanged);
 }
 
 void PoseEditor::setPoseRecoverer(PoseRecoverer *poseRecoverer) {
@@ -115,7 +115,7 @@ void PoseEditor::addPosesToComboBoxPoses(const Image &image,
     int index = 1;
     bool poseSelected = false;
     for (PosePtr &pose : poses) {
-        QString id = pose->getID();
+        QString id = pose->id();
         list << id;
         if (id == poseToSelect) {
             QModelIndex indexToSelect = ui->listViewPoses->model()->index(0, index);
@@ -152,12 +152,12 @@ cv::Mat qtMatrixToOpenCVMatrix(const QMatrix3x3 matrix) {
 
 void PoseEditor::setPoseValuesOnControls(const Pose &pose) {
     // TODO connect the signals that are to be added to the Pose class directly to the UI elements
-    QVector3D position = pose.getPosition();
+    QVector3D position = pose.position();
     ignoreValueChanges = true;
     ui->spinBoxTranslationX->setValue(position.x());
     ui->spinBoxTranslationY->setValue(position.y());
     ui->spinBoxTranslationZ->setValue(position.z());
-    cv::Mat rotationMatrix = qtMatrixToOpenCVMatrix(pose.getRotation());
+    cv::Mat rotationMatrix = qtMatrixToOpenCVMatrix(pose.rotation());
     cv::Vec3f rotationVector = GeneralHelper::rotationMatrixToEulerAngles(rotationMatrix);
     ui->spinBoxRotationX->setValue(rotationVector[0]);
     ui->spinBoxRotationY->setValue(rotationVector[1]);
@@ -198,7 +198,7 @@ void PoseEditor::updateCurrentlyEditedPose() {
 }
 
 void PoseEditor::onPoseAdded(PosePtr pose) {
-    addPosesToComboBoxPoses(*pose->getImage(), pose->getID());
+    addPosesToComboBoxPoses(*pose->image(), pose->id());
     ui->buttonCreate->setEnabled(false);
     // Gets enabled somehow
     ui->buttonSave->setEnabled(false);
@@ -213,7 +213,7 @@ void PoseEditor::onPoseDeleted(PosePtr /*pose*/) {
 }
 
 void PoseEditor::onButtonRemoveClicked() {
-    modelManager->removePose(currentPose->getID());
+    modelManager->removePose(currentPose->id());
     QVector<PosePtr> poses = modelManager->getPosesForImage(*currentlySelectedImage);
     if (poses.size() > 0) {
         // This reloads the drop down list and does everything else
@@ -288,9 +288,9 @@ void PoseEditor::onButtonCreateClicked() {
 }
 
 void PoseEditor::onButtonSaveClicked() {
-    modelManager->updatePose(currentPose->getID(),
-                                        currentPose->getPosition(),
-                                        currentPose->getRotation());
+    modelManager->updatePose(currentPose->id(),
+                                        currentPose->position(),
+                                        currentPose->rotation());
     ui->buttonSave->setEnabled(false);
 }
 
@@ -355,9 +355,18 @@ void PoseEditor::setObjectModel(ObjectModelPtr objectModel) {
     poseEditor3DWindow->setObjectModel(*objectModel);
 }
 
-void PoseEditor::onSelectedImageChanged(ImagePtr image) {
+void PoseEditor::onSelectedObjectModelChanged(int index) {
+    QVector<ObjectModelPtr> objectModels = modelManager->getObjectModels();
+    Q_ASSERT_X(index >= 0 && index < objectModels.size(), "onSelectedObjectModelChanged", "Index out of bounds.");
+    ObjectModelPtr objectModel = objectModels[index];
+    setObjectModel(objectModel);
+}
+
+void PoseEditor::onSelectedImageChanged(int index) {
+    QVector<ImagePtr> images = modelManager->getImages();
+    Q_ASSERT_X(index >= 0 && index < images.size(), "onSelectedImageChanged", "Index out of bounds.");
     reset();
-    currentlySelectedImage = image;
+    currentlySelectedImage = images[index];
     addPosesToComboBoxPoses(*currentlySelectedImage);
 }
 
@@ -368,14 +377,14 @@ void PoseEditor::setPoseToEdit(PosePtr pose) {
         return;
     }
 
-    qDebug() << "Setting pose (" + pose->getID() + ", " + pose->getImage()->getImagePath()
-                + ", " + pose->getObjectModel()->getPath() + ") to display.";
+    qDebug() << "Setting pose (" + pose->id() + ", " + pose->image()->getImagePath()
+                + ", " + pose->objectModel()->getPath() + ") to display.";
     currentPose = pose;
-    currentObjectModel.reset(new ObjectModel(*pose->getObjectModel()));
+    currentObjectModel.reset(new ObjectModel(*pose->objectModel()));
     setEnabledPoseEditorControls(true);
     setPoseValuesOnControls(*pose);
-    poseEditor3DWindow->setObjectModel(*pose->getObjectModel());
-    cv::Mat rotationMatrix = qtMatrixToOpenCVMatrix(pose->getRotation());
+    poseEditor3DWindow->setObjectModel(*pose->objectModel());
+    cv::Mat rotationMatrix = qtMatrixToOpenCVMatrix(pose->rotation());
     ui->buttonSave->setEnabled(false);
 }
 

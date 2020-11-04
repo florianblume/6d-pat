@@ -2,12 +2,12 @@
 
 PoseRenderable::PoseRenderable(Qt3DCore::QEntity *parent,
                                const Pose &pose) :
-        ObjectModelRenderable(parent, *pose.getObjectModel()),
+        ObjectModelRenderable(parent, *pose.objectModel()),
         pose(pose),
         m_picker(new Qt3DRender::QObjectPicker),
         transform(new Qt3DCore::QTransform) {
-    transform->setRotation(QQuaternion::fromRotationMatrix(pose.getRotation()));
-    transform->setTranslation(pose.getPosition());
+    transform->setRotation(QQuaternion::fromRotationMatrix(pose.rotation()));
+    transform->setTranslation(pose.position());
     addComponent(transform);
     addComponent(m_picker);
     m_picker->setHoverEnabled(true);
@@ -18,12 +18,12 @@ PoseRenderable::PoseRenderable(Qt3DCore::QEntity *parent,
     });
 }
 
-ObjectModel PoseRenderable::getObjectModel() {
-    return *pose.getObjectModel();
+ObjectModel PoseRenderable::objectModel() {
+    return *pose.objectModel();
 }
 
-QVector3D PoseRenderable::getPosition() {
-    return pose.getPosition();
+QVector3D PoseRenderable::position() {
+    return pose.position();
 }
 
 void PoseRenderable::setPosition(QVector3D position) {
@@ -31,8 +31,8 @@ void PoseRenderable::setPosition(QVector3D position) {
     transform->setTranslation(position);
 }
 
-QMatrix3x3 PoseRenderable::getRotation() {
-    return pose.getRotation();
+QMatrix3x3 PoseRenderable::rotation() {
+    return pose.rotation();
 }
 
 void PoseRenderable::setRotation(QMatrix3x3 rotation) {
@@ -40,10 +40,10 @@ void PoseRenderable::setRotation(QMatrix3x3 rotation) {
     transform->setRotation(QQuaternion::fromRotationMatrix(rotation));
 }
 
-QString PoseRenderable::getPoseId() {
-    return pose.getID();
+QString PoseRenderable::poseID() {
+    return pose.id();
 }
 
 bool PoseRenderable::operator==(const PoseRenderable &other) {
-    return pose.getID() == other.pose.getID();
+    return pose.id() == other.pose.id();
 }

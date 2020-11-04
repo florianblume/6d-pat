@@ -24,8 +24,6 @@ MainController::MainController() {
 }
 
 MainController::~MainController() {
-    // Unnecessary, we save preferences anyway when editing them
-    //settingsStore->savePreferences(currentSettings.get());
     delete galleryImageModel;
     delete galleryObjectModelModel;
 }

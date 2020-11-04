@@ -9,9 +9,6 @@ PoseViewer::PoseViewer(QWidget *parent) :
         ui(new Ui::PoseViewer),
         poseViewer3DWidget(new PoseViewer3DWidget),
         awesome(new QtAwesome( qApp )) {
-    Q_ASSERT(modelManager);
-    Q_ASSERT(poseRecoverer);
-
     ui->setupUi(this);
 
     poseViewer3DWidget->setParent(ui->graphicsContainer);
@@ -35,6 +32,45 @@ PoseViewer::PoseViewer(QWidget *parent) :
 
 PoseViewer::~PoseViewer() {
     delete ui;
+}
+
+void PoseViewer::setPoseRecoverer(PoseRecoverer *value) {
+    Q_ASSERT(value);
+    if (this->poseRecoverer) {
+        disconnect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
+                   this, &PoseViewer::onCorrespondencesChanged);
+        disconnect(poseRecoverer, &PoseRecoverer::stateChanged,
+                   this, &PoseViewer::poseRecovererStateChanged);
+    }
+    poseRecoverer = value;
+    connect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
+            this, &PoseViewer::onCorrespondencesChanged);
+    connect(poseRecoverer, &PoseRecoverer::stateChanged,
+            this, &PoseViewer::poseRecovererStateChanged);
+}
+
+void PoseViewer::setModelManager(ModelManager *value) {
+    Q_ASSERT(value);
+    if (modelManager) {
+        disconnect(modelManager, &ModelManager::poseAdded,
+                   this, &PoseViewer::onPoseAdded);
+        disconnect(modelManager, &ModelManager::poseDeleted,
+                   this, &PoseViewer::onPoseDeleted);
+        disconnect(modelManager, &ModelManager::imagesChanged, this, &PoseViewer::reset);
+        disconnect(modelManager, &ModelManager::objectModelsChanged, this, &PoseViewer::reset);
+        disconnect(modelManager, &ModelManager::posesChanged, this, &PoseViewer::onPosesChanged);
+    }
+    modelManager = value;
+    connect(modelManager, &ModelManager::poseAdded,
+            this, &PoseViewer::onPoseAdded);
+    connect(modelManager, &ModelManager::poseDeleted,
+            this, &PoseViewer::onPoseDeleted);
+    connect(modelManager, &ModelManager::imagesChanged, this, &PoseViewer::reset);
+    connect(modelManager, &ModelManager::objectModelsChanged, this, &PoseViewer::reset);
+    connect(modelManager, &ModelManager::posesChanged, this, &PoseViewer::onPosesChanged);
+}
+
+void PoseViewer::connectModelManagerSlots() {
 }
 
 ImagePtr PoseViewer::currentlyViewedImage() {
@@ -70,14 +106,11 @@ void PoseViewer::setImage(ImagePtr image) {
     ui->sliderTransparency->setEnabled(posesForImage.size() > 0);
 }
 
-void PoseViewer::connectModelManagerSlots() {
-    connect(modelManager, SIGNAL(poseAdded(QString)),
-               this, SLOT(onPoseAdded(QString)));
-    connect(modelManager, SIGNAL(poseDeleted(QString)),
-               this, SLOT(onPoseDeleted(QString)));
-    connect(modelManager, SIGNAL(imagesChanged()), this, SLOT(reset()));
-    connect(modelManager, SIGNAL(objectModelsChanged()), this, SLOT(reset()));
-    connect(modelManager, SIGNAL(posesChanged()), this, SLOT(onPosesChanged()));
+void PoseViewer::onSelectedImageChanged(int index) {
+    QVector<ImagePtr> images = modelManager->getImages();
+    Q_ASSERT_X(index >= 0 && index < images.size(), "onSelectedImageChanged", "Index out of bounds.");
+    ImagePtr image = images[index];
+    setImage(image);
 }
 
 void PoseViewer::reset() {
@@ -103,6 +136,10 @@ void PoseViewer::onPoseCreationAborted() {
 }
 
 void PoseViewer::onCorrespondencesChanged() {
+    poseViewer3DWidget->setClicks(poseRecoverer->points2D());
+}
+
+void PoseViewer::poseRecovererStateChanged(PoseRecoverer::State /*state*/) {
     poseViewer3DWidget->setClicks(poseRecoverer->points2D());
 }
 
@@ -158,14 +195,13 @@ void PoseViewer::onImageClicked(QPoint point) {
     Q_EMIT imageClicked(currentlyDisplayedImage, point / zoomMultiplier);
 }
 
-void PoseViewer::onPoseDeleted(const QString &id) {
-    poseViewer3DWidget->removePose(id);
+void PoseViewer::onPoseDeleted(PosePtr pose) {
+    poseViewer3DWidget->removePose(pose->id());
 }
 
-void PoseViewer::onPoseAdded(const QString &id) {
-    QSharedPointer<Pose> pose = modelManager->getPoseById(id);
+void PoseViewer::onPoseAdded(PosePtr pose) {
     if (!pose.isNull()) {
-        poseViewer3DWidget->addPose(*pose.data());
+        poseViewer3DWidget->addPose(*pose);
         ui->sliderTransparency->setEnabled(true);
     }
     poseViewer3DWidget->setClicks({});
@@ -181,19 +217,4 @@ void PoseViewer::onImagesChanged() {
 
 void PoseViewer::onObjectModelsChanged() {
     reset();
-}
-
-void PoseViewer::setPoseRecoverer(PoseRecoverer *value) {
-    Q_ASSERT(value);
-    if (this->poseRecoverer) {
-        disconnect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
-                   this, &PoseViewer::onCorrespondencesChanged);
-    }
-    poseRecoverer = value;
-}
-
-void PoseViewer::setModelManager(ModelManager *value) {
-    Q_ASSERT(value);
-    modelManager = value;
-    connectModelManagerSlots();
 }

@@ -44,10 +44,11 @@ public:
 
 public Q_SLOTS:
     void setImage(ImagePtr image);
+    // Slot to signal of images gallery
+    void onSelectedImageChanged(int index);
     void reset();
     void reloadPoses();
     void onPoseCreationAborted();
-    void onCorrespondencesChanged();
     void onPoseUpdated(PosePtr pose);
 
 Q_SIGNALS:
@@ -63,11 +64,13 @@ private Q_SLOTS:
     void resetPositionOfGraphicsView();
     void onImageClicked(QPoint point);
     // Private slot listening to model manager
-    void onPoseDeleted(const QString &id);
-    void onPoseAdded(const QString &id);
+    void onPoseDeleted(PosePtr pose);
+    void onPoseAdded(PosePtr pose);
     void onPosesChanged();
     void onImagesChanged();
     void onObjectModelsChanged();
+    void onCorrespondencesChanged();
+    void poseRecovererStateChanged(PoseRecoverer::State state);
 
 private:
     Ui::PoseViewer *ui;
