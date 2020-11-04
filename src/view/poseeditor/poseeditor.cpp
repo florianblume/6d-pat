@@ -30,6 +30,8 @@ PoseEditor::PoseEditor(QWidget *parent) :
     ui->listViewPoses->setModel(listViewPosesModel);
     connect(ui->listViewPoses->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &PoseEditor::onSelectedPoseChanged);
+    listViewImagesModel = new QStringListModel;
+    ui->listViewImages->setModel(listViewImagesModel);
 }
 
 PoseEditor::~PoseEditor() {
@@ -104,6 +106,7 @@ void PoseEditor::setEnabledAllControls(bool enabled) {
     ui->listViewPoses->setEnabled(enabled);
     ui->buttonSave->setEnabled(enabled);
     ui->buttonDuplicate->setEnabled(enabled);
+    ui->buttonCopy->setEnabled(enabled);
 }
 
 void PoseEditor::resetControlsValues() {
@@ -330,9 +333,7 @@ void PoseEditor::onSelectedImageChanged(int index) {
     for (ImagePtr &image : images) {
         imagesList << image->getImagePath();
     }
-    QStringListModel *imagesListViewModel = new QStringListModel;
-    imagesListViewModel->setStringList(imagesList);
-    ui->listViewImages->setModel(imagesListViewModel);
+    listViewImagesModel->setStringList(imagesList);
     addPosesToComboBoxPoses(*currentlySelectedImage);
 }
 
@@ -367,7 +368,8 @@ void PoseEditor::reset() {
     poseEditor3DWindow->reset();
     currentlySelectedObjectModel.reset();
     currentlySelectedPose.reset();
-    listViewPosesModel->setStringList(QStringList());
+    listViewPosesModel->setStringList({});
+    listViewImagesModel->setStringList({});
     resetControlsValues();
     setEnabledAllControls(false);
 }

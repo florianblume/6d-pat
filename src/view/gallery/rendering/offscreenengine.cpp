@@ -74,9 +74,6 @@ OffscreenEngine::OffscreenEngine(const QSize &size) {
 }
 
 OffscreenEngine::~OffscreenEngine() {
-    //objectModelRenderable->setParent((Qt3DCore::QNode *) 0);
-    //objectModelRenderable->deleteLater();
-
     // Not sure if the following is strictly required, as it may
     // happen automatically when the engine is destroyed.
     objectModelRenderable->setParent((Qt3DCore::QNode *) 0);

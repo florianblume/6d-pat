@@ -98,6 +98,7 @@ private:
     ImagePtr currentlySelectedImage;
 
     QStringListModel *listViewPosesModel;
+    QStringListModel *listViewImagesModel;
     bool ignoreValueChanges = false;
 
     void setEnabledPoseEditorControls(bool enabled);
