@@ -50,9 +50,15 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     picker->setDragEnabled(true);
     rootEntity->addComponent(picker);
     connect(picker, &Qt3DRender::QObjectPicker::clicked,
-           [this](Qt3DRender::QPickEvent *pickEvent){Q_EMIT positionClicked(pickEvent->localIntersection());});
+           [this](Qt3DRender::QPickEvent *pickEvent){
+        if (!mouseMoved) {
+            Q_EMIT positionClicked(pickEvent->localIntersection());
+        }
+        mouseMoved = false;
+        mouseDown = false;
+    });
     connect(picker, &Qt3DRender::QObjectPicker::moved,
-           [](Qt3DRender::QPickEvent *pickEvent){qDebug() << pickEvent->localIntersection();});
+            this, &PoseEditor3DWindow::onPoseRenderableMoved);
     // Needs to be placed after setRootEntity on the window because it doesn't work otherwise -> leave it here
     objectModelRenderable = new ObjectModelRenderable(rootEntity);
     connect(objectModelRenderable, &ObjectModelRenderable::statusChanged, this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
@@ -68,6 +74,12 @@ void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoade
     camera()->viewAll();
 }
 
+void PoseEditor3DWindow::onPoseRenderableMoved() {
+    if (mouseDown) {
+        mouseMoved = true;
+    }
+}
+
 void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
     objectModelRenderable->setObjectModel(objectModel);
     objectModelRenderable->setEnabled(true);
@@ -80,4 +92,8 @@ void PoseEditor3DWindow::setClicks(const QVector<QVector3D> &clicks) {
 void PoseEditor3DWindow::reset() {
     setClicks(QVector<QVector3D>());
     objectModelRenderable->setEnabled(false);
+}
+
+void PoseEditor3DWindow::mousePressEvent(QMouseEvent *e) {
+    mouseDown = true;
 }

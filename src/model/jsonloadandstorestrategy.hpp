@@ -84,6 +84,13 @@ private:
 
     void connectWatcherSignals();
 
+    // We need to ignore changes to the file once after we have written
+    // a new pose to it because the model manager already emits a signal
+    // whenever a new pose has been added for example
+    // We only want this signal when the poses file has been changed
+    // externally
+    bool ignorePosesFileChanged = false;
+
     //! Internal methods to react to path changes
     bool setImagesPath(const QString &path);
     void setSegmentationImagesPath(const QString &path);

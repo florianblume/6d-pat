@@ -160,7 +160,7 @@ void ObjectModelRenderableMaterial::setClicks(QVector<QVector3D> clicks) {
     QVariantList _clicks;
     QVariantList colors;
     for (int i = 0; i < clicks.size(); i++) {
-        clicks << clicks[i];
+        _clicks << clicks[i];
         QColor c = DisplayHelper::colorForPosePointIndex(i);
         colors << QVector3D(c.red() / 255.f, c.green() / 255.f, c.blue() / 255.f);
     }

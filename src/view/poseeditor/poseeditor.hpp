@@ -62,6 +62,7 @@ private Q_SLOTS:
      * currenlty edited pose from the currenlty displayed image.
      */
     void onButtonRemoveClicked();
+    void onButtonCopyClicked();
     void onComboBoxPoseIndexChanged(int index);
 
     //! React to signal from the model manager

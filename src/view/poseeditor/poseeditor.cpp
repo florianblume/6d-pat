@@ -125,13 +125,13 @@ void PoseEditor::addPosesToComboBoxPoses(const Image &image,
     ignoreValueChanges = true;
     QStringList list("None");
     int index = 1;
+    int _index = 0;
     bool poseSelected = false;
     for (PosePtr &pose : poses) {
         QString id = pose->id();
         list << id;
         if (id == poseToSelect) {
-            QModelIndex indexToSelect = ui->listViewPoses->model()->index(0, index);
-            ui->listViewPoses->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect);
+            _index = index;
             poseSelected = true;
         }
         index++;
@@ -142,6 +142,9 @@ void PoseEditor::addPosesToComboBoxPoses(const Image &image,
     }
     if (!poseSelected) {
         QModelIndex indexToSelect = ui->listViewPoses->model()->index(0, 0);
+        ui->listViewPoses->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect);
+    } else {
+        QModelIndex indexToSelect = ui->listViewPoses->model()->index(_index, 0);
         ui->listViewPoses->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect);
     }
     ignoreValueChanges = false;
@@ -176,6 +179,7 @@ void PoseEditor::onObjectModelClickedAt(const QVector3D &position) {
                 + QString::number(position.y())
                 + ", "
                 + QString::number(position.z())+ ").";
+    poseRecoverer->add3DPoint(position);
 }
 
 void PoseEditor::updateCurrentlyEditedPose() {
@@ -219,10 +223,41 @@ void PoseEditor::onButtonRemoveClicked() {
     }
 }
 
+void PoseEditor::onButtonCopyClicked() {
+    if (currentlySelectedImage.isNull()) {
+        QMessageBox::warning(this,
+                             "Pose copying",
+                             "Oops something went wrong. No image selected. Please select an image from the gallery first.",
+                             QMessageBox::Ok);
+        return;
+    }
+    if (!ui->listViewImages->selectionModel()->hasSelection()) {
+        QMessageBox::warning(this,
+                             "Pose copying",
+                             "No image to copy poses from selected. Please select one from the list.",
+                             QMessageBox::Ok);
+        return;
+    }
+    QModelIndexList selection = ui->listViewImages->selectionModel()->selectedRows();
+    int selectedImage = selection[0].row();
+    ImagePtr image = modelManager->getImages()[selectedImage];
+    QVector<PosePtr> posesForImage = modelManager->getPosesForImage(*image);
+    for (PosePtr pose: posesForImage) {
+        modelManager->addPose(*currentlySelectedImage,
+                              *pose->objectModel(),
+                              pose->position(),
+                              pose->rotation().toRotationMatrix());
+    }
+    QMessageBox::information(this,
+                            "Pose copying",
+                            QString::number(posesForImage.size()) + " poses copied.",
+                            QMessageBox::Ok);
+}
+
 void PoseEditor::onButtonCreateClicked() {
     if (poseDirty) {
         int result = QMessageBox::warning(this,
-                             "Pose creation",
+                             "Pose recovering",
                              "Creating a pose will discard your unsaved"
                              " changes, do you want to save them now?",
                              QMessageBox::Yes,
@@ -231,7 +266,40 @@ void PoseEditor::onButtonCreateClicked() {
             onButtonSaveClicked();
         }
     }
-    // TODO recover pose
+    QString message("");
+    switch (poseRecoverer->state()) {
+    case PoseRecoverer::ReadyForPoseCreation: {
+        bool success = poseRecoverer->recoverPose();
+        if (success) {
+            message = "Successfully recovered pose.";
+        } else {
+            message = "Unkown error while trying to recover pose.";
+        }
+        break;
+    }
+    case PoseRecoverer::NotEnoughCorrespondences: {
+        message = "Not enough 2D - 3D correspondences.";
+        break;
+    }
+    case PoseRecoverer::Missing2DPoint: {
+        message = "Missing matching 2D counter part to selected 3D point. Click somewhere on the image.";
+        break;
+    }
+    case PoseRecoverer::Missing3DPoint: {
+        message = "Missing matching 3D counter part to selected 2D point. Click somewhere on the 3D model.";
+        break;
+    }
+    case PoseRecoverer::Empty: {
+        message = "No correspondences selected, yet. Please create some by click the 2D image and 3D model.";
+        break;
+    }
+    default:
+        break;
+    }
+    QMessageBox::warning(this,
+                         "Pose recovering",
+                         message,
+                         QMessageBox::Ok);
 }
 
 void PoseEditor::onButtonSaveClicked() {

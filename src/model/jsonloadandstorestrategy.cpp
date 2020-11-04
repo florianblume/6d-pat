@@ -111,6 +111,7 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
                     entriesForImage << newEntry;
                 }
             }
+            ignorePosesFileChanged = true;
             jsonObject[imagePath] = entriesForImage;
             jsonFile.resize(0);
             jsonFile.write(QJsonDocument(jsonObject).toJson());
@@ -461,7 +462,10 @@ void JsonLoadAndStoreStrategy::onFileChanged(const QString &filePath) {
     // at the pose file path will trigger this signal as well,
     // but we already updated the program accordingly (of course)
     if (filePath == posesFilePath) {
-        emit posesChanged();
+        if (!ignorePosesFileChanged) {
+            emit posesChanged();
+        }
+        ignorePosesFileChanged = false;
     } else if (filePath.contains(imagesPath)
                && IMAGE_FILES_EXTENSIONS.contains(filePath.right(4))) {
         emit imagesChanged();

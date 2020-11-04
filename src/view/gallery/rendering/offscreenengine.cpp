@@ -110,7 +110,6 @@ void OffscreenEngine::shutdown() {
     aspectEngine->setRootEntity(Qt3DCore::QEntityPtr());
 
     delete aspectEngine;
-
     delete logicAspect;
     delete renderAspect;
 }

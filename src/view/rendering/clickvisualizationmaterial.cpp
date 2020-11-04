@@ -53,7 +53,7 @@ void ClickVisualizationMaterial::setClicks(const QVector<QPoint> &clicks) {
     QVariantList colors;
     for (int i = 0; i < clicks.count(); i++) {
         QPoint click = clicks[i];
-        _clicks << QVector2D(click.x(), click.y());
+        _clicks << QVector2D(click.x(), height - click.y());
         QColor c = DisplayHelper::colorForPosePointIndex(i);
         colors << QVector3D(c.red() / 255.f, c.green() / 255.f, c.blue() / 255.f);
     }

@@ -90,18 +90,21 @@ bool CachingModelManager::addPose(const Image &image,
                                   const ObjectModel &objectModel,
                                   const QVector3D &position,
                                   const QMatrix3x3 &rotation) {
+    QVector<ImagePtr>::iterator imageIterator = find_if(images.begin(), images.end(), [image](const ImagePtr& obj) {
+        return obj->getAbsoluteImagePath() == image.getAbsoluteImagePath();
+    });
 
-    QVector<ImagePtr>::iterator imageIterator = find(images.begin(),
-                                                   images.end(),
-                                                   ImagePtr(new Image(image)));
-    if (imageIterator == images.end())
+    if (imageIterator == images.end()) {
         return false;
+    }
 
-    QVector<ObjectModelPtr>::iterator objectModelIterator = find(objectModels.begin(),
-                                                                 objectModels.end(),
-                                                                 ObjectModelPtr(new ObjectModel(objectModel)));
-    if (objectModelIterator == objectModels.end())
+    QVector<ObjectModelPtr>::iterator objectModelIterator = find_if(
+                objectModels.begin(), objectModels.end(), [objectModel](const ObjectModelPtr &obj) {
+        return obj->getAbsolutePath() == objectModel.getAbsolutePath();
+    });
+    if (objectModelIterator == objectModels.end()) {
         return false;
+    }
 
     // IMPORTANT: Use the iterator values, they return the actually managed image and object model
     // and not what the user passed (and maybe created somewhere else but with the right paths)

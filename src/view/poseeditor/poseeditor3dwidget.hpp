@@ -23,6 +23,8 @@ public:
     void setClicks(const QVector<QVector3D> &clicks);
     void reset();
 
+    void mousePressEvent(QMouseEvent *e) override;
+
     ~PoseEditor3DWindow();
 
 Q_SIGNALS:
@@ -30,12 +32,16 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     void onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status status);
+    void onPoseRenderableMoved();
 
 private:
     Qt3DCore::QEntity *rootEntity;
     Qt3DRender::QObjectPicker *picker;
     Qt3DExtras::QOrbitCameraController *cameraController;
     ObjectModelRenderable *objectModelRenderable;
+
+    bool mouseDown = false;
+    bool mouseMoved = false;
 };
 
 #endif

@@ -80,7 +80,7 @@ void PoseRecoverer::setObjectModel(ObjectModelPtr objectModel) {
 void PoseRecoverer::add2DPoint(QPoint imagePoint) {
     m_points2D.append(imagePoint);
     if (m_points2D.size() == m_points3D.size()
-            && m_points3D.size() > m_minimumNumberOfPoints) {
+            && m_points3D.size() >= m_minimumNumberOfPoints) {
         m_state = State::ReadyForPoseCreation;
         Q_EMIT stateChanged(m_state);
     } else if (m_points2D.size() == m_points3D.size()) {
@@ -101,7 +101,7 @@ void PoseRecoverer::add2DPoint(QPoint imagePoint) {
 void PoseRecoverer::add3DPoint(QVector3D objectModelPoint) {
     m_points3D.append(objectModelPoint);
     if (m_points2D.size() == m_points3D.size()
-            && m_points3D.size() > m_minimumNumberOfPoints) {
+            && m_points3D.size() >= m_minimumNumberOfPoints) {
         m_state = State::ReadyForPoseCreation;
         Q_EMIT stateChanged(m_state);
     } else if (m_points2D.size() == m_points3D.size()) {
