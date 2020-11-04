@@ -152,6 +152,10 @@ void PoseViewer::onPoseUpdated(PosePtr pose){
     poseViewer3DWidget->updatePose(*pose);
 }
 
+void PoseViewer::selectPose(PosePtr pose) {
+    this->selectedPose = pose;
+}
+
 void PoseViewer::switchImage() {
     ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
     showingNormalImage = !showingNormalImage;

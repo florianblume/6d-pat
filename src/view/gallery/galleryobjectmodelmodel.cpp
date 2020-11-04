@@ -92,8 +92,8 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
     }
 
     if (showObjectModel) {
+        return dataForObjectModel(*objectModel, role);
         if (index.row() < renderedObjectsModels.size()) {
-            return dataForObjectModel(*objectModel, role);
         } else {
             return currentLoadingMovieIcon;
         }

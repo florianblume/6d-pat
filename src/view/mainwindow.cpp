@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent, ModelManager *modelManager, SettingsStor
     ui(new Ui::MainWindow),
     settingsStore(settingsStore),
     modelManager(modelManager),
+    poseRecoverer(poseRecoverer),
     settingsIdentifier(settingsIdentifier) {
 
     ui->setupUi(this);

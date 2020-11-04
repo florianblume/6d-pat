@@ -65,7 +65,11 @@ void PoseViewer3DWidget::initializeQt3D() {
 
     // Third branch that draws the poses
     // We don't need a layer filter here because only the poses travel through this branch somehow
-    posesCameraSelector->setParent(viewport);
+    posesLayerFilter->setParent(viewport);
+    posesLayerFilter->addLayer(backgroundLayer);
+    posesLayerFilter->addLayer(clickVisualizationLayer);
+    posesLayerFilter->setFilterMode(Qt3DRender::QLayerFilter::DiscardAnyMatchingLayers);
+    posesCameraSelector->setParent(posesLayerFilter);
     posesCameraSelector->setCamera(posesCamera);
     posesCamera->setPosition({0, 0, 0});
     posesCamera->setViewCenter({0, 0, 1});
@@ -132,7 +136,6 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
 
 void PoseViewer3DWidget::addPose(const Pose &pose) {
     PoseRenderable *poseRenderable = new PoseRenderable(root, pose);
-    //poseRenderable->addComponent(posesLayer);
     poseRenderables.append(poseRenderable);
     poseRenderableForId[pose.id()] = poseRenderable;
 }
@@ -166,6 +169,10 @@ void PoseViewer3DWidget::removePoses() {
     }
     poseRenderables.clear();
     poseRenderableForId.clear();
+}
+
+void PoseViewer3DWidget::selectPose(PosePtr pose) {
+
 }
 
 void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
@@ -213,7 +220,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
-    if (!mouseMoved && backgroundImageRenderable != Q_NULLPTR) {
+    if (event->button() == Qt::LeftButton && !mouseMoved && backgroundImageRenderable != Q_NULLPTR) {
         Q_EMIT positionClicked(event->pos());
     }
     mouseMoved = false;

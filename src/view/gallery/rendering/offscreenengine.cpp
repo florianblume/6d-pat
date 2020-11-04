@@ -98,7 +98,6 @@ void OffscreenEngine::onRenderCaptureReady() {
         delete reply;
         requestImage();
     } else {
-        qDebug() << "render capture ready";
         initialized = false;
         Q_EMIT imageReady(reply->image());
         delete reply;
@@ -130,6 +129,5 @@ void OffscreenEngine::setBackgroundColor(const QColor &color) {
 
 void OffscreenEngine::requestImage() {
     reply = renderCapture->requestCapture();
-    qDebug() << "requested image";
     connect(reply, &Qt3DRender::QRenderCaptureReply::completed, this, &OffscreenEngine::onRenderCaptureReady);
 }

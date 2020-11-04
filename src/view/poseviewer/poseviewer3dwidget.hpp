@@ -32,6 +32,7 @@ class PoseViewer3DWidget : public Qt3DWidget
 
 public:
     explicit PoseViewer3DWidget(QWidget *parent = nullptr);
+    ~PoseViewer3DWidget();
 
     void initializeQt3D() override;
 
@@ -43,6 +44,7 @@ public:
     void updatePose(const Pose &pose);
     void removePose(const QString &id);
     void removePoses();
+    void selectPose(PosePtr pose);
     PoseRenderable *getObjectModelRenderable(
             const Pose &pose);
     void setObjectsOpacity(float opacity);
@@ -50,10 +52,6 @@ public:
     QSize imageSize() const;
     void reset();
     void resizeEvent(QResizeEvent *event) override;
-    //void resize(int w, int h);
-
-    ~PoseViewer3DWidget();
-
 
 Q_SIGNALS:
     void positionClicked(QPoint position);

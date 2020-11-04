@@ -50,9 +50,11 @@ public Q_SLOTS:
     void reloadPoses();
     void onPoseCreationAborted();
     void onPoseUpdated(PosePtr pose);
+    void selectPose(PosePtr pose);
 
 Q_SIGNALS:
     void imageClicked(ImagePtr image, QPoint position);
+    void poseSelected(PosePtr pose);
 
 private Q_SLOTS:
     /*!
@@ -77,8 +79,10 @@ private:
     PoseViewer3DWidget *poseViewer3DWidget;
 
     QtAwesome* awesome;
-    ModelManager* modelManager;
-    PoseRecoverer* poseRecoverer;
+    ModelManager* modelManager = Q_NULLPTR;
+    PoseRecoverer* poseRecoverer = Q_NULLPTR;
+
+    PosePtr selectedPose;
 
     // Store the last clicked position, so that we can visualize it if the user calls the respective
     // function.

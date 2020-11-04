@@ -72,12 +72,16 @@ void PoseEditor::setPoseRecoverer(PoseRecoverer *poseRecoverer) {
                    this, &PoseEditor::onCorrespondencesChanged);
         disconnect(poseRecoverer, &PoseRecoverer::poseRecovered,
                    this, &PoseEditor::onCorrespondencesChanged);
+        disconnect(poseRecoverer, &PoseRecoverer::stateChanged,
+                   this, &PoseEditor::onPoseRecovererStateChanged);
     }
     this->poseRecoverer = poseRecoverer;
     connect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
             this, &PoseEditor::onCorrespondencesChanged);
     connect(poseRecoverer, &PoseRecoverer::poseRecovered,
             this, &PoseEditor::onCorrespondencesChanged);
+    connect(poseRecoverer, &PoseRecoverer::stateChanged,
+            this, &PoseEditor::onPoseRecovererStateChanged);
 }
 
 void PoseEditor::setEnabledPoseEditorControls(bool enabled) {
@@ -170,6 +174,11 @@ void PoseEditor::onSpinBoxValueChanged() {
         ui->buttonSave->setEnabled(true);
         poseDirty = true;
     }
+}
+
+void PoseEditor::onPoseRecovererStateChanged(PoseRecoverer::State state) {
+    poseEditor3DWindow->setClicks(poseRecoverer->points3D());
+    ui->buttonCreate->setEnabled(state == PoseRecoverer::ReadyForPoseCreation);
 }
 
 void PoseEditor::onObjectModelClickedAt(const QVector3D &position) {

@@ -79,6 +79,8 @@ private Q_SLOTS:
                                const QItemSelection &deselected);
     void onSpinBoxValueChanged();
 
+    void onPoseRecovererStateChanged(PoseRecoverer::State state);
+
 private:
     Ui::PoseEditor *ui;
     // Q_NULLPTR important for first check
