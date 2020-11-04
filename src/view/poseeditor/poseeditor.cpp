@@ -158,7 +158,7 @@ void PoseEditor::setPoseValuesOnControls(const Pose &pose) {
     ignoreValueChanges = false;
 }
 
-void PoseEditor::onSpinBoxValueChanged(QString) {
+void PoseEditor::onSpinBoxValueChanged() {
     if (!ignoreValueChanges) {
         updateCurrentlyEditedPose();
         ui->buttonSave->setEnabled(true);
@@ -322,6 +322,17 @@ void PoseEditor::onSelectedImageChanged(int index) {
     Q_ASSERT_X(index >= 0 && index < images.size(), "onSelectedImageChanged", "Index out of bounds.");
     reset();
     currentlySelectedImage = images[index];
+    // Should always be the case when we can set an image through onSelectedImageChanged
+    // but we use the opportunity and enable the button here because it is disabled
+    // when we start the program
+    ui->buttonCopy->setEnabled(images.size() > 0);
+    QStringList imagesList;
+    for (ImagePtr &image : images) {
+        imagesList << image->getImagePath();
+    }
+    QStringListModel *imagesListViewModel = new QStringListModel;
+    imagesListViewModel->setStringList(imagesList);
+    ui->listViewImages->setModel(imagesListViewModel);
     addPosesToComboBoxPoses(*currentlySelectedImage);
 }
 

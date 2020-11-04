@@ -76,7 +76,7 @@ private Q_SLOTS:
      */
     void onSelectedPoseChanged(const QItemSelection &selected,
                                const QItemSelection &deselected);
-    void onSpinBoxValueChanged(QString /*value*/);
+    void onSpinBoxValueChanged();
 
 private:
     Ui::PoseEditor *ui;

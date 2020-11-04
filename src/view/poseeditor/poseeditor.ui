@@ -206,18 +206,18 @@
              <number>5</number>
             </property>
             <property name="topMargin">
-             <number>5</number>
+             <number>1</number>
             </property>
             <property name="rightMargin">
              <number>5</number>
             </property>
             <property name="bottomMargin">
-             <number>5</number>
+             <number>1</number>
             </property>
             <item>
              <widget class="QListView" name="listViewPoses">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
