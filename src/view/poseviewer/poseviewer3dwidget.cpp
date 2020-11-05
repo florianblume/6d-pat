@@ -133,6 +133,7 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
     posesCamera->setProjectionMatrix(projectionMatrix);
     backgroundImageRenderable->setEnabled(true);
     move(-500, -500);
+    selectedPose.reset();
 }
 
 void PoseViewer3DWidget::addPose(PosePtr pose) {
@@ -143,9 +144,21 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
             [poseRenderable, this](Qt3DRender::QPickEvent *e){
         if (e->button() == Qt3DRender::QPickEvent::RightButton) {
             if (poseRenderable->getPose() == selectedPose) {
+                // The user selected the same pose again, we need to deselect it
+                poseRenderable->setSelected(false);
                 Q_EMIT poseSelected(PosePtr());
+                // Reset because we selected the same pose twice, we need to deselect it
+                selectedPose.reset();
             } else {
+                if (selectedPose) {
+                    PoseRenderable *lastSelected = poseRenderableForId[selectedPose->id()];
+                    if (lastSelected) {
+                        lastSelected->setSelected(false);
+                    }
+                }
+                poseRenderable->setSelected(true);
                 Q_EMIT poseSelected(poseRenderable->getPose());
+                selectedPose = poseRenderable->getPose();
             }
         }
     });
@@ -225,6 +238,7 @@ void PoseViewer3DWidget::setClicks(const QVector<QPoint> &clicks) {
 }
 
 void PoseViewer3DWidget::reset() {
+    selectedPose.reset();
     setClicks({});
     removePoses();
     if (backgroundImageRenderable != Q_NULLPTR) {

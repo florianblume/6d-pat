@@ -200,6 +200,7 @@ void PoseEditor::onObjectModelLoaded() {
     if (!currentlySelectedPose.isNull()) {
         setEnabledPoseEditorControls(true);
         setEnabledPoseInvariantControls(true);
+        // Button save gets enabled by setting setEnabledPoseEditorControls
         ui->buttonSave->setEnabled(false);
     } else if (!currentlySelectedImage.isNull()) {
         setEnabledPoseInvariantControls(true);
@@ -424,7 +425,11 @@ void PoseEditor::onSelectedPoseChanged(const QItemSelection &selected, const QIt
         pose = posesForImage.at(--index);
         setPoseToEdit(pose);
     }
-    Q_EMIT poseSelected(pose);
+    if (doNotEmitPoseSelected) {
+        doNotEmitPoseSelected = false;
+    } else {
+        Q_EMIT poseSelected(pose);
+    }
 }
 
 void PoseEditor::setObjectModel(ObjectModelPtr objectModel) {
@@ -478,11 +483,18 @@ void PoseEditor::selectPose(PosePtr pose) {
     // get sent
     lastSelectedPose = currentlySelectedPose;
     QModelIndex indexToSelect = ui->listViewPoses->model()->index(index, 0);
+    // To prevent the pose selected signal to be sent
+    doNotEmitPoseSelected = true;
+    // Select the corresponding list entry
     ui->listViewPoses->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect);
-    if (pose.isNull()) {
+    if (lastSelectedPose.isNull()) {
         // If Pose is null we don't send this signal but need it for the object models gallery
         // to get enabled again, a bit hacky but so what
         Q_EMIT objectModelLoaded();
+        setEnabledPoseEditorControls(true);
+        setEnabledPoseInvariantControls(true);
+        // Gets enabled by the editor controls
+        ui->buttonSave->setEnabled(false);
     } else {
         // We do not need to retain the last selected pose if the new pose is not null
         // it only is an issue when the new pose is null, i.e. the user deselected the pose
@@ -509,11 +521,6 @@ void PoseEditor::setPoseToEdit(PosePtr pose) {
     setPoseValuesOnControls(*pose);
     poseEditor3DWindow->setObjectModel(*pose->objectModel());
     ui->buttonSave->setEnabled(false);
-    if (!lastSelectedPose.isNull()) {
-        // Last selected pose is not null, i.e. we need to manually trigger this signal
-        Q_EMIT poseEditor3DWindow->objectModelLoaded();
-        lastSelectedPose.reset();
-    }
 }
 
 void PoseEditor::onPoseCreationAborted() {

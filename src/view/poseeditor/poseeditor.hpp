@@ -46,6 +46,7 @@ Q_SIGNALS:
     void poseSelected(PosePtr pose);
 
 private Q_SLOTS:
+    // Private function to set all pose relevant data on the editor
     void setPoseToEdit(PosePtr pose);
     /*!
      * \brief onObjectModelClickedAt handles clicking the 3D model
@@ -111,6 +112,9 @@ private:
     // when e.g. changing the selected image
     bool poseDirty = false;
     void checkPoseDirty();
+    // When the pose is selected by the pose viewer we still emit the pose selected signal
+    // which causes the program to crash
+    bool doNotEmitPoseSelected = false;
 
     // We need to store what image the user currently views that in case that they select an object
     // model we can restore the list of all poses available for the currently viewed image
