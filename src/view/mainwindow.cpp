@@ -66,6 +66,11 @@ MainWindow::MainWindow(QWidget *parent,
     connect(ui->poseEditor, &PoseEditor::objectModelLoaded,
             ui->galleryRight, &Gallery::enable);
 
+    connect(ui->poseViewer, &PoseViewer::poseSelected,
+            ui->poseEditor, &PoseEditor::selectPose);
+    connect(ui->poseEditor, &PoseEditor::poseSelected,
+            ui->poseViewer, &PoseViewer::selectPose);
+
     setStatusBarText("Ready.");
 
     dataLoadingProgressDialog->close();

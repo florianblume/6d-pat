@@ -25,7 +25,7 @@ int MainApplication::exec() {
     format.setVersion(3, 0);
     QSurfaceFormat::setDefaultFormat(format);
 
-    QTimer::singleShot(2000, &splash, &QWidget::close);
-    QTimer::singleShot(2000, &m, &MainController::showView);
+    QTimer::singleShot(1500, &splash, &QWidget::close);
+    QTimer::singleShot(1500, &m, &MainController::showView);
     return QApplication::exec();
 }

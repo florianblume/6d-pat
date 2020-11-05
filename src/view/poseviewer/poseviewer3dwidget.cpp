@@ -105,7 +105,7 @@ void PoseViewer3DWidget::setBackgroundImageAndPoses(const QString &image,
                                                     const QVector<PosePtr> &poses) {
     setBackgroundImage(image, cameraMatrix);
     for (const PosePtr &pose : poses) {
-        addPose(*pose);
+        addPose(pose);
     }
 }
 
@@ -135,10 +135,14 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
     move(-500, -500);
 }
 
-void PoseViewer3DWidget::addPose(const Pose &pose) {
+void PoseViewer3DWidget::addPose(PosePtr pose) {
     PoseRenderable *poseRenderable = new PoseRenderable(root, pose);
     poseRenderables.append(poseRenderable);
-    poseRenderableForId[pose.id()] = poseRenderable;
+    poseRenderableForId[pose->id()] = poseRenderable;
+    connect(poseRenderable, &PoseRenderable::clicked,
+            [poseRenderable, this](){
+        Q_EMIT poseSelected(poseRenderable->getPose());
+    });
     connect(poseRenderable, &PoseRenderable::moved,
             [this, poseRenderable](Qt3DRender::QPickEvent *e){
         if (qFuzzyCompare((double) oldDepth, (double) -1.f)) {
@@ -161,11 +165,11 @@ void PoseViewer3DWidget::addPose(const Pose &pose) {
     });
 }
 
-void PoseViewer3DWidget::updatePose(const Pose &pose) {
+void PoseViewer3DWidget::updatePose(PosePtr pose) {
     // ToDo connect signals of Pose when values change to update slots of PoseRenderable
-    PoseRenderable *renderable = poseRenderableForId[pose.id()];
-    renderable->setPosition(pose.position());
-    renderable->setRotation(pose.rotation());
+    PoseRenderable *renderable = poseRenderableForId[pose->id()];
+    renderable->setPosition(pose->position());
+    renderable->setRotation(pose->rotation());
 }
 
 void PoseViewer3DWidget::removePose(const QString &id) {
@@ -193,7 +197,15 @@ void PoseViewer3DWidget::removePoses() {
 }
 
 void PoseViewer3DWidget::selectPose(PosePtr pose) {
-
+    if (!selectedPose.isNull()) {
+        PoseRenderable *formerSelected = poseRenderableForId[selectedPose->id()];
+        formerSelected->setSelected(false);
+    }
+    if (!pose.isNull()) {
+        PoseRenderable *newSelected = poseRenderableForId[pose->id()];
+        newSelected->setSelected(true);
+    }
+    selectedPose = pose;
 }
 
 void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
@@ -228,9 +240,6 @@ void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
-    // TODO
-    // Left mouse to select objects and rotate them, right
-    // to move the widget
     if (event->buttons() & Qt::LeftButton) {
         clickPos = event->globalPos();
         newPos.setX(clickPos.x() - lastPos.x());

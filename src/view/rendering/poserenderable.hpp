@@ -25,10 +25,10 @@ class PoseRenderable : public ObjectModelRenderable
     Q_OBJECT
 
 public:
-    PoseRenderable(Qt3DCore::QEntity *parent, const Pose &pose);
+    PoseRenderable(Qt3DCore::QEntity *parent, PosePtr pose);
 
     QString poseID();
-    ObjectModel objectModel();
+    ObjectModelPtr objectModel();
     QVector3D position();
     void setPosition(const QVector3D &position);
     QQuaternion rotation();
@@ -38,12 +38,14 @@ public:
     // To retrieve the respective renderable
     bool operator==(const PoseRenderable &other);
 
+    PosePtr getPose() const;
+
 Q_SIGNALS:
     void clicked(Qt3DRender::QPickEvent *pickEvent);
     void moved(Qt3DRender::QPickEvent *pickEvent);
 
 private:
-    Pose pose;
+    PosePtr pose;
 
     Qt3DRender::QObjectPicker *m_picker;
     Qt3DCore::QTransform *transform;

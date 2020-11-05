@@ -11,6 +11,7 @@
 #include <QItemSelection>
 #include <QStringListModel>
 #include <QListView>
+#include <QMap>
 
 namespace Ui {
 class PoseEditor;
@@ -33,17 +34,19 @@ public Q_SLOTS:
     void setObjectModel(ObjectModelPtr objectModel);
     void onSelectedObjectModelChanged(int index);
     void onSelectedImageChanged(int index);
-    void setPoseToEdit(PosePtr pose);
+    // For poses selected in the PoseViewer
+    void selectPose(PosePtr pose);
     void onPoseCreationAborted();
     void reset();
 
 Q_SIGNALS:
     void buttonPredictClicked();
-    void poseUpdated(PosePtr pose);
     void loadingObjectModel();
     void objectModelLoaded();
+    void poseSelected(PosePtr pose);
 
 private Q_SLOTS:
+    void setPoseToEdit(PosePtr pose);
     /*!
      * \brief onObjectModelClickedAt handles clicking the 3D model
      */
@@ -97,10 +100,14 @@ private:
     // and warn the user whether they want to save the modifications
     // when e.g. changing the selected image
     bool poseDirty = false;
+    void checkPoseDirty();
 
     // We need to store what image the user currently views that in case that they select an object
     // model we can restore the list of all poses available for the currently viewed image
     ImagePtr currentlySelectedImage;
+
+    // Indices of the list view for simplicity
+    QMap<QString, int> posesIndices;
 
     QStringListModel *listViewPosesModel;
     QStringListModel *listViewImagesModel;
@@ -109,6 +116,9 @@ private:
     void setEnabledPoseEditorControls(bool enabled);
     void setEnabledAllControls(bool enabled);
     void resetControlsValues();
+    // For the poses list view, the images list view and the copy button
+    // they can stay enabled as long as there is an image that is being viewed
+    void setEnabledPoseInvariantControls(bool enabled);
     void addPosesToComboBoxPoses(const Image &image, const QString &poseToSelect = "");
     void setPoseValuesOnControls(const Pose &pose);
 

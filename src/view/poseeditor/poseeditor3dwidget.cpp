@@ -71,12 +71,14 @@ PoseEditor3DWindow::~PoseEditor3DWindow() {
     objectModelRenderable->deleteLater();
 }
 
-void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status) {
+void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status status) {
     camera()->viewAll();
-    // Delay firing the loaded signal because some objects still take some time to be properly loaded
-    QTimer::singleShot(700, [this](){
-        Q_EMIT objectModelLoaded();
-    });
+    if (status == Qt3DRender::QSceneLoader::Ready) {
+        // Delay firing the loaded signal because some objects still take some time to be properly loaded
+        QTimer::singleShot(700, [this](){
+            Q_EMIT objectModelLoaded();
+        });
+    }
 }
 
 void PoseEditor3DWindow::onPoseRenderableMoved() {

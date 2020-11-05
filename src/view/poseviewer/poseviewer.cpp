@@ -28,6 +28,8 @@ PoseViewer::PoseViewer(QWidget *parent) :
 
     connect(poseViewer3DWidget, &PoseViewer3DWidget::positionClicked,
             this, &PoseViewer::onImageClicked);
+    connect(poseViewer3DWidget, &PoseViewer3DWidget::poseSelected,
+            this, &PoseViewer::poseSelected);
 }
 
 PoseViewer::~PoseViewer() {
@@ -145,11 +147,11 @@ void PoseViewer::poseRecovererStateChanged(PoseRecoverer::State /*state*/) {
 }
 
 void PoseViewer::onPoseUpdated(PosePtr pose){
-    poseViewer3DWidget->updatePose(*pose);
+    poseViewer3DWidget->updatePose(pose);
 }
 
 void PoseViewer::selectPose(PosePtr pose) {
-    this->selectedPose = pose;
+    poseViewer3DWidget->selectPose(pose);
 }
 
 void PoseViewer::switchImage() {
@@ -205,7 +207,7 @@ void PoseViewer::onPoseDeleted(PosePtr pose) {
 }
 
 void PoseViewer::onPoseAdded(PosePtr pose) {
-    poseViewer3DWidget->addPose(*pose);
+    poseViewer3DWidget->addPose(pose);
     ui->sliderTransparency->setEnabled(true);
     poseViewer3DWidget->setClicks({});
 }

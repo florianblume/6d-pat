@@ -40,8 +40,8 @@ public:
                                     const QMatrix3x3 &cameraMatrix,
                                     const QVector<PosePtr> &poses);
     void setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix);
-    void addPose(const Pose &pose);
-    void updatePose(const Pose &pose);
+    void addPose(PosePtr pose);
+    void updatePose(PosePtr pose);
     void removePose(const QString &id);
     void removePoses();
     void selectPose(PosePtr pose);
@@ -55,6 +55,7 @@ public:
 
 Q_SIGNALS:
     void positionClicked(QPoint position);
+    void poseSelected(PosePtr pose);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -103,6 +104,8 @@ private:
     QVector<PoseRenderable *> poseRenderables;
     QMap<QString, PoseRenderable*> poseRenderableForId;
     QMatrix4x4 projectionMatrix;
+
+    PosePtr selectedPose;
 
     // To handle dragging of the widget and clicking
     QPoint lastPos;
