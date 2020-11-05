@@ -70,7 +70,6 @@ private slots:
     void onFileChanged(const QString &filePath);
 
 private:
-
     //! Stores the path to the folder that holds the images
     QString imagesPath;
     //! Stores the path to the folder that holds the object models
@@ -92,6 +91,7 @@ private:
     bool ignorePosesFileChanged = false;
 
     //! Internal methods to react to path changes
+    bool setPath(const QString &path, QString &oldPath, Data data);
     bool setImagesPath(const QString &path);
     void setSegmentationImagesPath(const QString &path);
     bool setObjectModelsPath(const QString &path);

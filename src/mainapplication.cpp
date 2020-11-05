@@ -1,6 +1,7 @@
 #include "mainapplication.hpp"
 
 #include <QTimer>
+#include <QObject>
 
 MainApplication::MainApplication(int &argc, char **argv, int) : QApplication(argc, argv) {
 

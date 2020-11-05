@@ -40,6 +40,8 @@ public Q_SLOTS:
 Q_SIGNALS:
     void buttonPredictClicked();
     void poseUpdated(PosePtr pose);
+    void loadingObjectModel();
+    void objectModelLoaded();
 
 private Q_SLOTS:
     /*!

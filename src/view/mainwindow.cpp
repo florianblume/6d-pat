@@ -26,7 +26,10 @@ MainWindow::MainWindow(QWidget *parent,
     dataLoadingProgressDialog = new QProgressDialog;
     dataLoadingProgressDialog->setRange(0, 0);
     dataLoadingProgressDialog->setCancelButton(Q_NULLPTR);
-    dataLoadingProgressDialog->setWindowModality(Qt::WindowModal);
+    dataLoadingProgressDialog->setLabelText("Loading...");
+    dataLoadingProgressDialog->setModal(true);
+    dataLoadingProgressDialog->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
+    dataLoadingProgressDialog->setFixedSize(dataLoadingProgressDialog->size());
     dataLoadingProgressDialog->show();
 
     statusBar()->addPermanentWidget(statusBarLabel, 1);
@@ -55,6 +58,13 @@ MainWindow::MainWindow(QWidget *parent,
             this, &MainWindow::poseCreationAborted);
     connect(ui->galleryRight, &Gallery::selectedItemChanged,
             this, &MainWindow::poseCreationAborted);
+
+    // Prevent crashing of the program when the user clicks too quickly in the
+    // object models gallery
+    connect(ui->poseEditor, &PoseEditor::loadingObjectModel,
+            ui->galleryRight, &Gallery::disable);
+    connect(ui->poseEditor, &PoseEditor::objectModelLoaded,
+            ui->galleryRight, &Gallery::enable);
 
     setStatusBarText("Ready.");
 
@@ -233,7 +243,6 @@ void MainWindow::onActionReloadViewsTriggered() {
 }
 
 void MainWindow::onModelManagerStateChanged(ModelManager::State state) {
-    qDebug() << state;
     if (state == ModelManager::Loading) {
         dataLoadingProgressDialog->show();
     } else {

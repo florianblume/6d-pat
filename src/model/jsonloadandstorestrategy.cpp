@@ -394,49 +394,33 @@ void JsonLoadAndStoreStrategy::onSettingsChanged(const QString &settingsIdentifi
     }
 }
 
-bool JsonLoadAndStoreStrategy::setImagesPath(const QString &path) {
+bool JsonLoadAndStoreStrategy::setPath(const QString &path, QString &oldPath, Data data) {
     if (!QFileInfo(path).exists())
         return false;
-    if (imagesPath == path)
+    if (oldPath == path)
         return true;
 
-    watcher.removePath(imagesPath);
+    if (oldPath != "") {
+        watcher.removePath(oldPath);
+    }
     watcher.addPath(path);
-    imagesPath = path;
+    oldPath = path;
 
-    Q_EMIT dataChanged(Data::Images);
+    Q_EMIT dataChanged(data);
 
     return true;
+}
+
+bool JsonLoadAndStoreStrategy::setImagesPath(const QString &path) {
+    return setPath(path, imagesPath, Data::Images);
 }
 
 bool JsonLoadAndStoreStrategy::setObjectModelsPath(const QString &path) {
-    if (!QFileInfo(path).exists())
-        return false;
-    if (objectModelsPath == path)
-        return true;
-
-    watcher.removePath(objectModelsPath);
-    watcher.addPath(path);
-    objectModelsPath = path;
-
-    Q_EMIT dataChanged(Data::ObjectModels);
-
-    return true;
+    return setPath(path, objectModelsPath, Data::ObjectModels);
 }
 
 bool JsonLoadAndStoreStrategy::setPosesFilePath(const QString &path) {
-    if (!QFileInfo(path).exists())
-        return false;
-    if (posesFilePath == path)
-        return true;
-
-    watcher.removePath(posesFilePath);
-    watcher.addPath(path);
-    posesFilePath = path;
-
-    Q_EMIT dataChanged(Data::Poses);
-
-    return true;
+    return setPath(path, posesFilePath, Data::Poses);
 }
 
 void JsonLoadAndStoreStrategy::setSegmentationImagesPath(const QString &path) {

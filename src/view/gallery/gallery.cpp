@@ -72,6 +72,14 @@ void Gallery::reset() {
     ui->listView->clearSelection();
 }
 
+void Gallery::enable() {
+    setEnabled(true);
+}
+
+void Gallery::disable() {
+    setEnabled(false);
+}
+
 void Gallery::startScrollTimer() {
     scrollTimer = new QTimer(this);
     connect(scrollTimer, SIGNAL(timeout()), this, SLOT(performScroll()));

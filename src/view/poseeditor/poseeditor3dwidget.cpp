@@ -3,6 +3,7 @@
 
 #include <QVector3D>
 #include <QUrl>
+#include <QTimer>
 
 #include <Qt3DCore/QNode>
 #include <Qt3DCore/QNodeVector>
@@ -72,6 +73,10 @@ PoseEditor3DWindow::~PoseEditor3DWindow() {
 
 void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status) {
     camera()->viewAll();
+    // Delay firing the loaded signal because some objects still take some time to be properly loaded
+    QTimer::singleShot(700, [this](){
+        Q_EMIT objectModelLoaded();
+    });
 }
 
 void PoseEditor3DWindow::onPoseRenderableMoved() {
@@ -81,6 +86,7 @@ void PoseEditor3DWindow::onPoseRenderableMoved() {
 }
 
 void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
+    Q_EMIT loadingObjectModel();
     objectModelRenderable->setObjectModel(objectModel);
     objectModelRenderable->setEnabled(true);
 }

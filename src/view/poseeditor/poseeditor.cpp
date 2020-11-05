@@ -32,6 +32,12 @@ PoseEditor::PoseEditor(QWidget *parent) :
             this, &PoseEditor::onSelectedPoseChanged);
     listViewImagesModel = new QStringListModel;
     ui->listViewImages->setModel(listViewImagesModel);
+    // To prevent clicking again in the object models list view because clicking too
+    // quickly crashes the program
+    connect(poseEditor3DWindow, &PoseEditor3DWindow::loadingObjectModel,
+            this, &PoseEditor::loadingObjectModel);
+    connect(poseEditor3DWindow, &PoseEditor3DWindow::objectModelLoaded,
+            this, &PoseEditor::objectModelLoaded);
 }
 
 PoseEditor::~PoseEditor() {

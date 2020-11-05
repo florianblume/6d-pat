@@ -31,6 +31,8 @@ public Q_SLOTS:
     void beginScrollRight();
     void endScroll();
     void reset();
+    void enable();
+    void disable();
 
 Q_SIGNALS:
     void selectedItemChanged(int index);

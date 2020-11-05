@@ -29,6 +29,8 @@ public:
 
 Q_SIGNALS:
     void positionClicked(const QVector3D &position);
+    void loadingObjectModel();
+    void objectModelLoaded();
 
 private Q_SLOTS:
     void onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status status);
