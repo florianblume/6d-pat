@@ -140,8 +140,10 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     poseRenderables.append(poseRenderable);
     poseRenderableForId[pose->id()] = poseRenderable;
     connect(poseRenderable, &PoseRenderable::clicked,
-            [poseRenderable, this](){
-        Q_EMIT poseSelected(poseRenderable->getPose());
+            [poseRenderable, this](Qt3DRender::QPickEvent *e){
+        if (e->button() == Qt3DRender::QPickEvent::RightButton) {
+            Q_EMIT poseSelected(poseRenderable->getPose());
+        }
     });
     connect(poseRenderable, &PoseRenderable::moved,
             [this, poseRenderable](Qt3DRender::QPickEvent *e){

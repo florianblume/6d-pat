@@ -12,10 +12,6 @@ PoseRenderable::PoseRenderable(Qt3DCore::QEntity *parent,
     addComponent(m_picker);
     m_picker->setHoverEnabled(true);
     m_picker->setDragEnabled(true);
-    connect(m_picker, &Qt3DRender::QObjectPicker::clicked, [this](Qt3DRender::QPickEvent *e){
-        if (e->button() == Qt3DRender::QPickEvent::RightButton)
-            this->setSelected(this->isSelected() ? false : true);
-    });
     connect(m_picker, &Qt3DRender::QObjectPicker::clicked,
             this, &PoseRenderable::clicked);
     connect(m_picker, &Qt3DRender::QObjectPicker::moved,

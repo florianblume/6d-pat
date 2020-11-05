@@ -39,21 +39,9 @@ PoseEditor::PoseEditor(QWidget *parent) :
     connect(poseEditor3DWindow, &PoseEditor3DWindow::objectModelLoaded,
             this, &PoseEditor::objectModelLoaded);
     connect(ui->listViewPoses->selectionModel(), &QItemSelectionModel::selectionChanged,
-            [this](){
-        setEnabledAllControls(false);
-        if (ui->listViewPoses->selectionModel()->selectedRows().at(0).row() == 0) {
-            setEnabledPoseInvariantControls(true);
-        }
-    });
+            this, &PoseEditor::onListViewPosesSelectionChanged);
     connect(poseEditor3DWindow, &PoseEditor3DWindow::objectModelLoaded,
-            [this](){
-        qDebug() << currentlySelectedImage;
-        if (!currentlySelectedPose.isNull()) {
-            setEnabledAllControls(true);
-        } else if (!currentlySelectedImage.isNull()) {
-            setEnabledPoseInvariantControls(true);
-        }
-    });
+            this, &PoseEditor::onObjectModelLoaded);
 }
 
 PoseEditor::~PoseEditor() {
@@ -206,6 +194,23 @@ void PoseEditor::onPoseRecovererStateChanged(PoseRecoverer::State state) {
     ui->buttonCreate->setEnabled(state == PoseRecoverer::ReadyForPoseCreation);
 }
 
+void PoseEditor::onObjectModelLoaded() {
+    if (!currentlySelectedPose.isNull()) {
+        setEnabledPoseEditorControls(true);
+        setEnabledPoseInvariantControls(true);
+        ui->buttonSave->setEnabled(false);
+    } else if (!currentlySelectedImage.isNull()) {
+        setEnabledPoseInvariantControls(true);
+    }
+}
+
+void PoseEditor::onListViewPosesSelectionChanged() {
+    setEnabledAllControls(false);
+    if (ui->listViewPoses->selectionModel()->selectedRows().at(0).row() == 0) {
+        setEnabledPoseInvariantControls(true);
+    }
+}
+
 void PoseEditor::checkPoseDirty() {
     if (poseDirty) {
         int result = QMessageBox::warning(this,
@@ -219,6 +224,7 @@ void PoseEditor::checkPoseDirty() {
             onButtonSaveClicked();
         }
     }
+    poseDirty = false;
 }
 
 void PoseEditor::onObjectModelClickedAt(const QVector3D &position) {

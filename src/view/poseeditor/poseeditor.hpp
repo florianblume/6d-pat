@@ -86,6 +86,10 @@ private Q_SLOTS:
 
     void onPoseRecovererStateChanged(PoseRecoverer::State state);
 
+    void onObjectModelLoaded();
+
+    void onListViewPosesSelectionChanged();
+
 private:
     Ui::PoseEditor *ui;
     // Q_NULLPTR important for first check
