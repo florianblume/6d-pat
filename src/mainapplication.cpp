@@ -1,5 +1,7 @@
 #include "mainapplication.hpp"
 
+#include <QTimer>
+
 MainApplication::MainApplication(int &argc, char **argv, int) : QApplication(argc, argv) {
 
 }
@@ -9,12 +11,10 @@ int MainApplication::exec() {
 
     QPixmap pixmap(":/splash.png");
     QSplashScreen splash(pixmap);
-    //splash.setWindowFlag(Qt::WindowStaysOnTopHint, true);
     splash.show();
-    splash.raise();
-    processEvents();
 
     MainController m;
+    m.initialize();
 
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
@@ -23,11 +23,8 @@ int MainApplication::exec() {
     format.setProfile(QSurfaceFormat::CoreProfile);
     format.setVersion(3, 0);
     QSurfaceFormat::setDefaultFormat(format);
-    QThread::sleep(1);
 
-    //! in this order so that the user sees something already and then load entities
-    m.initialize();
-    m.showView();
-    splash.close();
+    QTimer::singleShot(2000, &splash, &QWidget::close);
+    QTimer::singleShot(2000, &m, &MainController::showView);
     return QApplication::exec();
 }

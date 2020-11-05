@@ -132,12 +132,33 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
                                                 0,                0,                     -1, 0);
     posesCamera->setProjectionMatrix(projectionMatrix);
     backgroundImageRenderable->setEnabled(true);
+    move(-500, -500);
 }
 
 void PoseViewer3DWidget::addPose(const Pose &pose) {
     PoseRenderable *poseRenderable = new PoseRenderable(root, pose);
     poseRenderables.append(poseRenderable);
     poseRenderableForId[pose.id()] = poseRenderable;
+    connect(poseRenderable, &PoseRenderable::moved,
+            [this, poseRenderable](Qt3DRender::QPickEvent *e){
+        if (qFuzzyCompare((double) oldDepth, (double) -1.f)) {
+            oldDepth = e->distance();
+        } else {
+            if (e->distance() > 1) {
+                QVector3D click(clickPos.x(), height() - clickPos.y(), e->distance());
+                qDebug() << click;
+                QVector3D unprojected = click.unproject(posesCamera->viewMatrix() * poseRenderable->getTransform()->matrix(),
+                                                        projectionMatrix,
+                                                        QRect(0, 0, imageSize().width(), imageSize().height()));
+                qDebug() << unprojected;
+                qDebug() << e->worldIntersection();
+                QVector3D difference = unprojected - e->worldIntersection();
+                qDebug() << "diff" << difference;
+                poseRenderable->setPosition(poseRenderable->position() + difference);
+                oldDepth = e->distance();
+            }
+        }
+    });
 }
 
 void PoseViewer3DWidget::updatePose(const Pose &pose) {
@@ -203,6 +224,7 @@ void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
 
 void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
     lastPos = event->globalPos() - QPoint(geometry().x(), geometry().y());
+    clickPos = event->globalPos();
 }
 
 void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
@@ -210,10 +232,10 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
     // Left mouse to select objects and rotate them, right
     // to move the widget
     if (event->buttons() & Qt::LeftButton) {
-        QPoint newPosition = event->globalPos();
-        newPosition.setX(newPosition.x() - lastPos.x());
-        newPosition.setY(newPosition.y() - lastPos.y());
-        move(newPosition);
+        clickPos = event->globalPos();
+        newPos.setX(clickPos.x() - lastPos.x());
+        newPos.setY(clickPos.y() - lastPos.y());
+        //move(newPos);
         mouseMoved = true;
     }
     Qt3DWidget::mouseMoveEvent(event);

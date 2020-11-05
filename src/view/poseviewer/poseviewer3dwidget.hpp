@@ -106,13 +106,18 @@ private:
 
     // To handle dragging of the widget and clicking
     QPoint lastPos;
+    QPoint newPos;
+    QPoint clickPos;
     bool mouseDown = false;
     bool mouseMoved = false;
 
     QSize m_imageSize;
 
+    // TODO Read from file
     float farPlane = 2000.f;
     float nearPlane = 100.f;
+
+    float oldDepth = -1.f;
 };
 
 #endif

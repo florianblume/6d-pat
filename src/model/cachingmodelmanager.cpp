@@ -2,17 +2,8 @@
 #include "misc/generalhelper.hpp"
 
 CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy) : ModelManager(loadAndStoreStrategy) {
-    images = loadAndStoreStrategy.loadImages();
-    objectModels = loadAndStoreStrategy.loadObjectModels();
-    poses = loadAndStoreStrategy.loadPoses(images, objectModels);
-    createConditionalCache();
-
-    connect(&loadAndStoreStrategy, SIGNAL(imagesChanged()),
-            this, SLOT(onImagesChanged()));
-    connect(&loadAndStoreStrategy, SIGNAL(objectModelsChanged()),
-            this, SLOT(onObjectModelsChanged()));
-    connect(&loadAndStoreStrategy, SIGNAL(posesChanged()),
-            this, SLOT(onPosesChanged()));
+    connect(&loadAndStoreStrategy, &LoadAndStoreStrategy::dataChanged,
+            this, &CachingModelManager::dataChanged);
 }
 
 CachingModelManager::~CachingModelManager() {
@@ -34,6 +25,25 @@ void CachingModelManager::createConditionalCache() {
                 posesForObjectModels[pose->objectModel()->getPath()];
         posesForObjectModel.append(pose);
     }
+}
+
+void CachingModelManager::onDataChanged(int data) {
+    Q_EMIT stateChanged(State::Loading);
+    if (data == Images) {
+        images = loadAndStoreStrategy.loadImages();
+        // Add to flag that poses have been changed too
+        data |= Data::Poses;
+    }
+    if (data == ObjectModels) {
+        objectModels = loadAndStoreStrategy.loadObjectModels();
+        // Add to flag that poses have been changed too
+        data |= Data::Poses;
+    }
+    // We need to load poses no matter what
+    poses = loadAndStoreStrategy.loadPoses(images, objectModels);
+    createConditionalCache();
+    Q_EMIT stateChanged(State::Ready);
+    Q_EMIT dataChanged(data);
 }
 
 QVector<ImagePtr> CachingModelManager::getImages() const {
@@ -198,33 +208,11 @@ bool CachingModelManager::removePose(const QString &id) {
 }
 
 void CachingModelManager::reload() {
+    Q_EMIT stateChanged(State::Loading);
     images = loadAndStoreStrategy.loadImages();
     objectModels = loadAndStoreStrategy.loadObjectModels();
     poses = loadAndStoreStrategy.loadPoses(images, objectModels);
     createConditionalCache();
-    Q_EMIT imagesChanged();
-    Q_EMIT objectModelsChanged();
-    Q_EMIT posesChanged();
-}
-
-void CachingModelManager::onImagesChanged() {
-    images = loadAndStoreStrategy.loadImages();
-    poses = loadAndStoreStrategy.loadPoses(images, objectModels);
-    createConditionalCache();
-    Q_EMIT imagesChanged();
-    Q_EMIT posesChanged();
-}
-
-void CachingModelManager::onObjectModelsChanged() {
-    objectModels = loadAndStoreStrategy.loadObjectModels();
-    poses = loadAndStoreStrategy.loadPoses(images, objectModels);
-    createConditionalCache();
-    Q_EMIT objectModelsChanged();
-    Q_EMIT posesChanged();
-}
-
-void CachingModelManager::onPosesChanged() {
-    poses = loadAndStoreStrategy.loadPoses(images, objectModels);
-    createConditionalCache();
-    Q_EMIT posesChanged();
+    Q_EMIT stateChanged(State::Ready);
+    Q_EMIT dataChanged(Data::Images | Data::ObjectModels | Data::Poses);
 }

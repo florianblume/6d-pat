@@ -2,7 +2,9 @@
 #define MODELMANAGER_H
 
 #include "pose.hpp"
+#include "objectmodel.hpp"
 #include "image.hpp"
+#include "data.hpp"
 #include "loadandstorestrategy.hpp"
 #include <QObject>
 #include <QString>
@@ -22,18 +24,19 @@ using namespace std;
  * Attention: To persist modified poses they have to be updated through the update method of the manager, otherwise the changes
  * will be lost on program restart.
 */
-class ModelManager : public QObject
-{
+class ModelManager : public QObject {
 
     Q_OBJECT
 
 protected:
-
     //! The strategy that is used to persist and also to load entities
     LoadAndStoreStrategy& loadAndStoreStrategy;
 
 public:
-
+    enum State {
+        Loading,
+        Ready
+    };
     /*!
      * \brief ModelManager Constructor of class ModelManager.
      *
@@ -132,17 +135,11 @@ public:
     virtual void reload() = 0;
 
 Q_SIGNALS:
-    void imagesChanged();
-    void objectModelsChanged();
-    /*!
-     * \brief posesChanged called when all the poses change, e.g. when the path
-     * to the poses is edited, etc. A call to the pose update function will result
-     * in the poseUpdated() signal to be emitted. Same holds for adding and deleting poses.
-     */
-    void posesChanged();
+    void dataChanged(int data);
     void poseAdded(PosePtr pose);
     void poseUpdated(PosePtr pose);
     void poseDeleted(PosePtr pose);
+    void stateChanged(State state);
 
 };
 

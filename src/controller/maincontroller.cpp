@@ -7,15 +7,7 @@
 #include <QDir>
 #include <iostream>
 
-MainController::MainController()
-    : settingsStore(new SettingsStore())
-    , strategy(new JsonLoadAndStoreStrategy(settingsStore.data(),
-                                            settingsIdentifier))
-    , modelManager(new CachingModelManager(*strategy.data()))
-    , poseRecoverer(new PoseRecoverer(modelManager.get()))
-    , mainWindow(0, modelManager.get(), settingsStore.get(), settingsIdentifier, poseRecoverer.get()) {
-    connect(settingsStore.data(), &SettingsStore::settingsChanged,
-            this, &MainController::onSettingsChanged);
+MainController::MainController() {
 }
 
 MainController::~MainController() {
@@ -23,11 +15,24 @@ MainController::~MainController() {
 
 void MainController::initialize() {
     currentSettings = settingsStore->loadPreferencesByIdentifier(settingsIdentifier);
+    settingsStore.reset(new SettingsStore());
+    strategy.reset(new JsonLoadAndStoreStrategy(settingsStore.data(),
+                                                settingsIdentifier));
+    modelManager.reset(new CachingModelManager(*strategy.data()));
+    poseRecoverer.reset(new PoseRecoverer(modelManager.get()));
+    modelManagerThread = new QThread;
+    poseRecovererThread = new QThread;
+    connect(settingsStore.data(), &SettingsStore::settingsChanged,
+            this, &MainController::onSettingsChanged);
+    modelManager->moveToThread(modelManagerThread);
+    modelManager->reload();
+    poseRecoverer->moveToThread(poseRecovererThread);
+    mainWindow.reset(new MainWindow(0, modelManager.get(), settingsStore.get(), settingsIdentifier, poseRecoverer.get()));
 }
 
 void MainController::showView() {
-    mainWindow.show();
-    mainWindow.raise();
+    mainWindow->show();
+    mainWindow->raise();
 }
 
 void MainController::onSettingsChanged(const QString &identifier) {

@@ -30,7 +30,7 @@ public:
 
 private Q_SLOTS:
     void onImageResized(int imageIndex, const QString &imagePath, const QImage &resizedImage);
-    void onImagesChanged();
+    void onDataChanged(int data);
 
 private:
     ModelManager *modelManager;

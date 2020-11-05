@@ -42,6 +42,7 @@ HEADERS  += \
     mainapplication.hpp \
     controller/maincontroller.hpp \
     model/cachingmodelmanager.hpp \
+    model/data.hpp \
     model/image.hpp \
     model/loadandstorestrategy.hpp \
     model/modelmanager.hpp \

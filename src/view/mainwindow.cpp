@@ -5,10 +5,15 @@
 #include <QSettings>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QLayout>
 
 //! The main window of the application that holds the individual components.<
-MainWindow::MainWindow(QWidget *parent, ModelManager *modelManager, SettingsStore *settingsStore, const QString &settingsIdentifier, PoseRecoverer *poseRecoverer) :
+MainWindow::MainWindow(QWidget *parent,
+                       ModelManager *modelManager,
+                       SettingsStore *settingsStore,
+                       const QString &settingsIdentifier,
+                       PoseRecoverer *poseRecoverer) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     settingsStore(settingsStore),
@@ -17,6 +22,12 @@ MainWindow::MainWindow(QWidget *parent, ModelManager *modelManager, SettingsStor
     settingsIdentifier(settingsIdentifier) {
 
     ui->setupUi(this);
+
+    dataLoadingProgressDialog = new QProgressDialog;
+    dataLoadingProgressDialog->setRange(0, 0);
+    dataLoadingProgressDialog->setCancelButton(Q_NULLPTR);
+    dataLoadingProgressDialog->setWindowModality(Qt::WindowModal);
+    dataLoadingProgressDialog->show();
 
     statusBar()->addPermanentWidget(statusBarLabel, 1);
     setStatusBarText(QString("Loading..."));
@@ -28,7 +39,6 @@ MainWindow::MainWindow(QWidget *parent, ModelManager *modelManager, SettingsStor
 
     connect(settingsStore, &SettingsStore::settingsChanged,
             this, &MainWindow::onSettingsChanged);
-    readSettings();
 
     ui->poseViewer->setPoseRecoverer(poseRecoverer);
     ui->poseEditor->setPoseRecoverer(poseRecoverer);
@@ -47,6 +57,8 @@ MainWindow::MainWindow(QWidget *parent, ModelManager *modelManager, SettingsStor
             this, &MainWindow::poseCreationAborted);
 
     setStatusBarText("Ready.");
+
+    dataLoadingProgressDialog->close();
 }
 
 MainWindow::~MainWindow() {
@@ -128,6 +140,14 @@ ImagePtr MainWindow::getCurrentlyViewedImage() {
     return ui->poseViewer->currentlyViewedImage();
 }
 
+void MainWindow::showEvent(QShowEvent *e) {
+    if (!showInitialized) {
+        readSettings();
+    }
+    showInitialized = true;
+    QMainWindow::showEvent(e);
+}
+
 void MainWindow::setStatusBarText(const QString& text) {
     statusBarLabel->setText(text);
 }
@@ -146,9 +166,6 @@ void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
 
 void MainWindow::displayWarning(const QString &title, const QString &text) {
     QMessageBox::warning(this, title, text);
-}
-
-void MainWindow::onPoseCreated() {
 }
 
 void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
@@ -213,6 +230,15 @@ void MainWindow::onActionAbortCreationTriggered() {
 void MainWindow::onActionReloadViewsTriggered() {
     modelManager->reload();
     setStatusBarText("Ready.");
+}
+
+void MainWindow::onModelManagerStateChanged(ModelManager::State state) {
+    qDebug() << state;
+    if (state == ModelManager::Loading) {
+        dataLoadingProgressDialog->show();
+    } else {
+        dataLoadingProgressDialog->close();
+    }
 }
 
 QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";

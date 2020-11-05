@@ -15,6 +15,7 @@
 #include <QFrame>
 #include <QLabel>
 #include <QString>
+#include <QProgressDialog>
 
 namespace Ui {
 class MainWindow;
@@ -47,6 +48,8 @@ public:
      */
     ImagePtr getCurrentlyViewedImage();
 
+    void showEvent(QShowEvent *e) override;
+
 public Q_SLOTS:
 
     /*!
@@ -69,12 +72,6 @@ public Q_SLOTS:
      * \param text the text of the warning
      */
     void displayWarning(const QString &title, const QString& text);
-
-    /*!
-     * \brief poseCreated can be called when the process of creating a pose
-     * finished successfully.
-     */
-    void onPoseCreated();
 
 Q_SIGNALS:
 
@@ -130,6 +127,8 @@ Q_SIGNALS:
 private:
     Ui::MainWindow *ui;
 
+    bool showInitialized = false;
+
     // The label that displays the status of the program, like how many pose points have
     // been added, etc.
     QLabel *statusBarLabel = new QLabel();
@@ -137,6 +136,8 @@ private:
     SettingsStore *settingsStore = Q_NULLPTR;
     ModelManager* modelManager;
     PoseRecoverer *poseRecoverer;
+
+    QProgressDialog *dataLoadingProgressDialog;
 
     void setPathsOnGalleriesAndBreadcrumbs();
 
@@ -183,6 +184,7 @@ private Q_SLOTS:
     void onActionSettingsTriggered();
     void onActionAbortCreationTriggered();
     void onActionReloadViewsTriggered();
+    void onModelManagerStateChanged(ModelManager::State state);
 };
 
 #endif // MAINWINDOW_H

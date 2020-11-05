@@ -68,9 +68,7 @@ private Q_SLOTS:
     // Private slot listening to model manager
     void onPoseDeleted(PosePtr pose);
     void onPoseAdded(PosePtr pose);
-    void onPosesChanged();
-    void onImagesChanged();
-    void onObjectModelsChanged();
+    void onDataChanged(int data);
     void onCorrespondencesChanged();
     void poseRecovererStateChanged(PoseRecoverer::State state);
 

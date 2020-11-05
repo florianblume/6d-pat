@@ -66,7 +66,7 @@ private Q_SLOTS:
     void onComboBoxPoseIndexChanged(int index);
 
     //! React to signal from the model manager
-    void onPosesChanged();
+    void onDataChanged(int data);
 
     // For PoseRecoverer
     void onCorrespondencesChanged();;

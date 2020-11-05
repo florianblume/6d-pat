@@ -70,9 +70,7 @@ private:
     void createConditionalCache();
 
 private Q_SLOTS:
-    void onImagesChanged();
-    void onObjectModelsChanged();
-    void onPosesChanged();
+    void onDataChanged(int data);
 
 };
 

@@ -10,9 +10,7 @@
 PoseRecoverer::PoseRecoverer(ModelManager *modelManager) :
     m_modelManager(modelManager) {
     Q_ASSERT(modelManager);
-    connect(modelManager, &ModelManager::imagesChanged, this, &PoseRecoverer::reset);
-    connect(modelManager, &ModelManager::objectModelsChanged, this, &PoseRecoverer::reset);
-    connect(modelManager, &ModelManager::posesChanged, this, &PoseRecoverer::reset);
+    connect(modelManager, &ModelManager::dataChanged, this, &PoseRecoverer::reset);
 }
 
 void PoseRecoverer::setModelManager(ModelManager *modelManager) {

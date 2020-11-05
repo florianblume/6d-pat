@@ -404,7 +404,7 @@ bool JsonLoadAndStoreStrategy::setImagesPath(const QString &path) {
     watcher.addPath(path);
     imagesPath = path;
 
-    Q_EMIT imagesChanged();
+    Q_EMIT dataChanged(Data::Images);
 
     return true;
 }
@@ -419,7 +419,7 @@ bool JsonLoadAndStoreStrategy::setObjectModelsPath(const QString &path) {
     watcher.addPath(path);
     objectModelsPath = path;
 
-    Q_EMIT objectModelsChanged();
+    Q_EMIT dataChanged(Data::ObjectModels);
 
     return true;
 }
@@ -434,7 +434,7 @@ bool JsonLoadAndStoreStrategy::setPosesFilePath(const QString &path) {
     watcher.addPath(path);
     posesFilePath = path;
 
-    Q_EMIT posesChanged();
+    Q_EMIT dataChanged(Data::Poses);
 
     return true;
 }
@@ -443,17 +443,17 @@ void JsonLoadAndStoreStrategy::setSegmentationImagesPath(const QString &path) {
     //! Only set suffix if it differs from the suffix before because we then have to reload images
     if (segmentationImagesPath != path) {
         segmentationImagesPath = path;
-        Q_EMIT imagesChanged();
+        Q_EMIT dataChanged(Data::Images);
     }
 }
 
 void JsonLoadAndStoreStrategy::onDirectoryChanged(const QString &path) {
     if (path == imagesPath) {
-        Q_EMIT imagesChanged();
+        Q_EMIT dataChanged(Data::Images);
     } else if (path == objectModelsPath) {
-        Q_EMIT objectModelsChanged();
+        Q_EMIT dataChanged(Data::ObjectModels);
     } else if (path == posesFilePath) {
-        Q_EMIT posesChanged();
+        Q_EMIT dataChanged(Data::Poses);
     }
 }
 
@@ -463,15 +463,15 @@ void JsonLoadAndStoreStrategy::onFileChanged(const QString &filePath) {
     // but we already updated the program accordingly (of course)
     if (filePath == posesFilePath) {
         if (!ignorePosesFileChanged) {
-            emit posesChanged();
+            Q_EMIT dataChanged(Data::Poses);;
         }
         ignorePosesFileChanged = false;
     } else if (filePath.contains(imagesPath)
                && IMAGE_FILES_EXTENSIONS.contains(filePath.right(4))) {
-        emit imagesChanged();
+        Q_EMIT dataChanged(Data::Images);
     } else if (filePath.contains(objectModelsPath)
                && OBJECT_MODEL_FILES_EXTENSIONS.contains(filePath.right(4))) {
-        emit objectModelsChanged();
+        Q_EMIT dataChanged(Data::ObjectModels);
     }
 }
 

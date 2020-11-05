@@ -58,9 +58,7 @@ void PoseViewer::setModelManager(ModelManager *value) {
                    this, &PoseViewer::onPoseDeleted);
         disconnect(modelManager, &ModelManager::poseUpdated,
                    this, &PoseViewer::onPoseUpdated);
-        disconnect(modelManager, &ModelManager::imagesChanged, this, &PoseViewer::reset);
-        disconnect(modelManager, &ModelManager::objectModelsChanged, this, &PoseViewer::reset);
-        disconnect(modelManager, &ModelManager::posesChanged, this, &PoseViewer::onPosesChanged);
+        disconnect(modelManager, &ModelManager::dataChanged, this, &PoseViewer::onDataChanged);
     }
     modelManager = value;
     connect(modelManager, &ModelManager::poseAdded,
@@ -69,9 +67,7 @@ void PoseViewer::setModelManager(ModelManager *value) {
             this, &PoseViewer::onPoseDeleted);
     connect(modelManager, &ModelManager::poseUpdated,
             this, &PoseViewer::onPoseUpdated);
-    connect(modelManager, &ModelManager::imagesChanged, this, &PoseViewer::reset);
-    connect(modelManager, &ModelManager::objectModelsChanged, this, &PoseViewer::reset);
-    connect(modelManager, &ModelManager::posesChanged, this, &PoseViewer::onPosesChanged);
+    connect(modelManager, &ModelManager::dataChanged, this, &PoseViewer::onDataChanged);
 }
 
 void PoseViewer::connectModelManagerSlots() {
@@ -214,14 +210,11 @@ void PoseViewer::onPoseAdded(PosePtr pose) {
     poseViewer3DWidget->setClicks({});
 }
 
-void PoseViewer::onPosesChanged() {
-    reloadPoses();
-}
-
-void PoseViewer::onImagesChanged() {
-    reset();
-}
-
-void PoseViewer::onObjectModelsChanged() {
-    reset();
+void PoseViewer::onDataChanged(int data) {
+    // If only poses changed we only reload those
+    if (data == Data::Poses) {
+        reloadPoses();
+    } else {
+        reset();
+    }
 }

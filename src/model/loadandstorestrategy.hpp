@@ -4,6 +4,7 @@
 #include "pose.hpp"
 #include "image.hpp"
 #include "objectmodel.hpp"
+#include "data.hpp"
 #include "settings/settingsstore.hpp"
 
 #include <QObject>
@@ -23,6 +24,9 @@ class LoadAndStoreStrategy : public QObject {
     Q_OBJECT
 
 public:
+    enum Error {
+
+    };
 
     LoadAndStoreStrategy(SettingsStore *settingsStore,
                          const QString &settingsIdentifier);
@@ -64,14 +68,12 @@ public:
     void setSettingsIdentifier(const QString &value);
 
 signals:
-
-    void imagesChanged();
     void failedToLoadImages(const QString& message);
-    void objectModelsChanged();
     void failedToLoadObjectModels(const QString &message);
-    void posesChanged();
     void failedToLoadPoses(const QString &message);
     void failedToPersistPose(const QString &message);
+    void error(Error error);
+    void dataChanged(int data);
 
 protected slots:
     virtual void onSettingsChanged(const QString &settingsIdentifier) = 0;

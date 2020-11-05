@@ -16,6 +16,10 @@ PoseRenderable::PoseRenderable(Qt3DCore::QEntity *parent,
         if (e->button() == Qt3DRender::QPickEvent::RightButton)
             this->setSelected(this->isSelected() ? false : true);
     });
+    connect(m_picker, &Qt3DRender::QObjectPicker::clicked,
+            this, &PoseRenderable::clicked);
+    connect(m_picker, &Qt3DRender::QObjectPicker::moved,
+            this, &PoseRenderable::moved);
 }
 
 ObjectModel PoseRenderable::objectModel() {
@@ -46,4 +50,9 @@ QString PoseRenderable::poseID() {
 
 bool PoseRenderable::operator==(const PoseRenderable &other) {
     return pose.id() == other.pose.id();
+}
+
+Qt3DCore::QTransform *PoseRenderable::getTransform() const
+{
+    return transform;
 }

@@ -45,24 +45,16 @@ void PoseEditor::setModelManager(ModelManager *modelManager) {
                    this, &PoseEditor::onPoseAdded);
         disconnect(modelManager, &ModelManager::poseDeleted,
                    this, &PoseEditor::onPoseDeleted);
-        disconnect(modelManager, &ModelManager::objectModelsChanged,
-                   this, &PoseEditor::reset);
-        disconnect(modelManager, &ModelManager::imagesChanged,
-                   this, &PoseEditor::reset);
-        disconnect(modelManager, &ModelManager::posesChanged,
-                   this, &PoseEditor::onPosesChanged);
+        disconnect(modelManager, &ModelManager::dataChanged,
+                   this, &PoseEditor::onDataChanged);
     }
     this->modelManager = modelManager;
     connect(modelManager, &ModelManager::poseAdded,
             this, &PoseEditor::onPoseAdded);
     connect(modelManager, &ModelManager::poseDeleted,
             this, &PoseEditor::onPoseDeleted);
-    connect(modelManager, &ModelManager::objectModelsChanged,
-            this, &PoseEditor::reset);
-    connect(modelManager, &ModelManager::imagesChanged,
-            this, &PoseEditor::reset);
-    connect(modelManager, &ModelManager::posesChanged,
-            this, &PoseEditor::onPosesChanged);
+    connect(modelManager, &ModelManager::dataChanged,
+               this, &PoseEditor::onDataChanged);
 }
 
 void PoseEditor::setPoseRecoverer(PoseRecoverer *poseRecoverer) {
@@ -345,9 +337,13 @@ void PoseEditor::onComboBoxPoseIndexChanged(int index) {
     }
 }
 
-void PoseEditor::onPosesChanged() {
-    reset();
-    addPosesToComboBoxPoses(*currentlySelectedImage);
+void PoseEditor::onDataChanged(int data) {
+    if (data == Data::Poses) {
+        reset();
+        addPosesToComboBoxPoses(*currentlySelectedImage);
+    } else {
+        reset();
+    }
 }
 
 void PoseEditor::onSelectedPoseChanged(const QItemSelection &selected, const QItemSelection &/*deselected*/) {

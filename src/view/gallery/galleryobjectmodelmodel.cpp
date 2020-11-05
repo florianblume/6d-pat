@@ -18,12 +18,8 @@ GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager)
     imagesCache = modelManager->getImages();
     // Create default index mapping
     createIndexMapping();
-    connect(modelManager, SIGNAL(objectModelsChanged()),
-            this, SLOT(onObjectModelsChanged()));
-    connect(modelManager, SIGNAL(imagesChanged()),
-            this, SLOT(onImagesChanged()));
-    connect(modelManager, SIGNAL(imagesChanged()),
-            this, SLOT(onObjectModelsChanged()));
+    connect(modelManager, &ModelManager::dataChanged,
+            this, &GalleryObjectModelModel::onDataChanged);
     connect(&offscreenEngine, &OffscreenEngine::imageReady, this, &GalleryObjectModelModel::onObjectModelRendered);
 }
 
@@ -148,6 +144,34 @@ bool GalleryObjectModelModel::isNumberOfToolsCorrect() const {
     return numberOfMatches == colorsOfCurrentImage.size() - 2;
 }
 
+void GalleryObjectModelModel::onDataChanged(int data) {
+    bool doUpdate = false;
+    if (data & Data::Images) {
+        // When the images change, the last selected image gets deselected
+        // This means we have to reset the index
+        currentSelectedImageIndex = -1;
+        objectModelsCache = modelManager->getObjectModels();
+        doUpdate = true;
+    }
+    if (data & Data::ObjectModels) {
+        if (modelManager) {
+            objectModelsCache = modelManager->getObjectModels();
+            renderObjectModels();
+        } else {
+            objectModelsCache.clear();
+            indexMapping.clear();
+        }
+
+        createIndexMapping();
+        doUpdate = true;
+    }
+    if (doUpdate) {
+        QModelIndex top = index(0, 0);
+        QModelIndex bottom = index(objectModelsCache.size() - 1, 0);
+        Q_EMIT dataChanged(top, bottom);
+    }
+}
+
 void GalleryObjectModelModel::onSelectedImageChanged(int index) {
     if (index != currentSelectedImageIndex) {
         currentSelectedImageIndex = index;
@@ -199,31 +223,6 @@ void GalleryObjectModelModel::createIndexMapping() {
     for (int i = 0; i < objectModelsCache.size(); i++) {
         indexMapping[i] = i;
     }
-}
-
-void GalleryObjectModelModel::onObjectModelsChanged() {
-    if (modelManager) {
-        objectModelsCache = modelManager->getObjectModels();
-        renderObjectModels();
-    } else {
-        objectModelsCache.clear();
-        indexMapping.clear();
-    }
-
-    createIndexMapping();
-    QModelIndex top = index(0, 0);
-    QModelIndex bottom = index(objectModelsCache.size() - 1, 0);
-    Q_EMIT dataChanged(top, bottom);
-}
-
-void GalleryObjectModelModel::onImagesChanged() {
-    // When the images change, the last selected image gets deselected
-    // This means we have to reset the index
-    currentSelectedImageIndex = -1;
-    objectModelsCache = modelManager->getObjectModels();
-    QModelIndex top = index(0, 0);
-    QModelIndex bottom = index(objectModelsCache.size() - 1, 0);
-    Q_EMIT dataChanged(top, bottom);
 }
 
 void GalleryObjectModelModel::onObjectModelRendered(QImage image) {

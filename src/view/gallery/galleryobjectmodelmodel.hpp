@@ -24,7 +24,6 @@ class GalleryObjectModelModel : public QAbstractListModel
     Q_PROPERTY(QSize previewRenderingSize READ previewRenderingSize WRITE setPreviewRenderingSize)
 
 public:
-
     explicit GalleryObjectModelModel(ModelManager* modelManager);
     ~GalleryObjectModelModel();
 
@@ -36,7 +35,6 @@ public:
     QSize previewRenderingSize();
 
 public Q_SLOTS:
-
     /*!
      * \brief onSelectedImageChanged sets the index of the currently selected image on this
      * model. When the index changes the object models will be reloaded, and if possible,
@@ -46,7 +44,6 @@ public Q_SLOTS:
     void onSelectedImageChanged(int index);
 
 Q_SIGNALS:
-
     //!
     //! \brief displayedObjectModelsChanged this signal is Q_EMITted, whenever the object models
     //! to display change, e.g. because the user clicked a different image.
@@ -54,7 +51,6 @@ Q_SIGNALS:
     void displayedObjectModelsChanged();
 
 private:
-
     ModelManager* modelManager;
     QVector<ObjectModelPtr> objectModelsCache;
     QMap<QString,QImage> renderedObjectsModels;
@@ -75,10 +71,8 @@ private:
     QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
 
 private Q_SLOTS:
-
     bool isNumberOfToolsCorrect() const;
-    void onObjectModelsChanged();
-    void onImagesChanged();
+    void onDataChanged(int data);
     void onObjectModelRendered(QImage image);
 
 };

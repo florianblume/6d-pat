@@ -33,6 +33,7 @@ public:
     void setPosition(const QVector3D &position);
     QQuaternion rotation();
     void setRotation(const QQuaternion &rotation);
+    Qt3DCore::QTransform *getTransform() const;
 
     // To retrieve the respective renderable
     bool operator==(const PoseRenderable &other);
