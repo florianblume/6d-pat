@@ -214,7 +214,10 @@ void MainWindow::onActionAboutTriggered() {
                                 "persisted for later use. "
                                 "The so annotated images can "
                                 "be used to e.g. train a neural "
-                                "network."));
+                                "network."
+                                "\n"
+                                "\n"
+                                "© Florian Blume, 2020"));
     about.setStandardButtons(QMessageBox::Ok);
     QPixmap icon(":/images/about.png");
     about.setIconPixmap(icon);   // here is the error
@@ -223,13 +226,11 @@ void MainWindow::onActionAboutTriggered() {
     about.exec();
 }
 
-void MainWindow::onActionExitTriggered()
-{
+void MainWindow::onActionExitTriggered() {
     QApplication::quit();
 }
 
-void MainWindow::onActionSettingsTriggered()
-{
+void MainWindow::onActionSettingsTriggered() {
     SettingsDialog* settingsDialog = new SettingsDialog(this);
     settingsDialog->setPreferencesStoreAndObjectModels(settingsStore,
                                                        "default",

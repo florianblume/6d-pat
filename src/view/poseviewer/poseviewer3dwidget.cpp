@@ -142,7 +142,11 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     connect(poseRenderable, &PoseRenderable::clicked,
             [poseRenderable, this](Qt3DRender::QPickEvent *e){
         if (e->button() == Qt3DRender::QPickEvent::RightButton) {
-            Q_EMIT poseSelected(poseRenderable->getPose());
+            if (poseRenderable->getPose() == selectedPose) {
+                Q_EMIT poseSelected(PosePtr());
+            } else {
+                Q_EMIT poseSelected(poseRenderable->getPose());
+            }
         }
     });
     connect(poseRenderable, &PoseRenderable::moved,
@@ -160,7 +164,7 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
                 qDebug() << e->worldIntersection();
                 QVector3D difference = unprojected - e->worldIntersection();
                 qDebug() << "diff" << difference;
-                poseRenderable->setPosition(poseRenderable->position() + difference);
+                //poseRenderable->setPosition(poseRenderable->position() + difference);
                 oldDepth = e->distance();
             }
         }
@@ -246,7 +250,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
         clickPos = event->globalPos();
         newPos.setX(clickPos.x() - lastPos.x());
         newPos.setY(clickPos.y() - lastPos.y());
-        //move(newPos);
+        move(newPos);
         mouseMoved = true;
     }
     Qt3DWidget::mouseMoveEvent(event);

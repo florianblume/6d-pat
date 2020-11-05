@@ -195,6 +195,8 @@ void PoseEditor::onPoseRecovererStateChanged(PoseRecoverer::State state) {
 }
 
 void PoseEditor::onObjectModelLoaded() {
+    // Reacts to when the 3D widget has loaded the object model
+    // In the time between we want to prevent clicks to prevent crashes
     if (!currentlySelectedPose.isNull()) {
         setEnabledPoseEditorControls(true);
         setEnabledPoseInvariantControls(true);
@@ -205,6 +207,7 @@ void PoseEditor::onObjectModelLoaded() {
 }
 
 void PoseEditor::onListViewPosesSelectionChanged() {
+    // Reacts after a different pose from the poses list view has been selected
     setEnabledAllControls(false);
     if (ui->listViewPoses->selectionModel()->selectedRows().at(0).row() == 0) {
         setEnabledPoseInvariantControls(true);
@@ -369,6 +372,8 @@ void PoseEditor::onButtonDuplicateClicked() {
 }
 
 void PoseEditor::onComboBoxPoseIndexChanged(int index) {
+    // Left over of the original combobox but now functions
+    // to set the poses index manually
     if (index < 0 || ignoreValueChanges)
         return;
     else if (index == 0) {
@@ -385,6 +390,7 @@ void PoseEditor::onComboBoxPoseIndexChanged(int index) {
 }
 
 void PoseEditor::onDataChanged(int data) {
+    // Reacts to the model manager's signal
     if (data == Data::Poses) {
         reset();
         addPosesToComboBoxPoses(*currentlySelectedImage);
@@ -394,6 +400,8 @@ void PoseEditor::onDataChanged(int data) {
 }
 
 void PoseEditor::onSelectedPoseChanged(const QItemSelection &selected, const QItemSelection &/*deselected*/) {
+    // Reacts to selecting a different pose from the poses list view and loads the corresponding
+    // pose
     QItemSelectionRange range = selected.front();
     PosePtr pose;
     int index = range.top();
@@ -461,9 +469,25 @@ void PoseEditor::onSelectedImageChanged(int index) {
 }
 
 void PoseEditor::selectPose(PosePtr pose) {
-    int index = posesIndices[pose->id()];
+    int index = 0;
+    if (!pose.isNull()) {
+        index = posesIndices[pose->id()];
+    }
+    // Store the last selected pose in case that the user selects it again directly
+    // then we have to manually enable the controls again because a signal doesn't
+    // get sent
+    lastSelectedPose = currentlySelectedPose;
     QModelIndex indexToSelect = ui->listViewPoses->model()->index(index, 0);
     ui->listViewPoses->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect);
+    if (pose.isNull()) {
+        // If Pose is null we don't send this signal but need it for the object models gallery
+        // to get enabled again, a bit hacky but so what
+        Q_EMIT objectModelLoaded();
+    } else {
+        // We do not need to retain the last selected pose if the new pose is not null
+        // it only is an issue when the new pose is null, i.e. the user deselected the pose
+        lastSelectedPose.reset();
+    }
 }
 
 void PoseEditor::setPoseToEdit(PosePtr pose) {
@@ -478,13 +502,18 @@ void PoseEditor::setPoseToEdit(PosePtr pose) {
     qDebug() << "Setting pose (" + pose->id() + ", " + pose->image()->getImagePath()
                 + ", " + pose->objectModel()->getPath() + ") to display.";
     currentlySelectedPose = pose;
-    currentlySelectedObjectModel.reset(new ObjectModel(*pose->objectModel()));
+    currentlySelectedObjectModel = pose->objectModel();
     // Handled by the slot conneced in the init function of the PoseEditor
     // to the objectModelLoaded signal of the 3D widget
     //setEnabledPoseEditorControls(true);
     setPoseValuesOnControls(*pose);
     poseEditor3DWindow->setObjectModel(*pose->objectModel());
     ui->buttonSave->setEnabled(false);
+    if (!lastSelectedPose.isNull()) {
+        // Last selected pose is not null, i.e. we need to manually trigger this signal
+        Q_EMIT poseEditor3DWindow->objectModelLoaded();
+        lastSelectedPose.reset();
+    }
 }
 
 void PoseEditor::onPoseCreationAborted() {

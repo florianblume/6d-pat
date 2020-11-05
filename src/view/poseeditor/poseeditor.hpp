@@ -100,6 +100,12 @@ private:
 
     ObjectModelPtr currentlySelectedObjectModel;
     PosePtr currentlySelectedPose;
+    // Store the last selected pose in case that the user
+    // deselects the pose in the pose viewer and selects it again
+    // this doesn't trigger the objectModelLoaded signal probably
+    // because the object model is the same and QSceneLoader checks this
+    // and thus some controls stay disabled
+    PosePtr lastSelectedPose;
     // To see whether it is necessary to enable the save button
     // and warn the user whether they want to save the modifications
     // when e.g. changing the selected image
