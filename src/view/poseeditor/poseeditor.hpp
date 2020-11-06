@@ -35,7 +35,9 @@ public Q_SLOTS:
     void onSelectedObjectModelChanged(int index);
     void onSelectedImageChanged(int index);
     // For poses selected in the PoseViewer
-    void selectPose(PosePtr pose);
+    void selectPose(PosePtr selected, PosePtr deselected);
+    void selectedPosePositionUpdated(QVector3D position);
+    void selectedPoseRotationUpdated(QQuaternion rotation);
     void onPoseCreationAborted();
     void reset();
 

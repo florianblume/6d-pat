@@ -66,11 +66,6 @@ MainWindow::MainWindow(QWidget *parent,
     connect(ui->poseEditor, &PoseEditor::objectModelLoaded,
             ui->galleryRight, &Gallery::enable);
 
-    connect(ui->poseViewer, &PoseViewer::poseSelected,
-            ui->poseEditor, &PoseEditor::selectPose);
-    connect(ui->poseEditor, &PoseEditor::poseSelected,
-            ui->poseViewer, &PoseViewer::selectPose);
-
     setStatusBarText("Ready.");
 
     dataLoadingProgressDialog->close();
@@ -151,10 +146,6 @@ void MainWindow::abortPoseCreation() {
     Q_EMIT poseCreationAborted();
 }
 
-ImagePtr MainWindow::getCurrentlyViewedImage() {
-    return ui->poseViewer->currentlyViewedImage();
-}
-
 void MainWindow::showEvent(QShowEvent *e) {
     if (!showInitialized) {
         readSettings();
@@ -165,6 +156,14 @@ void MainWindow::showEvent(QShowEvent *e) {
 
 void MainWindow::setStatusBarText(const QString& text) {
     statusBarLabel->setText(text);
+}
+
+PoseViewer *MainWindow::poseViewer() {
+    return ui->poseViewer;
+}
+
+PoseEditor *MainWindow::poseEditor() {
+    return ui->poseEditor;
 }
 
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {

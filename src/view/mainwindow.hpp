@@ -7,6 +7,8 @@
 #include "view/gallery/galleryobjectmodelmodel.hpp"
 #include "view/neuralnetworkprogressview/networkprogressview.hpp"
 #include "view/neuralnetworkdialog/neuralnetworkdialog.hpp"
+#include "view/poseviewer/poseviewer.hpp"
+#include "view/poseeditor/poseeditor.hpp"
 #include "model/poserecoverer.hpp"
 
 #include <QGuiApplication>
@@ -36,19 +38,13 @@ public:
       \param event the closing event
     */
     virtual void closeEvent(QCloseEvent *event) override;
+    void showEvent(QShowEvent *e) override;
 
     void abortPoseCreation();
-
     void setStatusBarText(const QString& text);
 
-    /*!
-     * \brief getCurrentlyViewedImage returns the image currently selected in the images
-     * gallery and displayed by the pose viewer.
-     * \return the image currently displayed
-     */
-    ImagePtr getCurrentlyViewedImage();
-
-    void showEvent(QShowEvent *e) override;
+    PoseViewer *poseViewer();
+    PoseEditor *poseEditor();
 
 public Q_SLOTS:
 

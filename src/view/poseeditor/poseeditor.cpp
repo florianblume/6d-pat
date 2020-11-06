@@ -473,10 +473,19 @@ void PoseEditor::onSelectedImageChanged(int index) {
     setEnabledPoseInvariantControls(true);
 }
 
-void PoseEditor::selectPose(PosePtr pose) {
+void PoseEditor::selectedPosePositionUpdated(QVector3D position) {
+    // TODO
+}
+
+void PoseEditor::selectedPoseRotationUpdated(QQuaternion rotation) {
+    // TODO
+}
+
+void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
+    // TODO
     int index = 0;
-    if (!pose.isNull()) {
-        index = posesIndices[pose->id()];
+    if (!selected.isNull()) {
+        index = posesIndices[selected->id()];
     }
     // Store the last selected pose in case that the user selects it again directly
     // then we have to manually enable the controls again because a signal doesn't

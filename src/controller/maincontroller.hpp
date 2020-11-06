@@ -3,10 +3,11 @@
 
 #include "model/cachingmodelmanager.hpp"
 #include "model/jsonloadandstorestrategy.hpp"
+#include "model/poserecoverer.hpp"
 #include "settings/settingsstore.hpp"
 #include "view/mainwindow.hpp"
 #include "misc/global.hpp"
-#include "model/poserecoverer.hpp"
+#include "controller/poseeditingmodel.hpp"
 #include "controller/neuralnetworkcontroller.hpp"
 
 #include <QScopedPointer>
@@ -44,6 +45,7 @@ private:
     QScopedPointer<JsonLoadAndStoreStrategy> strategy;
     QScopedPointer<CachingModelManager> modelManager;
     QScopedPointer<PoseRecoverer> poseRecoverer;
+    QScopedPointer<PoseEditingModel> poseEditingModel;
     QScopedPointer<NeuralNetworkController> networkController;
 
     QThread *modelManagerThread;

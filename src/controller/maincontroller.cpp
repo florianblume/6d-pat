@@ -20,6 +20,7 @@ void MainController::initialize() {
                                                 settingsIdentifier));
     modelManager.reset(new CachingModelManager(*strategy.data()));
     poseRecoverer.reset(new PoseRecoverer(modelManager.get()));
+    poseEditingModel.reset(new PoseEditingModel);
     modelManagerThread = new QThread;
     poseRecovererThread = new QThread;
     connect(settingsStore.data(), &SettingsStore::settingsChanged,
@@ -28,6 +29,16 @@ void MainController::initialize() {
     modelManager->reload();
     poseRecoverer->moveToThread(poseRecovererThread);
     mainWindow.reset(new MainWindow(0, modelManager.get(), settingsStore.get(), settingsIdentifier, poseRecoverer.get()));
+
+    // Connect the PoseEditor and PoseViewer to the PoseEditingController
+    connect(poseEditingModel.get(), &PoseEditingModel::selectedPoseChanged,
+            mainWindow->poseViewer(), &PoseViewer::selectPose);
+    connect(poseEditingModel.get(), &PoseEditingModel::selectedPoseChanged,
+            mainWindow->poseEditor(), &PoseEditor::selectPose);
+    connect(mainWindow->poseViewer(), &PoseViewer::poseSelected,
+            poseEditingModel.get(), &PoseEditingModel::selectPose);
+    connect(mainWindow->poseEditor(), &PoseEditor::poseSelected,
+            poseEditingModel.get(), &PoseEditingModel::selectPose);
 }
 
 void MainController::showView() {

@@ -41,6 +41,9 @@ LIBS += -L/usr/local/lib/ -lopencv_core -lopencv_calib3d \
 HEADERS  += \
     mainapplication.hpp \
     controller/maincontroller.hpp \
+    controller/neuralnetworkcontroller.hpp \
+    controller/neuralnetworkrunnable.hpp \
+    controller/poseeditingmodel.hpp \
     model/cachingmodelmanager.hpp \
     model/data.hpp \
     model/image.hpp \
@@ -49,6 +52,8 @@ HEADERS  += \
     model/objectmodel.hpp \
     model/jsonloadandstorestrategy.hpp \
     model/pose.hpp \
+    model/poseeditingmodel.hpp \
+    model/poserecoverer.hpp \
     view/gallery/rendering/offscreenengine.hpp \
     view/gallery/rendering/texturerendertarget.hpp \
     view/misc/displayhelper.hpp \
@@ -73,22 +78,21 @@ HEADERS  += \
     view/neuralnetworkdialog/neuralnetworkdialog.hpp \
     view/gallery/resizeimagesrunnable.hpp \
     view/neuralnetworkprogressview/networkprogressview.hpp \
-    settings/settings.hpp \
-    settings/settingsstore.hpp \
-    model/poserecoverer.hpp \
-    controller/neuralnetworkcontroller.hpp \
-    controller/neuralnetworkrunnable.hpp \
-    misc/generalhelper.hpp \
-    misc/global.hpp \
     view/rendering/objectmodelrenderable.hpp \
     view/rendering/clickvisualizationmaterial.hpp \
-    view/rendering/clickvisualizationrenderable.hpp
+    view/rendering/clickvisualizationrenderable.hpp \
+    settings/settings.hpp \
+    settings/settingsstore.hpp \
+    misc/generalhelper.hpp \
+    misc/global.hpp
 
 SOURCES += \
     main.cpp \
     mainapplication.cpp \
-    view/mainwindow.cpp \
     controller/maincontroller.cpp \
+    controller/neuralnetworkcontroller.cpp \
+    controller/neuralnetworkrunnable.cpp \
+    controller/poseeditingmodel.cpp \
     model/image.cpp \
     model/objectmodel.cpp \
     model/loadandstorestrategy.cpp \
@@ -96,6 +100,7 @@ SOURCES += \
     model/modelmanager.cpp \
     model/jsonloadandstorestrategy.cpp \
     model/pose.cpp \
+    view/mainwindow.cpp \
     view/breadcrumb/breadcrumbview.cpp \
     view/navigationcontrols/navigationcontrols.cpp \
     view/gallery/gallery.cpp \
@@ -116,18 +121,16 @@ SOURCES += \
     view/gallery/resizeimagesrunnable.cpp \
     view/neuralnetworkprogressview/networkprogressview.cpp \
     view/misc/displayhelper.cpp \
-    controller/neuralnetworkcontroller.cpp \
-    controller/neuralnetworkrunnable.cpp \
-    model/poserecoverer.cpp \
-    settings/settings.cpp \
-    settings/settingsstore.cpp \
-    misc/generalhelper.cpp \
     view/gallery/rendering/offscreenengine.cpp \
     view/gallery/rendering/texturerendertarget.cpp \
     view/rendering/objectmodelrenderable.cpp \
     view/rendering/objectmodelrenderablematerial.cpp \
     view/rendering/clickvisualizationmaterial.cpp \
-    view/rendering/clickvisualizationrenderable.cpp
+    view/rendering/clickvisualizationrenderable.cpp \
+    model/poserecoverer.cpp \
+    settings/settings.cpp \
+    settings/settingsstore.cpp \
+    misc/generalhelper.cpp
 
 FORMS    += \
     view/mainwindow.ui \

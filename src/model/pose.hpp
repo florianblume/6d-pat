@@ -10,7 +10,10 @@
 
 //! This class represents a match between an object model and an image, i.e. stores where the object is located on the image and
 //! how it is rotated.
-class Pose {
+class Pose: public QObject {
+
+    Q_OBJECT
+
 public:
     //! Constructor of class ObjectImagePose.
     /*!
