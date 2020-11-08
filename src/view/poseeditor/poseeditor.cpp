@@ -97,7 +97,8 @@ void PoseEditor::setEnabledPoseEditorControls(bool enabled) {
     ui->spinBoxRotationZ->setEnabled(enabled);
     // The next line is the difference to setEnabledAllControls
     ui->buttonRemove->setEnabled(enabled);
-    ui->buttonSave->setEnabled(enabled);
+    // We handle the save button separately
+    //ui->buttonSave->setEnabled(enabled);
     ui->buttonDuplicate->setEnabled(enabled);
 }
 
@@ -186,7 +187,7 @@ void PoseEditor::onSpinBoxValueChanged() {
     if (!ignoreValueChanges) {
         updateCurrentlyEditedPose();
         ui->buttonSave->setEnabled(true);
-        poseDirty = true;
+        posesDirty = true;
     }
 }
 
@@ -196,12 +197,14 @@ void PoseEditor::onPoseRecovererStateChanged(PoseRecoverer::State state) {
 }
 
 void PoseEditor::onObjectModelLoaded() {
+    setEnabledPoseInvariantControls(!currentlySelectedImage.isNull());
+    setEnabledPoseEditorControls(!currentlySelectedPose.isNull());
 }
 
 void PoseEditor::checkPoseDirty() {
-    if (poseDirty) {
+    if (posesDirty) {
         int result = QMessageBox::warning(this,
-                             "Pose modifications unsaved",
+                                          "Pose modifications unsaved",
                              "You have unsaved modifications of the currently edited pose."
                              " The action you just performed would discard these modifications. "
                              "Save them now?",
@@ -211,7 +214,7 @@ void PoseEditor::checkPoseDirty() {
             onButtonSaveClicked();
         }
     }
-    poseDirty = false;
+    posesDirty = false;
 }
 
 void PoseEditor::onObjectModelClickedAt(const QVector3D &position) {
@@ -335,13 +338,7 @@ void PoseEditor::onButtonCreateClicked() {
 }
 
 void PoseEditor::onButtonSaveClicked() {
-    // Any errors occuring in the model manager while saving will be handled
-    // by the maincontroller
-    modelManager->updatePose(currentlySelectedPose->id(),
-                             currentlySelectedPose->position(),
-                             currentlySelectedPose->rotation().toRotationMatrix());
-    ui->buttonSave->setEnabled(false);
-    poseDirty = false;
+    Q_EMIT buttonSaveClicked();
 }
 
 void PoseEditor::onButtonDuplicateClicked() {
@@ -379,33 +376,6 @@ void PoseEditor::onListViewPosesSelectionChanged(const QItemSelection &selected,
         poseToSelect = poses[--index];
     }
     Q_EMIT poseSelected(poseToSelect);
-
-    /*
-    if (index < 0 || ignoreValueChanges)
-        return;
-    else if (index == 0) {
-        // First index is placeholder
-        poseEditor3DWindow->reset();
-        setEnabledPoseEditorControls(false);
-        currentlySelectedPose.reset();
-        resetControlsValues();
-        // Gets enabled somehow
-        ui->buttonSave->setEnabled(false);
-        // Need to enable both lists here, normally we enable them when the pose
-        // has successfully loaded, but we are loading none here
-        setEnabledPoseInvariantControls(true);
-    } else {
-        QVector<PosePtr> posesForImage =
-                modelManager->getPosesForImage(*currentlySelectedImage);
-        pose = posesForImage.at(--index);
-        setPoseToEdit(pose);
-    }
-    if (doNotEmitPoseSelected) {
-        doNotEmitPoseSelected = false;
-    } else {
-        Q_EMIT poseSelected(pose);
-    }
-    */
 }
 
 // Only called internally
@@ -458,46 +428,63 @@ void PoseEditor::onSelectedImageChanged(int index) {
 void PoseEditor::onSelectedPoseValuesChanged(PosePtr pose) {
     // Callback for PoseEditingController when the poes values have changed
     // (because the user rotated/moved the pose in the PoseViewer)
-    // TODO
+    posesDirty = true;
+    ignoreValueChanges = true;
+    setPoseValuesOnControls(*pose);
 }
 
 // Called by the PoseEditingController
 void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
+    if (currentlySelectedImage.isNull()) {
+        // In some cases we might have reset the views' states and
+        // e.g. the PoseEditingController fires a signal because
+        // it recieved changed poses
+        return;
+    }
+
     checkPoseDirty();
+
+    currentlySelectedPose = selected;
 
     // We have to disable controls until loading of the respective object model
     // has finished to prevent the program from crashing because the user
     // selected the next pose too quickly (internal Qt3D issue)
     setEnabledAllControls(false);
 
+    QModelIndex indexToSelect;
+
     if (selected.isNull()) {
         resetControlsValues();
-        // TODO select None
-        ui->listViewPoses->selectionModel();
+        indexToSelect = ui->listViewPoses->model()->index(0, 0);
+        poseEditor3DWindow->reset();
+        // Here we enable the controls directly and do not wait for the objectModelLoaded signal
+        // by the 3D viewer because no object model will be loaded
+        setEnabledPoseInvariantControls(!currentlySelectedImage.isNull());
     } else {
         setPoseValuesOnControls(*selected);
-        // TODO select index
+        int index = posesIndices[selected->objectModel()->getAbsolutePath()];
+        indexToSelect = ui->listViewPoses->model()->index(index, 0);
+        poseEditor3DWindow->setObjectModel(*selected->objectModel());
+        // The user selected a pose, deselected it and selected it again
+        if (previouslySelectedPose == selected && deselected.isNull()) {
+            // We have to emit this signal manually becaues the 3D viewer
+            // won't because nothing changes
+            Q_EMIT objectModelLoaded();
+            // Also activate pose invariant controls and editor controls
+            setEnabledPoseInvariantControls(true);
+            setEnabledPoseEditorControls(true);
+        }
     }
+    ui->listViewPoses->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect);
 
-    /*
-
-    if (pose.isNull()) {
-        qDebug() << "Pose to set was null. Restting view.";
-        reset();
-        return;
+    if (previouslySelectedPose.isNull()) {
+        // On program start select the first pose
+        previouslySelectedPose = selected;
     }
-
-    qDebug() << "Setting pose (" + selected->id() + ", " + selected->image()->getImagePath()
-                + ", " + selected->objectModel()->getPath() + ") to display.";
-    currentlySelectedPose = selected;
-    currentlySelectedObjectModel = selected->objectModel();
-    // Handled by the slot conneced in the init function of the PoseEditor
-    // to the objectModelLoaded signal of the 3D widget
-    //setEnabledPoseEditorControls(true);
-    setPoseValuesOnControls(*pose);
-    poseEditor3DWindow->setObjectModel(*pose->objectModel());
-    ui->buttonSave->setEnabled(false);
-    */
+    if (selected.isNull()) {
+        // If the use deselected a pose store the last selected
+        previouslySelectedPose = deselected;
+    }
 }
 
 void PoseEditor::onPoseCreationAborted() {
@@ -513,9 +500,11 @@ void PoseEditor::onCorrespondencesChanged() {
 
 void PoseEditor::reset() {
     qDebug() << "Resetting pose editor.";
+    checkPoseDirty();
     poseEditor3DWindow->reset();
     currentlySelectedObjectModel.reset();
     currentlySelectedPose.reset();
+    previouslySelectedPose.reset();
     listViewPosesModel->setStringList({});
     listViewImagesModel->setStringList({});
     resetControlsValues();

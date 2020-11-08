@@ -1,7 +1,7 @@
 #include "gallery.hpp"
 #include "ui_gallery.h"
 #include "misc/generalhelper.hpp"
-#include "3rdparty/QtAwesome/QtAwesome.h"
+#include "view/misc/displayhelper.hpp"
 #include <QAbstractItemView>
 #include <QScrollBar>
 #include <QTimer>
@@ -15,13 +15,9 @@ Gallery::Gallery(QWidget *parent) :
     ui(new Ui::Gallery)
 {
     ui->setupUi(this);
-    QtAwesome* awesome = new QtAwesome(this);
-    awesome->initFontAwesome();
     //! Here we set the nice arrow icons of the buttons left and right of the list view
-    ui->buttonNavigateLeft->setFont(awesome->font(20));
-    ui->buttonNavigateLeft->setIcon(awesome->icon(fa::chevronleft));
-    ui->buttonNavigateRight->setFont(awesome->font(20));
-    ui->buttonNavigateRight->setIcon(awesome->icon(fa::chevronright));
+    DisplayHelper::setIcon(ui->buttonNavigateLeft, DisplayHelper::CHEVRONLEFT, 20);
+    DisplayHelper::setIcon(ui->buttonNavigateRight, DisplayHelper::CHEVRONRIGHT, 20);
     ui->frame->layout()->setAlignment(Qt::AlignVCenter);
 }
 

@@ -1,5 +1,7 @@
 #include "generalhelper.hpp"
 
+#include <QFont>
+
 namespace GeneralHelper {
 
     int sign(int x) {
@@ -33,65 +35,6 @@ namespace GeneralHelper {
                    + "_"
                    + date.toString("d.M.yy_HH:mm:ss");
         return id;
-    }
-
-    // Calculates rotation matrix to euler angles
-    // The result is the same as MATLAB except the order
-    // of the euler angles ( x and z are swapped ).
-    cv::Vec3f rotationMatrixToEulerAngles(const cv::Mat &R) {
-
-        float sy = sqrt(R.at<float>(0,0) * R.at<float>(0,0) +  R.at<float>(0,1) * R.at<float>(0,1) );
-
-        float x, y, z;
-
-        x = atan2(R.at<float>(1,2) , R.at<float>(2,2));
-        float s1 = sin(x);
-        float c1 = cos(x);
-        y = atan2(-R.at<float>(0,2), sy);
-        z = atan2(s1 * R.at<float>(2,0) - c1 * R.at<float>(1,0),
-                  c1 * R.at<float>(1,1) - s1 * R.at<float>(2,1));
-
-        return (cv::Vec3f(x, y, z) * -180.f) / M_PI;
-    }
-
-    cv::Mat eulerAnglesToRotationMatrix(const cv::Vec3f &theta) {
-        cv::Vec3f _theta = theta;
-        _theta *= M_PI;
-        _theta /= -180.f;
-
-        float s1 = sin(_theta[0]);
-        float c1 = cos(_theta[0]);
-
-        float s2 = sin(_theta[1]);
-        float c2 = cos(_theta[1]);
-
-        float s3 = sin(_theta[2]);
-        float c3 = cos(_theta[2]);
-
-        // Calculate rotation about x axis
-        cv::Mat R_x = (cv::Mat_<float>(3,3) <<
-                   1,    0,      0,
-                   0,   c1,      s1,
-                   0,   -s1,     c1);
-
-        // Calculate rotation about y axis
-        cv::Mat R_y = (cv::Mat_<float>(3,3) <<
-                   c2,       0,     -s2,
-                   0,        1,      0,
-                   s2,       0,      c2
-                   );
-
-        // Calculate rotation about z axis
-        cv::Mat R_z = (cv::Mat_<float>(3,3) <<
-                       c3,    s3,      0,
-                       -s3,   c3,      0,
-                       0,     0,       1);
-
-
-        // Combined rotation matrix
-        cv::Mat R = R_x * R_y * R_z;
-
-        return R.t();
     }
 
 }

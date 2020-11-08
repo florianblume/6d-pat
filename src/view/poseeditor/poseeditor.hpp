@@ -33,6 +33,9 @@ public:
     void setPoseRecoverer(PoseRecoverer* poseRecoverer);
     bool isDisplayingObjectModel();
 
+    bool getPoseDirty() const;
+    void setPoseDirty(bool value);
+
 public Q_SLOTS:
     void setObjectModel(ObjectModelPtr objectModel);
     void onSelectedObjectModelChanged(int index);
@@ -48,6 +51,7 @@ Q_SIGNALS:
     void loadingObjectModel();
     void objectModelLoaded();
     void poseSelected(PosePtr pose);
+    void buttonSaveClicked();
 
 private Q_SLOTS:
     /*!
@@ -98,24 +102,19 @@ private:
 
     ObjectModelPtr currentlySelectedObjectModel;
     PosePtr currentlySelectedPose;
-    // Store the last selected pose in case that the user
-    // deselects the pose in the pose viewer and selects it again
-    // this doesn't trigger the objectModelLoaded signal probably
-    // because the object model is the same and QSceneLoader checks this
-    // and thus some controls stay disabled
-    PosePtr lastSelectedPose;
+    PosePtr previouslySelectedPose;
+    // We need to store what image the user currently views that in case that they select an object
+    // model we can restore the list of all poses available for the currently viewed image
+    ImagePtr currentlySelectedImage;
+
     // To see whether it is necessary to enable the save button
     // and warn the user whether they want to save the modifications
     // when e.g. changing the selected image
-    bool poseDirty = false;
+    bool posesDirty = false;
     void checkPoseDirty();
     // When the pose is selected by the pose viewer we still emit the pose selected signal
     // which causes the program to crash
     bool doNotEmitPoseSelected = false;
-
-    // We need to store what image the user currently views that in case that they select an object
-    // model we can restore the list of all poses available for the currently viewed image
-    ImagePtr currentlySelectedImage;
 
     // Indices of the list view for simplicity
     QMap<QString, int> posesIndices;

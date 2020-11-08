@@ -7,13 +7,13 @@
 #include "model/modelmanager.hpp"
 #include "model/poserecoverer.hpp"
 #include "poseviewer3dwidget.hpp"
+#include "view/misc/displayhelper.hpp"
 
 #include <QList>
 #include <QMap>
 #include <QWidget>
 #include <QSignalMapper>
 #include <QScopedPointer>
-#include <QtAwesome.h>
 #include <QTimer>
 
 #include <Qt3DRender/QPickEvent>
@@ -79,7 +79,6 @@ private:
     Ui::PoseViewer *ui;
     PoseViewer3DWidget *poseViewer3DWidget;
 
-    QtAwesome* awesome;
     ModelManager* modelManager = Q_NULLPTR;
     PoseRecoverer* poseRecoverer = Q_NULLPTR;
 

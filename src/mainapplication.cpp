@@ -1,5 +1,6 @@
 #include "mainapplication.hpp"
 
+#include <QFontDatabase>
 #include <QTimer>
 #include <QObject>
 
@@ -16,6 +17,8 @@ int MainApplication::exec() {
 
     MainController m;
     m.initialize();
+
+    QFontDatabase::addApplicationFont(":/fonts/fontawesome-4.7.0.ttf");
 
     QSurfaceFormat format;
     format.setDepthBufferSize(24);

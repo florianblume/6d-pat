@@ -1,6 +1,6 @@
 #include "settingsgeneralpage.hpp"
 #include "ui_settingsgeneralpage.h"
-#include "3rdparty/QtAwesome/QtAwesome.h"
+#include "view/misc/displayhelper.hpp"
 #include <QFileDialog>
 
 SettingsGeneralPage::SettingsGeneralPage(QWidget *parent) :
@@ -8,16 +8,10 @@ SettingsGeneralPage::SettingsGeneralPage(QWidget *parent) :
     ui(new Ui::SettingsGeneralPage)
 {
     ui->setupUi(this);
-    QtAwesome* awesome = new QtAwesome( qApp );
-    awesome->initFontAwesome();
-    ui->buttonPosesPath->setFont(awesome->font(20));
-    ui->buttonPosesPath->setIcon(awesome->icon(fa::folderopen));
-    ui->buttonImagesPath->setFont(awesome->font(20));
-    ui->buttonImagesPath->setIcon(awesome->icon(fa::folderopen));
-    ui->buttonObjectModelsPath->setFont(awesome->font(20));
-    ui->buttonObjectModelsPath->setIcon(awesome->icon(fa::folderopen));
-    ui->buttonSegmentationImages->setFont(awesome->font(20));
-    ui->buttonSegmentationImages->setIcon(awesome->icon(fa::folderopen));
+    DisplayHelper::setIcon(ui->buttonPosesPath, DisplayHelper::FOLDEROPEN, 20);
+    DisplayHelper::setIcon(ui->buttonImagesPath, DisplayHelper::FOLDEROPEN, 20);
+    DisplayHelper::setIcon(ui->buttonObjectModelsPath, DisplayHelper::FOLDEROPEN, 20);
+    DisplayHelper::setIcon(ui->buttonSegmentationImages, DisplayHelper::FOLDEROPEN, 20);
 }
 
 SettingsGeneralPage::~SettingsGeneralPage()

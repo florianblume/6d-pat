@@ -1,6 +1,6 @@
 #include "settingsdialog.hpp"
 #include "ui_settingsdialog.h"
-#include "3rdparty/QtAwesome/QtAwesome.h"
+#include "view/misc/displayhelper.hpp"
 #include <QFileInfo>
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
@@ -8,11 +8,9 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui(new Ui::SettingsDialog)
 {
     ui->setupUi(this);
-    QtAwesome* awesome = new QtAwesome( qApp );
-    awesome->initFontAwesome();
-    ui->listWidget->addItem(new QListWidgetItem(awesome->icon(fa::wrench), "General"));
-    ui->listWidget->addItem(new QListWidgetItem(awesome->icon(fa::paintbrush), "Codes"));
-    ui->listWidget->addItem(new QListWidgetItem(awesome->icon(fa::codefork), "Network"));
+    ui->listWidget->addItem(new QListWidgetItem("General"));
+    ui->listWidget->addItem(new QListWidgetItem("Codes"));
+    ui->listWidget->addItem(new QListWidgetItem("Network"));
     ui->listWidget->setCurrentItem(ui->listWidget->item(0));
     ui->listWidget->update();
 }

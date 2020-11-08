@@ -8,11 +8,10 @@
 #include <QColor>
 #include <QString>
 #include <QList>
+#include <QMap>
 #include <QFileInfo>
 #include <QStringList>
 #include <QDateTime>
-#include <opencv2/core/mat.hpp>
-#include <opencv2/core/core.hpp>
 
 static const QString colorCodeDelimiter = ".";
 
@@ -25,13 +24,6 @@ namespace GeneralHelper {
     QColor colorFromSegmentationCode(const QString &segmentationCode);
 
     QString createPoseId(const Image &image, const ObjectModel &objectModel);
-
-    // Calculates rotation matrix to euler angles
-    // The result is the same as MATLAB except the order
-    // of the euler angles ( x and z are swapped ).
-    cv::Vec3f rotationMatrixToEulerAngles(const cv::Mat &R);
-
-    cv::Mat eulerAnglesToRotationMatrix(const cv::Vec3f &theta);
 
 }
 

@@ -17,7 +17,6 @@ lessThan(QT_MAJOR_VERSION, 5) {
 }
 
 include(../defaults.pri)
-include(./3rdparty/QtAwesome/QtAwesome.pri)
 
 TARGET = 6DPAT
 

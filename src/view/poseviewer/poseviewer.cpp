@@ -7,24 +7,23 @@
 PoseViewer::PoseViewer(QWidget *parent) :
         QWidget(parent),
         ui(new Ui::PoseViewer),
-        poseViewer3DWidget(new PoseViewer3DWidget),
-        awesome(new QtAwesome( qApp )) {
+        poseViewer3DWidget(new PoseViewer3DWidget) {
     ui->setupUi(this);
 
     poseViewer3DWidget->setParent(ui->graphicsContainer);
 
-    awesome->initFontAwesome();
-
-    ui->buttonSwitchView->setFont(awesome->font(18));
-    ui->buttonSwitchView->setIcon(awesome->icon(fa::toggleoff));
+    DisplayHelper::setIcon(ui->buttonSwitchView, DisplayHelper::TOGGLEOFF, 18);
     ui->buttonSwitchView->setToolTip("Click to switch views between segmentation \n"
                                      "image (if available) and normal image.");
     ui->buttonSwitchView->setEnabled(false);
 
-    ui->buttonResetPosition->setFont(awesome->font(18));
-    ui->buttonResetPosition->setIcon(awesome->icon(fa::arrows));
+    DisplayHelper::setIcon(ui->buttonResetPosition, DisplayHelper::ARROWS, 18);
     ui->buttonResetPosition->setToolTip("Click to reset the position of the image.");
     ui->buttonResetPosition->setEnabled(false);
+
+    DisplayHelper::setIcon(ui->labelTransparency, DisplayHelper::TRANSPARENCY, 18);
+    DisplayHelper::setIcon(ui->labelZoomMinus, DisplayHelper::ZOOM_MINUS, 18);
+    DisplayHelper::setIcon(ui->labelZoomPlus, DisplayHelper::ZOOM_PLUS, 18);
 
     connect(poseViewer3DWidget, &PoseViewer3DWidget::positionClicked,
             this, &PoseViewer::onImageClicked);
@@ -159,8 +158,11 @@ void PoseViewer::selectPose(PosePtr selected, PosePtr deselected) {
 }
 
 void PoseViewer::switchImage() {
-    ui->buttonSwitchView->setIcon(awesome->icon(showingNormalImage ? fa::toggleon : fa::toggleoff));
     showingNormalImage = !showingNormalImage;
+
+    DisplayHelper::setIcon(ui->buttonSwitchView,
+                           (showingNormalImage ? DisplayHelper::TOGGLEON : DisplayHelper::TOGGLEOFF),
+                           18);
 
     if (showingNormalImage)
         poseViewer3DWidget->setBackgroundImage(currentlyDisplayedImage->getAbsoluteImagePath(),

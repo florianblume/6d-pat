@@ -1,23 +1,18 @@
 #include "settingsnetworkpage.hpp"
 #include "ui_settingsnetworkpage.h"
+#include "view/misc/displayhelper.hpp"
 
 #include <QFileDialog>
-#include <QtAwesome.h>
 
 SettingsNetworkPage::SettingsNetworkPage(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SettingsNetworkPage) {
     ui->setupUi(this);
-    QtAwesome* awesome = new QtAwesome( qApp );
-    awesome->initFontAwesome();
-    ui->buttonTrainingScriptPath->setFont(awesome->font(20));
-    ui->buttonTrainingScriptPath->setIcon(awesome->icon(fa::folderopen));
-    ui->buttonInferenceScriptPath->setFont(awesome->font(20));
-    ui->buttonInferenceScriptPath->setIcon(awesome->icon(fa::folderopen));
-    ui->buttonNetworkConfigPath->setFont(awesome->font(20));
-    ui->buttonNetworkConfigPath->setIcon(awesome->icon(fa::folderopen));
-    ui->buttonPythonInterpreterPath->setFont(awesome->font(20));
-    ui->buttonPythonInterpreterPath->setIcon(awesome->icon(fa::folderopen));
+
+    DisplayHelper::setIcon(ui->buttonTrainingScriptPath, DisplayHelper::FOLDEROPEN, 20);
+    DisplayHelper::setIcon(ui->buttonInferenceScriptPath, DisplayHelper::FOLDEROPEN, 20);
+    DisplayHelper::setIcon(ui->buttonNetworkConfigPath, DisplayHelper::FOLDEROPEN, 20);
+    DisplayHelper::setIcon(ui->buttonPythonInterpreterPath, DisplayHelper::FOLDEROPEN, 20);
 }
 
 SettingsNetworkPage::~SettingsNetworkPage() {

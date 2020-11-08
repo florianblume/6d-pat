@@ -1,7 +1,7 @@
 #include "settingssegmentationcodespage.hpp"
 #include "ui_settingssegmentationcodespage.h"
 #include "misc/generalhelper.hpp"
-#include "3rdparty/QtAwesome/QtAwesome.h"
+#include "view/misc/displayhelper.hpp"
 #include <QPushButton>
 #include <QColorDialog>
 
@@ -29,9 +29,6 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *pref
     if (!preferences)
         return;
 
-    QtAwesome* awesome = new QtAwesome( qApp );
-    awesome->initFontAwesome();
-
     int i = 0;
     for(const ObjectModelPtr &objectModel : this->objectModels) {
         const QString &code = preferences->getSegmentationCodeForObjectModel(objectModel->getPath());
@@ -55,8 +52,7 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *pref
 
         //! Create color edit button
         QPushButton* buttonEdit = new QPushButton();
-        buttonEdit->setFont(awesome->font(18));
-        buttonEdit->setIcon(awesome->icon(fa::paintbrush));
+        DisplayHelper::setIcon(buttonEdit, DisplayHelper::PAINTBRUSH, 18);
         buttonEdit->setFixedSize(QSize(40, 20));
         buttonEdit->setToolTip("Edit color");
         connect(buttonEdit, &QPushButton::clicked, [this, i]() {showColorDialog(i);});
@@ -64,8 +60,7 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *pref
 
         //! Create delete button
         QPushButton* buttonUnset = new QPushButton();
-        buttonUnset->setFont(awesome->font(18));
-        buttonUnset->setIcon(awesome->icon(fa::remove));
+        DisplayHelper::setIcon(buttonUnset, DisplayHelper::REMOVE, 18);
         buttonUnset->setFixedSize(QSize(40, 20));
         buttonUnset->setToolTip("Remove color");
         connect(buttonUnset, &QPushButton::clicked, [this, i]() {removeColor(i);});

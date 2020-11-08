@@ -1,22 +1,15 @@
 #include "navigationcontrols.hpp"
 #include "ui_navigationcontrols.h"
-#include "3rdparty/QtAwesome/QtAwesome.h"
+#include "view/misc/displayhelper.hpp"
 #include <QFileDialog>
 
 NavigationControls::NavigationControls(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::NavigationControls)
-{
-    QtAwesome* awesome = new QtAwesome( qApp );
-    awesome->initFontAwesome();
+    ui(new Ui::NavigationControls) {
     ui->setupUi(this);
-    ui->buttonNavigateLeft->setFont(awesome->font(18));
-    ui->buttonNavigateLeft->setIcon(awesome->icon(fa::chevronleft));
-    ui->buttonNavigateRight->setFont(awesome->font(18));
-    ui->buttonNavigateRight->setIcon(awesome->icon(fa::chevronright));
-    ui->openFolderButton->setFont(awesome->font(18));
-    ui->openFolderButton->setIcon(awesome->icon(fa::folderopen));
-
+    DisplayHelper::setIcon(ui->buttonNavigateLeft, DisplayHelper::CHEVRONLEFT, 18);
+    DisplayHelper::setIcon(ui->buttonNavigateRight, DisplayHelper::CHEVRONRIGHT, 18);
+    DisplayHelper::setIcon(ui->openFolderButton, DisplayHelper::FOLDEROPEN, 18);
 }
 
 NavigationControls::~NavigationControls()

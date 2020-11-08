@@ -2,6 +2,8 @@
 #define DISPALYHELPER_H
 
 #include <QColor>
+#include <QWidget>
+#include <QMap>
 
 namespace DisplayHelper {
     /*!
@@ -14,6 +16,24 @@ namespace DisplayHelper {
      * \return the color for the pose point
      */
     QColor colorForPosePointIndex(int index);
+
+    enum Icon {
+        ZOOM_PLUS,
+        ZOOM_MINUS,
+        TRANSPARENCY,
+        FOLDEROPEN,
+        CHEVRONLEFT,
+        CHEVRONRIGHT,
+        TOGGLEOFF,
+        TOGGLEON,
+        ARROWS,
+        WRENCH,
+        PAINTBRUSH,
+        CODEFRORK,
+        REMOVE
+    };
+
+    void setIcon(QWidget *widget, Icon icon, int size);
 
 }
 

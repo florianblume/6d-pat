@@ -14,4 +14,7 @@
         <file alias="clicks.frag">resources/shaders/clicks.frag</file>
         <file alias="clicks.vert">resources/shaders/clicks.vert</file>
     </qresource>
+    <qresource prefix="/fonts">
+        <file>resources/fonts/fontawesome-4.7.0.ttf</file>
+    </qresource>
 </RCC>
