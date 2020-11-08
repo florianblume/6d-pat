@@ -7,7 +7,7 @@
 #include "settings/settingsstore.hpp"
 #include "view/mainwindow.hpp"
 #include "misc/global.hpp"
-#include "controller/poseeditingmodel.hpp"
+#include "controller/poseeditingcontroller.hpp"
 #include "controller/neuralnetworkcontroller.hpp"
 
 #include <QScopedPointer>
@@ -45,7 +45,7 @@ private:
     QScopedPointer<JsonLoadAndStoreStrategy> strategy;
     QScopedPointer<CachingModelManager> modelManager;
     QScopedPointer<PoseRecoverer> poseRecoverer;
-    QScopedPointer<PoseEditingModel> poseEditingModel;
+    QScopedPointer<PoseEditingController> poseEditingModel;
     QScopedPointer<NeuralNetworkController> networkController;
 
     QThread *modelManagerThread;

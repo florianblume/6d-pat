@@ -13,6 +13,9 @@
 #include <QListView>
 #include <QMap>
 
+// Need to pre-load this class
+class PoseEditor3DWindow;
+
 namespace Ui {
 class PoseEditor;
 }
@@ -36,8 +39,7 @@ public Q_SLOTS:
     void onSelectedImageChanged(int index);
     // For poses selected in the PoseViewer
     void selectPose(PosePtr selected, PosePtr deselected);
-    void selectedPosePositionUpdated(QVector3D position);
-    void selectedPoseRotationUpdated(QQuaternion rotation);
+    void onSelectedPoseValuesChanged(PosePtr pose);
     void onPoseCreationAborted();
     void reset();
 
@@ -48,8 +50,6 @@ Q_SIGNALS:
     void poseSelected(PosePtr pose);
 
 private Q_SLOTS:
-    // Private function to set all pose relevant data on the editor
-    void setPoseToEdit(PosePtr pose);
     /*!
      * \brief onObjectModelClickedAt handles clicking the 3D model
      */
@@ -71,27 +71,22 @@ private Q_SLOTS:
      */
     void onButtonRemoveClicked();
     void onButtonCopyClicked();
-    void onComboBoxPoseIndexChanged(int index);
 
     //! React to signal from the model manager
     void onDataChanged(int data);
 
     // For PoseRecoverer
-    void onCorrespondencesChanged();;
-
-    /*!
-     * \brief onSelectedPoseChanged Reacts to the user selecting a different pose from
-     * the poses list view.
-     */
-    void onSelectedPoseChanged(const QItemSelection &selected,
-                               const QItemSelection &deselected);
-    void onSpinBoxValueChanged();
-
+    void onCorrespondencesChanged();
     void onPoseRecovererStateChanged(PoseRecoverer::State state);
 
+    /*!
+     * \brief onListViewPosesSelectionChanged Reacts to the user selecting a different pose from
+     * the poses list view.
+     */
+    void onListViewPosesSelectionChanged(const QItemSelection &selected,
+                                         const QItemSelection &deselected);
+    void onSpinBoxValueChanged();
     void onObjectModelLoaded();
-
-    void onListViewPosesSelectionChanged();
 
 private:
     Ui::PoseEditor *ui;

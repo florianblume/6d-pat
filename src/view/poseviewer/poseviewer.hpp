@@ -53,11 +53,10 @@ public Q_SLOTS:
     void onPoseUpdated(PosePtr pose);
     // React to signal from PoseEditingModel
     void selectPose(PosePtr selected, PosePtr deselected);
-    void selectedPosePositionUpdated(QVector3D position);
-    void selectedPoseRotationUpdated(QQuaternion rotation);
+    void selectedPoseValuesChanged(PosePtr pose);
 
 Q_SIGNALS:
-    void imageClicked(ImagePtr image, QPoint position);
+    void imageClicked(QPoint position);
     void poseSelected(PosePtr pose);
 
 private Q_SLOTS:

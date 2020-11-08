@@ -20,7 +20,7 @@ void MainController::initialize() {
                                                 settingsIdentifier));
     modelManager.reset(new CachingModelManager(*strategy.data()));
     poseRecoverer.reset(new PoseRecoverer(modelManager.get()));
-    poseEditingModel.reset(new PoseEditingModel);
+    poseEditingModel.reset(new PoseEditingController);
     modelManagerThread = new QThread;
     poseRecovererThread = new QThread;
     connect(settingsStore.data(), &SettingsStore::settingsChanged,
@@ -31,14 +31,22 @@ void MainController::initialize() {
     mainWindow.reset(new MainWindow(0, modelManager.get(), settingsStore.get(), settingsIdentifier, poseRecoverer.get()));
 
     // Connect the PoseEditor and PoseViewer to the PoseEditingController
-    connect(poseEditingModel.get(), &PoseEditingModel::selectedPoseChanged,
+    connect(poseEditingModel.get(), &PoseEditingController::selectedPoseChanged,
             mainWindow->poseViewer(), &PoseViewer::selectPose);
-    connect(poseEditingModel.get(), &PoseEditingModel::selectedPoseChanged,
+    connect(poseEditingModel.get(), &PoseEditingController::selectedPoseChanged,
             mainWindow->poseEditor(), &PoseEditor::selectPose);
+
+    // React to the user selecting a different pose
     connect(mainWindow->poseViewer(), &PoseViewer::poseSelected,
-            poseEditingModel.get(), &PoseEditingModel::selectPose);
+            poseEditingModel.get(), &PoseEditingController::selectPose);
     connect(mainWindow->poseEditor(), &PoseEditor::poseSelected,
-            poseEditingModel.get(), &PoseEditingModel::selectPose);
+            poseEditingModel.get(), &PoseEditingController::selectPose);
+
+    // React to changes to the pose
+    connect(poseEditingModel.get(), &PoseEditingController::poseValuesChanged,
+            mainWindow->poseViewer(), &PoseViewer::selectedPoseValuesChanged);
+    connect(poseEditingModel.get(), &PoseEditingController::poseValuesChanged,
+            mainWindow->poseEditor(), &PoseEditor::onSelectedPoseValuesChanged);
 }
 
 void MainController::showView() {

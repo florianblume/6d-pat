@@ -150,16 +150,12 @@ void PoseViewer::onPoseUpdated(PosePtr pose){
     poseViewer3DWidget->updatePose(pose);
 }
 
-void PoseViewer::selectedPosePositionUpdated(QVector3D position) {
-    // TODO
-}
-
-void PoseViewer::selectedPoseRotationUpdated(QQuaternion rotation) {
-    // TODO
+void PoseViewer::selectedPoseValuesChanged(PosePtr pose) {
+    poseViewer3DWidget->updatePose(pose);
 }
 
 void PoseViewer::selectPose(PosePtr selected, PosePtr deselected) {
-    poseViewer3DWidget->selectPose(selected);
+    poseViewer3DWidget->selectPose(selected, deselected);
 }
 
 void PoseViewer::switchImage() {

@@ -7,19 +7,22 @@
 #include <QObject>
 #include <QMetaObject>
 
-class PoseEditingModel : public QObject
+class PoseEditingController : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit PoseEditingModel(QObject *parent = nullptr);
+    explicit PoseEditingController(QObject *parent = nullptr);
     void selectPose(PosePtr pose);
     PosePtr selectedPose();
 
 Q_SIGNALS:
     void selectedPoseChanged(PosePtr selected, PosePtr deselected);
-    void posePositionChanged(QVector3D position);
-    void poseRotationChanged(QQuaternion rotation);
+    void poseValuesChanged(PosePtr pose);
+
+private Q_SLOTS:
+    void onPosePositionChanged(QVector3D position);
+    void onPoseRotationChanged(QQuaternion rotation);
 
 private:
     PosePtr m_selectedPose;

@@ -132,8 +132,8 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
                                                 0,                0,                     -1, 0);
     posesCamera->setProjectionMatrix(projectionMatrix);
     backgroundImageRenderable->setEnabled(true);
+    // TODO remove
     move(-500, -500);
-    selectedPose.reset();
 }
 
 void PoseViewer3DWidget::addPose(PosePtr pose) {
@@ -143,23 +143,7 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     connect(poseRenderable, &PoseRenderable::clicked,
             [poseRenderable, this](Qt3DRender::QPickEvent *e){
         if (e->button() == Qt3DRender::QPickEvent::RightButton) {
-            if (poseRenderable->getPose() == selectedPose) {
-                // The user selected the same pose again, we need to deselect it
-                poseRenderable->setSelected(false);
-                Q_EMIT poseSelected(PosePtr());
-                // Reset because we selected the same pose twice, we need to deselect it
-                selectedPose.reset();
-            } else {
-                if (selectedPose) {
-                    PoseRenderable *lastSelected = poseRenderableForId[selectedPose->id()];
-                    if (lastSelected) {
-                        lastSelected->setSelected(false);
-                    }
-                }
-                poseRenderable->setSelected(true);
-                Q_EMIT poseSelected(poseRenderable->getPose());
-                selectedPose = poseRenderable->getPose();
-            }
+            Q_EMIT poseSelected(poseRenderable->getPose());
         }
     });
     connect(poseRenderable, &PoseRenderable::moved,
@@ -215,16 +199,15 @@ void PoseViewer3DWidget::removePoses() {
     poseRenderableForId.clear();
 }
 
-void PoseViewer3DWidget::selectPose(PosePtr pose) {
-    if (!selectedPose.isNull()) {
-        PoseRenderable *formerSelected = poseRenderableForId[selectedPose->id()];
+void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
+    if (!deselected.isNull()) {
+        PoseRenderable *formerSelected = poseRenderableForId[deselected->id()];
         formerSelected->setSelected(false);
     }
-    if (!pose.isNull()) {
-        PoseRenderable *newSelected = poseRenderableForId[pose->id()];
+    if (!selected.isNull()) {
+        PoseRenderable *newSelected = poseRenderableForId[selected->id()];
         newSelected->setSelected(true);
     }
-    selectedPose = pose;
 }
 
 void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
@@ -238,7 +221,6 @@ void PoseViewer3DWidget::setClicks(const QVector<QPoint> &clicks) {
 }
 
 void PoseViewer3DWidget::reset() {
-    selectedPose.reset();
     setClicks({});
     removePoses();
     if (backgroundImageRenderable != Q_NULLPTR) {

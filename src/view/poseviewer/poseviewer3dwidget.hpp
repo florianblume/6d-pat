@@ -44,9 +44,7 @@ public:
     void updatePose(PosePtr pose);
     void removePose(const QString &id);
     void removePoses();
-    void selectPose(PosePtr pose);
-    PoseRenderable *getObjectModelRenderable(
-            const Pose &pose);
+    void selectPose(PosePtr selected, PosePtr deselected);
     void setObjectsOpacity(float opacity);
     void setClicks(const QVector<QPoint> &clicks);
     QSize imageSize() const;
@@ -104,8 +102,6 @@ private:
     QVector<PoseRenderable *> poseRenderables;
     QMap<QString, PoseRenderable*> poseRenderableForId;
     QMatrix4x4 projectionMatrix;
-
-    PosePtr selectedPose;
 
     // To handle dragging of the widget and clicking
     QPoint lastPos;

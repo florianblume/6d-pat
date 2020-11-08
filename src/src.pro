@@ -39,11 +39,11 @@ LIBS += -L/usr/local/lib/ -lopencv_core -lopencv_calib3d \
         -L../../../lib/ -lqt3dwidget
 
 HEADERS  += \
+    controller/poseeditingcontroller.hpp \
     mainapplication.hpp \
     controller/maincontroller.hpp \
     controller/neuralnetworkcontroller.hpp \
     controller/neuralnetworkrunnable.hpp \
-    controller/poseeditingmodel.hpp \
     model/cachingmodelmanager.hpp \
     model/data.hpp \
     model/image.hpp \
@@ -87,12 +87,12 @@ HEADERS  += \
     misc/global.hpp
 
 SOURCES += \
+    controller/poseeditingcontroller.cpp \
     main.cpp \
     mainapplication.cpp \
     controller/maincontroller.cpp \
     controller/neuralnetworkcontroller.cpp \
     controller/neuralnetworkrunnable.cpp \
-    controller/poseeditingmodel.cpp \
     model/image.cpp \
     model/objectmodel.cpp \
     model/loadandstorestrategy.cpp \
