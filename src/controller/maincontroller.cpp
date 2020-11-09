@@ -19,14 +19,10 @@ void MainController::initialize() {
     strategy.reset(new JsonLoadAndStoreStrategy(settingsStore.data(),
                                                 settingsIdentifier));
     modelManager.reset(new CachingModelManager(*strategy.data()));
+    modelManager->reload();
     poseRecoverer.reset(new PoseRecoverer(modelManager.get()));
-    modelManagerThread = new QThread;
-    poseRecovererThread = new QThread;
     connect(settingsStore.data(), &SettingsStore::settingsChanged,
             this, &MainController::onSettingsChanged);
-    modelManager->moveToThread(modelManagerThread);
-    modelManager->reload();
-    poseRecoverer->moveToThread(poseRecovererThread);
     mainWindow.reset(new MainWindow(0, modelManager.get(), settingsStore.get(), settingsIdentifier, poseRecoverer.get()));
     poseEditingModel.reset(new PoseEditingController(Q_NULLPTR, modelManager.get(), mainWindow.get()));
 }

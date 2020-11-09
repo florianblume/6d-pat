@@ -1,9 +1,14 @@
 #include "cachingmodelmanager.hpp"
 #include "misc/generalhelper.hpp"
 
+#include <QtConcurrent/QtConcurrent>
+#include <QThread>
+#include <QApplication>
+
 CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy) : ModelManager(loadAndStoreStrategy) {
     connect(&loadAndStoreStrategy, &LoadAndStoreStrategy::dataChanged,
             this, &CachingModelManager::dataChanged);
+    connect(&reloadFutureWatcher, &QFutureWatcher<void>::finished, this, &CachingModelManager::dataReady);
 }
 
 CachingModelManager::~CachingModelManager() {
@@ -209,10 +214,18 @@ bool CachingModelManager::removePose(const QString &id) {
 
 void CachingModelManager::reload() {
     Q_EMIT stateChanged(State::Loading);
+    reloadFuture = QtConcurrent::run(this, &CachingModelManager::threaddedReload);
+    reloadFutureWatcher.setFuture(reloadFuture);
+}
+
+void CachingModelManager::threaddedReload() {
     images = loadAndStoreStrategy.loadImages();
     objectModels = loadAndStoreStrategy.loadObjectModels();
     poses = loadAndStoreStrategy.loadPoses(images, objectModels);
     createConditionalCache();
+}
+
+void CachingModelManager::dataReady() {
     Q_EMIT stateChanged(State::Ready);
     Q_EMIT dataChanged(Data::Images | Data::ObjectModels | Data::Poses);
 }

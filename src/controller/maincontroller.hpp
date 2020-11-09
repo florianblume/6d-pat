@@ -14,7 +14,6 @@
 #include <QSharedPointer>
 #include <QMap>
 #include <QList>
-#include <QThread>
 
 //! This class is responsible for the overall program to work.
 //! It maintains references to all the important parts and
@@ -47,9 +46,6 @@ private:
     QScopedPointer<PoseRecoverer> poseRecoverer;
     QScopedPointer<PoseEditingController> poseEditingModel;
     QScopedPointer<NeuralNetworkController> networkController;
-
-    QThread *modelManagerThread;
-    QThread *poseRecovererThread;
 
     QScopedPointer<MainWindow> mainWindow;
 

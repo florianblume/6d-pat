@@ -6,6 +6,8 @@
 #include <QMap>
 #include <QString>
 #include <QList>
+#include <QFuture>
+#include <QFutureWatcher>
 
 /*!
  * \brief The CachingModelManager class implements the ModelManager interface. To improve the speed of the application
@@ -50,6 +52,10 @@ public:
 
     void reload() override;
 
+private Q_SLOTS:
+    // Callback for threadded data loading
+    void dataReady();
+
 private:
     //! The pattern that is used to load maybe existing segmentation images
     QString segmentationImagePattern;
@@ -69,8 +75,13 @@ private:
      */
     void createConditionalCache();
 
+    // For threadding
+    QFuture<void> reloadFuture;
+    QFutureWatcher<void> reloadFutureWatcher;
+
 private Q_SLOTS:
     void onDataChanged(int data);
+    void threaddedReload();
 
 };
 
