@@ -121,7 +121,12 @@ private:
 
     QStringListModel *listViewPosesModel;
     QStringListModel *listViewImagesModel;
+    // To prevent the spin boxes from emitting their changed signal when we set the pose
+    // values e.g. because the user selected a pose in the PoseViewer
     bool ignoreValueChanges = false;
+    // To prevent from reacting to the poses list view selection changed signal again
+    // when we receive the selected pose changed signal from the PoseEditingController
+    bool ignorePoseSelectionChanges = false;
 
     void setEnabledPoseEditorControls(bool enabled);
     void setEnabledAllControls(bool enabled);
@@ -129,7 +134,7 @@ private:
     // For the poses list view, the images list view and the copy button
     // they can stay enabled as long as there is an image that is being viewed
     void setEnabledPoseInvariantControls(bool enabled);
-    void addPosesToComboBoxPoses(const Image &image, const QString &poseToSelect = "");
+    void addPosesToListViewPoses(const Image &image, const QString &poseToSelect = "");
     void setPoseValuesOnControls(const Pose &pose);
 
 };

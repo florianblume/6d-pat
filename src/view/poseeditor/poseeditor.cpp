@@ -135,7 +135,7 @@ void PoseEditor::setEnabledPoseInvariantControls(bool enabled) {
     ui->buttonCopy->setEnabled(enabled);
 }
 
-void PoseEditor::addPosesToComboBoxPoses(const Image &image,
+void PoseEditor::addPosesToListViewPoses(const Image &image,
                                          const QString &poseToSelect) {
     QVector<PosePtr> poses =
             modelManager->getPosesForImage(image);
@@ -241,7 +241,7 @@ void PoseEditor::updateCurrentlyEditedPose() {
 
 void PoseEditor::onPoseAdded(PosePtr pose) {
     checkPoseDirty();
-    addPosesToComboBoxPoses(*currentlySelectedImage, pose->id());
+    addPosesToListViewPoses(*currentlySelectedImage, pose->id());
     ui->buttonCreate->setEnabled(false);
     // Gets enabled somehow
     ui->buttonSave->setEnabled(false);
@@ -261,7 +261,7 @@ void PoseEditor::onButtonRemoveClicked() {
     QVector<PosePtr> poses = modelManager->getPosesForImage(*currentlySelectedImage);
     if (poses.size() > 0) {
         // This reloads the drop down list and does everything else
-        addPosesToComboBoxPoses(*currentlySelectedImage);
+        addPosesToListViewPoses(*currentlySelectedImage);
     } else {
         reset();
     }
@@ -355,27 +355,30 @@ void PoseEditor::onDataChanged(int data) {
     // Reacts to the model manager's signal
     if (data == Data::Poses) {
         reset();
-        addPosesToComboBoxPoses(*currentlySelectedImage);
+        addPosesToListViewPoses(*currentlySelectedImage);
     } else {
         reset();
     }
 }
 
-//
+// Callback to the ListViewPoses list view
 void PoseEditor::onListViewPosesSelectionChanged(const QItemSelection &selected, const QItemSelection &/*deselected*/) {
     // Reacts to selecting a different pose from the poses list view and loads the corresponding
     // pose
-    QItemSelectionRange range = selected.front();
-    int index = range.top();
-    PosePtr poseToSelect;
-    if (index > 0) {
-        // 0-th element is "None", only retrieve pose if the user
-        // actually selected one
-        QVector<PosePtr> poses = modelManager->getPoses();
-        // --index because None ist 0-th element and indices of poses are +1
-        poseToSelect = poses[--index];
+    if (!ignorePoseSelectionChanges) {
+        QItemSelectionRange range = selected.front();
+        int index = range.top();
+        PosePtr poseToSelect;
+        if (index > 0) {
+            // 0-th element is "None", only retrieve pose if the user
+            // actually selected one
+            QVector<PosePtr> poses = modelManager->getPoses();
+            // --index because None ist 0-th element and indices of poses are +1
+            poseToSelect = poses[--index];
+        }
+        Q_EMIT poseSelected(poseToSelect);
     }
-    Q_EMIT poseSelected(poseToSelect);
+    ignorePoseSelectionChanges = false;
 }
 
 // Only called internally
@@ -421,7 +424,7 @@ void PoseEditor::onSelectedImageChanged(int index) {
         imagesList << image->getImagePath();
     }
     listViewImagesModel->setStringList(imagesList);
-    addPosesToComboBoxPoses(*currentlySelectedImage);
+    addPosesToListViewPoses(*currentlySelectedImage);
     setEnabledPoseInvariantControls(true);
 }
 
@@ -462,7 +465,7 @@ void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
         setEnabledPoseInvariantControls(!currentlySelectedImage.isNull());
     } else {
         setPoseValuesOnControls(*selected);
-        int index = posesIndices[selected->objectModel()->getAbsolutePath()];
+        int index = posesIndices[selected->id()];
         indexToSelect = ui->listViewPoses->model()->index(index, 0);
         poseEditor3DWindow->setObjectModel(*selected->objectModel());
         // The user selected a pose, deselected it and selected it again
@@ -475,6 +478,9 @@ void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
             setEnabledPoseEditorControls(true);
         }
     }
+    // Set to true because the function we are currently in is called by the PoseEditingController
+    // and we don't want to set a new selected pose
+    ignorePoseSelectionChanges = true;
     ui->listViewPoses->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect);
 
     if (previouslySelectedPose.isNull()) {
