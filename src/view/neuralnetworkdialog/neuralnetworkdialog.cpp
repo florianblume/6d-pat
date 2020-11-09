@@ -38,7 +38,7 @@ void NeuralNetworkDialog::fillItemsList() {
     QVector<ImagePtr> images = modelManager->getImages();
     QStringList model;
     for (const ImagePtr &image : images) {
-        model << image->getImagePath();
+        model << image->imagePath();
     }
     ui->listWidget->addItems(model);
     QListWidgetItem* item = 0;

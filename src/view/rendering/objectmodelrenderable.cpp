@@ -47,7 +47,7 @@ bool ObjectModelRenderable::isSelected() const {
 void ObjectModelRenderable::setObjectModel(const ObjectModel &objectModel) {
     m_selected = false;
     m_sceneLoader->setEnabled(false);
-    m_sceneLoader->setSource(QUrl::fromLocalFile(objectModel.getAbsolutePath()));
+    m_sceneLoader->setSource(QUrl::fromLocalFile(objectModel.absolutePath()));
 }
 
 void ObjectModelRenderable::setClicks(QVector<QVector3D> clicks) {

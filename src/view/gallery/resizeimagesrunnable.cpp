@@ -13,10 +13,10 @@ void ResizeImagesRunnable::run() {
         if (stopProcess) {
             break;
         }
-        QImage loadedImage(QUrl::fromLocalFile(image->getAbsoluteImagePath()).path());
+        QImage loadedImage(QUrl::fromLocalFile(image->absoluteImagePath()).path());
         // No one is going to view images larger than 300 px height
         loadedImage = loadedImage.scaledToHeight(300);
-        emit imageResized(i, image->getImagePath(), loadedImage);
+        emit imageResized(i, image->imagePath(), loadedImage);
         i++;
     }
 }

@@ -5,8 +5,7 @@
 #include "model/image.hpp"
 #include "model/modelmanager.hpp"
 
-#include "view/poseeditor/poseeditor.hpp"
-#include "view/poseviewer/poseviewer.hpp"
+#include "view/mainwindow.hpp"
 
 #include <QObject>
 #include <QMap>
@@ -16,8 +15,7 @@ class PoseEditingController : public QObject
     Q_OBJECT
 
 public:
-    explicit PoseEditingController(QObject *parent, ModelManager *modelManager,
-                                   PoseEditor *poseEditor, PoseViewer *poseViewer);
+    explicit PoseEditingController(QObject *parent, ModelManager *modelManager, MainWindow *mainWindow);
     void selectPose(PosePtr pose);
     PosePtr selectedPose();
 
@@ -35,8 +33,7 @@ private Q_SLOTS:
 private:
     PosePtr m_selectedPose;
     ModelManager *m_modelManager;
-    PoseEditor *m_poseEditor;
-    PoseViewer *m_poseViewer;
+    MainWindow *m_mainWindow;
 
     QVector<PosePtr> m_poses;
     QMap<PosePtr, bool> m_posesDirty;

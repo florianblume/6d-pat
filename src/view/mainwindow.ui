@@ -1166,7 +1166,7 @@
              </widget>
             </item>
             <item>
-             <widget class="Gallery" name="galleryRight" native="true">
+             <widget class="GalleryObjectModels" name="galleryRight" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -1588,6 +1588,12 @@
     <slot>onSelectedImageChanged(int)</slot>
     <slot>onSelectedObjectModelChanged(int)</slot>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>GalleryObjectModels</class>
+   <extends>QWidget</extends>
+   <header>view/gallery/galleryobjectmodels.hpp</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

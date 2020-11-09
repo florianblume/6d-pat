@@ -166,6 +166,14 @@ PoseEditor *MainWindow::poseEditor() {
     return ui->poseEditor;
 }
 
+GalleryObjectModels *MainWindow::galleryObjectModels() {
+    return dynamic_cast<GalleryObjectModels*>(ui->galleryRight);
+}
+
+Gallery *MainWindow::galleryImages() {
+    return ui->galleryLeft;
+}
+
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
     QSharedPointer<Settings> preferences = settingsStore->loadPreferencesByIdentifier("default");
     preferences->setImagesPath(path);
@@ -244,6 +252,8 @@ void MainWindow::onActionAbortCreationTriggered() {
 
 void MainWindow::onActionReloadViewsTriggered() {
     modelManager->reload();
+    ui->galleryLeft->clearSelection(false);
+    ui->galleryRight->clearSelection(false);
     setStatusBarText("Ready.");
 }
 

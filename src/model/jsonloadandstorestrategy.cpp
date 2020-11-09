@@ -47,7 +47,7 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
             QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
             QJsonObject jsonObject = jsonDocument.object();
 
-            QString imagePath = objectImagePose.image()->getImagePath();
+            QString imagePath = objectImagePose.image()->imagePath();
             QJsonArray entriesForImage;
 
             if (deletePose) {
@@ -86,7 +86,7 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
                     //! Create new entry object, as we can't modify the exisiting ones directly somehow
                     QJsonObject entry;
                     entry["id"] = objectImagePose.id();
-                    entry["obj"] = objectImagePose.objectModel()->getPath();
+                    entry["obj"] = objectImagePose.objectModel()->path();
                     entry["R"] = rotationMatrixArray;
                     entry["t"] = positionVectorArray;
 
@@ -105,7 +105,7 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
                 } else {
                     QJsonObject newEntry;
                     newEntry["id"] = objectImagePose.id();
-                    newEntry["obj"] = objectImagePose.objectModel()->getPath();
+                    newEntry["obj"] = objectImagePose.objectModel()->path();
                     newEntry["t"] = positionVectorArray;
                     newEntry["R"] = rotationMatrixArray;
                     entriesForImage << newEntry;
@@ -264,7 +264,7 @@ QVector<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
         objectModels.end(),
         [&collator](ObjectModelPtr o1, ObjectModelPtr o2)
         {
-            return collator.compare(o1->getPath(), o2->getPath()) < 0;
+            return collator.compare(o1->path(), o2->path()) < 0;
         });
 
     return objectModels;
@@ -274,7 +274,7 @@ QMap<QString, ImagePtr> createImageMap(const QVector<ImagePtr> &images) {
     QMap<QString, ImagePtr> imageMap;
 
     for (int i = 0; i < images.size(); i++) {
-        imageMap[images.at(i)->getImagePath()] = images.at(i);
+        imageMap[images.at(i)->imagePath()] = images.at(i);
     }
 
     return imageMap;
@@ -284,7 +284,7 @@ QMap<QString, ObjectModelPtr> createObjectModelMap(const QVector<ObjectModelPtr>
     QMap<QString, ObjectModelPtr> objectModelMap;
 
     for (int i = 0; i < objectModels.size(); i++) {
-        objectModelMap[objectModels.at(i)->getPath()] = objectModels.at(i);
+        objectModelMap[objectModels.at(i)->path()] = objectModels.at(i);
     }
 
     return objectModelMap;

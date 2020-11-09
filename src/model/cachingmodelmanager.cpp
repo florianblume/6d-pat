@@ -17,12 +17,12 @@ void CachingModelManager::createConditionalCache() {
 
         //! Setup cache of poses that can be retrieved via an image
         QVector<PosePtr> &posesForImage =
-                posesForImages[pose->image()->getImagePath()];
+                posesForImages[pose->image()->imagePath()];
         posesForImage.append(pose);
 
         //! Setup cache of poses that can be retrieved via an object model
         QVector<PosePtr> &posesForObjectModel =
-                posesForObjectModels[pose->objectModel()->getPath()];
+                posesForObjectModels[pose->objectModel()->path()];
         posesForObjectModel.append(pose);
     }
 }
@@ -51,8 +51,8 @@ QVector<ImagePtr> CachingModelManager::getImages() const {
 }
 
 QVector<PosePtr> CachingModelManager::getPosesForImage(const Image &image) const  {
-    if (posesForImages.find(image.getImagePath()) != posesForImages.end()) {
-        return posesForImages[image.getImagePath()];
+    if (posesForImages.find(image.imagePath()) != posesForImages.end()) {
+        return posesForImages[image.imagePath()];
     }
 
     return QVector<PosePtr>();
@@ -63,8 +63,8 @@ QVector<ObjectModelPtr> CachingModelManager::getObjectModels() const {
 }
 
 QVector<PosePtr> CachingModelManager::getPosesForObjectModel(const ObjectModel &objectModel) const {
-    if (posesForObjectModels.find(objectModel.getPath()) != posesForObjectModels.end()) {
-        return posesForObjectModels[objectModel.getPath()];
+    if (posesForObjectModels.find(objectModel.path()) != posesForObjectModels.end()) {
+        return posesForObjectModels[objectModel.path()];
     }
 
     return QVector<PosePtr>();
@@ -88,8 +88,8 @@ PosePtr CachingModelManager::getPoseById(const QString &id) const {
 
 QVector<PosePtr> CachingModelManager::getPosesForImageAndObjectModel(const Image &image, const ObjectModel &objectModel) {
     QVector<PosePtr> posesForImageAndObjectModel;
-    for (PosePtr &pose : posesForImages[image.getImagePath()]) {
-        if (pose->objectModel()->getPath().compare(objectModel.getPath()) == 0) {
+    for (PosePtr &pose : posesForImages[image.imagePath()]) {
+        if (pose->objectModel()->path().compare(objectModel.path()) == 0) {
            posesForImageAndObjectModel.append(pose);
         }
     }
@@ -101,7 +101,7 @@ bool CachingModelManager::addPose(const Image &image,
                                   const QVector3D &position,
                                   const QMatrix3x3 &rotation) {
     QVector<ImagePtr>::iterator imageIterator = find_if(images.begin(), images.end(), [image](const ImagePtr& obj) {
-        return obj->getAbsoluteImagePath() == image.getAbsoluteImagePath();
+        return obj->absoluteImagePath() == image.absoluteImagePath();
     });
 
     if (imageIterator == images.end()) {
@@ -110,7 +110,7 @@ bool CachingModelManager::addPose(const Image &image,
 
     QVector<ObjectModelPtr>::iterator objectModelIterator = find_if(
                 objectModels.begin(), objectModels.end(), [objectModel](const ObjectModelPtr &obj) {
-        return obj->getAbsolutePath() == objectModel.getAbsolutePath();
+        return obj->absolutePath() == objectModel.absolutePath();
     });
     if (objectModelIterator == objectModels.end()) {
         return false;

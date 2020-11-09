@@ -9,6 +9,8 @@
 #include "view/neuralnetworkdialog/neuralnetworkdialog.hpp"
 #include "view/poseviewer/poseviewer.hpp"
 #include "view/poseeditor/poseeditor.hpp"
+#include "view/gallery/gallery.hpp"
+#include "view/gallery/galleryobjectmodels.hpp"
 #include "model/poserecoverer.hpp"
 
 #include <QGuiApplication>
@@ -45,6 +47,8 @@ public:
 
     PoseViewer *poseViewer();
     PoseEditor *poseEditor();
+    GalleryObjectModels *galleryObjectModels();
+    Gallery *galleryImages();
 
 public Q_SLOTS:
 

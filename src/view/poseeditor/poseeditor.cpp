@@ -218,7 +218,7 @@ void PoseEditor::checkPoseDirty() {
 }
 
 void PoseEditor::onObjectModelClickedAt(const QVector3D &position) {
-    qDebug() << "Object model (" + currentlySelectedObjectModel->getPath() + ") clicked at: (" +
+    qDebug() << "Object model (" + currentlySelectedObjectModel->path() + ") clicked at: (" +
                 QString::number(position.x())
                 + ", "
                 + QString::number(position.y())
@@ -389,7 +389,7 @@ void PoseEditor::setObjectModel(ObjectModelPtr objectModel) {
         return;
     }
 
-    qDebug() << "Setting object model (" + objectModel->getPath() + ") to display.";
+    qDebug() << "Setting object model (" + objectModel->path() + ") to display.";
     currentlySelectedObjectModel = objectModel;
     poseEditor3DWindow->setObjectModel(*objectModel);
 }
@@ -421,7 +421,7 @@ void PoseEditor::onSelectedImageChanged(int index) {
     ui->buttonCopy->setEnabled(images.size() > 0);
     QStringList imagesList;
     for (ImagePtr &image : images) {
-        imagesList << image->getImagePath();
+        imagesList << image->imagePath();
     }
     listViewImagesModel->setStringList(imagesList);
     addPosesToListViewPoses(*currentlySelectedImage);

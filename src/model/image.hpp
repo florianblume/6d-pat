@@ -13,7 +13,6 @@
 class Image {
 
 public:
-
     Image();
 
     //! Constructor of class Image.
@@ -40,26 +39,26 @@ public:
     /*!
       \return the path to the actual image relative to the base path
     */
-    QString getImagePath() const;
+    QString imagePath() const;
 
     /*!
      * \brief getAbsoluteImagePath Returns the absolute path to the image, i.e. the base path concatenated witht the image path
      * \return the full path to the image
      */
-    QString getAbsoluteImagePath() const;
+    QString absoluteImagePath() const;
 
     //! Returns the path to the segmented image of this image.
     /*!
       \return the path of segmented image
     */
-    QString getSegmentationImagePath() const;
+    QString segmentationImagePath() const;
 
     /*!
      * \brief getAbsoluteSegmentationImagePath Returns the absolute path to the segmented image, i.e. the base path concatenated
      * with the segmentation image path.
      * \return the absolute path to the segmented image
      */
-    QString getAbsoluteSegmentationImagePath() const;
+    QString absoluteSegmentationImagePath() const;
 
     /*!
      * \brief getBasePath Returns the path to the folder where the image either is located at directly or is
@@ -75,10 +74,10 @@ public:
     Image& operator=(const Image &other);
 
 private:
-    QString imagePath;
-    QString segmentationImagePath;
-    QString basePath;
-    QMatrix3x3 cameraMatrix;
+    QString m_imagePath;
+    QString m_segmentationImagePath;
+    QString m_basePath;
+    QMatrix3x3 m_cameraMatrix;
 
 };
 

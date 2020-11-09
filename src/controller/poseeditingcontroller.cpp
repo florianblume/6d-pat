@@ -1,37 +1,38 @@
 #include "poseeditingcontroller.hpp"
+#include "view/poseeditor/poseeditor.hpp"
+#include "view/poseviewer/poseviewer.hpp"
+#include "view/gallery/galleryobjectmodels.hpp"
 
 #include <QList>
 
-PoseEditingController::PoseEditingController(QObject *parent, ModelManager *modelManager,
-                                             PoseEditor *poseEditor, PoseViewer *poseViewer)
+PoseEditingController::PoseEditingController(QObject *parent, ModelManager *modelManager, MainWindow *mainWindow)
     : QObject(parent)
     , m_modelManager(modelManager)
-    , m_poseEditor(poseEditor)
-    , m_poseViewer(poseViewer) {
+    , m_mainWindow(mainWindow) {
 
     connect(modelManager, &ModelManager::dataChanged,
             this, &PoseEditingController::onDataChanged);
 
     // Connect the PoseEditor and PoseViewer to the PoseEditingController
     connect(this, &PoseEditingController::selectedPoseChanged,
-            poseViewer, &PoseViewer::selectPose);
+            mainWindow->poseViewer(), &PoseViewer::selectPose);
     connect(this, &PoseEditingController::selectedPoseChanged,
-            poseEditor, &PoseEditor::selectPose);
+            mainWindow->poseEditor(), &PoseEditor::selectPose);
 
     // React to the user selecting a different pose
-    connect(poseViewer, &PoseViewer::poseSelected,
+    connect(mainWindow->poseViewer(), &PoseViewer::poseSelected,
             this, &PoseEditingController::selectPose);
-    connect(poseEditor, &PoseEditor::poseSelected,
+    connect(mainWindow->poseEditor(), &PoseEditor::poseSelected,
             this, &PoseEditingController::selectPose);
 
     // React to changes to the pose
     connect(this, &PoseEditingController::poseValuesChanged,
-            poseViewer, &PoseViewer::selectedPoseValuesChanged);
+            mainWindow->poseViewer(), &PoseViewer::selectedPoseValuesChanged);
     connect(this, &PoseEditingController::poseValuesChanged,
-            poseEditor, &PoseEditor::onSelectedPoseValuesChanged);
+            mainWindow->poseEditor(), &PoseEditor::onSelectedPoseValuesChanged);
 
     // React to save request
-    connect(poseEditor, &PoseEditor::buttonSaveClicked,
+    connect(mainWindow->poseEditor(), &PoseEditor::buttonSaveClicked,
             this, &PoseEditingController::savePoses);
 }
 
@@ -39,6 +40,8 @@ void PoseEditingController::selectPose(PosePtr pose) {
     if (pose == m_selectedPose) {
         // Selecting the same pose again deselects it
         m_selectedPose.reset();
+        // When starting the program sometimes the gallery hasn't been initialized yet
+        m_mainWindow->galleryObjectModels()->clearSelection(false);
         Q_EMIT selectedPoseChanged(PosePtr(), pose);
     } else {
         if (!m_selectedPose.isNull()) {
@@ -53,6 +56,7 @@ void PoseEditingController::selectPose(PosePtr pose) {
                 this, &PoseEditingController::onPosePositionChanged);
         connect(m_selectedPose.get(), &Pose::rotationChanged,
                 this, &PoseEditingController::onPoseRotationChanged);
+        m_mainWindow->galleryObjectModels()->selectObjectModelByID(*pose->objectModel(), false);
         Q_EMIT selectedPoseChanged(m_selectedPose, oldPose);
     }
 }

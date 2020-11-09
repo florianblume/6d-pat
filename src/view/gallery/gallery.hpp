@@ -30,6 +30,7 @@ public Q_SLOTS:
     void beginScrollLeft();
     void beginScrollRight();
     void endScroll();
+    void clearSelection(bool emitSignals);
     void reset();
     void enable();
     void disable();
@@ -37,8 +38,12 @@ public Q_SLOTS:
 Q_SIGNALS:
     void selectedItemChanged(int index);
 
-private:
+protected:
+    // protected to grant access to subclasses
+    bool ignoreSelectionChanges = false;
     Ui::Gallery *ui;
+
+private:
     //! The members below are there for the buttons left and right of the scroll view to smoothly scroll
     //! through the objects
     bool scrollDirection = true;

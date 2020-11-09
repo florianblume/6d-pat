@@ -139,7 +139,7 @@ bool PoseRecoverer::recoverPose() {
     std::vector<cv::Point3f> objectPoints;
     std::vector<cv::Point2f> imagePoints;
 
-    QImage loadedImage = QImage(m_image->getAbsoluteImagePath());
+    QImage loadedImage = QImage(m_image->absoluteImagePath());
 
     qDebug() << "Creating pose for the following points:";
     for (int i = 0; i < points2D().size(); i ++) {

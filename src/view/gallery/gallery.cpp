@@ -12,8 +12,7 @@ const int Gallery::SCROLL_INCREMENT_RATE = 10;
 
 Gallery::Gallery(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Gallery)
-{
+    ui(new Ui::Gallery) {
     ui->setupUi(this);
     //! Here we set the nice arrow icons of the buttons left and right of the list view
     DisplayHelper::setIcon(ui->buttonNavigateLeft, DisplayHelper::CHEVRONLEFT, 20);
@@ -21,8 +20,7 @@ Gallery::Gallery(QWidget *parent) :
     ui->frame->layout()->setAlignment(Qt::AlignVCenter);
 }
 
-Gallery::~Gallery()
-{
+Gallery::~Gallery() {
     delete ui;
 }
 
@@ -63,6 +61,11 @@ void Gallery::endScroll() {
     scrollButtonDown = false;
 }
 
+void Gallery::clearSelection(bool emitSignals) {
+    ignoreSelectionChanges = !emitSignals;
+    ui->listView->clearSelection();
+}
+
 void Gallery::reset() {
     ui->listView->reset();
     ui->listView->clearSelection();
@@ -96,10 +99,11 @@ void Gallery::performScroll() {
 
 void Gallery::onSelectionChanged(const QItemSelection &selected,
                                  const QItemSelection &/* deselected */) {
-    if (selected.size() > 0) {
+    if (selected.size() > 0 && !ignoreSelectionChanges) {
         //! Weird, this should never be the case but the app crashes because sometimes selection is empty...
         //! Maybe in the future when I'm wiser I'll understand what is happening here...
         QItemSelectionRange range = selected.front();
         Q_EMIT selectedItemChanged(range.top());
     }
+    ignoreSelectionChanges = true;
 }

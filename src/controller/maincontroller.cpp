@@ -28,7 +28,7 @@ void MainController::initialize() {
     modelManager->reload();
     poseRecoverer->moveToThread(poseRecovererThread);
     mainWindow.reset(new MainWindow(0, modelManager.get(), settingsStore.get(), settingsIdentifier, poseRecoverer.get()));
-    poseEditingModel.reset(new PoseEditingController(Q_NULLPTR, modelManager.get(), mainWindow->poseEditor(), mainWindow->poseViewer()));
+    poseEditingModel.reset(new PoseEditingController(Q_NULLPTR, modelManager.get(), mainWindow.get()));
 }
 
 void MainController::showView() {

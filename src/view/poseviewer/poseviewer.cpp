@@ -88,10 +88,10 @@ void PoseViewer::setImage(ImagePtr image) {
     ui->sliderTransparency->setValue(100);
     ui->sliderZoom->setEnabled(true);
 
-    qDebug() << "Displaying image (" + currentlyDisplayedImage->getImagePath() + ").";
+    qDebug() << "Displaying image (" + currentlyDisplayedImage->imagePath() + ").";
 
     // Enable/disable functionality to show only segmentation image instead of normal image
-    if (currentlyDisplayedImage->getSegmentationImagePath().isEmpty()) {
+    if (currentlyDisplayedImage->segmentationImagePath().isEmpty()) {
         ui->buttonSwitchView->setEnabled(false);
 
         // If we don't find a segmentation image, set that we will now display the normal image
@@ -101,8 +101,8 @@ void PoseViewer::setImage(ImagePtr image) {
     } else {
         ui->buttonSwitchView->setEnabled(true);
     }
-    QString toDisplay = showingNormalImage ?  currentlyDisplayedImage->getAbsoluteImagePath() :
-                                    currentlyDisplayedImage->getAbsoluteSegmentationImagePath();
+    QString toDisplay = showingNormalImage ?  currentlyDisplayedImage->absoluteImagePath() :
+                                    currentlyDisplayedImage->absoluteSegmentationImagePath();
     QVector<PosePtr> posesForImage = modelManager->getPosesForImage(*image);
     poseViewer3DWidget->setBackgroundImageAndPoses(toDisplay, image->getCameraMatrix(), posesForImage);
     ui->sliderTransparency->setEnabled(posesForImage.size() > 0);
@@ -165,10 +165,10 @@ void PoseViewer::switchImage() {
                            18);
 
     if (showingNormalImage)
-        poseViewer3DWidget->setBackgroundImage(currentlyDisplayedImage->getAbsoluteImagePath(),
+        poseViewer3DWidget->setBackgroundImage(currentlyDisplayedImage->absoluteImagePath(),
                                                currentlyDisplayedImage->getCameraMatrix());
     else
-        poseViewer3DWidget->setBackgroundImage(currentlyDisplayedImage->getAbsoluteSegmentationImagePath(),
+        poseViewer3DWidget->setBackgroundImage(currentlyDisplayedImage->absoluteSegmentationImagePath(),
                                                currentlyDisplayedImage->getCameraMatrix());
 
     if (showingNormalImage)
@@ -202,7 +202,7 @@ void PoseViewer::resetPositionOfGraphicsView() {
 }
 
 void PoseViewer::onImageClicked(QPoint point) {
-    qDebug() << "Image (" + currentlyDisplayedImage->getImagePath() + ") clicked at: (" +
+    qDebug() << "Image (" + currentlyDisplayedImage->imagePath() + ") clicked at: (" +
                 QString::number(point.x()) + ", " + QString::number(point.y()) + ").";
     poseRecoverer->add2DPoint(point);
 }

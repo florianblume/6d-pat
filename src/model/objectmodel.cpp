@@ -2,34 +2,34 @@
 #include <QDir>
 
 ObjectModel::ObjectModel(const QString& objectModelPath, const QString& basePath)
-    : objectModelPath(objectModelPath),
-      basePath(basePath) {
+    : m_objectModelPath(objectModelPath),
+      m_basePath(basePath) {
 }
 
 ObjectModel::ObjectModel(const ObjectModel &other) {
-    objectModelPath = other.objectModelPath;
-    basePath = other.basePath;
+    m_objectModelPath = other.m_objectModelPath;
+    m_basePath = other.m_basePath;
 }
 
-QString ObjectModel::getPath() const {
-    return objectModelPath;
+QString ObjectModel::path() const {
+    return m_objectModelPath;
 }
 
-QString ObjectModel::getBasePath() const {
-    return basePath;
+QString ObjectModel::basePath() const {
+    return m_basePath;
 }
 
-QString ObjectModel::getAbsolutePath() const {
-    return QDir(basePath).filePath(objectModelPath);
+QString ObjectModel::absolutePath() const {
+    return QDir(m_basePath).filePath(m_objectModelPath);
 }
 
 bool ObjectModel::operator==(const ObjectModel &other) {
     // QString supports standard string comparison ==
-    return basePath == other.basePath && objectModelPath == other.objectModelPath;
+    return m_basePath == other.m_basePath && m_objectModelPath == other.m_objectModelPath;
 }
 
 ObjectModel& ObjectModel::operator=(const ObjectModel &other) {
-    basePath = other.basePath;
-    objectModelPath = other.objectModelPath;
+    m_basePath = other.m_basePath;
+    m_objectModelPath = other.m_objectModelPath;
     return *this;
 }

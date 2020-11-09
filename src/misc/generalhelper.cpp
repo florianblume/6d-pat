@@ -29,9 +29,9 @@ namespace GeneralHelper {
         QDateTime date = QDateTime::currentDateTime();;
         //! We include the date as part of the identifier - this actually makes
         //! the ID quite long but still better readable than a UUID
-        QString id = QFileInfo(image.getImagePath()).completeBaseName()
+        QString id = QFileInfo(image.imagePath()).completeBaseName()
                    + "_"
-                   + QFileInfo(objectModel.getPath()).completeBaseName()
+                   + QFileInfo(objectModel.path()).completeBaseName()
                    + "_"
                    + date.toString("d.M.yy_HH:mm:ss");
         return id;

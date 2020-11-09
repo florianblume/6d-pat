@@ -5,12 +5,9 @@
 #include "view/gallery/rendering/offscreenengine.hpp"
 
 #include <QAbstractListModel>
-#include <QPixmap>
+#include <QColor>
 #include <QMap>
 #include <QVector>
-#include <QRgb>
-#include <QThread>
-#include <QScopedPointer>
 #include <QSize>
 
 /*!
@@ -33,6 +30,7 @@ public:
     void setSegmentationCodesForObjectModels(QMap<QString, QString> codes);
     void setPreviewRenderingSize(QSize size);
     QSize previewRenderingSize();
+    QModelIndex indexOfObjectModel(const ObjectModel &objectModel);
 
 public Q_SLOTS:
     /*!
@@ -52,11 +50,12 @@ Q_SIGNALS:
 
 private:
     ModelManager* modelManager;
-    QVector<ObjectModelPtr> objectModelsCache;
+    QVector<ObjectModelPtr> objectModels;
     QMap<QString,QImage> renderedObjectsModels;
     OffscreenEngine offscreenEngine{QSize(300, 300)};
     void renderObjectModels();
-    QVector<ImagePtr> imagesCache;
+    QVector<ImagePtr> images;
+    // Color codes
     QMap<QString, QString> codes;
     //! We need this in case that an object model will not be displayed due to its color
     //! which then "tears" a hole into the indices

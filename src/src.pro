@@ -53,6 +53,7 @@ HEADERS  += \
     model/pose.hpp \
     model/poseeditingmodel.hpp \
     model/poserecoverer.hpp \
+    view/gallery/galleryobjectmodels.hpp \
     view/gallery/rendering/offscreenengine.hpp \
     view/gallery/rendering/texturerendertarget.hpp \
     view/misc/displayhelper.hpp \
@@ -99,6 +100,7 @@ SOURCES += \
     model/modelmanager.cpp \
     model/jsonloadandstorestrategy.cpp \
     model/pose.cpp \
+    view/gallery/galleryobjectmodels.cpp \
     view/mainwindow.cpp \
     view/breadcrumb/breadcrumbview.cpp \
     view/navigationcontrols/navigationcontrols.cpp \

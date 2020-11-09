@@ -119,7 +119,7 @@ void NeuralNetworkController::setPathsOnConfig(const QString &configPath) {
         if (imageListFile.open(QFile::ReadWrite)) {
             QJsonArray imageList;
             for (const ImagePtr &image : images) {
-                imageList << image->getImagePath();
+                imageList << image->imagePath();
             }
             imageListFile.resize(0);
             imageListFile.write(QJsonDocument(imageList).toJson());

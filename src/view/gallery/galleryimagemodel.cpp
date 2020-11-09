@@ -23,7 +23,7 @@ QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
     if (index.row() >= imagesCache.size())
         return QVariant();
 
-    QString imagePath = imagesCache[index.row()]->getImagePath();
+    QString imagePath = imagesCache[index.row()]->imagePath();
     if (role == Qt::DecorationRole) {
         if (resizedImagesCache.contains(imagePath)) {
             return QIcon(QPixmap::fromImage(resizedImagesCache[imagePath]));
