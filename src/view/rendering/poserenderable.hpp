@@ -29,10 +29,6 @@ public:
 
     QString poseID();
     ObjectModelPtr objectModel();
-    QVector3D position();
-    void setPosition(const QVector3D &position);
-    QQuaternion rotation();
-    void setRotation(const QQuaternion &rotation);
     Qt3DCore::QTransform *getTransform() const;
 
     // To retrieve the respective renderable
@@ -45,10 +41,10 @@ Q_SIGNALS:
     void moved(Qt3DRender::QPickEvent *pickEvent);
 
 private:
-    PosePtr pose;
+    PosePtr m_pose;
 
     Qt3DRender::QObjectPicker *m_picker;
-    Qt3DCore::QTransform *transform;
+    Qt3DCore::QTransform *m_transform;
 };
 
 #endif // POSERENDERABLE_H

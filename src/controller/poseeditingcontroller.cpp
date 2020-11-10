@@ -25,9 +25,11 @@ PoseEditingController::PoseEditingController(QObject *parent, ModelManager *mode
     connect(mainWindow->poseEditor(), &PoseEditor::poseSelected,
             this, &PoseEditingController::selectPose);
 
-    // React to changes to the pose
-    connect(this, &PoseEditingController::poseValuesChanged,
-            mainWindow->poseViewer(), &PoseViewer::selectedPoseValuesChanged);
+    // React to changes to the pose but only in editor because ther we have
+    // to set the new pose values on the controls and would have to register
+    // with every new selected pose. The pose viewer doesn't get notified
+    // by changes in the pose because PoseRenderables register with the
+    // respective pose and update their position and rotation automatically.
     connect(this, &PoseEditingController::poseValuesChanged,
             mainWindow->poseEditor(), &PoseEditor::onSelectedPoseValuesChanged);
 
@@ -94,4 +96,12 @@ void PoseEditingController::savePoses() {
     for (const PosePtr &pose : posesToSave) {
         m_modelManager->updatePose(pose->id(), pose->position(), pose->rotation().toRotationMatrix());
     }
+}
+
+void PoseEditingController::onSelectedImageChanged() {
+
+}
+
+void PoseEditingController::onReloadViews() {
+
 }

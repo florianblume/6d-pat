@@ -57,8 +57,6 @@ void PoseViewer::setModelManager(ModelManager *value) {
                    this, &PoseViewer::onPoseAdded);
         disconnect(modelManager, &ModelManager::poseDeleted,
                    this, &PoseViewer::onPoseDeleted);
-        disconnect(modelManager, &ModelManager::poseUpdated,
-                   this, &PoseViewer::onPoseUpdated);
         disconnect(modelManager, &ModelManager::dataChanged, this, &PoseViewer::onDataChanged);
     }
     modelManager = value;
@@ -66,8 +64,6 @@ void PoseViewer::setModelManager(ModelManager *value) {
             this, &PoseViewer::onPoseAdded);
     connect(modelManager, &ModelManager::poseDeleted,
             this, &PoseViewer::onPoseDeleted);
-    connect(modelManager, &ModelManager::poseUpdated,
-            this, &PoseViewer::onPoseUpdated);
     connect(modelManager, &ModelManager::dataChanged, this, &PoseViewer::onDataChanged);
 }
 
@@ -143,14 +139,6 @@ void PoseViewer::onCorrespondencesChanged() {
 
 void PoseViewer::poseRecovererStateChanged(PoseRecoverer::State /*state*/) {
     poseViewer3DWidget->setClicks(poseRecoverer->points2D());
-}
-
-void PoseViewer::onPoseUpdated(PosePtr pose){
-    poseViewer3DWidget->updatePose(pose);
-}
-
-void PoseViewer::selectedPoseValuesChanged(PosePtr pose) {
-    poseViewer3DWidget->updatePose(pose);
 }
 
 void PoseViewer::selectPose(PosePtr selected, PosePtr deselected) {

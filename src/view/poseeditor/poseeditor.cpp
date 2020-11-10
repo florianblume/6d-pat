@@ -119,14 +119,14 @@ void PoseEditor::setEnabledAllControls(bool enabled) {
 }
 
 void PoseEditor::resetControlsValues() {
-    ignoreValueChanges = true;
+    ignoreSpinBoxValueChanges = true;
     ui->spinBoxTranslationX->setValue(0);
     ui->spinBoxTranslationY->setValue(0);
     ui->spinBoxTranslationZ->setValue(0);
     ui->spinBoxRotationX->setValue(0);
     ui->spinBoxRotationY->setValue(0);
     ui->spinBoxRotationZ->setValue(0);
-    ignoreValueChanges = false;
+    ignoreSpinBoxValueChanges = false;
 }
 
 void PoseEditor::setEnabledPoseInvariantControls(bool enabled) {
@@ -140,7 +140,7 @@ void PoseEditor::addPosesToListViewPoses(const Image &image,
     QVector<PosePtr> poses =
             modelManager->getPosesForImage(image);
     posesIndices.clear();
-    ignoreValueChanges = true;
+    ignoreSpinBoxValueChanges = true;
     QStringList list("None");
     int index = 1;
     int _index = 0;
@@ -166,13 +166,13 @@ void PoseEditor::addPosesToListViewPoses(const Image &image,
         QModelIndex indexToSelect = ui->listViewPoses->model()->index(_index, 0);
         ui->listViewPoses->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect);
     }
-    ignoreValueChanges = false;
+    ignoreSpinBoxValueChanges = false;
 }
 
 void PoseEditor::setPoseValuesOnControls(const Pose &pose) {
     // TODO connect the signals that are to be added to the Pose class directly to the UI elements
     QVector3D position = pose.position();
-    ignoreValueChanges = true;
+    ignoreSpinBoxValueChanges = true;
     ui->spinBoxTranslationX->setValue(position.x());
     ui->spinBoxTranslationY->setValue(position.y());
     ui->spinBoxTranslationZ->setValue(position.z());
@@ -180,14 +180,13 @@ void PoseEditor::setPoseValuesOnControls(const Pose &pose) {
     ui->spinBoxRotationX->setValue(rotationVector[0]);
     ui->spinBoxRotationY->setValue(rotationVector[1]);
     ui->spinBoxRotationZ->setValue(rotationVector[2]);
-    ignoreValueChanges = false;
+    ignoreSpinBoxValueChanges = false;
 }
 
 void PoseEditor::onSpinBoxValueChanged() {
-    if (!ignoreValueChanges) {
+    if (!ignoreSpinBoxValueChanges) {
         updateCurrentlyEditedPose();
         ui->buttonSave->setEnabled(true);
-        posesDirty = true;
     }
 }
 
@@ -199,22 +198,6 @@ void PoseEditor::onPoseRecovererStateChanged(PoseRecoverer::State state) {
 void PoseEditor::onObjectModelLoaded() {
     setEnabledPoseInvariantControls(!currentlySelectedImage.isNull());
     setEnabledPoseEditorControls(!currentlySelectedPose.isNull());
-}
-
-void PoseEditor::checkPoseDirty() {
-    if (posesDirty) {
-        int result = QMessageBox::warning(this,
-                                          "Pose modifications unsaved",
-                             "You have unsaved modifications of the currently edited pose."
-                             " The action you just performed would discard these modifications. "
-                             "Save them now?",
-                             QMessageBox::Yes,
-                             QMessageBox::No);
-        if (result == QMessageBox::Yes) {
-            onButtonSaveClicked();
-        }
-    }
-    posesDirty = false;
 }
 
 void PoseEditor::onObjectModelClickedAt(const QVector3D &position) {
@@ -240,7 +223,6 @@ void PoseEditor::updateCurrentlyEditedPose() {
 }
 
 void PoseEditor::onPoseAdded(PosePtr pose) {
-    checkPoseDirty();
     addPosesToListViewPoses(*currentlySelectedImage, pose->id());
     ui->buttonCreate->setEnabled(false);
     // Gets enabled somehow
@@ -282,7 +264,6 @@ void PoseEditor::onButtonCopyClicked() {
                              QMessageBox::Ok);
         return;
     }
-    checkPoseDirty();
     QModelIndexList selection = ui->listViewImages->selectionModel()->selectedRows();
     int selectedImage = selection[0].row();
     ImagePtr image = modelManager->getImages()[selectedImage];
@@ -300,7 +281,6 @@ void PoseEditor::onButtonCopyClicked() {
 }
 
 void PoseEditor::onButtonCreateClicked() {
-    checkPoseDirty();
     QString message("");
     switch (poseRecoverer->state()) {
     case PoseRecoverer::ReadyForPoseCreation: {
@@ -344,7 +324,6 @@ void PoseEditor::onButtonSaveClicked() {
 void PoseEditor::onButtonDuplicateClicked() {
     // Any errors occuring in the model manager while saving will be handled
     // by the maincontroller
-    checkPoseDirty();
     modelManager->addPose(*currentlySelectedImage,
                           *currentlySelectedPose->objectModel(),
                           currentlySelectedPose->position(),
@@ -398,7 +377,6 @@ void PoseEditor::setObjectModel(ObjectModelPtr objectModel) {
 void PoseEditor::onSelectedObjectModelChanged(int index) {
     QVector<ObjectModelPtr> objectModels = modelManager->getObjectModels();
     Q_ASSERT_X(index >= 0 && index < objectModels.size(), "onSelectedObjectModelChanged", "Index out of bounds.");
-    checkPoseDirty();
     ObjectModelPtr objectModel = objectModels[index];
     setObjectModel(objectModel);
     setEnabledPoseEditorControls(false);
@@ -412,7 +390,6 @@ void PoseEditor::onSelectedObjectModelChanged(int index) {
 void PoseEditor::onSelectedImageChanged(int index) {
     QVector<ImagePtr> images = modelManager->getImages();
     Q_ASSERT_X(index >= 0 && index < images.size(), "onSelectedImageChanged", "Index out of bounds.");
-    checkPoseDirty();
     reset();
     currentlySelectedImage = images[index];
     // Should always be the case when we can set an image through onSelectedImageChanged
@@ -431,8 +408,7 @@ void PoseEditor::onSelectedImageChanged(int index) {
 void PoseEditor::onSelectedPoseValuesChanged(PosePtr pose) {
     // Callback for PoseEditingController when the poes values have changed
     // (because the user rotated/moved the pose in the PoseViewer)
-    posesDirty = true;
-    ignoreValueChanges = true;
+    ignoreSpinBoxValueChanges = true;
     setPoseValuesOnControls(*pose);
 }
 
@@ -444,8 +420,6 @@ void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
         // it recieved changed poses
         return;
     }
-
-    checkPoseDirty();
 
     currentlySelectedPose = selected;
 
@@ -506,7 +480,6 @@ void PoseEditor::onCorrespondencesChanged() {
 
 void PoseEditor::reset() {
     qDebug() << "Resetting pose editor.";
-    checkPoseDirty();
     poseEditor3DWindow->reset();
     currentlySelectedObjectModel.reset();
     currentlySelectedPose.reset();

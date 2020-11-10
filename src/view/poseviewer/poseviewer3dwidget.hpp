@@ -41,7 +41,6 @@ public:
                                     const QVector<PosePtr> &poses);
     void setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix);
     void addPose(PosePtr pose);
-    void updatePose(PosePtr pose);
     void removePose(const QString &id);
     void removePoses();
     void selectPose(PosePtr selected, PosePtr deselected);

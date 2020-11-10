@@ -73,6 +73,8 @@ public Q_SLOTS:
      */
     void displayWarning(const QString &title, const QString& text);
 
+    int showSaveDialog();
+
 Q_SIGNALS:
 
     /*!

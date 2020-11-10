@@ -29,6 +29,8 @@ private Q_SLOTS:
     void onPoseRotationChanged(QQuaternion rotation);
     void onDataChanged(int data);
     void savePoses();
+    void onSelectedImageChanged();
+    void onReloadViews();
 
 private:
     PosePtr m_selectedPose;

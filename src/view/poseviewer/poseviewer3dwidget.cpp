@@ -168,13 +168,6 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     });
 }
 
-void PoseViewer3DWidget::updatePose(PosePtr pose) {
-    // ToDo connect signals of Pose when values change to update slots of PoseRenderable
-    PoseRenderable *renderable = poseRenderableForId[pose->id()];
-    renderable->setPosition(pose->position());
-    renderable->setRotation(pose->rotation());
-}
-
 void PoseViewer3DWidget::removePose(const QString &id) {
     for (int index = 0; index < poseRenderables.size(); index++) {
         if (poseRenderables[index]->poseID() == id) {

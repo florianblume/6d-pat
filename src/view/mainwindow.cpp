@@ -190,6 +190,16 @@ void MainWindow::displayWarning(const QString &title, const QString &text) {
     QMessageBox::warning(this, title, text);
 }
 
+int MainWindow::showSaveDialog() {
+    return QMessageBox::warning(this,
+                                "Unsaved pose modifications",
+                                 "You have unsaved modifications of the currently edited pose."
+                                 " The action you just performed would discard these modifications. "
+                                 "Save them now?",
+                                 QMessageBox::Yes,
+                                 QMessageBox::No);
+}
+
 void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
     QSharedPointer<Settings> settings = settingsStore->loadPreferencesByIdentifier(settingsIdentifier);
     galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->getSegmentationCodes());

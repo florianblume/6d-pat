@@ -107,11 +107,6 @@ private:
     // model we can restore the list of all poses available for the currently viewed image
     ImagePtr currentlySelectedImage;
 
-    // To see whether it is necessary to enable the save button
-    // and warn the user whether they want to save the modifications
-    // when e.g. changing the selected image
-    bool posesDirty = false;
-    void checkPoseDirty();
     // When the pose is selected by the pose viewer we still emit the pose selected signal
     // which causes the program to crash
     bool doNotEmitPoseSelected = false;
@@ -121,9 +116,10 @@ private:
 
     QStringListModel *listViewPosesModel;
     QStringListModel *listViewImagesModel;
+
     // To prevent the spin boxes from emitting their changed signal when we set the pose
     // values e.g. because the user selected a pose in the PoseViewer
-    bool ignoreValueChanges = false;
+    bool ignoreSpinBoxValueChanges = false;
     // To prevent from reacting to the poses list view selection changed signal again
     // when we receive the selected pose changed signal from the PoseEditingController
     bool ignorePoseSelectionChanges = false;

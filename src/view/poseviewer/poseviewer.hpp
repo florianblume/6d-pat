@@ -49,11 +49,8 @@ public Q_SLOTS:
     void reset();
     void reloadPoses();
     void onPoseCreationAborted();
-    // Connected to model manager
-    void onPoseUpdated(PosePtr pose);
     // React to signal from PoseEditingModel
     void selectPose(PosePtr selected, PosePtr deselected);
-    void selectedPoseValuesChanged(PosePtr pose);
 
 Q_SIGNALS:
     void imageClicked(QPoint position);
