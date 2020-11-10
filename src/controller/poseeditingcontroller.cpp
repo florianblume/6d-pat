@@ -45,6 +45,9 @@ PoseEditingController::PoseEditingController(QObject *parent, ModelManager *mode
             this, &PoseEditingController::onReloadViews);
     connect(mainWindow, &MainWindow::closingProgram,
             this, &PoseEditingController::onProgramClose);
+
+    connect(mainWindow->galleryImages(), &Gallery::selectedItemChanged,
+            this, &PoseEditingController::onSelectedImageChanged);
 }
 
 void PoseEditingController::selectPose(PosePtr pose) {
@@ -76,16 +79,20 @@ PosePtr PoseEditingController::selectedPose() {
     return m_selectedPose;
 }
 
-void PoseEditingController::onPosePositionChanged(QVector3D /*position*/) {
+void PoseEditingController::onPoseChanged() {
     // Only assign true when actually changed
-    m_dirtyPoses[m_selectedPose] = m_unmodifiedPoses[m_selectedPose->id()] != m_selectedPose;
+    PoseValues poseValues = m_unmodifiedPoses[m_selectedPose->id()];
+    m_dirtyPoses[m_selectedPose] = poseValues.position != m_selectedPose->position()
+                                    && poseValues.rotation != m_selectedPose->rotation();
     Q_EMIT poseValuesChanged(m_selectedPose);
 }
 
+void PoseEditingController::onPosePositionChanged(QVector3D /*position*/) {
+    onPoseChanged();
+}
+
 void PoseEditingController::onPoseRotationChanged(QQuaternion /*rotation*/) {
-    // Only assign true when actually changed
-    m_dirtyPoses[m_selectedPose] = m_unmodifiedPoses[m_selectedPose->id()] != m_selectedPose;
-    Q_EMIT poseValuesChanged(m_selectedPose);
+    onPoseChanged();
 }
 
 void PoseEditingController::modelManagerStateChanged(ModelManager::State state) {
@@ -117,25 +124,52 @@ void PoseEditingController::savePoses() {
     _savePoses(false);
 }
 
-void PoseEditingController::_savePoses(bool showDialog) {
+void PoseEditingController::savePosesOrRestoreState() {
+    bool result = _savePoses(true);
+    // Result is true if poses have been saved
+    if (!result) {
+        // The user click no - don't save poses, i.e. we must restore
+        // the pose values because the pointers have been modified
+        QList<PosePtr> dirtyPoses = m_dirtyPoses.keys(true);
+        for (const PosePtr &pose : dirtyPoses) {
+            PoseValues poseValues = m_unmodifiedPoses[pose->id()];
+            pose->setPosition(poseValues.position);
+            pose->setRotation(poseValues.rotation);
+        }
+    }
+}
+
+bool PoseEditingController::_savePoses(bool showDialog) {
     QList<PosePtr> posesToSave = m_dirtyPoses.keys(true);
     if (posesToSave.size() > 0) {
         qDebug() << QString::number(posesToSave.size()) << " poses dirty.";
-        if (!showDialog || m_mainWindow->showSaveUnsavedChangesDialog()) {
+        bool result = !showDialog;
+        if (showDialog) {
+            result =  m_mainWindow->showSaveUnsavedChangesDialog();
+        }
+        // If show dialog, check result (which is the result from showing the dialog)
+        // else result will be true because result = !showDialog (the latter is false in this case)
+        if (!showDialog || result) {
             qDebug() << "Saving " + QString::number(posesToSave.size()) << " poses.";
             for (const PosePtr &pose : posesToSave) {
                 m_modelManager->updatePose(pose->id(), pose->position(), pose->rotation().toRotationMatrix());
                 m_dirtyPoses[pose] = false;
             }
         }
+        // Result is either true if the user was shown the save dialog and clicked yes, false if the user clicked no
+        // or true if there was no dialog to be shown but the saving executed directly
+        return result;
     }
     m_mainWindow->poseEditor()->onPosesSaved();
+    return true;
 }
 
 void PoseEditingController::onSelectedImageChanged(int index) {
     if (index > 0 && index < m_images.size()) {
         m_selectedPose.reset();
         selectPose(PosePtr());
+        // Only after resetting the selected pose so that singals are disconnected
+        savePosesOrRestoreState();
         m_dirtyPoses.clear();
         m_unmodifiedPoses.clear();
         m_currentImage = m_images[index];
@@ -143,14 +177,14 @@ void PoseEditingController::onSelectedImageChanged(int index) {
         for (const PosePtr &pose: m_posesForImage) {
             m_dirtyPoses[pose] = false;
             // Need to fully copy to keep unmodified pose
-            Pose savedPose = *pose;
-            m_unmodifiedPoses[pose->id()] = PosePtr(new Pose(savedPose));
+            m_unmodifiedPoses[pose->id()] = {.position = pose->position(),
+                                             .rotation = pose->rotation()};
         }
     }
 }
 
 void PoseEditingController::onReloadViews() {
-    _savePoses(true);
+    savePosesOrRestoreState();
     onDataChanged(0);
 }
 

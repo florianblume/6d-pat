@@ -26,6 +26,7 @@ Q_SIGNALS:
     void posesDirtyChanged(bool dirty);
 
 private Q_SLOTS:
+    void onPoseChanged();
     void onPosePositionChanged(QVector3D position);
     void onPoseRotationChanged(QQuaternion rotation);
     void modelManagerStateChanged(ModelManager::State state);
@@ -35,12 +36,18 @@ private Q_SLOTS:
     // save button
     void saveUnsavedChanges();
     void savePoses();
-    void _savePoses(bool showDialog);
+    void savePosesOrRestoreState();
+    bool _savePoses(bool showDialog);
     void onSelectedImageChanged(int index);
     void onReloadViews();
     void onProgramClose();
 
 private:
+    struct PoseValues {
+        QVector3D position;
+        QQuaternion rotation;
+    };
+
     PosePtr m_selectedPose;
     ModelManager *m_modelManager;
     MainWindow *m_mainWindow;
@@ -48,7 +55,7 @@ private:
     ImagePtr m_currentImage;
     QList<ImagePtr> m_images;
     QList<PosePtr> m_posesForImage;
-    QMap<QString, PosePtr> m_unmodifiedPoses;
+    QMap<QString, PoseValues> m_unmodifiedPoses;
     QMap<PosePtr, bool> m_dirtyPoses;
 };
 
