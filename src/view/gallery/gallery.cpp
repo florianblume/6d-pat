@@ -62,7 +62,13 @@ void Gallery::endScroll() {
 }
 
 void Gallery::clearSelection(bool emitSignals) {
-    ignoreSelectionChanges = !emitSignals;
+    // Only ignore selection changes when we actually have a selection because
+    // when the program starts the selection is empty but the Gallery is reset
+    // as a consequence when the user clicks an item the first time nothing
+    // happens because due to the reset the gallery is supposed to ignore
+    // the selection changes
+    ignoreSelectionChanges = !emitSignals
+                                && !ui->listView->selectionModel()->selection().isEmpty();
     ui->listView->clearSelection();
 }
 

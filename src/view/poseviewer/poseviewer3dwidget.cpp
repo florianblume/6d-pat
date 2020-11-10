@@ -197,14 +197,10 @@ void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
     selectedPose = selected;
 }
 
-static int qNormalizeAngle(int angle) {
-    while (angle < 0) {
-        angle += 360 * 16;
-    }
-    while (angle > 360 * 16) {
-        angle -= 360 * 16;
-    }
-    return angle;
+inline float clampInputs(float input1, float input2)
+{
+    float axisValue = input1 + input2;
+    return (axisValue < -1) ? -1 : (axisValue > 1) ? 1 : axisValue;
 }
 
 void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *e) {
@@ -212,11 +208,14 @@ void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *e) {
     if (mouseDownOnBackground || selectedPose.isNull()) {
         return;
     }
+    if (!poseRenderableMoved) {
+        clickPos = QPoint(e->position().x(), e->position().y());
+    }
     poseRenderableMoved = true;
     qDebug() << "moved on pose renderable";
     qDebug() << e->button();
     int dx = e->position().x() - clickPos.x();
-    int dy = clickPos.y() - e->position().y();
+    int dy = e->position().y() - clickPos.y();
     int d = 0;
     if (qAbs(dx) > qAbs(dy)) {
         d = dx;
@@ -224,10 +223,9 @@ void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *e) {
         d = dy;
     }
 
-    int x_norm = qNormalizeAngle(d);
-    int y_norm = qNormalizeAngle(d);
-    int z_norm = qNormalizeAngle(d);
-    QVector3D diff(x_norm, y_norm, 0);
+    QQuaternion rotation = QQuaternion::fromAxisAndAngle(posesCamera->upVector(), d);
+
+    QVector3D diff(d, d, 0);
     selectedPose->setRotation(QQuaternion::fromEulerAngles(selectedPose->rotation().toEulerAngles() + diff));
     if (e->button() == Qt3DRender::QPickEvent::RightButton) {
     } else if (e->button() == Qt3DRender::QPickEvent::LeftButton) {

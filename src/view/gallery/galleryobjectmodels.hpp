@@ -12,6 +12,9 @@ class GalleryObjectModels : public Gallery
 public:
     GalleryObjectModels(QWidget *parent = 0);
     void selectObjectModelByID(const ObjectModel &objectModel, bool emitSignals = false);
+
+private:
+    bool ignoreSelectionChanges = false;
 };
 
 #endif // OBJECTMODELSGALLERY_H
