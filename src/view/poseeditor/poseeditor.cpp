@@ -51,7 +51,7 @@ PoseEditor::~PoseEditor() {
 
 void PoseEditor::setModelManager(ModelManager *modelManager) {
     Q_ASSERT(modelManager);
-    if (this->modelManager) {
+    if (!this->modelManager.isNull()) {
         disconnect(modelManager, &ModelManager::poseAdded,
                    this, &PoseEditor::onPoseAdded);
         disconnect(modelManager, &ModelManager::poseDeleted,
@@ -70,7 +70,7 @@ void PoseEditor::setModelManager(ModelManager *modelManager) {
 
 void PoseEditor::setPoseRecoverer(PoseRecoverer *poseRecoverer) {
     Q_ASSERT(poseRecoverer);
-    if (this->poseRecoverer) {
+    if (!this->poseRecoverer.isNull()) {
         disconnect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
                    this, &PoseEditor::onCorrespondencesChanged);
         disconnect(poseRecoverer, &PoseRecoverer::poseRecovered,

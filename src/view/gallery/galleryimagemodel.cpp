@@ -48,7 +48,7 @@ int GalleryImageModel::rowCount(const QModelIndex &/* parent */) const {
 }
 
 void GalleryImageModel::resizeImages() {
-    if (resizeImagesRunnable) {
+    if (!resizeImagesRunnable.isNull()) {
         resizeImagesRunnable->stop();
         resizeImagesThreadpool.clear();
         resizeImagesThreadpool.waitForDone();

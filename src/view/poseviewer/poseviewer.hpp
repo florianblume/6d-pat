@@ -15,6 +15,7 @@
 #include <QSignalMapper>
 #include <QScopedPointer>
 #include <QTimer>
+#include <QPointer>
 
 #include <Qt3DRender/QPickEvent>
 
@@ -76,8 +77,8 @@ private:
     Ui::PoseViewer *ui;
     PoseViewer3DWidget *poseViewer3DWidget;
 
-    ModelManager* modelManager = Q_NULLPTR;
-    PoseRecoverer* poseRecoverer = Q_NULLPTR;
+    QPointer<ModelManager> modelManager;
+    QPointer<PoseRecoverer> poseRecoverer;
 
     PosePtr selectedPose;
 

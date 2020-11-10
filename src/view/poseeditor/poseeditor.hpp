@@ -12,6 +12,7 @@
 #include <QStringListModel>
 #include <QListView>
 #include <QMap>
+#include <QPointer>
 
 // Need to pre-load this class
 class PoseEditor3DWindow;
@@ -94,9 +95,9 @@ private Q_SLOTS:
 
 private:
     Ui::PoseEditor *ui;
-    // Q_NULLPTR important for first check
-    ModelManager *modelManager = Q_NULLPTR;
-    PoseRecoverer *poseRecoverer = Q_NULLPTR;
+    // QPointer is set to nullptr when object doesn't exist but is a weak pointer
+    QPointer<ModelManager> modelManager;
+    QPointer<PoseRecoverer> poseRecoverer;
 
     PoseEditor3DWindow *poseEditor3DWindow;
 

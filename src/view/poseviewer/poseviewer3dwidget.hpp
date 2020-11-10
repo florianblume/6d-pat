@@ -77,7 +77,7 @@ private:
     Qt3DRender::QCamera *backgroundCamera;
     Qt3DRender::QCameraSelector *backgroundCameraSelector;
     Qt3DRender::QNoDepthMask *backgroundNoDepthMask;
-    BackgroundImageRenderable *backgroundImageRenderable = Q_NULLPTR;
+    QPointer<BackgroundImageRenderable> backgroundImageRenderable;
 
     // Poses branch
     Qt3DRender::QLayerFilter *posesLayerFilter;

@@ -7,6 +7,7 @@
 #include <QAbstractListModel>
 #include <QImage>
 #include <QThreadPool>
+#include <QPointer>
 
 /*!
  * \brief The GalleryImageModel class provides the image data for a listview that is supposed to
@@ -35,7 +36,7 @@ private Q_SLOTS:
 private:
     ModelManager *modelManager;
     QVector<ImagePtr> imagesCache;
-    ResizeImagesRunnable *resizeImagesRunnable = Q_NULLPTR;
+    QPointer<ResizeImagesRunnable> resizeImagesRunnable;
     QThreadPool resizeImagesThreadpool;
     QMap<QString, QImage> resizedImagesCache;
     bool abortResize = false;

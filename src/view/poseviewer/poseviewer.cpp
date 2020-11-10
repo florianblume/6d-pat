@@ -37,7 +37,7 @@ PoseViewer::~PoseViewer() {
 
 void PoseViewer::setPoseRecoverer(PoseRecoverer *value) {
     Q_ASSERT(value);
-    if (this->poseRecoverer) {
+    if (!this->poseRecoverer.isNull()) {
         disconnect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
                    this, &PoseViewer::onCorrespondencesChanged);
         disconnect(poseRecoverer, &PoseRecoverer::stateChanged,
@@ -52,7 +52,7 @@ void PoseViewer::setPoseRecoverer(PoseRecoverer *value) {
 
 void PoseViewer::setModelManager(ModelManager *value) {
     Q_ASSERT(value);
-    if (modelManager) {
+    if (!modelManager.isNull()) {
         disconnect(modelManager, &ModelManager::poseAdded,
                    this, &PoseViewer::onPoseAdded);
         disconnect(modelManager, &ModelManager::poseDeleted,

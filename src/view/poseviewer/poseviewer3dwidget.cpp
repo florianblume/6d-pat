@@ -113,7 +113,7 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
     QImage loadedImage(image);
     this->m_imageSize = loadedImage.size();
     this->resize(loadedImage.size());
-    if (backgroundImageRenderable == Q_NULLPTR) {
+    if (backgroundImageRenderable.isNull()) {
         backgroundImageRenderable = new BackgroundImageRenderable(root, image);
         backgroundImageRenderable->addComponent(backgroundLayer);
     } else {

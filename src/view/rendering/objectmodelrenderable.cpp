@@ -51,13 +51,13 @@ void ObjectModelRenderable::setObjectModel(const ObjectModel &objectModel) {
 }
 
 void ObjectModelRenderable::setClicks(QVector<QVector3D> clicks) {
-    if (m_material)
+    if (!m_material.isNull())
         m_material->setClicks(clicks);
     Q_EMIT clicksChanged();
 }
 
 void ObjectModelRenderable::setSelected(bool selected) {
-    if (m_material)
+    if (!m_material.isNull())
         m_material->setSelected(selected);
     m_selected = selected;
     Q_EMIT selectedChanged(selected);

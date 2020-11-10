@@ -10,6 +10,7 @@
 #include <QVector>
 #include <QColor>
 #include <QTimer>
+#include <QPointer>
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DRender/QSceneLoader>
@@ -47,8 +48,8 @@ private:
     bool m_selected = false;
     QTimer timer;
 
-    Qt3DRender::QSceneLoader *m_sceneLoader = Q_NULLPTR;
-    ObjectModelRenderableMaterial *m_material = Q_NULLPTR;
+    QPointer<Qt3DRender::QSceneLoader> m_sceneLoader;
+    QPointer<ObjectModelRenderableMaterial> m_material;
     Qt3DRender::QObjectPicker *m_picker;
 
     void initialize();
