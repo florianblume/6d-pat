@@ -9,7 +9,7 @@
 
 #include <QObject>
 #include <QString>
-#include <QVector>
+#include <QList>
 #include <QDir>
 
 using namespace std;
@@ -47,21 +47,21 @@ public:
      * \brief loadImages Loads the images.
      * \return the list of images
      */
-    virtual QVector<ImagePtr> loadImages() = 0;
+    virtual QList<ImagePtr> loadImages() = 0;
 
     /*!
      * \brief loadObjectModels Loads the object models.
      * \return the list of object models
      */
-    virtual QVector<ObjectModelPtr> loadObjectModels() = 0;
+    virtual QList<ObjectModelPtr> loadObjectModels() = 0;
 
     /*!
      * \brief loadPoses Loads the poses at the given path. How the poses
      * are stored depends on the strategy.
      * \return the list of all stored poses
      */
-    virtual QVector<PosePtr> loadPoses(const QVector<ImagePtr> &images,
-                                       const QVector<ObjectModelPtr> &objectModels) = 0;
+    virtual QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
+                                       const QList<ObjectModelPtr> &objectModels) = 0;
 
     void setSettingsStore(SettingsStore *value);
 

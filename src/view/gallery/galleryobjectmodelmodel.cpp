@@ -13,9 +13,9 @@
 GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager)
     : modelManager(modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
-    objectModels = modelManager->getObjectModels();
+    objectModels = modelManager->objectModels();
     renderObjectModels();
-    images = modelManager->getImages();
+    images = modelManager->images();
     // Create default index mapping
     createIndexMapping();
     connect(modelManager, &ModelManager::dataChanged,
@@ -161,12 +161,12 @@ void GalleryObjectModelModel::onDataChanged(int data) {
         // When the images change, the last selected image gets deselected
         // This means we have to reset the index
         currentSelectedImageIndex = -1;
-        objectModels = modelManager->getObjectModels();
+        objectModels = modelManager->objectModels();
         doUpdate = true;
     }
     if (data & Data::ObjectModels) {
         if (modelManager) {
-            objectModels = modelManager->getObjectModels();
+            objectModels = modelManager->objectModels();
             renderObjectModels();
         } else {
             objectModels.clear();

@@ -11,7 +11,7 @@
 #include <QList>
 #include <QMap>
 #include <QSharedPointer>
-#include <QVector>
+#include <QList>
 #include <QMatrix4x4>
 #include <QResizeEvent>
 
@@ -38,14 +38,14 @@ public:
 
     void setBackgroundImageAndPoses(const QString &image,
                                     const QMatrix3x3 &cameraMatrix,
-                                    const QVector<PosePtr> &poses);
+                                    const QList<PosePtr> &poses);
     void setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix);
     void addPose(PosePtr pose);
     void removePose(const QString &id);
     void removePoses();
     void selectPose(PosePtr selected, PosePtr deselected);
     void setObjectsOpacity(float opacity);
-    void setClicks(const QVector<QPoint> &clicks);
+    void setClicks(const QList<QPoint> &clicks);
     QSize imageSize() const;
     void reset();
     void resizeEvent(QResizeEvent *event) override;
@@ -98,7 +98,7 @@ private:
     Qt3DRender::QNoDepthMask *clickVisualizationNoDepthMask;
     ClickVisualizationRenderable *clickVisualizationRenderable;
 
-    QVector<PoseRenderable *> poseRenderables;
+    QList<PoseRenderable *> poseRenderables;
     QMap<QString, PoseRenderable*> poseRenderableForId;
     QMatrix4x4 projectionMatrix;
 

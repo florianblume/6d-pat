@@ -73,7 +73,11 @@ public Q_SLOTS:
      */
     void displayWarning(const QString &title, const QString& text);
 
-    int showSaveDialog();
+    /*!
+     * \brief showSaveDialog shows the saving dialog
+     * \return true if the user selected to save the modifications
+     */
+    bool showSaveUnsavedChangesDialog();
 
 Q_SIGNALS:
 
@@ -126,6 +130,9 @@ Q_SIGNALS:
      */
     void objectModelsPathChanged(const QString &newPath);
 
+    void reloadingViews();
+    void closingProgram();
+
 private:
     Ui::MainWindow *ui;
 
@@ -160,6 +167,8 @@ private:
     // Used to write and read main view related settings, like position etc.
     void writeSettings();
     void readSettings();
+
+    void handleClosingProgram();
 
     QString settingsIdentifier;
     // The name of the settings - QT requests this to store settings "offline"

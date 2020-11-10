@@ -9,6 +9,7 @@
 
 #include <QObject>
 #include <QMap>
+#include <QList>
 
 class PoseEditingController : public QObject
 {
@@ -27,18 +28,28 @@ Q_SIGNALS:
 private Q_SLOTS:
     void onPosePositionChanged(QVector3D position);
     void onPoseRotationChanged(QQuaternion rotation);
+    void modelManagerStateChanged(ModelManager::State state);
     void onDataChanged(int data);
+    // This function is there for e.g. when the user selects a different image and has modified
+    // a pose without saving, savePoses simply saves the poses when the user clicks on the
+    // save button
+    void saveUnsavedChanges();
     void savePoses();
-    void onSelectedImageChanged();
+    void _savePoses(bool showDialog);
+    void onSelectedImageChanged(int index);
     void onReloadViews();
+    void onProgramClose();
 
 private:
     PosePtr m_selectedPose;
     ModelManager *m_modelManager;
     MainWindow *m_mainWindow;
 
-    QVector<PosePtr> m_poses;
-    QMap<PosePtr, bool> m_posesDirty;
+    ImagePtr m_currentImage;
+    QList<ImagePtr> m_images;
+    QList<PosePtr> m_posesForImage;
+    QMap<QString, PosePtr> m_unmodifiedPoses;
+    QMap<PosePtr, bool> m_dirtyPoses;
 };
 
 #endif // POSEEDITINGMODEL_H

@@ -13,7 +13,7 @@ ClickVisualizationRenderable::ClickVisualizationRenderable(Qt3DCore::QNode *pare
     this->addComponent(transform);
 }
 
-void ClickVisualizationRenderable::setClicks(const QVector<QPoint> &clicks) {
+void ClickVisualizationRenderable::setClicks(const QList<QPoint> &clicks) {
     material->setClicks(clicks);
 }
 

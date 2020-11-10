@@ -10,6 +10,9 @@ PoseEditingController::PoseEditingController(QObject *parent, ModelManager *mode
     , m_modelManager(modelManager)
     , m_mainWindow(mainWindow) {
 
+    // Check whether we have poses to save before the manager reloads
+    connect(modelManager, &ModelManager::stateChanged,
+            this, &PoseEditingController::modelManagerStateChanged);
     connect(modelManager, &ModelManager::dataChanged,
             this, &PoseEditingController::onDataChanged);
 
@@ -36,6 +39,12 @@ PoseEditingController::PoseEditingController(QObject *parent, ModelManager *mode
     // React to save request
     connect(mainWindow->poseEditor(), &PoseEditor::buttonSaveClicked,
             this, &PoseEditingController::savePoses);
+
+    // React to mainwindow signals
+    connect(mainWindow, &MainWindow::reloadingViews,
+            this, &PoseEditingController::onReloadViews);
+    connect(mainWindow, &MainWindow::closingProgram,
+            this, &PoseEditingController::onProgramClose);
 }
 
 void PoseEditingController::selectPose(PosePtr pose) {
@@ -68,40 +77,83 @@ PosePtr PoseEditingController::selectedPose() {
 }
 
 void PoseEditingController::onPosePositionChanged(QVector3D /*position*/) {
-    m_posesDirty[m_selectedPose] = true;
+    // Only assign true when actually changed
+    m_dirtyPoses[m_selectedPose] = m_unmodifiedPoses[m_selectedPose->id()] != m_selectedPose;
     Q_EMIT poseValuesChanged(m_selectedPose);
 }
 
 void PoseEditingController::onPoseRotationChanged(QQuaternion /*rotation*/) {
-    m_posesDirty[m_selectedPose] = true;
+    // Only assign true when actually changed
+    m_dirtyPoses[m_selectedPose] = m_unmodifiedPoses[m_selectedPose->id()] != m_selectedPose;
     Q_EMIT poseValuesChanged(m_selectedPose);
 }
 
-void PoseEditingController::onDataChanged(int data) {
-    if (data == Data::Poses) {
+void PoseEditingController::modelManagerStateChanged(ModelManager::State state) {
+    if (state == ModelManager::Loading) {
+        _savePoses(true);
+    }
+}
+
+void PoseEditingController::onDataChanged(int /*data*/) {
+    // We do not need call savePoses here anymore because when the data has
+    // changed we cannot necessarily react to it properly anymore - instead
+    // we ask savePoses when the model manager is starting to reload data
+
+    // No matter what changed we need to reset the controller's state
+    m_selectedPose.reset();
+    // Disconnect from pose and fire signals
+    selectPose(PosePtr());
+    m_posesForImage.clear();
+    m_dirtyPoses.clear();
+    m_unmodifiedPoses.clear();
+    m_images = m_modelManager->images();
+}
+
+void PoseEditingController::saveUnsavedChanges() {
+    _savePoses(true);
+}
+
+void PoseEditingController::savePoses() {
+    _savePoses(false);
+}
+
+void PoseEditingController::_savePoses(bool showDialog) {
+    QList<PosePtr> posesToSave = m_dirtyPoses.keys(true);
+    if (posesToSave.size() > 0) {
+        qDebug() << QString::number(posesToSave.size()) << " poses dirty.";
+        if (!showDialog || m_mainWindow->showSaveUnsavedChangesDialog()) {
+            qDebug() << "Saving " + QString::number(posesToSave.size()) << " poses.";
+            for (const PosePtr &pose : posesToSave) {
+                m_modelManager->updatePose(pose->id(), pose->position(), pose->rotation().toRotationMatrix());
+                m_dirtyPoses[pose] = false;
+            }
+        }
+    }
+    m_mainWindow->poseEditor()->onPosesSaved();
+}
+
+void PoseEditingController::onSelectedImageChanged(int index) {
+    if (index > 0 && index < m_images.size()) {
         m_selectedPose.reset();
-        // Disconnect from pose and fire signals
-        selectPose(m_selectedPose);
-        m_poses = m_modelManager->getPoses();
-        m_posesDirty.clear();
-        for (const PosePtr &pose : m_poses) {
-            m_posesDirty[pose] = false;
+        selectPose(PosePtr());
+        m_dirtyPoses.clear();
+        m_unmodifiedPoses.clear();
+        m_currentImage = m_images[index];
+        m_posesForImage = m_modelManager->posesForImage(*m_currentImage);
+        for (const PosePtr &pose: m_posesForImage) {
+            m_dirtyPoses[pose] = false;
+            // Need to fully copy to keep unmodified pose
+            Pose savedPose = *pose;
+            m_unmodifiedPoses[pose->id()] = PosePtr(new Pose(savedPose));
         }
     }
 }
 
-void PoseEditingController::savePoses() {
-    QList<PosePtr> posesToSave = m_posesDirty.keys(true);
-    qDebug() << "Saving " + QString(posesToSave.size()) << " poses.";
-    for (const PosePtr &pose : posesToSave) {
-        m_modelManager->updatePose(pose->id(), pose->position(), pose->rotation().toRotationMatrix());
-    }
-}
-
-void PoseEditingController::onSelectedImageChanged() {
-
-}
-
 void PoseEditingController::onReloadViews() {
+    _savePoses(true);
+    onDataChanged(0);
+}
 
+void PoseEditingController::onProgramClose() {
+    _savePoses(true);
 }

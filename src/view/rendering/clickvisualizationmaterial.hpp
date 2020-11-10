@@ -2,7 +2,7 @@
 #define CLICKVISUALIZATIONMATERIAL_H
 
 #include <QObject>
-#include <QVector>
+#include <QList>
 #include <QPoint>
 #include <QVariantList>
 
@@ -22,7 +22,7 @@ class ClickVisualizationMaterial : public Qt3DRender::QMaterial
     Q_OBJECT
 public:
     ClickVisualizationMaterial(Qt3DCore::QNode *parent = Q_NULLPTR);
-    void setClicks(const QVector<QPoint> &clicks);
+    void setClicks(const QList<QPoint> &clicks);
     void setHeight(int height);
 
 private:

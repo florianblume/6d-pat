@@ -93,12 +93,12 @@ void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
     objectModelRenderable->setEnabled(true);
 }
 
-void PoseEditor3DWindow::setClicks(const QVector<QVector3D> &clicks) {
+void PoseEditor3DWindow::setClicks(const QList<QVector3D> &clicks) {
     objectModelRenderable->setClicks(clicks);
 }
 
 void PoseEditor3DWindow::reset() {
-    setClicks(QVector<QVector3D>());
+    setClicks(QList<QVector3D>());
     objectModelRenderable->setEnabled(false);
 }
 

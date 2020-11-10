@@ -50,7 +50,7 @@ void NeuralNetworkController::inference(const QString &configPath) {
     Q_EMIT inferenceStarted();
 }
 
-void NeuralNetworkController::setImages(const QVector<ImagePtr> &images) {
+void NeuralNetworkController::setImages(const QList<ImagePtr> &images) {
     this->images = images;
 }
 

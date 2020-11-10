@@ -47,7 +47,6 @@ namespace  DisplayHelper {
         font.setPixelSize(size);
 
         QString iconCode = iconCodes[icon];
-        qDebug() << iconCode;
 
         if (dynamic_cast<QPushButton*>(widget) == Q_NULLPTR &&
                 dynamic_cast<QLabel*>(widget) == Q_NULLPTR) {

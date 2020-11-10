@@ -6,7 +6,7 @@
 #include "model/modelmanager.hpp"
 
 #include <QPoint>
-#include <QVector>
+#include <QList>
 #include <QVector3D>
 
 /*!
@@ -46,8 +46,8 @@ public:
     int numberOfCompleteCorrespondences();
     bool isImageSet();
     bool isObjectModelSet();
-    QVector<QPoint> points2D();
-    QVector<QVector3D> points3D();
+    QList<QPoint> points2D();
+    QList<QVector3D> points3D();
 
 public Q_SLOTS:
     void reset();
@@ -64,8 +64,8 @@ private:
 
     int m_minimumNumberOfPoints = 4;
     State m_state = State::Empty;
-    QVector<QPoint> m_points2D;
-    QVector<QVector3D> m_points3D;
+    QList<QPoint> m_points2D;
+    QList<QVector3D> m_points3D;
 };
 
 #endif // CORRESPONDENCECREATOR_H

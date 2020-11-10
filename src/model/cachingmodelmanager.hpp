@@ -24,20 +24,20 @@ public:
 
     ~CachingModelManager();
 
-    QVector<ImagePtr> getImages() const override;
+    QList<ImagePtr> images() const override;
 
-    QVector<PosePtr> getPosesForImage(const Image &image) const override;
+    QList<PosePtr> posesForImage(const Image &image) const override;
 
-    QVector<ObjectModelPtr> getObjectModels() const override;
+    QList<ObjectModelPtr> objectModels() const override;
 
-    QVector<PosePtr> getPosesForObjectModel(const ObjectModel &objectModel) const override;
+    QList<PosePtr> posesForObjectModel(const ObjectModel &objectModel) const override;
 
-    QVector<PosePtr> getPoses() const override;
+    QList<PosePtr> poses() const override;
 
-    PosePtr getPoseById(const QString &id) const override;
+    PosePtr poseById(const QString &id) const override;
 
-    QVector<PosePtr> getPosesForImageAndObjectModel(const Image &image,
-                                                    const ObjectModel &objectModel) override;
+    QList<PosePtr> posesForImageAndObjectModel(const Image &image,
+                                               const ObjectModel &objectModel) override;
 
     bool addPose(const Image &image,
                  const ObjectModel &objectModel,
@@ -58,17 +58,17 @@ private Q_SLOTS:
 
 private:
     //! The pattern that is used to load maybe existing segmentation images
-    QString segmentationImagePattern;
+    QString m_segmentationImagePattern;
     //! The list of the loaded images
-    QVector<ImagePtr> images;
+    QList<ImagePtr> m_images;
     //! Convenience map to store poses for images
-    QMap<QString, QVector<PosePtr>> posesForImages;
+    QMap<QString, QList<PosePtr>> m_posesForImages;
     //! The list of the loaded object models
-    QVector<ObjectModelPtr> objectModels;
+    QList<ObjectModelPtr> m_objectModels;
     //! Convenience map to store poses for object models
-    QMap<QString, QVector<PosePtr>> posesForObjectModels;
+    QMap<QString, QList<PosePtr>> m_posesForObjectModels;
     //! The list of the object image poses
-    QVector<PosePtr> poses;
+    QList<PosePtr> m_poses;
     /*!
      * \brief createConditionalCache sets up the cache of poses that
      * can be retrieved for an image or for an object model.

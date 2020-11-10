@@ -99,13 +99,13 @@ void PoseViewer::setImage(ImagePtr image) {
     }
     QString toDisplay = showingNormalImage ?  currentlyDisplayedImage->absoluteImagePath() :
                                     currentlyDisplayedImage->absoluteSegmentationImagePath();
-    QVector<PosePtr> posesForImage = modelManager->getPosesForImage(*image);
+    QList<PosePtr> posesForImage = modelManager->posesForImage(*image);
     poseViewer3DWidget->setBackgroundImageAndPoses(toDisplay, image->getCameraMatrix(), posesForImage);
     ui->sliderTransparency->setEnabled(posesForImage.size() > 0);
 }
 
 void PoseViewer::onSelectedImageChanged(int index) {
-    QVector<ImagePtr> images = modelManager->getImages();
+    QList<ImagePtr> images = modelManager->images();
     Q_ASSERT_X(index >= 0 && index < images.size(), "onSelectedImageChanged", "Index out of bounds.");
     ImagePtr image = images[index];
     setImage(image);

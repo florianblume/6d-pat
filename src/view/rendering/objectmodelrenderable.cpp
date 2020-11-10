@@ -50,7 +50,7 @@ void ObjectModelRenderable::setObjectModel(const ObjectModel &objectModel) {
     m_sceneLoader->setSource(QUrl::fromLocalFile(objectModel.absolutePath()));
 }
 
-void ObjectModelRenderable::setClicks(QVector<QVector3D> clicks) {
+void ObjectModelRenderable::setClicks(QList<QVector3D> clicks) {
     if (!m_material.isNull())
         m_material->setClicks(clicks);
     Q_EMIT clicksChanged();

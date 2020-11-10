@@ -122,8 +122,13 @@ void MainWindow::readSettings() {
     settings.endGroup();
 }
 
-void MainWindow::closeEvent(QCloseEvent *event) {
+void MainWindow::handleClosingProgram() {
+    Q_EMIT closingProgram();
     writeSettings();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+    handleClosingProgram();
     event->accept();
 }
 
@@ -190,14 +195,14 @@ void MainWindow::displayWarning(const QString &title, const QString &text) {
     QMessageBox::warning(this, title, text);
 }
 
-int MainWindow::showSaveDialog() {
-    return QMessageBox::warning(this,
-                                "Unsaved pose modifications",
-                                 "You have unsaved modifications of the currently edited pose."
-                                 " The action you just performed would discard these modifications. "
-                                 "Save them now?",
-                                 QMessageBox::Yes,
-                                 QMessageBox::No);
+bool MainWindow::showSaveUnsavedChangesDialog() {
+    return QMessageBox::Yes == QMessageBox::warning(this,
+                                                    "Unsaved pose modifications",
+                                                     "You have unsaved modifications of the currently edited pose."
+                                                     " The action you just performed would discard these modifications. "
+                                                     "Save them now?",
+                                                     QMessageBox::Yes,
+                                                     QMessageBox::No);
 }
 
 void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
@@ -244,6 +249,7 @@ void MainWindow::onActionAboutTriggered() {
 }
 
 void MainWindow::onActionExitTriggered() {
+    handleClosingProgram();
     QApplication::quit();
 }
 
@@ -251,7 +257,7 @@ void MainWindow::onActionSettingsTriggered() {
     SettingsDialog* settingsDialog = new SettingsDialog(this);
     settingsDialog->setPreferencesStoreAndObjectModels(settingsStore,
                                                        "default",
-                                                       modelManager->getObjectModels());
+                                                       modelManager->objectModels());
     settingsDialog->show();
 }
 
@@ -261,9 +267,14 @@ void MainWindow::onActionAbortCreationTriggered() {
 }
 
 void MainWindow::onActionReloadViewsTriggered() {
+    Q_EMIT reloadingViews();
+    // Need to reload in case some data changed and we haven't picked it up
     modelManager->reload();
-    ui->galleryLeft->clearSelection(false);
-    ui->galleryRight->clearSelection(false);
+    // Reset just to be sure
+    ui->poseEditor->reset();
+    ui->poseViewer->reset();
+    ui->galleryLeft->reset();
+    ui->galleryRight->reset();
     setStatusBarText("Ready.");
 }
 

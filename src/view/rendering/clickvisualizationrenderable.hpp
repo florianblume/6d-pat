@@ -4,7 +4,7 @@
 #include "view/rendering/clickvisualizationmaterial.hpp"
 
 #include <QObject>
-#include <QVector>
+#include <QList>
 #include <QPoint>
 #include <QSize>
 
@@ -18,7 +18,7 @@ class ClickVisualizationRenderable : public Qt3DCore::QEntity
     Q_OBJECT
 public:
     ClickVisualizationRenderable(Qt3DCore::QNode *parent = Q_NULLPTR);
-    void setClicks(const QVector<QPoint> &clicks);
+    void setClicks(const QList<QPoint> &clicks);
     void setSize(QSize size);
 
 private:

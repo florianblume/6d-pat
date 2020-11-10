@@ -5,7 +5,7 @@
 #include "view/rendering/objectmodelrenderable.hpp"
 
 #include <QString>
-#include <QVector>
+#include <QList>
 #include <QVector3D>
 
 #include <Qt3DExtras/Qt3DWindow>
@@ -20,7 +20,7 @@ class PoseEditor3DWindow : public Qt3DExtras::Qt3DWindow
 public:
     explicit PoseEditor3DWindow();
     void setObjectModel(const ObjectModel &objectModel);
-    void setClicks(const QVector<QVector3D> &clicks);
+    void setClicks(const QList<QVector3D> &clicks);
     void reset();
 
     void mousePressEvent(QMouseEvent *e) override;

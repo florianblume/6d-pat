@@ -48,7 +48,7 @@ ClickVisualizationMaterial::ClickVisualizationMaterial(Qt3DCore::QNode *parent)
     setEffect(m_effect);
 }
 
-void ClickVisualizationMaterial::setClicks(const QVector<QPoint> &clicks) {
+void ClickVisualizationMaterial::setClicks(const QList<QPoint> &clicks) {
     QVariantList _clicks;
     QVariantList colors;
     for (int i = 0; i < clicks.count(); i++) {

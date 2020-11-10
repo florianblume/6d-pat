@@ -34,9 +34,6 @@ public:
     void setPoseRecoverer(PoseRecoverer* poseRecoverer);
     bool isDisplayingObjectModel();
 
-    bool getPoseDirty() const;
-    void setPoseDirty(bool value);
-
 public Q_SLOTS:
     void setObjectModel(ObjectModelPtr objectModel);
     void onSelectedObjectModelChanged(int index);
@@ -44,6 +41,7 @@ public Q_SLOTS:
     // For poses selected in the PoseViewer
     void selectPose(PosePtr selected, PosePtr deselected);
     void onSelectedPoseValuesChanged(PosePtr pose);
+    void onPosesSaved();
     void onPoseCreationAborted();
     void reset();
 
@@ -117,6 +115,9 @@ private:
 
     QStringListModel *listViewPosesModel;
     QStringListModel *listViewImagesModel;
+
+    // To know whether to re-enable to save button after loading a different pose
+    bool posesDitry = false;
 
     // To prevent the spin boxes from emitting their changed signal when we set the pose
     // values e.g. because the user selected a pose in the PoseViewer

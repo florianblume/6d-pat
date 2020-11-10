@@ -7,7 +7,7 @@
 
 #include <QObject>
 #include <QVector3D>
-#include <QVector>
+#include <QList>
 #include <QColor>
 #include <QTimer>
 #include <QPointer>
@@ -37,7 +37,7 @@ public:
 
 public Q_SLOTS:
     void setObjectModel(const ObjectModel &m_objectModel);
-    void setClicks(QVector<QVector3D> clicks);
+    void setClicks(QList<QVector3D> clicks);
     void setSelected(bool selected);
     void setOpacity(float opacity);
 

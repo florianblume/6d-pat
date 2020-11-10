@@ -156,7 +156,7 @@ void ObjectModelRenderableMaterial::setOpacity(float opacity) {
     m_opacityParameter->setValue(opacity);
 }
 
-void ObjectModelRenderableMaterial::setClicks(QVector<QVector3D> clicks) {
+void ObjectModelRenderableMaterial::setClicks(QList<QVector3D> clicks) {
     QVariantList _clicks;
     QVariantList colors;
     for (int i = 0; i < clicks.size(); i++) {

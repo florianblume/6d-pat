@@ -22,7 +22,7 @@ SettingsSegmentationCodesPage::~SettingsSegmentationCodesPage()
 }
 
 void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *preferences,
-                                                                  const QVector<ObjectModelPtr> &objectModels) {
+                                                                  const QList<ObjectModelPtr> &objectModels) {
     this->preferences = preferences;
     this->objectModels = objectModels;
 

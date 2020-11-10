@@ -47,7 +47,7 @@ public Q_SLOTS:
     void setCirumfence(float circumfence);
     void setSelected(bool selected);
     void setOpacity(float opacity);
-    void setClicks(QVector<QVector3D> clicks);
+    void setClicks(QList<QVector3D> clicks);
 
 Q_SIGNALS:
     void ambientChanged(const QColor &ambient);

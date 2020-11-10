@@ -7,7 +7,7 @@
 #include <QAbstractListModel>
 #include <QColor>
 #include <QMap>
-#include <QVector>
+#include <QList>
 #include <QSize>
 
 /*!
@@ -50,18 +50,18 @@ Q_SIGNALS:
 
 private:
     ModelManager* modelManager;
-    QVector<ObjectModelPtr> objectModels;
+    QList<ObjectModelPtr> objectModels;
     QMap<QString,QImage> renderedObjectsModels;
     OffscreenEngine offscreenEngine{QSize(300, 300)};
     void renderObjectModels();
-    QVector<ImagePtr> images;
+    QList<ImagePtr> images;
     // Color codes
     QMap<QString, QString> codes;
     //! We need this in case that an object model will not be displayed due to its color
     //! which then "tears" a hole into the indices
     QMap<int, int> indexMapping;
     void createIndexMapping();
-    QVector<QColor> colorsOfCurrentImage;
+    QList<QColor> colorsOfCurrentImage;
     int currentSelectedImageIndex = -1;
     //! Store the index of the currently rendered image to be able to set the correct image
     //! when the renderer returns

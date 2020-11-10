@@ -137,8 +137,8 @@ void PoseEditor::setEnabledPoseInvariantControls(bool enabled) {
 
 void PoseEditor::addPosesToListViewPoses(const Image &image,
                                          const QString &poseToSelect) {
-    QVector<PosePtr> poses =
-            modelManager->getPosesForImage(image);
+    QList<PosePtr> poses =
+            modelManager->posesForImage(image);
     posesIndices.clear();
     ignoreSpinBoxValueChanges = true;
     QStringList list("None");
@@ -240,7 +240,7 @@ void PoseEditor::onPoseDeleted(PosePtr /*pose*/) {
 
 void PoseEditor::onButtonRemoveClicked() {
     modelManager->removePose(currentlySelectedPose->id());
-    QVector<PosePtr> poses = modelManager->getPosesForImage(*currentlySelectedImage);
+    QList<PosePtr> poses = modelManager->posesForImage(*currentlySelectedImage);
     if (poses.size() > 0) {
         // This reloads the drop down list and does everything else
         addPosesToListViewPoses(*currentlySelectedImage);
@@ -266,8 +266,8 @@ void PoseEditor::onButtonCopyClicked() {
     }
     QModelIndexList selection = ui->listViewImages->selectionModel()->selectedRows();
     int selectedImage = selection[0].row();
-    ImagePtr image = modelManager->getImages()[selectedImage];
-    QVector<PosePtr> posesForImage = modelManager->getPosesForImage(*image);
+    ImagePtr image = modelManager->images()[selectedImage];
+    QList<PosePtr> posesForImage = modelManager->posesForImage(*image);
     for (PosePtr pose: posesForImage) {
         modelManager->addPose(*currentlySelectedImage,
                               *pose->objectModel(),
@@ -351,7 +351,7 @@ void PoseEditor::onListViewPosesSelectionChanged(const QItemSelection &selected,
         if (index > 0) {
             // 0-th element is "None", only retrieve pose if the user
             // actually selected one
-            QVector<PosePtr> poses = modelManager->getPoses();
+            QList<PosePtr> poses = modelManager->poses();
             // --index because None ist 0-th element and indices of poses are +1
             poseToSelect = poses[--index];
         }
@@ -375,7 +375,7 @@ void PoseEditor::setObjectModel(ObjectModelPtr objectModel) {
 
 // Called by signal from ObjectModelsGallery
 void PoseEditor::onSelectedObjectModelChanged(int index) {
-    QVector<ObjectModelPtr> objectModels = modelManager->getObjectModels();
+    QList<ObjectModelPtr> objectModels = modelManager->objectModels();
     Q_ASSERT_X(index >= 0 && index < objectModels.size(), "onSelectedObjectModelChanged", "Index out of bounds.");
     ObjectModelPtr objectModel = objectModels[index];
     setObjectModel(objectModel);
@@ -388,7 +388,7 @@ void PoseEditor::onSelectedObjectModelChanged(int index) {
 
 // Called from signaly by ImagesGallery
 void PoseEditor::onSelectedImageChanged(int index) {
-    QVector<ImagePtr> images = modelManager->getImages();
+    QList<ImagePtr> images = modelManager->images();
     Q_ASSERT_X(index >= 0 && index < images.size(), "onSelectedImageChanged", "Index out of bounds.");
     reset();
     currentlySelectedImage = images[index];
@@ -403,6 +403,7 @@ void PoseEditor::onSelectedImageChanged(int index) {
     listViewImagesModel->setStringList(imagesList);
     addPosesToListViewPoses(*currentlySelectedImage);
     setEnabledPoseInvariantControls(true);
+    posesDitry = false;
 }
 
 void PoseEditor::onSelectedPoseValuesChanged(PosePtr pose) {
@@ -410,6 +411,14 @@ void PoseEditor::onSelectedPoseValuesChanged(PosePtr pose) {
     // (because the user rotated/moved the pose in the PoseViewer)
     ignoreSpinBoxValueChanges = true;
     setPoseValuesOnControls(*pose);
+    ui->buttonSave->setEnabled(true);
+    posesDitry = true;
+}
+
+// Will be called by the PoseEditingController
+void PoseEditor::onPosesSaved() {
+    posesDitry = false;
+    ui->buttonSave->setEnabled(false);
 }
 
 // Called by the PoseEditingController
@@ -427,6 +436,7 @@ void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
     // has finished to prevent the program from crashing because the user
     // selected the next pose too quickly (internal Qt3D issue)
     setEnabledAllControls(false);
+    ui->buttonSave->setEnabled(posesDitry);
 
     QModelIndex indexToSelect;
 
@@ -480,6 +490,7 @@ void PoseEditor::onCorrespondencesChanged() {
 
 void PoseEditor::reset() {
     qDebug() << "Resetting pose editor.";
+    posesDitry = false;
     poseEditor3DWindow->reset();
     currentlySelectedObjectModel.reset();
     currentlySelectedPose.reset();

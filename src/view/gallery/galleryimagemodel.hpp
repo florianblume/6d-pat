@@ -35,7 +35,7 @@ private Q_SLOTS:
 
 private:
     ModelManager *modelManager;
-    QVector<ImagePtr> imagesCache;
+    QList<ImagePtr> imagesCache;
     QPointer<ResizeImagesRunnable> resizeImagesRunnable;
     QThreadPool resizeImagesThreadpool;
     QMap<QString, QImage> resizedImagesCache;

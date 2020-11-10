@@ -5,7 +5,7 @@
 #include "model/pose.hpp"
 
 #include <QObject>
-#include <QVector>
+#include <QList>
 #include <QVector3D>
 #include <QMatrix3x3>
 #include <QMatrix4x4>

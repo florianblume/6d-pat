@@ -6,7 +6,7 @@
 GalleryImageModel::GalleryImageModel(ModelManager* modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
     this->modelManager = modelManager;
-    imagesCache = modelManager->getImages();
+    imagesCache = modelManager->images();
     resizeImages();
     connect(modelManager, &ModelManager::dataChanged,
             this, &GalleryImageModel::onDataChanged);
@@ -70,7 +70,7 @@ void GalleryImageModel::onImageResized(int imageIndex, const QString &imagePath,
 void GalleryImageModel::onDataChanged(int data) {
     // Check if images were changed
     if (data & Data::Images) {
-        imagesCache = modelManager->getImages();
+        imagesCache = modelManager->images();
         resizeImages();
         QModelIndex top = index(0, 0);
         QModelIndex bottom = index(imagesCache.size() - 1, 0);

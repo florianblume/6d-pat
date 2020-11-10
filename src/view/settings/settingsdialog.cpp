@@ -22,7 +22,7 @@ SettingsDialog::~SettingsDialog()
 
 void SettingsDialog::setPreferencesStoreAndObjectModels(SettingsStore *settingsStore,
                                                         const QString &currentSettingsIdentifier,
-                                                        const QVector<ObjectModelPtr> &objectModels) {
+                                                        const QList<ObjectModelPtr> &objectModels) {
     //! copy settings item, we don't want the settings item to be modified if we cancel the settings dialog
     this->settingsStore = settingsStore;
     settings = settingsStore->loadPreferencesByIdentifier(currentSettingsIdentifier);

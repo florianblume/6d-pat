@@ -86,7 +86,7 @@ void PoseRecoverer::add2DPoint(QPoint imagePoint) {
         Q_EMIT stateChanged(m_state);
     } else if (m_points2D.size() > m_points3D.size() + 1) {
         // Reset the 2D point of the incomplete correspondence
-        m_points2D.remove(m_points2D.size() - 2);
+        m_points2D.removeAt(m_points2D.size() - 2);
         // No need to change state here, we are still in the state
         // of too many 2D points
     } else if (m_points2D.size() > m_points3D.size()) {
@@ -107,7 +107,7 @@ void PoseRecoverer::add3DPoint(QVector3D objectModelPoint) {
         Q_EMIT stateChanged(m_state);
     } else if (m_points3D.size() > m_points2D.size() + 1) {
         // Reset the 2D point of the incomplete correspondence
-        m_points3D.remove(m_points3D.size() - 2);
+        m_points3D.removeAt(m_points3D.size() - 2);
         // No need to change state here, we are still in the state
         // of too many 3D points
     } else if (m_points3D.size() > m_points2D.size()) {
@@ -209,11 +209,11 @@ bool PoseRecoverer::isObjectModelSet() {
     return !m_objectModel.isNull();
 }
 
-QVector<QPoint> PoseRecoverer::points2D() {
+QList<QPoint> PoseRecoverer::points2D() {
     return m_points2D;
 }
 
-QVector<QVector3D> PoseRecoverer::points3D() {
+QList<QVector3D> PoseRecoverer::points3D() {
     return m_points3D;
 }
 

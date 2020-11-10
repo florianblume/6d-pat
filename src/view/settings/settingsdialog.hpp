@@ -20,7 +20,7 @@ public:
     ~SettingsDialog();
     void setPreferencesStoreAndObjectModels(SettingsStore *settingsStore,
                                             const QString &currentSettingsIdentifier,
-                                            const QVector<ObjectModelPtr> &objectModels);
+                                            const QList<ObjectModelPtr> &objectModels);
 
 public Q_SLOTS:
     void onAccepted(QAbstractButton* button);
