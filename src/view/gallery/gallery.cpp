@@ -105,5 +105,5 @@ void Gallery::onSelectionChanged(const QItemSelection &selected,
         QItemSelectionRange range = selected.front();
         Q_EMIT selectedItemChanged(range.top());
     }
-    ignoreSelectionChanges = true;
+    ignoreSelectionChanges = false;
 }

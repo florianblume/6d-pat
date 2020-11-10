@@ -1825,22 +1825,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>galleryLeft</sender>
-   <signal>selectedItemChanged(int)</signal>
-   <receiver>poseEditor</receiver>
-   <slot>onSelectedImageChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>223</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>675</x>
-     <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionReload_Views</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -1901,38 +1885,6 @@
     <hint type="destinationlabel">
      <x>675</x>
      <y>138</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>galleryLeft</sender>
-   <signal>selectedItemChanged(int)</signal>
-   <receiver>poseViewer</receiver>
-   <slot>onSelectedImageChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>223</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>223</x>
-     <y>401</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>galleryRight</sender>
-   <signal>selectedItemChanged(int)</signal>
-   <receiver>poseEditor</receiver>
-   <slot>onSelectedObjectModelChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>121</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>675</x>
-     <y>401</y>
     </hint>
    </hints>
   </connection>

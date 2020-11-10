@@ -26,6 +26,7 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       posesCamera(new Qt3DRender::QCamera),
       posesCameraSelector(new Qt3DRender::QCameraSelector),
       posesDepthTest(new Qt3DRender::QDepthTest),
+      posesMultiSampling(new Qt3DRender::QMultiSampleAntiAliasing),
       clickVisualizationLayerFilter(new Qt3DRender::QLayerFilter),
       clickVisualizationLayer(new Qt3DRender::QLayer),
       clickVisualizationCameraSelector(new Qt3DRender::QCameraSelector),
@@ -76,6 +77,7 @@ void PoseViewer3DWidget::initializeQt3D() {
     posesCamera->setUpVector({0, -1, 0});
     posesDepthTest->setParent(posesCameraSelector);
     posesDepthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
+    posesMultiSampling->setParent(posesDepthTest);
 
     setActiveFrameGraph(viewport);
 
@@ -116,6 +118,10 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
     if (backgroundImageRenderable.isNull()) {
         backgroundImageRenderable = new BackgroundImageRenderable(root, image);
         backgroundImageRenderable->addComponent(backgroundLayer);
+        connect(backgroundImageRenderable, &BackgroundImageRenderable::moved,
+                this, &PoseViewer3DWidget::onBackgroundImageRenderableMoved);
+        connect(backgroundImageRenderable, &BackgroundImageRenderable::clicked,
+                this, &PoseViewer3DWidget::onBackgroundImageRenderableClicked);
     } else {
         backgroundImageRenderable->setImage(image);
     }
@@ -142,28 +148,15 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     poseRenderableForId[pose->id()] = poseRenderable;
     connect(poseRenderable, &PoseRenderable::clicked,
             [poseRenderable, this](Qt3DRender::QPickEvent *e){
-        if (e->button() == Qt3DRender::QPickEvent::RightButton) {
+        if (e->button() == Qt3DRender::QPickEvent::RightButton && !poseRenderableMoved) {
             Q_EMIT poseSelected(poseRenderable->getPose());
         }
+        poseRenderableMoved = false;
     });
     connect(poseRenderable, &PoseRenderable::moved,
             [this, poseRenderable](Qt3DRender::QPickEvent *e){
-        if (qFuzzyCompare((double) oldDepth, (double) -1.f)) {
-            oldDepth = e->distance();
-        } else {
-            if (e->distance() > 1) {
-                QVector3D click(clickPos.x(), height() - clickPos.y(), e->distance());
-                qDebug() << click;
-                QVector3D unprojected = click.unproject(posesCamera->viewMatrix() * poseRenderable->getTransform()->matrix(),
-                                                        projectionMatrix,
-                                                        QRect(0, 0, imageSize().width(), imageSize().height()));
-                qDebug() << unprojected;
-                qDebug() << e->worldIntersection();
-                QVector3D difference = unprojected - e->worldIntersection();
-                qDebug() << "diff" << difference;
-                //poseRenderable->setPosition(poseRenderable->position() + difference);
-                oldDepth = e->distance();
-            }
+        if (poseRenderable->isSelected()) {
+            onPoseRenderableMoved(e);
         }
     });
 }
@@ -201,6 +194,56 @@ void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
         PoseRenderable *newSelected = poseRenderableForId[selected->id()];
         newSelected->setSelected(true);
     }
+    selectedPose = selected;
+}
+
+static int qNormalizeAngle(int angle) {
+    while (angle < 0) {
+        angle += 360 * 16;
+    }
+    while (angle > 360 * 16) {
+        angle -= 360 * 16;
+    }
+    return angle;
+}
+
+void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *e) {
+    // Rotate on right mouse button, move on left
+    if (mouseDownOnBackground || selectedPose.isNull()) {
+        return;
+    }
+    poseRenderableMoved = true;
+    qDebug() << "moved on pose renderable";
+    qDebug() << e->button();
+    int dx = e->position().x() - clickPos.x();
+    int dy = clickPos.y() - e->position().y();
+    int d = 0;
+    if (qAbs(dx) > qAbs(dy)) {
+        d = dx;
+    } else {
+        d = dy;
+    }
+
+    int x_norm = qNormalizeAngle(d);
+    int y_norm = qNormalizeAngle(d);
+    int z_norm = qNormalizeAngle(d);
+    QVector3D diff(x_norm, y_norm, 0);
+    selectedPose->setRotation(QQuaternion::fromEulerAngles(selectedPose->rotation().toEulerAngles() + diff));
+    if (e->button() == Qt3DRender::QPickEvent::RightButton) {
+    } else if (e->button() == Qt3DRender::QPickEvent::LeftButton) {
+
+    }
+    clickPos = QPoint(e->position().x(), e->position().y());
+}
+
+void PoseViewer3DWidget::onBackgroundImageRenderableMoved(Qt3DRender::QPickEvent *e) {
+    qDebug() << "Background image renderable moved";
+    mouseDownOnBackground = !poseRenderableMoved;
+}
+
+void PoseViewer3DWidget::onBackgroundImageRenderableClicked(Qt3DRender::QPickEvent *e) {
+    poseRenderableMoved = false;
+    Q_EMIT poseSelected(PosePtr());
 }
 
 void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
@@ -235,6 +278,7 @@ void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
+    qDebug() << "Mouse move event";
     if (event->buttons() & Qt::LeftButton) {
         clickPos = event->globalPos();
         newPos.setX(clickPos.x() - lastPos.x());
@@ -250,6 +294,7 @@ void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
         Q_EMIT positionClicked(event->pos());
     }
     mouseMoved = false;
+    mouseDownOnBackground = false;
 }
 
 QSize PoseViewer3DWidget::imageSize() const

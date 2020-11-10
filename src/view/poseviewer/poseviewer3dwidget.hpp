@@ -25,6 +25,7 @@
 #include <Qt3DRender/QDepthTest>
 #include <Qt3DRender/QLayerFilter>
 #include <Qt3DRender/QLayer>
+#include <Qt3DRender/QMultiSampleAntiAliasing>
 
 class PoseViewer3DWidget : public Qt3DWidget
 {
@@ -44,6 +45,9 @@ public:
     void removePose(const QString &id);
     void removePoses();
     void selectPose(PosePtr selected, PosePtr deselected);
+    void onPoseRenderableMoved(Qt3DRender::QPickEvent *e);
+    void onBackgroundImageRenderableMoved(Qt3DRender::QPickEvent *e);
+    void onBackgroundImageRenderableClicked(Qt3DRender::QPickEvent *e);
     void setObjectsOpacity(float opacity);
     void setClicks(const QList<QPoint> &clicks);
     QSize imageSize() const;
@@ -85,6 +89,7 @@ private:
     Qt3DRender::QCamera *posesCamera;
     Qt3DRender::QCameraSelector *posesCameraSelector;
     Qt3DRender::QDepthTest *posesDepthTest;
+    Qt3DRender::QMultiSampleAntiAliasing *posesMultiSampling;
 
     // Clear depth buffer before drawing clicks
     Qt3DRender::QClearBuffers *clearBuffers2;
@@ -102,12 +107,16 @@ private:
     QMap<QString, PoseRenderable*> poseRenderableForId;
     QMatrix4x4 projectionMatrix;
 
+    PosePtr selectedPose;
+
     // To handle dragging of the widget and clicking
     QPoint lastPos;
     QPoint newPos;
     QPoint clickPos;
     bool mouseDown = false;
     bool mouseMoved = false;
+    bool mouseDownOnBackground = false;
+    bool poseRenderableMoved = false;
 
     QSize m_imageSize;
 

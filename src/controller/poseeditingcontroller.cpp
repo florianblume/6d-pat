@@ -51,19 +51,22 @@ PoseEditingController::PoseEditingController(QObject *parent, ModelManager *mode
 }
 
 void PoseEditingController::selectPose(PosePtr pose) {
-    if (pose == m_selectedPose) {
-        // Selecting the same pose again deselects it
-        m_selectedPose.reset();
+    if (!m_selectedPose.isNull()) {
+        disconnect(m_selectedPose.get(), &Pose::positionChanged,
+                   this, &PoseEditingController::onPosePositionChanged);
+        disconnect(m_selectedPose.get(), &Pose::rotationChanged,
+                   this, &PoseEditingController::onPoseRotationChanged);
+    }
+    if (pose == m_selectedPose || pose.isNull()) {
         // When starting the program sometimes the gallery hasn't been initialized yet
         m_mainWindow->galleryObjectModels()->clearSelection(false);
-        Q_EMIT selectedPoseChanged(PosePtr(), pose);
+        // Either the poses are the same (order doesn't matter in this case) or
+        // pose is null, in which case we want to emit the signal that m_selectedPose
+        // has been deselected and pose has been selected (a null pose)
+        Q_EMIT selectedPoseChanged(pose, m_selectedPose);
+        // Selecting the same pose again deselects it
+        m_selectedPose.reset();
     } else {
-        if (!m_selectedPose.isNull()) {
-            disconnect(m_selectedPose.get(), &Pose::positionChanged,
-                       this, &PoseEditingController::onPosePositionChanged);
-            disconnect(m_selectedPose.get(), &Pose::rotationChanged,
-                       this, &PoseEditingController::onPoseRotationChanged);
-        }
         PosePtr oldPose = m_selectedPose;
         m_selectedPose = pose;
         connect(m_selectedPose.get(), &Pose::positionChanged,
@@ -83,7 +86,7 @@ void PoseEditingController::onPoseChanged() {
     // Only assign true when actually changed
     PoseValues poseValues = m_unmodifiedPoses[m_selectedPose->id()];
     m_dirtyPoses[m_selectedPose] = poseValues.position != m_selectedPose->position()
-                                    && poseValues.rotation != m_selectedPose->rotation();
+                                    || poseValues.rotation != m_selectedPose->rotation();
     Q_EMIT poseValuesChanged(m_selectedPose);
 }
 
@@ -142,7 +145,7 @@ void PoseEditingController::savePosesOrRestoreState() {
 bool PoseEditingController::_savePoses(bool showDialog) {
     QList<PosePtr> posesToSave = m_dirtyPoses.keys(true);
     if (posesToSave.size() > 0) {
-        qDebug() << QString::number(posesToSave.size()) << " poses dirty.";
+        qDebug() << posesToSave.size() << " poses dirty.";
         bool result = !showDialog;
         if (showDialog) {
             result =  m_mainWindow->showSaveUnsavedChangesDialog();
@@ -150,14 +153,15 @@ bool PoseEditingController::_savePoses(bool showDialog) {
         // If show dialog, check result (which is the result from showing the dialog)
         // else result will be true because result = !showDialog (the latter is false in this case)
         if (!showDialog || result) {
-            qDebug() << "Saving " + QString::number(posesToSave.size()) << " poses.";
+            qDebug() << "Saving " << posesToSave.size() << " poses.";
             for (const PosePtr &pose : posesToSave) {
                 m_modelManager->updatePose(pose->id(), pose->position(), pose->rotation().toRotationMatrix());
                 m_dirtyPoses[pose] = false;
             }
         }
-        // Result is either true if the user was shown the save dialog and clicked yes, false if the user clicked no
-        // or true if there was no dialog to be shown but the saving executed directly
+        // Result is either true if the user was shown the save dialog and clicked yes,
+        // false if the user clicked no or true if there was no dialog to be shown but
+        // the saving executed directly
         return result;
     }
     m_mainWindow->poseEditor()->onPosesSaved();
@@ -165,8 +169,7 @@ bool PoseEditingController::_savePoses(bool showDialog) {
 }
 
 void PoseEditingController::onSelectedImageChanged(int index) {
-    if (index > 0 && index < m_images.size()) {
-        m_selectedPose.reset();
+    if (index >= 0 && index < m_images.size()) {
         selectPose(PosePtr());
         // Only after resetting the selected pose so that singals are disconnected
         savePosesOrRestoreState();
@@ -180,6 +183,8 @@ void PoseEditingController::onSelectedImageChanged(int index) {
             m_unmodifiedPoses[pose->id()] = {.position = pose->position(),
                                              .rotation = pose->rotation()};
         }
+        m_mainWindow->poseEditor()->onSelectedImageChanged(index);
+        m_mainWindow->poseViewer()->onSelectedImageChanged(index);
     }
 }
 
