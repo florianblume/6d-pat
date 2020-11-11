@@ -11,7 +11,7 @@ MainApplication::MainApplication(int &argc, char **argv, int) : QApplication(arg
 int MainApplication::exec() {
     qSetMessagePattern("[%{function}] (%{type}): %{message}");
 
-    QPixmap pixmap(":/splash.png");
+    QPixmap pixmap(":/images/splash.png");
     QSplashScreen splash(pixmap);
     splash.show();
 

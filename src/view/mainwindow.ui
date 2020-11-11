@@ -468,7 +468,7 @@
    <string>6D-PAT</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../src.qrc">
+   <iconset resource="../resources/images/images.qrc">
     <normaloff>:/images/icon.png</normaloff>:/images/icon.png</iconset>
   </property>
   <property name="autoFillBackground">
@@ -1600,7 +1600,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../src.qrc"/>
+  <include location="../resources/images/images.qrc"/>
  </resources>
  <connections>
   <connection>

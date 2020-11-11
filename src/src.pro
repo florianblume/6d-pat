@@ -146,4 +146,6 @@ FORMS    += \
     view/neuralnetworkdialog/neuralnetworkdialog.ui \
     view/neuralnetworkprogressview/networkprogressview.ui
 
-RESOURCES += src.qrc
+RESOURCES += resources/shaders/shaders.qrc \
+             resources/images/images.qrc \
+             resources/fonts/fonts.qrc
