@@ -64,6 +64,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
+    QVector3D getArcBallVector(int x, int y);
+
+private:
     // Root entity
     Qt3DCore::QEntity *root;
 
@@ -107,12 +110,15 @@ private:
     QMap<QString, PoseRenderable*> poseRenderableForId;
     QMatrix4x4 projectionMatrix;
 
+    QMatrix4x4 rotationMat;
+
     PosePtr selectedPose;
 
     // To handle dragging of the widget and clicking
     QPoint lastPos;
     QPoint newPos;
     QPoint clickPos;
+    QPointF localClickPos;
     bool mouseDown = false;
     bool mouseMoved = false;
     bool mouseDownOnBackground = false;

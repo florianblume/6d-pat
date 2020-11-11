@@ -1,6 +1,9 @@
 #include "poseviewer3dwidget.hpp"
 #include "misc/global.hpp"
 
+#include <math.h>
+#include <QtMath>
+
 #include <QFrame>
 #include <QImage>
 #include <QMouseEvent>
@@ -209,9 +212,62 @@ void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *e) {
         return;
     }
     if (!poseRenderableMoved) {
-        clickPos = QPoint(e->position().x(), e->position().y());
+        //clickPos = QPoint(e->position().x(), e->position().y());
     }
     poseRenderableMoved = true;
+
+    QVector3D v = getArcBallVector(localClickPos.x(), localClickPos.y()); // from the mouse
+    QVector3D u = getArcBallVector(e->position().x(), e->position().y());
+
+    qDebug() << v;
+    qDebug() << u;
+
+    float angle = std::acos(std::min(1.0f, QVector3D::dotProduct(u,v)));
+
+    qDebug() << angle;
+
+    QVector3D rotAxis = QVector3D::crossProduct(v,u);
+
+    PoseRenderable *poseRenderable = poseRenderableForId[selectedPose->id()];
+    QMatrix4x4 rotate = poseRenderable->getTransform()->rotateAround(QVector3D(0, 0, 0), angle, rotAxis);
+    poseRenderable->getTransform()->setMatrix(poseRenderable->getTransform()->matrix() * rotate);
+    selectedPose->setPosition(poseRenderable->getTransform()->translation());
+    selectedPose->setRotation(poseRenderable->getTransform()->rotation());
+    /*
+
+    QMatrix4x4 eye2ObjSpaceMat = rotationMat.inverted();
+
+    QVector3D objSpaceRotAxis = eye2ObjSpaceMat * rotAxis;
+
+    qDebug() << "degree" << 4 * qRadiansToDegrees(angle);
+
+
+    //modelview.rotate(4 * qRadiansToDegrees(angle), rotAxis);
+
+    //oldRot = newRot;
+
+    //oldX = newX;
+    //oldY = newY;
+
+    //qDebug() << objSpaceRotAxis.normalized();
+
+    QMatrix4x4 tmp;
+    tmp.rotate(4 * qRadiansToDegrees(angle), objSpaceRotAxis);
+    rotationMat = tmp * rotationMat;
+    PoseRenderable *poseRenderable = poseRenderableForId[selectedPose->id()];
+    QMatrix4x4 transform = poseRenderable->getTransform()->matrix();
+    transform *= rotationMat;
+    poseRenderable->getTransform()->setMatrix(transform);
+    selectedPose->setPosition(poseRenderable->getTransform()->translation());
+    selectedPose->setRotation(poseRenderable->getTransform()->rotation());
+    */
+
+    /*
+    int dx = e->position().x() - clickPos.x();
+    int dy = e->position().y() - clickPos.y();
+    selectedPose->setPosition(selectedPose->position() + QVector3D(dx, dy, 0));
+    */
+    /*
     qDebug() << "moved on pose renderable";
     qDebug() << e->button();
     int dx = e->position().x() - clickPos.x();
@@ -231,11 +287,11 @@ void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *e) {
     } else if (e->button() == Qt3DRender::QPickEvent::LeftButton) {
 
     }
+    */
     clickPos = QPoint(e->position().x(), e->position().y());
 }
 
 void PoseViewer3DWidget::onBackgroundImageRenderableMoved(Qt3DRender::QPickEvent *e) {
-    qDebug() << "Background image renderable moved";
     mouseDownOnBackground = !poseRenderableMoved;
 }
 
@@ -273,10 +329,10 @@ void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
 void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
     lastPos = event->globalPos() - QPoint(geometry().x(), geometry().y());
     clickPos = event->globalPos();
+    localClickPos = event->localPos();
 }
 
 void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
-    qDebug() << "Mouse move event";
     if (event->buttons() & Qt::LeftButton) {
         clickPos = event->globalPos();
         newPos.setX(clickPos.x() - lastPos.x());
@@ -293,6 +349,23 @@ void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
     }
     mouseMoved = false;
     mouseDownOnBackground = false;
+}
+
+QVector3D PoseViewer3DWidget::getArcBallVector(int x, int y) {
+    QVector3D pt = QVector3D(2.0 * x / width() - 1.0, 2.0 * y / height() - 1.0 , 0);
+    pt.setY(pt.y() * -1);
+
+    // compute z-coordinates
+
+    float xySquared = pt.x() * pt.x() + pt.y() * pt.y();
+
+    if(xySquared <= 1.0) {
+       pt.setZ(std::sqrt(1.0 - xySquared));
+    } else {
+       pt.normalize();
+    }
+
+    return pt;
 }
 
 QSize PoseViewer3DWidget::imageSize() const
