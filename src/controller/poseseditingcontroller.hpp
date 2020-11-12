@@ -11,12 +11,12 @@
 #include <QMap>
 #include <QList>
 
-class PoseEditingController : public QObject
+class PosesEditingController : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit PoseEditingController(QObject *parent, ModelManager *modelManager, MainWindow *mainWindow);
+    explicit PosesEditingController(QObject *parent, ModelManager *modelManager, MainWindow *mainWindow);
     void selectPose(PosePtr pose);
     PosePtr selectedPose();
 

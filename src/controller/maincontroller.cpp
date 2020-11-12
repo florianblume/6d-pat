@@ -41,11 +41,11 @@ void MainController::initialize() {
                                                 settingsIdentifier));
     modelManager.reset(new CachingModelManager(*strategy.data()));
     modelManager->reload();
-    poseRecoverer.reset(new PoseRecoverer(modelManager.get()));
+    poseRecoverer.reset(new PoseRecoveringController(modelManager.get()));
     connect(settingsStore.data(), &SettingsStore::settingsChanged,
             this, &MainController::onSettingsChanged);
     mainWindow.reset(new MainWindow(0, modelManager.get(), settingsStore.get(), settingsIdentifier, poseRecoverer.get()));
-    poseEditingModel.reset(new PoseEditingController(Q_NULLPTR, modelManager.get(), mainWindow.get()));
+    poseEditingModel.reset(new PosesEditingController(Q_NULLPTR, modelManager.get(), mainWindow.get()));
 }
 
 void MainController::showView() {

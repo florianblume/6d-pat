@@ -9,8 +9,7 @@ HEADERS += \
     model/objectmodel.hpp \
     model/jsonloadandstorestrategy.hpp \
     model/pose.hpp \
-    model/poseeditingmodel.hpp \
-    model/poserecoverer.hpp
+    model/poseeditingmodel.hpp
 
 SOURCES += \
     model/image.cpp \
@@ -19,5 +18,4 @@ SOURCES += \
     model/cachingmodelmanager.cpp \
     model/modelmanager.cpp \
     model/jsonloadandstorestrategy.cpp \
-    model/pose.cpp \
-    model/poserecoverer.cpp
+    model/pose.cpp

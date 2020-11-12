@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent,
                        ModelManager *modelManager,
                        SettingsStore *settingsStore,
                        const QString &settingsIdentifier,
-                       PoseRecoverer *poseRecoverer) :
+                       PoseRecoveringController *poseRecoverer) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     settingsStore(settingsStore),

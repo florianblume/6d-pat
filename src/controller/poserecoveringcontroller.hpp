@@ -18,7 +18,7 @@
  * setObjectModel
  * addPosePoint
  */
-class PoseRecoverer : public QObject
+class PoseRecoveringController : public QObject
 {
 
     Q_OBJECT
@@ -33,7 +33,7 @@ public:
         ReadyForPoseCreation
     };
 
-    explicit PoseRecoverer(ModelManager *modelManager = nullptr);
+    explicit PoseRecoveringController(ModelManager *modelManager = nullptr);
     void setModelManager(ModelManager *modelManager);
     State state();
     void setMinimumNumberOfPoints(int numberOfPoints);

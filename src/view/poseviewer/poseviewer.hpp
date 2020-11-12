@@ -5,7 +5,7 @@
 #include "model/objectmodel.hpp"
 #include "model/pose.hpp"
 #include "model/modelmanager.hpp"
-#include "model/poserecoverer.hpp"
+#include "controller/poserecoveringcontroller.hpp"
 #include "poseviewer3dwidget.hpp"
 #include "view/misc/displayhelper.hpp"
 
@@ -41,7 +41,7 @@ public:
     ImagePtr currentlyViewedImage();
 
     void setModelManager(ModelManager *value);
-    void setPoseRecoverer(PoseRecoverer *value);
+    void setPoseRecoverer(PoseRecoveringController *value);
 
 public Q_SLOTS:
     void setImage(ImagePtr image);
@@ -71,14 +71,14 @@ private Q_SLOTS:
     void onPoseAdded(PosePtr pose);
     void onDataChanged(int data);
     void onCorrespondencesChanged();
-    void poseRecovererStateChanged(PoseRecoverer::State state);
+    void poseRecovererStateChanged(PoseRecoveringController::State state);
 
 private:
     Ui::PoseViewer *ui;
     PoseViewer3DWidget *poseViewer3DWidget;
 
     QPointer<ModelManager> modelManager;
-    QPointer<PoseRecoverer> poseRecoverer;
+    QPointer<PoseRecoveringController> poseRecoverer;
 
     PosePtr selectedPose;
 

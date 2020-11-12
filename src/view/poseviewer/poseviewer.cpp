@@ -37,18 +37,18 @@ PoseViewer::~PoseViewer() {
     delete ui;
 }
 
-void PoseViewer::setPoseRecoverer(PoseRecoverer *value) {
+void PoseViewer::setPoseRecoverer(PoseRecoveringController *value) {
     Q_ASSERT(value);
     if (!this->poseRecoverer.isNull()) {
-        disconnect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
+        disconnect(poseRecoverer, &PoseRecoveringController::correspondencesChanged,
                    this, &PoseViewer::onCorrespondencesChanged);
-        disconnect(poseRecoverer, &PoseRecoverer::stateChanged,
+        disconnect(poseRecoverer, &PoseRecoveringController::stateChanged,
                    this, &PoseViewer::poseRecovererStateChanged);
     }
     poseRecoverer = value;
-    connect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
+    connect(poseRecoverer, &PoseRecoveringController::correspondencesChanged,
             this, &PoseViewer::onCorrespondencesChanged);
-    connect(poseRecoverer, &PoseRecoverer::stateChanged,
+    connect(poseRecoverer, &PoseRecoveringController::stateChanged,
             this, &PoseViewer::poseRecovererStateChanged);
 }
 
@@ -139,7 +139,7 @@ void PoseViewer::onCorrespondencesChanged() {
     poseViewer3DWidget->setClicks(poseRecoverer->points2D());
 }
 
-void PoseViewer::poseRecovererStateChanged(PoseRecoverer::State /*state*/) {
+void PoseViewer::poseRecovererStateChanged(PoseRecoveringController::State /*state*/) {
     poseViewer3DWidget->setClicks(poseRecoverer->points2D());
 }
 

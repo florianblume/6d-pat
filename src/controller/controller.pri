@@ -1,13 +1,15 @@
 INCLUDEPATH += $$PWD
 
 HEADERS  += \
-    controller/poseeditingcontroller.hpp \
+    $$PWD/poserecoveringcontroller.hpp \
+    $$PWD/poseseditingcontroller.hpp \
     controller/maincontroller.hpp \
     controller/neuralnetworkcontroller.hpp \
     controller/neuralnetworkrunnable.hpp
 
 SOURCES += \
+    $$PWD/poserecoveringcontroller.cpp \
+    $$PWD/poseseditingcontroller.cpp \
     controller/maincontroller.cpp \
     controller/neuralnetworkcontroller.cpp \
-    controller/neuralnetworkrunnable.cpp \
-    controller/poseeditingcontroller.cpp
+    controller/neuralnetworkrunnable.cpp

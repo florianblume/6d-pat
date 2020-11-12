@@ -68,22 +68,22 @@ void PoseEditor::setModelManager(ModelManager *modelManager) {
                this, &PoseEditor::onDataChanged);
 }
 
-void PoseEditor::setPoseRecoverer(PoseRecoverer *poseRecoverer) {
+void PoseEditor::setPoseRecoverer(PoseRecoveringController *poseRecoverer) {
     Q_ASSERT(poseRecoverer);
     if (!this->poseRecoverer.isNull()) {
-        disconnect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
+        disconnect(poseRecoverer, &PoseRecoveringController::correspondencesChanged,
                    this, &PoseEditor::onCorrespondencesChanged);
-        disconnect(poseRecoverer, &PoseRecoverer::poseRecovered,
+        disconnect(poseRecoverer, &PoseRecoveringController::poseRecovered,
                    this, &PoseEditor::onCorrespondencesChanged);
-        disconnect(poseRecoverer, &PoseRecoverer::stateChanged,
+        disconnect(poseRecoverer, &PoseRecoveringController::stateChanged,
                    this, &PoseEditor::onPoseRecovererStateChanged);
     }
     this->poseRecoverer = poseRecoverer;
-    connect(poseRecoverer, &PoseRecoverer::correspondencesChanged,
+    connect(poseRecoverer, &PoseRecoveringController::correspondencesChanged,
             this, &PoseEditor::onCorrespondencesChanged);
-    connect(poseRecoverer, &PoseRecoverer::poseRecovered,
+    connect(poseRecoverer, &PoseRecoveringController::poseRecovered,
             this, &PoseEditor::onCorrespondencesChanged);
-    connect(poseRecoverer, &PoseRecoverer::stateChanged,
+    connect(poseRecoverer, &PoseRecoveringController::stateChanged,
             this, &PoseEditor::onPoseRecovererStateChanged);
 }
 
@@ -190,9 +190,9 @@ void PoseEditor::onSpinBoxValueChanged() {
     }
 }
 
-void PoseEditor::onPoseRecovererStateChanged(PoseRecoverer::State state) {
+void PoseEditor::onPoseRecovererStateChanged(PoseRecoveringController::State state) {
     poseEditor3DWindow->setClicks(poseRecoverer->points3D());
-    ui->buttonCreate->setEnabled(state == PoseRecoverer::ReadyForPoseCreation);
+    ui->buttonCreate->setEnabled(state == PoseRecoveringController::ReadyForPoseCreation);
 }
 
 void PoseEditor::onObjectModelLoaded() {
@@ -283,7 +283,7 @@ void PoseEditor::onButtonCopyClicked() {
 void PoseEditor::onButtonCreateClicked() {
     QString message("");
     switch (poseRecoverer->state()) {
-    case PoseRecoverer::ReadyForPoseCreation: {
+    case PoseRecoveringController::ReadyForPoseCreation: {
         bool success = poseRecoverer->recoverPose();
         if (success) {
             message = "Successfully recovered pose.";
@@ -292,19 +292,19 @@ void PoseEditor::onButtonCreateClicked() {
         }
         break;
     }
-    case PoseRecoverer::NotEnoughCorrespondences: {
+    case PoseRecoveringController::NotEnoughCorrespondences: {
         message = "Not enough 2D - 3D correspondences.";
         break;
     }
-    case PoseRecoverer::Missing2DPoint: {
+    case PoseRecoveringController::Missing2DPoint: {
         message = "Missing matching 2D counter part to selected 3D point. Click somewhere on the image.";
         break;
     }
-    case PoseRecoverer::Missing3DPoint: {
+    case PoseRecoveringController::Missing3DPoint: {
         message = "Missing matching 3D counter part to selected 2D point. Click somewhere on the 3D model.";
         break;
     }
-    case PoseRecoverer::Empty: {
+    case PoseRecoveringController::Empty: {
         message = "No correspondences selected, yet. Please create some by click the 2D image and 3D model.";
         break;
     }
@@ -484,7 +484,7 @@ void PoseEditor::onPoseCreationAborted() {
 }
 
 void PoseEditor::onCorrespondencesChanged() {
-    ui->buttonCreate->setEnabled(poseRecoverer->state() == PoseRecoverer::ReadyForPoseCreation);
+    ui->buttonCreate->setEnabled(poseRecoverer->state() == PoseRecoveringController::ReadyForPoseCreation);
     poseEditor3DWindow->setClicks(poseRecoverer->points3D());
 }
 

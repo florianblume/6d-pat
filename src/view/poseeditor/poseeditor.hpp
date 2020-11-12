@@ -2,7 +2,7 @@
 #define CORRESPONDENCEEDITORCONTROLS_H
 
 #include "model/modelmanager.hpp"
-#include "model/poserecoverer.hpp"
+#include "controller/poserecoveringcontroller.hpp"
 #include "misc/global.hpp"
 #include "view/poseeditor/poseeditor3dwidget.hpp"
 
@@ -31,7 +31,7 @@ public:
     // Need setters because the forms file can't create the widget
     // by passing the two
     void setModelManager(ModelManager *modelManager);
-    void setPoseRecoverer(PoseRecoverer* poseRecoverer);
+    void setPoseRecoverer(PoseRecoveringController* poseRecoverer);
     bool isDisplayingObjectModel();
 
 public Q_SLOTS:
@@ -80,7 +80,7 @@ private Q_SLOTS:
 
     // For PoseRecoverer
     void onCorrespondencesChanged();
-    void onPoseRecovererStateChanged(PoseRecoverer::State state);
+    void onPoseRecovererStateChanged(PoseRecoveringController::State state);
 
     /*!
      * \brief onListViewPosesSelectionChanged Reacts to the user selecting a different pose from
@@ -95,7 +95,7 @@ private:
     Ui::PoseEditor *ui;
     // QPointer is set to nullptr when object doesn't exist but is a weak pointer
     QPointer<ModelManager> modelManager;
-    QPointer<PoseRecoverer> poseRecoverer;
+    QPointer<PoseRecoveringController> poseRecoverer;
 
     PoseEditor3DWindow *poseEditor3DWindow;
 

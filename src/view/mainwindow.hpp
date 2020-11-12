@@ -11,7 +11,7 @@
 #include "view/poseeditor/poseeditor.hpp"
 #include "view/gallery/gallery.hpp"
 #include "view/gallery/galleryobjectmodels.hpp"
-#include "model/poserecoverer.hpp"
+#include "controller/poserecoveringcontroller.hpp"
 
 #include <QGuiApplication>
 #include <QMainWindow>
@@ -32,7 +32,7 @@ class MainWindow : public QMainWindow {
 public:
     explicit MainWindow(QWidget *parent, ModelManager *modelManager,
                         SettingsStore *settingsStore, const QString &settingsIdentifier,
-                        PoseRecoverer *poseRecoverer);
+                        PoseRecoveringController *poseRecoverer);
     ~MainWindow();
 
     //! Overriden from QWidget.
@@ -144,7 +144,7 @@ private:
 
     SettingsStore *settingsStore = Q_NULLPTR;
     ModelManager* modelManager;
-    PoseRecoverer *poseRecoverer;
+    PoseRecoveringController *poseRecoverer;
 
     QProgressDialog *dataLoadingProgressDialog;
 

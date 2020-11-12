@@ -1,4 +1,4 @@
-#include "poserecoverer.hpp"
+#include "poserecoveringcontroller.hpp"
 #include "model/pose.hpp"
 #include "misc/generalhelper.hpp"
 #include <opencv2/calib3d/calib3d.hpp>
@@ -7,22 +7,22 @@
 #include <QImage>
 #include <QDebug>
 
-PoseRecoverer::PoseRecoverer(ModelManager *modelManager) :
+PoseRecoveringController::PoseRecoveringController(ModelManager *modelManager) :
     m_modelManager(modelManager) {
     Q_ASSERT(modelManager);
-    connect(modelManager, &ModelManager::dataChanged, this, &PoseRecoverer::reset);
+    connect(modelManager, &ModelManager::dataChanged, this, &PoseRecoveringController::reset);
 }
 
-void PoseRecoverer::setModelManager(ModelManager *modelManager) {
+void PoseRecoveringController::setModelManager(ModelManager *modelManager) {
     Q_ASSERT(modelManager);
     this->m_modelManager = modelManager;
 }
 
-PoseRecoverer::State PoseRecoverer::state() {
+PoseRecoveringController::State PoseRecoveringController::state() {
     return m_state;
 }
 
-void PoseRecoverer::reset() {
+void PoseRecoveringController::reset() {
     if (!m_image.isNull()) {
         m_image.reset();
     }
@@ -35,7 +35,7 @@ void PoseRecoverer::reset() {
     Q_EMIT stateChanged(m_state);
 }
 
-void PoseRecoverer::setMinimumNumberOfPoints(int numberOfPoints) {
+void PoseRecoveringController::setMinimumNumberOfPoints(int numberOfPoints) {
     Q_ASSERT(numberOfPoints >= 1);
     m_minimumNumberOfPoints = numberOfPoints;
     if (m_points2D.size() == m_points3D.size() && m_points2D.size() > numberOfPoints) {
@@ -49,11 +49,11 @@ void PoseRecoverer::setMinimumNumberOfPoints(int numberOfPoints) {
     }
 }
 
-int PoseRecoverer::minimumNumberOfPoints() {
+int PoseRecoveringController::minimumNumberOfPoints() {
     return m_minimumNumberOfPoints;
 }
 
-void PoseRecoverer::setImage(ImagePtr image) {
+void PoseRecoveringController::setImage(ImagePtr image) {
     Q_ASSERT(image.get());
     if (this->m_image != image) {
         m_points2D.clear();
@@ -64,7 +64,7 @@ void PoseRecoverer::setImage(ImagePtr image) {
     }
 }
 
-void PoseRecoverer::setObjectModel(ObjectModelPtr objectModel) {
+void PoseRecoveringController::setObjectModel(ObjectModelPtr objectModel) {
     Q_ASSERT(objectModel.get());
     if (this->m_objectModel != objectModel) {
         m_points2D.clear();
@@ -75,7 +75,7 @@ void PoseRecoverer::setObjectModel(ObjectModelPtr objectModel) {
     }
 }
 
-void PoseRecoverer::add2DPoint(QPoint imagePoint) {
+void PoseRecoveringController::add2DPoint(QPoint imagePoint) {
     m_points2D.append(imagePoint);
     if (m_points2D.size() == m_points3D.size()
             && m_points3D.size() >= m_minimumNumberOfPoints) {
@@ -96,7 +96,7 @@ void PoseRecoverer::add2DPoint(QPoint imagePoint) {
     Q_EMIT correspondencesChanged();
 }
 
-void PoseRecoverer::add3DPoint(QVector3D objectModelPoint) {
+void PoseRecoveringController::add3DPoint(QVector3D objectModelPoint) {
     m_points3D.append(objectModelPoint);
     if (m_points2D.size() == m_points3D.size()
             && m_points3D.size() >= m_minimumNumberOfPoints) {
@@ -127,7 +127,7 @@ QString correspondenceToString(QPoint point2D, QVector3D point3D) {
             + QString::number(point3D.z()) + ")";
 }
 
-bool PoseRecoverer::recoverPose() {
+bool PoseRecoveringController::recoverPose() {
     Q_ASSERT(m_objectModel.get());
     Q_ASSERT(m_image.get());
     Q_ASSERT(m_state == State::ReadyForPoseCreation);
@@ -201,22 +201,22 @@ bool PoseRecoverer::recoverPose() {
     return success;
 }
 
-bool PoseRecoverer::isImageSet() {
+bool PoseRecoveringController::isImageSet() {
     return !m_image.isNull();
 }
 
-bool PoseRecoverer::isObjectModelSet() {
+bool PoseRecoveringController::isObjectModelSet() {
     return !m_objectModel.isNull();
 }
 
-QList<QPoint> PoseRecoverer::points2D() {
+QList<QPoint> PoseRecoveringController::points2D() {
     return m_points2D;
 }
 
-QList<QVector3D> PoseRecoverer::points3D() {
+QList<QVector3D> PoseRecoveringController::points3D() {
     return m_points3D;
 }
 
-int PoseRecoverer::numberOfCompleteCorrespondences() {
+int PoseRecoveringController::numberOfCompleteCorrespondences() {
     return qMin(m_points2D.size(), m_points3D.size());
 }

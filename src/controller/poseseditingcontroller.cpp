@@ -1,61 +1,61 @@
-#include "poseeditingcontroller.hpp"
+#include "poseseditingcontroller.hpp"
 #include "view/poseeditor/poseeditor.hpp"
 #include "view/poseviewer/poseviewer.hpp"
 #include "view/gallery/galleryobjectmodels.hpp"
 
 #include <QList>
 
-PoseEditingController::PoseEditingController(QObject *parent, ModelManager *modelManager, MainWindow *mainWindow)
+PosesEditingController::PosesEditingController(QObject *parent, ModelManager *modelManager, MainWindow *mainWindow)
     : QObject(parent)
     , m_modelManager(modelManager)
     , m_mainWindow(mainWindow) {
 
     // Check whether we have poses to save before the manager reloads
     connect(modelManager, &ModelManager::stateChanged,
-            this, &PoseEditingController::modelManagerStateChanged);
+            this, &PosesEditingController::modelManagerStateChanged);
     connect(modelManager, &ModelManager::dataChanged,
-            this, &PoseEditingController::onDataChanged);
+            this, &PosesEditingController::onDataChanged);
 
     // Connect the PoseEditor and PoseViewer to the PoseEditingController
-    connect(this, &PoseEditingController::selectedPoseChanged,
+    connect(this, &PosesEditingController::selectedPoseChanged,
             mainWindow->poseViewer(), &PoseViewer::selectPose);
-    connect(this, &PoseEditingController::selectedPoseChanged,
+    connect(this, &PosesEditingController::selectedPoseChanged,
             mainWindow->poseEditor(), &PoseEditor::selectPose);
 
     // React to the user selecting a different pose
     connect(mainWindow->poseViewer(), &PoseViewer::poseSelected,
-            this, &PoseEditingController::selectPose);
+            this, &PosesEditingController::selectPose);
     connect(mainWindow->poseEditor(), &PoseEditor::poseSelected,
-            this, &PoseEditingController::selectPose);
+            this, &PosesEditingController::selectPose);
 
     // React to changes to the pose but only in editor because ther we have
     // to set the new pose values on the controls and would have to register
     // with every new selected pose. The pose viewer doesn't get notified
     // by changes in the pose because PoseRenderables register with the
     // respective pose and update their position and rotation automatically.
-    connect(this, &PoseEditingController::poseValuesChanged,
+    connect(this, &PosesEditingController::poseValuesChanged,
             mainWindow->poseEditor(), &PoseEditor::onSelectedPoseValuesChanged);
 
     // React to save request
     connect(mainWindow->poseEditor(), &PoseEditor::buttonSaveClicked,
-            this, &PoseEditingController::savePoses);
+            this, &PosesEditingController::savePoses);
 
     // React to mainwindow signals
     connect(mainWindow, &MainWindow::reloadingViews,
-            this, &PoseEditingController::onReloadViews);
+            this, &PosesEditingController::onReloadViews);
     connect(mainWindow, &MainWindow::closingProgram,
-            this, &PoseEditingController::onProgramClose);
+            this, &PosesEditingController::onProgramClose);
 
     connect(mainWindow->galleryImages(), &Gallery::selectedItemChanged,
-            this, &PoseEditingController::onSelectedImageChanged);
+            this, &PosesEditingController::onSelectedImageChanged);
 }
 
-void PoseEditingController::selectPose(PosePtr pose) {
+void PosesEditingController::selectPose(PosePtr pose) {
     if (!m_selectedPose.isNull()) {
         disconnect(m_selectedPose.get(), &Pose::positionChanged,
-                   this, &PoseEditingController::onPosePositionChanged);
+                   this, &PosesEditingController::onPosePositionChanged);
         disconnect(m_selectedPose.get(), &Pose::rotationChanged,
-                   this, &PoseEditingController::onPoseRotationChanged);
+                   this, &PosesEditingController::onPoseRotationChanged);
     }
     if (pose == m_selectedPose || pose.isNull()) {
         // When starting the program sometimes the gallery hasn't been initialized yet
@@ -70,19 +70,19 @@ void PoseEditingController::selectPose(PosePtr pose) {
         PosePtr oldPose = m_selectedPose;
         m_selectedPose = pose;
         connect(m_selectedPose.get(), &Pose::positionChanged,
-                this, &PoseEditingController::onPosePositionChanged);
+                this, &PosesEditingController::onPosePositionChanged);
         connect(m_selectedPose.get(), &Pose::rotationChanged,
-                this, &PoseEditingController::onPoseRotationChanged);
+                this, &PosesEditingController::onPoseRotationChanged);
         m_mainWindow->galleryObjectModels()->selectObjectModelByID(*pose->objectModel(), false);
         Q_EMIT selectedPoseChanged(m_selectedPose, oldPose);
     }
 }
 
-PosePtr PoseEditingController::selectedPose() {
+PosePtr PosesEditingController::selectedPose() {
     return m_selectedPose;
 }
 
-void PoseEditingController::onPoseChanged() {
+void PosesEditingController::onPoseChanged() {
     // Only assign true when actually changed
     PoseValues poseValues = m_unmodifiedPoses[m_selectedPose->id()];
     m_dirtyPoses[m_selectedPose] = poseValues.position != m_selectedPose->position()
@@ -90,21 +90,21 @@ void PoseEditingController::onPoseChanged() {
     Q_EMIT poseValuesChanged(m_selectedPose);
 }
 
-void PoseEditingController::onPosePositionChanged(QVector3D /*position*/) {
+void PosesEditingController::onPosePositionChanged(QVector3D /*position*/) {
     onPoseChanged();
 }
 
-void PoseEditingController::onPoseRotationChanged(QQuaternion /*rotation*/) {
+void PosesEditingController::onPoseRotationChanged(QQuaternion /*rotation*/) {
     onPoseChanged();
 }
 
-void PoseEditingController::modelManagerStateChanged(ModelManager::State state) {
+void PosesEditingController::modelManagerStateChanged(ModelManager::State state) {
     if (state == ModelManager::Loading) {
         _savePoses(true);
     }
 }
 
-void PoseEditingController::onDataChanged(int /*data*/) {
+void PosesEditingController::onDataChanged(int /*data*/) {
     // We do not need call savePoses here anymore because when the data has
     // changed we cannot necessarily react to it properly anymore - instead
     // we ask savePoses when the model manager is starting to reload data
@@ -119,15 +119,15 @@ void PoseEditingController::onDataChanged(int /*data*/) {
     m_images = m_modelManager->images();
 }
 
-void PoseEditingController::saveUnsavedChanges() {
+void PosesEditingController::saveUnsavedChanges() {
     _savePoses(true);
 }
 
-void PoseEditingController::savePoses() {
+void PosesEditingController::savePoses() {
     _savePoses(false);
 }
 
-void PoseEditingController::savePosesOrRestoreState() {
+void PosesEditingController::savePosesOrRestoreState() {
     bool result = _savePoses(true);
     // Result is true if poses have been saved
     if (!result) {
@@ -142,7 +142,7 @@ void PoseEditingController::savePosesOrRestoreState() {
     }
 }
 
-bool PoseEditingController::_savePoses(bool showDialog) {
+bool PosesEditingController::_savePoses(bool showDialog) {
     QList<PosePtr> posesToSave = m_dirtyPoses.keys(true);
     if (posesToSave.size() > 0) {
         qDebug() << posesToSave.size() << " poses dirty.";
@@ -168,7 +168,7 @@ bool PoseEditingController::_savePoses(bool showDialog) {
     return true;
 }
 
-void PoseEditingController::onSelectedImageChanged(int index) {
+void PosesEditingController::onSelectedImageChanged(int index) {
     if (index >= 0 && index < m_images.size()) {
         selectPose(PosePtr());
         // Only after resetting the selected pose so that singals are disconnected
@@ -188,11 +188,11 @@ void PoseEditingController::onSelectedImageChanged(int index) {
     }
 }
 
-void PoseEditingController::onReloadViews() {
+void PosesEditingController::onReloadViews() {
     savePosesOrRestoreState();
     onDataChanged(0);
 }
 
-void PoseEditingController::onProgramClose() {
+void PosesEditingController::onProgramClose() {
     _savePoses(true);
 }
