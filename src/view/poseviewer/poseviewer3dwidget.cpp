@@ -216,6 +216,28 @@ void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *e) {
     }
     poseRenderableMoved = true;
 
+    float ndcX = 2.0f * e->position().x() / width() - 1.0f;
+    float ndcY = 1.0 - 2.0f * e->position().y() / height();
+
+    endVector = QVector3D(ndcX, ndcY, 0.0);
+
+    QVector3D direction = endVector - startVector;
+    QVector3D rotationAxis = QVector3D(-direction.y(), direction.x(), 0.0).normalized();
+    float angle = (float)qRadiansToDegrees(direction.length() * 3.141593);
+
+    QMatrix4x4 addRotation;
+    addRotation.rotate(angle, rotationAxis.x(), rotationAxis.y(), rotationAxis.z());
+    PoseRenderable *poseRenderable = poseRenderableForId[selectedPose->id()];
+    QMatrix4x4 rotation = poseRenderable->getTransform()->matrix();
+    rotation = addRotation * rotation;
+    QVector3D pos = poseRenderable->getTransform()->translation();
+    poseRenderable->getTransform()->setMatrix(rotation);
+    poseRenderable->getTransform()->setTranslation(pos);
+
+    startVector = endVector;
+
+    /*
+
     QVector3D v = getArcBallVector(localClickPos.x(), localClickPos.y()); // from the mouse
     QVector3D u = getArcBallVector(e->position().x(), e->position().y());
 
@@ -233,6 +255,7 @@ void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *e) {
     poseRenderable->getTransform()->setMatrix(poseRenderable->getTransform()->matrix() * rotate);
     selectedPose->setPosition(poseRenderable->getTransform()->translation());
     selectedPose->setRotation(poseRenderable->getTransform()->rotation());
+    */
     /*
 
     QMatrix4x4 eye2ObjSpaceMat = rotationMat.inverted();
@@ -330,6 +353,12 @@ void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
     lastPos = event->globalPos() - QPoint(geometry().x(), geometry().y());
     clickPos = event->globalPos();
     localClickPos = event->localPos();
+
+    float ndcX = 2.0f * event->localPos().x() / width() - 1.0f;
+    float ndcY = 1.0 - 2.0f * event->localPos().y() / height();
+
+    startVector = QVector3D(ndcX, ndcY, 0.0);
+    endVector   = startVector;
 }
 
 void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {

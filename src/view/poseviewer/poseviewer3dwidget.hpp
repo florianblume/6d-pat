@@ -114,6 +114,9 @@ private:
 
     PosePtr selectedPose;
 
+    QVector3D startVector;
+    QVector3D endVector;
+
     // To handle dragging of the widget and clicking
     QPoint lastPos;
     QPoint newPos;
