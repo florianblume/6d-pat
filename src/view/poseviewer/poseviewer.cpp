@@ -12,12 +12,14 @@ PoseViewer::PoseViewer(QWidget *parent) :
 
     poseViewer3DWidget->setParent(ui->graphicsContainer);
 
-    DisplayHelper::setIcon(ui->buttonSwitchView, DisplayHelper::TOGGLEOFF, 18);
+    //DisplayHelper::setIcon(ui->buttonSwitchView, DisplayHelper::TOGGLEOFF, 18);
+    ui->buttonSwitchView->setText("test");
     ui->buttonSwitchView->setToolTip("Click to switch views between segmentation \n"
                                      "image (if available) and normal image.");
     ui->buttonSwitchView->setEnabled(false);
 
-    DisplayHelper::setIcon(ui->buttonResetPosition, DisplayHelper::ARROWS, 18);
+    //DisplayHelper::setIcon(ui->buttonResetPosition, DisplayHelper::ARROWS, 18);
+    ui->buttonResetPosition->setText("test");
     ui->buttonResetPosition->setToolTip("Click to reset the position of the image.");
     ui->buttonResetPosition->setEnabled(false);
 

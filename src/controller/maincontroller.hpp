@@ -10,6 +10,7 @@
 #include "controller/poseeditingcontroller.hpp"
 #include "controller/neuralnetworkcontroller.hpp"
 
+#include <QApplication>
 #include <QScopedPointer>
 #include <QSharedPointer>
 #include <QMap>
@@ -18,13 +19,23 @@
 //! This class is responsible for the overall program to work.
 //! It maintains references to all the important parts and
 //! ensures them to work properly and updates or makes update-requests when necessary.
-class MainController : public QObject {
+class MainController : public QApplication {
     Q_OBJECT
 
 public:
-    MainController();
+    MainController(int &argc, char **argv, int = ApplicationFlags);
     ~MainController();
 
+    /*!
+     * \brief exec executes the startup of this controller and enters the event loop
+     * \return the error code, if any happened
+     */
+    int exec();
+
+private Q_SLOTS:
+    void onSettingsChanged(const QString &identifier);
+
+private:
     /*!
      * \brief initialize initializes this controller, i.e. sets up the necessary models and further initializes the view.
      */
@@ -34,6 +45,8 @@ public:
      * \brief showView shows the view of this controller.
      */
     void showView();
+    void initializeSettingsItem();
+    void initializeMainWindow();
 
 private:
     // Keep order! Initializiation must happen in this way
@@ -48,12 +61,6 @@ private:
     QScopedPointer<NeuralNetworkController> networkController;
 
     QScopedPointer<MainWindow> mainWindow;
-
-    void initializeSettingsItem();
-    void initializeMainWindow();
-
-private Q_SLOTS:
-    void onSettingsChanged(const QString &identifier);
 };
 
 #endif // MAINCONTROLLER_H

@@ -1,16 +1,37 @@
 #include "maincontroller.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
-#include <opencv2/calib3d/calib3d.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <QSettings>
-#include <QDir>
-#include <iostream>
 
-MainController::MainController() {
+#include <QSplashScreen>
+#include <QFontDatabase>
+
+MainController::MainController(int &argc, char **argv, int) : QApplication(argc, argv) {
 }
 
 MainController::~MainController() {
+}
+
+int MainController::exec() {
+    qSetMessagePattern("[%{function}] (%{type}): %{message}");
+
+    QPixmap pixmap(":/images/splash.png");
+    QSplashScreen splash(pixmap);
+    splash.show();
+
+    initialize();
+
+    QFontDatabase::addApplicationFont(":/fonts/fontawesome-4.7.0.ttf");
+
+    QSurfaceFormat format;
+    format.setDepthBufferSize(24);
+    format.setStencilBufferSize(0);
+    format.setSamples(8);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setVersion(3, 0);
+    QSurfaceFormat::setDefaultFormat(format);
+
+    QTimer::singleShot(1500, &splash, &QWidget::close);
+    QTimer::singleShot(1500, this, &MainController::showView);
+    return QApplication::exec();
 }
 
 void MainController::initialize() {
