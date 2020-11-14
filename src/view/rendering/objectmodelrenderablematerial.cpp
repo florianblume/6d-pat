@@ -21,7 +21,7 @@ ObjectModelRenderableMaterial::ObjectModelRenderableMaterial(Qt3DCore::QNode *pa
       , m_clickCountParameter(new Qt3DRender::QParameter(QStringLiteral("clickCount"), 0))
       , m_useDiffuseTextureParameter(new Qt3DRender::QParameter(QStringLiteral("useDiffuseTexture"), QVariant::fromValue(withTexture)))
       , m_circumfenceParameter(new Qt3DRender::QParameter(QStringLiteral("circumfence"), 0.001f))
-      , m_selectedParameter(new Qt3DRender::QParameter(QStringLiteral("selected"), QVector4D(0.f, 0.f, 0.f, 0.f)))
+      , m_highlightColorParameter(new Qt3DRender::QParameter(QStringLiteral("selected"), QVector4D(0.f, 0.f, 0.f, 0.f)))
       , m_opacityParameter(new Qt3DRender::QParameter(QStringLiteral("opacity"), 1.0f))
       , m_technique(new Qt3DRender::QTechnique())
       , m_renderPass(new Qt3DRender::QRenderPass())
@@ -71,7 +71,7 @@ ObjectModelRenderableMaterial::ObjectModelRenderableMaterial(Qt3DCore::QNode *pa
     m_effect->addParameter(m_clickColorsParameter);
     m_effect->addParameter(m_useDiffuseTextureParameter);
     m_effect->addParameter(m_circumfenceParameter);
-    m_effect->addParameter(m_selectedParameter);
+    m_effect->addParameter(m_highlightColorParameter);
     m_effect->addParameter(m_opacityParameter);
 
     setEffect(m_effect);
@@ -103,6 +103,10 @@ float ObjectModelRenderableMaterial::textureScale() const {
 
 bool ObjectModelRenderableMaterial::isSelected() const {
     return m_selected;
+}
+
+bool ObjectModelRenderableMaterial::isHovered() const {
+
 }
 
 void ObjectModelRenderableMaterial::setAmbient(const QColor &color) {
@@ -142,11 +146,22 @@ void ObjectModelRenderableMaterial::setCirumfence(float circumfence) {
 void ObjectModelRenderableMaterial::setSelected(bool selected) {
     m_selected = selected;
     if (selected) {
-        m_selectedParameter->setValue(QVector4D(0.2, 0.1, 0.0, 0.0));
+        m_highlightColorParameter->setValue(m_selectedColor);
     } else {
-        m_selectedParameter->setValue(QVector4D(0.0, 0.0, 0.0, 0.0));
+        m_highlightColorParameter->setValue(QVector4D(0.0, 0.0, 0.0, 0.0));
     }
     Q_EMIT selectedChanged(selected);
+}
+
+void ObjectModelRenderableMaterial::setHovered(bool hovered) {
+    if (!m_selected) {
+        m_hovered = hovered;
+        if (m_hovered) {
+            m_highlightColorParameter->setValue(m_highlightColor);
+        } else {
+            m_highlightColorParameter->setValue(QVector4D(0.0, 0.0, 0.0, 0.0));
+        }
+    }
 }
 
 void ObjectModelRenderableMaterial::setOpacity(float opacity) {

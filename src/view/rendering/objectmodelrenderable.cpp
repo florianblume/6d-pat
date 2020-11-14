@@ -44,6 +44,13 @@ bool ObjectModelRenderable::isSelected() const {
     return m_selected;
 }
 
+bool ObjectModelRenderable::isHovered() const {
+    if (!m_material.isNull()) {
+        return m_material->isHovered();
+    }
+    return false;
+}
+
 void ObjectModelRenderable::setObjectModel(const ObjectModel &objectModel) {
     m_selected = false;
     m_sceneLoader->setEnabled(false);
@@ -61,6 +68,11 @@ void ObjectModelRenderable::setSelected(bool selected) {
         m_material->setSelected(selected);
     m_selected = selected;
     Q_EMIT selectedChanged(selected);
+}
+
+void ObjectModelRenderable::setHovered(bool hovered) {
+    if (!m_material.isNull())
+        m_material->setHovered(hovered);
 }
 
 void ObjectModelRenderable::setOpacity(float opacity) {

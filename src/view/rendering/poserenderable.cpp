@@ -16,6 +16,10 @@ PoseRenderable::PoseRenderable(Qt3DCore::QEntity *parent,
             this, &PoseRenderable::clicked);
     connect(m_picker, &Qt3DRender::QObjectPicker::moved,
             this, &PoseRenderable::moved);
+    connect(m_picker, &Qt3DRender::QObjectPicker::entered,
+            this, &PoseRenderable::entered);
+    connect(m_picker, &Qt3DRender::QObjectPicker::exited,
+            this, &PoseRenderable::exited);
     connect(pose.get(), &Pose::positionChanged,
             m_transform, &Qt3DCore::QTransform::setTranslation);
     connect(pose.get(), &Pose::rotationChanged,

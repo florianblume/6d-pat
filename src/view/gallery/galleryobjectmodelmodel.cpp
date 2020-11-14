@@ -172,9 +172,7 @@ void GalleryObjectModelModel::onDataChanged(int data) {
             objectModels.clear();
             indexMapping.clear();
         }
-
         createIndexMapping();
-        doUpdate = true;
     }
     if (doUpdate) {
         QModelIndex top = index(0, 0);

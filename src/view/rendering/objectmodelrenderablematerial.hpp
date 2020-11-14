@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVector3D>
+#include <QVector4D>
 
 #include <Qt3DRender/QMaterial>
 #include <Qt3DRender/QEffect>
@@ -24,7 +25,7 @@ class ObjectModelRenderableMaterial : public Qt3DRender::QMaterial
     Q_PROPERTY(float shininess READ shininess WRITE setShininess NOTIFY shininessChanged)
     Q_PROPERTY(Qt3DRender::QAbstractTexture *diffuse READ diffuse WRITE setDiffuseTexture NOTIFY diffuseChanged)
     Q_PROPERTY(float textureScale READ textureScale WRITE setTextureScale NOTIFY textureScaleChanged)
-    Q_PROPERTY(bool selected READ isSelected WRITE setSelected NOTIFY selectedChanged)
+    Q_PROPERTY(bool highlightColor READ isSelected WRITE setSelected NOTIFY selectedChanged)
 
 public:
     ObjectModelRenderableMaterial(Qt3DCore::QNode *parent = nullptr, bool withTexture = true);
@@ -36,6 +37,7 @@ public:
     Qt3DRender::QAbstractTexture *diffuse() const;
     float textureScale() const;
     bool isSelected() const;
+    bool isHovered() const;
 
 public Q_SLOTS:
     void setAmbient(const QColor &color);
@@ -46,6 +48,7 @@ public Q_SLOTS:
     void setDiffuseColor(const QColor &color);
     void setCirumfence(float circumfence);
     void setSelected(bool selected);
+    void setHovered(bool hovered);
     void setOpacity(float opacity);
     void setClicks(QList<QVector3D> clicks);
 
@@ -71,7 +74,7 @@ private:
     Qt3DRender::QParameter *m_clickCountParameter;
     Qt3DRender::QParameter *m_useDiffuseTextureParameter;
     Qt3DRender::QParameter *m_circumfenceParameter;
-    Qt3DRender::QParameter *m_selectedParameter;
+    Qt3DRender::QParameter *m_highlightColorParameter;
     Qt3DRender::QParameter *m_opacityParameter;
     Qt3DRender::QTechnique *m_technique;
     Qt3DRender::QRenderPass *m_renderPass;
@@ -80,7 +83,11 @@ private:
     Qt3DRender::QBlendEquationArguments *m_blendState;
     Qt3DRender::QBlendEquation *m_blendEquation;
 
+    QVector4D m_selectedColor = QVector4D(0.1, 0.05, 0.0, 0.0);
+    QVector4D m_highlightColor = QVector4D(0.05, 0.025, 0.0, 0.0);
+
     bool m_selected = false;
+    bool m_hovered = false;
 };
 
 #endif // OBJECTMODELMATERIAL_H

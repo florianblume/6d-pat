@@ -8,7 +8,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui(new Ui::SettingsDialog)
 {
     ui->setupUi(this);
-    ui->listWidget->addItem(new QListWidgetItem("General"));
+    ui->listWidget->addItem(new QListWidgetItem("Paths"));
     ui->listWidget->addItem(new QListWidgetItem("Codes"));
     ui->listWidget->addItem(new QListWidgetItem("Network"));
     ui->listWidget->setCurrentItem(ui->listWidget->item(0));

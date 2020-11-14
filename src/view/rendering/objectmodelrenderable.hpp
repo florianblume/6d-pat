@@ -34,11 +34,13 @@ public:
     ObjectModelRenderable(Qt3DCore::QEntity *parent, const ObjectModel &m_objectModel);
     Qt3DRender::QSceneLoader::Status status() const;
     bool isSelected() const;
+    bool isHovered() const;
 
 public Q_SLOTS:
     void setObjectModel(const ObjectModel &m_objectModel);
     void setClicks(QList<QVector3D> clicks);
     void setSelected(bool selected);
+    void setHovered(bool hovered);
     void setOpacity(float opacity);
 
 private Q_SLOTS:
