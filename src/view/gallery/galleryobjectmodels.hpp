@@ -5,8 +5,7 @@
 #include "view/gallery/gallery.hpp"
 
 
-class GalleryObjectModels : public Gallery
-{
+class GalleryObjectModels : public Gallery {
     Q_OBJECT
 
 public:

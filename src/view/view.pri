@@ -1,6 +1,7 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
+    $$PWD/gallery/loadingiconmodel.hpp \
     view/gallery/galleryobjectmodels.hpp \
     view/gallery/rendering/offscreenengine.hpp \
     view/gallery/rendering/texturerendertarget.hpp \
@@ -31,6 +32,7 @@ HEADERS += \
     view/rendering/clickvisualizationrenderable.hpp
 
 SOURCES += \
+    $$PWD/gallery/loadingiconmodel.cpp \
     view/gallery/galleryobjectmodels.cpp \
     view/mainwindow.cpp \
     view/breadcrumb/breadcrumbview.cpp \

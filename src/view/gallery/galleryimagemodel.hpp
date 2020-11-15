@@ -2,19 +2,21 @@
 #define GALLERYIMAGEMODEL_H
 
 #include "model/modelmanager.hpp"
+#include "loadingiconmodel.hpp"
 #include "resizeimagesrunnable.hpp"
 
 #include <QAbstractListModel>
 #include <QImage>
 #include <QThreadPool>
 #include <QPointer>
+#include <QMovie>
+#include <QIcon>
 
 /*!
  * \brief The GalleryImageModel class provides the image data for a listview that is supposed to
  * display images maintained by the injected model manager.
  */
-class GalleryImageModel : public QAbstractListModel
-{
+class GalleryImageModel : public LoadingIconModel {
     Q_OBJECT
 
 public:
@@ -34,16 +36,16 @@ private Q_SLOTS:
     void onDataChanged(int data);
 
 private:
+    void threadedResizeImages();
+    void resizeImages();
+
+private:
     ModelManager *modelManager;
     QList<ImagePtr> imagesCache;
     QPointer<ResizeImagesRunnable> resizeImagesRunnable;
     QThreadPool resizeImagesThreadpool;
     QMap<QString, QImage> resizedImagesCache;
     bool abortResize = false;
-
-    void threadedResizeImages();
-    void resizeImages();
-
 };
 
 #endif // GALLERYIMAGEMODEL_H

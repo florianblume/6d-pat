@@ -4,6 +4,7 @@
 #include <math.h>
 #include <QtMath>
 
+#include <QApplication>
 #include <QFrame>
 #include <QImage>
 #include <QMouseEvent>
@@ -151,10 +152,10 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     poseRenderableForId[pose->id()] = poseRenderable;
     connect(poseRenderable, &PoseRenderable::clicked,
             [poseRenderable, this](Qt3DRender::QPickEvent *e){
-        if (e->button() == Qt3DRender::QPickEvent::RightButton && !poseRenderableMoved) {
-            Q_EMIT poseSelected(poseRenderable->getPose());
+        if (e->button() == Qt3DRender::QPickEvent::RightButton && !poseRenderableMovedFirst) {
+            Q_EMIT poseSelected(poseRenderable->pose());
         }
-        poseRenderableMoved = false;
+        poseRenderableMovedFirst = false;
     });
     connect(poseRenderable, &PoseRenderable::moved,
             [this, poseRenderable](Qt3DRender::QPickEvent *e){
@@ -211,49 +212,59 @@ inline float clampInputs(float input1, float input2)
     return (axisValue < -1) ? -1 : (axisValue > 1) ? 1 : axisValue;
 }
 
+QVector3D PoseViewer3DWidget::vectorForMousePos(const QPointF pos) {
+    float ndcX = 2.0f * pos.x() / width() - 1.0f;
+    float ndcY = 1.0 - 2.0f * pos.y() / height();
+    return QVector3D(ndcX, ndcY, 0.0);
+}
+
 void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *e) {
     // Rotate on right mouse button, move on left
-    if (mouseDownOnBackground || selectedPose.isNull()) {
+    if (backgroundImageRenderableMovedFirst || selectedPose.isNull() || !mouseDown) {
         return;
     }
-    if (!poseRenderableMoved) {
-        //clickPos = QPoint(e->position().x(), e->position().y());
+    poseRenderableMovedFirst = true;
+
+    if (mouseButton == Qt::RightButton) {
+        // Rotate the object with right mouse button
+
+        endVector = vectorForMousePos(e->position());
+
+        QVector3D direction = endVector - startVector;
+        QVector3D rotationAxis = QVector3D(-direction.y(), direction.x(), 0.0).normalized();
+        float angle = (float)qRadiansToDegrees(direction.length() * 3.141593);
+
+        QMatrix4x4 addRotation;
+        addRotation.rotate(angle, rotationAxis.x(), rotationAxis.y(), rotationAxis.z());
+        PoseRenderable *poseRenderable = poseRenderableForId[selectedPose->id()];
+        QMatrix4x4 rotation = poseRenderable->transform()->matrix();
+        rotation = addRotation * rotation;
+        // Restore position of before rotation
+        QVector3D pos = poseRenderable->transform()->translation();
+        poseRenderable->transform()->setMatrix(rotation);
+        poseRenderable->transform()->setTranslation(pos);
+        selectedPose->setRotation(poseRenderable->transform()->rotation().toRotationMatrix());
+
+        startVector = endVector;
+
+        QApplication::setOverrideCursor(Qt::BlankCursor);
+    } else if (mouseButton == Qt::LeftButton) {
+        // Move the object with the left mouse button
+        QApplication::setOverrideCursor(Qt::BlankCursor);
     }
-    poseRenderableMoved = true;
 
-    float ndcX = 2.0f * e->position().x() / width() - 1.0f;
-    float ndcY = 1.0 - 2.0f * e->position().y() / height();
-
-    endVector = QVector3D(ndcX, ndcY, 0.0);
-
-    QVector3D direction = endVector - startVector;
-    QVector3D rotationAxis = QVector3D(-direction.y(), direction.x(), 0.0).normalized();
-    float angle = (float)qRadiansToDegrees(direction.length() * 3.141593);
-
-    QMatrix4x4 addRotation;
-    addRotation.rotate(angle, rotationAxis.x(), rotationAxis.y(), rotationAxis.z());
-    PoseRenderable *poseRenderable = poseRenderableForId[selectedPose->id()];
-    QMatrix4x4 rotation = poseRenderable->getTransform()->matrix();
-    rotation = addRotation * rotation;
-    QVector3D pos = poseRenderable->getTransform()->translation();
-    poseRenderable->getTransform()->setMatrix(rotation);
-    poseRenderable->getTransform()->setTranslation(pos);
-
-    startVector = endVector;
-
-    clickPos = QPoint(e->position().x(), e->position().y());
+    currentClickPos = QPoint(e->position().x(), e->position().y());
 }
 
 void PoseViewer3DWidget::onBackgroundImageRenderableMoved(Qt3DRender::QPickEvent *e) {
-    mouseDownOnBackground = !poseRenderableMoved;
+    backgroundImageRenderableMovedFirst = !poseRenderableMovedFirst;
 }
 
 void PoseViewer3DWidget::onBackgroundImageRenderableClicked(Qt3DRender::QPickEvent *e) {
-    if (mouseDownOnBackground) {
-        poseRenderableMoved = false;
+    if (!poseRenderableMovedFirst && e->button() == Qt3DRender::QPickEvent::RightButton) {
+        Q_EMIT poseSelected(PosePtr());
     }
-    mouseDownOnBackground = false;
-    Q_EMIT poseSelected(PosePtr());
+    backgroundImageRenderableMovedFirst = false;
 }
 
 void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
@@ -277,28 +288,31 @@ void PoseViewer3DWidget::reset() {
 void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
     Qt3DWidget::resizeEvent(event);
     clickVisualizationRenderable->setSize(event->size());
-    //clickVisualizationCamera->lens()->setOrthographicProjection(0, this->size().width(),
-    //                                                            0, this->size().height(),
-    //                                                            0.1f, 1000.f);
+    clickVisualizationCamera->lens()->setOrthographicProjection(0, this->size().width(),
+                                                                0, this->size().height(),
+                                                                0.1f, 1000.f);
 }
 
 void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
-    lastPos = event->globalPos() - QPoint(geometry().x(), geometry().y());
-    clickPos = event->globalPos();
+    firstClickPos = event->globalPos() - QPoint(geometry().x(), geometry().y());
+    currentClickPos = event->globalPos();
     localClickPos = event->localPos();
 
-    float ndcX = 2.0f * event->localPos().x() / width() - 1.0f;
-    float ndcY = 1.0 - 2.0f * event->localPos().y() / height();
-
-    startVector = QVector3D(ndcX, ndcY, 0.0);
+    startVector = vectorForMousePos(event->localPos());
     endVector   = startVector;
+
+    mouseDown = true;
+    poseRenderableMovedFirst = false;
+    backgroundImageRenderableMovedFirst = false;
+
+    mouseButton = event->button();
 }
 
 void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
     if (event->buttons() & Qt::LeftButton) {
-        clickPos = event->globalPos();
-        newPos.setX(clickPos.x() - lastPos.x());
-        newPos.setY(clickPos.y() - lastPos.y());
+        currentClickPos = event->globalPos();
+        newPos.setX(currentClickPos.x() - firstClickPos.x());
+        newPos.setY(currentClickPos.y() - firstClickPos.y());
         move(newPos);
         mouseMoved = true;
     }
@@ -309,25 +323,18 @@ void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton && !mouseMoved && backgroundImageRenderable != Q_NULLPTR) {
         Q_EMIT positionClicked(event->pos());
     }
-    mouseMoved = false;
-    mouseDownOnBackground = false;
-}
 
-QVector3D PoseViewer3DWidget::getArcBallVector(int x, int y) {
-    QVector3D pt = QVector3D(2.0 * x / width() - 1.0, 2.0 * y / height() - 1.0 , 0);
-    pt.setY(pt.y() * -1);
-
-    // compute z-coordinates
-
-    float xySquared = pt.x() * pt.x() + pt.y() * pt.y();
-
-    if(xySquared <= 1.0) {
-       pt.setZ(std::sqrt(1.0 - xySquared));
-    } else {
-       pt.normalize();
+    // PoseRenderableMovedFirst means that the user clicked the renderable and modified it
+    if (poseRenderableMovedFirst) {
+        QApplication::setOverrideCursor(Qt::ArrowCursor);
     }
 
-    return pt;
+    mouseMoved = false;
+    mouseDown = false;
+    backgroundImageRenderableMovedFirst = false;
+    poseRenderableMovedFirst = false;
+
+    mouseButton = Qt::NoButton;
 }
 
 QSize PoseViewer3DWidget::imageSize() const

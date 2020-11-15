@@ -29,12 +29,12 @@ public:
 
     QString poseID();
     ObjectModelPtr objectModel();
-    Qt3DCore::QTransform *getTransform() const;
+    Qt3DCore::QTransform *transform() const;
 
     // To retrieve the respective renderable
     bool operator==(const PoseRenderable &other);
 
-    PosePtr getPose() const;
+    PosePtr pose() const;
 
 Q_SIGNALS:
     void clicked(Qt3DRender::QPickEvent *pickEvent);

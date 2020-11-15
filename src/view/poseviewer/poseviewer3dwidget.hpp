@@ -64,7 +64,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
-    QVector3D getArcBallVector(int x, int y);
+    QVector3D vectorForMousePos(const QPointF pos);
 
 private:
     // Root entity
@@ -118,14 +118,16 @@ private:
     QVector3D endVector;
 
     // To handle dragging of the widget and clicking
-    QPoint lastPos;
+    QPoint firstClickPos;
     QPoint newPos;
-    QPoint clickPos;
+    QPoint currentClickPos;
     QPointF localClickPos;
     bool mouseDown = false;
     bool mouseMoved = false;
-    bool mouseDownOnBackground = false;
-    bool poseRenderableMoved = false;
+    bool backgroundImageRenderableMovedFirst = false;
+    bool poseRenderableMovedFirst = false;
+
+    Qt::MouseButton mouseButton;
 
     QSize m_imageSize;
 

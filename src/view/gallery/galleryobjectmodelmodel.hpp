@@ -1,6 +1,7 @@
 #ifndef GALLERYOBJECTMODELMODEL_H
 #define GALLERYOBJECTMODELMODEL_H
 
+#include "loadingiconmodel.hpp"
 #include "model/modelmanager.hpp"
 #include "view/gallery/rendering/offscreenengine.hpp"
 
@@ -14,8 +15,7 @@
  * \brief The GalleryObjectModelModel class provides object model images to the Gallery.
  * It renders the ObjectModels offline and returns the images of them.
  */
-class GalleryObjectModelModel : public QAbstractListModel
-{
+class GalleryObjectModelModel : public LoadingIconModel {
     Q_OBJECT
 
     Q_PROPERTY(QSize previewRenderingSize READ previewRenderingSize WRITE setPreviewRenderingSize)
@@ -48,6 +48,14 @@ Q_SIGNALS:
     //!
     void displayedObjectModelsChanged();
 
+private Q_SLOTS:
+    bool isNumberOfToolsCorrect() const;
+    void onDataChanged(int data);
+    void onObjectModelRendered(QImage image);
+
+private:
+    QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
+
 private:
     ModelManager* modelManager;
     QList<ObjectModelPtr> objectModels;
@@ -67,13 +75,6 @@ private:
     //! when the renderer returns
     int currentlyRenderedImageIndex = 0;
     bool renderingObjectModels = false;
-    QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
-
-private Q_SLOTS:
-    bool isNumberOfToolsCorrect() const;
-    void onDataChanged(int data);
-    void onObjectModelRendered(QImage image);
-
 };
 
 #endif // GALLERYOBJECTMODELMODEL_H

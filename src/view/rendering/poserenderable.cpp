@@ -38,10 +38,10 @@ bool PoseRenderable::operator==(const PoseRenderable &other) {
     return m_pose->id() == other.m_pose->id();
 }
 
-PosePtr PoseRenderable::getPose() const {
+PosePtr PoseRenderable::pose() const {
     return m_pose;
 }
 
-Qt3DCore::QTransform *PoseRenderable::getTransform() const {
+Qt3DCore::QTransform *PoseRenderable::transform() const {
     return m_transform;
 }

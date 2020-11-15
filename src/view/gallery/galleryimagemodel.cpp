@@ -15,6 +15,7 @@ GalleryImageModel::GalleryImageModel(ModelManager* modelManager) {
 GalleryImageModel::~GalleryImageModel() {
     resizeImagesRunnable->stop();
     resizeImagesThreadpool.waitForDone();
+    delete resizeImagesRunnable;
 }
 
 QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
@@ -28,14 +29,7 @@ QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
         if (resizedImagesCache.contains(imagePath)) {
             return QIcon(QPixmap::fromImage(resizedImagesCache[imagePath]));
         } else {
-            // Just a placeholder
-            QPixmap pix(300, 300);
-            pix.fill(Qt::white);
-            QPainter painter(&pix);
-            painter.setRenderHint(QPainter::TextAntialiasing);
-            painter.setFont(QFont("ubuntu", 35));
-            painter.drawText(pix.rect(), Qt::AlignVCenter, imagePath);
-            return QIcon(pix);
+            return QIcon(currentLoadingAnimationFrame);
         }
     } else if (role == Qt::ToolTipRole) {
         return imagePath;
@@ -62,14 +56,15 @@ void GalleryImageModel::resizeImages() {
 
 void GalleryImageModel::onImageResized(int imageIndex, const QString &imagePath, const QImage &resizedImage) {
     resizedImagesCache[imagePath] = resizedImage;
-    QModelIndex top = index(imageIndex, 0);
-    QModelIndex bottom = index(imageIndex, 0);
-    Q_EMIT dataChanged(top, bottom);
+    if (imageIndex == imagesCache.size()) {
+        updateTimer.stop();
+    }
 }
 
 void GalleryImageModel::onDataChanged(int data) {
     // Check if images were changed
     if (data & Data::Images) {
+        updateTimer.start();
         imagesCache = modelManager->images();
         resizeImages();
         QModelIndex top = index(0, 0);

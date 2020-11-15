@@ -5,8 +5,7 @@
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SettingsDialog)
-{
+    ui(new Ui::SettingsDialog) {
     ui->setupUi(this);
     ui->listWidget->addItem(new QListWidgetItem("Paths"));
     ui->listWidget->addItem(new QListWidgetItem("Codes"));
@@ -15,8 +14,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui->listWidget->update();
 }
 
-SettingsDialog::~SettingsDialog()
-{
+SettingsDialog::~SettingsDialog() {
     delete ui;
 }
 
@@ -41,7 +39,6 @@ void SettingsDialog::onAccepted(QAbstractButton* button) {
     }
 }
 
-void SettingsDialog::onListWidgetClicked(const QModelIndex &index)
-{
+void SettingsDialog::onListWidgetClicked(const QModelIndex &index) {
     ui->stackedWidget->setCurrentIndex(index.row());
 }

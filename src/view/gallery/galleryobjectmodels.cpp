@@ -3,7 +3,6 @@
 #include "ui_gallery.h"
 
 GalleryObjectModels::GalleryObjectModels(QWidget *parent) : Gallery(parent) {
-
 }
 
 void GalleryObjectModels::selectObjectModelByID(const ObjectModel &objectModel, bool emitSignals) {

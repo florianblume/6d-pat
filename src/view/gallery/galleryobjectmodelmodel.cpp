@@ -33,7 +33,7 @@ QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectMo
         if (renderedObjectsModels.contains(objectModel.path())) {
             return QIcon(QPixmap::fromImage(renderedObjectsModels.value(objectModel.path())));
         } else {
-            return QVariant();
+            return currentLoadingAnimationFrame;
         }
     }
 
@@ -54,8 +54,9 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
     //! If for some weird coincidence (maybe deletion of a object model on the filesystem) the passed index
     //! is out of bounds simply return a QVariant, the next time the data method is called everything should
     //! be finde again
-    if (!modelManager || index.row() >= renderedObjectsModels.size())
+    if (!modelManager) {
         return QVariant();
+    }
 
     ObjectModelPtr objectModel = objectModels.at(indexMapping.value(index.row()));
 
@@ -90,11 +91,12 @@ int GalleryObjectModelModel::rowCount(const QModelIndex &/* parent */) const {
                                     && images.at(currentSelectedImageIndex)
                                         ->segmentationImagePath().isEmpty());
     if (noCodes || noSegmentationImages || !isNumberOfToolsCorrect()) {
-        return renderedObjectsModels.size();
+        // Not only renderedObjectModels.size() because we show loading icons
+        return objectModels.size();
     }
 
     if (currentSelectedImageIndex == -1) {
-        return renderedObjectsModels.size();
+        return objectModels.size();
     }
 
     int count = 0;
@@ -156,28 +158,25 @@ bool GalleryObjectModelModel::isNumberOfToolsCorrect() const {
 }
 
 void GalleryObjectModelModel::onDataChanged(int data) {
-    bool doUpdate = false;
     if (data & Data::Images) {
         // When the images change, the last selected image gets deselected
         // This means we have to reset the index
         currentSelectedImageIndex = -1;
-        objectModels = modelManager->objectModels();
-        doUpdate = true;
+        colorsOfCurrentImage.clear();
+        indexMapping.clear();
+        createIndexMapping();
     }
     if (data & Data::ObjectModels) {
         if (modelManager) {
+            // When the object models change we need to re-render them
             objectModels = modelManager->objectModels();
             renderObjectModels();
+            updateTimer.start();
         } else {
             objectModels.clear();
             indexMapping.clear();
         }
         createIndexMapping();
-    }
-    if (doUpdate) {
-        QModelIndex top = index(0, 0);
-        QModelIndex bottom = index(objectModels.size() - 1, 0);
-        Q_EMIT dataChanged(top, bottom);
     }
 }
 
@@ -238,9 +237,6 @@ void GalleryObjectModelModel::onObjectModelRendered(QImage image) {
     QString objectModel = objectModels[currentlyRenderedImageIndex]->path();
     qDebug() << "Preview rendering finished for " + objectModel;
     renderedObjectsModels.insert(objectModel, image);
-    QModelIndex top = index(0, 0);
-    QModelIndex bottom = index(currentlyRenderedImageIndex + 1, 0);
-    Q_EMIT dataChanged(top, bottom);
     currentlyRenderedImageIndex++;
     if (currentlyRenderedImageIndex < objectModels.size()) {
         offscreenEngine.setObjectModel(*objectModels[currentlyRenderedImageIndex]);
@@ -248,5 +244,6 @@ void GalleryObjectModelModel::onObjectModelRendered(QImage image) {
     } else {
         currentlyRenderedImageIndex = 0;
         renderingObjectModels = false;
+        updateTimer.stop();
     }
 }
