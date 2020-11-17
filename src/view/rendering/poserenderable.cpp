@@ -16,6 +16,8 @@ PoseRenderable::PoseRenderable(Qt3DCore::QEntity *parent,
             this, &PoseRenderable::clicked);
     connect(m_picker, &Qt3DRender::QObjectPicker::moved,
             this, &PoseRenderable::moved);
+    connect(m_picker, &Qt3DRender::QObjectPicker::pressed,
+            this, &PoseRenderable::pressed);
     connect(m_picker, &Qt3DRender::QObjectPicker::entered,
             this, &PoseRenderable::entered);
     connect(m_picker, &Qt3DRender::QObjectPicker::exited,

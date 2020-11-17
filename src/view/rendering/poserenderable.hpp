@@ -39,6 +39,7 @@ public:
 Q_SIGNALS:
     void clicked(Qt3DRender::QPickEvent *pickEvent);
     void moved(Qt3DRender::QPickEvent *pickEvent);
+    void pressed(Qt3DRender::QPickEvent *pickEvent);
     void entered();
     void exited();
 

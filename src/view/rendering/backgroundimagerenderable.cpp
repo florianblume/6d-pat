@@ -21,8 +21,12 @@ BackgroundImageRenderable::BackgroundImageRenderable(Qt3DCore::QNode *parent,
     transform = new Qt3DCore::QTransform();
     transform->setRotationX(90);
     objectPicker = new Qt3DRender::QObjectPicker();
-    connect(objectPicker, &Qt3DRender::QObjectPicker::clicked, this, &BackgroundImageRenderable::clicked);
-    connect(objectPicker, &Qt3DRender::QObjectPicker::moved, this, &BackgroundImageRenderable::moved);
+    connect(objectPicker, &Qt3DRender::QObjectPicker::clicked,
+            this, &BackgroundImageRenderable::clicked);
+    connect(objectPicker, &Qt3DRender::QObjectPicker::moved,
+            this, &BackgroundImageRenderable::moved);
+    connect(objectPicker, &Qt3DRender::QObjectPicker::pressed,
+            this, &BackgroundImageRenderable::pressed);
     objectPicker->setDragEnabled(true);
     objectPicker->setHoverEnabled(true);
     this->addComponent(mesh);

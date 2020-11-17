@@ -45,14 +45,19 @@ public:
     void removePose(const QString &id);
     void removePoses();
     void selectPose(PosePtr selected, PosePtr deselected);
-    void onPoseRenderableMoved(Qt3DRender::QPickEvent *e);
-    void onBackgroundImageRenderableMoved(Qt3DRender::QPickEvent *e);
-    void onBackgroundImageRenderableClicked(Qt3DRender::QPickEvent *e);
     void setObjectsOpacity(float opacity);
     void setClicks(const QList<QPoint> &clicks);
     QSize imageSize() const;
     void reset();
     void resizeEvent(QResizeEvent *event) override;
+
+public Q_SLOTS:
+    // React to object pickers
+    void onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent);
+    void onPoseRenderablePressed(Qt3DRender::QPickEvent *pickEvent);
+    void onBackgroundImageRenderableMoved(Qt3DRender::QPickEvent *pickEvent);
+    void onBackgroundImageRenderableClicked(Qt3DRender::QPickEvent *pickEvent);
+    void onBackgroundImageRenderablePressed(Qt3DRender::QPickEvent *pickEvent);
 
 Q_SIGNALS:
     void positionClicked(QPoint position);
@@ -64,7 +69,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
-    QVector3D vectorForMousePos(const QPointF pos);
+    QVector3D arcBallVectorForMousePos(const QPointF pos);
 
 private:
     // Root entity
@@ -114,8 +119,17 @@ private:
 
     PosePtr selectedPose;
 
-    QVector3D startVector;
-    QVector3D endVector;
+    // Arc ball vectors for rotation with mouse
+    QVector3D arcBallStartVector;
+    QVector3D arcBallEndVector;
+
+    // Arc ball vectors for translation with mouse
+    QVector3D translationStartVector;
+    QVector3D translationEndVector;
+    QVector3D translationDifference;
+    QVector3D translationStart;
+    float depth = 0.f;
+    float distance = 0.f;
 
     // To handle dragging of the widget and clicking
     QPoint firstClickPos;
@@ -127,7 +141,10 @@ private:
     bool backgroundImageRenderableMovedFirst = false;
     bool poseRenderableMovedFirst = false;
 
-    Qt::MouseButton mouseButton;
+    // Store the mouse button that was clicked because the Qt3D
+    // pick events don't deliver them in their events when the
+    // mouse is moved after clicking and holding down the mouse button
+    Qt::MouseButton clickedMouseButton;
 
     QSize m_imageSize;
 
