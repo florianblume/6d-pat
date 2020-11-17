@@ -43,6 +43,8 @@ public:
     void setModelManager(ModelManager *value);
     void setPoseRecoverer(PoseRecoveringController *value);
 
+    void setPoses(const QList<PosePtr> &poses);
+
 public Q_SLOTS:
     void setImage(ImagePtr image);
     // Slot to signal of images gallery

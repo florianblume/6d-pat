@@ -7,9 +7,9 @@ NavigationControls::NavigationControls(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::NavigationControls) {
     ui->setupUi(this);
-    DisplayHelper::setIcon(ui->buttonNavigateLeft, DisplayHelper::CHEVRONLEFT, 18);
-    DisplayHelper::setIcon(ui->buttonNavigateRight, DisplayHelper::CHEVRONRIGHT, 18);
-    DisplayHelper::setIcon(ui->openFolderButton, DisplayHelper::FOLDEROPEN, 18);
+    DisplayHelper::setIcon(ui->buttonNavigateLeft, fa::chevronleft, 18);
+    DisplayHelper::setIcon(ui->buttonNavigateRight, fa::chevronright, 18);
+    DisplayHelper::setIcon(ui->openFolderButton, fa::folderopen, 18);
 }
 
 NavigationControls::~NavigationControls()
@@ -27,7 +27,8 @@ void NavigationControls::folderButtonClicked() {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
                                                 currentPath,
                                                 QFileDialog::ShowDirsOnly
-                                                | QFileDialog::DontResolveSymlinks);
+                                                | QFileDialog::DontResolveSymlinks
+                                                | QFileDialog::DontUseNativeDialog);
     if (dir == "") {
         return;
     }

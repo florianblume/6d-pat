@@ -15,8 +15,8 @@ Gallery::Gallery(QWidget *parent) :
     ui(new Ui::Gallery) {
     ui->setupUi(this);
     //! Here we set the nice arrow icons of the buttons left and right of the list view
-    DisplayHelper::setIcon(ui->buttonNavigateLeft, DisplayHelper::CHEVRONLEFT, 20);
-    DisplayHelper::setIcon(ui->buttonNavigateRight, DisplayHelper::CHEVRONRIGHT, 20);
+    DisplayHelper::setIcon(ui->buttonNavigateLeft, fa::chevronleft, 20);
+    DisplayHelper::setIcon(ui->buttonNavigateRight, fa::chevronright, 20);
     ui->frame->layout()->setAlignment(Qt::AlignVCenter);
 }
 

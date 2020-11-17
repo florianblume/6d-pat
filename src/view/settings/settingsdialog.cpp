@@ -7,9 +7,9 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SettingsDialog) {
     ui->setupUi(this);
-    ui->listWidget->addItem(new QListWidgetItem("Paths"));
-    ui->listWidget->addItem(new QListWidgetItem("Codes"));
-    ui->listWidget->addItem(new QListWidgetItem("Network"));
+    ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::wrench), "Paths"));
+    ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::paintbrush), "Codes"));
+    ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::codefork), "Network"));
     ui->listWidget->setCurrentItem(ui->listWidget->item(0));
     ui->listWidget->update();
 }

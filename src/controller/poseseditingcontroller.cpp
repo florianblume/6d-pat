@@ -78,6 +78,22 @@ void PosesEditingController::selectPose(PosePtr pose) {
     }
 }
 
+void PosesEditingController::addPose(PosePtr pose) {
+    // TODO
+}
+
+void PosesEditingController::removePose(PosePtr pose) {
+    // TODO
+}
+
+void PosesEditingController::duplicatePosesOfImage(ImagePtr image) {
+    // TODO
+}
+
+void PosesEditingController::copyPose(PosePtr pose) {
+    // TODO
+}
+
 PosePtr PosesEditingController::selectedPose() {
     return m_selectedPose;
 }

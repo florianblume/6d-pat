@@ -9,10 +9,10 @@ SettingsNetworkPage::SettingsNetworkPage(QWidget *parent) :
     ui(new Ui::SettingsNetworkPage) {
     ui->setupUi(this);
 
-    DisplayHelper::setIcon(ui->buttonTrainingScriptPath, DisplayHelper::FOLDEROPEN, 20);
-    DisplayHelper::setIcon(ui->buttonInferenceScriptPath, DisplayHelper::FOLDEROPEN, 20);
-    DisplayHelper::setIcon(ui->buttonNetworkConfigPath, DisplayHelper::FOLDEROPEN, 20);
-    DisplayHelper::setIcon(ui->buttonPythonInterpreterPath, DisplayHelper::FOLDEROPEN, 20);
+    DisplayHelper::setIcon(ui->buttonTrainingScriptPath, fa::folderopen, 20);
+    DisplayHelper::setIcon(ui->buttonInferenceScriptPath, fa::folderopen, 20);
+    DisplayHelper::setIcon(ui->buttonNetworkConfigPath, fa::folderopen, 20);
+    DisplayHelper::setIcon(ui->buttonPythonInterpreterPath, fa::folderopen, 20);
 }
 
 SettingsNetworkPage::~SettingsNetworkPage() {
@@ -21,10 +21,10 @@ SettingsNetworkPage::~SettingsNetworkPage() {
 
 void SettingsNetworkPage::setPreferences(Settings *preferences) {
     this->preferences = preferences;
-    ui->editTrainingScriptPath->setText(preferences->getTrainingScriptPath());
-    ui->editInferenceScriptPath->setText(preferences->getInferenceScriptPath());
-    ui->editNetworkConfigPath->setText(preferences->getNetworkConfigPath());
-    ui->editPythonInterpreterPath->setText(preferences->getPythonInterpreterPath());
+    ui->editTrainingScriptPath->setText(preferences->trainingScriptPath());
+    ui->editInferenceScriptPath->setText(preferences->inferenceScriptPath());
+    ui->editNetworkConfigPath->setText(preferences->networkConfigPath());
+    ui->editPythonInterpreterPath->setText(preferences->pythonInterpreterPath());
 }
 
 void SettingsNetworkPage::buttonPythonInterpreterPathClicked() {
@@ -74,6 +74,8 @@ QString SettingsNetworkPage::openFileDialogForPath(const QString &path,
     QString dir = QFileDialog::getOpenFileName(this,
                                                title,
                                                path,
-                                               type);
+                                               type,
+                                               Q_NULLPTR,
+                                               QFileDialog::DontUseNativeDialog);
     return dir;
 }

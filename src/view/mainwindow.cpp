@@ -207,11 +207,11 @@ bool MainWindow::showSaveUnsavedChangesDialog() {
 
 void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
     QSharedPointer<Settings> settings = settingsStore->loadPreferencesByIdentifier(settingsIdentifier);
-    galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->getSegmentationCodes());
-    ui->breadcrumbLeft->setPathToShow(settings->getImagesPath());
-    ui->breadcrumbRight->setPathToShow(settings->getObjectModelsPath());
-    ui->navigationLeft->setPathToOpen(QString(settings->getImagesPath()));
-    ui->navigationRight->setPathToOpen(QString(settings->getObjectModelsPath()));
+    galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
+    ui->breadcrumbLeft->setPathToShow(settings->imagesPath());
+    ui->breadcrumbRight->setPathToShow(settings->objectModelsPath());
+    ui->navigationLeft->setPathToOpen(QString(settings->imagesPath()));
+    ui->navigationRight->setPathToOpen(QString(settings->objectModelsPath()));
 }
 
 void MainWindow::onSettingsChanged(const QString &identifier) {
@@ -219,7 +219,7 @@ void MainWindow::onSettingsChanged(const QString &identifier) {
         return;
     }
     QSharedPointer<Settings> settings = settingsStore->loadPreferencesByIdentifier(identifier);
-    galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->getSegmentationCodes());
+    galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
     setPathsOnGalleriesAndBreadcrumbs();
 }
 

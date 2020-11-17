@@ -54,7 +54,7 @@ void MainController::showView() {
 }
 
 void MainController::onSettingsChanged(const QString &identifier) {
-    if (currentSettings->getIdentifier() == identifier) {
+    if (currentSettings->identifier() == identifier) {
         poseRecoverer->reset();
     }
 }

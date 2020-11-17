@@ -31,7 +31,7 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *pref
 
     int i = 0;
     for(const ObjectModelPtr &objectModel : this->objectModels) {
-        const QString &code = preferences->getSegmentationCodeForObjectModel(objectModel->path());
+        const QString &code = preferences->segmentationCodeForObjectModel(objectModel->path());
         ui->tableSegmentationCodes->insertRow(i);
         ui->tableSegmentationCodes->setItem(i, 0, new QTableWidgetItem(objectModel->path()));
         if (code.compare("") != 0) {
@@ -52,7 +52,7 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *pref
 
         //! Create color edit button
         QPushButton* buttonEdit = new QPushButton();
-        DisplayHelper::setIcon(buttonEdit, DisplayHelper::PAINTBRUSH, 18);
+        DisplayHelper::setIcon(buttonEdit, fa::paintbrush, 18);
         buttonEdit->setFixedSize(QSize(40, 20));
         buttonEdit->setToolTip("Edit color");
         connect(buttonEdit, &QPushButton::clicked, [this, i]() {showColorDialog(i);});
@@ -60,7 +60,7 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *pref
 
         //! Create delete button
         QPushButton* buttonUnset = new QPushButton();
-        DisplayHelper::setIcon(buttonUnset, DisplayHelper::REMOVE, 18);
+        DisplayHelper::setIcon(buttonUnset, fa::paintbrush, 18);
         buttonUnset->setFixedSize(QSize(40, 20));
         buttonUnset->setToolTip("Remove color");
         connect(buttonUnset, &QPushButton::clicked, [this, i]() {removeColor(i);});

@@ -380,17 +380,17 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
 void JsonLoadAndStoreStrategy::onSettingsChanged(const QString &settingsIdentifier) {
     QSharedPointer<Settings> settings
             = settingsStore->loadPreferencesByIdentifier(settingsIdentifier);
-    if (settings->getImagesPath() != imagesPath) {
-        setImagesPath(settings->getImagesPath());
+    if (settings->imagesPath() != imagesPath) {
+        setImagesPath(settings->imagesPath());
     }
-    if (settings->getSegmentationImagesPath() != segmentationImagesPath) {
-        setSegmentationImagesPath(settings->getSegmentationImagesPath());
+    if (settings->segmentationImagesPath() != segmentationImagesPath) {
+        setSegmentationImagesPath(settings->segmentationImagesPath());
     }
-    if (settings->getObjectModelsPath() != objectModelsPath) {
-        setObjectModelsPath(settings->getObjectModelsPath());
+    if (settings->objectModelsPath() != objectModelsPath) {
+        setObjectModelsPath(settings->objectModelsPath());
     }
-    if (settings->getPosesFilePath() != posesFilePath) {
-        setPosesFilePath(settings->getPosesFilePath());
+    if (settings->posesFilePath() != posesFilePath) {
+        setPosesFilePath(settings->posesFilePath());
     }
 }
 

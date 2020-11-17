@@ -504,3 +504,7 @@ void PoseEditor::reset() {
 bool PoseEditor::isDisplayingObjectModel() {
     return !currentlySelectedObjectModel.isNull();
 }
+
+void PoseEditor::setPoses(const QList<PosePtr> poses) {
+    // TODO
+}

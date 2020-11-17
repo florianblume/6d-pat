@@ -8,10 +8,10 @@ SettingsGeneralPage::SettingsGeneralPage(QWidget *parent) :
     ui(new Ui::SettingsGeneralPage)
 {
     ui->setupUi(this);
-    DisplayHelper::setIcon(ui->buttonPosesPath, DisplayHelper::FOLDEROPEN, 20);
-    DisplayHelper::setIcon(ui->buttonImagesPath, DisplayHelper::FOLDEROPEN, 20);
-    DisplayHelper::setIcon(ui->buttonObjectModelsPath, DisplayHelper::FOLDEROPEN, 20);
-    DisplayHelper::setIcon(ui->buttonSegmentationImages, DisplayHelper::FOLDEROPEN, 20);
+    DisplayHelper::setIcon(ui->buttonPosesPath, fa::folderopen, 20);
+    DisplayHelper::setIcon(ui->buttonImagesPath, fa::folderopen, 20);
+    DisplayHelper::setIcon(ui->buttonObjectModelsPath, fa::folderopen, 20);
+    DisplayHelper::setIcon(ui->buttonSegmentationImages, fa::folderopen, 20);
 }
 
 SettingsGeneralPage::~SettingsGeneralPage()
@@ -21,17 +21,18 @@ SettingsGeneralPage::~SettingsGeneralPage()
 
 void SettingsGeneralPage::setPreferences(Settings *preferences) {
     this->preferences = preferences;
-    ui->editImagesPath->setText(preferences->getImagesPath());
-    ui->editObjectModelsPath->setText(preferences->getObjectModelsPath());
-    ui->editPosesPath->setText(preferences->getPosesFilePath());
-    ui->editSegmentationImagesPath->setText(preferences->getSegmentationImagesPath());
+    ui->editImagesPath->setText(preferences->imagesPath());
+    ui->editObjectModelsPath->setText(preferences->objectModelsPath());
+    ui->editPosesPath->setText(preferences->posesFilePath());
+    ui->editSegmentationImagesPath->setText(preferences->segmentationImagesPath());
 }
 
 QString SettingsGeneralPage::openFolderDialogForPath(QString path) {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                path,
-                                                QFileDialog::ShowDirsOnly
-                                                | QFileDialog::DontResolveSymlinks);
+                                                    path,
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks
+                                                    | QFileDialog::DontUseNativeDialog);
     return dir;
 }
 
@@ -39,7 +40,9 @@ QString SettingsGeneralPage::openFileDialogForPath(QString path) {
     QString dir = QFileDialog::getOpenFileName(this,
                                                tr("Open JSON File"),
                                                path,
-                                               tr("JSON Files (*.json)"));
+                                               tr("JSON Files (*.json)"),
+                                               Q_NULLPTR,
+                                               QFileDialog::DontUseNativeDialog);
     return dir;
 }
 

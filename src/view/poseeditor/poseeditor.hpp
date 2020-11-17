@@ -33,6 +33,7 @@ public:
     void setModelManager(ModelManager *modelManager);
     void setPoseRecoverer(PoseRecoveringController* poseRecoverer);
     bool isDisplayingObjectModel();
+    void setPoses(const QList<PosePtr> poses);
 
 public Q_SLOTS:
     void setObjectModel(ObjectModelPtr objectModel);

@@ -31,6 +31,7 @@ include(misc/misc.pri)
 include(model/model.pri)
 include(settings/settings.pri)
 include(view/view.pri)
+include(3dparty/QtAwesome/QtAwesome/QtAwesome.pri)
 
 SOURCES += main.cpp \
 

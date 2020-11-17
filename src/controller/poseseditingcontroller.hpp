@@ -17,7 +17,6 @@ class PosesEditingController : public QObject
 
 public:
     explicit PosesEditingController(QObject *parent, ModelManager *modelManager, MainWindow *mainWindow);
-    void selectPose(PosePtr pose);
     PosePtr selectedPose();
 
 Q_SIGNALS:
@@ -26,6 +25,11 @@ Q_SIGNALS:
     void posesDirtyChanged(bool dirty);
 
 private Q_SLOTS:
+    void selectPose(PosePtr pose);
+    void addPose(PosePtr pose);
+    void removePose(PosePtr pose);
+    void duplicatePosesOfImage(ImagePtr image);
+    void copyPose(PosePtr pose);
     void onPoseChanged();
     void onPosePositionChanged(QVector3D position);
     void onPoseRotationChanged(QQuaternion rotation);
@@ -55,6 +59,8 @@ private:
     ImagePtr m_currentImage;
     QList<ImagePtr> m_images;
     QList<PosePtr> m_posesForImage;
+    QList<PosePtr> m_posesToAdd;
+    QList<PosePtr> m_posesToRemove;
     QMap<QString, PoseValues> m_unmodifiedPoses;
     QMap<PosePtr, bool> m_dirtyPoses;
 };

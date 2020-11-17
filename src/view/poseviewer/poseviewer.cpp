@@ -12,20 +12,18 @@ PoseViewer::PoseViewer(QWidget *parent) :
 
     poseViewer3DWidget->setParent(ui->graphicsContainer);
 
-    //DisplayHelper::setIcon(ui->buttonSwitchView, DisplayHelper::TOGGLEOFF, 18);
-    ui->buttonSwitchView->setText("test");
+    DisplayHelper::setIcon(ui->buttonSwitchView, fa::toggleoff, 18);
     ui->buttonSwitchView->setToolTip("Click to switch views between segmentation \n"
                                      "image (if available) and normal image.");
     ui->buttonSwitchView->setEnabled(false);
 
-    //DisplayHelper::setIcon(ui->buttonResetPosition, DisplayHelper::ARROWS, 18);
-    ui->buttonResetPosition->setText("test");
+    DisplayHelper::setIcon(ui->buttonResetPosition, fa::arrows, 18);
     ui->buttonResetPosition->setToolTip("Click to reset the position of the image.");
     ui->buttonResetPosition->setEnabled(false);
 
-    DisplayHelper::setIcon(ui->labelTransparency, DisplayHelper::TRANSPARENCY, 18);
-    DisplayHelper::setIcon(ui->labelZoomMinus, DisplayHelper::ZOOM_MINUS, 18);
-    DisplayHelper::setIcon(ui->labelZoomPlus, DisplayHelper::ZOOM_PLUS, 18);
+    DisplayHelper::setIcon(ui->labelTransparency, fa::volumecontrolphone, 18);
+    DisplayHelper::setIcon(ui->labelZoomMinus, fa::searchminus, 18);
+    DisplayHelper::setIcon(ui->labelZoomPlus, fa::searchplus, 18);
 
     connect(poseViewer3DWidget, &PoseViewer3DWidget::positionClicked,
             this, &PoseViewer::onImageClicked);
@@ -50,6 +48,10 @@ void PoseViewer::setPoseRecoverer(PoseRecoveringController *value) {
             this, &PoseViewer::onCorrespondencesChanged);
     connect(poseRecoverer, &PoseRecoveringController::stateChanged,
             this, &PoseViewer::poseRecovererStateChanged);
+}
+
+void PoseViewer::setPoses(const QList<PosePtr> &poses) {
+    // TODO
 }
 
 void PoseViewer::setModelManager(ModelManager *value) {
@@ -151,7 +153,7 @@ void PoseViewer::switchImage() {
     showingNormalImage = !showingNormalImage;
 
     DisplayHelper::setIcon(ui->buttonSwitchView,
-                           (showingNormalImage ? DisplayHelper::TOGGLEON : DisplayHelper::TOGGLEOFF),
+                           (showingNormalImage ? fa::toggleon : fa::toggleoff),
                            18);
 
     if (showingNormalImage)

@@ -1,11 +1,17 @@
 #ifndef DISPALYHELPER_H
 #define DISPALYHELPER_H
 
+#include "QtAwesome.h"
+
 #include <QColor>
 #include <QWidget>
 #include <QMap>
+#include <QPointer>
+#include <QSize>
 
-namespace DisplayHelper {
+class DisplayHelper {
+
+public:
     /*!
      * \brief colorForPosePointIndex returns the color for index of a pose
      * point. A pose point is a clicked point on the displayed image or on the displayed
@@ -15,26 +21,14 @@ namespace DisplayHelper {
      * \param index the index of the pose point, e.g. 0 for the first click, 1 for the second
      * \return the color for the pose point
      */
-    QColor colorForPosePointIndex(int index);
+    static QColor colorForPosePointIndex(int index);
 
-    enum Icon {
-        ZOOM_PLUS,
-        ZOOM_MINUS,
-        TRANSPARENCY,
-        FOLDEROPEN,
-        CHEVRONLEFT,
-        CHEVRONRIGHT,
-        TOGGLEOFF,
-        TOGGLEON,
-        ARROWS,
-        WRENCH,
-        PAINTBRUSH,
-        CODEFRORK,
-        REMOVE
-    };
+    static QtAwesome *qtAwesome();
+    static void setIcon(QWidget *widget, fa::icon icon, int size);
 
-    void setIcon(QWidget *widget, Icon icon, int size);
+private:
+    static QPointer<QtAwesome> m_qtAwesome;
 
-}
+};
 
 #endif // DISPALYHELPER_H
