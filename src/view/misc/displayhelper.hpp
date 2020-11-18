@@ -28,6 +28,7 @@ public:
 
 private:
     static QPointer<QtAwesome> m_qtAwesome;
+    static bool m_qtAwesomeInitialized;
 
 };
 

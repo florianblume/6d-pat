@@ -76,6 +76,11 @@ private Q_SLOTS:
     void poseRecovererStateChanged(PoseRecoveringController::State state);
 
 private:
+    void connectModelManagerSlots();
+    void setSliderZoomEnabled(bool enabled);
+    void setSliderTransparencyEnabled(bool enabled);
+
+private:
     Ui::PoseViewer *ui;
     PoseViewer3DWidget *poseViewer3DWidget;
 
@@ -95,8 +100,6 @@ private:
 
     int zoom = 3;
     float zoomMultiplier = 1.f;
-
-    void connectModelManagerSlots();
 };
 
 #endif // CORRESPONDENCEEDITOR_H

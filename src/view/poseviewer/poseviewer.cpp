@@ -21,9 +21,11 @@ PoseViewer::PoseViewer(QWidget *parent) :
     ui->buttonResetPosition->setToolTip("Click to reset the position of the image.");
     ui->buttonResetPosition->setEnabled(false);
 
-    DisplayHelper::setIcon(ui->labelTransparency, fa::volumecontrolphone, 18);
-    DisplayHelper::setIcon(ui->labelZoomMinus, fa::searchminus, 18);
-    DisplayHelper::setIcon(ui->labelZoomPlus, fa::searchplus, 18);
+    // Those two buttons are not actual buttons but show helper icons
+    // They are buttons and not labels so that they can get activated and deactivated
+    // together with the respective sliders
+    DisplayHelper::setIcon(ui->buttonTransparency, fa::cube, 18);
+    DisplayHelper::setIcon(ui->buttonZoom, fa::search, 18);
 
     connect(poseViewer3DWidget, &PoseViewer3DWidget::positionClicked,
             this, &PoseViewer::onImageClicked);
@@ -52,6 +54,7 @@ void PoseViewer::setPoseRecoverer(PoseRecoveringController *value) {
 
 void PoseViewer::setPoses(const QList<PosePtr> &poses) {
     // TODO
+    setSliderTransparencyEnabled(poses.size() > 0);
 }
 
 void PoseViewer::setModelManager(ModelManager *value) {
@@ -74,6 +77,16 @@ void PoseViewer::setModelManager(ModelManager *value) {
 void PoseViewer::connectModelManagerSlots() {
 }
 
+void PoseViewer::setSliderZoomEnabled(bool enabled) {
+    ui->sliderZoom->setEnabled(enabled);
+    ui->buttonZoom->setEnabled(enabled);
+}
+
+void PoseViewer::setSliderTransparencyEnabled(bool enabled) {
+    ui->sliderTransparency->setEnabled(enabled);
+    ui->buttonTransparency->setEnabled(enabled);
+}
+
 ImagePtr PoseViewer::currentlyViewedImage() {
     return currentlyDisplayedImage;
 }
@@ -84,9 +97,8 @@ void PoseViewer::setImage(ImagePtr image) {
     poseViewer3DWidget->removePoses();
     poseViewer3DWidget->setClicks({});
     ui->buttonResetPosition->setEnabled(true);
-    ui->sliderTransparency->setEnabled(false);
     ui->sliderTransparency->setValue(100);
-    ui->sliderZoom->setEnabled(true);
+    setSliderZoomEnabled(true);
 
     qDebug() << "Displaying image (" + currentlyDisplayedImage->imagePath() + ").";
 
@@ -105,7 +117,7 @@ void PoseViewer::setImage(ImagePtr image) {
                                     currentlyDisplayedImage->absoluteSegmentationImagePath();
     QList<PosePtr> posesForImage = modelManager->posesForImage(*image);
     poseViewer3DWidget->setBackgroundImageAndPoses(toDisplay, image->getCameraMatrix(), posesForImage);
-    ui->sliderTransparency->setEnabled(posesForImage.size() > 0);
+    setSliderTransparencyEnabled(posesForImage.size() > 0);
 }
 
 void PoseViewer::onSelectedImageChanged(int index) {
@@ -120,8 +132,8 @@ void PoseViewer::reset() {
     poseViewer3DWidget->reset();
     ui->buttonResetPosition->setEnabled(false);
     ui->buttonSwitchView->setEnabled(false);
-    ui->sliderTransparency->setEnabled(false);
-    ui->sliderZoom->setEnabled(false);
+    setSliderTransparencyEnabled(false);
+    setSliderZoomEnabled(false);
     currentlyDisplayedImage.reset();
 }
 
@@ -206,7 +218,7 @@ void PoseViewer::onPoseDeleted(PosePtr pose) {
 
 void PoseViewer::onPoseAdded(PosePtr pose) {
     poseViewer3DWidget->addPose(pose);
-    ui->sliderTransparency->setEnabled(true);
+    setSliderTransparencyEnabled(true);
     poseViewer3DWidget->setClicks({});
 }
 

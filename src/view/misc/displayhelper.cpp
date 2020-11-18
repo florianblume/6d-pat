@@ -26,17 +26,23 @@ QColor DisplayHelper::colorForPosePointIndex(int index) {
 
 // Eager loading of QtAwesome, we're going to use it definitely
 QPointer<QtAwesome> DisplayHelper::m_qtAwesome = new QtAwesome(qApp);
+bool DisplayHelper::m_qtAwesomeInitialized = false;
 
 QtAwesome *DisplayHelper::qtAwesome() {
+    if (!DisplayHelper::m_qtAwesomeInitialized) {
+        DisplayHelper::m_qtAwesome->initFontAwesome();
+        DisplayHelper::m_qtAwesomeInitialized = true;
+    }
     return DisplayHelper::m_qtAwesome;
 }
 
 void DisplayHelper::setIcon(QWidget *widget, fa::icon icon, int size) {
+    QtAwesome *qtAwesome = DisplayHelper::qtAwesome();
     if (QPushButton *button = dynamic_cast<QPushButton*>(widget)) {
-        button->setIcon(DisplayHelper::m_qtAwesome->icon(icon));
-        //button->setFont(DisplayHelper::m_qtAwesome->font(size));
+        button->setIcon(qtAwesome->icon(icon));
+        button->setFont(qtAwesome->font(size));
     } else if (QLabel *label = dynamic_cast<QLabel*>(widget)) {
         label->setText(QChar(icon));
-        //label->setFont(DisplayHelper::m_qtAwesome->font(size));
+        label->setFont(qtAwesome->font(size));
     }
 }
