@@ -271,28 +271,28 @@
           <active>
            <colorrole role="Button">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
            <colorrole role="Base">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
            <colorrole role="Window">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
@@ -300,28 +300,28 @@
           <inactive>
            <colorrole role="Button">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
            <colorrole role="Base">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
            <colorrole role="Window">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
@@ -329,28 +329,28 @@
           <disabled>
            <colorrole role="Button">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
            <colorrole role="Base">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
            <colorrole role="Window">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
@@ -364,9 +364,19 @@
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">QPushButton:pressed {
-  border: 0px solid #5eb6ff;
-  background-color: #ffffff;
+         <string notr="true">QPushButton {
+    border: none;
+    background: transparent;
+}
+
+QPushButton:hover:!pressed {
+    border: none;
+    background: transparent;
+}
+
+QPushButton:pressed {
+    border: none;
+    background: transparent;
 }</string>
         </property>
         <property name="text">
@@ -439,28 +449,28 @@
           <active>
            <colorrole role="Button">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
            <colorrole role="Base">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
            <colorrole role="Window">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
@@ -468,28 +478,28 @@
           <inactive>
            <colorrole role="Button">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
            <colorrole role="Base">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
            <colorrole role="Window">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
@@ -497,28 +507,28 @@
           <disabled>
            <colorrole role="Button">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
            <colorrole role="Base">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
            <colorrole role="Window">
             <brush brushstyle="SolidPattern">
-             <color alpha="255">
-              <red>206</red>
-              <green>206</green>
-              <blue>206</blue>
+             <color alpha="0">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
@@ -535,9 +545,19 @@
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">QPushButton:pressed {
-  border: 0px solid #5eb6ff;
-  background-color: #ffffff;
+         <string notr="true">QPushButton {
+    border: none;
+    background: transparent;
+}
+
+QPushButton:hover:!pressed {
+    border: none;
+    background: transparent;
+}
+
+QPushButton:pressed {
+    border: none;
+    background: transparent;
 }</string>
         </property>
         <property name="text">
@@ -678,26 +698,11 @@
         <property name="autoFillBackground">
          <bool>false</bool>
         </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton {
-  background-color: #cecece;
-}
-
-QPushButton:hover:!pressed {
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}
-
-QPushButton:pressed {
-  border: 1px solid #5eb6ff;
-  background-color: #9ed2ff;
-}</string>
-        </property>
         <property name="text">
          <string/>
         </property>
         <property name="flat">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -905,26 +910,11 @@ QPushButton:pressed {
         <property name="autoFillBackground">
          <bool>false</bool>
         </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton {
-  background-color: #cecece;
-}
-
-QPushButton:hover:!pressed {
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}
-
-QPushButton:pressed {
-  border: 1px solid #5eb6ff;
-  background-color: #9ed2ff;
-}</string>
-        </property>
         <property name="text">
          <string/>
         </property>
         <property name="flat">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>

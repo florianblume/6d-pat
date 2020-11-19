@@ -37,5 +37,6 @@ SOURCES += main.cpp \
 
 RESOURCES += resources/shaders/shaders.qrc \
              resources/images/images.qrc \
-             resources/fonts/fonts.qrc
+             resources/fonts/fonts.qrc \
+             resources/stylesheets/stylesheets.qrc
 

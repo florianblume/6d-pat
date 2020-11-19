@@ -8,7 +8,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui(new Ui::SettingsDialog) {
     ui->setupUi(this);
     ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::wrench), "Paths"));
-    ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::paintbrush), "Codes"));
+    ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::paintbrush), "Segmentation"));
     ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::codefork), "Network"));
     ui->listWidget->setCurrentItem(ui->listWidget->item(0));
     ui->listWidget->update();

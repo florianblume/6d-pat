@@ -107,21 +107,6 @@
         <property name="autoFillBackground">
          <bool>false</bool>
         </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton {
-  background-color: #cecece;
-}
-
-QPushButton:hover:!pressed {
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}
-
-QPushButton:pressed {
-  border: 1px solid #5eb6ff;
-  background-color: #9ed2ff;
-}</string>
-        </property>
         <property name="text">
          <string/>
         </property>
@@ -132,7 +117,7 @@ QPushButton:pressed {
          </size>
         </property>
         <property name="flat">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -150,21 +135,6 @@ QPushButton:pressed {
           <height>50</height>
          </size>
         </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton {
-  background-color: #cecece;
-}
-
-QPushButton:hover:!pressed {
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}
-
-QPushButton:pressed {
-  border: 1px solid #5eb6ff;
-  background-color: #9ed2ff;
-}</string>
-        </property>
         <property name="text">
          <string/>
         </property>
@@ -175,7 +145,7 @@ QPushButton:pressed {
          </size>
         </property>
         <property name="flat">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -198,21 +168,6 @@ QPushButton:pressed {
           <pointsize>14</pointsize>
          </font>
         </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton {
-  background-color: #cecece;
-}
-
-QPushButton:hover:!pressed {
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}
-
-QPushButton:pressed {
-  border: 1px solid #5eb6ff;
-  background-color: #9ed2ff;
-}</string>
-        </property>
         <property name="text">
          <string/>
         </property>
@@ -223,7 +178,7 @@ QPushButton:pressed {
          </size>
         </property>
         <property name="flat">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>

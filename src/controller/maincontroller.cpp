@@ -3,6 +3,7 @@
 
 #include <QSplashScreen>
 #include <QFontDatabase>
+#include <QFile>
 
 MainController::MainController(int &argc, char **argv, int) : QApplication(argc, argv) {
 }
@@ -16,6 +17,10 @@ int MainController::exec() {
     QPixmap pixmap(":/images/splash.png");
     QSplashScreen splash(pixmap);
     splash.show();
+
+    QFile stream(":/stylesheets/light.qss");
+    stream.open(QIODevice::ReadOnly);
+    qApp->setStyleSheet(stream.readAll());
 
     initialize();
 
@@ -31,6 +36,7 @@ int MainController::exec() {
 
     QTimer::singleShot(1500, &splash, &QWidget::close);
     QTimer::singleShot(1500, this, &MainController::showView);
+
     return QApplication::exec();
 }
 
@@ -51,6 +57,7 @@ void MainController::initialize() {
 void MainController::showView() {
     mainWindow->show();
     mainWindow->raise();
+    mainWindow->repaint();
 }
 
 void MainController::onSettingsChanged(const QString &identifier) {

@@ -1,5 +1,6 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
+#include "view/misc/displayhelper.hpp"
 #include "view/settings/settingsdialog.hpp"
 #include "view/neuralnetworkdialog/neuralnetworkdialog.hpp"
 #include <QSettings>
@@ -196,13 +197,15 @@ void MainWindow::displayWarning(const QString &title, const QString &text) {
 }
 
 bool MainWindow::showSaveUnsavedChangesDialog() {
-    return QMessageBox::Yes == QMessageBox::warning(this,
-                                                    "Unsaved pose modifications",
-                                                     "You have unsaved modifications of the currently edited pose."
-                                                     " The action you just performed would discard these modifications. "
-                                                     "Save them now?",
-                                                     QMessageBox::Yes,
-                                                     QMessageBox::No);
+    DisplayHelper::QMessageBoxPtr messageBox = DisplayHelper::messageBox(this,
+                                                                         QMessageBox::Warning,
+                                                                        "Unsaved pose modifications",
+                                                                         "You have unsaved modifications of the currently edited pose."
+                                                                         " The action you just performed would discard these modifications. "
+                                                                         "Save them now?",
+                                                                         "Yes", QMessageBox::YesRole,
+                                                                         "No", QMessageBox::NoRole);
+    return QMessageBox::Yes == messageBox->exec();
 }
 
 void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
@@ -242,7 +245,7 @@ void MainWindow::onActionAboutTriggered() {
                                 "© Florian Blume, 2020"));
     about.setStandardButtons(QMessageBox::Ok);
     QPixmap icon(":/images/about.png");
-    about.setIconPixmap(icon);   // here is the error
+    about.setIconPixmap(icon);
     about.setDefaultButton(QMessageBox::Ok);
     about.show();
     about.exec();

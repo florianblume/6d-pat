@@ -37,12 +37,93 @@ QtAwesome *DisplayHelper::qtAwesome() {
 }
 
 void DisplayHelper::setIcon(QWidget *widget, fa::icon icon, int size) {
-    QtAwesome *qtAwesome = DisplayHelper::qtAwesome();
+    QtAwesome *_qtAwesome = DisplayHelper::qtAwesome();
     if (QPushButton *button = dynamic_cast<QPushButton*>(widget)) {
-        button->setIcon(qtAwesome->icon(icon));
-        button->setFont(qtAwesome->font(size));
+        button->setIcon(_qtAwesome->icon(icon));
+        button->setFont(_qtAwesome->font(size));
     } else if (QLabel *label = dynamic_cast<QLabel*>(widget)) {
         label->setText(QChar(icon));
-        label->setFont(qtAwesome->font(size));
+        label->setFont(_qtAwesome->font(size));
     }
+}
+
+QIcon DisplayHelper::warningIcon() {
+    return getAwesomeIcon(fa::exclamationtriangle);
+}
+
+QIcon DisplayHelper::yesIcon() {
+    return getAwesomeIcon(fa::checkcircle);
+}
+
+QIcon DisplayHelper::noIcon() {
+    return getAwesomeIcon(fa::timescircle);
+}
+
+QIcon DisplayHelper::awesomeIconForButtonRole(QMessageBox::ButtonRole buttonRole) {
+    switch (buttonRole) {
+        case QMessageBox::AcceptRole:
+            return yesIcon();
+        case QMessageBox::RejectRole:
+            return noIcon();
+        case QMessageBox::DestructiveRole:
+            return noIcon();
+        case QMessageBox::ActionRole:
+            return yesIcon();
+        case QMessageBox::HelpRole:
+        case QMessageBox::YesRole:
+            return yesIcon();
+        case QMessageBox::NoRole:
+            return noIcon();
+        case QMessageBox::ResetRole:
+            return yesIcon();
+        case QMessageBox::ApplyRole:
+            return yesIcon();
+        default:
+            return QIcon();
+    }
+}
+
+QIcon DisplayHelper::awesomeIconForMessageBoxIcon(QMessageBox::Icon icon) {
+    switch (icon) {
+        case QMessageBox::Information:
+            return getAwesomeIcon(fa::infocircle);
+        case QMessageBox::Warning:
+            return warningIcon();
+        case QMessageBox::Critical:
+            return getAwesomeIcon(fa::timescircle);
+        case QMessageBox::Question:
+            return getAwesomeIcon(fa::questioncircle);
+        default:
+            return QIcon();
+    }
+}
+
+QIcon DisplayHelper::getAwesomeIcon(fa::icon icon) {
+    QtAwesome *_qtAwesome = DisplayHelper::qtAwesome();
+    return _qtAwesome->icon(icon);
+}
+
+DisplayHelper::QMessageBoxPtr DisplayHelper::messageBox(QWidget* parent,
+                                                        QMessageBox::Icon icon,
+                                                        const QString &title, const QString &message,
+                                                        const QString &buttonText, QMessageBox::ButtonRole buttonRole) {
+    QMessageBoxPtr _messageBox(new QMessageBox(parent));
+    _messageBox->setWindowTitle(title);
+    _messageBox->setText(message);
+    QPixmap iconPixmap = awesomeIconForMessageBoxIcon(icon).pixmap(QSize(50, 50));
+    _messageBox->setIconPixmap(iconPixmap);
+    QPushButton *button = _messageBox->addButton(buttonText, buttonRole);
+    button->setIcon(awesomeIconForButtonRole(buttonRole));
+    return _messageBox;
+}
+
+DisplayHelper::QMessageBoxPtr DisplayHelper::messageBox(QWidget* parent,
+                                                        QMessageBox::Icon icon,
+                                                        const QString &title, const QString &message,
+                                                        const QString &button1Text, QMessageBox::ButtonRole button1Role,
+                                                        const QString &button2Text, QMessageBox::ButtonRole button2Role) {
+    QMessageBoxPtr _messageBox = messageBox(parent, icon, title, message, button1Text, button1Role);
+    QPushButton *button = _messageBox->addButton(button2Text, button2Role);
+    button->setIcon(awesomeIconForButtonRole(button2Role));
+    return _messageBox;
 }

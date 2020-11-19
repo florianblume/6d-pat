@@ -75,6 +75,8 @@ void Gallery::clearSelection(bool emitSignals) {
 void Gallery::reset() {
     ui->listView->reset();
     clearSelection(false);
+    // TODO does this work?
+    update();
 }
 
 void Gallery::enable() {

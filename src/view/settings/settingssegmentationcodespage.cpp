@@ -60,7 +60,7 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *pref
 
         //! Create delete button
         QPushButton* buttonUnset = new QPushButton();
-        DisplayHelper::setIcon(buttonUnset, fa::paintbrush, 18);
+        DisplayHelper::setIcon(buttonUnset, fa::timescircle, 18);
         buttonUnset->setFixedSize(QSize(40, 20));
         buttonUnset->setToolTip("Remove color");
         connect(buttonUnset, &QPushButton::clicked, [this, i]() {removeColor(i);});
