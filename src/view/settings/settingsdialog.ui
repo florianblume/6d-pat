@@ -207,31 +207,6 @@
           <height>16777215</height>
          </size>
         </property>
-        <property name="styleSheet">
-         <string notr="true">QListView {
-    show-decoration-selected: 1;
-   selection-color:black;
-    selection-background-color: #0068d9;
-   border-color:#c1c1c1;
-}
-
-QListView::item:selected:active:hover{
-  border: 1px solid #5eb6ff;
-  background-color: #9ed2ff;
-}
-QListView::item:selected:active:!hover{
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}
-QListView::item:selected:!active{
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}
-QListView::item:!selected:hover{
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}</string>
-        </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>

@@ -102,6 +102,15 @@ void OffscreenEngine::onRenderCaptureReady() {
         initialized = false;
         QImage image = reply->image();
         delete reply;
+        image.convertTo(QImage::Format_ARGB32);
+        // Not very performant
+        for(int x = 0; x < image.width(); x++) {
+            for(int y = 0; y < image.height(); y++) {
+                if (image.pixel(x, y) == qRgba(255, 255, 255, 255)) {
+                    image.setPixel(x,y,qRgba(0, 0, 0, 0));
+                }
+            }
+        }
         Q_EMIT imageReady(image);
     }
 }

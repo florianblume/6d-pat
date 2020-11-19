@@ -6,10 +6,49 @@ QPushButton {
 
 QPushButton:hover:!pressed {
     border: 1px solid #75c1ff;
+    border-radius: 2px;
     background-color: #c6e5ff;
 }
 
 QPushButton:pressed {
     border: 1px solid #5eb6ff;
+    border-radius: 2px;
+    background-color: #9ed2ff;
+}
+
+QListView::item {
+    color: #000000;
+    background-color:transparent;
+}
+
+QListView::item:hover:!pressed {
+    padding: -1px;
+    border: 1px solid #75c1ff;
+    border-radius: 2px;
+    background-color: #c6e5ff;
+}
+
+QListView::item:selected {
+    padding: -1px;
+    border: 1px solid #5eb6ff;
+    border-radius: 2px;
+    background-color: #9ed2ff;
+}
+
+QSpinBox::up-button {
+    border: none;
+    background: transparent;
+    padding: 5%;
+}
+
+QSpinBox::up-button:hover:!pressed {
+    border: 1px solid #75c1ff;
+    border-radius: 2px;
+    background-color: #c6e5ff;
+}
+
+QSpinBox::up-button:selected {
+    border: 1px solid #5eb6ff;
+    border-radius: 2px;
     background-color: #9ed2ff;
 }
