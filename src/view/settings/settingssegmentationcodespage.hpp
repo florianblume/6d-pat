@@ -9,8 +9,7 @@ namespace Ui {
 class SettingsSegmentationCodesPage;
 }
 
-class SettingsSegmentationCodesPage : public QWidget
-{
+class SettingsSegmentationCodesPage : public QWidget {
     Q_OBJECT
 
 public:

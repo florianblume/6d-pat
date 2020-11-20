@@ -1,12 +1,11 @@
-#include "settingsgeneralpage.hpp"
-#include "ui_settingsgeneralpage.h"
+#include "settingsinterfacepage.hpp"
+#include "ui_settingsinterfacepage.h"
 #include "view/misc/displayhelper.hpp"
 #include <QFileDialog>
 
-SettingsGeneralPage::SettingsGeneralPage(QWidget *parent) :
+SettingsInterfacePage::SettingsInterfacePage(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::SettingsGeneralPage)
-{
+    ui(new Ui::SettingsInterfacePage) {
     ui->setupUi(this);
     DisplayHelper::setIcon(ui->buttonPosesPath, fa::folderopen, 20);
     DisplayHelper::setIcon(ui->buttonImagesPath, fa::folderopen, 20);
@@ -14,12 +13,11 @@ SettingsGeneralPage::SettingsGeneralPage(QWidget *parent) :
     DisplayHelper::setIcon(ui->buttonSegmentationImages, fa::folderopen, 20);
 }
 
-SettingsGeneralPage::~SettingsGeneralPage()
-{
+SettingsInterfacePage::~SettingsInterfacePage() {
     delete ui;
 }
 
-void SettingsGeneralPage::setPreferences(Settings *preferences) {
+void SettingsInterfacePage::setPreferences(Settings *preferences) {
     this->preferences = preferences;
     ui->editImagesPath->setText(preferences->imagesPath());
     ui->editObjectModelsPath->setText(preferences->objectModelsPath());
@@ -27,7 +25,7 @@ void SettingsGeneralPage::setPreferences(Settings *preferences) {
     ui->editSegmentationImagesPath->setText(preferences->segmentationImagesPath());
 }
 
-QString SettingsGeneralPage::openFolderDialogForPath(QString path) {
+QString SettingsInterfacePage::openFolderDialogForPath(QString path) {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
                                                     path,
                                                     QFileDialog::ShowDirsOnly
@@ -36,7 +34,7 @@ QString SettingsGeneralPage::openFolderDialogForPath(QString path) {
     return dir;
 }
 
-QString SettingsGeneralPage::openFileDialogForPath(QString path) {
+QString SettingsInterfacePage::openFileDialogForPath(QString path) {
     QString dir = QFileDialog::getOpenFileName(this,
                                                tr("Open JSON File"),
                                                path,
@@ -47,7 +45,7 @@ QString SettingsGeneralPage::openFileDialogForPath(QString path) {
 }
 
 //! Public slots
-void SettingsGeneralPage::buttonImagesPathClicked() {
+void SettingsInterfacePage::buttonImagesPathClicked() {
     QString newPath = openFolderDialogForPath(ui->editImagesPath->text());
     if (newPath.compare("") != 0) {
         ui->editImagesPath->setText(newPath);
@@ -55,7 +53,7 @@ void SettingsGeneralPage::buttonImagesPathClicked() {
     }
 }
 
-void SettingsGeneralPage::buttonSegmentationImagesPathClicked() {
+void SettingsInterfacePage::buttonSegmentationImagesPathClicked() {
     QString newPath = openFolderDialogForPath(ui->editSegmentationImagesPath->text());
     if (newPath.compare("") != 0) {
         ui->editSegmentationImagesPath->setText(newPath);
@@ -63,7 +61,7 @@ void SettingsGeneralPage::buttonSegmentationImagesPathClicked() {
     }
 }
 
-void SettingsGeneralPage::buttonObjectModelsPathClicked() {
+void SettingsInterfacePage::buttonObjectModelsPathClicked() {
     QString newPath = openFolderDialogForPath(ui->editObjectModelsPath->text());
     if (newPath.compare("") != 0) {
         ui->editObjectModelsPath->setText(newPath);
@@ -71,7 +69,7 @@ void SettingsGeneralPage::buttonObjectModelsPathClicked() {
     }
 }
 
-void SettingsGeneralPage::buttonPosesPathClicked() {
+void SettingsInterfacePage::buttonPosesPathClicked() {
     QString newPath = openFileDialogForPath(ui->editPosesPath->text());
     if (newPath.compare("") != 0) {
         ui->editPosesPath->setText(newPath);

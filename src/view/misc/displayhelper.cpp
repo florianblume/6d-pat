@@ -36,15 +36,10 @@ QtAwesome *DisplayHelper::qtAwesome() {
     return DisplayHelper::m_qtAwesome;
 }
 
-void DisplayHelper::setIcon(QWidget *widget, fa::icon icon, int size) {
+void DisplayHelper::setIcon(QPushButton *button, fa::icon icon, int size) {
     QtAwesome *_qtAwesome = DisplayHelper::qtAwesome();
-    if (QPushButton *button = dynamic_cast<QPushButton*>(widget)) {
-        button->setIcon(_qtAwesome->icon(icon));
-        button->setFont(_qtAwesome->font(size));
-    } else if (QLabel *label = dynamic_cast<QLabel*>(widget)) {
-        label->setText(QChar(icon));
-        label->setFont(_qtAwesome->font(size));
-    }
+    button->setIcon(_qtAwesome->icon(icon));
+    button->setFont(_qtAwesome->font(size));
 }
 
 QIcon DisplayHelper::warningIcon() {

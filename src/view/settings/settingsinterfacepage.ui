@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SettingsGeneralPage</class>
- <widget class="QWidget" name="SettingsGeneralPage">
+ <class>SettingsInterfacePage</class>
+ <widget class="QWidget" name="SettingsInterfacePage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -313,7 +313,7 @@
   <connection>
    <sender>buttonImagesPath</sender>
    <signal>clicked()</signal>
-   <receiver>SettingsGeneralPage</receiver>
+   <receiver>SettingsInterfacePage</receiver>
    <slot>buttonImagesPathClicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -329,7 +329,7 @@
   <connection>
    <sender>buttonPosesPath</sender>
    <signal>clicked()</signal>
-   <receiver>SettingsGeneralPage</receiver>
+   <receiver>SettingsInterfacePage</receiver>
    <slot>buttonPosesPathClicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -345,7 +345,7 @@
   <connection>
    <sender>buttonObjectModelsPath</sender>
    <signal>clicked()</signal>
-   <receiver>SettingsGeneralPage</receiver>
+   <receiver>SettingsInterfacePage</receiver>
    <slot>buttonObjectModelsPathClicked()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -361,7 +361,7 @@
   <connection>
    <sender>buttonSegmentationImages</sender>
    <signal>clicked()</signal>
-   <receiver>SettingsGeneralPage</receiver>
+   <receiver>SettingsInterfacePage</receiver>
    <slot>buttonSegmentationImagesPathClicked()</slot>
    <hints>
     <hint type="sourcelabel">

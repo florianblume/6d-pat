@@ -72,7 +72,9 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *pref
 }
 
 void SettingsSegmentationCodesPage::showColorDialog(int index) {
-    QColor color = QColorDialog::getColor(Qt::yellow, this );
+    QColor color = QColorDialog::getColor(Qt::yellow, this,
+                                          "Choose segmentation color",
+                                          QColorDialog::DontUseNativeDialog);
     if (!color.isValid())
         return;
 

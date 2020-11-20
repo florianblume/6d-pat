@@ -1,17 +1,23 @@
 #include "settingsdialog.hpp"
 #include "ui_settingsdialog.h"
 #include "view/misc/displayhelper.hpp"
+
 #include <QFileInfo>
+#include <QPushButton>
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SettingsDialog) {
     ui->setupUi(this);
+    QPushButton *buttonApply = ui->buttonBox->button(QDialogButtonBox::Apply);
+    buttonApply->setIcon(DisplayHelper::yesIcon());
+    QPushButton *buttonCancel = ui->buttonBox->button(QDialogButtonBox::Cancel);
+    buttonCancel->setIcon(DisplayHelper::noIcon());
+    ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::windowmaximize), "Interface"));
     ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::wrench), "Paths"));
     ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::paintbrush), "Segmentation"));
-    ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::codefork), "Network"));
-    ui->listWidget->setCurrentItem(ui->listWidget->item(0));
-    ui->listWidget->update();
+    QModelIndex modelIndex = ui->listWidget->model()->index(0, 0);
+    ui->listWidget->selectionModel()->select(modelIndex, QItemSelectionModel::ClearAndSelect);
 }
 
 SettingsDialog::~SettingsDialog() {
@@ -25,8 +31,8 @@ void SettingsDialog::setPreferencesStoreAndObjectModels(SettingsStore *settingsS
     this->settingsStore = settingsStore;
     settings = settingsStore->loadPreferencesByIdentifier(currentSettingsIdentifier);
     this->currentSettingsIdentifier = currentSettingsIdentifier;
-    ui->pageGeneral->setPreferences(settings.data());
-    ui->pageNetwork->setPreferences(settings.data());
+    ui->pageInterface->setPreferences(settings.data());
+    ui->pagePaths->setPreferences(settings.data());
     ui->pageSegmentationCodes->setPreferencesAndObjectModels(settings.data(), objectModels);
 }
 

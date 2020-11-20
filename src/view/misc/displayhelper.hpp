@@ -29,7 +29,7 @@ public:
     static QColor colorForPosePointIndex(int index);
 
     static QtAwesome *qtAwesome();
-    static void setIcon(QWidget *widget, fa::icon icon, int size);
+    static void setIcon(QPushButton *button, fa::icon icon, int size);
     static QIcon getAwesomeIcon(fa::icon icon);
     static QIcon warningIcon();
     static QIcon yesIcon();

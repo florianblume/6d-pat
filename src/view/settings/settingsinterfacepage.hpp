@@ -7,16 +7,15 @@
 using namespace std;
 
 namespace Ui {
-class SettingsGeneralPage;
+class SettingsInterfacePage;
 }
 
-class SettingsGeneralPage : public QWidget
-{
+class SettingsInterfacePage : public QWidget {
     Q_OBJECT
 
 public:
-    explicit SettingsGeneralPage(QWidget *parent = 0);
-    ~SettingsGeneralPage();
+    explicit SettingsInterfacePage(QWidget *parent = 0);
+    ~SettingsInterfacePage();
     void setPreferences(Settings *preferences);
 
 private Q_SLOTS:
@@ -26,7 +25,7 @@ private Q_SLOTS:
     void buttonPosesPathClicked();
 
 private:
-    Ui::SettingsGeneralPage *ui;
+    Ui::SettingsInterfacePage *ui;
     Settings *preferences;
     QString openFolderDialogForPath(QString path);
     QString openFileDialogForPath(QString path);

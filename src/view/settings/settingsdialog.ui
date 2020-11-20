@@ -203,7 +203,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>80</width>
+          <width>110</width>
           <height>16777215</height>
          </size>
         </property>
@@ -233,7 +233,7 @@
         </property>
         <property name="iconSize">
          <size>
-          <width>65</width>
+          <width>110</width>
           <height>60</height>
          </size>
         </property>
@@ -371,7 +371,11 @@
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
-        <widget class="SettingsGeneralPage" name="pageGeneral">
+        <property name="currentIndex">
+         <number>2</number>
+        </property>
+        <widget class="SettingsInterfacePage" name="pageInterface"/>
+        <widget class="SettingsPathsPage" name="pagePaths">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -508,14 +512,6 @@
           </sizepolicy>
          </property>
         </widget>
-        <widget class="SettingsNetworkPage" name="pageNetwork">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
        </widget>
       </item>
      </layout>
@@ -525,21 +521,21 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>SettingsGeneralPage</class>
-   <extends>QWidget</extends>
-   <header>view/settings/settingsgeneralpage.hpp</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>SettingsSegmentationCodesPage</class>
    <extends>QWidget</extends>
    <header>view/settings/settingssegmentationcodespage.hpp</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>SettingsNetworkPage</class>
+   <class>SettingsInterfacePage</class>
    <extends>QWidget</extends>
-   <header>view/settings/settingsnetworkpage.hpp</header>
+   <header>view/settings/settingsinterfacepage.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SettingsPathsPage</class>
+   <extends>QWidget</extends>
+   <header>view/settings/settingspathspage.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -231,6 +231,12 @@
               <property name="lineWidth">
                <number>0</number>
               </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="showDropIndicator" stdset="0">
+               <bool>false</bool>
+              </property>
               <property name="selectionBehavior">
                <enum>QAbstractItemView::SelectRows</enum>
               </property>
@@ -684,6 +690,12 @@
               </property>
               <property name="lineWidth">
                <number>0</number>
+              </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="showDropIndicator" stdset="0">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
