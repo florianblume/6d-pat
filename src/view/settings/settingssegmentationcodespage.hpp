@@ -15,12 +15,12 @@ class SettingsSegmentationCodesPage : public QWidget {
 public:
     explicit SettingsSegmentationCodesPage(QWidget *parent = 0);
     ~SettingsSegmentationCodesPage();
-    void setPreferencesAndObjectModels(Settings *preferences,
-                                       const QList<ObjectModelPtr> &objectModels);
+    void setSettingsAndObjectModels(SettingsPtr preferences,
+                                    const QList<ObjectModelPtr> &objectModels);
 
 private:
     Ui::SettingsSegmentationCodesPage *ui;
-    Settings *preferences;
+    SettingsPtr preferences;
     QList<ObjectModelPtr> objectModels;
 
 private Q_SLOTS:

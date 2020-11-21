@@ -33,7 +33,7 @@ public:
     int exec();
 
 private Q_SLOTS:
-    void onSettingsChanged(const QString &identifier);
+    void onSettingsChanged(SettingsPtr settings);
 
 private:
     /*!

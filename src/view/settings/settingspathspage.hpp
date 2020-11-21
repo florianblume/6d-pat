@@ -16,7 +16,7 @@ class SettingsPathsPage : public QWidget {
 public:
     explicit SettingsPathsPage(QWidget *parent = 0);
     ~SettingsPathsPage();
-    void setPreferences(Settings *preferences);
+    void setSettings(Settings *preferences);
 
 private Q_SLOTS:
     void buttonImagesPathClicked();

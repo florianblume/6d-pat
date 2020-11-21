@@ -63,7 +63,7 @@ public:
                                const QList<ObjectModelPtr> &objectModels) override;
 
 protected slots:
-    void onSettingsChanged(const QString &settingsIdentifier) override;
+    void onSettingsChanged(SettingsPtr settings) override;
 
 private slots:
     void onDirectoryChanged(const QString &path);

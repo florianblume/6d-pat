@@ -76,7 +76,7 @@ signals:
     void dataChanged(int data);
 
 protected slots:
-    virtual void onSettingsChanged(const QString &settingsIdentifier) = 0;
+    virtual void onSettingsChanged(SettingsPtr settings) = 0;
 
 protected:
     SettingsStore *settingsStore;

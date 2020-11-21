@@ -14,11 +14,11 @@ class SettingsStore : public QObject
 public:
     SettingsStore();
     SettingsPtr createEmptyPreferences(const QString &identifier);
-    void savePreferences(Settings *settingsPointer);
+    void savePreferences(const Settings &settings);
     SettingsPtr loadPreferencesByIdentifier(const QString &identifier);
 
 signals:
-    void settingsChanged(const QString &identifier);
+    void settingsChanged(SettingsPtr settingsToSave);
 
 private:
     static const QString PREFERENCES;

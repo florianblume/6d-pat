@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 #include "view/misc/displayhelper.hpp"
 #include "view/settings/settingsdialog.hpp"
-#include "view/neuralnetworkdialog/neuralnetworkdialog.hpp"
 #include <QSettings>
 #include <QCloseEvent>
 #include <QMessageBox>
@@ -183,13 +182,13 @@ Gallery *MainWindow::galleryImages() {
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
     QSharedPointer<Settings> preferences = settingsStore->loadPreferencesByIdentifier("default");
     preferences->setImagesPath(path);
-    settingsStore->savePreferences(preferences.data());
+    settingsStore->savePreferences(*preferences);
 }
 
 void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
     QSharedPointer<Settings> preferences = settingsStore->loadPreferencesByIdentifier("default");
     preferences->setObjectModelsPath(path);
-    settingsStore->savePreferences(preferences.data());
+    settingsStore->savePreferences(*preferences);
 }
 
 void MainWindow::displayWarning(const QString &title, const QString &text) {
@@ -217,11 +216,10 @@ void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
     ui->navigationRight->setPathToOpen(QString(settings->objectModelsPath()));
 }
 
-void MainWindow::onSettingsChanged(const QString &identifier) {
-    if (settingsIdentifier != identifier) {
+void MainWindow::onSettingsChanged(SettingsPtr settings) {
+    if (settingsIdentifier != settings->identifier()) {
         return;
     }
-    QSharedPointer<Settings> settings = settingsStore->loadPreferencesByIdentifier(identifier);
     galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
     setPathsOnGalleriesAndBreadcrumbs();
 }

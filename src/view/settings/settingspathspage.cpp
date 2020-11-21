@@ -17,7 +17,7 @@ SettingsPathsPage::~SettingsPathsPage() {
     delete ui;
 }
 
-void SettingsPathsPage::setPreferences(Settings *preferences) {
+void SettingsPathsPage::setSettings(Settings *preferences) {
     this->preferences = preferences;
     ui->editImagesPath->setText(preferences->imagesPath());
     ui->editObjectModelsPath->setText(preferences->objectModelsPath());

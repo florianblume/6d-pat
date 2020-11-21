@@ -10,39 +10,39 @@ QSharedPointer<Settings> SettingsStore::createEmptyPreferences(const QString &id
     return QSharedPointer<Settings>(new Settings(identifier));
 }
 
-void SettingsStore::savePreferences(Settings *settingsPointer) {
+void SettingsStore::savePreferences(const Settings &settingsToSave) {
     QSettings settings("FlorettiKonfetti Inc.", "6D-PAT");
-    const QString &identifier = PREFERENCES + settingsPointer->identifier();
+    const QString &identifier = PREFERENCES + settingsToSave.identifier();
     settings.beginGroup(identifier);
-    settings.setValue(IMAGES_PATH, settingsPointer->imagesPath());
-    settings.setValue(OBJECT_MODELS_PATH, settingsPointer->objectModelsPath());
-    settings.setValue(POSES_FILE_PATH, settingsPointer->posesFilePath());
-    settings.setValue(SEGMENTATION_IMAGES_PATH, settingsPointer->segmentationImagesPath());
-    settings.setValue(PYTHON_INTERPRETER_PATH, settingsPointer->pythonInterpreterPath());
-    settings.setValue(TRAINING_SCRIPT_PATH, settingsPointer->trainingScriptPath());
-    settings.setValue(INFERENCE_SCRIPT_PATH, settingsPointer->inferenceScriptPath());
-    settings.setValue(NETWORK_CONFIG_PATH, settingsPointer->networkConfigPath());
-    settings.setValue(ADD_CORRESPONDENCE_POINT_MOUSE_BUTTON, settingsPointer->addCorrespondencePointMouseButton());
-    settings.setValue(MOVE_BACKGROUNDIMAGE_RENDERABLE_MOUSE_BUTTON, settingsPointer->moveBackgroundImageRenderableMouseButton());
-    settings.setValue(SELECT_POSE_RENDERABLE_MOUSE_BUTTON, settingsPointer->selectPoseRenderableMouseButton());
-    settings.setValue(ROTATE_POSE_RENDERABLE_MOUSE_BUTTON, settingsPointer->rotatePoseRenderableMouseButton());
-    settings.setValue(TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON, settingsPointer->translatePoseRenderableMouseButton());
+    settings.setValue(IMAGES_PATH, settingsToSave.imagesPath());
+    settings.setValue(OBJECT_MODELS_PATH, settingsToSave.objectModelsPath());
+    settings.setValue(POSES_FILE_PATH, settingsToSave.posesFilePath());
+    settings.setValue(SEGMENTATION_IMAGES_PATH, settingsToSave.segmentationImagesPath());
+    settings.setValue(PYTHON_INTERPRETER_PATH, settingsToSave.pythonInterpreterPath());
+    settings.setValue(TRAINING_SCRIPT_PATH, settingsToSave.trainingScriptPath());
+    settings.setValue(INFERENCE_SCRIPT_PATH, settingsToSave.inferenceScriptPath());
+    settings.setValue(NETWORK_CONFIG_PATH, settingsToSave.networkConfigPath());
+    settings.setValue(ADD_CORRESPONDENCE_POINT_MOUSE_BUTTON, settingsToSave.addCorrespondencePointMouseButton());
+    settings.setValue(MOVE_BACKGROUNDIMAGE_RENDERABLE_MOUSE_BUTTON, settingsToSave.moveBackgroundImageRenderableMouseButton());
+    settings.setValue(SELECT_POSE_RENDERABLE_MOUSE_BUTTON, settingsToSave.selectPoseRenderableMouseButton());
+    settings.setValue(ROTATE_POSE_RENDERABLE_MOUSE_BUTTON, settingsToSave.rotatePoseRenderableMouseButton());
+    settings.setValue(TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON, settingsToSave.translatePoseRenderableMouseButton());
     settings.endGroup();
 
     //! Persist the object color codes so that the user does not have to enter them at each program start
     //! But first remove all old entries, in case that the user deleted some codes
     settings.beginGroup(identifier + "-colorcodes");
     settings.remove("");
-    for (auto objectModelIdentifier : settingsPointer->segmentationCodes().keys()) {
-        settings.setValue(objectModelIdentifier, settingsPointer->segmentationCodeForObjectModel(objectModelIdentifier));
+    for (auto objectModelIdentifier : settingsToSave.segmentationCodes().keys()) {
+        settings.setValue(objectModelIdentifier, settingsToSave.segmentationCodeForObjectModel(objectModelIdentifier));
     }
     settings.endGroup();
 
-    emit settingsChanged(settingsPointer->identifier());
+    emit settingsChanged(SettingsPtr(new Settings(settingsToSave)));
 }
 
 QSharedPointer<Settings> SettingsStore::loadPreferencesByIdentifier(const QString &identifier) {
-    QSharedPointer<Settings> settingsPointer(new Settings(identifier));
+    SettingsPtr settingsPointer(new Settings(identifier));
     QSettings settings("FlorettiKonfetti Inc.", "6D-PAT");
     const QString &fullIdentifier = PREFERENCES + identifier;
     settings.beginGroup(fullIdentifier);

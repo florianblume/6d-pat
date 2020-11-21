@@ -19,7 +19,7 @@ public:
     QMap<QString, QString> segmentationCodes() const;
     void setSegmentationCodes(const QMap<QString, QString> codes);
 
-    QString segmentationCodeForObjectModel(const QString &identifier);
+    QString segmentationCodeForObjectModel(const QString &identifier) const;
 
     QString segmentationImagesPath() const;
     void setSegmentationImagePath(const QString &value);
@@ -33,7 +33,7 @@ public:
     QString posesFilePath() const;
     void setPosesFilePath(const QString &value);
 
-    QString identifier();
+    QString identifier() const;
 
     QString trainingScriptPath() const;
     void setTrainingScriptPath(const QString &value);

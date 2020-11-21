@@ -19,18 +19,12 @@ const QStringList JsonLoadAndStoreStrategy::OBJECT_MODEL_FILES_EXTENSIONS =
 const QStringList JsonLoadAndStoreStrategy::IMAGE_FILES_EXTENSIONS =
                                             QStringList({"*.jpg", "*.jpeg", "*.png", "*.tiff"});
 
-static QString convertPathToSuffxFileName(const QString &pathToConvert,
-                                          const QString &suffix,
-                                          const QString &extension) {
-    return QFileInfo(pathToConvert).completeBaseName() + suffix + extension;
-}
-
 JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy(SettingsStore *settingsStore,
                                                    const QString settingsIdentifier) :
     LoadAndStoreStrategy(settingsStore, settingsIdentifier) {
     connectWatcherSignals();
     // Simply call settings changed to load the paths, etc
-    onSettingsChanged(settingsIdentifier);
+    onSettingsChanged(settingsStore->loadPreferencesByIdentifier(settingsIdentifier));
 }
 
 JsonLoadAndStoreStrategy::~JsonLoadAndStoreStrategy() {
@@ -377,9 +371,10 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
     return poses;
 }
 
-void JsonLoadAndStoreStrategy::onSettingsChanged(const QString &settingsIdentifier) {
-    QSharedPointer<Settings> settings
-            = settingsStore->loadPreferencesByIdentifier(settingsIdentifier);
+void JsonLoadAndStoreStrategy::onSettingsChanged(SettingsPtr settings) {
+    if (settings->identifier() != settingsIdentifier) {
+        return;
+    }
     if (settings->imagesPath() != imagesPath) {
         setImagesPath(settings->imagesPath());
     }

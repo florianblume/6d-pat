@@ -7,8 +7,7 @@
 
 SettingsSegmentationCodesPage::SettingsSegmentationCodesPage(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::SettingsSegmentationCodesPage)
-{
+    ui(new Ui::SettingsSegmentationCodesPage) {
     ui->setupUi(this);
     QHeaderView *headerView = ui->tableSegmentationCodes->horizontalHeader();
     headerView->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -16,12 +15,11 @@ SettingsSegmentationCodesPage::SettingsSegmentationCodesPage(QWidget *parent) :
     headerView->setSectionResizeMode(2, QHeaderView::Fixed);
 }
 
-SettingsSegmentationCodesPage::~SettingsSegmentationCodesPage()
-{
+SettingsSegmentationCodesPage::~SettingsSegmentationCodesPage() {
     delete ui;
 }
 
-void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *preferences,
+void SettingsSegmentationCodesPage::setSettingsAndObjectModels(SettingsPtr preferences,
                                                                   const QList<ObjectModelPtr> &objectModels) {
     this->preferences = preferences;
     this->objectModels = objectModels;

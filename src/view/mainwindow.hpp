@@ -5,8 +5,6 @@
 #include "settings/settingsstore.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
 #include "view/gallery/galleryobjectmodelmodel.hpp"
-#include "view/neuralnetworkprogressview/networkprogressview.hpp"
-#include "view/neuralnetworkdialog/neuralnetworkdialog.hpp"
 #include "view/poseviewer/poseviewer.hpp"
 #include "view/poseeditor/poseeditor.hpp"
 #include "view/gallery/gallery.hpp"
@@ -161,9 +159,6 @@ private:
     // the window
     bool poseCreationInProgress = false;
 
-    QScopedPointer<NetworkProgressView> networkProgressView;
-    QScopedPointer<NeuralNetworkDialog> neuralNetworkDialog;
-
     // Used to write and read main view related settings, like position etc.
     void writeSettings();
     void readSettings();
@@ -189,7 +184,7 @@ private:
     static QString SPLITTER_RIGHT_SIZE_BOTTOM_KEY;
 
 private Q_SLOTS:
-    void onSettingsChanged(const QString &identifier);
+    void onSettingsChanged(SettingsPtr settings);
     void onActionAboutTriggered();
     void onActionExitTriggered();
     void onActionSettingsTriggered();

@@ -60,8 +60,7 @@ void MainController::showView() {
     mainWindow->repaint();
 }
 
-void MainController::onSettingsChanged(const QString &identifier) {
-    if (currentSettings->identifier() == identifier) {
-        poseRecoverer->reset();
-    }
+void MainController::onSettingsChanged(SettingsPtr settings) {
+    // TODO maybe remove this and let PoseRecoverer receive settings store instead
+    poseRecoverer.reset();
 }

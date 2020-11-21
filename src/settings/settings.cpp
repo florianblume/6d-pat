@@ -64,14 +64,14 @@ void Settings::setSegmentationCodeForObjectModel(const QString &identifier, cons
     m_segmentationCodes[identifier] = code;
 }
 
-QString Settings::segmentationCodeForObjectModel(const QString &identifier) {
+QString Settings::segmentationCodeForObjectModel(const QString &identifier) const {
     if (m_segmentationCodes.contains(identifier))
         return m_segmentationCodes[identifier];
     else
         return "";
 }
 
-QString Settings::identifier() {
+QString Settings::identifier() const {
     return m_identifier;
 }
 
