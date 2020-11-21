@@ -90,8 +90,8 @@ void PoseViewer3DWidget::initializeQt3D() {
     clickVisualizationLayerFilter->addLayer(clickVisualizationLayer);
     clickVisualizationCameraSelector->setParent(clickVisualizationLayerFilter);
     clickVisualizationCamera->setParent(clickVisualizationCameraSelector);
-    clickVisualizationCamera->lens()->setOrthographicProjection(0, this->size().width(),
-                                                                0, this->size().height(),
+    clickVisualizationCamera->lens()->setOrthographicProjection(-this->size().width() / 2.f, this->size().width() / 2.f,
+                                                                -this->size().height() / 2.f, this->size().height() / 2.f,
                                                                 0.1f, 1000.f);
     clickVisualizationCamera->setPosition(QVector3D(0, 0, 1));
     clickVisualizationCamera->setViewCenter(QVector3D(0, 0, 0));
@@ -347,6 +347,8 @@ void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
     }
 
     // PoseRenderableMovedFirst means that the user clicked the renderable and modified it
+    // We test this here because the application might set another cursor somewhere else
+    // and we don't want to override it
     if (poseRenderableMovedFirst) {
         QApplication::setOverrideCursor(Qt::ArrowCursor);
     }
@@ -385,9 +387,9 @@ void PoseViewer3DWidget::setSettings(SettingsPtr settings) {
 void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
     Qt3DWidget::resizeEvent(event);
     clickVisualizationRenderable->setSize(event->size());
-    //clickVisualizationCamera->lens()->setOrthographicProjection(0, event->size().width(),
-    //                                                            0, event->size().height(),
-     //                                                           0.1f, 1000.f);
+    clickVisualizationCamera->lens()->setOrthographicProjection(-event->size().width() / 2.f, event->size().width() / 2.f,
+                                                                -event->size().height() / 2.f, event->size().height() / 2.f,
+                                                                0.1f, 1000.f);
 }
 
 QSize PoseViewer3DWidget::imageSize() const {

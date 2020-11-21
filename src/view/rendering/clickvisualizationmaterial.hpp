@@ -23,10 +23,15 @@ class ClickVisualizationMaterial : public Qt3DRender::QMaterial
 public:
     ClickVisualizationMaterial(Qt3DCore::QNode *parent = Q_NULLPTR);
     void setClicks(const QList<QPoint> &clicks);
-    void setHeight(int height);
+    void setSize(QSize size);
 
 private:
-    int height = 0;
+    void udpateParameters();
+
+private:
+    QSize m_size;
+
+    QList<QPoint> m_clicks;
 
     Qt3DRender::QEffect *m_effect;
     Qt3DRender::QTechnique *m_technique;
