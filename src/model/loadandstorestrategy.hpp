@@ -25,7 +25,17 @@ class LoadAndStoreStrategy : public QObject {
 
 public:
     enum Error {
-
+        ImagesPathDoesNotExist,
+        SegmentationImagesPathDoesNotExist,
+        CouldNotReadCamInfo,
+        CamInfoDoesNotExist,
+        CamInfoPathIsNotAJSONFile,
+        NoImagesFound,
+        ObjectModelsPathDoesNotExist,
+        ObjectModelsPathIsNotAFolder,
+        PosesPathDoesNotExist,
+        FailedToPersistPosePosesFileCouldNotBeRead,
+        FailedToPersistPosePosesPathIsNotAFile
     };
 
     LoadAndStoreStrategy(SettingsStore *settingsStore,
@@ -68,10 +78,6 @@ public:
     void setSettingsIdentifier(const QString &value);
 
 signals:
-    void failedToLoadImages(const QString& message);
-    void failedToLoadObjectModels(const QString &message);
-    void failedToLoadPoses(const QString &message);
-    void failedToPersistPose(const QString &message);
     void error(Error error);
     void dataChanged(int data);
 

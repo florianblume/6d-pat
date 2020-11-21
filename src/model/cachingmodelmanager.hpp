@@ -54,9 +54,21 @@ public:
 
     void reload() override;
 
+    LoadAndStoreStrategy::Error error() override;
+
 private Q_SLOTS:
     // Callback for threadded data loading
     void dataReady();
+    void onDataChanged(int data);
+    void threaddedReload();
+    void onLoadAndStoreStrategyError(LoadAndStoreStrategy::Error error);
+
+private:
+    /*!
+     * \brief createConditionalCache sets up the cache of poses that
+     * can be retrieved for an image or for an object model.
+     */
+    void createConditionalCache();
 
 private:
     //! The pattern that is used to load maybe existing segmentation images
@@ -71,19 +83,12 @@ private:
     QMap<QString, QList<PosePtr>> m_posesForObjectModels;
     //! The list of the object image poses
     QList<PosePtr> m_poses;
-    /*!
-     * \brief createConditionalCache sets up the cache of poses that
-     * can be retrieved for an image or for an object model.
-     */
-    void createConditionalCache();
+
+    LoadAndStoreStrategy::Error m_error;
 
     // For threadding
     QFuture<void> reloadFuture;
     QFutureWatcher<void> reloadFutureWatcher;
-
-private Q_SLOTS:
-    void onDataChanged(int data);
-    void threaddedReload();
 
 };
 

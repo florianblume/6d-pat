@@ -9,6 +9,8 @@ CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrat
     connect(&loadAndStoreStrategy, &LoadAndStoreStrategy::dataChanged,
             this, &CachingModelManager::dataChanged);
     connect(&reloadFutureWatcher, &QFutureWatcher<void>::finished, this, &CachingModelManager::dataReady);
+    connect(&loadAndStoreStrategy, &LoadAndStoreStrategy::error,
+            this, &CachingModelManager::error);
 }
 
 CachingModelManager::~CachingModelManager() {
@@ -225,11 +227,20 @@ void CachingModelManager::reload() {
     reloadFutureWatcher.setFuture(reloadFuture);
 }
 
+LoadAndStoreStrategy::Error CachingModelManager::error() {
+    return m_error;
+}
+
 void CachingModelManager::threaddedReload() {
     m_images = loadAndStoreStrategy.loadImages();
     m_objectModels = loadAndStoreStrategy.loadObjectModels();
     m_poses = loadAndStoreStrategy.loadPoses(m_images, m_objectModels);
     createConditionalCache();
+}
+
+void CachingModelManager::onLoadAndStoreStrategyError(LoadAndStoreStrategy::Error error) {
+    m_error = error;
+    Q_EMIT stateChanged(State::Error);
 }
 
 void CachingModelManager::dataReady() {

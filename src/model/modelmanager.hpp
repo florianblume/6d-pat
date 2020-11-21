@@ -35,6 +35,7 @@ protected:
 public:
     enum State {
         Loading,
+        Error,
         Ready
     };
     /*!
@@ -142,6 +143,8 @@ public:
      * emits the corresponding signals.
      */
     virtual void reload() = 0;
+
+    virtual LoadAndStoreStrategy::Error error() = 0;
 
 Q_SIGNALS:
     void dataChanged(int data);

@@ -4,7 +4,6 @@
 #include "model/image.hpp"
 #include "model/objectmodel.hpp"
 #include "model/pose.hpp"
-#include "controller/poserecoveringcontroller.hpp"
 #include "poseviewer3dwidget.hpp"
 #include "view/misc/displayhelper.hpp"
 #include "settings/settingsstore.hpp"

@@ -35,89 +35,90 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
     // Read in the camera parameters from the JSON file
     QFileInfo info(posesFilePath);
     QFile jsonFile(posesFilePath);
-    if (info.isFile()) {
-        if (jsonFile.open(QFile::ReadWrite)) {
-            QByteArray data = jsonFile.readAll();
-            QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
-            QJsonObject jsonObject = jsonDocument.object();
 
-            QString imagePath = objectImagePose.image()->imagePath();
-            QJsonArray entriesForImage;
-
-            if (deletePose) {
-                if (jsonObject.contains(imagePath)) {
-                    entriesForImage = jsonObject[imagePath].toArray();
-                    int index = 0;
-                    for(const QJsonValue &entry : entriesForImage) {
-                        QJsonObject entryObject = entry.toObject();
-                        if (entryObject["id"] == objectImagePose.id()) {
-                            entriesForImage.removeAt(index);
-                        }
-                        index++;
-                    }
-                    jsonObject[imagePath] = entriesForImage;
-                }
-            } else {
-                //! Preparation of 3D data for the JSON file
-                QMatrix3x3 rotationMatrix = objectImagePose.rotation().toRotationMatrix();
-                QJsonArray rotationMatrixArray;
-                rotationMatrixArray << rotationMatrix(0, 0) << rotationMatrix(0, 1) << rotationMatrix(0, 2)
-                                    << rotationMatrix(1, 0) << rotationMatrix(1, 1) << rotationMatrix(1, 2)
-                                    << rotationMatrix(2, 0) << rotationMatrix(2, 1) << rotationMatrix(2, 2);
-                QVector3D positionVector = objectImagePose.position();
-                QJsonArray positionVectorArray;
-                positionVectorArray << positionVector[0] << positionVector[1] << positionVector[2];
-                //! Check if any entries for the image exist
-                if (jsonObject.contains(imagePath)) {
-                    //! There are some entries already and we check whether the pose
-                    //! already exists
-                    entriesForImage = jsonObject[imagePath].toArray();
-                    //! We have to check whether our pose exists, and if it does, only update it
-                    //! If we don't find it we have to create it anew and add it to the list of poses
-                    bool entryFound = false;
-                    //! Keep track of the index if we find an existing pose
-                    int index = 0;
-                    //! Create new entry object, as we can't modify the exisiting ones directly somehow
-                    QJsonObject entry;
-                    entry["id"] = objectImagePose.id();
-                    entry["obj"] = objectImagePose.objectModel()->path();
-                    entry["R"] = rotationMatrixArray;
-                    entry["t"] = positionVectorArray;
-
-                    for(const QJsonValue &_entry : entriesForImage) {
-                        QJsonObject entryObject = _entry.toObject();
-                        if (entryObject["id"] == objectImagePose.id()) {
-                            entryFound = true;
-                            entriesForImage[index] = entry;
-                        }
-                        index++;
-                    }
-
-                    if (!entryFound) {
-                        entriesForImage << entry;
-                    }
-                } else {
-                    QJsonObject newEntry;
-                    newEntry["id"] = objectImagePose.id();
-                    newEntry["obj"] = objectImagePose.objectModel()->path();
-                    newEntry["t"] = positionVectorArray;
-                    newEntry["R"] = rotationMatrixArray;
-                    entriesForImage << newEntry;
-                }
-            }
-            ignorePosesFileChanged = true;
-            jsonObject[imagePath] = entriesForImage;
-            jsonFile.resize(0);
-            jsonFile.write(QJsonDocument(jsonObject).toJson());
-            return true;
-        } else {
-            Q_EMIT failedToPersistPose("Could not read the specified JSON file.");
-            return false;
-        }
-    } else {
-        Q_EMIT failedToPersistPose("The specified poses path is not a JSON file.");
+    if (!info.isFile()) {
+        Q_EMIT error(FailedToPersistPosePosesPathIsNotAFile);
         return false;
     }
+
+    if (!jsonFile.open(QFile::ReadWrite)) {
+        Q_EMIT error(FailedToPersistPosePosesFileCouldNotBeRead);
+        return false;
+    }
+
+    QByteArray data = jsonFile.readAll();
+    QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
+    QJsonObject jsonObject = jsonDocument.object();
+
+    QString imagePath = objectImagePose.image()->imagePath();
+    QJsonArray entriesForImage;
+
+    if (deletePose) {
+        if (jsonObject.contains(imagePath)) {
+            entriesForImage = jsonObject[imagePath].toArray();
+            int index = 0;
+            for(const QJsonValue &entry : entriesForImage) {
+                QJsonObject entryObject = entry.toObject();
+                if (entryObject["id"] == objectImagePose.id()) {
+                    entriesForImage.removeAt(index);
+                }
+                index++;
+            }
+            jsonObject[imagePath] = entriesForImage;
+        }
+    } else {
+        //! Preparation of 3D data for the JSON file
+        QMatrix3x3 rotationMatrix = objectImagePose.rotation().toRotationMatrix();
+        QJsonArray rotationMatrixArray;
+        rotationMatrixArray << rotationMatrix(0, 0) << rotationMatrix(0, 1) << rotationMatrix(0, 2)
+                            << rotationMatrix(1, 0) << rotationMatrix(1, 1) << rotationMatrix(1, 2)
+                            << rotationMatrix(2, 0) << rotationMatrix(2, 1) << rotationMatrix(2, 2);
+        QVector3D positionVector = objectImagePose.position();
+        QJsonArray positionVectorArray;
+        positionVectorArray << positionVector[0] << positionVector[1] << positionVector[2];
+        //! Check if any entries for the image exist
+        if (jsonObject.contains(imagePath)) {
+            //! There are some entries already and we check whether the pose
+            //! already exists
+            entriesForImage = jsonObject[imagePath].toArray();
+            //! We have to check whether our pose exists, and if it does, only update it
+            //! If we don't find it we have to create it anew and add it to the list of poses
+            bool entryFound = false;
+            //! Keep track of the index if we find an existing pose
+            int index = 0;
+            //! Create new entry object, as we can't modify the exisiting ones directly somehow
+            QJsonObject entry;
+            entry["id"] = objectImagePose.id();
+            entry["obj"] = objectImagePose.objectModel()->path();
+            entry["R"] = rotationMatrixArray;
+            entry["t"] = positionVectorArray;
+
+            for(const QJsonValue &_entry : entriesForImage) {
+                QJsonObject entryObject = _entry.toObject();
+                if (entryObject["id"] == objectImagePose.id()) {
+                    entryFound = true;
+                    entriesForImage[index] = entry;
+                }
+                index++;
+            }
+
+            if (!entryFound) {
+                entriesForImage << entry;
+            }
+        } else {
+            QJsonObject newEntry;
+            newEntry["id"] = objectImagePose.id();
+            newEntry["obj"] = objectImagePose.objectModel()->path();
+            newEntry["t"] = positionVectorArray;
+            newEntry["R"] = rotationMatrixArray;
+            entriesForImage << newEntry;
+        }
+    }
+    ignorePosesFileChanged = true;
+    jsonObject[imagePath] = entriesForImage;
+    jsonFile.resize(0);
+    jsonFile.write(QJsonDocument(jsonObject).toJson());
+    return true;
 }
 
 static QMatrix3x3 rotVectorFromJsonRotMatrix(QJsonArray &jsonRotationMatrix) {
@@ -160,10 +161,10 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     // is if this strategy was constructed with an empty path, all other methods of
     // setting the path check if the path exists
     if (!QFileInfo(imagesPath).exists()) {
-        emit failedToLoadImages("The specified images path does not exist.");
+        emit error(ImagesPathDoesNotExist);
         return images;
     } else if (segmentationImagesPath != "" && !QFileInfo(segmentationImagesPath).exists()) {
-        emit failedToLoadImages("The specified segmentation images path does not exist.");
+        emit error(SegmentationImagesPathDoesNotExist);
         return images;
     }
 
@@ -196,6 +197,7 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
 
     // Read in the camera parameters from the JSON file
     QFile jsonFile(QDir(imagesPath).filePath("info.json"));
+
     if (imageFiles.size() > 0 && jsonFile.open(QFile::ReadOnly)) {
         QByteArray data = jsonFile.readAll();
         QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
@@ -220,9 +222,9 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
         }
     } else if (imageFiles.size() > 0) {
         // Only if we can read images but do not find the JSON info file we raise the exception
-        Q_EMIT failedToLoadImages("Could not find info.json with the camera parameters.");
+        Q_EMIT error(CamInfoDoesNotExist);
     } else if (imageFiles.size() == 0) {
-        Q_EMIT failedToLoadImages("No images found at the specified path.");
+        Q_EMIT error(NoImagesFound);
     }
 
     return images;
@@ -234,10 +236,10 @@ QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
     // See explanation under loadImages for why we don't throw an exception here
     QFileInfo info(objectModelsPath);
     if (!info.exists()) {
-        Q_EMIT failedToLoadObjectModels("The specified path does not exist.");
+        Q_EMIT error(ObjectModelsPathDoesNotExist);
         return objectModels;
     } else if (!info.isDir()) {
-        Q_EMIT failedToLoadObjectModels("The specified path is not a folder.");
+        Q_EMIT error(ObjectModelsPathIsNotAFolder);
         return objectModels;
     }
 
@@ -290,7 +292,7 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
 
     //! See loadImages for why we don't throw an exception here
     if (!QFileInfo(posesFilePath).exists()) {
-        Q_EMIT failedToLoadPoses("The specified path does not exist.");
+        Q_EMIT error(PosesPathDoesNotExist);
         return poses;
     }
 

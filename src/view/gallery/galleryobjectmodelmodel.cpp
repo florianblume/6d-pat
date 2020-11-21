@@ -183,20 +183,19 @@ void GalleryObjectModelModel::onDataChanged(int data) {
 void GalleryObjectModelModel::onSelectedImageChanged(int index) {
     if (index != currentSelectedImageIndex) {
         currentSelectedImageIndex = index;
-        colorsOfCurrentImage.clear();
-        indexMapping.clear();
         const ImagePtr& image = images.at(currentSelectedImageIndex);
 
         //! If we find an segmentation image update the colors that are used to filter tools
         if (image->segmentationImagePath().compare("") != 0) {
+            colorsOfCurrentImage.clear();
+            indexMapping.clear();
             QImage loadedImage(image->absoluteSegmentationImagePath());
             for (QColor color : loadedImage.colorTable()) {
                 colorsOfCurrentImage.push_back(color);
             }
+            createIndexMapping();
+            Q_EMIT displayedObjectModelsChanged();
         }
-
-        createIndexMapping();
-        Q_EMIT displayedObjectModelsChanged();
     }
 }
 

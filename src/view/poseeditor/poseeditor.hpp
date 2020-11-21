@@ -2,7 +2,6 @@
 #define CORRESPONDENCEEDITORCONTROLS_H
 
 #include "model/modelmanager.hpp"
-#include "controller/poserecoveringcontroller.hpp"
 #include "misc/global.hpp"
 #include "view/poseeditor/poseeditor3dwidget.hpp"
 
@@ -41,6 +40,7 @@ public Q_SLOTS:
     // For poses selected in the PoseViewer
     void selectPose(PosePtr selected, PosePtr deselected);
     void setObjectModel(ObjectModelPtr objectModel);
+    void setClicks(const QList<QVector3D> &clicks);
     void onSelectedPoseValuesChanged(PosePtr pose);
     void onPosesSaved();
     void onPoseCreationAborted();

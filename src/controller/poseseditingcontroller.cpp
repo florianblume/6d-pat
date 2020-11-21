@@ -4,6 +4,9 @@
 #include "view/gallery/galleryobjectmodels.hpp"
 
 #include <QList>
+#include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 PosesEditingController::PosesEditingController(QObject *parent, ModelManager *modelManager, MainWindow *mainWindow)
     : QObject(parent)
@@ -45,6 +48,14 @@ PosesEditingController::PosesEditingController(QObject *parent, ModelManager *mo
             this, &PosesEditingController::copyPosesFromImage);
     connect(mainWindow->poseEditor(), &PoseEditor::buttonDuplicateClicked,
             this, &PosesEditingController::duplicatePose);
+
+    // React to pose recovering
+    connect(mainWindow->poseEditor(), &PoseEditor::objectModelClickedAt,
+            this, &PosesEditingController::add3DPoint);
+    connect(mainWindow->poseEditor(), &PoseEditor::buttonCreateClicked,
+            this, &PosesEditingController::recoverPose);
+    connect(mainWindow->poseViewer(), &PoseViewer::imageClicked,
+            this, &PosesEditingController::add2DPoint);
 
     // React to mainwindow signals
     connect(mainWindow, &MainWindow::reloadingViews,
@@ -89,13 +100,17 @@ void PosesEditingController::selectPose(PosePtr pose) {
 void PosesEditingController::addPose(PosePtr pose) {
     m_modelManager->addPose(*pose);
     m_mainWindow->poseViewer()->addPose(pose);
+    m_mainWindow->poseViewer()->setClicks({});
     m_mainWindow->poseEditor()->addPose(pose);
+    m_mainWindow->poseEditor()->setClicks({});
 }
 
 void PosesEditingController::removePose() {
     m_modelManager->removePose(m_selectedPose->id());
     m_mainWindow->poseViewer()->removePose(m_selectedPose);
+    m_mainWindow->poseViewer()->setClicks({});
     m_mainWindow->poseEditor()->removePose(m_selectedPose);
+    m_mainWindow->poseEditor()->setClicks({});
 }
 
 void PosesEditingController::duplicatePose() {
@@ -108,10 +123,6 @@ void PosesEditingController::copyPosesFromImage(ImagePtr image) {
     for (const PosePtr &pose : poses) {
         m_modelManager->addPose(*pose);
     }
-}
-
-PosePtr PosesEditingController::selectedPose() {
-    return m_selectedPose;
 }
 
 // Called from the setters of the pose
@@ -208,12 +219,24 @@ bool PosesEditingController::_savePoses(bool showDialog) {
 }
 
 void PosesEditingController::onSelectedImageChanged(int index) {
+    // Only after resetting the selected pose so that singals are disconnected
+    savePosesOrRestoreState();
+    m_points2D.clear();
+    m_points3D.clear();
+    m_state = Empty;
+    m_dirtyPoses.clear();
+    m_unmodifiedPoses.clear();
+    // Do not reset the editor because then we reset the object model that
+    // is being displayed -> Might become annoying when selecting the next
+    // image showing the same object and having to search for the object
+    // model again in the galllery
+    m_mainWindow->poseEditor()->setClicks({});
+    // This resets the controls values and disables the controls
+    m_mainWindow->poseEditor()->setPoses({});
+    m_mainWindow->poseViewer()->reset();
+
+    // Index can be -1 when the views are reset
     if (index >= 0 && index < m_images.size()) {
-        selectPose(PosePtr());
-        // Only after resetting the selected pose so that singals are disconnected
-        savePosesOrRestoreState();
-        m_dirtyPoses.clear();
-        m_unmodifiedPoses.clear();
         m_currentImage = m_images[index];
         m_posesForImage = m_modelManager->posesForImage(*m_currentImage);
         for (const PosePtr &pose: m_posesForImage) {
@@ -230,10 +253,146 @@ void PosesEditingController::onSelectedImageChanged(int index) {
 }
 
 void PosesEditingController::onSelectedObjectModelChanged(int index) {
+    // Index can be -1 when the views are reset
     if (index >= 0 && index < m_objectModels.size()) {
         ObjectModelPtr objectModel = m_objectModels[index];
         m_mainWindow->poseEditor()->setObjectModel(objectModel);
+        m_currentObjectModel = objectModel;
     }
+    m_mainWindow->poseEditor()->onPoseCreationAborted();
+    m_mainWindow->poseViewer()->onPoseCreationAborted();
+}
+
+void PosesEditingController::add2DPoint(QPoint imagePoint) {
+    m_points2D.append(imagePoint);
+    m_mainWindow->poseViewer()->setClicks(m_points2D);
+    // TODO set message on main view
+    if (m_points2D.size() == m_points3D.size()
+            && m_points3D.size() >= m_minimumNumberOfPoints) {
+        m_state = ReadyForPoseCreation;
+    } else if (m_points2D.size() == m_points3D.size()) {
+        m_state = NotEnoughCorrespondences;
+    } else if (m_points2D.size() > m_points3D.size() + 1) {
+        // Reset the 2D point of the incomplete correspondence
+        m_points2D.removeAt(m_points2D.size() - 2);
+        // No need to change state here, we are still in the state
+        // of too many 2D points
+    } else if (m_points2D.size() > m_points3D.size()) {
+        m_state = Missing3DPoint;
+    }
+}
+
+void PosesEditingController::add3DPoint(QVector3D objectModelPoint) {
+    m_points3D.append(objectModelPoint);
+    m_mainWindow->poseEditor()->setClicks(m_points3D);
+    // TODO set message on main view
+    if (m_points2D.size() == m_points3D.size()
+            && m_points3D.size() >= m_minimumNumberOfPoints) {
+        m_state = ReadyForPoseCreation;
+    } else if (m_points2D.size() == m_points3D.size()) {
+        m_state = NotEnoughCorrespondences;
+    } else if (m_points3D.size() > m_points2D.size() + 1) {
+        // Reset the 2D point of the incomplete correspondence
+        m_points3D.removeAt(m_points3D.size() - 2);
+        // No need to change state here, we are still in the state
+        // of too many 3D points
+    } else if (m_points3D.size() > m_points2D.size()) {
+        m_state = Missing2DPoint;
+    }
+}
+
+QString correspondenceToString(QPoint point2D, QVector3D point3D) {
+    return "("
+            + QString::number(point2D.x()) + ", "
+            + QString::number(point2D.y())
+            + ") - ("
+            + QString::number(point3D.x()) + ", "
+            + QString::number(point3D.y()) + ", "
+            + QString::number(point3D.z()) + ")";
+}
+
+void PosesEditingController::recoverPose() {
+    switch (m_state) {
+        case Empty:
+            return;
+        case NotEnoughCorrespondences:
+            return;
+        case Missing2DPoint:
+            return;
+        case Missing3DPoint:
+            return;
+        case ReadyForPoseCreation:
+        default:
+            break;
+    }
+
+    std::vector<cv::Point3f> objectPoints;
+    std::vector<cv::Point2f> imagePoints;
+
+    QImage loadedImage = QImage(m_currentImage->absoluteImagePath());
+
+    qDebug() << "Creating pose for the following points:";
+    for (int i = 0; i < m_points2D.size(); i ++) {
+        QVector3D point3D = m_points3D[i];
+        QPoint point2D = m_points2D[i];
+        objectPoints.push_back(cv::Point3f(point3D.x(), point3D.y(), point3D.z()));
+        imagePoints.push_back(cv::Point2f(point2D.x(), point2D.y()));
+        qDebug() << correspondenceToString(point2D, point3D);
+    }
+
+    cv::Mat cameraMatrix =
+            (cv::Mat_<float>(3,3) << m_currentImage->getCameraMatrix()(0, 0), 0, m_currentImage->getCameraMatrix()(0, 2),
+                                     0 , m_currentImage->getCameraMatrix()(1, 1), m_currentImage->getCameraMatrix()(1, 2),
+                                     0, 0, 1);
+    cv::Mat coefficient = cv::Mat::zeros(4,1,cv::DataType<float>::type);
+
+    cv::Mat resultRotation;
+    cv::Mat resultTranslation;
+
+    cv::solvePnP(objectPoints, imagePoints, cameraMatrix, coefficient, resultRotation, resultTranslation);
+
+    for (int i = 0; i < resultTranslation.size[0]; i++) {
+        for (int j = 0; j < resultTranslation.size[1]; j++) {
+            qDebug() << "Result translation [" + QString::number(i) + ", " +
+                                                 QString::number(j) + "]: " +
+                                                 QString::number(resultTranslation.at<float>(i, j));
+        }
+    }
+
+    for (int i = 0; i < resultRotation.size[0]; i++) {
+        for (int j = 0; j < resultRotation.size[1]; j++) {
+            qDebug() << "Result rotation [" + QString::number(i) + ", " +
+                                              QString::number(j) + "]: " +
+                                              QString::number(resultRotation.at<float>(i, j));
+        }
+    }
+
+    // The adding process already notifies observers of the new correspondnece
+    QVector3D position(resultTranslation.at<float>(0, 0),
+                       resultTranslation.at<float>(1, 0),
+                       resultTranslation.at<float>(2, 0));
+    // Conversion from radians to degrees
+    cv::Mat rotMatrix;
+    cv::Rodrigues(resultRotation, rotMatrix);
+    QMatrix3x3 rotationMatrix(new float[9] {
+        rotMatrix.at<float>(0, 0), rotMatrix.at<float>(0, 1), rotMatrix.at<float>(0, 2),
+        rotMatrix.at<float>(1, 0), rotMatrix.at<float>(1, 1), rotMatrix.at<float>(1, 2),
+        rotMatrix.at<float>(2, 0), rotMatrix.at<float>(2, 1), rotMatrix.at<float>(2, 2)
+    });
+    bool success = m_modelManager->addPose(*m_currentImage,
+                                           *m_currentObjectModel,
+                                           position,
+                                           rotationMatrix);
+    if (!success) {
+        // TODO display warning
+    } else {
+        // TODO retrieve new pose and select it
+    }
+
+    m_points2D.clear();
+    m_mainWindow->poseViewer()->onPoseCreationAborted();
+    m_points3D.clear();
+    m_mainWindow->poseEditor()->onPoseCreationAborted();
 }
 
 void PosesEditingController::onReloadViews() {

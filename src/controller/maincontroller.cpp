@@ -47,10 +47,9 @@ void MainController::initialize() {
                                                 settingsIdentifier));
     modelManager.reset(new CachingModelManager(*strategy.data()));
     modelManager->reload();
-    poseRecoverer.reset(new PoseRecoveringController(modelManager.get()));
     connect(settingsStore.data(), &SettingsStore::settingsChanged,
             this, &MainController::onSettingsChanged);
-    mainWindow.reset(new MainWindow(0, modelManager.get(), settingsStore.get(), settingsIdentifier, poseRecoverer.get()));
+    mainWindow.reset(new MainWindow(0, modelManager.get(), settingsStore.get(), settingsIdentifier));
     mainWindow->poseViewer()->setSettingsStore(settingsStore.get());
     poseEditingModel.reset(new PosesEditingController(Q_NULLPTR, modelManager.get(), mainWindow.get()));
 }
@@ -63,5 +62,4 @@ void MainController::showView() {
 
 void MainController::onSettingsChanged(SettingsPtr settings) {
     // TODO maybe remove this and let PoseRecoverer receive settings store instead
-    poseRecoverer.reset();
 }

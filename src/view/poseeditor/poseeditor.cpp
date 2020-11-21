@@ -65,8 +65,12 @@ void PoseEditor::setImages(const QList<ImagePtr> &images) {
 }
 
 void PoseEditor::setPoses(const QList<PosePtr> &poses) {
+    // Important leave it here
+    currentlySelectedPose.reset();
     this->poses = poses;
     setPosesOnPosesListView();
+    resetControlsValues();
+    setEnabledPoseEditorControls(false);
 }
 
 void PoseEditor::addPose(PosePtr pose) {
@@ -257,6 +261,10 @@ void PoseEditor::setObjectModel(ObjectModelPtr objectModel) {
     qDebug() << "Setting object model (" + objectModel->path() + ") to display.";
     currentObjectModel = objectModel;
     poseEditor3DWindow->setObjectModel(*objectModel);
+}
+
+void PoseEditor::setClicks(const QList<QVector3D> &clicks) {
+    poseEditor3DWindow->setClicks(clicks);
 }
 
 void PoseEditor::onSelectedPoseValuesChanged(PosePtr pose) {

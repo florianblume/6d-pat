@@ -148,6 +148,8 @@ void PoseViewer3DWidget::setPoses(const QList<PosePtr> &poses) {
         renderable->setParent((Qt3DCore::QNode *) 0);
     }
 
+    // Important because for the next clicks this is relevant
+    selectedPose.reset();
     poseRenderables.clear();
     poseRenderableForId.clear();
 

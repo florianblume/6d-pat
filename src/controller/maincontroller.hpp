@@ -8,7 +8,6 @@
 #include "misc/global.hpp"
 #include "controller/poseseditingcontroller.hpp"
 #include "controller/neuralnetworkcontroller.hpp"
-#include "controller/poserecoveringcontroller.hpp"
 
 #include <QApplication>
 #include <QScopedPointer>
@@ -56,7 +55,6 @@ private:
 
     QScopedPointer<JsonLoadAndStoreStrategy> strategy;
     QScopedPointer<CachingModelManager> modelManager;
-    QScopedPointer<PoseRecoveringController> poseRecoverer;
     QScopedPointer<PosesEditingController> poseEditingModel;
     QScopedPointer<NeuralNetworkController> networkController;
 

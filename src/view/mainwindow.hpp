@@ -9,7 +9,6 @@
 #include "view/poseeditor/poseeditor.hpp"
 #include "view/gallery/gallery.hpp"
 #include "view/gallery/galleryobjectmodels.hpp"
-#include "controller/poserecoveringcontroller.hpp"
 
 #include <QGuiApplication>
 #include <QMainWindow>
@@ -29,8 +28,7 @@ class MainWindow : public QMainWindow {
 
 public:
     explicit MainWindow(QWidget *parent, ModelManager *modelManager,
-                        SettingsStore *settingsStore, const QString &settingsIdentifier,
-                        PoseRecoveringController *poseRecoverer);
+                        SettingsStore *settingsStore, const QString &settingsIdentifier);
     ~MainWindow();
 
     //! Overriden from QWidget.
@@ -131,6 +129,27 @@ Q_SIGNALS:
     void reloadingViews();
     void closingProgram();
 
+private Q_SLOTS:
+    void onSettingsChanged(SettingsPtr settings);
+    void onActionAboutTriggered();
+    void onActionExitTriggered();
+    void onActionSettingsTriggered();
+    void onActionAbortCreationTriggered();
+    void onActionReloadViewsTriggered();
+    void onModelManagerStateChanged(ModelManager::State state);
+
+private:
+    void setPathsOnGalleriesAndBreadcrumbs();
+
+    void setGalleryImageModel(GalleryImageModel* model);
+    void setGalleryObjectModelModel(GalleryObjectModelModel* model);
+
+    // Used to write and read main view related settings, like position etc.
+    void writeSettings();
+    void readSettings();
+
+    void handleClosingProgram();
+
 private:
     Ui::MainWindow *ui;
 
@@ -142,14 +161,8 @@ private:
 
     SettingsStore *settingsStore = Q_NULLPTR;
     ModelManager* modelManager;
-    PoseRecoveringController *poseRecoverer;
 
     QProgressDialog *dataLoadingProgressDialog;
-
-    void setPathsOnGalleriesAndBreadcrumbs();
-
-    void setGalleryImageModel(GalleryImageModel* model);
-    void setGalleryObjectModelModel(GalleryObjectModelModel* model);
 
     GalleryImageModel *galleryImageModel = Q_NULLPTR;
     GalleryObjectModelModel *galleryObjectModelModel = Q_NULLPTR;
@@ -159,38 +172,23 @@ private:
     // the window
     bool poseCreationInProgress = false;
 
-    // Used to write and read main view related settings, like position etc.
-    void writeSettings();
-    void readSettings();
-
-    void handleClosingProgram();
-
     QString settingsIdentifier;
     // The name of the settings - QT requests this to store settings "offline"
-    static QString SETTINGS_NAME;
+    static const QString SETTINGS_NAME;
     // Same as above
-    static QString SETTINGS_PROGRAM_NAME;
+    static const QString SETTINGS_PROGRAM_NAME;
     // To group settings
-    static QString SETTINGS_GROUP_NAME;
+    static const QString SETTINGS_GROUP_NAME;
     // The following are the keys to store settings persistently by using Qt's own settings system
-    static QString WINDOW_IS_FULLSCREEN_KEY;
-    static QString WINDOW_SIZE_KEY;
-    static QString WINDOW_POSITION_KEY;
-    static QString SPLITTER_MAIN_SIZE_LEFT_KEY;
-    static QString SPLITTER_MAIN_SIZE_RIGHT_KEY;
-    static QString SPLITTER_LEFT_SIZE_TOP_KEY;
-    static QString SPLITTER_LEFT_SIZE_BOTTOM_KEY;
-    static QString SPLITTER_RIGHT_SIZE_TOP_KEY;
-    static QString SPLITTER_RIGHT_SIZE_BOTTOM_KEY;
-
-private Q_SLOTS:
-    void onSettingsChanged(SettingsPtr settings);
-    void onActionAboutTriggered();
-    void onActionExitTriggered();
-    void onActionSettingsTriggered();
-    void onActionAbortCreationTriggered();
-    void onActionReloadViewsTriggered();
-    void onModelManagerStateChanged(ModelManager::State state);
+    static const QString WINDOW_IS_FULLSCREEN_KEY;
+    static const QString WINDOW_SIZE_KEY;
+    static const QString WINDOW_POSITION_KEY;
+    static const QString SPLITTER_MAIN_SIZE_LEFT_KEY;
+    static const QString SPLITTER_MAIN_SIZE_RIGHT_KEY;
+    static const QString SPLITTER_LEFT_SIZE_TOP_KEY;
+    static const QString SPLITTER_LEFT_SIZE_BOTTOM_KEY;
+    static const QString SPLITTER_RIGHT_SIZE_TOP_KEY;
+    static const QString SPLITTER_RIGHT_SIZE_BOTTOM_KEY;
 };
 
 #endif // MAINWINDOW_H

@@ -12,13 +12,11 @@
 MainWindow::MainWindow(QWidget *parent,
                        ModelManager *modelManager,
                        SettingsStore *settingsStore,
-                       const QString &settingsIdentifier,
-                       PoseRecoveringController *poseRecoverer) :
+                       const QString &settingsIdentifier) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     settingsStore(settingsStore),
     modelManager(modelManager),
-    poseRecoverer(poseRecoverer),
     settingsIdentifier(settingsIdentifier) {
 
     ui->setupUi(this);
@@ -257,7 +255,6 @@ void MainWindow::onActionSettingsTriggered() {
 
 void MainWindow::onActionAbortCreationTriggered() {
     setStatusBarText("Ready.");
-    poseRecoverer->reset();
 }
 
 void MainWindow::onActionReloadViewsTriggered() {
@@ -280,15 +277,15 @@ void MainWindow::onModelManagerStateChanged(ModelManager::State state) {
     }
 }
 
-QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";
-QString MainWindow::SETTINGS_PROGRAM_NAME = "Otiat";
-QString MainWindow::SETTINGS_GROUP_NAME = "mainwindow";
-QString MainWindow::WINDOW_IS_FULLSCREEN_KEY = "isfullscreen";
-QString MainWindow::WINDOW_SIZE_KEY = "windowsize";
-QString MainWindow::WINDOW_POSITION_KEY = "windowposition";
-QString MainWindow::SPLITTER_MAIN_SIZE_LEFT_KEY = "splitterMainLeftSize";
-QString MainWindow::SPLITTER_MAIN_SIZE_RIGHT_KEY = "splitterMainRightSize";
-QString MainWindow::SPLITTER_LEFT_SIZE_TOP_KEY = "splitterLeftLeftSize";
-QString MainWindow::SPLITTER_LEFT_SIZE_BOTTOM_KEY = "splitterLeftRightSize";
-QString MainWindow::SPLITTER_RIGHT_SIZE_TOP_KEY = "splitterRightLeftSize";
-QString MainWindow::SPLITTER_RIGHT_SIZE_BOTTOM_KEY = "splitterRightRightSize";
+const QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";
+const QString MainWindow::SETTINGS_PROGRAM_NAME = "Otiat";
+const QString MainWindow::SETTINGS_GROUP_NAME = "mainwindow";
+const QString MainWindow::WINDOW_IS_FULLSCREEN_KEY = "isfullscreen";
+const QString MainWindow::WINDOW_SIZE_KEY = "windowsize";
+const QString MainWindow::WINDOW_POSITION_KEY = "windowposition";
+const QString MainWindow::SPLITTER_MAIN_SIZE_LEFT_KEY = "splitterMainLeftSize";
+const QString MainWindow::SPLITTER_MAIN_SIZE_RIGHT_KEY = "splitterMainRightSize";
+const QString MainWindow::SPLITTER_LEFT_SIZE_TOP_KEY = "splitterLeftLeftSize";
+const QString MainWindow::SPLITTER_LEFT_SIZE_BOTTOM_KEY = "splitterLeftRightSize";
+const QString MainWindow::SPLITTER_RIGHT_SIZE_TOP_KEY = "splitterRightLeftSize";
+const QString MainWindow::SPLITTER_RIGHT_SIZE_BOTTOM_KEY = "splitterRightRightSize";

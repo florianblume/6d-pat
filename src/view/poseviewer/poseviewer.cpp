@@ -51,6 +51,7 @@ void PoseViewer::setSettingsStore(SettingsStore *settingsStore) {
 
 void PoseViewer::setPoses(const QList<PosePtr> &poses) {
     setSliderTransparencyEnabled(poses.size() > 0);
+    m_selectedPose.reset();
     m_poseViewer3DWidget->setPoses(poses);
 }
 

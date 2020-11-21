@@ -16,8 +16,9 @@ class PosesEditingController : public QObject
     Q_OBJECT
 
 public:
-    explicit PosesEditingController(QObject *parent, ModelManager *modelManager, MainWindow *mainWindow);
-    PosePtr selectedPose();
+    explicit PosesEditingController(QObject *parent,
+                                    ModelManager *modelManager,
+                                    MainWindow *mainWindow);
 
 Q_SIGNALS:
     void selectedPoseChanged(PosePtr selected, PosePtr deselected);
@@ -25,6 +26,7 @@ Q_SIGNALS:
     void posesDirtyChanged(bool dirty);
 
 private Q_SLOTS:
+    // Pose Editing
     void selectPose(PosePtr pose);
     void addPose(PosePtr pose);
     void removePose();
@@ -35,6 +37,12 @@ private Q_SLOTS:
     void onPoseRotationChanged(QQuaternion rotation);
     void modelManagerStateChanged(ModelManager::State state);
     void onDataChanged(int data);
+
+    // Pose Recovering
+    void add2DPoint(QPoint imagePoint);
+    void add3DPoint(QVector3D objectModelPoint);
+    void recoverPose();
+
     // This function is there for e.g. when the user selects a different image and has modified
     // a pose without saving, savePoses simply saves the poses when the user clicks on the
     // save button
@@ -55,18 +63,33 @@ private:
         QQuaternion rotation;
     };
 
+    enum PoseRecoveringState {
+        Empty,
+        Missing2DPoint,
+        Missing3DPoint,
+        NotEnoughCorrespondences,
+        ReadyForPoseCreation
+    };
+
     PosePtr m_selectedPose;
     ModelManager *m_modelManager;
     MainWindow *m_mainWindow;
 
     ImagePtr m_currentImage;
     QList<ImagePtr> m_images;
+    ObjectModelPtr m_currentObjectModel;
     QList<ObjectModelPtr> m_objectModels;
     QList<PosePtr> m_posesForImage;
     QList<PosePtr> m_posesToAdd;
     QList<PosePtr> m_posesToRemove;
     QMap<QString, PoseValues> m_unmodifiedPoses;
     QMap<PosePtr, bool> m_dirtyPoses;
+
+    // Pose Recovering
+    int m_minimumNumberOfPoints = 4;
+    PoseRecoveringState m_state = Empty;
+    QList<QPoint> m_points2D;
+    QList<QVector3D> m_points3D;
 };
 
 #endif // POSEEDITINGMODEL_H
