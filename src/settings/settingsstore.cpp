@@ -1,9 +1,10 @@
 #include "settingsstore.hpp"
 #include <QSettings>
 #include <QDir>
+#include <QDebug>
 
 SettingsStore::SettingsStore() {
-
+    m_currentSettings = loadPreferencesByIdentifier("default");
 }
 
 QSharedPointer<Settings> SettingsStore::createEmptyPreferences(const QString &identifier) {
@@ -22,11 +23,16 @@ void SettingsStore::savePreferences(const Settings &settingsToSave) {
     settings.setValue(TRAINING_SCRIPT_PATH, settingsToSave.trainingScriptPath());
     settings.setValue(INFERENCE_SCRIPT_PATH, settingsToSave.inferenceScriptPath());
     settings.setValue(NETWORK_CONFIG_PATH, settingsToSave.networkConfigPath());
-    settings.setValue(ADD_CORRESPONDENCE_POINT_MOUSE_BUTTON, settingsToSave.addCorrespondencePointMouseButton());
-    settings.setValue(MOVE_BACKGROUNDIMAGE_RENDERABLE_MOUSE_BUTTON, settingsToSave.moveBackgroundImageRenderableMouseButton());
-    settings.setValue(SELECT_POSE_RENDERABLE_MOUSE_BUTTON, settingsToSave.selectPoseRenderableMouseButton());
-    settings.setValue(ROTATE_POSE_RENDERABLE_MOUSE_BUTTON, settingsToSave.rotatePoseRenderableMouseButton());
-    settings.setValue(TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON, settingsToSave.translatePoseRenderableMouseButton());
+    settings.setValue(ADD_CORRESPONDENCE_POINT_MOUSE_BUTTON,
+                      Settings::MOUSE_BUTTONS[settingsToSave.addCorrespondencePointMouseButton()]);
+    settings.setValue(MOVE_BACKGROUNDIMAGE_RENDERABLE_MOUSE_BUTTON,
+                      Settings::MOUSE_BUTTONS[settingsToSave.moveBackgroundImageRenderableMouseButton()]);
+    settings.setValue(SELECT_POSE_RENDERABLE_MOUSE_BUTTON,
+                      Settings::MOUSE_BUTTONS[settingsToSave.selectPoseRenderableMouseButton()]);
+    settings.setValue(ROTATE_POSE_RENDERABLE_MOUSE_BUTTON,
+                      Settings::MOUSE_BUTTONS[settingsToSave.rotatePoseRenderableMouseButton()]);
+    settings.setValue(TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON,
+                      Settings::MOUSE_BUTTONS[settingsToSave.translatePoseRenderableMouseButton()]);
     settings.endGroup();
 
     //! Persist the object color codes so that the user does not have to enter them at each program start
@@ -38,7 +44,13 @@ void SettingsStore::savePreferences(const Settings &settingsToSave) {
     }
     settings.endGroup();
 
+    m_currentSettings.reset(new Settings(settingsToSave));
+
     emit settingsChanged(SettingsPtr(new Settings(settingsToSave)));
+}
+
+SettingsPtr SettingsStore::currentSettings() {
+    return m_currentSettings;
 }
 
 QSharedPointer<Settings> SettingsStore::loadPreferencesByIdentifier(const QString &identifier) {
@@ -62,6 +74,21 @@ QSharedPointer<Settings> SettingsStore::loadPreferencesByIdentifier(const QStrin
                 settings.value(INFERENCE_SCRIPT_PATH, "").toString());
     settingsPointer->setNetworkConfigPath(
                 settings.value(NETWORK_CONFIG_PATH, "").toString());
+    settingsPointer->setAddCorrespondencePointMouseButton(
+                Settings::MOUSE_BUTTONS.keys().at(
+                    settings.value(ADD_CORRESPONDENCE_POINT_MOUSE_BUTTON, Settings::MOUSE_BUTTONS[Qt::LeftButton]).toInt()));
+    settingsPointer->setMoveBackgroundImageRenderableMouseButton(
+                Settings::MOUSE_BUTTONS.keys().at(
+                    settings.value(MOVE_BACKGROUNDIMAGE_RENDERABLE_MOUSE_BUTTON, Settings::MOUSE_BUTTONS[Qt::MiddleButton]).toInt()));
+    settingsPointer->setSelectPoseRenderableMouseButton(
+                Settings::MOUSE_BUTTONS.keys().at(
+                    settings.value(SELECT_POSE_RENDERABLE_MOUSE_BUTTON, Settings::MOUSE_BUTTONS[Qt::RightButton]).toInt()));
+    settingsPointer->setTranslatePoseRenderableMouseButton(
+                Settings::MOUSE_BUTTONS.keys().at(
+                    settings.value(TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON, Settings::MOUSE_BUTTONS[Qt::LeftButton]).toInt()));
+    settingsPointer->setRotatePoseRenderableMouseButton(
+                Settings::MOUSE_BUTTONS.keys().at(
+                    settings.value(ROTATE_POSE_RENDERABLE_MOUSE_BUTTON, Settings::MOUSE_BUTTONS[Qt::RightButton]).toInt()));
     // TODO read mouse buttons
     settings.endGroup();
 

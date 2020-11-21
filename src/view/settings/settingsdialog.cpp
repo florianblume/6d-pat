@@ -31,9 +31,9 @@ void SettingsDialog::setPreferencesStoreAndObjectModels(SettingsStore *settingsS
     this->settingsStore = settingsStore;
     settings = settingsStore->loadPreferencesByIdentifier(currentSettingsIdentifier);
     this->currentSettingsIdentifier = currentSettingsIdentifier;
-    ui->pageInterface->setSettings(settings.data());
-    ui->pagePaths->setSettings(settings.data());
-    ui->pageSegmentationCodes->setSettingsAndObjectModels(settings, objectModels);
+    ui->pageInterface->setSettings(settings.get());
+    ui->pagePaths->setSettings(settings.get());
+    ui->pageSegmentationCodes->setSettingsAndObjectModels(settings.get(), objectModels);
 }
 
 //! The weird connection in the UI file of the dialog's method clicked(QAbstractButton)

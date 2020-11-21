@@ -8,6 +8,7 @@
 #include "controller/poserecoveringcontroller.hpp"
 #include "poseviewer3dwidget.hpp"
 #include "view/misc/displayhelper.hpp"
+#include "settings/settingsstore.hpp"
 
 #include <QList>
 #include <QMap>
@@ -42,6 +43,7 @@ public:
 
     void setModelManager(ModelManager *value);
     void setPoseRecoverer(PoseRecoveringController *value);
+    void setSettingsStore(SettingsStore *settingsStore);
 
     void setPoses(const QList<PosePtr> &poses);
 
@@ -74,6 +76,7 @@ private Q_SLOTS:
     void onDataChanged(int data);
     void onCorrespondencesChanged();
     void poseRecovererStateChanged(PoseRecoveringController::State state);
+    void currentSettingsChanged(SettingsPtr settings);
 
 private:
     void connectModelManagerSlots();
@@ -86,6 +89,7 @@ private:
 
     QPointer<ModelManager> modelManager;
     QPointer<PoseRecoveringController> poseRecoverer;
+    QPointer<SettingsStore> settingsStore;
 
     PosePtr selectedPose;
 

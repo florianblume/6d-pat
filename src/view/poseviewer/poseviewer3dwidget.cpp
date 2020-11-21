@@ -247,7 +247,7 @@ void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent
         depth = projected.z();
     }
 
-    if (clickedMouseButton == Qt::RightButton) {
+    if (clickedMouseButton == settings->rotatePoseRenderableMouseButton()) {
         // Rotate the object
 
         arcBallEndVector = arcBallVectorForMousePos(pickEvent->position());
@@ -269,7 +269,8 @@ void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent
         arcBallStartVector = arcBallEndVector;
 
         QApplication::setOverrideCursor(Qt::BlankCursor);
-    } else if (clickedMouseButton == Qt::LeftButton && distance > 1.f && pickEvent->distance() > 1.f) {
+    } else if (clickedMouseButton == settings->translatePoseRenderableMouseButton()
+               && distance > 1.f && pickEvent->distance() > 1.f) {
         // Translate the object
         float posY = height() - pickEvent->position().y() - 1.0f;
 
@@ -296,7 +297,8 @@ void PoseViewer3DWidget::onBackgroundImageRenderableMoved(Qt3DRender::QPickEvent
 }
 
 void PoseViewer3DWidget::onBackgroundImageRenderableClicked(Qt3DRender::QPickEvent *pickEvent) {
-    if (!poseRenderableMovedFirst && pickEvent->button() == Qt3DRender::QPickEvent::RightButton) {
+    if (!poseRenderableMovedFirst && pickEvent->button() ==
+            PoseViewer3DWidget::MOUSE_BUTTON_MAPPING[settings->selectPoseRenderableMouseButton()]) {
         Q_EMIT poseSelected(PosePtr());
     }
     backgroundImageRenderableMovedFirst = false;
@@ -305,6 +307,11 @@ void PoseViewer3DWidget::onBackgroundImageRenderableClicked(Qt3DRender::QPickEve
 void PoseViewer3DWidget::onBackgroundImageRenderablePressed(Qt3DRender::QPickEvent *pickEvent) {
     //qDebug() << "test";
 }
+
+/*!
+ * In the following events it's not necessary to map the buttons because those are already
+ * standard Qt mouse buttons.
+ */
 
 void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
     firstClickPos = event->globalPos() - QPoint(geometry().x(), geometry().y());
@@ -323,7 +330,7 @@ void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
-    if (event->buttons() & Qt::MiddleButton) {
+    if (event->buttons() == settings->moveBackgroundImageRenderableMouseButton()) {
         currentClickPos = event->globalPos();
         newPos.setX(currentClickPos.x() - firstClickPos.x());
         newPos.setY(currentClickPos.y() - firstClickPos.y());
@@ -334,7 +341,8 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton && !mouseMoved && backgroundImageRenderable != Q_NULLPTR) {
+    if (event->button() == settings->addCorrespondencePointMouseButton()
+            && !mouseMoved && backgroundImageRenderable != Q_NULLPTR) {
         Q_EMIT positionClicked(event->pos());
     }
 
@@ -370,6 +378,10 @@ void PoseViewer3DWidget::reset() {
     }
 }
 
+void PoseViewer3DWidget::setSettings(SettingsPtr settings) {
+    this->settings = settings;
+}
+
 void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
     Qt3DWidget::resizeEvent(event);
     clickVisualizationRenderable->setSize(event->size());
@@ -381,3 +393,9 @@ void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
 QSize PoseViewer3DWidget::imageSize() const {
     return m_imageSize;
 }
+
+const QMap<Qt::MouseButton, Qt3DRender::QPickEvent::Buttons>
+                    PoseViewer3DWidget::MOUSE_BUTTON_MAPPING = {{Qt::LeftButton,   Qt3DRender::QPickEvent::LeftButton},
+                                                                {Qt::RightButton,  Qt3DRender::QPickEvent::RightButton},
+                                                                {Qt::MiddleButton, Qt3DRender::QPickEvent::MiddleButton},
+                                                                {Qt::BackButton,   Qt3DRender::QPickEvent::BackButton}};

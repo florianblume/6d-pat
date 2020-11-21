@@ -52,6 +52,18 @@ void PoseViewer::setPoseRecoverer(PoseRecoveringController *value) {
             this, &PoseViewer::poseRecovererStateChanged);
 }
 
+void PoseViewer::setSettingsStore(SettingsStore *settingsStore) {
+    Q_ASSERT(settingsStore);
+    if (!this->settingsStore.isNull()) {
+        disconnect(settingsStore, &SettingsStore::settingsChanged,
+                   this, &PoseViewer::currentSettingsChanged);
+    }
+    this->settingsStore = settingsStore;
+    connect(settingsStore, &SettingsStore::settingsChanged,
+            this, &PoseViewer::currentSettingsChanged);
+    poseViewer3DWidget->setSettings(settingsStore->currentSettings());
+}
+
 void PoseViewer::setPoses(const QList<PosePtr> &poses) {
     // TODO
     setSliderTransparencyEnabled(poses.size() > 0);
@@ -155,6 +167,12 @@ void PoseViewer::onCorrespondencesChanged() {
 
 void PoseViewer::poseRecovererStateChanged(PoseRecoveringController::State /*state*/) {
     poseViewer3DWidget->setClicks(poseRecoverer->points2D());
+}
+
+void PoseViewer::currentSettingsChanged(SettingsPtr settings) {
+    // Cannot accept empty settings but should never happen
+    Q_ASSERT(!settings.isNull());
+    poseViewer3DWidget->setSettings(settings);
 }
 
 void PoseViewer::selectPose(PosePtr selected, PosePtr deselected) {

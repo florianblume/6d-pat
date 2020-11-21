@@ -17,12 +17,12 @@ SettingsPathsPage::~SettingsPathsPage() {
     delete ui;
 }
 
-void SettingsPathsPage::setSettings(Settings *preferences) {
-    this->preferences = preferences;
-    ui->editImagesPath->setText(preferences->imagesPath());
-    ui->editObjectModelsPath->setText(preferences->objectModelsPath());
-    ui->editPosesPath->setText(preferences->posesFilePath());
-    ui->editSegmentationImagesPath->setText(preferences->segmentationImagesPath());
+void SettingsPathsPage::setSettings(Settings *settings) {
+    this->settings = settings;
+    ui->editImagesPath->setText(settings->imagesPath());
+    ui->editObjectModelsPath->setText(settings->objectModelsPath());
+    ui->editPosesPath->setText(settings->posesFilePath());
+    ui->editSegmentationImagesPath->setText(settings->segmentationImagesPath());
 }
 
 QString SettingsPathsPage::openFolderDialogForPath(QString path) {
@@ -49,7 +49,7 @@ void SettingsPathsPage::buttonImagesPathClicked() {
     QString newPath = openFolderDialogForPath(ui->editImagesPath->text());
     if (newPath.compare("") != 0) {
         ui->editImagesPath->setText(newPath);
-        preferences->setImagesPath(newPath);
+        settings->setImagesPath(newPath);
     }
 }
 
@@ -57,7 +57,7 @@ void SettingsPathsPage::buttonSegmentationImagesPathClicked() {
     QString newPath = openFolderDialogForPath(ui->editSegmentationImagesPath->text());
     if (newPath.compare("") != 0) {
         ui->editSegmentationImagesPath->setText(newPath);
-        preferences->setSegmentationImagePath(newPath);
+        settings->setSegmentationImagePath(newPath);
     }
 }
 
@@ -65,7 +65,7 @@ void SettingsPathsPage::buttonObjectModelsPathClicked() {
     QString newPath = openFolderDialogForPath(ui->editObjectModelsPath->text());
     if (newPath.compare("") != 0) {
         ui->editObjectModelsPath->setText(newPath);
-        preferences->setObjectModelsPath(newPath);
+        settings->setObjectModelsPath(newPath);
     }
 }
 
@@ -73,6 +73,6 @@ void SettingsPathsPage::buttonPosesPathClicked() {
     QString newPath = openFileDialogForPath(ui->editPosesPath->text());
     if (newPath.compare("") != 0) {
         ui->editPosesPath->setText(newPath);
-        preferences->setPosesFilePath(newPath);
+        settings->setPosesFilePath(newPath);
     }
 }

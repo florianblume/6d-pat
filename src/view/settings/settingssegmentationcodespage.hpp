@@ -15,17 +15,17 @@ class SettingsSegmentationCodesPage : public QWidget {
 public:
     explicit SettingsSegmentationCodesPage(QWidget *parent = 0);
     ~SettingsSegmentationCodesPage();
-    void setSettingsAndObjectModels(SettingsPtr preferences,
+    void setSettingsAndObjectModels(Settings *settings,
                                     const QList<ObjectModelPtr> &objectModels);
-
-private:
-    Ui::SettingsSegmentationCodesPage *ui;
-    SettingsPtr preferences;
-    QList<ObjectModelPtr> objectModels;
 
 private Q_SLOTS:
     void showColorDialog(int index);
     void removeColor(int index);
+
+private:
+    Ui::SettingsSegmentationCodesPage *ui;
+    Settings *settings;
+    QList<ObjectModelPtr> objectModels;
 };
 
 #endif // SETTINGSSEGMENTATIONCODESPAGE_H

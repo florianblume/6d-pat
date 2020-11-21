@@ -16,7 +16,7 @@ class SettingsPathsPage : public QWidget {
 public:
     explicit SettingsPathsPage(QWidget *parent = 0);
     ~SettingsPathsPage();
-    void setSettings(Settings *preferences);
+    void setSettings(Settings *settings);
 
 private Q_SLOTS:
     void buttonImagesPathClicked();
@@ -26,7 +26,7 @@ private Q_SLOTS:
 
 private:
     Ui::SettingsPathsPage *ui;
-    Settings *preferences;
+    Settings *settings;
     QString openFolderDialogForPath(QString path);
     QString openFileDialogForPath(QString path);
 };

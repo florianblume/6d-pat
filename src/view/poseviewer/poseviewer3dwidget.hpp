@@ -1,11 +1,12 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
+#include "qt3dwidget.h"
 #include "model/pose.hpp"
 #include "view/rendering/backgroundimagerenderable.hpp"
 #include "view/rendering/poserenderable.hpp"
 #include "view/rendering/clickvisualizationrenderable.hpp"
-#include "qt3dwidget.h"
+#include "settings/settings.hpp"
 
 #include <QString>
 #include <QList>
@@ -49,6 +50,7 @@ public:
     void setClicks(const QList<QPoint> &clicks);
     QSize imageSize() const;
     void reset();
+    void setSettings(SettingsPtr settings);
     void resizeEvent(QResizeEvent *event) override;
 
 public Q_SLOTS:
@@ -153,6 +155,10 @@ private:
     float nearPlane = 100.f;
 
     float oldDepth = -1.f;
+
+    SettingsPtr settings;
+
+    static const QMap<Qt::MouseButton, Qt3DRender::QPickEvent::Buttons> MOUSE_BUTTON_MAPPING;
 };
 
 #endif

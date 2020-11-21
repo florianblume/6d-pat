@@ -19,9 +19,9 @@ SettingsSegmentationCodesPage::~SettingsSegmentationCodesPage() {
     delete ui;
 }
 
-void SettingsSegmentationCodesPage::setSettingsAndObjectModels(SettingsPtr preferences,
-                                                                  const QList<ObjectModelPtr> &objectModels) {
-    this->preferences = preferences;
+void SettingsSegmentationCodesPage::setSettingsAndObjectModels(Settings *preferences,
+                                                               const QList<ObjectModelPtr> &objectModels) {
+    this->settings = preferences;
     this->objectModels = objectModels;
 
     if (!preferences)
@@ -78,7 +78,7 @@ void SettingsSegmentationCodesPage::showColorDialog(int index) {
 
     QString colorCode = GeneralHelper::segmentationCodeFromColor(color);
     const ObjectModelPtr &objectModel = objectModels.at(index);
-    preferences->setSegmentationCodeForObjectModel(objectModel->path(), colorCode);
+    settings->setSegmentationCodeForObjectModel(objectModel->path(), colorCode);
     QTableWidgetItem *item = ui->tableSegmentationCodes->item(index, 1);
     item->setText("");
     item->setBackground(color);
@@ -86,7 +86,7 @@ void SettingsSegmentationCodesPage::showColorDialog(int index) {
 
 void SettingsSegmentationCodesPage::removeColor(int index) {
     const ObjectModelPtr &objectModel = objectModels.at(index);
-    preferences->removeSegmentationCodeForObjectModel(objectModel->path());
+    settings->removeSegmentationCodeForObjectModel(objectModel->path());
     QTableWidgetItem *item = ui->tableSegmentationCodes->item(index, 1);
     item->setBackground(QColor(255, 255, 255));
     item->setText("Undefined");

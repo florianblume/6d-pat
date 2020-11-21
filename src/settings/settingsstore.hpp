@@ -16,11 +16,14 @@ public:
     SettingsPtr createEmptyPreferences(const QString &identifier);
     void savePreferences(const Settings &settings);
     SettingsPtr loadPreferencesByIdentifier(const QString &identifier);
+    SettingsPtr currentSettings();
 
 signals:
     void settingsChanged(SettingsPtr settingsToSave);
 
 private:
+    SettingsPtr m_currentSettings;
+
     static const QString PREFERENCES;
     static const QString IMAGES_PATH;
     static const QString OBJECT_MODELS_PATH;

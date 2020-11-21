@@ -1,16 +1,26 @@
 #include "settings.hpp"
 
+const QMap<Qt::MouseButton, int> Settings::MOUSE_BUTTONS = {{Qt::LeftButton,    0},
+                                                            {Qt::RightButton,   1},
+                                                            {Qt::MiddleButton,  2},
+                                                            {Qt::BackButton,    3}};
+
 
 Settings::Settings(const QString &identifier) : m_identifier(identifier) {
 }
 
-Settings::Settings(const Settings &preferences) {
-    this->m_segmentationCodes = preferences.m_segmentationCodes;
-    this->m_segmentationImagesPath = preferences.m_segmentationImagesPath;
-    this->m_imagesPath = preferences.m_imagesPath;
-    this->m_objectModelsPath = preferences.m_objectModelsPath;
-    this->m_posesFilePath = preferences.m_posesFilePath;
-    this->m_identifier = preferences.m_identifier;
+Settings::Settings(const Settings &settings) {
+    this->m_segmentationCodes = settings.m_segmentationCodes;
+    this->m_segmentationImagesPath = settings.m_segmentationImagesPath;
+    this->m_imagesPath = settings.m_imagesPath;
+    this->m_objectModelsPath = settings.m_objectModelsPath;
+    this->m_posesFilePath = settings.m_posesFilePath;
+    this->m_identifier = settings.m_identifier;
+    this->m_addCorrespondencePointMouseButton = settings.m_addCorrespondencePointMouseButton;
+    this->m_moveBackgroundImageRenderableMouseButton = settings.m_moveBackgroundImageRenderableMouseButton;
+    this->m_selectPoseRenderableMouseButton = settings.m_selectPoseRenderableMouseButton;
+    this->m_translatePoseRenderableMouseButton = settings.m_translatePoseRenderableMouseButton;
+    this->m_rotatePoseRenderableMouseButton = settings.m_rotatePoseRenderableMouseButton;
 }
 
 Settings::~Settings() {
@@ -168,4 +178,14 @@ void Settings::setTranslatePoseRenderableMouseButton(
         const Qt::MouseButton &translatePoseRenderableMouseButton)
 {
     m_translatePoseRenderableMouseButton = translatePoseRenderableMouseButton;
+}
+
+Settings::Theme Settings::theme() const
+{
+    return m_theme;
+}
+
+void Settings::setTheme(const Settings::Theme &theme)
+{
+    m_theme = theme;
 }

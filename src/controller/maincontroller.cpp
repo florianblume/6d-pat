@@ -51,6 +51,7 @@ void MainController::initialize() {
     connect(settingsStore.data(), &SettingsStore::settingsChanged,
             this, &MainController::onSettingsChanged);
     mainWindow.reset(new MainWindow(0, modelManager.get(), settingsStore.get(), settingsIdentifier, poseRecoverer.get()));
+    mainWindow->poseViewer()->setSettingsStore(settingsStore.get());
     poseEditingModel.reset(new PosesEditingController(Q_NULLPTR, modelManager.get(), mainWindow.get()));
 }
 

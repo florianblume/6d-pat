@@ -6,11 +6,18 @@
 #include <QMap>
 #include <QSharedPointer>
 
-class Settings
-{
+class Settings {
+
 public:
+    static const QMap<Qt::MouseButton, int> MOUSE_BUTTONS;
+
+    enum Theme {
+      Light,
+      Dark
+    };
+
     Settings(const QString &identifier);
-    Settings(const Settings &preferences);
+    Settings(const Settings &settings);
     ~Settings();
 
     void setSegmentationCodeForObjectModel(const QString &identifier, const QString &code);
@@ -67,6 +74,9 @@ public:
     void setTranslatePoseRenderableMouseButton(
             const Qt::MouseButton &translatePoseRenderableMouseButton);
 
+    Theme theme() const;
+    void setTheme(const Theme &theme);
+
 private:
     QString m_identifier;
 
@@ -84,6 +94,7 @@ private:
     Qt::MouseButton m_selectPoseRenderableMouseButton;
     Qt::MouseButton m_rotatePoseRenderableMouseButton;
     Qt::MouseButton m_translatePoseRenderableMouseButton;
+    Theme m_theme;
 };
 
 typedef QSharedPointer<Settings> SettingsPtr;
