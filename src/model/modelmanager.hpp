@@ -108,6 +108,15 @@ public:
                          const QMatrix3x3 &rotation) = 0;
 
     /*!
+     * \brief addObjectImagePose Adds a new ObjectImagePose to the poses managed by this manager.
+     * The method will return true if creating the pose was successful and persisting it as well.
+     * \param objectImagePose the pose that stores all the values for the pose that will be created by
+     * this manager and added to the list of managed poses
+     * \return true if creating and persisting the pose was successful
+     */
+    virtual bool addPose(const Pose &pose) = 0;
+
+    /*!
      * \brief addObjectImagePose Updates the given ObjectImagePose and automatically persists it according to the
      * LoadAndStoreStrategy of this Manager. If this manager does not manage the given ObjectImageCorresopndence false will be
      * returned.

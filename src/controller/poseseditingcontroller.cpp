@@ -36,9 +36,15 @@ PosesEditingController::PosesEditingController(QObject *parent, ModelManager *mo
     connect(this, &PosesEditingController::poseValuesChanged,
             mainWindow->poseEditor(), &PoseEditor::onSelectedPoseValuesChanged);
 
-    // React to save request
+    // React to buttons
     connect(mainWindow->poseEditor(), &PoseEditor::buttonSaveClicked,
             this, &PosesEditingController::savePoses);
+    connect(mainWindow->poseEditor(), &PoseEditor::buttonRemoveClicked,
+            this, &PosesEditingController::removePose);
+    connect(mainWindow->poseEditor(), &PoseEditor::buttonCopyClicked,
+            this, &PosesEditingController::copyPosesFromImage);
+    connect(mainWindow->poseEditor(), &PoseEditor::buttonDuplicateClicked,
+            this, &PosesEditingController::duplicatePose);
 
     // React to mainwindow signals
     connect(mainWindow, &MainWindow::reloadingViews,
@@ -48,6 +54,8 @@ PosesEditingController::PosesEditingController(QObject *parent, ModelManager *mo
 
     connect(mainWindow->galleryImages(), &Gallery::selectedItemChanged,
             this, &PosesEditingController::onSelectedImageChanged);
+    connect(mainWindow->galleryObjectModels(), &Gallery::selectedItemChanged,
+            this, &PosesEditingController::onSelectedObjectModelChanged);
 }
 
 void PosesEditingController::selectPose(PosePtr pose) {
@@ -79,25 +87,34 @@ void PosesEditingController::selectPose(PosePtr pose) {
 }
 
 void PosesEditingController::addPose(PosePtr pose) {
-    // TODO
+    m_modelManager->addPose(*pose);
+    m_mainWindow->poseViewer()->addPose(pose);
+    m_mainWindow->poseEditor()->addPose(pose);
 }
 
-void PosesEditingController::removePose(PosePtr pose) {
-    // TODO
+void PosesEditingController::removePose() {
+    m_modelManager->removePose(m_selectedPose->id());
+    m_mainWindow->poseViewer()->removePose(m_selectedPose);
+    m_mainWindow->poseEditor()->removePose(m_selectedPose);
 }
 
-void PosesEditingController::duplicatePosesOfImage(ImagePtr image) {
-    // TODO
+void PosesEditingController::duplicatePose() {
+    Q_ASSERT(m_selectedPose);
+    m_modelManager->addPose(*m_selectedPose);
 }
 
-void PosesEditingController::copyPose(PosePtr pose) {
-    // TODO
+void PosesEditingController::copyPosesFromImage(ImagePtr image) {
+    QList<PosePtr> poses = m_modelManager->posesForImage(*image);
+    for (const PosePtr &pose : poses) {
+        m_modelManager->addPose(*pose);
+    }
 }
 
 PosePtr PosesEditingController::selectedPose() {
     return m_selectedPose;
 }
 
+// Called from the setters of the pose
 void PosesEditingController::onPoseChanged() {
     // Only assign true when actually changed
     PoseValues poseValues = m_unmodifiedPoses[m_selectedPose->id()];
@@ -115,6 +132,8 @@ void PosesEditingController::onPoseRotationChanged(QQuaternion /*rotation*/) {
 }
 
 void PosesEditingController::modelManagerStateChanged(ModelManager::State state) {
+    // We do not need to disable the UI here because the main window is
+    // displaying a modal progress bar
     if (state == ModelManager::Loading) {
         _savePoses(true);
     }
@@ -133,6 +152,10 @@ void PosesEditingController::onDataChanged(int /*data*/) {
     m_dirtyPoses.clear();
     m_unmodifiedPoses.clear();
     m_images = m_modelManager->images();
+    m_objectModels = m_modelManager->objectModels();
+    m_mainWindow->poseEditor()->reset();
+    m_mainWindow->poseEditor()->setImages(m_images);
+    m_mainWindow->poseViewer()->reset();
 }
 
 void PosesEditingController::saveUnsavedChanges() {
@@ -199,8 +222,17 @@ void PosesEditingController::onSelectedImageChanged(int index) {
             m_unmodifiedPoses[pose->id()] = {.position = pose->position(),
                                              .rotation = pose->rotation()};
         }
-        m_mainWindow->poseEditor()->onSelectedImageChanged(index);
-        m_mainWindow->poseViewer()->onSelectedImageChanged(index);
+        m_mainWindow->poseEditor()->setCurrentImage(m_currentImage);
+        m_mainWindow->poseEditor()->setPoses(m_posesForImage);
+        m_mainWindow->poseViewer()->setImage(m_currentImage);
+        m_mainWindow->poseViewer()->setPoses(m_posesForImage);
+    }
+}
+
+void PosesEditingController::onSelectedObjectModelChanged(int index) {
+    if (index >= 0 && index < m_objectModels.size()) {
+        ObjectModelPtr objectModel = m_objectModels[index];
+        m_mainWindow->poseEditor()->setObjectModel(objectModel);
     }
 }
 

@@ -146,6 +146,13 @@ bool CachingModelManager::addPose(const Image &image,
     return true;
 }
 
+bool CachingModelManager::addPose(const Pose &pose) {
+    return this->addPose(*pose.image(),
+                         *pose.objectModel(),
+                         pose.position(),
+                         pose.rotation().toRotationMatrix());
+}
+
 bool CachingModelManager::updatePose(const QString &id,
                                      const QVector3D &position,
                                      const QMatrix3x3 &rotation) {

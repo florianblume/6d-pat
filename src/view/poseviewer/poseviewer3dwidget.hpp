@@ -38,13 +38,11 @@ public:
 
     void initializeQt3D() override;
 
-    void setBackgroundImageAndPoses(const QString &image,
-                                    const QMatrix3x3 &cameraMatrix,
-                                    const QList<PosePtr> &poses);
     void setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix);
+    void setPoses(const QList<PosePtr> &poses);
     void addPose(PosePtr pose);
-    void removePose(const QString &id);
-    void removePoses();
+    void removePose(PosePtr pose);
+
     void selectPose(PosePtr selected, PosePtr deselected);
     void setObjectsOpacity(float opacity);
     void setClicks(const QList<QPoint> &clicks);

@@ -49,42 +49,41 @@ PoseEditor::~PoseEditor() {
     delete ui;
 }
 
-void PoseEditor::setModelManager(ModelManager *modelManager) {
-    Q_ASSERT(modelManager);
-    if (!this->modelManager.isNull()) {
-        disconnect(modelManager, &ModelManager::poseAdded,
-                   this, &PoseEditor::onPoseAdded);
-        disconnect(modelManager, &ModelManager::poseDeleted,
-                   this, &PoseEditor::onPoseDeleted);
-        disconnect(modelManager, &ModelManager::dataChanged,
-                   this, &PoseEditor::onDataChanged);
-    }
-    this->modelManager = modelManager;
-    connect(modelManager, &ModelManager::poseAdded,
-            this, &PoseEditor::onPoseAdded);
-    connect(modelManager, &ModelManager::poseDeleted,
-            this, &PoseEditor::onPoseDeleted);
-    connect(modelManager, &ModelManager::dataChanged,
-               this, &PoseEditor::onDataChanged);
+void PoseEditor::setCurrentImage(ImagePtr image) {
+    currentImage = image;
+    setEnabledPoseInvariantControls(!currentImage.isNull());
 }
 
-void PoseEditor::setPoseRecoverer(PoseRecoveringController *poseRecoverer) {
-    Q_ASSERT(poseRecoverer);
-    if (!this->poseRecoverer.isNull()) {
-        disconnect(poseRecoverer, &PoseRecoveringController::correspondencesChanged,
-                   this, &PoseEditor::onCorrespondencesChanged);
-        disconnect(poseRecoverer, &PoseRecoveringController::poseRecovered,
-                   this, &PoseEditor::onCorrespondencesChanged);
-        disconnect(poseRecoverer, &PoseRecoveringController::stateChanged,
-                   this, &PoseEditor::onPoseRecovererStateChanged);
+void PoseEditor::setImages(const QList<ImagePtr> &images) {
+    this->images = images;
+    ui->buttonCopy->setEnabled(images.size() > 0);
+    QStringList imagesList;
+    for (const ImagePtr &image : images) {
+        imagesList << image->imagePath();
     }
-    this->poseRecoverer = poseRecoverer;
-    connect(poseRecoverer, &PoseRecoveringController::correspondencesChanged,
-            this, &PoseEditor::onCorrespondencesChanged);
-    connect(poseRecoverer, &PoseRecoveringController::poseRecovered,
-            this, &PoseEditor::onCorrespondencesChanged);
-    connect(poseRecoverer, &PoseRecoveringController::stateChanged,
-            this, &PoseEditor::onPoseRecovererStateChanged);
+    listViewImagesModel->setStringList(imagesList);
+}
+
+void PoseEditor::setPoses(const QList<PosePtr> &poses) {
+    this->poses = poses;
+    setPosesOnPosesListView();
+}
+
+void PoseEditor::addPose(PosePtr pose) {
+    // This function will be called after adding a pose
+    // so we can set the states of the controls
+    // respectively
+    ui->buttonCreate->setEnabled(false);
+    ui->buttonSave->setEnabled(false);
+    ui->buttonDuplicate->setEnabled(true);
+    ui->buttonRemove->setEnabled(true);
+    poseEditor3DWindow->setClicks({});
+    poses.append(pose);
+    // Add the pose to the list view and select it
+    setPosesOnPosesListView(pose->id());
+}
+
+void PoseEditor::removePose(PosePtr pose) {
 }
 
 void PoseEditor::setEnabledPoseEditorControls(bool enabled) {
@@ -135,10 +134,7 @@ void PoseEditor::setEnabledPoseInvariantControls(bool enabled) {
     ui->buttonCopy->setEnabled(enabled);
 }
 
-void PoseEditor::addPosesToListViewPoses(const Image &image,
-                                         const QString &poseToSelect) {
-    QList<PosePtr> poses =
-            modelManager->posesForImage(image);
+void PoseEditor::setPosesOnPosesListView(const QString &poseToSelect) {
     posesIndices.clear();
     ignoreSpinBoxValueChanges = true;
     QStringList list("None");
@@ -190,24 +186,19 @@ void PoseEditor::onSpinBoxValueChanged() {
     }
 }
 
-void PoseEditor::onPoseRecovererStateChanged(PoseRecoveringController::State state) {
-    poseEditor3DWindow->setClicks(poseRecoverer->points3D());
-    ui->buttonCreate->setEnabled(state == PoseRecoveringController::ReadyForPoseCreation);
-}
-
 void PoseEditor::onObjectModelLoaded() {
-    setEnabledPoseInvariantControls(!currentlySelectedImage.isNull());
+    setEnabledPoseInvariantControls(!currentImage.isNull());
     setEnabledPoseEditorControls(!currentlySelectedPose.isNull());
 }
 
 void PoseEditor::onObjectModelClickedAt(const QVector3D &position) {
-    qDebug() << "Object model (" + currentlySelectedObjectModel->path() + ") clicked at: (" +
+    qDebug() << "Object model (" + currentObjectModel->path() + ") clicked at: (" +
                 QString::number(position.x())
                 + ", "
                 + QString::number(position.y())
                 + ", "
                 + QString::number(position.z())+ ").";
-    poseRecoverer->add3DPoint(position);
+    Q_EMIT objectModelClickedAt(position);
 }
 
 void PoseEditor::updateCurrentlyEditedPose() {
@@ -222,99 +213,18 @@ void PoseEditor::updateCurrentlyEditedPose() {
     }
 }
 
-void PoseEditor::onPoseAdded(PosePtr pose) {
-    addPosesToListViewPoses(*currentlySelectedImage, pose->id());
-    ui->buttonCreate->setEnabled(false);
-    // Gets enabled somehow
-    ui->buttonSave->setEnabled(false);
-    ui->buttonDuplicate->setEnabled(true);
-    ui->buttonRemove->setEnabled(true);
-    poseEditor3DWindow->setClicks({});
-}
-
-void PoseEditor::onPoseDeleted(PosePtr /*pose*/) {
-    // Nothing to do here as we select the default entry when the PoseEditingController
-    // sets the selected pose to null because a pose was deleted - we receive the
-    // corresponding signal and select the default entry
-}
-
 void PoseEditor::onButtonRemoveClicked() {
-    modelManager->removePose(currentlySelectedPose->id());
-    QList<PosePtr> poses = modelManager->posesForImage(*currentlySelectedImage);
-    if (poses.size() > 0) {
-        // This reloads the drop down list and does everything else
-        addPosesToListViewPoses(*currentlySelectedImage);
-    } else {
-        reset();
-    }
+    Q_EMIT buttonRemoveClicked();
 }
 
 void PoseEditor::onButtonCopyClicked() {
-    if (currentlySelectedImage.isNull()) {
-        QMessageBox::warning(this,
-                             "Pose copying",
-                             "Oops something went wrong. No image selected. Please select an image from the gallery first.",
-                             QMessageBox::Ok);
-        return;
-    }
-    if (!ui->listViewImages->selectionModel()->hasSelection()) {
-        QMessageBox::warning(this,
-                             "Pose copying",
-                             "No image to copy poses from selected. Please select one from the list.",
-                             QMessageBox::Ok);
-        return;
-    }
-    QModelIndexList selection = ui->listViewImages->selectionModel()->selectedRows();
-    int selectedImage = selection[0].row();
-    ImagePtr image = modelManager->images()[selectedImage];
-    QList<PosePtr> posesForImage = modelManager->posesForImage(*image);
-    for (PosePtr pose: posesForImage) {
-        modelManager->addPose(*currentlySelectedImage,
-                              *pose->objectModel(),
-                              pose->position(),
-                              pose->rotation().toRotationMatrix());
-    }
-    QMessageBox::information(this,
-                             "Pose copying",
-                             QString::number(posesForImage.size()) + " poses copied.",
-                             QMessageBox::Ok);
+    QModelIndex index = ui->listViewImages->currentIndex();
+    ImagePtr imageToCopyFrom = images[index.row()];
+    Q_EMIT buttonCopyClicked(imageToCopyFrom);
 }
 
 void PoseEditor::onButtonCreateClicked() {
-    QString message("");
-    switch (poseRecoverer->state()) {
-    case PoseRecoveringController::ReadyForPoseCreation: {
-        bool success = poseRecoverer->recoverPose();
-        if (success) {
-            message = "Successfully recovered pose.";
-        } else {
-            message = "Unkown error while trying to recover pose.";
-        }
-        break;
-    }
-    case PoseRecoveringController::NotEnoughCorrespondences: {
-        message = "Not enough 2D - 3D correspondences.";
-        break;
-    }
-    case PoseRecoveringController::Missing2DPoint: {
-        message = "Missing matching 2D counter part to selected 3D point. Click somewhere on the image.";
-        break;
-    }
-    case PoseRecoveringController::Missing3DPoint: {
-        message = "Missing matching 3D counter part to selected 2D point. Click somewhere on the 3D model.";
-        break;
-    }
-    case PoseRecoveringController::Empty: {
-        message = "No correspondences selected, yet. Please create some by click the 2D image and 3D model.";
-        break;
-    }
-    default:
-        break;
-    }
-    QMessageBox::warning(this,
-                         "Pose recovering",
-                         message,
-                         QMessageBox::Ok);
+    Q_EMIT buttonCreateClicked();
 }
 
 void PoseEditor::onButtonSaveClicked() {
@@ -322,22 +232,7 @@ void PoseEditor::onButtonSaveClicked() {
 }
 
 void PoseEditor::onButtonDuplicateClicked() {
-    // Any errors occuring in the model manager while saving will be handled
-    // by the maincontroller
-    modelManager->addPose(*currentlySelectedImage,
-                          *currentlySelectedPose->objectModel(),
-                          currentlySelectedPose->position(),
-                          currentlySelectedPose->rotation().toRotationMatrix());
-}
-
-void PoseEditor::onDataChanged(int data) {
-    // Reacts to the model manager's signal
-    if (data == Data::Poses) {
-        reset();
-        addPosesToListViewPoses(*currentlySelectedImage);
-    } else {
-        reset();
-    }
+    Q_EMIT buttonDuplicateClicked();
 }
 
 // Callback to the ListViewPoses list view
@@ -349,9 +244,6 @@ void PoseEditor::onListViewPosesSelectionChanged(const QItemSelection &selected,
         int index = range.top();
         PosePtr poseToSelect;
         if (index > 0) {
-            // 0-th element is "None", only retrieve pose if the user
-            // actually selected one
-            QList<PosePtr> poses = modelManager->poses();
             // --index because None ist 0-th element and indices of poses are +1
             poseToSelect = poses[--index];
         }
@@ -362,48 +254,9 @@ void PoseEditor::onListViewPosesSelectionChanged(const QItemSelection &selected,
 
 // Only called internally
 void PoseEditor::setObjectModel(ObjectModelPtr objectModel) {
-    if (objectModel == Q_NULLPTR) {
-        qDebug() << "Object model to set was null. Restting view.";
-        reset();
-        return;
-    }
-
     qDebug() << "Setting object model (" + objectModel->path() + ") to display.";
-    currentlySelectedObjectModel = objectModel;
+    currentObjectModel = objectModel;
     poseEditor3DWindow->setObjectModel(*objectModel);
-}
-
-// Called by signal from ObjectModelsGallery
-void PoseEditor::onSelectedObjectModelChanged(int index) {
-    QList<ObjectModelPtr> objectModels = modelManager->objectModels();
-    Q_ASSERT_X(index >= 0 && index < objectModels.size(), "onSelectedObjectModelChanged", "Index out of bounds.");
-    ObjectModelPtr objectModel = objectModels[index];
-    setObjectModel(objectModel);
-    setEnabledPoseEditorControls(false);
-    // Only activate the pose invariant controls (like copying poses)
-    // if an image has been selected for viewing
-    setEnabledPoseInvariantControls(!currentlySelectedImage.isNull());
-    resetControlsValues();
-}
-
-// Called from signaly by ImagesGallery
-void PoseEditor::onSelectedImageChanged(int index) {
-    QList<ImagePtr> images = modelManager->images();
-    Q_ASSERT_X(index >= 0 && index < images.size(), "onSelectedImageChanged", "Index out of bounds.");
-    reset();
-    currentlySelectedImage = images[index];
-    // Should always be the case when we can set an image through onSelectedImageChanged
-    // but we use the opportunity and enable the button here because it is disabled
-    // when we start the program
-    ui->buttonCopy->setEnabled(images.size() > 0);
-    QStringList imagesList;
-    for (ImagePtr &image : images) {
-        imagesList << image->imagePath();
-    }
-    listViewImagesModel->setStringList(imagesList);
-    addPosesToListViewPoses(*currentlySelectedImage);
-    setEnabledPoseInvariantControls(true);
-    posesDitry = false;
 }
 
 void PoseEditor::onSelectedPoseValuesChanged(PosePtr pose) {
@@ -423,13 +276,6 @@ void PoseEditor::onPosesSaved() {
 
 // Called by the PoseEditingController
 void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
-    if (currentlySelectedImage.isNull()) {
-        // In some cases we might have reset the views' states and
-        // e.g. the PoseEditingController fires a signal because
-        // it recieved changed poses
-        return;
-    }
-
     currentlySelectedPose = selected;
 
     // We have to disable controls until loading of the respective object model
@@ -446,7 +292,7 @@ void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
         poseEditor3DWindow->reset();
         // Here we enable the controls directly and do not wait for the objectModelLoaded signal
         // by the 3D viewer because no object model will be loaded
-        setEnabledPoseInvariantControls(!currentlySelectedImage.isNull());
+        setEnabledPoseInvariantControls(!currentImage.isNull());
     } else {
         setPoseValuesOnControls(*selected);
         int index = posesIndices[selected->id()];
@@ -478,33 +324,22 @@ void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
 }
 
 void PoseEditor::onPoseCreationAborted() {
-    // Removing the 3D clicks is handled by the onCorrespondencesChanged
-    // signal which is emitted by the PoseRecoverer, too
     ui->buttonCreate->setEnabled(false);
-}
-
-void PoseEditor::onCorrespondencesChanged() {
-    ui->buttonCreate->setEnabled(poseRecoverer->state() == PoseRecoveringController::ReadyForPoseCreation);
-    poseEditor3DWindow->setClicks(poseRecoverer->points3D());
+    poseEditor3DWindow->setClicks({});
 }
 
 void PoseEditor::reset() {
     qDebug() << "Resetting pose editor.";
     posesDitry = false;
     poseEditor3DWindow->reset();
-    currentlySelectedObjectModel.reset();
+    currentImage.reset();
+    images.clear();
+    currentObjectModel.reset();
     currentlySelectedPose.reset();
+    poses.clear();
     previouslySelectedPose.reset();
     listViewPosesModel->setStringList({});
     listViewImagesModel->setStringList({});
     resetControlsValues();
     setEnabledAllControls(false);
-}
-
-bool PoseEditor::isDisplayingObjectModel() {
-    return !currentlySelectedObjectModel.isNull();
-}
-
-void PoseEditor::setPoses(const QList<PosePtr> poses) {
-    // TODO
 }

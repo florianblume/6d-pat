@@ -91,6 +91,7 @@ void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
     Q_EMIT loadingObjectModel();
     objectModelRenderable->setObjectModel(objectModel);
     objectModelRenderable->setEnabled(true);
+    setClicks({});
 }
 
 void PoseEditor3DWindow::setClicks(const QList<QVector3D> &clicks) {

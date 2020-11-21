@@ -27,9 +27,9 @@ Q_SIGNALS:
 private Q_SLOTS:
     void selectPose(PosePtr pose);
     void addPose(PosePtr pose);
-    void removePose(PosePtr pose);
-    void duplicatePosesOfImage(ImagePtr image);
-    void copyPose(PosePtr pose);
+    void removePose();
+    void duplicatePose();
+    void copyPosesFromImage(ImagePtr image);
     void onPoseChanged();
     void onPosePositionChanged(QVector3D position);
     void onPoseRotationChanged(QQuaternion rotation);
@@ -42,9 +42,12 @@ private Q_SLOTS:
     void savePoses();
     void savePosesOrRestoreState();
     bool _savePoses(bool showDialog);
-    void onSelectedImageChanged(int index);
     void onReloadViews();
     void onProgramClose();
+
+    // React to clicks in the galleries
+    void onSelectedImageChanged(int index);
+    void onSelectedObjectModelChanged(int index);
 
 private:
     struct PoseValues {
@@ -58,6 +61,7 @@ private:
 
     ImagePtr m_currentImage;
     QList<ImagePtr> m_images;
+    QList<ObjectModelPtr> m_objectModels;
     QList<PosePtr> m_posesForImage;
     QList<PosePtr> m_posesToAdd;
     QList<PosePtr> m_posesToRemove;

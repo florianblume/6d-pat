@@ -44,6 +44,8 @@ public:
                  const QVector3D &position,
                  const QMatrix3x3 &rotation) override;
 
+    bool addPose(const Pose &pose)override;
+
     bool updatePose(const QString &id,
                     const QVector3D &position,
                     const QMatrix3x3 &rotation) override;

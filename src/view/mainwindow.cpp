@@ -35,16 +35,9 @@ MainWindow::MainWindow(QWidget *parent,
     statusBar()->addPermanentWidget(statusBarLabel, 1);
     setStatusBarText(QString("Loading..."));
 
-    // Have to set it this way because you can't use special
-    // constructors when using UI forms
-    ui->poseViewer->setModelManager(modelManager);
-    ui->poseEditor->setModelManager(modelManager);
 
     connect(settingsStore, &SettingsStore::settingsChanged,
             this, &MainWindow::onSettingsChanged);
-
-    ui->poseViewer->setPoseRecoverer(poseRecoverer);
-    ui->poseEditor->setPoseRecoverer(poseRecoverer);
 
     galleryImageModel = new GalleryImageModel(modelManager);
     setGalleryImageModel(galleryImageModel);

@@ -28,30 +28,39 @@ class PoseEditor : public QWidget
 public:
     explicit PoseEditor(QWidget *parent = Q_NULLPTR);
     ~PoseEditor();
-    // Need setters because the forms file can't create the widget
-    // by passing the two
-    void setModelManager(ModelManager *modelManager);
-    void setPoseRecoverer(PoseRecoveringController* poseRecoverer);
-    bool isDisplayingObjectModel();
-    void setPoses(const QList<PosePtr> poses);
 
 public Q_SLOTS:
-    void setObjectModel(ObjectModelPtr objectModel);
-    void onSelectedObjectModelChanged(int index);
-    void onSelectedImageChanged(int index);
+    // We don't actually need the image, only to check
+    // whether to enable the copying and poses selection
+    // list views
+    void setCurrentImage(ImagePtr image);
+    void setImages(const QList<ImagePtr> &images);
+    void setPoses(const QList<PosePtr> &poses);
+    void addPose(PosePtr pose);
+    void removePose(PosePtr pose);
     // For poses selected in the PoseViewer
     void selectPose(PosePtr selected, PosePtr deselected);
+    void setObjectModel(ObjectModelPtr objectModel);
     void onSelectedPoseValuesChanged(PosePtr pose);
     void onPosesSaved();
     void onPoseCreationAborted();
     void reset();
 
 Q_SIGNALS:
-    void buttonPredictClicked();
+    // Signals to make sure the object models gallery is enabled
+    // only when loading has finished
     void loadingObjectModel();
     void objectModelLoaded();
+
+    void objectModelClickedAt(const QVector3D &position);
+
     void poseSelected(PosePtr pose);
+
+    void buttonCreateClicked();
     void buttonSaveClicked();
+    void buttonCopyClicked(ImagePtr imageToCopyFrom);
+    void buttonDuplicateClicked();
+    void buttonRemoveClicked();
 
 private Q_SLOTS:
     /*!
@@ -63,25 +72,13 @@ private Q_SLOTS:
      * the position or rotation controls or modifies the articulation angle.
      */
     void updateCurrentlyEditedPose();
-    void onPoseAdded(PosePtr pose);
-    void onPoseDeleted(PosePtr pose);
+    void onSpinBoxValueChanged();
 
     void onButtonCreateClicked();
     void onButtonSaveClicked();
     void onButtonDuplicateClicked();
-    /*!
-     * \brief removeCurrentlyEditedPose gets called when the user wants to remove the
-     * currenlty edited pose from the currenlty displayed image.
-     */
     void onButtonRemoveClicked();
     void onButtonCopyClicked();
-
-    //! React to signal from the model manager
-    void onDataChanged(int data);
-
-    // For PoseRecoverer
-    void onCorrespondencesChanged();
-    void onPoseRecovererStateChanged(PoseRecoveringController::State state);
 
     /*!
      * \brief onListViewPosesSelectionChanged Reacts to the user selecting a different pose from
@@ -89,23 +86,29 @@ private Q_SLOTS:
      */
     void onListViewPosesSelectionChanged(const QItemSelection &selected,
                                          const QItemSelection &deselected);
-    void onSpinBoxValueChanged();
     void onObjectModelLoaded();
 
 private:
+    void setEnabledPoseEditorControls(bool enabled);
+    void setEnabledAllControls(bool enabled);
+    void resetControlsValues();
+    // For the poses list view, the images list view and the copy button
+    // they can stay enabled as long as there is an image that is being viewed
+    void setEnabledPoseInvariantControls(bool enabled);
+    void setPosesOnPosesListView(const QString &poseToSelect = "");
+    void setPoseValuesOnControls(const Pose &pose);
+
+private:
     Ui::PoseEditor *ui;
-    // QPointer is set to nullptr when object doesn't exist but is a weak pointer
-    QPointer<ModelManager> modelManager;
-    QPointer<PoseRecoveringController> poseRecoverer;
 
     PoseEditor3DWindow *poseEditor3DWindow;
 
-    ObjectModelPtr currentlySelectedObjectModel;
+    QList<ImagePtr> images;
+    ImagePtr currentImage;
+    ObjectModelPtr currentObjectModel;
+    QList<PosePtr> poses;
     PosePtr currentlySelectedPose;
     PosePtr previouslySelectedPose;
-    // We need to store what image the user currently views that in case that they select an object
-    // model we can restore the list of all poses available for the currently viewed image
-    ImagePtr currentlySelectedImage;
 
     // When the pose is selected by the pose viewer we still emit the pose selected signal
     // which causes the program to crash
@@ -126,15 +129,6 @@ private:
     // To prevent from reacting to the poses list view selection changed signal again
     // when we receive the selected pose changed signal from the PoseEditingController
     bool ignorePoseSelectionChanges = false;
-
-    void setEnabledPoseEditorControls(bool enabled);
-    void setEnabledAllControls(bool enabled);
-    void resetControlsValues();
-    // For the poses list view, the images list view and the copy button
-    // they can stay enabled as long as there is an image that is being viewed
-    void setEnabledPoseInvariantControls(bool enabled);
-    void addPosesToListViewPoses(const Image &image, const QString &poseToSelect = "");
-    void setPoseValuesOnControls(const Pose &pose);
 
 };
 

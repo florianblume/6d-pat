@@ -106,15 +106,6 @@ void PoseViewer3DWidget::initializeQt3D() {
     renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
 }
 
-void PoseViewer3DWidget::setBackgroundImageAndPoses(const QString &image,
-                                                    const QMatrix3x3 &cameraMatrix,
-                                                    const QList<PosePtr> &poses) {
-    setBackgroundImage(image, cameraMatrix);
-    for (const PosePtr &pose : poses) {
-        addPose(pose);
-    }
-}
-
 void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix) {
     QImage loadedImage(image);
     this->m_imageSize = loadedImage.size();
@@ -149,7 +140,25 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
     move(-500, -500);
 }
 
+void PoseViewer3DWidget::setPoses(const QList<PosePtr> &poses) {
+    // Remove old poses
+    for (int index = 0; index < poseRenderables.size(); index++) {
+        PoseRenderable *renderable = poseRenderables[index];
+        // This also deletes the renderable
+        renderable->setParent((Qt3DCore::QNode *) 0);
+    }
+
+    poseRenderables.clear();
+    poseRenderableForId.clear();
+
+    for (const PosePtr &pose : poses) {
+        addPose(pose);
+    }
+}
+
 void PoseViewer3DWidget::addPose(PosePtr pose) {
+    // TODO need to add functionality to select the pose if it is a pose
+    // that has been added by creating a new pose
     PoseRenderable *poseRenderable = new PoseRenderable(root, pose);
     poseRenderables.append(poseRenderable);
     poseRenderableForId[pose->id()] = poseRenderable;
@@ -177,28 +186,18 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     });
 }
 
-void PoseViewer3DWidget::removePose(const QString &id) {
+void PoseViewer3DWidget::removePose(PosePtr pose) {
     for (int index = 0; index < poseRenderables.size(); index++) {
-        if (poseRenderables[index]->poseID() == id) {
+        if (poseRenderables[index]->pose() == pose) {
             PoseRenderable *renderable = poseRenderables[index];
             // Remove related framegraph
             poseRenderables.removeAt(index);
-            poseRenderableForId.remove(id);
+            poseRenderableForId.remove(pose->id());
             // This also deletes the renderable
             renderable->setParent((Qt3DCore::QNode *) 0);
             break;
         }
     }
-}
-
-void PoseViewer3DWidget::removePoses() {
-    for (int index = 0; index < poseRenderables.size(); index++) {
-        PoseRenderable *renderable = poseRenderables[index];
-        // This also deletes the renderable
-        renderable->setParent((Qt3DCore::QNode *) 0);
-    }
-    poseRenderables.clear();
-    poseRenderableForId.clear();
 }
 
 void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
@@ -374,8 +373,9 @@ void PoseViewer3DWidget::setClicks(const QList<QPoint> &clicks) {
 
 void PoseViewer3DWidget::reset() {
     setClicks({});
-    removePoses();
+    setPoses({});
     if (backgroundImageRenderable != Q_NULLPTR) {
+        // Only disable and save creating it again
         backgroundImageRenderable->setEnabled(false);
     }
 }

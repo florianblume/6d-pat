@@ -56,18 +56,11 @@ void ClickVisualizationMaterial::setClicks(const QList<QPoint> &clicks) {
 void ClickVisualizationMaterial::setSize(QSize size) {
     float aspectRatioWidth = size.width() / (float) m_size.width();
     float aspectRatioHeight = size.height() / (float) m_size.height();
-    qDebug() << "new size" << size;
-    qDebug() << "old size" << m_size;
-    qDebug() << "ratio w" << aspectRatioWidth;
-    qDebug() << "ratio h" << aspectRatioHeight;
     // Update click locations based on new size
     for (QPoint &click : m_clicks) {
-        qDebug() << "old point" << click;
         click.setX((int) (click.x() * aspectRatioWidth));
         click.setY((int) (click.y() * aspectRatioHeight));
-        qDebug() << "new point" << click;
     }
-    qDebug() << "points" << m_clicks;
     this->m_size = size;
     udpateParameters();
 }

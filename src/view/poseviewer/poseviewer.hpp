@@ -4,7 +4,6 @@
 #include "model/image.hpp"
 #include "model/objectmodel.hpp"
 #include "model/pose.hpp"
-#include "model/modelmanager.hpp"
 #include "controller/poserecoveringcontroller.hpp"
 #include "poseviewer3dwidget.hpp"
 #include "view/misc/displayhelper.hpp"
@@ -41,21 +40,19 @@ public:
     ~PoseViewer();
     ImagePtr currentlyViewedImage();
 
-    void setModelManager(ModelManager *value);
-    void setPoseRecoverer(PoseRecoveringController *value);
     void setSettingsStore(SettingsStore *settingsStore);
-
-    void setPoses(const QList<PosePtr> &poses);
 
 public Q_SLOTS:
     void setImage(ImagePtr image);
-    // Slot to signal of images gallery
-    void onSelectedImageChanged(int index);
-    void reset();
-    void reloadPoses();
-    void onPoseCreationAborted();
+    void setPoses(const QList<PosePtr> &poses);
+    void addPose(PosePtr pose);
+    void removePose(PosePtr pose);
+    void setClicks(const QList<QPoint> &clicks);
     // React to signal from PoseEditingModel
     void selectPose(PosePtr selected, PosePtr deselected);
+
+    void reset();
+    void onPoseCreationAborted();
 
 Q_SIGNALS:
     void imageClicked(QPoint position);
@@ -70,40 +67,27 @@ private Q_SLOTS:
     void onZoomChanged(int zoom);
     void resetPositionOfGraphicsView();
     void onImageClicked(QPoint point);
-    // Private slot listening to model manager
-    void onPoseDeleted(PosePtr pose);
-    void onPoseAdded(PosePtr pose);
-    void onDataChanged(int data);
-    void onCorrespondencesChanged();
-    void poseRecovererStateChanged(PoseRecoveringController::State state);
+    // To get the new mouse buttons
     void currentSettingsChanged(SettingsPtr settings);
 
 private:
-    void connectModelManagerSlots();
     void setSliderZoomEnabled(bool enabled);
     void setSliderTransparencyEnabled(bool enabled);
 
 private:
     Ui::PoseViewer *ui;
-    PoseViewer3DWidget *poseViewer3DWidget;
+    PoseViewer3DWidget *m_poseViewer3DWidget;
+    QPointer<SettingsStore> m_settingsStore;
 
-    QPointer<ModelManager> modelManager;
-    QPointer<PoseRecoveringController> poseRecoverer;
-    QPointer<SettingsStore> settingsStore;
-
-    PosePtr selectedPose;
-
-    // Store the last clicked position, so that we can visualize it if the user calls the respective
-    // function.
-    QPoint lastClickedPosition;
-    ImagePtr currentlyDisplayedImage;
-
+    QList<PosePtr> m_poses;
+    PosePtr m_selectedPose;
+    ImagePtr m_currentlyDisplayedImage;
     // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
     // segmentation image
-    bool showingNormalImage = true;
+    bool m_showingNormalImage = true;
 
-    int zoom = 3;
-    float zoomMultiplier = 1.f;
+    int m_zoom = 3;
+    float m_zoomMultiplier = 1.f;
 };
 
 #endif // CORRESPONDENCEEDITOR_H
