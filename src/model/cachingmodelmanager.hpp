@@ -39,12 +39,12 @@ public:
     QList<PosePtr> posesForImageAndObjectModel(const Image &image,
                                                const ObjectModel &objectModel) override;
 
-    bool addPose(const Image &image,
-                 const ObjectModel &objectModel,
-                 const QVector3D &position,
-                 const QMatrix3x3 &rotation) override;
+    PosePtr addPose(ImagePtr image,
+                    ObjectModelPtr objectModel,
+                    const QVector3D &position,
+                    const QMatrix3x3 &rotation) override;
 
-    bool addPose(const Pose &pose)override;
+    PosePtr addPose(const Pose &pose) override;
 
     bool updatePose(const QString &id,
                     const QVector3D &position,

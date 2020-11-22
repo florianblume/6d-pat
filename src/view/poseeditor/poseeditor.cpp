@@ -49,6 +49,10 @@ PoseEditor::~PoseEditor() {
     delete ui;
 }
 
+void PoseEditor::setEnabledButtonRecoverPose(bool enabled) {
+    ui->buttonCreate->setEnabled(enabled);
+}
+
 void PoseEditor::setCurrentImage(ImagePtr image) {
     currentImage = image;
     setEnabledPoseInvariantControls(!currentImage.isNull());
@@ -88,6 +92,23 @@ void PoseEditor::addPose(PosePtr pose) {
 }
 
 void PoseEditor::removePose(PosePtr pose) {
+    for (int i = 0; i < poses.size(); i++) {
+        if (poses[i] == pose) {
+            poses.removeAt(i);
+        }
+    }
+    QStringList list("None");
+    int index = 1;
+    for (PosePtr &pose : poses) {
+        QString id = pose->id();
+        list << id;
+        posesIndices[pose->id()] = index;
+        index++;
+    }
+    listViewPosesModel->setStringList(list);
+    resetControlsValues();
+    setEnabledPoseEditorControls(false);
+    setEnabledPoseInvariantControls(currentImage);
 }
 
 void PoseEditor::setEnabledPoseEditorControls(bool enabled) {

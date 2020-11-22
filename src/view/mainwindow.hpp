@@ -27,6 +27,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
+
     explicit MainWindow(QWidget *parent, ModelManager *modelManager,
                         SettingsStore *settingsStore, const QString &settingsIdentifier);
     ~MainWindow();
@@ -39,7 +40,11 @@ public:
     void showEvent(QShowEvent *e) override;
 
     void abortPoseCreation();
-    void setStatusBarText(const QString& text);
+    void setStatusBarTextStartAddingCorrespondences();
+    void setStatusBarText2DPointMissing(int numberOfCorrespondences, int minNumberOfCorrespondences);
+    void setStatusBarText3DPointMissing(int numberOfCorrespondences, int minNumberOfCorrespondences);
+    void setStatusBarTextNotEnoughCorrespondences(int numberOfCorrespondences, int minNumberOfCorrespondences);
+    void setStatusBarTextReadyForPoseCreation(int numberOfCorrespondences, int minNumberOfCorrespondences);
 
     PoseViewer *poseViewer();
     PoseEditor *poseEditor();
@@ -63,34 +68,12 @@ public Q_SLOTS:
     void onObjectModelsPathChangedByNavigation(const QString &path);
 
     /*!
-     * \brief displayWarning displays a warning as a popup box.
-     * \param title the title of the warning
-     * \param text the text of the warning
-     */
-    void displayWarning(const QString &title, const QString& text);
-
-    /*!
      * \brief showSaveDialog shows the saving dialog
      * \return true if the user selected to save the modifications
      */
     bool showSaveUnsavedChangesDialog();
 
 Q_SIGNALS:
-
-    /*!
-     * \brief onPosePointCreationInitiated is Q_EMITted whenever the window receives a signal
-     * that a pose point has been started (i.e. a 2D point was added to the pose
-     * creator, this is what we hide here).
-     */
-    void onPoint2DAdded(QPoint point2D);
-
-    /*!
-     * \brief onPosePointAdded is Q_EMITted whenever the window receives a signal that
-     * a pose point has been added (i.e. to the pose creator, this is what we
-     * hide here).
-     */
-    void onPoint3DAdded(QVector3D point3D);
-
     /*!
      * \brief poseCreationInterrupted this signal is Q_EMITted when the user clicks the
      * overlay that is being added to the view as soon as the image is clicked anywhere. Clicking
@@ -105,12 +88,6 @@ Q_SIGNALS:
      * button
      */
     void poseCreationAborted();
-
-    /*!
-     * \brief requestPoseCreation this signal is Q_EMITted whenever the user uses the UI
-     * to request the creation of a pose.
-     */
-    void requestPoseCreation();
 
     /*!
      * \brief imagesPathChanged Q_EMITted when the images path changes because the user used the
@@ -138,6 +115,13 @@ private Q_SLOTS:
     void onActionReloadViewsTriggered();
     void onModelManagerStateChanged(ModelManager::State state);
 
+    /*!
+     * \brief displayWarning displays a warning as a popup box.
+     * \param title the title of the warning
+     * \param text the text of the warning
+     */
+    void displayWarning(const QString &title, const QString& text);
+
 private:
     void setPathsOnGalleriesAndBreadcrumbs();
 
@@ -149,6 +133,7 @@ private:
     void readSettings();
 
     void handleClosingProgram();
+    void setStatusBarText(const QString& text);
 
 private:
     Ui::MainWindow *ui;

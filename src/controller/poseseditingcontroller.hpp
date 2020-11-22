@@ -83,6 +83,8 @@ private:
     QList<PosePtr> m_posesToAdd;
     QList<PosePtr> m_posesToRemove;
     QMap<QString, PoseValues> m_unmodifiedPoses;
+    // Needs to be <PosePtr, Bool> to be able to retrieve a list of
+    // PosePtr by bool value
     QMap<PosePtr, bool> m_dirtyPoses;
 
     // Pose Recovering

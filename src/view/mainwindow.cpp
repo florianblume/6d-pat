@@ -142,6 +142,42 @@ void MainWindow::abortPoseCreation() {
     Q_EMIT poseCreationAborted();
 }
 
+void MainWindow::setStatusBarTextStartAddingCorrespondences() {
+    setStatusBarText("Start adding correspondences by clicking on either the image or object model.");
+}
+
+void MainWindow::setStatusBarText2DPointMissing(int numberOfCorrespondences, int minNumberOfCorrespondences) {
+    setStatusBarText("Complete the correspondence by clicking the 3D model (" +
+                     QString::number(numberOfCorrespondences) +
+                     "/" +
+                     QString::number(minNumberOfCorrespondences) +
+                     " correspondences complete).");
+}
+
+void MainWindow::setStatusBarText3DPointMissing(int numberOfCorrespondences, int minNumberOfCorrespondences) {
+    setStatusBarText("Complete the correspondence by clicking in the image (" +
+                     QString::number(numberOfCorrespondences) +
+                     "/" +
+                     QString::number(minNumberOfCorrespondences) +
+                     " correspondences complete).");
+}
+
+void MainWindow::setStatusBarTextNotEnoughCorrespondences(int numberOfCorrespondences, int minNumberOfCorrespondences) {
+    setStatusBarText("Add more correspondences to enable pose recovering (" +
+                     QString::number(numberOfCorrespondences) +
+                     "/" +
+                     QString::number(minNumberOfCorrespondences) +
+                     " correspondences complete).");
+}
+
+void MainWindow::setStatusBarTextReadyForPoseCreation(int numberOfCorrespondences, int minNumberOfCorrespondences) {
+    setStatusBarText("Ready for pose recovering (" +
+                     QString::number(numberOfCorrespondences) +
+                     "/" +
+                     QString::number(minNumberOfCorrespondences) +
+                     " correspondences complete).");
+}
+
 void MainWindow::showEvent(QShowEvent *e) {
     if (!showInitialized) {
         readSettings();
@@ -274,6 +310,45 @@ void MainWindow::onModelManagerStateChanged(ModelManager::State state) {
         dataLoadingProgressDialog->show();
     } else {
         dataLoadingProgressDialog->close();
+        if (state == ModelManager::Error) {
+            QString message("An unkown error occured in the data manager.");
+            switch (modelManager->error()) {
+                case LoadAndStoreStrategy::CamInfoDoesNotExist:
+                    message = "The camera info file info.json does not exist.";
+                    break;
+                case LoadAndStoreStrategy::ImagesPathDoesNotExist:
+                    message = "The images path does not exist.";
+                    break;
+                case LoadAndStoreStrategy::SegmentationImagesPathDoesNotExist:
+                    message = "The segmentation images path does not exist.";
+                    break;
+                case LoadAndStoreStrategy::CouldNotReadCamInfo:
+                    message = "Could not read the camera info file info.json.";
+                    break;
+                case LoadAndStoreStrategy::CamInfoPathIsNotAJSONFile:
+                    message = "The camera info file info.json is not a valid file.";
+                    break;
+                case LoadAndStoreStrategy::NoImagesFound:
+                    message = "No images found at the specified images path.";
+                    break;
+                case LoadAndStoreStrategy::ObjectModelsPathDoesNotExist:
+                    message = "The object models path does not exist.";
+                    break;
+                case LoadAndStoreStrategy::ObjectModelsPathIsNotAFolder:
+                    message = "The object models path is not a folder.";
+                    break;
+                case LoadAndStoreStrategy::PosesPathDoesNotExist:
+                    message = "The specified poses file does not exist.";
+                    break;
+                case LoadAndStoreStrategy::FailedToPersistPosePosesFileCouldNotBeRead:
+                    message = "Could not read the poses file while trying to save a pose.";
+                    break;
+                case LoadAndStoreStrategy::FailedToPersistPosePosesPathIsNotAFile:
+                    message = "The specified poses file is not a file (error while trying to save a pose).";
+                    break;
+            }
+            displayWarning("An error occured in the data maanger", message);
+        }
     }
 }
 

@@ -2,6 +2,7 @@
 #include "view/poseeditor/poseeditor.hpp"
 #include "view/poseviewer/poseviewer.hpp"
 #include "view/gallery/galleryobjectmodels.hpp"
+#include "misc/generalhelper.hpp"
 
 #include <QList>
 #include <opencv2/calib3d/calib3d.hpp>
@@ -98,30 +99,39 @@ void PosesEditingController::selectPose(PosePtr pose) {
 }
 
 void PosesEditingController::addPose(PosePtr pose) {
-    m_modelManager->addPose(*pose);
-    m_mainWindow->poseViewer()->addPose(pose);
-    m_mainWindow->poseViewer()->setClicks({});
+    // No need to store the original values here as
+    // the pose doesn't exist in the model manager yet
+    // -> actual persisting happens when saving everything
+    Q_ASSERT(pose);
+    m_posesToAdd.append(pose);
+    m_posesForImage.append(pose);
     m_mainWindow->poseEditor()->addPose(pose);
-    m_mainWindow->poseEditor()->setClicks({});
+    m_mainWindow->poseEditor()->onPoseCreationAborted();
+    m_mainWindow->poseViewer()->addPose(pose);
+    m_mainWindow->poseViewer()->onPoseCreationAborted();
 }
 
 void PosesEditingController::removePose() {
-    m_modelManager->removePose(m_selectedPose->id());
+    m_posesToRemove.append(m_selectedPose);
+    for (int i = 0; i < m_posesForImage.size(); i++) {
+        if (m_posesForImage[i] == m_selectedPose) {
+            m_posesForImage.removeAt(i);
+        }
+    }
     m_mainWindow->poseViewer()->removePose(m_selectedPose);
-    m_mainWindow->poseViewer()->setClicks({});
+    m_mainWindow->poseViewer()->onPoseCreationAborted();
     m_mainWindow->poseEditor()->removePose(m_selectedPose);
-    m_mainWindow->poseEditor()->setClicks({});
+    m_mainWindow->poseEditor()->onPoseCreationAborted();
 }
 
 void PosesEditingController::duplicatePose() {
-    Q_ASSERT(m_selectedPose);
-    m_modelManager->addPose(*m_selectedPose);
+    addPose(m_selectedPose);
 }
 
 void PosesEditingController::copyPosesFromImage(ImagePtr image) {
     QList<PosePtr> poses = m_modelManager->posesForImage(*image);
     for (const PosePtr &pose : poses) {
-        m_modelManager->addPose(*pose);
+        addPose(pose);
     }
 }
 
@@ -151,9 +161,11 @@ void PosesEditingController::modelManagerStateChanged(ModelManager::State state)
 }
 
 void PosesEditingController::onDataChanged(int /*data*/) {
-    // We do not need call savePoses here anymore because when the data has
-    // changed we cannot necessarily react to it properly anymore - instead
-    // we ask savePoses when the model manager is starting to reload data
+
+    // Try to save poses still, it might be that the underlying
+    // poses file has been changed but it might be an accident
+    // so we try to save it
+    savePosesOrRestoreState();
 
     // No matter what changed we need to reset the controller's state
     m_selectedPose.reset();
@@ -194,8 +206,8 @@ void PosesEditingController::savePosesOrRestoreState() {
 
 bool PosesEditingController::_savePoses(bool showDialog) {
     QList<PosePtr> posesToSave = m_dirtyPoses.keys(true);
-    if (posesToSave.size() > 0) {
-        qDebug() << posesToSave.size() << " poses dirty.";
+    if (posesToSave.size() || m_posesToAdd.size() || m_posesToRemove.size()) {
+        qDebug() << posesToSave.size() + m_posesToAdd.size() + m_posesToRemove.size() << " poses dirty.";
         bool result = !showDialog;
         if (showDialog) {
             result =  m_mainWindow->showSaveUnsavedChangesDialog();
@@ -203,11 +215,25 @@ bool PosesEditingController::_savePoses(bool showDialog) {
         // If show dialog, check result (which is the result from showing the dialog)
         // else result will be true because result = !showDialog (the latter is false in this case)
         if (!showDialog || result) {
+            qDebug() << "Adding " << m_posesToAdd.size() << " poses.";
+            for (const PosePtr &pose : m_posesToAdd) {
+                m_modelManager->addPose(*pose);
+            }
+            m_posesToAdd.clear();
             qDebug() << "Saving " << posesToSave.size() << " poses.";
             for (const PosePtr &pose : posesToSave) {
+                // No need to display a warning here because if something goes wrong
+                // the LoadAndStoreStrategy already notifies the MainWindow
                 m_modelManager->updatePose(pose->id(), pose->position(), pose->rotation().toRotationMatrix());
                 m_dirtyPoses[pose] = false;
+                m_unmodifiedPoses[pose->id()] = {.position = pose->position(),
+                                                 .rotation = pose->rotation()};
             }
+            qDebug() << "Removing " << m_posesToRemove.size() << " poses.";
+            for (const PosePtr &pose : m_posesToRemove) {
+                m_modelManager->removePose(pose->id());
+            }
+            m_posesToRemove.clear();
         }
         // Result is either true if the user was shown the save dialog and clicked yes,
         // false if the user clicked no or true if there was no dialog to be shown but
@@ -224,6 +250,9 @@ void PosesEditingController::onSelectedImageChanged(int index) {
     m_points2D.clear();
     m_points3D.clear();
     m_state = Empty;
+    m_mainWindow->setStatusBarTextStartAddingCorrespondences();
+    m_posesToAdd.clear();
+    m_posesToRemove.clear();
     m_dirtyPoses.clear();
     m_unmodifiedPoses.clear();
     // Do not reset the editor because then we reset the object model that
@@ -266,12 +295,16 @@ void PosesEditingController::onSelectedObjectModelChanged(int index) {
 void PosesEditingController::add2DPoint(QPoint imagePoint) {
     m_points2D.append(imagePoint);
     m_mainWindow->poseViewer()->setClicks(m_points2D);
+    m_mainWindow->poseEditor()->setEnabledButtonRecoverPose(false);
     // TODO set message on main view
     if (m_points2D.size() == m_points3D.size()
             && m_points3D.size() >= m_minimumNumberOfPoints) {
         m_state = ReadyForPoseCreation;
+        m_mainWindow->setStatusBarTextReadyForPoseCreation(m_points2D.size(), m_minimumNumberOfPoints);
+        m_mainWindow->poseEditor()->setEnabledButtonRecoverPose(true);
     } else if (m_points2D.size() == m_points3D.size()) {
         m_state = NotEnoughCorrespondences;
+        m_mainWindow->setStatusBarTextNotEnoughCorrespondences(m_points2D.size(), m_minimumNumberOfPoints);
     } else if (m_points2D.size() > m_points3D.size() + 1) {
         // Reset the 2D point of the incomplete correspondence
         m_points2D.removeAt(m_points2D.size() - 2);
@@ -279,18 +312,24 @@ void PosesEditingController::add2DPoint(QPoint imagePoint) {
         // of too many 2D points
     } else if (m_points2D.size() > m_points3D.size()) {
         m_state = Missing3DPoint;
+        // m_points3D.size() here because that's the number of complete correspondences
+        m_mainWindow->setStatusBarText3DPointMissing(m_points3D.size(), m_minimumNumberOfPoints);
     }
 }
 
 void PosesEditingController::add3DPoint(QVector3D objectModelPoint) {
     m_points3D.append(objectModelPoint);
     m_mainWindow->poseEditor()->setClicks(m_points3D);
+    m_mainWindow->poseEditor()->setEnabledButtonRecoverPose(false);
     // TODO set message on main view
     if (m_points2D.size() == m_points3D.size()
             && m_points3D.size() >= m_minimumNumberOfPoints) {
         m_state = ReadyForPoseCreation;
+        m_mainWindow->setStatusBarTextReadyForPoseCreation(m_points2D.size(), m_minimumNumberOfPoints);
+        m_mainWindow->poseEditor()->setEnabledButtonRecoverPose(true);
     } else if (m_points2D.size() == m_points3D.size()) {
         m_state = NotEnoughCorrespondences;
+        m_mainWindow->setStatusBarTextNotEnoughCorrespondences(m_points2D.size(), m_minimumNumberOfPoints);
     } else if (m_points3D.size() > m_points2D.size() + 1) {
         // Reset the 2D point of the incomplete correspondence
         m_points3D.removeAt(m_points3D.size() - 2);
@@ -298,6 +337,8 @@ void PosesEditingController::add3DPoint(QVector3D objectModelPoint) {
         // of too many 3D points
     } else if (m_points3D.size() > m_points2D.size()) {
         m_state = Missing2DPoint;
+        // m_points3D.size() here because that's the number of complete correspondences
+        m_mainWindow->setStatusBarText2DPointMissing(m_points2D.size(), m_minimumNumberOfPoints);
     }
 }
 
@@ -312,6 +353,7 @@ QString correspondenceToString(QPoint point2D, QVector3D point3D) {
 }
 
 void PosesEditingController::recoverPose() {
+    // TODO show warnings in mainwindow
     switch (m_state) {
         case Empty:
             return;
@@ -325,6 +367,11 @@ void PosesEditingController::recoverPose() {
         default:
             break;
     }
+
+    m_points2D.clear();
+    m_mainWindow->poseViewer()->onPoseCreationAborted();
+    m_points3D.clear();
+    m_mainWindow->poseEditor()->onPoseCreationAborted();
 
     std::vector<cv::Point3f> objectPoints;
     std::vector<cv::Point2f> imagePoints;
@@ -379,20 +426,15 @@ void PosesEditingController::recoverPose() {
         rotMatrix.at<float>(1, 0), rotMatrix.at<float>(1, 1), rotMatrix.at<float>(1, 2),
         rotMatrix.at<float>(2, 0), rotMatrix.at<float>(2, 1), rotMatrix.at<float>(2, 2)
     });
-    bool success = m_modelManager->addPose(*m_currentImage,
-                                           *m_currentObjectModel,
-                                           position,
-                                           rotationMatrix);
-    if (!success) {
-        // TODO display warning
-    } else {
-        // TODO retrieve new pose and select it
-    }
 
-    m_points2D.clear();
-    m_mainWindow->poseViewer()->onPoseCreationAborted();
-    m_points3D.clear();
-    m_mainWindow->poseEditor()->onPoseCreationAborted();
+    PosePtr newPose(new Pose(GeneralHelper::createPoseId(*m_currentImage, *m_currentObjectModel),
+                             position,
+                             QQuaternion::fromRotationMatrix(rotationMatrix),
+                             m_currentImage,
+                             m_currentObjectModel));
+
+    addPose(newPose);
+    m_mainWindow->setStatusBarTextStartAddingCorrespondences();
 }
 
 void PosesEditingController::onReloadViews() {

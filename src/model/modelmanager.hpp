@@ -103,19 +103,19 @@ public:
      * this manager and added to the list of managed poses
      * \return true if creating and persisting the pose was successful
      */
-    virtual bool addPose(const Image &image,
-                         const ObjectModel &objectModel,
-                         const QVector3D &position,
-                         const QMatrix3x3 &rotation) = 0;
+    virtual PosePtr addPose(ImagePtr image,
+                            ObjectModelPtr objectModel,
+                            const QVector3D &position,
+                            const QMatrix3x3 &rotation) = 0;
 
     /*!
      * \brief addObjectImagePose Adds a new ObjectImagePose to the poses managed by this manager.
      * The method will return true if creating the pose was successful and persisting it as well.
      * \param objectImagePose the pose that stores all the values for the pose that will be created by
      * this manager and added to the list of managed poses
-     * \return true if creating and persisting the pose was successful
+     * \return the new pose if it was successfully created, null otherwise
      */
-    virtual bool addPose(const Pose &pose) = 0;
+    virtual PosePtr addPose(const Pose &pose) = 0;
 
     /*!
      * \brief addObjectImagePose Updates the given ObjectImagePose and automatically persists it according to the

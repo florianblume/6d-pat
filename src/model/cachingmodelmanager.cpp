@@ -103,56 +103,35 @@ QList<PosePtr> CachingModelManager::posesForImageAndObjectModel(const Image &ima
     return posesForImageAndObjectModel;
 }
 
-bool CachingModelManager::addPose(const Image &image,
-                                  const ObjectModel &objectModel,
-                                  const QVector3D &position,
-                                  const QMatrix3x3 &rotation) {
-    QList<ImagePtr>::iterator imageIterator = find_if(m_images.begin(), m_images.end(), [image](const ImagePtr& obj) {
-        return obj->absoluteImagePath() == image.absoluteImagePath();
-    });
+PosePtr CachingModelManager::addPose(ImagePtr image,
+                                     ObjectModelPtr objectModel,
+                                     const QVector3D &position,
+                                     const QMatrix3x3 &rotation) {
+    Q_ASSERT(image);
+    Q_ASSERT(objectModel);
+    return this->addPose(Pose(GeneralHelper::createPoseId(*image, *objectModel),
+                              position,
+                              rotation,
+                              image,
+                              objectModel));
+}
 
-    if (imageIterator == m_images.end()) {
-        return false;
-    }
-
-    QList<ObjectModelPtr>::iterator objectModelIterator = find_if(
-                m_objectModels.begin(), m_objectModels.end(), [objectModel](const ObjectModelPtr &obj) {
-        return obj->absolutePath() == objectModel.absolutePath();
-    });
-    if (objectModelIterator == m_objectModels.end()) {
-        return false;
-    }
-
-    // IMPORTANT: Use the iterator values, they return the actually managed image and object model
-    // and not what the user passed (and maybe created somewhere else but with the right paths)
-    ImagePtr _image = *imageIterator;
-    ObjectModelPtr _objectModel = *objectModelIterator;
-    PosePtr pose(new Pose(GeneralHelper::createPoseId(*_image, *_objectModel),
-                                                      position,
-                                                      rotation,
-                                                      _image,
-                                                      _objectModel));
-
-    if (!loadAndStoreStrategy.persistPose(*pose, false)) {
+PosePtr CachingModelManager::addPose(const Pose &pose) {
+    // Persist the pose
+    if (!loadAndStoreStrategy.persistPose(pose, false)) {
         //! if there is an error persisting the pose for any reason we should not add the pose to this manager
-        return false;
+        return PosePtr();
     }
 
     //! pose has not yet been added
-    m_poses.push_back(pose);
+    PosePtr newPose(new Pose(pose));
+    m_poses.push_back(newPose);
 
     createConditionalCache();
 
-    Q_EMIT poseAdded(pose);
+    Q_EMIT poseAdded(newPose);
 
-    return true;
-}
-
-bool CachingModelManager::addPose(const Pose &pose) {
-    return this->addPose(*pose.image(),
-                         *pose.objectModel(),
-                         pose.position(),
-                         pose.rotation().toRotationMatrix());
+    return newPose;
 }
 
 bool CachingModelManager::updatePose(const QString &id,

@@ -27,6 +27,7 @@ class PoseEditor : public QWidget
 public:
     explicit PoseEditor(QWidget *parent = Q_NULLPTR);
     ~PoseEditor();
+    void setEnabledButtonRecoverPose(bool enabled);
 
 public Q_SLOTS:
     // We don't actually need the image, only to check
