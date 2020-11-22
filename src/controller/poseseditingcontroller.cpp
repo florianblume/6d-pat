@@ -63,6 +63,8 @@ PosesEditingController::PosesEditingController(QObject *parent, ModelManager *mo
             this, &PosesEditingController::onReloadViews);
     connect(mainWindow, &MainWindow::closingProgram,
             this, &PosesEditingController::onProgramClose);
+    connect(mainWindow, &MainWindow::poseCreationAborted,
+            this, &PosesEditingController::abortPoseRecovering);
 
     connect(mainWindow->galleryImages(), &Gallery::selectedItemChanged,
             this, &PosesEditingController::onSelectedImageChanged);
@@ -79,11 +81,9 @@ void PosesEditingController::selectPose(PosePtr pose) {
     }
     if (pose == m_selectedPose || pose.isNull()) {
         // When starting the program sometimes the gallery hasn't been initialized yet
-        m_mainWindow->galleryObjectModels()->clearSelection(false);
-        // Either the poses are the same (order doesn't matter in this case) or
-        // pose is null, in which case we want to emit the signal that m_selectedPose
-        // has been deselected and pose has been selected (a null pose)
-        Q_EMIT selectedPoseChanged(pose, m_selectedPose);
+        // m_mainWindow->galleryObjectModels()->clearSelection(false);
+
+        Q_EMIT selectedPoseChanged(PosePtr(), m_selectedPose);
         // Selecting the same pose again deselects it
         m_selectedPose.reset();
     } else {
@@ -106,9 +106,8 @@ void PosesEditingController::addPose(PosePtr pose) {
     m_posesToAdd.append(pose);
     m_posesForImage.append(pose);
     m_mainWindow->poseEditor()->addPose(pose);
-    m_mainWindow->poseEditor()->onPoseCreationAborted();
     m_mainWindow->poseViewer()->addPose(pose);
-    m_mainWindow->poseViewer()->onPoseCreationAborted();
+    abortPoseRecovering();
 }
 
 void PosesEditingController::removePose() {
@@ -119,9 +118,8 @@ void PosesEditingController::removePose() {
         }
     }
     m_mainWindow->poseViewer()->removePose(m_selectedPose);
-    m_mainWindow->poseViewer()->onPoseCreationAborted();
     m_mainWindow->poseEditor()->removePose(m_selectedPose);
-    m_mainWindow->poseEditor()->onPoseCreationAborted();
+    abortPoseRecovering();
 }
 
 void PosesEditingController::duplicatePose() {
@@ -166,6 +164,7 @@ void PosesEditingController::onDataChanged(int /*data*/) {
     // poses file has been changed but it might be an accident
     // so we try to save it
     savePosesOrRestoreState();
+    abortPoseRecovering();
 
     // No matter what changed we need to reset the controller's state
     m_selectedPose.reset();
@@ -288,58 +287,50 @@ void PosesEditingController::onSelectedObjectModelChanged(int index) {
         m_mainWindow->poseEditor()->setObjectModel(objectModel);
         m_currentObjectModel = objectModel;
     }
-    m_mainWindow->poseEditor()->onPoseCreationAborted();
-    m_mainWindow->poseViewer()->onPoseCreationAborted();
+    abortPoseRecovering();
+}
+
+template<class A, class B>
+void PosesEditingController::addPoint(A point,
+                                      QList<A> &listToAddTo,
+                                      QList<B> &listToCompareTo) {
+    listToAddTo.append(point);
+    m_mainWindow->poseEditor()->setEnabledButtonRecoverPose(false);
+    // TODO set message on main view
+    if (listToAddTo.size() == listToCompareTo.size()
+            && listToCompareTo.size() >= m_minimumNumberOfPoints) {
+        m_state = ReadyForPoseCreation;
+        m_mainWindow->setStatusBarTextReadyForPoseCreation(listToAddTo.size(), m_minimumNumberOfPoints);
+        m_mainWindow->poseEditor()->setEnabledButtonRecoverPose(true);
+    } else if (listToAddTo.size() == listToCompareTo.size()) {
+        m_state = NotEnoughCorrespondences;
+        m_mainWindow->setStatusBarTextNotEnoughCorrespondences(listToAddTo.size(), m_minimumNumberOfPoints);
+    } else if (listToAddTo.size() > listToCompareTo.size() + 1) {
+        // Reset the 2D point of the incomplete correspondence
+        listToAddTo.removeAt(listToAddTo.size() - 2);
+        // No need to change state here, we are still in the state
+        // of too many 2D points
+    } else if (listToAddTo.size() > listToCompareTo.size()) {
+        if (std::is_same<A, QPoint>::value) {
+            m_state = Missing3DPoint;
+            // m_points3D.size() here because that's the number of complete correspondences
+            m_mainWindow->setStatusBarText3DPointMissing(listToCompareTo.size(), m_minimumNumberOfPoints);
+        } else if (std::is_same<A, QVector3D>::value) {
+            m_state = Missing2DPoint;
+            // m_points3D.size() here because that's the number of complete correspondences
+            m_mainWindow->setStatusBarText2DPointMissing(listToCompareTo.size(), m_minimumNumberOfPoints);
+        }
+    }
+    m_mainWindow->poseViewer()->setClicks(m_points2D);
+    m_mainWindow->poseEditor()->setClicks(m_points3D);
 }
 
 void PosesEditingController::add2DPoint(QPoint imagePoint) {
-    m_points2D.append(imagePoint);
-    m_mainWindow->poseViewer()->setClicks(m_points2D);
-    m_mainWindow->poseEditor()->setEnabledButtonRecoverPose(false);
-    // TODO set message on main view
-    if (m_points2D.size() == m_points3D.size()
-            && m_points3D.size() >= m_minimumNumberOfPoints) {
-        m_state = ReadyForPoseCreation;
-        m_mainWindow->setStatusBarTextReadyForPoseCreation(m_points2D.size(), m_minimumNumberOfPoints);
-        m_mainWindow->poseEditor()->setEnabledButtonRecoverPose(true);
-    } else if (m_points2D.size() == m_points3D.size()) {
-        m_state = NotEnoughCorrespondences;
-        m_mainWindow->setStatusBarTextNotEnoughCorrespondences(m_points2D.size(), m_minimumNumberOfPoints);
-    } else if (m_points2D.size() > m_points3D.size() + 1) {
-        // Reset the 2D point of the incomplete correspondence
-        m_points2D.removeAt(m_points2D.size() - 2);
-        // No need to change state here, we are still in the state
-        // of too many 2D points
-    } else if (m_points2D.size() > m_points3D.size()) {
-        m_state = Missing3DPoint;
-        // m_points3D.size() here because that's the number of complete correspondences
-        m_mainWindow->setStatusBarText3DPointMissing(m_points3D.size(), m_minimumNumberOfPoints);
-    }
+    addPoint<QPoint, QVector3D>(imagePoint, m_points2D, m_points3D);
 }
 
 void PosesEditingController::add3DPoint(QVector3D objectModelPoint) {
-    m_points3D.append(objectModelPoint);
-    m_mainWindow->poseEditor()->setClicks(m_points3D);
-    m_mainWindow->poseEditor()->setEnabledButtonRecoverPose(false);
-    // TODO set message on main view
-    if (m_points2D.size() == m_points3D.size()
-            && m_points3D.size() >= m_minimumNumberOfPoints) {
-        m_state = ReadyForPoseCreation;
-        m_mainWindow->setStatusBarTextReadyForPoseCreation(m_points2D.size(), m_minimumNumberOfPoints);
-        m_mainWindow->poseEditor()->setEnabledButtonRecoverPose(true);
-    } else if (m_points2D.size() == m_points3D.size()) {
-        m_state = NotEnoughCorrespondences;
-        m_mainWindow->setStatusBarTextNotEnoughCorrespondences(m_points2D.size(), m_minimumNumberOfPoints);
-    } else if (m_points3D.size() > m_points2D.size() + 1) {
-        // Reset the 2D point of the incomplete correspondence
-        m_points3D.removeAt(m_points3D.size() - 2);
-        // No need to change state here, we are still in the state
-        // of too many 3D points
-    } else if (m_points3D.size() > m_points2D.size()) {
-        m_state = Missing2DPoint;
-        // m_points3D.size() here because that's the number of complete correspondences
-        m_mainWindow->setStatusBarText2DPointMissing(m_points2D.size(), m_minimumNumberOfPoints);
-    }
+    addPoint<QVector3D, QPoint>(objectModelPoint, m_points3D, m_points2D);
 }
 
 QString correspondenceToString(QPoint point2D, QVector3D point3D) {
@@ -435,6 +426,15 @@ void PosesEditingController::recoverPose() {
 
     addPose(newPose);
     m_mainWindow->setStatusBarTextStartAddingCorrespondences();
+}
+
+void PosesEditingController::abortPoseRecovering() {
+    m_state = Empty;
+    m_points2D.clear();
+    m_points3D.clear();
+    m_mainWindow->setStatusBarTextStartAddingCorrespondences();
+    m_mainWindow->poseEditor()->onPoseCreationAborted();
+    m_mainWindow->poseViewer()->onPoseCreationAborted();
 }
 
 void PosesEditingController::onReloadViews() {

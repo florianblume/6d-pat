@@ -42,6 +42,7 @@ private Q_SLOTS:
     void add2DPoint(QPoint imagePoint);
     void add3DPoint(QVector3D objectModelPoint);
     void recoverPose();
+    void abortPoseRecovering();
 
     // This function is there for e.g. when the user selects a different image and has modified
     // a pose without saving, savePoses simply saves the poses when the user clicks on the
@@ -56,6 +57,10 @@ private Q_SLOTS:
     // React to clicks in the galleries
     void onSelectedImageChanged(int index);
     void onSelectedObjectModelChanged(int index);
+
+private:
+    template<class A, class B>
+    void addPoint(A point, QList<A> &listToAddTo, QList<B> &listToCompareTo);
 
 private:
     struct PoseValues {

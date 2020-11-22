@@ -207,7 +207,9 @@ void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
         PoseRenderable *formerSelected = poseRenderableForId[deselected->id()];
         formerSelected->setSelected(false);
     }
-    if (!selected.isNull()) {
+    // Check for inequality because otherwise the pose gets selected again
+    // (which we don't want, if the same pose is selected again it is deselected)
+    if (!selected.isNull() && selected != deselected) {
         PoseRenderable *newSelected = poseRenderableForId[selected->id()];
         newSelected->setSelected(true);
     }

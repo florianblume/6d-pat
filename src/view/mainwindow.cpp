@@ -137,17 +137,12 @@ void MainWindow::setGalleryObjectModelModel(GalleryObjectModelModel* model) {
     connect(model, &GalleryObjectModelModel::displayedObjectModelsChanged, ui->galleryRight, &Gallery::reset);
 }
 
-void MainWindow::abortPoseCreation() {
-    onActionReloadViewsTriggered();
-    Q_EMIT poseCreationAborted();
-}
-
 void MainWindow::setStatusBarTextStartAddingCorrespondences() {
     setStatusBarText("Start adding correspondences by clicking on either the image or object model.");
 }
 
 void MainWindow::setStatusBarText2DPointMissing(int numberOfCorrespondences, int minNumberOfCorrespondences) {
-    setStatusBarText("Complete the correspondence by clicking the 3D model (" +
+    setStatusBarText("Complete the correspondence by clicking in the image (" +
                      QString::number(numberOfCorrespondences) +
                      "/" +
                      QString::number(minNumberOfCorrespondences) +
@@ -155,7 +150,7 @@ void MainWindow::setStatusBarText2DPointMissing(int numberOfCorrespondences, int
 }
 
 void MainWindow::setStatusBarText3DPointMissing(int numberOfCorrespondences, int minNumberOfCorrespondences) {
-    setStatusBarText("Complete the correspondence by clicking in the image (" +
+    setStatusBarText("Complete the correspondence by clicking the 3D model (" +
                      QString::number(numberOfCorrespondences) +
                      "/" +
                      QString::number(minNumberOfCorrespondences) +
@@ -291,6 +286,7 @@ void MainWindow::onActionSettingsTriggered() {
 
 void MainWindow::onActionAbortCreationTriggered() {
     setStatusBarText("Ready.");
+    Q_EMIT poseCreationAborted();
 }
 
 void MainWindow::onActionReloadViewsTriggered() {

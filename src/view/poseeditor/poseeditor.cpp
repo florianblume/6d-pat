@@ -305,13 +305,9 @@ void PoseEditor::onPosesSaved() {
 
 // Called by the PoseEditingController
 void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
+    // We store the currently selected pose and the previously selected
+    // pose separately due to various reasons
     currentlySelectedPose = selected;
-
-    // We have to disable controls until loading of the respective object model
-    // has finished to prevent the program from crashing because the user
-    // selected the next pose too quickly (internal Qt3D issue)
-    setEnabledAllControls(false);
-    ui->buttonSave->setEnabled(posesDitry);
 
     QModelIndex indexToSelect;
 
@@ -337,10 +333,17 @@ void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
             setEnabledPoseEditorControls(true);
         }
     }
+
     // Set to true because the function we are currently in is called by the PoseEditingController
     // and we don't want to set a new selected pose
     ignorePoseSelectionChanges = true;
     ui->listViewPoses->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect);
+
+    // We have to disable controls until loading of the respective object model
+    // has finished to prevent the program from crashing because the user
+    // selected the next pose too quickly (internal Qt3D issue)
+    setEnabledAllControls(false);
+    ui->buttonSave->setEnabled(posesDitry);
 
     if (previouslySelectedPose.isNull()) {
         // On program start select the first pose
