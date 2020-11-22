@@ -57,6 +57,7 @@ void PoseViewer::setPoses(const QList<PosePtr> &poses) {
 
 void PoseViewer::addPose(PosePtr pose) {
     m_poseViewer3DWidget->addPose(pose);
+    m_poseViewer3DWidget->selectPose(pose, PosePtr());
 }
 
 void PoseViewer::removePose(PosePtr pose) {

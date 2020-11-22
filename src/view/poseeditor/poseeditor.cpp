@@ -53,6 +53,10 @@ void PoseEditor::setEnabledButtonRecoverPose(bool enabled) {
     ui->buttonCreate->setEnabled(enabled);
 }
 
+void PoseEditor::setEnabledButtonSave(bool enabled) {
+    ui->buttonSave->setEnabled(enabled);
+}
+
 void PoseEditor::setCurrentImage(ImagePtr image) {
     currentImage = image;
     setEnabledPoseInvariantControls(!currentImage.isNull());
@@ -81,17 +85,17 @@ void PoseEditor::addPose(PosePtr pose) {
     // This function will be called after adding a pose
     // so we can set the states of the controls
     // respectively
-    posesDitry = true;
     setEnabledAllControls(true);
     ui->buttonCreate->setEnabled(false);
     poseEditor3DWindow->setClicks({});
     poses.append(pose);
     // Add the pose to the list view and select it
+    // but do not react to selection change
+    ignorePoseSelectionChanges = true;
     setPosesOnPosesListView(pose->id());
 }
 
 void PoseEditor::removePose(PosePtr pose) {
-    posesDitry = true;
     for (int i = 0; i < poses.size(); i++) {
         if (poses[i] == pose) {
             poses.removeAt(i);
@@ -105,10 +109,12 @@ void PoseEditor::removePose(PosePtr pose) {
         posesIndices[pose->id()] = index;
         index++;
     }
+    // Don't enable save button here, the controller does it for us
+    // because when the pose that is to be removed has just been added
+    // we don't need the save button to be enabled
     listViewPosesModel->setStringList(list);
     resetControlsValues();
     setEnabledPoseEditorControls(false);
-    ui->buttonSave->setEnabled(true);
     setEnabledPoseInvariantControls(currentImage);
 }
 
@@ -122,8 +128,6 @@ void PoseEditor::setEnabledPoseEditorControls(bool enabled) {
     ui->spinBoxRotationZ->setEnabled(enabled);
     // The next line is the difference to setEnabledAllControls
     ui->buttonRemove->setEnabled(enabled);
-    // We handle the save button separately
-    //ui->buttonSave->setEnabled(enabled);
     ui->buttonDuplicate->setEnabled(enabled);
 }
 
@@ -208,7 +212,6 @@ void PoseEditor::setPoseValuesOnControls(const Pose &pose) {
 void PoseEditor::onSpinBoxValueChanged() {
     if (!ignoreSpinBoxValueChanges) {
         updateCurrentlyEditedPose();
-        ui->buttonSave->setEnabled(true);
     }
 }
 
@@ -272,6 +275,9 @@ void PoseEditor::onListViewPosesSelectionChanged(const QItemSelection &selected,
         if (index > 0) {
             // --index because None ist 0-th element and indices of poses are +1
             poseToSelect = poses[--index];
+        } else {
+            // If the user selected None then disable the controls
+            setEnabledPoseEditorControls(false);
         }
         Q_EMIT poseSelected(poseToSelect);
     }
@@ -294,14 +300,10 @@ void PoseEditor::onSelectedPoseValuesChanged(PosePtr pose) {
     // (because the user rotated/moved the pose in the PoseViewer)
     ignoreSpinBoxValueChanges = true;
     setPoseValuesOnControls(*pose);
-    ui->buttonSave->setEnabled(true);
-    posesDitry = true;
 }
 
 // Will be called by the PoseEditingController
 void PoseEditor::onPosesSaved() {
-    posesDitry = false;
-    ui->buttonSave->setEnabled(false);
 }
 
 // Called by the PoseEditingController
@@ -340,12 +342,6 @@ void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
     ignorePoseSelectionChanges = true;
     ui->listViewPoses->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect);
 
-    // We have to disable controls until loading of the respective object model
-    // has finished to prevent the program from crashing because the user
-    // selected the next pose too quickly (internal Qt3D issue)
-    setEnabledAllControls(false);
-    ui->buttonSave->setEnabled(posesDitry);
-
     if (previouslySelectedPose.isNull()) {
         // On program start select the first pose
         previouslySelectedPose = selected;
@@ -363,7 +359,6 @@ void PoseEditor::onPoseCreationAborted() {
 
 void PoseEditor::reset() {
     qDebug() << "Resetting pose editor.";
-    posesDitry = false;
     poseEditor3DWindow->reset();
     currentImage.reset();
     images.clear();

@@ -61,6 +61,8 @@ private Q_SLOTS:
 private:
     template<class A, class B>
     void addPoint(A point, QList<A> &listToAddTo, QList<B> &listToCompareTo);
+    PosePtr createNewPoseFromPose(PosePtr pose);
+    void enableSaveButtonOnPoseEditor();
 
 private:
     struct PoseValues {

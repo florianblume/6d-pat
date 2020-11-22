@@ -11,8 +11,6 @@ void GalleryObjectModels::selectObjectModelByID(const ObjectModel &objectModel, 
     QModelIndex index = model->indexOfObjectModel(objectModel);
     if (index.isValid()) {
         ui->listView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
-        QRect test = ui->listView->visualRect(index);
-        qDebug() << test;
         ui->listView->scrollTo(index);
     } else {
         ui->listView->selectionModel()->clearSelection();

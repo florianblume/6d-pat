@@ -28,6 +28,7 @@ public:
     explicit PoseEditor(QWidget *parent = Q_NULLPTR);
     ~PoseEditor();
     void setEnabledButtonRecoverPose(bool enabled);
+    void setEnabledButtonSave(bool enabled);
 
 public Q_SLOTS:
     // We don't actually need the image, only to check
@@ -120,9 +121,6 @@ private:
 
     QStringListModel *listViewPosesModel;
     QStringListModel *listViewImagesModel;
-
-    // To know whether to re-enable to save button after loading a different pose
-    bool posesDitry = false;
 
     // To prevent the spin boxes from emitting their changed signal when we set the pose
     // values e.g. because the user selected a pose in the PoseViewer
