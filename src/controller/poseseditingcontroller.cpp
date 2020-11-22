@@ -374,10 +374,12 @@ void PosesEditingController::addPoint(A point,
 
 void PosesEditingController::add2DPoint(QPoint imagePoint) {
     addPoint<QPoint, QVector3D>(imagePoint, m_points2D, m_points3D);
+    qDebug() << m_points2D;
 }
 
 void PosesEditingController::add3DPoint(QVector3D objectModelPoint) {
     addPoint<QVector3D, QPoint>(objectModelPoint, m_points3D, m_points2D);
+    qDebug() << m_points3D;
 }
 
 QString correspondenceToString(QPoint point2D, QVector3D point3D) {
@@ -406,11 +408,6 @@ void PosesEditingController::recoverPose() {
             break;
     }
 
-    m_points2D.clear();
-    m_mainWindow->poseViewer()->onPoseCreationAborted();
-    m_points3D.clear();
-    m_mainWindow->poseEditor()->onPoseCreationAborted();
-
     std::vector<cv::Point3f> objectPoints;
     std::vector<cv::Point2f> imagePoints;
 
@@ -435,6 +432,11 @@ void PosesEditingController::recoverPose() {
     cv::Mat resultTranslation;
 
     cv::solvePnP(objectPoints, imagePoints, cameraMatrix, coefficient, resultRotation, resultTranslation);
+
+    m_points2D.clear();
+    m_mainWindow->poseViewer()->onPoseCreationAborted();
+    m_points3D.clear();
+    m_mainWindow->poseEditor()->onPoseCreationAborted();
 
     for (int i = 0; i < resultTranslation.size[0]; i++) {
         for (int j = 0; j < resultTranslation.size[1]; j++) {

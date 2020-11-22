@@ -20,7 +20,7 @@ ObjectModelRenderableMaterial::ObjectModelRenderableMaterial(Qt3DCore::QNode *pa
       , m_clickColorsParameter(new Qt3DRender::QParameter(QStringLiteral("colors[0]"), QVariantList()))
       , m_clickCountParameter(new Qt3DRender::QParameter(QStringLiteral("clickCount"), 0))
       , m_useDiffuseTextureParameter(new Qt3DRender::QParameter(QStringLiteral("useDiffuseTexture"), QVariant::fromValue(withTexture)))
-      , m_circumfenceParameter(new Qt3DRender::QParameter(QStringLiteral("circumfence"), 0.001f))
+      , m_circumfenceParameter(new Qt3DRender::QParameter(QStringLiteral("circumfence"), 0.01f))
       , m_highlightColorParameter(new Qt3DRender::QParameter(QStringLiteral("selected"), QVector4D(0.f, 0.f, 0.f, 0.f)))
       , m_opacityParameter(new Qt3DRender::QParameter(QStringLiteral("opacity"), 1.0f))
       , m_technique(new Qt3DRender::QTechnique())

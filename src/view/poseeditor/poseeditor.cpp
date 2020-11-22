@@ -32,6 +32,10 @@ PoseEditor::PoseEditor(QWidget *parent) :
             this, &PoseEditor::onListViewPosesSelectionChanged);
     listViewImagesModel = new QStringListModel;
     ui->listViewImages->setModel(listViewImagesModel);
+    connect(ui->listViewImages->selectionModel(), &QItemSelectionModel::selectionChanged,
+            [this](){
+        ui->buttonCopy->setEnabled(true);
+    });
     // To prevent clicking again in the object models list view because clicking too
     // quickly crashes the program
     connect(poseEditor3DWindow, &PoseEditor3DWindow::loadingObjectModel,
@@ -64,7 +68,8 @@ void PoseEditor::setCurrentImage(ImagePtr image) {
 
 void PoseEditor::setImages(const QList<ImagePtr> &images) {
     this->images = images;
-    ui->buttonCopy->setEnabled(images.size() > 0);
+    // Disable because the user has to select an image first
+    ui->buttonCopy->setEnabled(false);
     QStringList imagesList;
     for (const ImagePtr &image : images) {
         imagesList << image->imagePath();
@@ -161,7 +166,8 @@ void PoseEditor::resetControlsValues() {
 void PoseEditor::setEnabledPoseInvariantControls(bool enabled) {
     ui->listViewImages->setEnabled(enabled);
     ui->listViewPoses->setEnabled(enabled);
-    ui->buttonCopy->setEnabled(enabled);
+    // Don't enable here, gets enabled when the user selects an image
+    //ui->buttonCopy->setEnabled(enabled);
 }
 
 void PoseEditor::setPosesOnPosesListView(const QString &poseToSelect) {
