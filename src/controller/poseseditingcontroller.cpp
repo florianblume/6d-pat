@@ -120,6 +120,8 @@ void PosesEditingController::removePose() {
     m_mainWindow->poseViewer()->removePose(m_selectedPose);
     m_mainWindow->poseEditor()->removePose(m_selectedPose);
     abortPoseRecovering();
+    m_selectedPose.reset();
+    Q_EMIT selectedPoseChanged(PosePtr(), PosePtr());
 }
 
 void PosesEditingController::duplicatePose() {
@@ -205,6 +207,7 @@ void PosesEditingController::savePosesOrRestoreState() {
 
 bool PosesEditingController::_savePoses(bool showDialog) {
     QList<PosePtr> posesToSave = m_dirtyPoses.keys(true);
+    m_mainWindow->poseEditor()->onPosesSaved();
     if (posesToSave.size() || m_posesToAdd.size() || m_posesToRemove.size()) {
         qDebug() << posesToSave.size() + m_posesToAdd.size() + m_posesToRemove.size() << " poses dirty.";
         bool result = !showDialog;
@@ -239,7 +242,6 @@ bool PosesEditingController::_savePoses(bool showDialog) {
         // the saving executed directly
         return result;
     }
-    m_mainWindow->poseEditor()->onPosesSaved();
     return true;
 }
 

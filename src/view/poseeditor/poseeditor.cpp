@@ -81,10 +81,9 @@ void PoseEditor::addPose(PosePtr pose) {
     // This function will be called after adding a pose
     // so we can set the states of the controls
     // respectively
+    posesDitry = true;
+    setEnabledAllControls(true);
     ui->buttonCreate->setEnabled(false);
-    ui->buttonSave->setEnabled(false);
-    ui->buttonDuplicate->setEnabled(true);
-    ui->buttonRemove->setEnabled(true);
     poseEditor3DWindow->setClicks({});
     poses.append(pose);
     // Add the pose to the list view and select it
@@ -92,6 +91,7 @@ void PoseEditor::addPose(PosePtr pose) {
 }
 
 void PoseEditor::removePose(PosePtr pose) {
+    posesDitry = true;
     for (int i = 0; i < poses.size(); i++) {
         if (poses[i] == pose) {
             poses.removeAt(i);
@@ -108,6 +108,7 @@ void PoseEditor::removePose(PosePtr pose) {
     listViewPosesModel->setStringList(list);
     resetControlsValues();
     setEnabledPoseEditorControls(false);
+    ui->buttonSave->setEnabled(true);
     setEnabledPoseInvariantControls(currentImage);
 }
 
