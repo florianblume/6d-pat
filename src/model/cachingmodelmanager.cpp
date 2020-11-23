@@ -219,7 +219,6 @@ void CachingModelManager::onLoadAndStoreStrategyError(LoadAndStoreStrategy::Erro
 }
 
 void CachingModelManager::dataReady() {
-    qDebug() << "data ready";
     Q_EMIT stateChanged(State::Ready);
     Q_EMIT dataChanged(Data::Images | Data::ObjectModels | Data::Poses);
 }

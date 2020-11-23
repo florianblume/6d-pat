@@ -9,6 +9,7 @@
 #include "controller/poseseditingcontroller.hpp"
 #include "controller/neuralnetworkcontroller.hpp"
 
+#include <QSplashScreen>
 #include <QApplication>
 #include <QScopedPointer>
 #include <QSharedPointer>
@@ -37,6 +38,7 @@ Q_SIGNALS:
 private Q_SLOTS:
     void onSettingsChanged(SettingsPtr settings);
     void onReloadViewsRequested();
+    void onModelManagerStateChanged(ModelManager::State state);
 
 private:
     /*!
@@ -53,6 +55,9 @@ private:
     void setPathsOnLoadAndStoreStrategy();
 
 private:
+    bool initialized = false;
+    QSplashScreen* splash;
+
     // Keep order! Initializiation must happen in this way
     QSharedPointer<SettingsStore> settingsStore;
     QSharedPointer<Settings> currentSettings;

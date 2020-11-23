@@ -156,7 +156,6 @@ static ImagePtr createImageWithJsonParams(const QString& filename, const QString
 }
 
 QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
-    qDebug() << "strategy" << QThread::currentThread();
     QList<ImagePtr> images;
 
     // we do not need to throw an exception here, the only time the path cannot exist
