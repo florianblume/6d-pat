@@ -28,11 +28,13 @@ MainWindow::MainWindow(QWidget *parent,
     dataLoadingProgressDialog->setModal(true);
     dataLoadingProgressDialog->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
     dataLoadingProgressDialog->setFixedSize(dataLoadingProgressDialog->size());
-    dataLoadingProgressDialog->show();
+    // The controller handles showing the progress dialog externally
+    //dataLoadingProgressDialog->show();
 
     statusBar()->addPermanentWidget(statusBarLabel, 1);
     setStatusBarText(QString("Loading..."));
-
+    connect(modelManager, &ModelManager::stateChanged,
+            this, &MainWindow::onModelManagerStateChanged);
 
     connect(settingsStore, &SettingsStore::settingsChanged,
             this, &MainWindow::onSettingsChanged);
@@ -291,13 +293,6 @@ void MainWindow::onActionAbortCreationTriggered() {
 
 void MainWindow::onActionReloadViewsTriggered() {
     Q_EMIT reloadingViews();
-    // Need to reload in case some data changed and we haven't picked it up
-    modelManager->reload();
-    // Reset just to be sure
-    ui->poseEditor->reset();
-    ui->poseViewer->reset();
-    ui->galleryLeft->reset();
-    ui->galleryRight->reset();
     setStatusBarText("Ready.");
 }
 

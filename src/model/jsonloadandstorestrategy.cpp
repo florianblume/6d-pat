@@ -13,18 +13,15 @@
 #include <QJsonArray>
 #include <QMap>
 #include <QDir>
+#include <QThread>
 
 const QStringList JsonLoadAndStoreStrategy::OBJECT_MODEL_FILES_EXTENSIONS =
                                             QStringList({"*.obj", "*.ply", "*.3ds", "*.fbx"});
 const QStringList JsonLoadAndStoreStrategy::IMAGE_FILES_EXTENSIONS =
                                             QStringList({"*.jpg", "*.jpeg", "*.png", "*.tiff"});
 
-JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy(SettingsStore *settingsStore,
-                                                   const QString settingsIdentifier) :
-    LoadAndStoreStrategy(settingsStore, settingsIdentifier) {
+JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy()  {
     connectWatcherSignals();
-    // Simply call settings changed to load the paths, etc
-    onSettingsChanged(settingsStore->loadPreferencesByIdentifier(settingsIdentifier));
 }
 
 JsonLoadAndStoreStrategy::~JsonLoadAndStoreStrategy() {
@@ -121,6 +118,10 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
     return true;
 }
 
+void JsonLoadAndStoreStrategy::setImagesPath(const QString &imagesPath) {
+    setPath(imagesPath, this->imagesPath);
+}
+
 static QMatrix3x3 rotVectorFromJsonRotMatrix(QJsonArray &jsonRotationMatrix) {
     float values[9] = {
         (float) jsonRotationMatrix[0].toDouble(),
@@ -155,6 +156,7 @@ static ImagePtr createImageWithJsonParams(const QString& filename, const QString
 }
 
 QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
+    qDebug() << "strategy" << QThread::currentThread();
     QList<ImagePtr> images;
 
     // we do not need to throw an exception here, the only time the path cannot exist
@@ -230,6 +232,11 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     return images;
 }
 
+void JsonLoadAndStoreStrategy::setObjectModelsPath(const QString &objectModelsPath) {
+    setPath(objectModelsPath, this->objectModelsPath);
+
+}
+
 QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
     QList<ObjectModelPtr> objectModels;
 
@@ -264,6 +271,10 @@ QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
         });
 
     return objectModels;
+}
+
+void JsonLoadAndStoreStrategy::setPosesFilePath(const QString &posesFilePath) {
+    setPath(posesFilePath, this->posesFilePath);
 }
 
 QMap<QString, ImagePtr> createImageMap(const QList<ImagePtr> &images) {
@@ -374,9 +385,6 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
 }
 
 void JsonLoadAndStoreStrategy::onSettingsChanged(SettingsPtr settings) {
-    if (settings->identifier() != settingsIdentifier) {
-        return;
-    }
     if (settings->imagesPath() != imagesPath) {
         setImagesPath(settings->imagesPath());
     }
@@ -391,7 +399,7 @@ void JsonLoadAndStoreStrategy::onSettingsChanged(SettingsPtr settings) {
     }
 }
 
-bool JsonLoadAndStoreStrategy::setPath(const QString &path, QString &oldPath, Data data) {
+bool JsonLoadAndStoreStrategy::setPath(const QString &path, QString &oldPath) {
     if (!QFileInfo(path).exists())
         return false;
     if (oldPath == path)
@@ -403,33 +411,18 @@ bool JsonLoadAndStoreStrategy::setPath(const QString &path, QString &oldPath, Da
     watcher.addPath(path);
     oldPath = path;
 
-    Q_EMIT dataChanged(data);
-
     return true;
-}
-
-bool JsonLoadAndStoreStrategy::setImagesPath(const QString &path) {
-    return setPath(path, imagesPath, Data::Images);
-}
-
-bool JsonLoadAndStoreStrategy::setObjectModelsPath(const QString &path) {
-    return setPath(path, objectModelsPath, Data::ObjectModels);
-}
-
-bool JsonLoadAndStoreStrategy::setPosesFilePath(const QString &path) {
-    return setPath(path, posesFilePath, Data::Poses);
 }
 
 void JsonLoadAndStoreStrategy::setSegmentationImagesPath(const QString &path) {
     //! Only set suffix if it differs from the suffix before because we then have to reload images
     if (segmentationImagesPath != path) {
-        segmentationImagesPath = path;
-        Q_EMIT dataChanged(Data::Images);
+        setPath(path, segmentationImagesPath);
     }
 }
 
 void JsonLoadAndStoreStrategy::onDirectoryChanged(const QString &path) {
-    if (path == imagesPath) {
+    if (path == imagesPath || path == segmentationImagesPath) {
         Q_EMIT dataChanged(Data::Images);
     } else if (path == objectModelsPath) {
         Q_EMIT dataChanged(Data::ObjectModels);

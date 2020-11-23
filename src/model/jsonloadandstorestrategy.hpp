@@ -27,24 +27,23 @@ public:
      * \brief TextFileLoadAndStoreStrategy Constructor of this strategy. The paths MUST be set aferwards to use it
      * properly, otherwise the strategy won't deliver any content.
      */
-    JsonLoadAndStoreStrategy(SettingsStore *settingsStore,
-                             const QString settingsIdentifier);
-
-    /*!
-     * \brief TextFileLoadAndStoreStrategy Convenience constructor setting the paths already.
-     * \param _imagesPath
-     * \param _objectModelsPath
-     * \param _posesPath
-     */
     JsonLoadAndStoreStrategy();
 
     ~JsonLoadAndStoreStrategy();
 
     bool persistPose(const Pose &pose, bool deletePose) override;
 
+    void setImagesPath(const QString &imagesPath) override;
+
+    void setSegmentationImagesPath(const QString &path) override;
+
     QList<ImagePtr> loadImages() override;
 
+    void setObjectModelsPath(const QString &objectModelsPath) override;
+
     QList<ObjectModelPtr> loadObjectModels() override;
+
+    void setPosesFilePath(const QString &posesFilePath) override;
 
     /*!
      * \brief loadPoses Loads the poses at the given path. How the poses are stored depends on the
@@ -91,11 +90,7 @@ private:
     bool ignorePosesFileChanged = false;
 
     //! Internal methods to react to path changes
-    bool setPath(const QString &path, QString &oldPath, Data data);
-    bool setImagesPath(const QString &path);
-    void setSegmentationImagesPath(const QString &path);
-    bool setObjectModelsPath(const QString &path);
-    bool setPosesFilePath(const QString &path);
+    bool setPath(const QString &path, QString &oldPath);
 };
 
 #endif // TEXTFILELOADANDSTORESTRATEGY_H

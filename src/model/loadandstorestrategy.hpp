@@ -38,8 +38,7 @@ public:
         FailedToPersistPosePosesPathIsNotAFile
     };
 
-    LoadAndStoreStrategy(SettingsStore *settingsStore,
-                         const QString &settingsIdentifier);
+    LoadAndStoreStrategy();
 
     virtual ~LoadAndStoreStrategy();
 
@@ -53,17 +52,25 @@ public:
     virtual bool persistPose(const Pose &objectImagePose,
                              bool deletePose) = 0;
 
+    virtual void setImagesPath(const QString &imagesPath) = 0;
+
+    virtual void setSegmentationImagesPath(const QString &path) = 0;
+
     /*!
      * \brief loadImages Loads the images.
      * \return the list of images
      */
     virtual QList<ImagePtr> loadImages() = 0;
 
+    virtual void setObjectModelsPath(const QString &objectModelsPath) = 0;
+
     /*!
      * \brief loadObjectModels Loads the object models.
      * \return the list of object models
      */
     virtual QList<ObjectModelPtr> loadObjectModels() = 0;
+
+    virtual void setPosesFilePath(const QString &posesFilePath) = 0;
 
     /*!
      * \brief loadPoses Loads the poses at the given path. How the poses
@@ -78,15 +85,11 @@ public:
     void setSettingsIdentifier(const QString &value);
 
 signals:
-    void error(Error error);
+    void error(LoadAndStoreStrategy::Error error);
     void dataChanged(int data);
 
 protected slots:
     virtual void onSettingsChanged(SettingsPtr settings) = 0;
-
-protected:
-    SettingsStore *settingsStore;
-    QString settingsIdentifier;
 
 };
 

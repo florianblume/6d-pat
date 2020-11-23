@@ -138,21 +138,21 @@ public:
      */
     virtual bool removePose(const QString &id) = 0;
 
+    virtual LoadAndStoreStrategy::Error error() = 0;
+
+public Q_SLOTS:
     /*!
      * \brief reload reads all data from the persitence storage again and
      * emits the corresponding signals.
      */
     virtual void reload() = 0;
 
-    virtual LoadAndStoreStrategy::Error error() = 0;
-
 Q_SIGNALS:
     void dataChanged(int data);
     void poseAdded(PosePtr pose);
     void poseUpdated(PosePtr pose);
     void poseDeleted(PosePtr pose);
-    void stateChanged(State state);
-
+    void stateChanged(ModelManager::State state);
 };
 
 #endif // MODELMANAGER_H

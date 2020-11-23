@@ -31,8 +31,12 @@ public:
      */
     int exec();
 
+Q_SIGNALS:
+    void reloadingData();
+
 private Q_SLOTS:
     void onSettingsChanged(SettingsPtr settings);
+    void onReloadViewsRequested();
 
 private:
     /*!
@@ -46,6 +50,7 @@ private:
     void showView();
     void initializeSettingsItem();
     void initializeMainWindow();
+    void setPathsOnLoadAndStoreStrategy();
 
 private:
     // Keep order! Initializiation must happen in this way
@@ -55,6 +60,7 @@ private:
 
     QScopedPointer<JsonLoadAndStoreStrategy> strategy;
     QScopedPointer<CachingModelManager> modelManager;
+    QThread *modelManagerThread;
     QScopedPointer<PosesEditingController> poseEditingModel;
     QScopedPointer<NeuralNetworkController> networkController;
 

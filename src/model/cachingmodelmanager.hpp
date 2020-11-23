@@ -52,15 +52,15 @@ public:
 
     bool removePose(const QString &id) override;
 
-    void reload() override;
-
     LoadAndStoreStrategy::Error error() override;
+
+public Q_SLOTS:
+    void reload() override;
 
 private Q_SLOTS:
     // Callback for threadded data loading
     void dataReady();
     void onDataChanged(int data);
-    void threaddedReload();
     void onLoadAndStoreStrategyError(LoadAndStoreStrategy::Error error);
 
 private:

@@ -8,7 +8,7 @@
 CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy) : ModelManager(loadAndStoreStrategy) {
     connect(&loadAndStoreStrategy, &LoadAndStoreStrategy::dataChanged,
             this, &CachingModelManager::dataChanged);
-    connect(&reloadFutureWatcher, &QFutureWatcher<void>::finished, this, &CachingModelManager::dataReady);
+    //connect(&reloadFutureWatcher, &QFutureWatcher<void>::finished, this, &CachingModelManager::dataReady);
     connect(&loadAndStoreStrategy, &LoadAndStoreStrategy::error,
             this, &CachingModelManager::error);
 }
@@ -202,19 +202,16 @@ bool CachingModelManager::removePose(const QString &id) {
 
 void CachingModelManager::reload() {
     Q_EMIT stateChanged(State::Loading);
-    reloadFuture = QtConcurrent::run(this, &CachingModelManager::threaddedReload);
-    reloadFutureWatcher.setFuture(reloadFuture);
-}
-
-LoadAndStoreStrategy::Error CachingModelManager::error() {
-    return m_error;
-}
-
-void CachingModelManager::threaddedReload() {
+    QThread::sleep(10);
     m_images = loadAndStoreStrategy.loadImages();
     m_objectModels = loadAndStoreStrategy.loadObjectModels();
     m_poses = loadAndStoreStrategy.loadPoses(m_images, m_objectModels);
     createConditionalCache();
+    Q_EMIT dataReady();
+}
+
+LoadAndStoreStrategy::Error CachingModelManager::error() {
+    return m_error;
 }
 
 void CachingModelManager::onLoadAndStoreStrategyError(LoadAndStoreStrategy::Error error) {
@@ -223,6 +220,7 @@ void CachingModelManager::onLoadAndStoreStrategyError(LoadAndStoreStrategy::Erro
 }
 
 void CachingModelManager::dataReady() {
+    qDebug() << "data ready";
     Q_EMIT stateChanged(State::Ready);
     Q_EMIT dataChanged(Data::Images | Data::ObjectModels | Data::Poses);
 }

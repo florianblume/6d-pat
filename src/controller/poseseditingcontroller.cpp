@@ -59,8 +59,6 @@ PosesEditingController::PosesEditingController(QObject *parent, ModelManager *mo
             this, &PosesEditingController::add2DPoint);
 
     // React to mainwindow signals
-    connect(mainWindow, &MainWindow::reloadingViews,
-            this, &PosesEditingController::onReloadViews);
     connect(mainWindow, &MainWindow::closingProgram,
             this, &PosesEditingController::onProgramClose);
     connect(mainWindow, &MainWindow::poseCreationAborted,
@@ -396,15 +394,11 @@ void PosesEditingController::recoverPose() {
     // TODO show warnings in mainwindow
     switch (m_state) {
         case Empty:
-            return;
         case NotEnoughCorrespondences:
-            return;
         case Missing2DPoint:
-            return;
         case Missing3DPoint:
-            return;
-        case ReadyForPoseCreation:
         default:
+            qWarning() << "Illegal state for pose recovering. This should never happen.";
             break;
     }
 
