@@ -38,7 +38,8 @@ int MainController::exec() {
 
 void MainController::initialize() {
     m_settingsStore.reset(new SettingsStore(m_settingsIdentifier));
-    m_currentSettings = m_settingsStore->currentSettings();
+    Settings tmp(*m_settingsStore->currentSettings());
+    m_currentSettings.reset(new Settings(tmp));
     m_strategy.reset(new JsonLoadAndStoreStrategy());
     m_strategy->moveToThread(m_modelManagerThread);
     setPathsOnLoadAndStoreStrategy();
@@ -93,7 +94,8 @@ void MainController::onSettingsChanged(SettingsPtr settings) {
     // We need to reset the stored currentSettings like this here because we need settings
     // that are independend of the settings of the settings store because those might get
     // altered but we want to be able to compare if something has changed
-    m_currentSettings.reset(new Settings(*settings));
+    Settings tmp(*settings);
+    m_currentSettings.reset(new Settings(tmp));
 }
 
 void MainController::onReloadViewsRequested() {

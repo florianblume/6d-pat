@@ -44,6 +44,11 @@ MainWindow::MainWindow(QWidget *parent,
 
     setPathsOnGalleriesAndBreadcrumbs();
 
+    connect(ui->navigationLeft, &NavigationControls::pathChanged,
+            this, &MainWindow::onImagesPathChangedByNavigation);
+    connect(ui->navigationRight, &NavigationControls::pathChanged,
+            this, &MainWindow::onObjectModelsPathChangedByNavigation);
+
     // If the selected image changes, we also need to cancel any started creation of a pose
     connect(ui->galleryLeft, &Gallery::selectedItemChanged,
             this, &MainWindow::poseCreationAborted);
