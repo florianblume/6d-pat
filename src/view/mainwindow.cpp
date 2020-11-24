@@ -256,8 +256,6 @@ void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
     galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
     ui->breadcrumbLeft->setCurrentPath(settings->imagesPath());
     ui->breadcrumbRight->setCurrentPath(settings->objectModelsPath());
-    ui->breadcrumbLeft->setCurrentPath(settings->imagesPath());
-    ui->breadcrumbLeft->setCurrentPath(settings->objectModelsPath());
 }
 
 void MainWindow::onSettingsChanged(SettingsPtr settings) {

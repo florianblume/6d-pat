@@ -14,7 +14,7 @@ BreadcrumbView::BreadcrumbView(QWidget *parent, const QString &initialPath)
     , ui(new Ui::BreadcrumbView)
     , m_currentPath(initialPath) {
     ui->setupUi(this);
-    DisplayHelper::setIcon(ui->buttonSelectFolder, fa::folderopen, 18);
+    DisplayHelper::setIcon(ui->buttonSelectFolder, fa::folderopen, 24);
 }
 
 BreadcrumbView::~BreadcrumbView() {
