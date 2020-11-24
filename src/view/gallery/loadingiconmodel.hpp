@@ -16,7 +16,7 @@ public:
     LoadingIconModel();
 
 protected:
-    QTimer updateTimer;
+    QTimer m_updateTimer;
     QIcon currentLoadingAnimationFrame;
 
 private:

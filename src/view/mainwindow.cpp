@@ -336,6 +336,9 @@ void MainWindow::onModelManagerStateChanged(ModelManager::State state) {
                 case LoadAndStoreStrategy::FailedToPersistPosePosesPathIsNotAFile:
                     message = "The specified poses file is not a file (error while trying to save a pose).";
                     break;
+                case LoadAndStoreStrategy::PosesPathIsNotReadable:
+                    message = "The specified poses file is not readable.";
+                    break;
             }
             displayWarning("An error occured in the data maanger", message);
         }

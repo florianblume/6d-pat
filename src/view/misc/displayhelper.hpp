@@ -3,6 +3,7 @@
 
 #include "QtAwesome.h"
 
+#include <memory>
 #include <QColor>
 #include <QWidget>
 #include <QMap>

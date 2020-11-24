@@ -57,14 +57,14 @@ void GalleryImageModel::resizeImages() {
 void GalleryImageModel::onImageResized(int imageIndex, const QString &imagePath, const QImage &resizedImage) {
     resizedImagesCache[imagePath] = resizedImage;
     if (imageIndex == imagesCache.size()) {
-        updateTimer.stop();
+        m_updateTimer.stop();
     }
 }
 
 void GalleryImageModel::onDataChanged(int data) {
     // Check if images were changed
     if (data & Data::Images) {
-        updateTimer.start();
+        m_updateTimer.start();
         imagesCache = modelManager->images();
         resizeImages();
         QModelIndex top = index(0, 0);

@@ -55,26 +55,26 @@ private Q_SLOTS:
 
 private:
     QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
+    void renderObjectModels();
+    void createIndexMapping();
 
 private:
     ModelManager* modelManager;
-    QList<ObjectModelPtr> objectModels;
-    QMap<QString,QImage> renderedObjectsModels;
-    OffscreenEngine offscreenEngine{QSize(300, 300)};
-    void renderObjectModels();
-    QList<ImagePtr> images;
+    QList<ObjectModelPtr> m_objectModels;
+    QMap<QString,QImage> m_renderedObjectsModels;
+    OffscreenEngine m_offscreenEngine{QSize(300, 300)};
+    QList<ImagePtr> m_images;
     // Color codes
-    QMap<QString, QString> codes;
+    QMap<QString, QString> m_codes;
     //! We need this in case that an object model will not be displayed due to its color
     //! which then "tears" a hole into the indices
-    QMap<int, int> indexMapping;
-    void createIndexMapping();
-    QList<QColor> colorsOfCurrentImage;
-    int currentSelectedImageIndex = -1;
+    QMap<int, int> m_indexMapping;
+    QList<QColor> m_colorsOfCurrentImage;
+    int m_currentSelectedImageIndex = -1;
     //! Store the index of the currently rendered image to be able to set the correct image
     //! when the renderer returns
-    int currentlyRenderedImageIndex = 0;
-    bool renderingObjectModels = false;
+    int m_currentlyRenderedImageIndex = 0;
+    bool m_renderingObjectModels = false;
 };
 
 #endif // GALLERYOBJECTMODELMODEL_H

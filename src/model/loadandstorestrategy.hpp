@@ -34,6 +34,7 @@ public:
         ObjectModelsPathDoesNotExist,
         ObjectModelsPathIsNotAFolder,
         PosesPathDoesNotExist,
+        PosesPathIsNotReadable,
         FailedToPersistPosePosesFileCouldNotBeRead,
         FailedToPersistPosePosesPathIsNotAFile
     };

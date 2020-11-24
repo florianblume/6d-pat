@@ -26,6 +26,7 @@
 #include <Qt3DRender/QDepthTest>
 #include <Qt3DRender/QLayerFilter>
 #include <Qt3DRender/QLayer>
+#include <Qt3DRender/QNoPicking>
 #include <Qt3DRender/QMultiSampleAntiAliasing>
 
 class PoseViewer3DWidget : public Qt3DWidget
@@ -55,9 +56,6 @@ public Q_SLOTS:
     // React to object pickers
     void onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent);
     void onPoseRenderablePressed(Qt3DRender::QPickEvent *pickEvent);
-    void onBackgroundImageRenderableMoved(Qt3DRender::QPickEvent *pickEvent);
-    void onBackgroundImageRenderableClicked(Qt3DRender::QPickEvent *pickEvent);
-    void onBackgroundImageRenderablePressed(Qt3DRender::QPickEvent *pickEvent);
 
 Q_SIGNALS:
     void positionClicked(QPoint position);
@@ -89,6 +87,7 @@ private:
     Qt3DRender::QCamera *backgroundCamera;
     Qt3DRender::QCameraSelector *backgroundCameraSelector;
     Qt3DRender::QNoDepthMask *backgroundNoDepthMask;
+    Qt3DRender::QNoPicking *backgroundNoPicking;
     QPointer<BackgroundImageRenderable> backgroundImageRenderable;
 
     // Poses branch
@@ -129,17 +128,25 @@ private:
     QVector3D translationDifference;
     QVector3D translationStart;
     float depth = 0.f;
-    float distance = 0.f;
 
     // To handle dragging of the widget and clicking
     QPoint firstClickPos;
     QPoint newPos;
     QPoint currentClickPos;
     QPointF localClickPos;
+    // To check whether the moved signal of the pose was because the user
+    // wants to rotate or translte the pose (and therefore holds down a button)
     bool mouseDown = false;
+    // To check whether the user has clicked (e.g. by adding a correspondence point)
+    // or really moved the mouse while holding buttons
     bool mouseMoved = false;
-    bool backgroundImageRenderableMovedFirst = false;
-    bool poseRenderableMovedFirst = false;
+    // To check whether the pose renderable has already been moved, we need this
+    // to initialize some values for rotation and translation
+    bool poseRenderableMoved = false;
+    // This is important to check whether a pose renderable has been pressed
+    // and we therefore should only move the image around when the used button
+    // is not one of the buttons defined to rotate or translate a pose
+    bool poseRenderablePressed = false;
 
     // Store the mouse button that was clicked because the Qt3D
     // pick events don't deliver them in their events when the

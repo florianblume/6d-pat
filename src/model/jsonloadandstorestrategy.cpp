@@ -378,6 +378,8 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
             jsonFile.resize(0);
             jsonFile.write(QJsonDocument(jsonObject).toJson());
         }
+    } else {
+        Q_EMIT error(PosesPathIsNotReadable);
     }
 
     return poses;

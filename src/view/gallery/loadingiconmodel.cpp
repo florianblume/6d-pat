@@ -8,8 +8,8 @@ LoadingIconModel::LoadingIconModel()
     });
     loadingAnimation->start();
     // Update every 10ms
-    updateTimer.setInterval(10);
-    connect(&updateTimer, &QTimer::timeout,
+    m_updateTimer.setInterval(10);
+    connect(&m_updateTimer, &QTimer::timeout,
             this, &LoadingIconModel::updateListView);
 }
 

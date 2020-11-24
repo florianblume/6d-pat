@@ -10,7 +10,10 @@ CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrat
             this, &CachingModelManager::dataChanged);
     //connect(&reloadFutureWatcher, &QFutureWatcher<void>::finished, this, &CachingModelManager::dataReady);
     connect(&loadAndStoreStrategy, &LoadAndStoreStrategy::error,
-            this, &CachingModelManager::error);
+            [this](LoadAndStoreStrategy::Error error){
+        this->m_error = error;
+        Q_EMIT stateChanged(ModelManager::Error);
+    });
 }
 
 CachingModelManager::~CachingModelManager() {
