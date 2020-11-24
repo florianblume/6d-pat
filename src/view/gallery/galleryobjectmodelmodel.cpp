@@ -42,6 +42,7 @@ QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectMo
 
 void GalleryObjectModelModel::renderObjectModels() {
     if (m_objectModels.count() > 0) {
+        m_renderedObjectsModels.clear();
         m_currentlyRenderedImageIndex = 0;
         m_renderingObjectModels = true;
         m_offscreenEngine.setObjectModel(*m_objectModels[0]);

@@ -84,10 +84,10 @@ void MainController::onSettingsChanged(SettingsPtr settings) {
                    m_currentSettings->segmentationImagesPath() != settings->segmentationImagesPath() ||
                    m_currentSettings->objectModelsPath() != settings->objectModelsPath() ||
                    m_currentSettings->posesFilePath() != settings->posesFilePath();
-    m_strategy->setImagesPath(m_currentSettings->imagesPath());
-    m_strategy->setObjectModelsPath(m_currentSettings->objectModelsPath());
-    m_strategy->setPosesFilePath(m_currentSettings->posesFilePath());
-    m_strategy->setSegmentationImagesPath(m_currentSettings->segmentationImagesPath());
+    m_strategy->setImagesPath(settings->imagesPath());
+    m_strategy->setObjectModelsPath(settings->objectModelsPath());
+    m_strategy->setPosesFilePath(settings->posesFilePath());
+    m_strategy->setSegmentationImagesPath(settings->segmentationImagesPath());
     if (changed) {
         Q_EMIT reloadingData();
     }

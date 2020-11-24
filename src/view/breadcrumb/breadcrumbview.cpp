@@ -21,6 +21,7 @@ BreadcrumbView::~BreadcrumbView() {
 }
 
 void BreadcrumbView::setCurrentPath(const QString &newPathToShow) {
+    m_currentPath = newPathToShow;
     ui->lineEditPath->setText(newPathToShow);
 }
 
