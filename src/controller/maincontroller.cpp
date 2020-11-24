@@ -103,8 +103,11 @@ void MainController::onReloadViewsRequested() {
 }
 
 void MainController::onModelManagerStateChanged(ModelManager::State state) {
+    m_mainWindow->showDataLoadingProgressView(false);
     if (state == ModelManager::Ready && !m_initialized) {
         QTimer::singleShot(1000, m_splashScreen, &QWidget::close);
         m_initialized = true;
+    } else if (state == ModelManager::Loading) {
+        m_mainWindow->showDataLoadingProgressView(true);
     }
 }

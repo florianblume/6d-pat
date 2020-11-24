@@ -402,6 +402,8 @@ void PosesEditingController::recoverPose() {
             break;
     }
 
+    m_mainWindow->showPoseRecoveringProgressView(true);
+
     std::vector<cv::Point3f> objectPoints;
     std::vector<cv::Point2f> imagePoints;
 
@@ -469,6 +471,7 @@ void PosesEditingController::recoverPose() {
 
     addPose(newPose);
     m_mainWindow->setStatusBarTextStartAddingCorrespondences();
+    m_mainWindow->showPoseRecoveringProgressView(true);
 }
 
 void PosesEditingController::abortPoseRecovering() {

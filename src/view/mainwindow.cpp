@@ -19,13 +19,12 @@ MainWindow::MainWindow(QWidget *parent,
 
     ui->setupUi(this);
 
-    dataLoadingProgressDialog = new QProgressDialog;
-    dataLoadingProgressDialog->setRange(0, 0);
-    dataLoadingProgressDialog->setCancelButton(Q_NULLPTR);
-    dataLoadingProgressDialog->setLabelText("Loading...");
-    dataLoadingProgressDialog->setModal(true);
-    dataLoadingProgressDialog->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
-    dataLoadingProgressDialog->setFixedSize(dataLoadingProgressDialog->size());
+    progressDialog = new QProgressDialog;
+    progressDialog->setRange(0, 0);
+    progressDialog->setCancelButton(Q_NULLPTR);
+    progressDialog->setModal(true);
+    progressDialog->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
+    progressDialog->setFixedSize(progressDialog->size());
     // The controller handles showing the progress dialog externally
     //dataLoadingProgressDialog->show();
 
@@ -64,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent,
 
     setStatusBarText("Ready.");
 
-    dataLoadingProgressDialog->close();
+    progressDialog->close();
 }
 
 MainWindow::~MainWindow() {
@@ -190,6 +189,14 @@ void MainWindow::setStatusBarText(const QString& text) {
     statusBarLabel->setText(text);
 }
 
+void MainWindow::showProgressView(bool show) {
+    if (show) {
+        progressDialog->show();
+    } else {
+        progressDialog->close();
+    }
+}
+
 PoseViewer *MainWindow::poseViewer() {
     return ui->poseViewer;
 }
@@ -204,6 +211,16 @@ GalleryObjectModels *MainWindow::galleryObjectModels() {
 
 Gallery *MainWindow::galleryImages() {
     return ui->galleryLeft;
+}
+
+void MainWindow::showDataLoadingProgressView(bool show) {
+    progressDialog->setLabelText("Loading data...");
+    showProgressView(show);
+}
+
+void MainWindow::showPoseRecoveringProgressView(bool show) {
+    progressDialog->setLabelText("Recovering pose...");
+    showProgressView(show);
 }
 
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
@@ -296,52 +313,47 @@ void MainWindow::onActionReloadViewsTriggered() {
 }
 
 void MainWindow::onModelManagerStateChanged(ModelManager::State state) {
-    if (state == ModelManager::Loading) {
-        dataLoadingProgressDialog->show();
-    } else {
-        dataLoadingProgressDialog->close();
-        if (state == ModelManager::Error) {
-            QString message("An unkown error occured in the data manager.");
-            switch (modelManager->error()) {
-                case LoadAndStoreStrategy::CamInfoDoesNotExist:
-                    message = "The camera info file info.json does not exist.";
-                    break;
-                case LoadAndStoreStrategy::ImagesPathDoesNotExist:
-                    message = "The images path does not exist.";
-                    break;
-                case LoadAndStoreStrategy::SegmentationImagesPathDoesNotExist:
-                    message = "The segmentation images path does not exist.";
-                    break;
-                case LoadAndStoreStrategy::CouldNotReadCamInfo:
-                    message = "Could not read the camera info file info.json.";
-                    break;
-                case LoadAndStoreStrategy::CamInfoPathIsNotAJSONFile:
-                    message = "The camera info file info.json is not a valid file.";
-                    break;
-                case LoadAndStoreStrategy::NoImagesFound:
-                    message = "No images found at the specified images path.";
-                    break;
-                case LoadAndStoreStrategy::ObjectModelsPathDoesNotExist:
-                    message = "The object models path does not exist.";
-                    break;
-                case LoadAndStoreStrategy::ObjectModelsPathIsNotAFolder:
-                    message = "The object models path is not a folder.";
-                    break;
-                case LoadAndStoreStrategy::PosesPathDoesNotExist:
-                    message = "The specified poses file does not exist.";
-                    break;
-                case LoadAndStoreStrategy::FailedToPersistPosePosesFileCouldNotBeRead:
-                    message = "Could not read the poses file while trying to save a pose.";
-                    break;
-                case LoadAndStoreStrategy::FailedToPersistPosePosesPathIsNotAFile:
-                    message = "The specified poses file is not a file (error while trying to save a pose).";
-                    break;
-                case LoadAndStoreStrategy::PosesPathIsNotReadable:
-                    message = "The specified poses file is not readable.";
-                    break;
-            }
-            displayWarning("An error occured in the data maanger", message);
+    if (state == ModelManager::Error) {
+        QString message("An unkown error occured in the data manager.");
+        switch (modelManager->error()) {
+            case LoadAndStoreStrategy::CamInfoDoesNotExist:
+                message = "The camera info file info.json does not exist.";
+                break;
+            case LoadAndStoreStrategy::ImagesPathDoesNotExist:
+                message = "The images path does not exist.";
+                break;
+            case LoadAndStoreStrategy::SegmentationImagesPathDoesNotExist:
+                message = "The segmentation images path does not exist.";
+                break;
+            case LoadAndStoreStrategy::CouldNotReadCamInfo:
+                message = "Could not read the camera info file info.json.";
+                break;
+            case LoadAndStoreStrategy::CamInfoPathIsNotAJSONFile:
+                message = "The camera info file info.json is not a valid file.";
+                break;
+            case LoadAndStoreStrategy::NoImagesFound:
+                message = "No images found at the specified images path.";
+                break;
+            case LoadAndStoreStrategy::ObjectModelsPathDoesNotExist:
+                message = "The object models path does not exist.";
+                break;
+            case LoadAndStoreStrategy::ObjectModelsPathIsNotAFolder:
+                message = "The object models path is not a folder.";
+                break;
+            case LoadAndStoreStrategy::PosesPathDoesNotExist:
+                message = "The specified poses file does not exist.";
+                break;
+            case LoadAndStoreStrategy::FailedToPersistPosePosesFileCouldNotBeRead:
+                message = "Could not read the poses file while trying to save a pose.";
+                break;
+            case LoadAndStoreStrategy::FailedToPersistPosePosesPathIsNotAFile:
+                message = "The specified poses file is not a file (error while trying to save a pose).";
+                break;
+            case LoadAndStoreStrategy::PosesPathIsNotReadable:
+                message = "The specified poses file is not readable.";
+                break;
         }
+        displayWarning("An error occured in the data maanger", message);
     }
 }
 

@@ -49,6 +49,8 @@ public:
     PoseEditor *poseEditor();
     GalleryObjectModels *galleryObjectModels();
     Gallery *galleryImages();
+    void showDataLoadingProgressView(bool show);
+    void showPoseRecoveringProgressView(bool show);
 
 public Q_SLOTS:
 
@@ -134,6 +136,8 @@ private:
     void handleClosingProgram();
     void setStatusBarText(const QString& text);
 
+    void showProgressView(bool show);
+
 private:
     Ui::MainWindow *ui;
 
@@ -146,7 +150,7 @@ private:
     SettingsStore *settingsStore = Q_NULLPTR;
     ModelManager* modelManager;
 
-    QProgressDialog *dataLoadingProgressDialog;
+    QProgressDialog *progressDialog;
 
     GalleryImageModel *galleryImageModel = Q_NULLPTR;
     GalleryObjectModelModel *galleryObjectModelModel = Q_NULLPTR;
