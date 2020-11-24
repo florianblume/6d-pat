@@ -17,8 +17,7 @@ class SettingsDialog : public QDialog {
 public:
     explicit SettingsDialog(QWidget *parent = 0);
     ~SettingsDialog();
-    void setPreferencesStoreAndObjectModels(SettingsStore *settingsStore,
-                                            const QString &currentSettingsIdentifier,
+    void setSettingsStoreAndObjectModels(SettingsStore *settingsStore,
                                             const QList<ObjectModelPtr> &objectModels);
 
 public Q_SLOTS:
@@ -26,9 +25,7 @@ public Q_SLOTS:
 
 private:
     Ui::SettingsDialog *ui;
-    SettingsStore *settingsStore;
-    QSharedPointer<Settings> settings;
-    QString currentSettingsIdentifier;
+    SettingsStore *m_settingsStore;
 
 private Q_SLOTS:
     void onListWidgetClicked(const QModelIndex &index);

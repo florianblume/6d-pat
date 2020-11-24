@@ -8,7 +8,7 @@
 
 MainController::MainController(int &argc, char **argv, int)
     : QApplication(argc, argv)
-    , modelManagerThread(new QThread) {
+    , m_modelManagerThread(new QThread) {
 }
 
 MainController::~MainController() {
@@ -37,52 +37,63 @@ int MainController::exec() {
 }
 
 void MainController::initialize() {
-    currentSettings = settingsStore->loadPreferencesByIdentifier(settingsIdentifier);
-    settingsStore.reset(new SettingsStore());
-    currentSettings = settingsStore->loadPreferencesByIdentifier(settingsIdentifier);
-    strategy.reset(new JsonLoadAndStoreStrategy());
-    strategy->moveToThread(modelManagerThread);
+    m_settingsStore.reset(new SettingsStore(m_settingsIdentifier));
+    m_currentSettings = m_settingsStore->currentSettings();
+    m_strategy.reset(new JsonLoadAndStoreStrategy());
+    m_strategy->moveToThread(m_modelManagerThread);
     setPathsOnLoadAndStoreStrategy();
-    modelManager.reset(new CachingModelManager(*strategy.data()));
+    m_modelManager.reset(new CachingModelManager(*m_strategy.data()));
     connect(this, &MainController::reloadingData,
-            modelManager.get(), &ModelManager::reload);
-    modelManager->moveToThread(modelManagerThread);
-    modelManagerThread->start();
-    connect(settingsStore.data(), &SettingsStore::settingsChanged,
+            m_modelManager.get(), &ModelManager::reload);
+    m_modelManager->moveToThread(m_modelManagerThread);
+    m_modelManagerThread->start();
+    connect(m_settingsStore.data(), &SettingsStore::currentSettingsChanged,
             this, &MainController::onSettingsChanged);
-    mainWindow.reset(new MainWindow(0, modelManager.get(), settingsStore.get(), settingsIdentifier));
-    connect(mainWindow.get(), &MainWindow::reloadingViews,
+    m_mainWindow.reset(new MainWindow(0, m_modelManager.get(), m_settingsStore.get()));
+    connect(m_mainWindow.get(), &MainWindow::reloadingViews,
             this, &MainController::onReloadViewsRequested);
-    connect(modelManager.get(), &ModelManager::stateChanged,
+    connect(m_modelManager.get(), &ModelManager::stateChanged,
             this, &MainController::onModelManagerStateChanged);
-    mainWindow->poseViewer()->setSettingsStore(settingsStore.get());
+    m_mainWindow->poseViewer()->setSettingsStore(m_settingsStore.get());
     showView();
     QPixmap pixmap(":/images/splash.png");
-    splash = new QSplashScreen(pixmap);
-    splash->show();
-    poseEditingModel.reset(new PosesEditingController(Q_NULLPTR, modelManager.get(), mainWindow.get()));
+    m_splashScreen = new QSplashScreen(pixmap);
+    m_splashScreen->show();
+    m_poseEditingModel.reset(new PosesEditingController(Q_NULLPTR, m_modelManager.get(), m_mainWindow.get()));
     // This makes the ModelManager load data don't call it before creating the MainWindow as we
     // want to show the progress loading view in the ModelManager state change callback
     Q_EMIT reloadingData();
 }
 
 void MainController::showView() {
-    mainWindow->show();
-    mainWindow->raise();
-    mainWindow->repaint();
+    m_mainWindow->show();
+    m_mainWindow->raise();
+    m_mainWindow->repaint();
 }
 
 void MainController::setPathsOnLoadAndStoreStrategy() {
-    strategy->setImagesPath(currentSettings->imagesPath());
-    strategy->setObjectModelsPath(currentSettings->objectModelsPath());
-    strategy->setPosesFilePath(currentSettings->posesFilePath());
-    strategy->setSegmentationImagesPath(currentSettings->segmentationImagesPath());
+    m_strategy->setImagesPath(m_currentSettings->imagesPath());
+    m_strategy->setObjectModelsPath(m_currentSettings->objectModelsPath());
+    m_strategy->setPosesFilePath(m_currentSettings->posesFilePath());
+    m_strategy->setSegmentationImagesPath(m_currentSettings->segmentationImagesPath());
 }
 
 void MainController::onSettingsChanged(SettingsPtr settings) {
-    currentSettings = settings;
-    setPathsOnLoadAndStoreStrategy();
-    Q_EMIT reloadingData();
+    bool changed = m_currentSettings->imagesPath() != settings->imagesPath() ||
+                   m_currentSettings->segmentationImagesPath() != settings->segmentationImagesPath() ||
+                   m_currentSettings->objectModelsPath() != settings->objectModelsPath() ||
+                   m_currentSettings->posesFilePath() != settings->posesFilePath();
+    m_strategy->setImagesPath(m_currentSettings->imagesPath());
+    m_strategy->setObjectModelsPath(m_currentSettings->objectModelsPath());
+    m_strategy->setPosesFilePath(m_currentSettings->posesFilePath());
+    m_strategy->setSegmentationImagesPath(m_currentSettings->segmentationImagesPath());
+    if (changed) {
+        Q_EMIT reloadingData();
+    }
+    // We need to reset the stored currentSettings like this here because we need settings
+    // that are independend of the settings of the settings store because those might get
+    // altered but we want to be able to compare if something has changed
+    m_currentSettings.reset(new Settings(*settings));
 }
 
 void MainController::onReloadViewsRequested() {
@@ -90,8 +101,8 @@ void MainController::onReloadViewsRequested() {
 }
 
 void MainController::onModelManagerStateChanged(ModelManager::State state) {
-    if (state == ModelManager::Ready && !initialized) {
-        QTimer::singleShot(1000, splash, &QWidget::close);
-        initialized = true;
+    if (state == ModelManager::Ready && !m_initialized) {
+        QTimer::singleShot(1000, m_splashScreen, &QWidget::close);
+        m_initialized = true;
     }
 }

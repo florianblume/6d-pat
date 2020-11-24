@@ -24,13 +24,11 @@ SettingsDialog::~SettingsDialog() {
     delete ui;
 }
 
-void SettingsDialog::setPreferencesStoreAndObjectModels(SettingsStore *settingsStore,
-                                                        const QString &currentSettingsIdentifier,
+void SettingsDialog::setSettingsStoreAndObjectModels(SettingsStore *settingsStore,
                                                         const QList<ObjectModelPtr> &objectModels) {
     //! copy settings item, we don't want the settings item to be modified if we cancel the settings dialog
-    this->settingsStore = settingsStore;
-    settings = settingsStore->loadPreferencesByIdentifier(currentSettingsIdentifier);
-    this->currentSettingsIdentifier = currentSettingsIdentifier;
+    this->m_settingsStore = settingsStore;
+    SettingsPtr settings = settingsStore->currentSettings();
     ui->pageInterface->setSettings(settings.get());
     ui->pagePaths->setSettings(settings.get());
     ui->pageSegmentationCodes->setSettingsAndObjectModels(settings.get(), objectModels);
@@ -40,7 +38,7 @@ void SettingsDialog::setPreferencesStoreAndObjectModels(SettingsStore *settingsS
 //! comes from that the dialog somehow doesn't fire its accepted() method...
 void SettingsDialog::onAccepted(QAbstractButton* button) {
     if (ui->buttonBox->buttonRole(button) == QDialogButtonBox::ApplyRole) {
-        settingsStore->savePreferences(*settings);
+        m_settingsStore->saveCurrentSettings();
         close();
     }
 }

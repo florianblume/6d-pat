@@ -3,59 +3,57 @@
 #include <QDir>
 #include <QDebug>
 
-SettingsStore::SettingsStore() {
-    m_currentSettings = loadPreferencesByIdentifier("default");
+SettingsStore::SettingsStore(const QString &currentSettingsIdentifier) {
+    setCurrentSettings(currentSettingsIdentifier);
 }
 
 QSharedPointer<Settings> SettingsStore::createEmptyPreferences(const QString &identifier) {
     return QSharedPointer<Settings>(new Settings(identifier));
 }
 
-void SettingsStore::savePreferences(const Settings &settingsToSave) {
-    QSettings settings("FlorettiKonfetti Inc.", "6D-PAT");
-    const QString &identifier = PREFERENCES + settingsToSave.identifier();
+void SettingsStore::saveCurrentSettings() {
+    QSettings settings(ORGANIZATION, APPLICATION);
+    const QString &identifier = PREFERENCES + m_currentSettings->identifier();
     settings.beginGroup(identifier);
-    settings.setValue(IMAGES_PATH, settingsToSave.imagesPath());
-    settings.setValue(OBJECT_MODELS_PATH, settingsToSave.objectModelsPath());
-    settings.setValue(POSES_FILE_PATH, settingsToSave.posesFilePath());
-    settings.setValue(SEGMENTATION_IMAGES_PATH, settingsToSave.segmentationImagesPath());
-    settings.setValue(PYTHON_INTERPRETER_PATH, settingsToSave.pythonInterpreterPath());
-    settings.setValue(TRAINING_SCRIPT_PATH, settingsToSave.trainingScriptPath());
-    settings.setValue(INFERENCE_SCRIPT_PATH, settingsToSave.inferenceScriptPath());
-    settings.setValue(NETWORK_CONFIG_PATH, settingsToSave.networkConfigPath());
+    settings.setValue(IMAGES_PATH, m_currentSettings->imagesPath());
+    settings.setValue(OBJECT_MODELS_PATH, m_currentSettings->objectModelsPath());
+    settings.setValue(POSES_FILE_PATH, m_currentSettings->posesFilePath());
+    settings.setValue(SEGMENTATION_IMAGES_PATH, m_currentSettings->segmentationImagesPath());
+    settings.setValue(PYTHON_INTERPRETER_PATH, m_currentSettings->pythonInterpreterPath());
+    settings.setValue(TRAINING_SCRIPT_PATH, m_currentSettings->trainingScriptPath());
+    settings.setValue(INFERENCE_SCRIPT_PATH, m_currentSettings->inferenceScriptPath());
+    settings.setValue(NETWORK_CONFIG_PATH, m_currentSettings->networkConfigPath());
     settings.setValue(ADD_CORRESPONDENCE_POINT_MOUSE_BUTTON,
-                      Settings::MOUSE_BUTTONS[settingsToSave.addCorrespondencePointMouseButton()]);
+                      Settings::MOUSE_BUTTONS[m_currentSettings->addCorrespondencePointMouseButton()]);
     settings.setValue(MOVE_BACKGROUNDIMAGE_RENDERABLE_MOUSE_BUTTON,
-                      Settings::MOUSE_BUTTONS[settingsToSave.moveBackgroundImageRenderableMouseButton()]);
+                      Settings::MOUSE_BUTTONS[m_currentSettings->moveBackgroundImageRenderableMouseButton()]);
     settings.setValue(SELECT_POSE_RENDERABLE_MOUSE_BUTTON,
-                      Settings::MOUSE_BUTTONS[settingsToSave.selectPoseRenderableMouseButton()]);
+                      Settings::MOUSE_BUTTONS[m_currentSettings->selectPoseRenderableMouseButton()]);
     settings.setValue(ROTATE_POSE_RENDERABLE_MOUSE_BUTTON,
-                      Settings::MOUSE_BUTTONS[settingsToSave.rotatePoseRenderableMouseButton()]);
+                      Settings::MOUSE_BUTTONS[m_currentSettings->rotatePoseRenderableMouseButton()]);
     settings.setValue(TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON,
-                      Settings::MOUSE_BUTTONS[settingsToSave.translatePoseRenderableMouseButton()]);
+                      Settings::MOUSE_BUTTONS[m_currentSettings->translatePoseRenderableMouseButton()]);
     settings.endGroup();
 
     //! Persist the object color codes so that the user does not have to enter them at each program start
     //! But first remove all old entries, in case that the user deleted some codes
-    settings.beginGroup(identifier + "-colorcodes");
+    settings.beginGroup(identifier + COLOR_CODES_GROUP);
     settings.remove("");
-    for (auto objectModelIdentifier : settingsToSave.segmentationCodes().keys()) {
-        settings.setValue(objectModelIdentifier, settingsToSave.segmentationCodeForObjectModel(objectModelIdentifier));
+    for (auto objectModelIdentifier : currentSettings()->segmentationCodes().keys()) {
+        settings.setValue(objectModelIdentifier, currentSettings()->segmentationCodeForObjectModel(objectModelIdentifier));
     }
     settings.endGroup();
 
-    m_currentSettings.reset(new Settings(settingsToSave));
-
-    emit settingsChanged(SettingsPtr(new Settings(settingsToSave)));
+    Q_EMIT currentSettingsChanged(m_currentSettings);
 }
 
 SettingsPtr SettingsStore::currentSettings() {
     return m_currentSettings;
 }
 
-QSharedPointer<Settings> SettingsStore::loadPreferencesByIdentifier(const QString &identifier) {
+void SettingsStore::setCurrentSettings(const QString &identifier) {
     SettingsPtr settingsPointer(new Settings(identifier));
-    QSettings settings("FlorettiKonfetti Inc.", "6D-PAT");
+    QSettings settings(ORGANIZATION, APPLICATION);
     const QString &fullIdentifier = PREFERENCES + identifier;
     settings.beginGroup(fullIdentifier);
     settingsPointer->setImagesPath(
@@ -92,7 +90,7 @@ QSharedPointer<Settings> SettingsStore::loadPreferencesByIdentifier(const QStrin
     // TODO read mouse buttons
     settings.endGroup();
 
-    settings.beginGroup(fullIdentifier + "-colorcodes");
+    settings.beginGroup(fullIdentifier + COLOR_CODES_GROUP);
     QStringList objectModelIdentifiers = settings.allKeys();
     for (const QString &objectModelIdentifier : objectModelIdentifiers) {
         const QString &colorCode = settings.value(objectModelIdentifier, "").toString();
@@ -100,16 +98,20 @@ QSharedPointer<Settings> SettingsStore::loadPreferencesByIdentifier(const QStrin
             settingsPointer->setSegmentationCodeForObjectModel(objectModelIdentifier, colorCode);
     }
     settings.endGroup();
-    return settingsPointer;
+
+    m_currentSettings = settingsPointer;
+    Q_EMIT currentSettingsChanged(m_currentSettings);
 }
 
-
+const QString SettingsStore::ORGANIZATION = "preferences";
+const QString SettingsStore::APPLICATION = "preferences";
 const QString SettingsStore::PREFERENCES = "preferences";
 const QString SettingsStore::IMAGES_PATH = "imagesPath";
 const QString SettingsStore::OBJECT_MODELS_PATH = "objectModelsPath";
 const QString SettingsStore::POSES_FILE_PATH = "posesFilePath";
 const QString SettingsStore::SEGMENTATION_IMAGES_PATH = "segmentationImagesPath";
 const QString SettingsStore::COLOR_CODES = "colorCodes";
+const QString SettingsStore::COLOR_CODES_GROUP = "-colorcodes";
 const QString SettingsStore::PYTHON_INTERPRETER_PATH = "pythonInterpreterPath";
 const QString SettingsStore::TRAINING_SCRIPT_PATH = "trainingScriptPath";
 const QString SettingsStore::INFERENCE_SCRIPT_PATH = "inferenceScriptPath";

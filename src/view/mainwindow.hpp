@@ -29,7 +29,7 @@ class MainWindow : public QMainWindow {
 public:
 
     explicit MainWindow(QWidget *parent, ModelManager *modelManager,
-                        SettingsStore *settingsStore, const QString &settingsIdentifier);
+                        SettingsStore *settingsStore);
     ~MainWindow();
 
     //! Overriden from QWidget.
@@ -157,7 +157,6 @@ private:
     // the window
     bool poseCreationInProgress = false;
 
-    QString settingsIdentifier;
     // The name of the settings - QT requests this to store settings "offline"
     static const QString SETTINGS_NAME;
     // Same as above

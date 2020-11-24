@@ -11,13 +11,11 @@
 //! The main window of the application that holds the individual components.<
 MainWindow::MainWindow(QWidget *parent,
                        ModelManager *modelManager,
-                       SettingsStore *settingsStore,
-                       const QString &settingsIdentifier) :
+                       SettingsStore *settingsStore) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     settingsStore(settingsStore),
-    modelManager(modelManager),
-    settingsIdentifier(settingsIdentifier) {
+    modelManager(modelManager) {
 
     ui->setupUi(this);
 
@@ -36,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent,
     connect(modelManager, &ModelManager::stateChanged,
             this, &MainWindow::onModelManagerStateChanged);
 
-    connect(settingsStore, &SettingsStore::settingsChanged,
+    connect(settingsStore, &SettingsStore::currentSettingsChanged,
             this, &MainWindow::onSettingsChanged);
 
     galleryImageModel = new GalleryImageModel(modelManager);
@@ -204,15 +202,15 @@ Gallery *MainWindow::galleryImages() {
 }
 
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
-    QSharedPointer<Settings> preferences = settingsStore->loadPreferencesByIdentifier("default");
-    preferences->setImagesPath(path);
-    settingsStore->savePreferences(*preferences);
+    SettingsPtr settings = settingsStore->currentSettings();
+    settings->setImagesPath(path);
+    settingsStore->saveCurrentSettings();
 }
 
 void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
-    QSharedPointer<Settings> preferences = settingsStore->loadPreferencesByIdentifier("default");
-    preferences->setObjectModelsPath(path);
-    settingsStore->savePreferences(*preferences);
+    SettingsPtr settings = settingsStore->currentSettings();
+    settings->setObjectModelsPath(path);
+    settingsStore->saveCurrentSettings();
 }
 
 void MainWindow::displayWarning(const QString &title, const QString &text) {
@@ -232,7 +230,7 @@ bool MainWindow::showSaveUnsavedChangesDialog() {
 }
 
 void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
-    QSharedPointer<Settings> settings = settingsStore->loadPreferencesByIdentifier(settingsIdentifier);
+    SettingsPtr settings = settingsStore->currentSettings();
     galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
     ui->breadcrumbLeft->setPathToShow(settings->imagesPath());
     ui->breadcrumbRight->setPathToShow(settings->objectModelsPath());
@@ -241,9 +239,6 @@ void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
 }
 
 void MainWindow::onSettingsChanged(SettingsPtr settings) {
-    if (settingsIdentifier != settings->identifier()) {
-        return;
-    }
     galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
     setPathsOnGalleriesAndBreadcrumbs();
 }
@@ -280,9 +275,8 @@ void MainWindow::onActionExitTriggered() {
 
 void MainWindow::onActionSettingsTriggered() {
     SettingsDialog* settingsDialog = new SettingsDialog(this);
-    settingsDialog->setPreferencesStoreAndObjectModels(settingsStore,
-                                                       "default",
-                                                       modelManager->objectModels());
+    settingsDialog->setSettingsStoreAndObjectModels(settingsStore,
+                                                    modelManager->objectModels());
     settingsDialog->show();
 }
 

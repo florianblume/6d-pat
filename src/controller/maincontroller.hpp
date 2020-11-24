@@ -55,21 +55,22 @@ private:
     void setPathsOnLoadAndStoreStrategy();
 
 private:
-    bool initialized = false;
-    QSplashScreen* splash;
+    bool m_initialized = false;
+    QSplashScreen* m_splashScreen;
 
     // Keep order! Initializiation must happen in this way
-    QSharedPointer<SettingsStore> settingsStore;
-    QSharedPointer<Settings> currentSettings;
-    QString settingsIdentifier = "default";
+    QSharedPointer<SettingsStore> m_settingsStore;
+    QSharedPointer<Settings> m_currentSettings;
+    // Could be changed dynamically when implementing profiles
+    QString m_settingsIdentifier = "default";
 
-    QScopedPointer<JsonLoadAndStoreStrategy> strategy;
-    QScopedPointer<CachingModelManager> modelManager;
-    QThread *modelManagerThread;
-    QScopedPointer<PosesEditingController> poseEditingModel;
-    QScopedPointer<NeuralNetworkController> networkController;
+    QScopedPointer<JsonLoadAndStoreStrategy> m_strategy;
+    QScopedPointer<CachingModelManager> m_modelManager;
+    QThread *m_modelManagerThread;
+    QScopedPointer<PosesEditingController> m_poseEditingModel;
+    QScopedPointer<NeuralNetworkController> m_networkController;
 
-    QScopedPointer<MainWindow> mainWindow;
+    QScopedPointer<MainWindow> m_mainWindow;
 };
 
 #endif // MAINCONTROLLER_H

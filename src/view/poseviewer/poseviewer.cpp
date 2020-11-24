@@ -40,11 +40,11 @@ PoseViewer::~PoseViewer() {
 void PoseViewer::setSettingsStore(SettingsStore *settingsStore) {
     Q_ASSERT(settingsStore);
     if (!this->m_settingsStore.isNull()) {
-        disconnect(settingsStore, &SettingsStore::settingsChanged,
+        disconnect(settingsStore, &SettingsStore::currentSettingsChanged,
                    this, &PoseViewer::currentSettingsChanged);
     }
     this->m_settingsStore = settingsStore;
-    connect(settingsStore, &SettingsStore::settingsChanged,
+    connect(settingsStore, &SettingsStore::currentSettingsChanged,
             this, &PoseViewer::currentSettingsChanged);
     m_poseViewer3DWidget->setSettings(settingsStore->currentSettings());
 }
