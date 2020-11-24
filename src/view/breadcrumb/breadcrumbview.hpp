@@ -8,30 +8,35 @@
 
 using namespace std;
 
+namespace Ui {
+class BreadcrumbView;
+}
+
 /*!
  * \brief The BreadcrumbView class provides a widget that displays a path that is to
  * be set. The path will be split up into its parts. It is only there to make it easy
  * for the user to remember what path they have set.
  */
-class BreadcrumbView : public QWidget
-{
-private:
-    QString pathToShow;
-    uint leftBorderOffset = 5;
-    QHBoxLayout* layout;
-    vector<QLabel*> labels;
-
-    void updateView();
+class BreadcrumbView : public QWidget {
 
     Q_OBJECT
+
 public:
-    explicit BreadcrumbView(QWidget *parent = 0, const QString &pathToShow = "");
+    explicit BreadcrumbView(QWidget *parent = 0, const QString &initialPath = "");
     ~BreadcrumbView();
-    QString getPathTowShow();
-    uint getFontSize();
 
 public Q_SLOTS:
-    void setPathToShow(const QString &newPathToShow);
+    void setCurrentPath(const QString &newPathToShow);
+
+Q_SIGNALS:
+    void selectedPathChanged(const QString &path);
+
+private Q_SLOTS:
+    void buttonSelectFolderClicked();
+
+private:
+    Ui::BreadcrumbView *ui;
+    QString m_currentPath;
 };
 
 #endif // BREADCRUMBVIEW_H

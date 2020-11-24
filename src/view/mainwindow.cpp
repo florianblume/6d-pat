@@ -44,9 +44,9 @@ MainWindow::MainWindow(QWidget *parent,
 
     setPathsOnGalleriesAndBreadcrumbs();
 
-    connect(ui->navigationLeft, &NavigationControls::pathChanged,
+    connect(ui->breadcrumbLeft, &BreadcrumbView::selectedPathChanged,
             this, &MainWindow::onImagesPathChangedByNavigation);
-    connect(ui->navigationRight, &NavigationControls::pathChanged,
+    connect(ui->breadcrumbRight, &BreadcrumbView::selectedPathChanged,
             this, &MainWindow::onObjectModelsPathChangedByNavigation);
 
     // If the selected image changes, we also need to cancel any started creation of a pose
@@ -237,10 +237,10 @@ bool MainWindow::showSaveUnsavedChangesDialog() {
 void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
     SettingsPtr settings = settingsStore->currentSettings();
     galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
-    ui->breadcrumbLeft->setPathToShow(settings->imagesPath());
-    ui->breadcrumbRight->setPathToShow(settings->objectModelsPath());
-    ui->navigationLeft->setPathToOpen(QString(settings->imagesPath()));
-    ui->navigationRight->setPathToOpen(QString(settings->objectModelsPath()));
+    ui->breadcrumbLeft->setCurrentPath(settings->imagesPath());
+    ui->breadcrumbRight->setCurrentPath(settings->objectModelsPath());
+    ui->breadcrumbLeft->setCurrentPath(settings->imagesPath());
+    ui->breadcrumbLeft->setCurrentPath(settings->objectModelsPath());
 }
 
 void MainWindow::onSettingsChanged(SettingsPtr settings) {

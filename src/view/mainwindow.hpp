@@ -1,7 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "view/navigationcontrols/navigationcontrols.hpp"
 #include "settings/settingsstore.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
 #include "view/gallery/galleryobjectmodelmodel.hpp"

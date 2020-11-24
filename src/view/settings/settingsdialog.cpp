@@ -13,11 +13,11 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     buttonApply->setIcon(DisplayHelper::yesIcon());
     QPushButton *buttonCancel = ui->buttonBox->button(QDialogButtonBox::Cancel);
     buttonCancel->setIcon(DisplayHelper::noIcon());
-    ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::windowmaximize), "Interface"));
-    ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::wrench), "Paths"));
-    ui->listWidget->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::paintbrush), "Segmentation"));
-    QModelIndex modelIndex = ui->listWidget->model()->index(0, 0);
-    ui->listWidget->selectionModel()->select(modelIndex, QItemSelectionModel::ClearAndSelect);
+    ui->listWidgetSettings->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::windowmaximize), "Interface"));
+    ui->listWidgetSettings->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::wrench), "Paths"));
+    ui->listWidgetSettings->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::paintbrush), "Segmentation"));
+    QModelIndex modelIndex = ui->listWidgetSettings->model()->index(0, 0);
+    ui->listWidgetSettings->selectionModel()->select(modelIndex, QItemSelectionModel::ClearAndSelect);
 }
 
 SettingsDialog::~SettingsDialog() {
@@ -44,5 +44,5 @@ void SettingsDialog::onAccepted(QAbstractButton* button) {
 }
 
 void SettingsDialog::onListWidgetClicked(const QModelIndex &index) {
-    ui->stackedWidget->setCurrentIndex(index.row());
+    ui->stackedWidgetSettings->setCurrentIndex(index.row());
 }

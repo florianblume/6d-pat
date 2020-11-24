@@ -194,7 +194,7 @@
        <number>0</number>
       </property>
       <item row="0" column="0">
-       <widget class="QListWidget" name="listWidget">
+       <widget class="QListWidget" name="listWidgetSettings">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
           <horstretch>1</horstretch>
@@ -267,7 +267,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QStackedWidget" name="stackedWidget">
+       <widget class="QStackedWidget" name="stackedWidgetSettings">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>3</horstretch>
@@ -574,7 +574,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>listWidget</sender>
+   <sender>listWidgetSettings</sender>
    <signal>clicked(QModelIndex)</signal>
    <receiver>SettingsDialog</receiver>
    <slot>onListWidgetClicked(QModelIndex)</slot>

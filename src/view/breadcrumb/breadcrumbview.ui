@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>BreadcrumbView</class>
+ <widget class="QWidget" name="BreadcrumbView">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>70</height>
+    <height>71</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -20,52 +20,66 @@
    <string>Form</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
-   <property name="spacing">
-    <number>0</number>
-   </property>
    <property name="leftMargin">
-    <number>10</number>
-   </property>
-   <property name="topMargin">
-    <number>5</number>
+    <number>20</number>
    </property>
    <property name="rightMargin">
-    <number>5</number>
-   </property>
-   <property name="bottomMargin">
-    <number>5</number>
+    <number>20</number>
    </property>
    <item>
-    <widget class="QScrollArea" name="scrollArea">
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+    <widget class="QPushButton" name="buttonSelectFolder">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="frameShadow">
-      <enum>QFrame::Plain</enum>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
      </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+     <property name="text">
+      <string/>
      </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="lineEditPath">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>40</height>
+      </size>
      </property>
-     <property name="widgetResizable">
+     <property name="readOnly">
       <bool>true</bool>
      </property>
-     <widget class="QWidget" name="scrollAreaWidgetContents">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>385</width>
-        <height>60</height>
-       </rect>
-      </property>
-     </widget>
     </widget>
    </item>
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonSelectFolder</sender>
+   <signal>clicked()</signal>
+   <receiver>BreadcrumbView</receiver>
+   <slot>buttonSelectFolderClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>35</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>35</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>buttonSelectFolderClicked()</slot>
+ </slots>
 </ui>

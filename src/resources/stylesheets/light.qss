@@ -95,3 +95,36 @@ QSpinBox::up-button:selected {
     border-radius: 1px;
     background-color: #9ed2ff;
 }
+
+QLineEdit {
+    border: 1px solid #cccccc;
+    border-radius: 2px;
+    padding-left: 10px;
+    selection-color: #c6e5ff;
+}
+
+QLineEdit:hover:!pressed {
+    border: 1px solid #75c1ff;
+    border-radius: 2px;
+    padding-left: 10px;
+}
+
+QFrame#poseViewerGraphicsContainerFrame {
+    border-radius: 2px;
+    border: 1px solid rgb(200, 200, 200);
+}
+
+QFrame#poseViewerGraphicsContainerFrame:hover {
+    border: 1px solid #75c1ff;
+    border-radius: 2px;
+}
+
+QListWidget#listWidgetSettings {
+    border: 1px solid rgb(200, 200, 200);
+    border-radius: 2px;
+}
+
+QStackedWidget#stackedWidgetSettings {
+    border: 1px solid rgb(200, 200, 200);
+    border-radius: 2px;
+}

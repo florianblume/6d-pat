@@ -19,6 +19,9 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">border: 0px solid rgb(200, 200, 200);</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="spacing">
     <number>0</number>
@@ -36,9 +39,9 @@
     <number>5</number>
    </property>
    <item>
-    <widget class="QFrame" name="frame">
+    <widget class="QFrame" name="poseViewerGraphicsContainerFrame">
      <property name="styleSheet">
-      <string notr="true">border: 1px solid rgb(200, 200, 200);</string>
+      <string notr="true"/>
      </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>

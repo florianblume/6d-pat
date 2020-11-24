@@ -13,7 +13,6 @@ HEADERS += \
     view/gallery/galleryimagemodel.hpp \
     view/gallery/galleryobjectmodelmodel.hpp \
     view/gallery/iconexpandinglistview.hpp \
-    view/navigationcontrols/navigationcontrols.hpp \
     view/rendering/backgroundimagerenderable.hpp \
     view/rendering/objectmodelrenderablematerial.hpp \
     view/rendering/poserenderable.hpp \
@@ -35,7 +34,6 @@ SOURCES += \
     view/gallery/galleryobjectmodels.cpp \
     view/mainwindow.cpp \
     view/breadcrumb/breadcrumbview.cpp \
-    view/navigationcontrols/navigationcontrols.cpp \
     view/gallery/gallery.cpp \
     view/gallery/galleryimagemodel.cpp \
     view/gallery/galleryobjectmodelmodel.cpp \
@@ -59,9 +57,9 @@ SOURCES += \
     view/rendering/clickvisualizationrenderable.cpp
 
 FORMS += \
+    $$PWD/breadcrumb/breadcrumbview.ui \
     view/settings/settingspathspage.ui \
     view/mainwindow.ui \
-    view/navigationcontrols/navigationcontrols.ui \
     view/gallery/gallery.ui \
     view/settings/settingsdialog.ui \
     view/settings/settingsinterfacepage.ui \
