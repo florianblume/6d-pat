@@ -5,77 +5,49 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QCheckBox>
+#include <QSharedPointer>
+#include <QList>
+#include <QThread>
+#include <QApplication>
 
-GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager) : modelManager(modelManager) {
+GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager)
+    : modelManager(modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
-    objectModelsCache = std::move(modelManager->getObjectModels());
+    m_objectModels = modelManager->objectModels();
     renderObjectModels();
-    imagesCache = std::move(modelManager->getImages());
-    connect(modelManager, SIGNAL(objectModelsChanged()),
-            this, SLOT(onObjectModelsChanged()));
-    connect(modelManager, SIGNAL(imagesChanged()),
-            this, SLOT(onImagesChanged()));
-    connect(modelManager, SIGNAL(imagesChanged()),
-            this, SLOT(onObjectModelsChanged()));
+    m_images = modelManager->images();
+    // Create default index mapping
+    createIndexMapping();
+    connect(modelManager, &ModelManager::dataChanged,
+            this, &GalleryObjectModelModel::onDataChanged);
+    connect(&m_offscreenEngine, &OffscreenEngine::imageReady, this, &GalleryObjectModelModel::onObjectModelRendered);
 }
 
 GalleryObjectModelModel::~GalleryObjectModelModel() {
-    // Otherwise the application crashes because the render threads
-    // try to access attributes of this class. Disconnect() does not
-    // seem to solve the problem, i.e. we wait here.
-    shutdownOffscreenRenderer();
 }
 
 QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectModel, int role) const {
     if (role == Qt::ToolTipRole) {
-        return objectModel.getPath();
+        return objectModel.path();
     } else if (role == Qt::DecorationRole) {
-        if (renderedObjectsModels.contains(objectModel.getPath())) {
-            return QIcon(QPixmap::fromImage(renderedObjectsModels.value(objectModel.getPath())));
+        if (m_renderedObjectsModels.contains(objectModel.path())) {
+            return QIcon(QPixmap::fromImage(m_renderedObjectsModels.value(objectModel.path())));
         } else {
-            return QVariant();
+            return currentLoadingAnimationFrame;
         }
     }
 
     return QVariant();
 }
 
-void GalleryObjectModelModel::shutdownOffscreenRenderer() {
-    if (offscreenRendererThread) {
-        offscreenRenderer->stop();
-        offscreenRendererThread->quit();
-        offscreenRendererThread->wait();
-        // No need to delete the renderer or thread here because we quit the rendering
-        // which emits the rendering finished signal which in turn causes both objects
-        // to be deleted and set to Q_NULLPTR (see connections in renderObjectModels()).
-    }
-}
-
 void GalleryObjectModelModel::renderObjectModels() {
-    shutdownOffscreenRenderer();
-    renderedObjectsModels.clear();
-
-    offscreenRenderer = new OffscreenRenderer(objectModelsCache, QSize(100, 100));
-    offscreenRendererThread = new QThread();
-
-    connect(offscreenRendererThread, &QThread::started,
-            offscreenRenderer, &OffscreenRenderer::render);
-    connect(offscreenRenderer, &OffscreenRenderer::imageRendered,
-            this, &GalleryObjectModelModel::onObjectModelRendered);
-    connect(offscreenRenderer, &OffscreenRenderer::renderingFinished,
-            offscreenRendererThread, &QThread::quit);
-    connect(offscreenRenderer, &OffscreenRenderer::renderingFinished,
-            offscreenRenderer, &OffscreenRenderer::deleteLater);
-    connect(offscreenRenderer, &OffscreenRenderer::destroyed,
-            [this]{ this->offscreenRenderer = Q_NULLPTR; });
-
-    connect(offscreenRendererThread, &QThread::finished,
-            offscreenRendererThread, &QThread::deleteLater);
-    connect(offscreenRendererThread, &QThread::destroyed,
-            [this]{ this->offscreenRendererThread = Q_NULLPTR; });
-
-    offscreenRenderer->moveToThread(offscreenRendererThread);
-    offscreenRendererThread->start();
+    if (m_objectModels.count() > 0) {
+        m_renderedObjectsModels.clear();
+        m_currentlyRenderedImageIndex = 0;
+        m_renderingObjectModels = true;
+        m_offscreenEngine.setObjectModel(*m_objectModels[0]);
+        m_offscreenEngine.requestImage();
+    }
 }
 
 //! Implementations of QAbstractListModel
@@ -83,24 +55,30 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
     //! If for some weird coincidence (maybe deletion of a object model on the filesystem) the passed index
     //! is out of bounds simply return a QVariant, the next time the data method is called everything should
     //! be finde again
-    if (currentSelectedImageIndex == -1 || !modelManager || index.row() >= objectModelsCache.size())
+    if (!modelManager) {
         return QVariant();
+    }
 
-    const ObjectModel& objectModel = objectModelsCache.at(indexMapping.value(index.row()));
-    const Image& currentlySelectedImage = imagesCache.at(currentSelectedImageIndex);
-    if (codes.size() == 0
-            || currentlySelectedImage.getSegmentationImagePath().isEmpty()
+    ObjectModelPtr objectModel = m_objectModels.at(m_indexMapping.value(index.row()));
+
+    if (m_currentSelectedImageIndex == -1) {
+        return dataForObjectModel(*objectModel, role);
+    }
+
+    ImagePtr currentlySelectedImage = m_images.at(m_currentSelectedImageIndex);
+    if (m_codes.size() == 0
+            || currentlySelectedImage->segmentationImagePath().isEmpty()
             || !isNumberOfToolsCorrect()) {
         //! If no codes at all were set or if the currently selected image does not provide segmentation images
         //! simply display all available object models
-        return dataForObjectModel(objectModel, role);
-    } else if (codes.contains(objectModel.getPath())) {
+        return dataForObjectModel(*objectModel, role);
+    } else if (m_codes.contains(objectModel->path())) {
         //! If any codes are set only display the appropriate object models
-        QString code = codes[objectModel.getPath()];
+        QString code = m_codes[objectModel->path()];
         if (code.compare("") != 0) {
             QColor color = GeneralHelper::colorFromSegmentationCode(code);
-            if (colorsOfCurrentImage.contains(color)) {
-                return dataForObjectModel(objectModel, role);
+            if (m_colorsOfCurrentImage.contains(color)) {
+                return dataForObjectModel(*objectModel, role);
             }
         }
     }
@@ -109,22 +87,25 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
 }
 
 int GalleryObjectModelModel::rowCount(const QModelIndex &/* parent */) const {
-    if (codes.size() == 0
-            ||
-        (currentSelectedImageIndex != -1
-            && imagesCache.at(currentSelectedImageIndex)
-                .getSegmentationImagePath().isEmpty())
-            ||
-         !isNumberOfToolsCorrect()) {
-        return objectModelsCache.size();
+    bool noCodes = m_codes.size() == 0;
+    bool noSegmentationImages = (m_currentSelectedImageIndex != -1
+                                    && m_images.at(m_currentSelectedImageIndex)
+                                        ->segmentationImagePath().isEmpty());
+    if (noCodes || noSegmentationImages || !isNumberOfToolsCorrect()) {
+        // Not only renderedObjectModels.size() because we show loading icons
+        return m_objectModels.size();
+    }
+
+    if (m_currentSelectedImageIndex == -1) {
+        return m_objectModels.size();
     }
 
     int count = 0;
-    for (const ObjectModel &model : objectModelsCache) {
-        QString code = codes[model.getPath()];
+    for (const ObjectModelPtr &model : m_objectModels) {
+        QString code = m_codes[model->path()];
         if (code != "") {
             QColor color = GeneralHelper::colorFromSegmentationCode(code);
-            if (colorsOfCurrentImage.contains(color)) {
+            if (m_colorsOfCurrentImage.contains(color)) {
                 count++;
             }
         }
@@ -133,7 +114,27 @@ int GalleryObjectModelModel::rowCount(const QModelIndex &/* parent */) const {
 }
 
 void GalleryObjectModelModel::setSegmentationCodesForObjectModels(QMap<QString, QString> codes) {
-    this->codes = std::move(codes);
+    this->m_codes = std::move(codes);
+}
+
+void GalleryObjectModelModel::setPreviewRenderingSize(QSize size) {
+    m_offscreenEngine.setSize(size);
+    renderObjectModels();
+}
+
+QSize GalleryObjectModelModel::previewRenderingSize() {
+    return m_offscreenEngine.size();
+}
+
+QModelIndex GalleryObjectModelModel::indexOfObjectModel(const ObjectModel &objectModel) {
+    for (int i = 0; i < rowCount(QModelIndex()); i++) {
+        const ObjectModelPtr &o = m_objectModels[m_indexMapping[i]];
+        if (o->absolutePath() == objectModel.absolutePath()) {
+            return index(i, 0);
+        }
+    }
+    // Otherwise return invalid model index
+    return QModelIndex();
 }
 
 bool GalleryObjectModelModel::isNumberOfToolsCorrect() const {
@@ -141,99 +142,109 @@ bool GalleryObjectModelModel::isNumberOfToolsCorrect() const {
     //! than different colors in the segmentation image we definitely have too few object models
     //!
     //! Minus 2 because black and white are always in the segmentation images
-    if (codes.keys().size() == 0 && objectModelsCache.size() < colorsOfCurrentImage.size() - 2)
+    if (m_codes.keys().size() == 0 && m_objectModels.size() < m_colorsOfCurrentImage.size() - 2)
         return false;
 
     int numberOfMatches = 0;
-    for (QMap<QString, QString>::ConstIterator it = codes.begin(); it != codes.end(); it++) {
+    for (QMap<QString, QString>::ConstIterator it = m_codes.begin(); it != m_codes.end(); it++) {
         QString code = it.value();
         if (code.compare("") != 0) {
             QColor color = GeneralHelper::colorFromSegmentationCode(code);
-            if (colorsOfCurrentImage.contains(color)) {
+            if (m_colorsOfCurrentImage.contains(color)) {
                 numberOfMatches++;
             }
         }
     }
-    return numberOfMatches == colorsOfCurrentImage.size() - 2;
+    return numberOfMatches == m_colorsOfCurrentImage.size() - 2;
+}
+
+void GalleryObjectModelModel::onDataChanged(int data) {
+    if (data & Data::Images) {
+        // When the images change, the last selected image gets deselected
+        // This means we have to reset the index
+        m_images = modelManager->images();
+        m_currentSelectedImageIndex = -1;
+        m_colorsOfCurrentImage.clear();
+        m_indexMapping.clear();
+        createIndexMapping();
+    }
+    if (data & Data::ObjectModels) {
+        if (modelManager) {
+            // When the object models change we need to re-render them
+            m_objectModels = modelManager->objectModels();
+            renderObjectModels();
+            m_updateTimer.start();
+        } else {
+            m_objectModels.clear();
+            m_indexMapping.clear();
+        }
+        createIndexMapping();
+    }
 }
 
 void GalleryObjectModelModel::onSelectedImageChanged(int index) {
-    if (index != currentSelectedImageIndex) {
-        currentSelectedImageIndex = index;
-        colorsOfCurrentImage.clear();
-        indexMapping.clear();
-        const Image& image = imagesCache.at(currentSelectedImageIndex);
+    if (index != m_currentSelectedImageIndex) {
+        m_currentSelectedImageIndex = index;
+        const ImagePtr& image = m_images.at(m_currentSelectedImageIndex);
 
         //! If we find an segmentation image update the colors that are used to filter tools
-        if (image.getSegmentationImagePath().compare("") != 0) {
-            QImage loadedImage(image.getAbsoluteSegmentationImagePath());
+        if (image->segmentationImagePath().compare("") != 0) {
+            m_colorsOfCurrentImage.clear();
+            m_indexMapping.clear();
+            QImage loadedImage(image->absoluteSegmentationImagePath());
             for (QColor color : loadedImage.colorTable()) {
-                colorsOfCurrentImage.push_back(color);
+                m_colorsOfCurrentImage.push_back(color);
             }
+            createIndexMapping();
+            Q_EMIT displayedObjectModelsChanged();
         }
-
-        createIndexMapping();
-        Q_EMIT displayedObjectModelsChanged();
     }
 }
 
 void GalleryObjectModelModel::createIndexMapping() {
-    indexMapping.clear();
-    if (currentSelectedImageIndex != -1) {
-        const Image& image = imagesCache.at(currentSelectedImageIndex);
-        if (image.getSegmentationImagePath().compare("") == 0 ||
-                !isNumberOfToolsCorrect()) {
-            //! We don't have a segmentation image, i.e. fill the mapping with the defaults
-            for (int i = 0; i < objectModelsCache.size(); i++) {
-                indexMapping[i] = i;
-            }
-        } else {
+    m_indexMapping.clear();
+    if (m_currentSelectedImageIndex != -1) {
+        const ImagePtr& image = m_images.at(m_currentSelectedImageIndex);
+        if (image->segmentationImagePath().compare("") != 0 &&
+                isNumberOfToolsCorrect()) {
+            // This is the case when the number of colors in the segmentation image equals
+            // the number of tools and the an image has been selected for display
             int count = 0;
             int realIndex = 0;
-            for (const ObjectModel &model : objectModelsCache) {
-                QString code = codes[model.getPath()];
+            for (const ObjectModelPtr &model : m_objectModels) {
+                QString code = m_codes[model->path()];
                 if (code != "") {
                     QColor color = GeneralHelper::colorFromSegmentationCode(code);
-                    if (colorsOfCurrentImage.contains(color)) {
-                        indexMapping[count] = realIndex;
+                    if (m_colorsOfCurrentImage.contains(color)) {
+                        m_indexMapping[count] = realIndex;
                         count++;
                     }
                 }
                 realIndex++;
             }
+            // Return here because we created the index mapping
+            return;
         }
     }
-}
 
-void GalleryObjectModelModel::onObjectModelsChanged() {
-    if (modelManager) {
-        objectModelsCache = std::move(modelManager->getObjectModels());
-        renderObjectModels();
-    } else {
-        objectModelsCache.clear();
-        indexMapping.clear();
+    // This is the mapping for when the number of colors in the segmentation image doesn't
+    // match the number of tools or when the user hasn't selected an object model to display yet
+    for (int i = 0; i < m_objectModels.size(); i++) {
+        m_indexMapping[i] = i;
     }
-
-    createIndexMapping();
-    QModelIndex top = index(0, 0);
-    QModelIndex bottom = index(objectModelsCache.size() - 1, 0);
-    Q_EMIT dataChanged(top, bottom);
 }
 
-void GalleryObjectModelModel::onImagesChanged() {
-    // When the images change, the last selected image gets deselected
-    // This means we have to reset the index
-    currentSelectedImageIndex = -1;
-    imagesCache = std::move(modelManager->getImages());
-    QModelIndex top = index(0, 0);
-    QModelIndex bottom = index(objectModelsCache.size() - 1, 0);
-    Q_EMIT dataChanged(top, bottom);
-}
-
-void GalleryObjectModelModel::onObjectModelRendered(const QString &objectModel, int imageIndex, const QImage &image) {
+void GalleryObjectModelModel::onObjectModelRendered(QImage image) {
+    QString objectModel = m_objectModels[m_currentlyRenderedImageIndex]->path();
     qDebug() << "Preview rendering finished for " + objectModel;
-    renderedObjectsModels.insert(objectModel, image);
-    QModelIndex top = index(imageIndex, 0);
-    QModelIndex bottom = index(imageIndex + 1, 0);
-    Q_EMIT dataChanged(top, bottom);
+    m_renderedObjectsModels.insert(objectModel, image);
+    m_currentlyRenderedImageIndex++;
+    if (m_currentlyRenderedImageIndex < m_objectModels.size()) {
+        m_offscreenEngine.setObjectModel(*m_objectModels[m_currentlyRenderedImageIndex]);
+        m_offscreenEngine.requestImage();
+    } else {
+        m_currentlyRenderedImageIndex = 0;
+        m_renderingObjectModels = false;
+        m_updateTimer.stop();
+    }
 }

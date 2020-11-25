@@ -6,15 +6,16 @@
 GalleryImageModel::GalleryImageModel(ModelManager* modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
     this->modelManager = modelManager;
-    imagesCache = modelManager->getImages();
+    imagesCache = modelManager->images();
     resizeImages();
-    connect(modelManager, SIGNAL(imagesChanged()),
-            this, SLOT(onImagesChanged()));
+    connect(modelManager, &ModelManager::dataChanged,
+            this, &GalleryImageModel::onDataChanged);
 }
 
 GalleryImageModel::~GalleryImageModel() {
     resizeImagesRunnable->stop();
     resizeImagesThreadpool.waitForDone();
+    delete resizeImagesRunnable;
 }
 
 QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
@@ -23,19 +24,12 @@ QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
     if (index.row() >= imagesCache.size())
         return QVariant();
 
-    QString imagePath = imagesCache[index.row()].getImagePath();
+    QString imagePath = imagesCache[index.row()]->imagePath();
     if (role == Qt::DecorationRole) {
         if (resizedImagesCache.contains(imagePath)) {
             return QIcon(QPixmap::fromImage(resizedImagesCache[imagePath]));
         } else {
-            // Just a placeholder
-            QPixmap pix(300, 300);
-            pix.fill(Qt::white);
-            QPainter painter(&pix);
-            painter.setRenderHint(QPainter::TextAntialiasing);
-            painter.setFont(QFont("ubuntu", 35));
-            painter.drawText(pix.rect(), Qt::AlignVCenter, imagePath);
-            return QIcon(pix);
+            return QIcon(currentLoadingAnimationFrame);
         }
     } else if (role == Qt::ToolTipRole) {
         return imagePath;
@@ -48,7 +42,7 @@ int GalleryImageModel::rowCount(const QModelIndex &/* parent */) const {
 }
 
 void GalleryImageModel::resizeImages() {
-    if (resizeImagesRunnable) {
+    if (!resizeImagesRunnable.isNull()) {
         resizeImagesRunnable->stop();
         resizeImagesThreadpool.clear();
         resizeImagesThreadpool.waitForDone();
@@ -60,17 +54,21 @@ void GalleryImageModel::resizeImages() {
     resizeImagesThreadpool.start(resizeImagesRunnable);
 }
 
-void GalleryImageModel::onImageResized(int imageIndex, QString imagePath, QImage resizedImage) {
+void GalleryImageModel::onImageResized(int imageIndex, const QString &imagePath, const QImage &resizedImage) {
     resizedImagesCache[imagePath] = resizedImage;
-    QModelIndex top = index(imageIndex, 0);
-    QModelIndex bottom = index(imageIndex, 0);
-    Q_EMIT dataChanged(top, bottom);
+    if (imageIndex == imagesCache.size()) {
+        m_updateTimer.stop();
+    }
 }
 
-void GalleryImageModel::onImagesChanged() {
-    imagesCache = modelManager->getImages();
-    resizeImages();
-    QModelIndex top = index(0, 0);
-    QModelIndex bottom = index(imagesCache.size() - 1, 0);
-    Q_EMIT dataChanged(top, bottom);
+void GalleryImageModel::onDataChanged(int data) {
+    // Check if images were changed
+    if (data & Data::Images) {
+        m_updateTimer.start();
+        imagesCache = modelManager->images();
+        resizeImages();
+        QModelIndex top = index(0, 0);
+        QModelIndex bottom = index(imagesCache.size() - 1, 0);
+        Q_EMIT dataChanged(top, bottom);
+    }
 }

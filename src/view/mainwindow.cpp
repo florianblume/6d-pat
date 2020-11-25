@@ -1,38 +1,67 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
+#include "view/misc/displayhelper.hpp"
 #include "view/settings/settingsdialog.hpp"
-#include "view/neuralnetworkdialog/neuralnetworkdialog.hpp"
 #include <QSettings>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QLayout>
+#include <QGraphicsBlurEffect>
 
 //! The main window of the application that holds the individual components.<
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent,
+                       ModelManager *modelManager,
+                       SettingsStore *settingsStore) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow) {
+    ui(new Ui::MainWindow),
+    settingsStore(settingsStore),
+    modelManager(modelManager) {
+
     ui->setupUi(this);
-    readSettings();
+
+    progressDialog = new QProgressDialog;
+    progressDialog->setRange(0, 0);
+    progressDialog->setCancelButton(Q_NULLPTR);
+    progressDialog->setModal(true);
+    progressDialog->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
+    progressDialog->setFixedSize(progressDialog->size());
+    // The controller handles showing the progress dialog externally
+    //dataLoadingProgressDialog->show();
+
     statusBar()->addPermanentWidget(statusBarLabel, 1);
     setStatusBarText(QString("Loading..."));
+    connect(modelManager, &ModelManager::stateChanged,
+            this, &MainWindow::onModelManagerStateChanged);
+
+    connect(settingsStore, &SettingsStore::currentSettingsChanged,
+            this, &MainWindow::onSettingsChanged);
+
+    galleryImageModel = new GalleryImageModel(modelManager);
+    setGalleryImageModel(galleryImageModel);
+    galleryObjectModelModel = new GalleryObjectModelModel(modelManager);
+    setGalleryObjectModelModel(galleryObjectModelModel);
+
+    setPathsOnGalleriesAndBreadcrumbs();
+
+    connect(ui->breadcrumbLeft, &BreadcrumbView::selectedPathChanged,
+            this, &MainWindow::onImagesPathChangedByNavigation);
+    connect(ui->breadcrumbRight, &BreadcrumbView::selectedPathChanged,
+            this, &MainWindow::onObjectModelsPathChangedByNavigation);
 
     // If the selected image changes, we also need to cancel any started creation of a pose
     connect(ui->galleryLeft, &Gallery::selectedItemChanged,
             this, &MainWindow::poseCreationAborted);
     connect(ui->galleryRight, &Gallery::selectedItemChanged,
             this, &MainWindow::poseCreationAborted);
+
+    setStatusBarText("Ready.");
+
+    progressDialog->close();
 }
 
 MainWindow::~MainWindow() {
     delete ui;
-}
-
-void MainWindow::onInitializationStarted() {
-    setStatusBarText("Initializing...");
-}
-
-void MainWindow::onInitializationCompleted() {
-    setStatusBarText("Ready.");
 }
 
 //! This function persistently stores settings of the application.
@@ -82,25 +111,14 @@ void MainWindow::readSettings() {
     settings.endGroup();
 }
 
-void MainWindow::closeEvent(QCloseEvent *event) {
+void MainWindow::handleClosingProgram() {
+    Q_EMIT closingProgram();
     writeSettings();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+    handleClosingProgram();
     event->accept();
-}
-
-void MainWindow::setPathOnLeftBreadcrumbView(const QString &pathToShow) {
-    ui->breadcrumbLeft->setPathToShow(pathToShow);
-}
-
-void MainWindow::setPathOnRightBreadcrumbView(const QString &pathToShow) {
-    ui->breadcrumbRight->setPathToShow(pathToShow);
-}
-
-void MainWindow::setPathOnLeftNavigationControls(const QString &path) {
-    ui->navigationLeft->setPathToOpen(path);
-}
-
-void MainWindow::setPathOnRightNavigationControls(const QString &path) {
-    ui->navigationRight->setPathToOpen(path);
 }
 
 void MainWindow::setGalleryImageModel(GalleryImageModel* model) {
@@ -117,168 +135,133 @@ void MainWindow::setGalleryObjectModelModel(GalleryObjectModelModel* model) {
     connect(model, &GalleryObjectModelModel::displayedObjectModelsChanged, ui->galleryRight, &Gallery::reset);
 }
 
-void MainWindow::setModelManager(ModelManager* modelManager) {
-    this->modelManager = modelManager;
-    ui->poseViewer->setModelManager(modelManager);
-    ui->poseEditor->setModelManager(modelManager);
+void MainWindow::setStatusBarTextStartAddingCorrespondences() {
+    setStatusBarText("Start adding correspondences by clicking on either the image or object model.");
 }
 
-void MainWindow::resetPoseViewer() {
-    ui->poseViewer->reset();
+void MainWindow::setStatusBarText2DPointMissing(int numberOfCorrespondences, int minNumberOfCorrespondences) {
+    setStatusBarText("Complete the correspondence by clicking in the image (" +
+                     QString::number(numberOfCorrespondences) +
+                     "/" +
+                     QString::number(minNumberOfCorrespondences) +
+                     " correspondences complete).");
 }
 
-void MainWindow::setPreferencesStore(SettingsStore *preferencesStore) {
-    if (this->preferencesStore) {
-        disconnect(this->preferencesStore, SIGNAL(preferencesChanged(QString)),
-                   this, SLOT(onSettingsChanged(QString)));
+void MainWindow::setStatusBarText3DPointMissing(int numberOfCorrespondences, int minNumberOfCorrespondences) {
+    setStatusBarText("Complete the correspondence by clicking the 3D model (" +
+                     QString::number(numberOfCorrespondences) +
+                     "/" +
+                     QString::number(minNumberOfCorrespondences) +
+                     " correspondences complete).");
+}
+
+void MainWindow::setStatusBarTextNotEnoughCorrespondences(int numberOfCorrespondences, int minNumberOfCorrespondences) {
+    setStatusBarText("Add more correspondences to enable pose recovering (" +
+                     QString::number(numberOfCorrespondences) +
+                     "/" +
+                     QString::number(minNumberOfCorrespondences) +
+                     " correspondences complete).");
+}
+
+void MainWindow::setStatusBarTextReadyForPoseCreation(int numberOfCorrespondences, int minNumberOfCorrespondences) {
+    setStatusBarText("Ready for pose recovering (" +
+                     QString::number(numberOfCorrespondences) +
+                     "/" +
+                     QString::number(minNumberOfCorrespondences) +
+                     " correspondences complete).");
+}
+
+void MainWindow::showEvent(QShowEvent *e) {
+    if (!showInitialized) {
+        readSettings();
     }
-    this->preferencesStore = preferencesStore;
-    connect(preferencesStore, SIGNAL(settingsChanged(QString)),
-            this, SLOT(onSettingsChanged(QString)));
-}
-
-Image *MainWindow::getCurrentlyViewedImage() {
-    return ui->poseViewer->getCurrentlyViewedImage();
-}
-
-void MainWindow::resizeEvent(QResizeEvent *) {
-    if (!networkProgressView.isNull()) {
-        networkProgressView->setGeometry(0, 0, this->width(), this->height());
-    }
-}
-
-void MainWindow::mouseReleaseEvent(QMouseEvent* /* event */) {
-    if (poseCreationInProgress) {
-        // Reset pose creation because the user clicked anywhere
-        onPoseCreationReset();
-        Q_EMIT poseCreationAborted();
-    }
+    showInitialized = true;
+    QMainWindow::showEvent(e);
 }
 
 void MainWindow::setStatusBarText(const QString& text) {
     statusBarLabel->setText(text);
 }
-//! Mouse handling, i.e. clicking in the lower left widget and dragging a line to the lower right widget
-void MainWindow::onImageClicked(Image* image, QPoint position) {
-    //! No need to check for whether the right widget was clicked because the only time this method
-    //! will be called is when the object image picker received a click on the image
-    if (ui->poseEditor->isDisplayingObjectModel()) {
-        if (poseCreationInProgress) {
-            displayWarning("Pose creation", "You need to click"
-                                                      " the object model"
-                                                      " to add the 2D-3D"
-                                                      " pose.");
-        } else {
-            QGuiApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
-            poseCreationInProgress = true;
-            Q_EMIT imageClicked(image, position);
-        }
+
+void MainWindow::showProgressView(bool show) {
+    if (show) {
+        progressDialog->show();
+        this->setGraphicsEffect(new QGraphicsBlurEffect);
     } else {
-        QMessageBox::warning(this, "Select object model first", "Please select an object model from the list\n"
-                                                                "of object models first before trying to create\n"
-                                                                "a new pose.");
+        progressDialog->close();
+        this->setGraphicsEffect({});
     }
 }
 
-void MainWindow::onObjectModelClicked(ObjectModel* objectModel, QVector3D position) {
-    if (!poseCreationInProgress) {
-        // Do not show this warning as clicking the 3D model focuses the viewer
-        // and enables moving around with the arrow keys
-        /*
-        displayWarning("Pose creation", "You need to click a position on"
-                                                  " the image first before selecting"
-                                                  " the corresponding 3D position.");
-                                                  */
-    }
-    QGuiApplication::restoreOverrideCursor();
-    poseCreationInProgress = false;
-    // The user might click on the overlay before he starts to create a pose,
-    // i.e. the overlay is not visible yet and not created. But as soon as the user clicks
-    // the image and then the object, this adds a pose point and the overlay
-    // should be hidden.
-    Q_EMIT objectModelClicked(objectModel, position);
+PoseViewer *MainWindow::poseViewer() {
+    return ui->poseViewer;
 }
 
-void MainWindow::onSelectedObjectModelChanged(int index) {
-    QList<ObjectModel> objectModels = modelManager->getObjectModels();
-    Q_ASSERT(index >= 0 && index < objectModels.size());
-    // Ok as long as the addressees are in the same thread and directly process the event.
-    ObjectModel *model = new ObjectModel(objectModels.at(index));
-    Q_EMIT selectedObjectModelChanged(model);
-    delete model;
-    onPoseCreationReset();
+PoseEditor *MainWindow::poseEditor() {
+    return ui->poseEditor;
 }
 
-void MainWindow::onSelectedImageChanged(int index) {
-    QList<Image> images = modelManager->getImages();
-    Q_ASSERT(index >= 0 && index < images.size());
-    // Ok as long as the addressees are in the same thread and directly process the event.
-    Image *image = new Image(images.at(index));
-    Q_EMIT selectedImageChanged(image);
-    delete image;
-    onPoseCreationReset();
+GalleryObjectModels *MainWindow::galleryObjectModels() {
+    return dynamic_cast<GalleryObjectModels*>(ui->galleryRight);
+}
+
+Gallery *MainWindow::galleryImages() {
+    return ui->galleryLeft;
+}
+
+void MainWindow::showDataLoadingProgressView(bool show) {
+    progressDialog->setLabelText("Loading data...");
+    showProgressView(show);
+}
+
+void MainWindow::showPoseRecoveringProgressView(bool show) {
+    progressDialog->setLabelText("Recovering pose...");
+    showProgressView(show);
 }
 
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
-    QSharedPointer<Settings> preferences = preferencesStore->loadPreferencesByIdentifier("default");
-    preferences->setImagesPath(path);
-    preferencesStore->savePreferences(preferences.data());
+    SettingsPtr settings = settingsStore->currentSettings();
+    settings->setImagesPath(path);
+    settingsStore->saveCurrentSettings();
 }
 
 void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
-    QSharedPointer<Settings> preferences = preferencesStore->loadPreferencesByIdentifier("default");
-    preferences->setObjectModelsPath(path);
-    preferencesStore->savePreferences(preferences.data());
+    SettingsPtr settings = settingsStore->currentSettings();
+    settings->setObjectModelsPath(path);
+    settingsStore->saveCurrentSettings();
 }
 
 void MainWindow::displayWarning(const QString &title, const QString &text) {
-    QMessageBox::warning(this, title, text);
+    DisplayHelper::QMessageBoxPtr messageBox = DisplayHelper::messageBox(this,
+                                                                         QMessageBox::Warning,
+                                                                         title,
+                                                                         text,
+                                                                         "Ok", QMessageBox::AcceptRole);
+    messageBox->exec();
 }
 
-void MainWindow::onPosePointStarted(QPoint point2D, int currentNumberOfPoints, int requiredNumberOfPoints) {
-    setStatusBarText("Please select the corresponding 3D point [" +
-                                QString::number(currentNumberOfPoints)
-                                + " of min. " +
-                                QString::number(requiredNumberOfPoints)
-                     + "].");
-    Q_EMIT posePointStarted(point2D, currentNumberOfPoints, requiredNumberOfPoints);
+bool MainWindow::showSaveUnsavedChangesDialog() {
+    DisplayHelper::QMessageBoxPtr messageBox = DisplayHelper::messageBox(this,
+                                                                         QMessageBox::Warning,
+                                                                         "Unsaved pose modifications",
+                                                                         "You have unsaved modifications of the currently edited pose."
+                                                                         " The action you just performed would discard these modifications. "
+                                                                         "Save them now?",
+                                                                         "Yes", QMessageBox::YesRole,
+                                                                         "No", QMessageBox::NoRole);
+    return QMessageBox::Yes == messageBox->exec();
 }
 
-void MainWindow::onPosePointFinished(QVector3D point3D, int currentNumberOfPoints, int requiredNumberOfPoints) {
-    setStatusBarText("Please select another pose point [" +
-                                QString::number(currentNumberOfPoints)
-                                + " of min. " +
-                                QString::number(requiredNumberOfPoints)
-                     + "].");
-    Q_EMIT posePointFinished(point3D, currentNumberOfPoints, requiredNumberOfPoints);
+void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
+    SettingsPtr settings = settingsStore->currentSettings();
+    galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
+    ui->breadcrumbLeft->setCurrentPath(settings->imagesPath());
+    ui->breadcrumbRight->setCurrentPath(settings->objectModelsPath());
 }
 
-void MainWindow::onPoseCreated() {
-    onPoseCreationReset();
-}
-
-void MainWindow::onPoseCreationReset() {
-    setStatusBarText("Ready.");
-    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
-    poseCreationInProgress = false;
-}
-
-void MainWindow::onPoseCreationRequested() {
-    setStatusBarText("Creating pose...");
-    Q_EMIT requestPoseCreation();
-    QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
-}
-
-void MainWindow::hideNetworkProgressView() {
-    networkProgressView->hide();
-    QApplication::restoreOverrideCursor();
-}
-
-void MainWindow::onSettingsChanged(const QString &identifier) {
-    QSharedPointer<Settings> preferences = preferencesStore->loadPreferencesByIdentifier(identifier);
-    setPathOnLeftBreadcrumbView(preferences->getImagesPath());
-    setPathOnRightBreadcrumbView(preferences->getObjectModelsPath());
-    onPoseCreationReset();
+void MainWindow::onSettingsChanged(SettingsPtr settings) {
+    galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
+    setPathsOnGalleriesAndBreadcrumbs();
 }
 
 void MainWindow::onActionAboutTriggered() {
@@ -294,26 +277,27 @@ void MainWindow::onActionAboutTriggered() {
                                 "persisted for later use. "
                                 "The so annotated images can "
                                 "be used to e.g. train a neural "
-                                "network."));
+                                "network."
+                                "\n"
+                                "\n"
+                                "© Florian Blume, 2020"));
     about.setStandardButtons(QMessageBox::Ok);
     QPixmap icon(":/images/about.png");
-    about.setIconPixmap(icon);   // here is the error
+    about.setIconPixmap(icon);
     about.setDefaultButton(QMessageBox::Ok);
     about.show();
     about.exec();
 }
 
-void MainWindow::onActionExitTriggered()
-{
+void MainWindow::onActionExitTriggered() {
+    handleClosingProgram();
     QApplication::quit();
 }
 
-void MainWindow::onActionSettingsTriggered()
-{
+void MainWindow::onActionSettingsTriggered() {
     SettingsDialog* settingsDialog = new SettingsDialog(this);
-    settingsDialog->setPreferencesStoreAndObjectModels(preferencesStore,
-                                                   "default",
-                                                   modelManager->getObjectModels());
+    settingsDialog->setSettingsStoreAndObjectModels(settingsStore,
+                                                    modelManager->objectModels());
     settingsDialog->show();
 }
 
@@ -323,47 +307,73 @@ void MainWindow::onActionAbortCreationTriggered() {
 }
 
 void MainWindow::onActionReloadViewsTriggered() {
-    modelManager->reload();
+    Q_EMIT reloadingViews();
+    setStatusBarText("Ready.");
 }
 
-void MainWindow::onActionNetworkPredictTriggered() {
-    if (neuralNetworkDialog.isNull()) {
-        neuralNetworkDialog.reset(new NeuralNetworkDialog(this, modelManager));
-        connect(neuralNetworkDialog.data(), &NeuralNetworkDialog::networkPredictionRequestedForImages,
-                this, &MainWindow::onPosePredictionRequestedForImages);
+void MainWindow::onModelManagerStateChanged(ModelManager::State state) {
+    if (state == ModelManager::Error) {
+        QString message("An unkown error occured in the data manager.");
+        switch (modelManager->error()) {
+            case LoadAndStoreStrategy::CamInfoDoesNotExist:
+                message = "The camera info file info.json does not exist.";
+                break;
+            case LoadAndStoreStrategy::ImagesPathDoesNotExist:
+                message = "The images path does not exist.";
+                break;
+            case LoadAndStoreStrategy::SegmentationImagesPathDoesNotExist:
+                message = "The segmentation images path does not exist.";
+                break;
+            case LoadAndStoreStrategy::CouldNotReadCamInfo:
+                message = "Could not read the camera info file info.json.";
+                break;
+            case LoadAndStoreStrategy::CamInfoPathIsNotAJSONFile:
+                message = "The camera info file info.json is not a valid file.";
+                break;
+            case LoadAndStoreStrategy::NoImagesFound:
+                message = "No images found at the specified images path.";
+                break;
+            case LoadAndStoreStrategy::ObjectModelsPathDoesNotExist:
+                message = "The object models path does not exist.";
+                break;
+            case LoadAndStoreStrategy::ObjectModelsPathIsNotAFolder:
+                message = "The object models path is not a folder.";
+                break;
+            case LoadAndStoreStrategy::PosesPathDoesNotExist:
+                message = "The specified poses file does not exist.";
+                break;
+            case LoadAndStoreStrategy::FailedToPersistPosePosesFileCouldNotBeRead:
+                message = "Could not read the poses file while trying to save a pose.";
+                break;
+            case LoadAndStoreStrategy::FailedToPersistPosePosesPathIsNotAFile:
+                message = "The specified poses file is not a file (error while trying to save a pose).";
+                break;
+            case LoadAndStoreStrategy::PosesPathIsNotReadable:
+                message = "The specified poses file is not readable.";
+                break;
+            case LoadAndStoreStrategy::InvalidCameraMatrices:
+                message = "There were invalid camera matrices in the cam.info file.";
+                break;
+            case LoadAndStoreStrategy::PosesWithInvalidPosesData:
+                message = "There were invalid entries for poses in the poses file.";
+                break;
+            case LoadAndStoreStrategy::NotEnoughSegmentationImages:
+                message = "There were not enough segmentation images to match them with all images.";
+                break;
+        }
+        displayWarning("An error occured in the data manger", message);
     }
-    neuralNetworkDialog->show();
 }
 
-void MainWindow::onPosePredictionRequestedForImages(QList<Image> images) {
-    if (networkProgressView.isNull()) {
-        networkProgressView.reset(new NetworkProgressView(this));
-    }
-    networkProgressView->show();
-    networkProgressView->setGeometry(QRect(0, 0, this->width(), this->height()));
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    emit posePredictionRequestedForImages(images);
-}
-
-void MainWindow::onPosePredictionRequested() {
-    if (networkProgressView.isNull()) {
-        networkProgressView.reset(new NetworkProgressView(this));
-    }
-    networkProgressView->show();
-    networkProgressView->setGeometry(QRect(0, 0, this->width(), this->height()));
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    Q_EMIT posePredictionRequested();
-}
-
-QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";
-QString MainWindow::SETTINGS_PROGRAM_NAME = "Otiat";
-QString MainWindow::SETTINGS_GROUP_NAME = "mainwindow";
-QString MainWindow::WINDOW_IS_FULLSCREEN_KEY = "isfullscreen";
-QString MainWindow::WINDOW_SIZE_KEY = "windowsize";
-QString MainWindow::WINDOW_POSITION_KEY = "windowposition";
-QString MainWindow::SPLITTER_MAIN_SIZE_LEFT_KEY = "splitterMainLeftSize";
-QString MainWindow::SPLITTER_MAIN_SIZE_RIGHT_KEY = "splitterMainRightSize";
-QString MainWindow::SPLITTER_LEFT_SIZE_TOP_KEY = "splitterLeftLeftSize";
-QString MainWindow::SPLITTER_LEFT_SIZE_BOTTOM_KEY = "splitterLeftRightSize";
-QString MainWindow::SPLITTER_RIGHT_SIZE_TOP_KEY = "splitterRightLeftSize";
-QString MainWindow::SPLITTER_RIGHT_SIZE_BOTTOM_KEY = "splitterRightRightSize";
+const QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";
+const QString MainWindow::SETTINGS_PROGRAM_NAME = "Otiat";
+const QString MainWindow::SETTINGS_GROUP_NAME = "mainwindow";
+const QString MainWindow::WINDOW_IS_FULLSCREEN_KEY = "isfullscreen";
+const QString MainWindow::WINDOW_SIZE_KEY = "windowsize";
+const QString MainWindow::WINDOW_POSITION_KEY = "windowposition";
+const QString MainWindow::SPLITTER_MAIN_SIZE_LEFT_KEY = "splitterMainLeftSize";
+const QString MainWindow::SPLITTER_MAIN_SIZE_RIGHT_KEY = "splitterMainRightSize";
+const QString MainWindow::SPLITTER_LEFT_SIZE_TOP_KEY = "splitterLeftLeftSize";
+const QString MainWindow::SPLITTER_LEFT_SIZE_BOTTOM_KEY = "splitterLeftRightSize";
+const QString MainWindow::SPLITTER_RIGHT_SIZE_TOP_KEY = "splitterRightLeftSize";
+const QString MainWindow::SPLITTER_RIGHT_SIZE_BOTTOM_KEY = "splitterRightRightSize";

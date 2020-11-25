@@ -1,67 +1,41 @@
 #include "breadcrumbview.hpp"
-#include <QDir>
+#include "ui_breadcrumbview.h"
+#include "view/misc/displayhelper.hpp"
 
-BreadcrumbView::BreadcrumbView(QWidget *parent, const QString &pathToShow)
-    : QWidget(parent), pathToShow(pathToShow)
-{;
-    layout = new QHBoxLayout();
-    layout->setSpacing(0);
-    this->setLayout(layout);
-    updateView();
+#include <QDir>
+#include <QFileDialog>
+
+namespace Ui {
+class BreadcrumbView;
+}
+
+BreadcrumbView::BreadcrumbView(QWidget *parent, const QString &initialPath)
+    : QWidget(parent)
+    , ui(new Ui::BreadcrumbView)
+    , m_currentPath(initialPath) {
+    ui->setupUi(this);
+    DisplayHelper::setIcon(ui->buttonSelectFolder, fa::folderopen, 24);
 }
 
 BreadcrumbView::~BreadcrumbView() {
-    delete layout;
 }
 
-void BreadcrumbView::setPathToShow(const QString &newPathToShow) {
-    this->pathToShow = newPathToShow;
-    updateView();
+void BreadcrumbView::setCurrentPath(const QString &newPathToShow) {
+    m_currentPath = newPathToShow;
+    ui->lineEditPath->setText(newPathToShow);
 }
 
-QString BreadcrumbView::getPathTowShow() {
-    return pathToShow;
-}
-
-void BreadcrumbView::updateView() {
-    QStringList pathParts = pathToShow.split(QDir::separator());
-    QStringList expandedPathParts;
-
-    for (int j = 0; j < pathParts.size(); j++) {
-        expandedPathParts << pathParts[j];
-        if (j < pathParts.size() - 1)
-            expandedPathParts << "/";
+void BreadcrumbView::buttonSelectFolderClicked() {
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                m_currentPath,
+                                                QFileDialog::ShowDirsOnly
+                                                | QFileDialog::DontResolveSymlinks
+                                                | QFileDialog::DontUseNativeDialog);
+    if (dir == "") {
+        return;
     }
-
-    uint i = 0;
-
-    for (QString part : expandedPathParts) {
-        // reuse labels
-        QLabel* label;
-        if (i < labels.size()) {
-            label = labels[i];
-            label->setText(part);
-        } else {
-            label = new QLabel(QString(part), this);
-            label->setAlignment(Qt::AlignCenter);
-            label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-            //label->setStyleSheet("border: 1px solid;");
-            label->setMargin(5);
-            layout->addWidget(label);
-            labels.push_back(label);
-        }
-        i++;
+    if (m_currentPath != dir) {
+        Q_EMIT selectedPathChanged(dir);
     }
-
-    //! save state of i, e.g. when we only need 4 labels but have 6 in the list,
-    //! so that we are able to delete the excess ones
-    uint j = i;
-
-    while (i < labels.size()) {
-        layout->removeWidget(labels[i]);
-        delete labels[i];
-        i++;
-    }
-
-    labels.erase(labels.begin() + j, labels.end());
+    m_currentPath = dir;
 }

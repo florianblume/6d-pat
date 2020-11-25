@@ -3,150 +3,139 @@
 
 #include "model/modelmanager.hpp"
 #include "misc/global.hpp"
+#include "view/poseeditor/poseeditor3dwidget.hpp"
+
 #include <QWidget>
 #include <QFrame>
+#include <QItemSelection>
+#include <QStringListModel>
+#include <QListView>
+#include <QMap>
+#include <QPointer>
+
+// Need to pre-load this class
+class PoseEditor3DWindow;
 
 namespace Ui {
 class PoseEditor;
 }
 
-/*!
- * \brief The PoseEditorControls class is responsible for displaying two views of an
- * object model. The two views can receive drags from the PoseEditor and therefore
- * generate necessary points to automatically place the object model on the image. Furthermore
- * it offers controls to fine-tune the position of the object model and also reset everything.
- */
 class PoseEditor : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit PoseEditor(QWidget *parent = 0, ModelManager *modelManager = 0);
+    explicit PoseEditor(QWidget *parent = Q_NULLPTR);
     ~PoseEditor();
-    void setModelManager(ModelManager *modelManager);
-    bool isDisplayingObjectModel();
+    void setEnabledButtonRecoverPose(bool enabled);
+    void setEnabledButtonSave(bool enabled);
+    /*!
+     * \brief reset3DViewOnPoseSelectionChange cryptic name for a function that
+     * simply sets this bool value so that the PoseEditingController can set it to
+     * false to keep the PoseEditor from resetting the 3D viewer when selecting
+     * a different image (we don't want to reset the 3D viewer in thise case
+     * because then the user has to search for it again but likely the next
+     * image shows the same object model)
+     * \param reset
+     */
+    void reset3DViewOnPoseSelectionChange(bool reset);
+    void setSettingsStore(SettingsStore *settingsStore);
 
 public Q_SLOTS:
-
-    /*!
-     * \brief setObjectModel sets the object model that is to be displayed. The user can then
-     * create poses with the displayed image. This is not setting the pose yet,
-     * i.e. the controls cannot be used until an actual pose has been created.
-     * \param objectModel the object model to be displayed
-     */
-    void setObjectModel(ObjectModel *objectModel);
-    void onSelectedImageChanged(int index);
-
-    /*!
-     * \brief setPoseToEdit sets the object image pose that is to be edited by
-     * these controls. If formerly an object model had been set it will be removed from displaying
-     * and the object model corresponding to the pose will be displayed instead.
-     * \param pose the correpondence to be edited
-     */
-    void setPoseToEdit(Pose *pose);
-
-    void removeClickVisualizations();
-    /*!
-     * \brief onPoseCreationAborted reacts to the signal indicating that the process
-     * of creating a new pose was aborted by the user.
-     */
+    // We don't actually need the image, only to check
+    // whether to enable the copying and poses selection
+    // list views
+    void setCurrentImage(ImagePtr image);
+    void setImages(const QList<ImagePtr> &images);
+    void setPoses(const QList<PosePtr> &poses);
+    void addPose(PosePtr pose);
+    void removePose(PosePtr pose);
+    // For poses selected in the PoseViewer
+    void selectPose(PosePtr selected, PosePtr deselected);
+    void setObjectModel(ObjectModelPtr objectModel);
+    void setClicks(const QList<QVector3D> &clicks);
+    void onSelectedPoseValuesChanged(PosePtr pose);
+    void onPosesSaved();
     void onPoseCreationAborted();
-    /*!
-     * \brief onPosePointFinished the slot that handles the event when the user successfully
-     * create a pose point that consists of a 2D image location and a 3D point on the object model.
-     * \param point3D the 3D point on the object model
-     * \param currentNumberOfPoints the current number of pose points
-     * \param minimumNumberOfPoints the total number required to be able to create an actual ObjectImage Pose
-     */
-    void onPosePointFinished(QVector3D point3D,
-                                       int currentNumberOfPoints,
-                                       int minimumNumberOfPoints);
-    /*!
-     * \brief reset resets this view, i.e. clears the displayed object models
-     */
     void reset();
 
 Q_SIGNALS:
+    void objectModelClickedAt(const QVector3D &position);
 
-    /*!
-     * \brief objectModelClickedAt is Q_EMITted whenever the user clicks the displayed object model.
-     * \param objectModel the object model that was clicked
-     * \param position the position the user clicked the object model at
-     */
-    void objectModelClickedAt(ObjectModel *objectModel, QVector3D position);
-    /*!
-     * \brief onButtonPredictClicked is Q_EMITted when the user clicks the predict button
-     */
-    void buttonPredictClicked();
-    /*!
-     * \brief onButtonCreateClicked is Q_EMITted when the user clicks the create pose button.
-     * The button is only enabled when enough pose points where clicked.
-     */
+    void poseSelected(PosePtr pose);
+
     void buttonCreateClicked();
-    void poseUpdated(Pose *pose);
-    void poseCreationAborted();
-    void opacityChangeStarted(int opacity);
-    void opacityChangeEnded();
-
-private:
-    Ui::PoseEditor *ui;
-    ModelManager *modelManager;
-
-    UniquePointer<ObjectModel> currentObjectModel;
-    UniquePointer<Pose> currentPose;
-    // We need to store what image the user currently views that in case that they select an object
-    // model we can restore the list of all poses available for the currently viewed image
-    Image currentlySelectedImage;
-
-    bool ignoreValueChanges = false;
-
-    void setEnabledPoseEditorControls(bool enabled);
-    void setEnabledAllControls(bool enabled);
-    void resetControlsValues();
-    void addPosesToComboBoxPoses(
-            const Image *image, const QString &poseToSelect = "");
-    void setPoseValuesOnControls(Pose *pose);
+    void buttonSaveClicked();
+    void buttonCopyClicked(ImagePtr imageToCopyFrom);
+    void buttonDuplicateClicked();
+    void buttonRemoveClicked();
 
 private Q_SLOTS:
     /*!
-     * \brief onObjectModelClickedAt the function that will be connected to
-     * the OpenGL widget to handle clicks on the object
-     * \param position
+     * \brief onObjectModelClickedAt handles clicking the 3D model
      */
-    void onObjectModelClickedAt(QVector3D position);
+    void onObjectModelClickedAt(const QVector3D &position);
     /*!
      * \brief updateCurrentlyEditedPose gets called whenever the user clicks on one of
      * the position or rotation controls or modifies the articulation angle.
      */
     void updateCurrentlyEditedPose();
-    void onPoseAdded(const QString &pose);
-    void onPoseDeleted(const QString &pose);
+    void onSpinBoxValueChanged();
 
-    void onGLWidgetXRotationChanged(float angle);
-    void onGLWidgetYRotationChanged(float angle);
-    void onGLWidgetZRotationChanged(float angle);
-
-    void onSpinBoxTranslationXValueChanged(double);
-    void onSpinBoxTranslationYValueChanged(double);
-    void onSpinBoxTranslationZValueChanged(double);
-    void onSpinBoxRotationXValueChanged(double);
-    void onSpinBoxRotationYValueChanged(double);
-    void onSpinBoxRotationZValueChanged(double);
-    void onButtonPredictClicked();
     void onButtonCreateClicked();
     void onButtonSaveClicked();
-    /*!
-     * \brief removeCurrentlyEditedPose gets called when the user wants to remove the
-     * currenlty edited pose from the currenlty displayed image.
-     */
+    void onButtonDuplicateClicked();
     void onButtonRemoveClicked();
-    void onComboBoxPoseIndexChanged(int index);
-    void onSliderOpacityValueChanged(int value);
-    void onSliderOpacityReleased();
+    void onButtonCopyClicked();
 
-    //! React to signal from the model manager
-    void onPosesChanged();
+    /*!
+     * \brief onListViewPosesSelectionChanged Reacts to the user selecting a different pose from
+     * the poses list view.
+     */
+    void onListViewPosesSelectionChanged(const QItemSelection &selected,
+                                         const QItemSelection &deselected);
+    void onObjectModelLoaded();
 
+private:
+    void setEnabledPoseEditorControls(bool enabled);
+    void setEnabledAllControls(bool enabled);
+    void resetControlsValues();
+    // For the poses list view, the images list view and the copy button
+    // they can stay enabled as long as there is an image that is being viewed
+    void setEnabledPoseInvariantControls(bool enabled);
+    void setPosesOnPosesListView(const QString &poseToSelect = "");
+    void setPoseValuesOnControls(const Pose &pose);
+
+private:
+    Ui::PoseEditor *ui;
+
+    PoseEditor3DWindow *poseEditor3DWindow;
+
+    QList<ImagePtr> images;
+    ImagePtr currentImage;
+    ObjectModelPtr currentObjectModel;
+    QList<PosePtr> poses;
+    PosePtr currentlySelectedPose;
+    PosePtr previouslySelectedPose;
+
+    // When the pose is selected by the pose viewer we still emit the pose selected signal
+    // which causes the program to crash
+    bool doNotEmitPoseSelected = false;
+
+    // Indices of the list view for simplicity
+    QMap<QString, int> posesIndices;
+
+    QStringListModel *listViewPosesModel;
+    QStringListModel *listViewImagesModel;
+
+    // To prevent the spin boxes from emitting their changed signal when we set the pose
+    // values e.g. because the user selected a pose in the PoseViewer
+    bool ignoreSpinBoxValueChanges = false;
+    // To prevent from reacting to the poses list view selection changed signal again
+    // when we receive the selected pose changed signal from the PoseEditingController
+    bool ignorePoseSelectionChanges = false;
+
+    bool reset3DViewerOnPoseSelectionChange = true;
 };
 
 #endif // CORRESPONDENCEEDITORCONTROLS_H

@@ -1,77 +1,49 @@
 #include "poserenderable.hpp"
 
-#include <QOpenGLContext>
-#include <QOpenGLFunctions>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
-
-PoseRenderable::PoseRenderable(const Pose &pose,
-                               int vertexAttributeLoc,
-                               int normalAttributeLoc) :
-    ObjectModelRenderable(*pose.getObjectModel(), vertexAttributeLoc, normalAttributeLoc),
-    poseId(pose.getID()),
-    position(pose.getPosition()),
-    rotation(pose.getRotation()) {
-
-    computeModelViewMatrix();
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(objectModel.getAbsolutePath().toStdString(),
-                                             aiProcess_GenSmoothNormals |
-                                             aiProcess_CalcTangentSpace |
-                                             aiProcess_Triangulate |
-                                             aiProcess_JoinIdenticalVertices |
-                                             aiProcess_SortByPType
-                                             );
-    for (uint i = 0; i < scene->mNumMeshes; i++) {
-        this->processMesh(scene->mMeshes[0]);
-    }
-    populateVertexArrayObject();
+PoseRenderable::PoseRenderable(Qt3DCore::QEntity *parent,
+                               PosePtr pose) :
+        ObjectModelRenderable(parent, *pose->objectModel()),
+        m_pose(pose),
+        m_picker(new Qt3DRender::QObjectPicker),
+        m_transform(new Qt3DCore::QTransform) {
+    m_transform->setRotation(pose->rotation());
+    m_transform->setTranslation(pose->position());
+    addComponent(m_transform);
+    addComponent(m_picker);
+    m_picker->setHoverEnabled(true);
+    m_picker->setDragEnabled(true);
+    connect(m_picker, &Qt3DRender::QObjectPicker::clicked,
+            this, &PoseRenderable::clicked);
+    connect(m_picker, &Qt3DRender::QObjectPicker::moved,
+            this, &PoseRenderable::moved);
+    connect(m_picker, &Qt3DRender::QObjectPicker::pressed,
+            this, &PoseRenderable::pressed);
+    connect(m_picker, &Qt3DRender::QObjectPicker::entered,
+            this, &PoseRenderable::entered);
+    connect(m_picker, &Qt3DRender::QObjectPicker::exited,
+            this, &PoseRenderable::exited);
+    connect(pose.get(), &Pose::positionChanged,
+            m_transform, &Qt3DCore::QTransform::setTranslation);
+    connect(pose.get(), &Pose::rotationChanged,
+            m_transform, &Qt3DCore::QTransform::setRotation);
 }
 
-QMatrix4x4 PoseRenderable::getModelViewMatrix() {
-    return modelViewMatrix;
+ObjectModelPtr PoseRenderable::objectModel() {
+    return m_pose->objectModel();
 }
 
-ObjectModel PoseRenderable::getObjectModel() {
-    return objectModel;
-}
-
-QVector3D PoseRenderable::getPosition() {
-    return position;
-}
-
-void PoseRenderable::setPosition(QVector3D position) {
-    this->position = position;
-    computeModelViewMatrix();
-}
-
-QMatrix3x3 PoseRenderable::getRotation() {
-    return rotation;
-}
-
-void PoseRenderable::setRotation(QMatrix3x3 rotation) {
-    this->rotation = rotation;
-    computeModelViewMatrix();
-}
-
-QString PoseRenderable::getPoseId() {
-    return poseId;
+QString PoseRenderable::poseID() {
+    return m_pose->id();
 }
 
 bool PoseRenderable::operator==(const PoseRenderable &other) {
-    return poseId == other.poseId;
+    return m_pose->id() == other.m_pose->id();
 }
 
-// Private functions from here
+PosePtr PoseRenderable::pose() const {
+    return m_pose;
+}
 
-void PoseRenderable::computeModelViewMatrix() {
-    modelViewMatrix = QMatrix4x4(rotation);
-    modelViewMatrix(0, 3) = position[0];
-    modelViewMatrix(1, 3) = position[1];
-    modelViewMatrix(2, 3) = position[2];
-    QMatrix4x4 yz_flip;
-    yz_flip.setToIdentity();
-    yz_flip(1, 1) = -1;
-    yz_flip(2, 2) = -1;
-    modelViewMatrix = yz_flip * modelViewMatrix;
+Qt3DCore::QTransform *PoseRenderable::transform() const {
+    return m_transform;
 }

@@ -13,15 +13,15 @@ class ResizeImagesRunnable : public QObject, public QRunnable {
     Q_OBJECT
 
 public:
-    ResizeImagesRunnable(const QList<Image> images);
+    ResizeImagesRunnable(const QList<ImagePtr> &images);
     void run() override;
     void stop();
 
 signals:
-    void imageResized(int imageIndex, QString imagePath, QImage resizedImage);
+    void imageResized(int imageIndex, const QString &imagePath, const QImage &resizedImage);
 
 private:
-    QList<Image> images;
+    QList<ImagePtr> images;
     bool stopProcess = false;
 };
 

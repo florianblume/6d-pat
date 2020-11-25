@@ -11,25 +11,21 @@ namespace Ui {
 class SettingsDialog;
 }
 
-class SettingsDialog : public QDialog
-{
+class SettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
     explicit SettingsDialog(QWidget *parent = 0);
     ~SettingsDialog();
-    void setPreferencesStoreAndObjectModels(SettingsStore *settingsStore,
-                                        const QString &currentSettingsIdentifier,
-                                        const QList<ObjectModel> &objectModels);
+    void setSettingsStoreAndObjectModels(SettingsStore *settingsStore,
+                                            const QList<ObjectModelPtr> &objectModels);
 
 public Q_SLOTS:
     void onAccepted(QAbstractButton* button);
 
 private:
     Ui::SettingsDialog *ui;
-    SettingsStore *settingsStore;
-    QSharedPointer<Settings> settings;
-    QString currentSettingsIdentifier;
+    SettingsStore *m_settingsStore;
 
 private Q_SLOTS:
     void onListWidgetClicked(const QModelIndex &index);

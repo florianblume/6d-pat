@@ -2,90 +2,54 @@
 
 #include <QUrl>
 #include <QMatrix3x3>
+#include <QVector2D>
 #include <QImage>
-#include <QOpenGLContext>
-#include <QOpenGLFunctions>
 
-BackgroundImageRenderable::BackgroundImageRenderable(const QString &image,
-                                                     int vertexAttributeLoc,
-                                                     int texCoordAttributeLoc) :
-    image(image),
-    vertexAttributeLoc(vertexAttributeLoc),
-    texCoordAttributeLoc(texCoordAttributeLoc) {
-    // The next to calls need only to be made once on creation.
-    createGeometry();
-    populateVertexArrayObject();
-    createTexture();
+BackgroundImageRenderable::BackgroundImageRenderable(Qt3DCore::QNode *parent,
+                                                     const QString &image)
+    : Qt3DCore::QEntity(parent) {
+    mesh = new Qt3DExtras::QPlaneMesh();
+    mesh->setWidth(2);
+    mesh->setHeight(2);
+    material = new Qt3DExtras::QTextureMaterial();
+    texture = new Qt3DRender::QTexture2D();
+    textureImage = new Qt3DRender::QTextureImage();
+    textureImage->setSource(QUrl::fromLocalFile(image));
+    textureImage->setMirrored(false);
+    texture->addTextureImage(textureImage);
+    material->setTexture(texture);
+    transform = new Qt3DCore::QTransform();
+    transform->setRotationX(90);
+    objectPicker = new Qt3DRender::QObjectPicker();
+    connect(objectPicker, &Qt3DRender::QObjectPicker::clicked,
+            this, &BackgroundImageRenderable::clicked);
+    connect(objectPicker, &Qt3DRender::QObjectPicker::moved,
+            this, &BackgroundImageRenderable::moved);
+    connect(objectPicker, &Qt3DRender::QObjectPicker::pressed,
+            this, &BackgroundImageRenderable::pressed);
+    objectPicker->setDragEnabled(true);
+    objectPicker->setHoverEnabled(true);
+    this->addComponent(mesh);
+    this->addComponent(material);
+    this->addComponent(transform);
+    // This causes the object pickers of the poses to fire two signals when the mouse
+    // is moved while being pressed: one for the pose and one for the background image.
+    // This seems to be a bug in Qt3D and we disable the picking of the background image
+    // until it is solved. Otherwise we would have to check the depth of the picking event
+    // in the picking slots which might cause issues depending on the poses to recover
+    // (they might have small depth and our check would fail any clicks on the objects).
+    // Unfortunatley, this means that the user can't deselect a pose by clicking the
+    // background image renderable.
+    // ATTENTION: In addition to not adding the object picker, picking is disabled in
+    // the framegraph branch of the background image because without this node the
+    // errors still remained -> checkout the PoseViewer3DWidget's setup code, there is
+    // a QNoPicking node
+    //this->addComponent(objectPicker);
 }
 
 BackgroundImageRenderable::~BackgroundImageRenderable() {
-    texture->destroy();
 }
 
 void BackgroundImageRenderable::setImage(const QString &image) {
-    this->image = image;
-    createTexture();
-}
-
-QOpenGLVertexArrayObject *BackgroundImageRenderable::getVertexArrayObject() {
-    return &vao;
-}
-
-QOpenGLTexture *BackgroundImageRenderable::getTexture() {
-    return texture.data();
-}
-
-void BackgroundImageRenderable::createGeometry() {
-    static const int coords[4][3] = {
-         { +1, 0, 0 }, { 0, 0, 0 }, { 0, +1, 0 }, { +1, +1, 0 }
-    };
-
-    for (int i = 0; i < 4; ++i) {
-        // vertex position
-        vertexData.append(coords[i][0]);
-        vertexData.append(coords[i][1]);
-        vertexData.append(coords[i][2]);
-        // texture coordinate
-        vertexData.append(i == 0 || i == 3);
-        vertexData.append(i == 0 || i == 1);
-    }
-}
-
-void BackgroundImageRenderable::createTexture() {
-    QImage textureImage = QImage(
-                QUrl::fromLocalFile(image).path())
-                          .mirrored();
-    if (!texture.isNull()){
-        texture->destroy();
-        texture->create();
-        texture->setSize(textureImage.width(), textureImage.height());
-    }
-    texture.reset(new QOpenGLTexture(textureImage));
-    texture->setMagnificationFilter(QOpenGLTexture::Nearest);
-    texture->setMinificationFilter(QOpenGLTexture::Nearest);
-}
-
-void BackgroundImageRenderable::populateVertexArrayObject() {
-    // Setup our vertex array object. We later only need to bind this
-    // to be able to draw.
-    vao.create();
-    // The binder automatically binds the vao and unbinds it at the end
-    // of the function.
-    QOpenGLVertexArrayObject::Binder vaoBinder(&vao);
-
-    // Setup our vertex buffer object.
-    vbo.create();
-    vbo.bind();
-    vbo.allocate(vertexData.constData(), vertexData.count() * sizeof(GLfloat));
-
-    vbo.bind();
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-    f->glEnableVertexAttribArray(vertexAttributeLoc);
-    f->glEnableVertexAttribArray(texCoordAttributeLoc);
-    f->glVertexAttribPointer(vertexAttributeLoc, 3, GL_FLOAT,
-                             GL_FALSE, 5 * sizeof(GLfloat), 0);
-    f->glVertexAttribPointer(texCoordAttributeLoc, 2, GL_FLOAT,
-                             GL_FALSE, 5 * sizeof(GLfloat),
-                             reinterpret_cast<void *>(3 * sizeof(GLfloat)));
-    vbo.release();
+    textureImage->setSource(QUrl::fromLocalFile(image));
 }

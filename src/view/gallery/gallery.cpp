@@ -1,7 +1,7 @@
 #include "gallery.hpp"
 #include "ui_gallery.h"
 #include "misc/generalhelper.hpp"
-#include "3rdparty/QtAwesome/QtAwesome.h"
+#include "view/misc/displayhelper.hpp"
 #include <QAbstractItemView>
 #include <QScrollBar>
 #include <QTimer>
@@ -12,21 +12,15 @@ const int Gallery::SCROLL_INCREMENT_RATE = 10;
 
 Gallery::Gallery(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Gallery)
-{
+    ui(new Ui::Gallery) {
     ui->setupUi(this);
-    QtAwesome* awesome = new QtAwesome(this);
-    awesome->initFontAwesome();
     //! Here we set the nice arrow icons of the buttons left and right of the list view
-    ui->buttonNavigateLeft->setFont(awesome->font(20));
-    ui->buttonNavigateLeft->setIcon(awesome->icon(fa::chevronleft));
-    ui->buttonNavigateRight->setFont(awesome->font(20));
-    ui->buttonNavigateRight->setIcon(awesome->icon(fa::chevronright));
+    DisplayHelper::setIcon(ui->buttonNavigateLeft, fa::chevronleft, 20);
+    DisplayHelper::setIcon(ui->buttonNavigateRight, fa::chevronright, 20);
     ui->frame->layout()->setAlignment(Qt::AlignVCenter);
 }
 
-Gallery::~Gallery()
-{
+Gallery::~Gallery() {
     delete ui;
 }
 
@@ -67,9 +61,30 @@ void Gallery::endScroll() {
     scrollButtonDown = false;
 }
 
+void Gallery::clearSelection(bool emitSignals) {
+    // Only ignore selection changes when we actually have a selection because
+    // when the program starts the selection is empty but the Gallery is reset
+    // as a consequence when the user clicks an item the first time nothing
+    // happens because due to the reset the gallery is supposed to ignore
+    // the selection changes
+    ignoreSelectionChanges = !emitSignals
+                                && !ui->listView->selectionModel()->selection().isEmpty();
+    ui->listView->clearSelection();
+}
+
 void Gallery::reset() {
     ui->listView->reset();
-    ui->listView->clearSelection();
+    clearSelection(false);
+    // TODO does this work?
+    update();
+}
+
+void Gallery::enable() {
+    setEnabled(true);
+}
+
+void Gallery::disable() {
+    setEnabled(false);
 }
 
 void Gallery::startScrollTimer() {
@@ -92,10 +107,11 @@ void Gallery::performScroll() {
 
 void Gallery::onSelectionChanged(const QItemSelection &selected,
                                  const QItemSelection &/* deselected */) {
-    if (selected.size() > 0) {
+    if (selected.size() > 0 && !ignoreSelectionChanges) {
         //! Weird, this should never be the case but the app crashes because sometimes selection is empty...
         //! Maybe in the future when I'm wiser I'll understand what is happening here...
         QItemSelectionRange range = selected.front();
         Q_EMIT selectedItemChanged(range.top());
     }
+    ignoreSelectionChanges = false;
 }

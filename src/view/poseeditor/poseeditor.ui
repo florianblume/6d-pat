@@ -138,53 +138,21 @@
       <property name="spacing">
        <number>0</number>
       </property>
-      <item row="1" column="3" rowspan="2">
-       <widget class="QFrame" name="frameExpandingPlaceholderRight">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <property name="lineWidth">
-         <number>0</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" rowspan="2">
-       <widget class="QFrame" name="frameExpandingPlaceholderLeft">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
-        </property>
-        <property name="lineWidth">
-         <number>0</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
+      <item row="1" column="0">
        <widget class="QFrame" name="frameControls">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Plain</enum>
         </property>
-        <layout class="QGridLayout" name="gridLayout_3">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
          <property name="leftMargin">
           <number>0</number>
          </property>
@@ -197,23 +165,33 @@
          <property name="bottomMargin">
           <number>10</number>
          </property>
-         <property name="horizontalSpacing">
-          <number>12</number>
-         </property>
-         <property name="verticalSpacing">
-          <number>0</number>
-         </property>
-         <item row="0" column="2">
+         <item>
+          <widget class="QFrame" name="frame_4">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>2</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Plain</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="groupBoxPoses">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
-             <horstretch>0</horstretch>
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>5</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="maximumSize">
             <size>
-             <width>130</width>
+             <width>16777215</width>
              <height>16777215</height>
             </size>
            </property>
@@ -228,84 +206,53 @@
              <number>5</number>
             </property>
             <property name="topMargin">
-             <number>5</number>
+             <number>1</number>
             </property>
             <property name="rightMargin">
              <number>5</number>
             </property>
             <property name="bottomMargin">
-             <number>5</number>
+             <number>1</number>
             </property>
             <item>
-             <widget class="QComboBox" name="comboBoxPose">
-              <property name="enabled">
+             <widget class="QListView" name="listViewPoses">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::Box</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Plain</enum>
+              </property>
+              <property name="lineWidth">
+               <number>0</number>
+              </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="showDropIndicator" stdset="0">
                <bool>false</bool>
               </property>
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This dropdown shows all poses of the currently viewed image and the currently selected object model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="currentText">
-               <string/>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
               </property>
              </widget>
             </item>
            </layout>
           </widget>
          </item>
-         <item row="0" column="6">
-          <widget class="QGroupBox" name="groupBox">
-           <property name="maximumSize">
-            <size>
-             <width>90</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="title">
-            <string>Transparency</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_6">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>5</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>10</number>
-            </property>
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <item row="0" column="0">
-             <widget class="QSlider" name="sliderOpacity">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="minimum">
-               <number>1</number>
-              </property>
-              <property name="maximum">
-               <number>100</number>
-              </property>
-              <property name="value">
-               <number>100</number>
-              </property>
-              <property name="tracking">
-               <bool>false</bool>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="0" column="3">
+         <item>
           <widget class="QGroupBox" name="groupBox_6">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="title">
             <string>Translation</string>
            </property>
@@ -325,184 +272,172 @@
             <property name="spacing">
              <number>5</number>
             </property>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>x</string>
+            <item row="2" column="1" alignment="Qt::AlignVCenter">
+             <widget class="QFrame" name="frame_5">
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
               </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QDoubleSpinBox" name="spinBoxTranslationX">
-              <property name="enabled">
-               <bool>false</bool>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
               </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>150</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="frame">
-               <bool>true</bool>
-              </property>
-              <property name="accelerated">
-               <bool>true</bool>
-              </property>
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="minimum">
-               <double>-1000.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>y</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QDoubleSpinBox" name="spinBoxTranslationY">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>150</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="frame">
-               <bool>true</bool>
-              </property>
-              <property name="accelerated">
-               <bool>true</bool>
-              </property>
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="minimum">
-               <double>-1000.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>z</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QDoubleSpinBox" name="spinBoxTranslationZ">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>150</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="frame">
-               <bool>true</bool>
-              </property>
-              <property name="accelerated">
-               <bool>true</bool>
-              </property>
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="minimum">
-               <double>-1000.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
-              </property>
+              <layout class="QGridLayout" name="gridLayout_6">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <property name="spacing">
+                <number>10</number>
+               </property>
+               <item row="0" column="1">
+                <widget class="QDoubleSpinBox" name="spinBoxTranslationX">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>150</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="frame">
+                  <bool>true</bool>
+                 </property>
+                 <property name="accelerated">
+                  <bool>true</bool>
+                 </property>
+                 <property name="decimals">
+                  <number>4</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-1000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_3">
+                 <property name="text">
+                  <string>x</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <widget class="QDoubleSpinBox" name="spinBoxTranslationZ">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>150</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="frame">
+                  <bool>true</bool>
+                 </property>
+                 <property name="accelerated">
+                  <bool>true</bool>
+                 </property>
+                 <property name="decimals">
+                  <number>4</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-1000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QDoubleSpinBox" name="spinBoxTranslationY">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>150</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="frame">
+                  <bool>true</bool>
+                 </property>
+                 <property name="accelerated">
+                  <bool>true</bool>
+                 </property>
+                 <property name="decimals">
+                  <number>4</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-1000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>z</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0">
+                <widget class="QLabel" name="label_4">
+                 <property name="text">
+                  <string>y</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </widget>
             </item>
            </layout>
           </widget>
          </item>
-         <item row="0" column="4">
-          <widget class="QFrame" name="frameTranslation">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>130</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-           </layout>
-          </widget>
-         </item>
-         <item row="0" column="5">
+         <item>
           <widget class="QGroupBox" name="groupBoxRotation">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -538,151 +473,268 @@
             <property name="spacing">
              <number>5</number>
             </property>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>x</string>
+            <item row="0" column="1" alignment="Qt::AlignVCenter">
+             <widget class="QFrame" name="frame_6">
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
               </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_8">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <property name="spacing">
+                <number>10</number>
+               </property>
+               <item row="2" column="1">
+                <widget class="QDoubleSpinBox" name="spinBoxRotationY">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>150</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="frame">
+                  <bool>true</bool>
+                 </property>
+                 <property name="accelerated">
+                  <bool>true</bool>
+                 </property>
+                 <property name="decimals">
+                  <number>4</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-1000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_6">
+                 <property name="text">
+                  <string>x</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QDoubleSpinBox" name="spinBoxRotationX">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>150</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="frame">
+                  <bool>true</bool>
+                 </property>
+                 <property name="buttonSymbols">
+                  <enum>QAbstractSpinBox::UpDownArrows</enum>
+                 </property>
+                 <property name="accelerated">
+                  <bool>true</bool>
+                 </property>
+                 <property name="showGroupSeparator" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="decimals">
+                  <number>4</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-1000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QDoubleSpinBox" name="spinBoxRotationZ">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>150</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="frame">
+                  <bool>true</bool>
+                 </property>
+                 <property name="accelerated">
+                  <bool>true</bool>
+                 </property>
+                 <property name="decimals">
+                  <number>4</number>
+                 </property>
+                 <property name="minimum">
+                  <double>-1000.000000000000000</double>
+                 </property>
+                 <property name="maximum">
+                  <double>1000.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.100000000000000</double>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_7">
+                 <property name="text">
+                  <string>y</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_8">
+                 <property name="text">
+                  <string>z</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QDoubleSpinBox" name="spinBoxRotationX">
-              <property name="enabled">
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBoxRotation_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>130</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Copy From</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <property name="leftMargin">
+             <number>5</number>
+            </property>
+            <property name="topMargin">
+             <number>5</number>
+            </property>
+            <property name="rightMargin">
+             <number>5</number>
+            </property>
+            <property name="bottomMargin">
+             <number>5</number>
+            </property>
+            <property name="spacing">
+             <number>5</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="QListView" name="listViewImages">
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Plain</enum>
+              </property>
+              <property name="lineWidth">
+               <number>0</number>
+              </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="showDropIndicator" stdset="0">
                <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>150</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="frame">
-               <bool>true</bool>
-              </property>
-              <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::UpDownArrows</enum>
-              </property>
-              <property name="accelerated">
-               <bool>true</bool>
-              </property>
-              <property name="showGroupSeparator" stdset="0">
-               <bool>false</bool>
-              </property>
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="minimum">
-               <double>-1000.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
               </property>
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="label_7">
-              <property name="text">
-               <string>y</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QDoubleSpinBox" name="spinBoxRotationY">
+             <widget class="QPushButton" name="buttonCopy">
               <property name="enabled">
                <bool>false</bool>
               </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>150</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="frame">
-               <bool>true</bool>
-              </property>
-              <property name="accelerated">
-               <bool>true</bool>
-              </property>
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="minimum">
-               <double>-1000.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_8">
               <property name="text">
-               <string>z</string>
+               <string>Copy</string>
               </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QDoubleSpinBox" name="spinBoxRotationZ">
-              <property name="enabled">
+              <property name="flat">
                <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>150</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="frame">
-               <bool>true</bool>
-              </property>
-              <property name="accelerated">
-               <bool>true</bool>
-              </property>
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="minimum">
-               <double>-1000.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>1000.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
               </property>
              </widget>
             </item>
            </layout>
           </widget>
          </item>
+         <item>
+          <widget class="QFrame" name="frame">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>2</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="2" column="0">
        <widget class="QFrame" name="frameButtons">
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
@@ -818,29 +870,17 @@
              </disabled>
             </palette>
            </property>
+           <property name="toolTip">
+            <string>Recovers the pose using the clicked 2D - 3D correspondences.</string>
+           </property>
            <property name="autoFillBackground">
             <bool>false</bool>
            </property>
-           <property name="styleSheet">
-            <string notr="true">QPushButton {
-  background-color: #cecece;
-}
-
-QPushButton:hover:!pressed {
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}
-
-QPushButton:pressed {
-  border: 1px solid #5eb6ff;
-  background-color: #9ed2ff;
-}</string>
-           </property>
            <property name="text">
-            <string>Create</string>
+            <string>Recover</string>
            </property>
            <property name="flat">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -946,29 +986,17 @@ QPushButton:pressed {
              </disabled>
             </palette>
            </property>
+           <property name="toolTip">
+            <string>Removes the currently selected pose.</string>
+           </property>
            <property name="autoFillBackground">
             <bool>false</bool>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QPushButton {
-  background-color: #cecece;
-}
-
-QPushButton:hover:!pressed {
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}
-
-QPushButton:pressed {
-  border: 1px solid #5eb6ff;
-  background-color: #9ed2ff;
-}</string>
            </property>
            <property name="text">
             <string>Remove</string>
            </property>
            <property name="flat">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -1074,34 +1102,22 @@ QPushButton:pressed {
              </disabled>
             </palette>
            </property>
+           <property name="toolTip">
+            <string>Saves the modifications applied to the currently selected pose.</string>
+           </property>
            <property name="autoFillBackground">
             <bool>false</bool>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QPushButton {
-  background-color: #cecece;
-}
-
-QPushButton:hover:!pressed {
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}
-
-QPushButton:pressed {
-  border: 1px solid #5eb6ff;
-  background-color: #9ed2ff;
-}</string>
            </property>
            <property name="text">
             <string>Save</string>
            </property>
            <property name="flat">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="buttonPredict">
+          <widget class="QPushButton" name="buttonDuplicate">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -1111,120 +1127,14 @@ QPushButton:pressed {
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="palette">
-            <palette>
-             <active>
-              <colorrole role="Button">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>206</red>
-                 <green>206</green>
-                 <blue>206</blue>
-                </color>
-               </brush>
-              </colorrole>
-              <colorrole role="Base">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>206</red>
-                 <green>206</green>
-                 <blue>206</blue>
-                </color>
-               </brush>
-              </colorrole>
-              <colorrole role="Window">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>206</red>
-                 <green>206</green>
-                 <blue>206</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </active>
-             <inactive>
-              <colorrole role="Button">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>206</red>
-                 <green>206</green>
-                 <blue>206</blue>
-                </color>
-               </brush>
-              </colorrole>
-              <colorrole role="Base">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>206</red>
-                 <green>206</green>
-                 <blue>206</blue>
-                </color>
-               </brush>
-              </colorrole>
-              <colorrole role="Window">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>206</red>
-                 <green>206</green>
-                 <blue>206</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </inactive>
-             <disabled>
-              <colorrole role="Button">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>206</red>
-                 <green>206</green>
-                 <blue>206</blue>
-                </color>
-               </brush>
-              </colorrole>
-              <colorrole role="Base">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>206</red>
-                 <green>206</green>
-                 <blue>206</blue>
-                </color>
-               </brush>
-              </colorrole>
-              <colorrole role="Window">
-               <brush brushstyle="SolidPattern">
-                <color alpha="255">
-                 <red>206</red>
-                 <green>206</green>
-                 <blue>206</blue>
-                </color>
-               </brush>
-              </colorrole>
-             </disabled>
-            </palette>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QPushButton {
-  background-color: #cecece;
-}
-
-QPushButton:hover:!pressed {
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}
-
-QPushButton:pressed {
-  border: 1px solid #5eb6ff;
-  background-color: #9ed2ff;
-}</string>
+           <property name="toolTip">
+            <string>Duplicates the currently selected pose.</string>
            </property>
            <property name="text">
-            <string>Predict</string>
+            <string>Duplicate</string>
            </property>
            <property name="flat">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -1245,7 +1155,13 @@ QPushButton:pressed {
     </widget>
    </item>
    <item row="0" column="0" colspan="2">
-    <widget class="QFrame" name="graphicsFrameContainer">
+    <widget class="QFrame" name="graphicsContainer">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>5</verstretch>
+      </sizepolicy>
+     </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
@@ -1271,25 +1187,11 @@ QPushButton:pressed {
       <property name="bottomMargin">
        <number>10</number>
       </property>
-      <item>
-       <widget class="PoseEditorGLWidget" name="openGLWidget">
-        <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>PoseEditorGLWidget</class>
-   <extends>QOpenGLWidget</extends>
-   <header>view/poseeditor/rendering/poseeditorglwidget.hpp</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -1301,70 +1203,6 @@ QPushButton:pressed {
     <hint type="sourcelabel">
      <x>270</x>
      <y>333</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sliderOpacity</sender>
-   <signal>sliderMoved(int)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onSliderOpacityValueChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>558</x>
-     <y>241</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxTranslationX</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onSpinBoxTranslationXValueChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>214</x>
-     <y>213</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxTranslationY</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onSpinBoxTranslationYValueChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>214</x>
-     <y>245</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxTranslationZ</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onSpinBoxTranslationZValueChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>214</x>
-     <y>277</y>
     </hint>
     <hint type="destinationlabel">
      <x>314</x>
@@ -1389,70 +1227,6 @@ QPushButton:pressed {
    </hints>
   </connection>
   <connection>
-   <sender>spinBoxRotationX</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onSpinBoxRotationXValueChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>359</x>
-     <y>225</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxRotationY</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onSpinBoxRotationYValueChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>359</x>
-     <y>257</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBoxRotationZ</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onSpinBoxRotationZValueChanged(double)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>359</x>
-     <y>289</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxPose</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>PoseEditor</receiver>
-   <slot>onComboBoxPoseIndexChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>82</x>
-     <y>257</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>buttonSave</sender>
    <signal>clicked()</signal>
    <receiver>PoseEditor</receiver>
@@ -1469,30 +1243,126 @@ QPushButton:pressed {
    </hints>
   </connection>
   <connection>
-   <sender>sliderOpacity</sender>
-   <signal>sliderReleased()</signal>
+   <sender>buttonDuplicate</sender>
+   <signal>clicked()</signal>
    <receiver>PoseEditor</receiver>
-   <slot>onSliderOpacityReleased()</slot>
+   <slot>onButtonDuplicateClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>541</x>
-     <y>247</y>
+     <x>384</x>
+     <y>333</y>
     </hint>
     <hint type="destinationlabel">
-     <x>314</x>
+     <x>249</x>
      <y>177</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>buttonPredict</sender>
-   <signal>clicked()</signal>
+   <sender>spinBoxRotationX</sender>
+   <signal>valueChanged(double)</signal>
    <receiver>PoseEditor</receiver>
-   <slot>onButtonPredictClicked()</slot>
+   <slot>onSpinBoxValueChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>384</x>
-     <y>333</y>
+     <x>304</x>
+     <y>155</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxRotationY</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onSpinBoxValueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>304</x>
+     <y>227</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxRotationZ</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onSpinBoxValueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>304</x>
+     <y>191</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxTranslationX</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onSpinBoxValueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>176</x>
+     <y>155</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxTranslationY</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onSpinBoxValueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>176</x>
+     <y>191</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBoxTranslationZ</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onSpinBoxValueChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>176</x>
+     <y>227</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonCopy</sender>
+   <signal>clicked()</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onButtonCopyClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>422</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>249</x>
@@ -1505,15 +1375,12 @@ QPushButton:pressed {
   <slot>onButtonCreateClicked()</slot>
   <slot>onComboBoxPoseIndexChanged(int)</slot>
   <slot>onSliderOpacityValueChanged(int)</slot>
-  <slot>onSpinBoxTranslationXValueChanged(double)</slot>
-  <slot>onSpinBoxTranslationYValueChanged(double)</slot>
-  <slot>onSpinBoxRotationXValueChanged(double)</slot>
-  <slot>onSpinBoxRotationYValueChanged(double)</slot>
-  <slot>onSpinBoxRotationZValueChanged(double)</slot>
-  <slot>onSpinBoxTranslationZValueChanged(double)</slot>
   <slot>onButtonRemoveClicked()</slot>
   <slot>onButtonSaveClicked()</slot>
   <slot>onSliderOpacityReleased()</slot>
   <slot>onButtonPredictClicked()</slot>
+  <slot>onButtonDuplicateClicked()</slot>
+  <slot>onSpinBoxValueChanged()</slot>
+  <slot>onButtonCopyClicked()</slot>
  </slots>
 </ui>

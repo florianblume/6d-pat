@@ -2,7 +2,9 @@
 #define MODELMANAGER_H
 
 #include "pose.hpp"
+#include "objectmodel.hpp"
 #include "image.hpp"
+#include "data.hpp"
 #include "loadandstorestrategy.hpp"
 #include <QObject>
 #include <QString>
@@ -22,18 +24,20 @@ using namespace std;
  * Attention: To persist modified poses they have to be updated through the update method of the manager, otherwise the changes
  * will be lost on program restart.
 */
-class ModelManager : public QObject
-{
+class ModelManager : public QObject {
 
     Q_OBJECT
 
 protected:
-
     //! The strategy that is used to persist and also to load entities
-    LoadAndStoreStrategy& loadAndStoreStrategy;
+    LoadAndStoreStrategy& m_loadAndStoreStrategy;
 
 public:
-
+    enum State {
+        Loading,
+        Error,
+        Ready
+    };
     /*!
      * \brief ModelManager Constructor of class ModelManager.
      *
@@ -49,21 +53,21 @@ public:
      * \brief getImages Returns the list of all images loaded by this manager.
      * \return the list of all images loaded by this manager
      */
-   virtual QList<Image> getImages() const = 0;
+   virtual QList<ImagePtr> images() const = 0;
 
     /*!
      * \brief getPosesForImage Returns all ObjectImagePoses for the image at the given path.
      * \param imagePath the path of the image
      * \return the list of poses of the image at the given path
      */
-    virtual QList<Pose> getPosesForImage(const Image& image) const = 0;
+    virtual QList<PosePtr> posesForImage(const Image& image) const = 0;
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
      * \param objectModels the list that the object models are to be added to
      * \return the list of all objects models loaded by this manager
      */
-    virtual QList<ObjectModel> getObjectModels() const = 0;
+    virtual QList<ObjectModelPtr> objectModels() const = 0;
 
     /*!
      * \brief getPosesForObjectModels Returns all ObjectImagePoses for the object model at the given path.
@@ -71,16 +75,16 @@ public:
      * \param poses the list that the poses are to be added to
      * \return the list of poses of the object model at the given path
      */
-    virtual QList<Pose> getPosesForObjectModel(const ObjectModel& objectModel) = 0;
+    virtual QList<PosePtr> posesForObjectModel(const ObjectModel& objectModel) const = 0;
 
     /*!
      * \brief getPoses Returns the poses maintained by this manager.
      * \param poses the list that the poses are to be added to
      * \return the list of poses maintained by this manager
      */
-    virtual QList<Pose> getPoses() = 0;
+    virtual QList<PosePtr> poses() const = 0;
 
-    virtual QSharedPointer<Pose> getPoseById(const QString &id) = 0;
+    virtual PosePtr poseById(const QString &id) const = 0;
 
     /*!
      * \brief getPosesForImageAndObjectModel Returns all poses for the given image and object model.
@@ -89,7 +93,7 @@ public:
      * \param poses the list that the poses are to be added to
      * \return all poses of the given image and given object model
      */
-    virtual QList<Pose> getPosesForImageAndObjectModel(const Image& image,
+    virtual QList<PosePtr> posesForImageAndObjectModel(const Image& image,
                                                           const ObjectModel& objectModel) = 0;
 
     /*!
@@ -99,10 +103,19 @@ public:
      * this manager and added to the list of managed poses
      * \return true if creating and persisting the pose was successful
      */
-    virtual bool addObjectImagePose(Image *image,
-                                              ObjectModel *objectModel,
-                                              QVector3D position,
-                                              QMatrix3x3 rotation) = 0;
+    virtual PosePtr addPose(ImagePtr image,
+                            ObjectModelPtr objectModel,
+                            const QVector3D &position,
+                            const QMatrix3x3 &rotation) = 0;
+
+    /*!
+     * \brief addObjectImagePose Adds a new ObjectImagePose to the poses managed by this manager.
+     * The method will return true if creating the pose was successful and persisting it as well.
+     * \param objectImagePose the pose that stores all the values for the pose that will be created by
+     * this manager and added to the list of managed poses
+     * \return the new pose if it was successfully created, null otherwise
+     */
+    virtual PosePtr addPose(const Pose &pose) = 0;
 
     /*!
      * \brief addObjectImagePose Updates the given ObjectImagePose and automatically persists it according to the
@@ -112,9 +125,9 @@ public:
      * \return true if updating  and also persisting the pose was successful, false if this manager does not manage the given
      * pose or persisting it has failed
      */
-    virtual bool updateObjectImagePose(const QString &id,
-                                                 QVector3D position,
-                                                 QMatrix3x3 rotation) = 0;
+    virtual bool updatePose(const QString &id,
+                            const QVector3D &position,
+                            const QMatrix3x3 &rotation) = 0;
 
     /*!
      * \brief removeObjectImagePose Removes the given ObjectImagePose if it is present in the list
@@ -123,28 +136,23 @@ public:
      * \return true if the pose was present and removing it, i.e. also removing it from the filesystem was
      * successful
      */
-    virtual bool removeObjectImagePose(const QString &id) = 0;
+    virtual bool removePose(const QString &id) = 0;
 
+    virtual LoadAndStoreStrategy::Error error() = 0;
+
+public Q_SLOTS:
     /*!
      * \brief reload reads all data from the persitence storage again and
-     * Q_EMITs the corresponding signals.
+     * emits the corresponding signals.
      */
     virtual void reload() = 0;
 
 Q_SIGNALS:
-
-    void imagesChanged();
-    void objectModelsChanged();
-    /*!
-     * \brief posesChanged called when all the poses change, e.g. when the path
-     * to the poses is edited, etc. A call to the pose update function will result
-     * in the poseUpdated() signal to be Q_EMITted. Same holds for adding and deleting poses.
-     */
-    void posesChanged();
-    void poseAdded(const QString &id);
-    void poseUpdated(const QString &id);
-    void poseDeleted(const QString &id);
-
+    void dataChanged(int data);
+    void poseAdded(PosePtr pose);
+    void poseUpdated(PosePtr pose);
+    void poseDeleted(PosePtr pose);
+    void stateChanged(ModelManager::State state);
 };
 
 #endif // MODELMANAGER_H

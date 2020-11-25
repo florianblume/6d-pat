@@ -2,72 +2,86 @@
 #include <QDir>
 
 Image::Image()
-    : imagePath("invalid"),
-      segmentationImagePath("invalid"),
-      basePath("invalid"),
-      cameraMatrix() {
+    : m_imagePath("invalid"),
+      m_segmentationImagePath("invalid"),
+      m_basePath("invalid"),
+      m_cameraMatrix() {
 
 }
 
-Image::Image(const QString& imagePath, const QString& basePath, QMatrix3x3 cameraMatrix)
-    : imagePath(imagePath),
-      segmentationImagePath(""),
-      basePath(basePath),
-      cameraMatrix(cameraMatrix) {
+Image::Image(const QString& imagePath, const QString& basePath, QMatrix3x3 cameraMatrix,
+             float nearPlane, float farPlane)
+    : m_imagePath(imagePath),
+      m_segmentationImagePath(""),
+      m_basePath(basePath),
+      m_cameraMatrix(cameraMatrix),
+      m_nearPlane(nearPlane),
+      m_farPlane(farPlane) {
 }
 
 Image::Image(const QString& imagePath, const QString& segmentationImagePath,
-             const QString& basePath, QMatrix3x3 cameraMatrix)
-    : imagePath(imagePath),
-      segmentationImagePath(segmentationImagePath),
-      basePath(basePath),
-      cameraMatrix(cameraMatrix) {
+             const QString& basePath, QMatrix3x3 cameraMatrix,
+             float nearPlane, float farPlane)
+    : m_imagePath(imagePath),
+      m_segmentationImagePath(segmentationImagePath),
+      m_basePath(basePath),
+      m_cameraMatrix(cameraMatrix),
+      m_nearPlane(nearPlane),
+      m_farPlane(farPlane) {
 }
 
 Image::Image(const Image &other) {
-    imagePath = other.imagePath;
-    segmentationImagePath = other.segmentationImagePath;
-    basePath = other.basePath;
-    cameraMatrix = other.cameraMatrix;
+    m_imagePath = other.m_imagePath;
+    m_segmentationImagePath = other.m_segmentationImagePath;
+    m_basePath = other.m_basePath;
+    m_cameraMatrix = other.m_cameraMatrix;
 }
 
-QString Image::getImagePath() const {
-    return imagePath;
+QString Image::imagePath() const {
+    return m_imagePath;
 }
 
-QString Image::getAbsoluteImagePath() const {
-    return QDir(basePath).filePath(imagePath);
+QString Image::absoluteImagePath() const {
+    return QDir(m_basePath).filePath(m_imagePath);
 }
 
-QString Image::getSegmentationImagePath() const {
-    return segmentationImagePath;
+QString Image::segmentationImagePath() const {
+    return m_segmentationImagePath;
 }
 
-QString Image::getAbsoluteSegmentationImagePath() const {
+QString Image::absoluteSegmentationImagePath() const {
     // The segmentation image path is stored as absolute
-    return segmentationImagePath;
+    return m_segmentationImagePath;
 }
 
 QString Image::getBasePath() const {
-    return basePath;
+    return m_basePath;
 }
 
 QMatrix3x3 Image::getCameraMatrix() const {
-    return cameraMatrix;
+    return m_cameraMatrix;
 }
 
 bool Image::operator==(const Image &other) {
     // QString supports standard string comparison ==
-    return basePath == other.basePath &&
-            imagePath == other.imagePath &&
-            segmentationImagePath == other.segmentationImagePath &&
-            cameraMatrix == other.cameraMatrix;
+    return m_basePath == other.m_basePath &&
+            m_imagePath == other.m_imagePath &&
+            m_segmentationImagePath == other.m_segmentationImagePath &&
+            m_cameraMatrix == other.m_cameraMatrix;
 }
 
 Image& Image::operator=(const Image &other) {
-    basePath = other.basePath;
-    imagePath = other.imagePath;
-    segmentationImagePath = other.segmentationImagePath;
-    cameraMatrix = other.cameraMatrix;
+    m_basePath = other.m_basePath;
+    m_imagePath = other.m_imagePath;
+    m_segmentationImagePath = other.m_segmentationImagePath;
+    m_cameraMatrix = other.m_cameraMatrix;
     return *this;
+}
+
+float Image::farPlane() const {
+    return m_farPlane;
+}
+
+float Image::nearPlane() const {
+    return m_nearPlane;
 }

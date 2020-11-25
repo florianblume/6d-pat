@@ -1,197 +1,119 @@
 #include "maincontroller.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
-#include <opencv2/calib3d/calib3d.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <QSettings>
-#include <QDir>
-#include <iostream>
 
-// Empty initialization of strategy so that we can set the path later and do so
-// in a background thread to keep application reactive
-MainController::MainController() {
-    settingsStore.reset(new SettingsStore());
-    strategy.reset(new JsonLoadAndStoreStrategy(settingsStore.data(),
-                                                settingsIdentifier));
-    modelManager.reset(new CachingModelManager(*strategy.data()));
-    connect(settingsStore.data(), SIGNAL(settingsChanged(QString)),
-            this, SLOT(onSettingsChanged(QString)));
-    poseCreator.reset(new PoseCreator(0, modelManager.data()));
-    // Whenever the user clicks the create button in the pose editor we need to reset
-    // the controller as well
-    connect(modelManager.data(), SIGNAL(poseAdded(QString)),
-            this, SLOT(resetPoseCreation()));
-    connect(modelManager.data(), SIGNAL(poseDeleted(QString)),
-            this, SLOT(resetPoseCreation()));
-    connect(strategy.data(), SIGNAL(failedToLoadImages(QString)), this, SLOT(onFailedToLoadImages(QString)));
+#include <QSplashScreen>
+#include <QFontDatabase>
+#include <QFile>
+#include <QApplication>
+
+MainController::MainController(int &argc, char **argv, int)
+    : QApplication(argc, argv)
+    , m_modelManagerThread(new QThread) {
 }
 
 MainController::~MainController() {
-    // Unnecessary, we save preferences anyway when editing them
-    //settingsStore->savePreferences(currentSettings.get());
-    delete galleryImageModel;
-    delete galleryObjectModelModel;
+}
+
+int MainController::exec() {
+    qSetMessagePattern("[%{function}] (%{type}): %{message}");
+
+    QFile stream(":/stylesheets/light.qss");
+    stream.open(QIODevice::ReadOnly);
+    qApp->setStyleSheet(stream.readAll());
+
+    initialize();
+
+    QFontDatabase::addApplicationFont(":/fonts/fontawesome-4.7.0.ttf");
+
+    QSurfaceFormat format;
+    format.setDepthBufferSize(24);
+    format.setStencilBufferSize(0);
+    format.setSamples(8);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setVersion(3, 0);
+    QSurfaceFormat::setDefaultFormat(format);
+
+    return QApplication::exec();
 }
 
 void MainController::initialize() {
-    currentSettings = settingsStore->loadPreferencesByIdentifier(settingsIdentifier);
-    initializeMainWindow();
-}
-
-void MainController::initializeMainWindow() {
-    // Notifies the main window of the initialization process so that it can display a message etc.
-    mainWindow.onInitializationStarted();
-
-    mainWindow.setPreferencesStore(settingsStore.data());
-
-    //! The reason why the breadcrumbs receive an object of the path type of the boost filesystem library
-    //! is because the breadcrumb views have to split the path to show it.
-    mainWindow.setPathOnLeftBreadcrumbView(currentSettings->getImagesPath());
-    mainWindow.setPathOnRightBreadcrumbView(currentSettings->getObjectModelsPath());
-    mainWindow.setPathOnLeftNavigationControls(QString(currentSettings->getImagesPath()));
-    mainWindow.setPathOnRightNavigationControls(QString(currentSettings->getObjectModelsPath()));
-
-    // The models do not need to notify the gallery of any changes on the data because the list view
-    // has its own update loop, i.e. automatically fetches new data
-    galleryImageModel = new GalleryImageModel(modelManager.data());
-    mainWindow.setGalleryImageModel(galleryImageModel);
-    galleryObjectModelModel = new GalleryObjectModelModel(modelManager.data());
-    setSegmentationCodesOnGalleryObjectModelModel();
-    mainWindow.setGalleryObjectModelModel(galleryObjectModelModel);
-    mainWindow.setModelManager(modelManager.data());
-
-    // Delegation of user clicks to this controller
-    connect(&mainWindow, SIGNAL(imageClicked(Image*,QPoint)),
-            this, SLOT(onImageClicked(Image*,QPoint)));
-    connect(&mainWindow, SIGNAL(objectModelClicked(ObjectModel*,QVector3D)),
-            this, SLOT(onObjectModelClicked(ObjectModel*,QVector3D)));
-
-    // Delegation of pose creator actions to the window
-    connect(poseCreator.get(), SIGNAL(poseCreationAborted()),
-            &mainWindow, SLOT(onPoseCreationReset()));
-    connect(poseCreator.get(), &PoseCreator::posePointStarted,
-            &mainWindow, &MainWindow::onPosePointStarted);
-    connect(poseCreator.get(), &PoseCreator::posePointFinished,
-            &mainWindow, &MainWindow::onPosePointFinished);
-
-    // Delegate of user interactions to the controller
-    connect(&mainWindow, SIGNAL(poseCreationInterrupted()),
-            this, SLOT(onPoseCreationInterrupted()));
-    connect(&mainWindow, SIGNAL(poseCreationAborted()),
-            this, SLOT(onPoseCreationAborted()));
-    connect(&mainWindow, SIGNAL(requestPoseCreation()),
-            this, SLOT(onPoseCreationRequested()));
-
-    connect(&mainWindow, &MainWindow::posePredictionRequested,
-            this, &MainController::onPosePredictionRequested);
-    connect(&mainWindow, &MainWindow::posePredictionRequestedForImages,
-            this, &MainController::onPosePredictionRequestedForImages);
-
-
-    mainWindow.onInitializationCompleted();
-}
-
-void MainController::setSegmentationCodesOnGalleryObjectModelModel() {
-    galleryObjectModelModel->setSegmentationCodesForObjectModels(currentSettings->getSegmentationCodes());
-}
-
-void MainController::onImageClicked(Image* image, QPoint position) {
-    if (poseCreator->getState() != PoseCreator::State::PosePointStarted) {
-        // We can set the image here everytime, if it differs from the previously one, the creator will
-        // automatically reset the points etc.
-        poseCreator->setImage(image);
-        poseCreator->startPosePoint(position);
-    }
-}
-
-void MainController::onObjectModelClicked(ObjectModel* objectModel, QVector3D position) {
-    if (poseCreator->isImageSet() && poseCreator->getState() ==
-                                               PoseCreator::State::PosePointStarted) {
-        poseCreator->setObjectModel(objectModel);
-        poseCreator->finishPosePoint(position);
-    }
-}
-
-
-void MainController::onPoseCreationInterrupted() {
-    // nothing to do here
-}
-
-void MainController::onPoseCreationAborted() {
-    resetPoseCreation();
+    m_settingsStore.reset(new SettingsStore(m_settingsIdentifier));
+    Settings tmp(*m_settingsStore->currentSettings());
+    m_currentSettings.reset(new Settings(tmp));
+    m_strategy.reset(new JsonLoadAndStoreStrategy());
+    m_strategy->moveToThread(m_modelManagerThread);
+    m_strategy->setImagesPath(m_currentSettings->imagesPath());
+    m_strategy->setObjectModelsPath(m_currentSettings->objectModelsPath());
+    m_strategy->setPosesFilePath(m_currentSettings->posesFilePath());
+    m_strategy->setSegmentationImagesPath(m_currentSettings->segmentationImagesPath());
+    m_modelManager.reset(new CachingModelManager(*m_strategy.data()));
+    connect(this, &MainController::reloadingData,
+            m_modelManager.get(), &ModelManager::reload);
+    m_modelManager->moveToThread(m_modelManagerThread);
+    m_modelManagerThread->start();
+    connect(m_settingsStore.data(), &SettingsStore::currentSettingsChanged,
+            this, &MainController::onSettingsChanged);
+    m_mainWindow.reset(new MainWindow(0, m_modelManager.get(), m_settingsStore.get()));
+    connect(m_mainWindow.get(), &MainWindow::reloadingViews,
+            this, &MainController::onReloadViewsRequested);
+    connect(m_modelManager.get(), &ModelManager::stateChanged,
+            this, &MainController::onModelManagerStateChanged);
+    m_mainWindow->poseViewer()->setSettingsStore(m_settingsStore.get());
+    m_mainWindow->poseEditor()->setSettingsStore(m_settingsStore.get());
+    showView();
+    m_splashScreen = new SplashScreen();
+    // Make it a infinite progress bar
+    m_splashScreen->setMaximum(0);
+    m_splashScreen->setMinimum(0);
+    m_splashScreen->show();
+    QTimer::singleShot(500, [this](){
+        m_splashScreen->showProgressBar(true);
+    });
+    m_poseEditingModel.reset(new PosesEditingController(Q_NULLPTR, m_modelManager.get(), m_mainWindow.get()));
+    // This makes the ModelManager load data don't call it before creating the MainWindow as we
+    // want to show the progress loading view in the ModelManager state change callback
+    Q_EMIT reloadingData();
 }
 
 void MainController::showView() {
-    mainWindow.show();
-    mainWindow.raise();
+    m_mainWindow->show();
+    m_mainWindow->raise();
+    m_mainWindow->repaint();
 }
 
-void MainController::resetPoseCreation() {
-    poseCreator->abortCreation();
-}
-
-void MainController::onPoseCreationRequested() {
-    // The user can't request this before all the requirements are met because the creat button
-    // is not enabled earlier
-    poseCreator->createPose();
-}
-
-void MainController::onPosePredictionRequested() {
-    performPosePredictionForImages(QList<Image>() << *mainWindow.getCurrentlyViewedImage());
-}
-
-void MainController::onPosePredictionRequestedForImages(QList<Image> images) {
-    performPosePredictionForImages(images);
-}
-
-void MainController::performPosePredictionForImages(QList<Image> images) {
-    if (currentSettings->getSegmentationImagesPath() == "") {
-        mainWindow.displayWarning("Segmentation images path not set", "The path to the segmentation "
-                                                                      "images has to "
-                                                   "be set in order to run network prediction.");
-        return;
+void MainController::onSettingsChanged(SettingsPtr settings) {
+    bool changed = m_currentSettings->imagesPath() != settings->imagesPath() ||
+                   m_currentSettings->segmentationImagesPath() != settings->segmentationImagesPath() ||
+                   m_currentSettings->objectModelsPath() != settings->objectModelsPath() ||
+                   m_currentSettings->posesFilePath() != settings->posesFilePath();
+    m_strategy->setImagesPath(settings->imagesPath());
+    m_strategy->setObjectModelsPath(settings->objectModelsPath());
+    m_strategy->setPosesFilePath(settings->posesFilePath());
+    m_strategy->setSegmentationImagesPath(settings->segmentationImagesPath());
+    if (changed) {
+        Q_EMIT reloadingData();
     }
-    if (networkController.isNull()) {
-        networkController.reset(
-                    new NeuralNetworkController(currentSettings->getPythonInterpreterPath(),
-                                                currentSettings->getTrainingScriptPath(),
-                                                currentSettings->getInferenceScriptPath()));
-        connect(networkController.data(), &NeuralNetworkController::inferenceFinished,
-                this, &MainController::onNetworkInferenceFinished);
-    } else {
-        networkController->setPythonInterpreter(currentSettings->getPythonInterpreterPath());
-        networkController->setTrainPythonScript(currentSettings->getTrainingScriptPath());
-        networkController->setInferencePythonScript(currentSettings->getInferenceScriptPath());
+    // We need to reset the stored currentSettings like this here because we need settings
+    // that are independend of the settings of the settings store because those might get
+    // altered but we want to be able to compare if something has changed
+    Settings tmp(*settings);
+    m_currentSettings.reset(new Settings(tmp));
+}
+
+void MainController::onReloadViewsRequested() {
+    Q_EMIT reloadingData();
+}
+
+void MainController::onModelManagerStateChanged(ModelManager::State state) {
+    m_mainWindow->showDataLoadingProgressView(false);
+    if (state == ModelManager::Ready && !m_initialized) {
+        QTimer::singleShot(1000, m_splashScreen, &QWidget::close);
+        m_initialized = true;
+    } else if (state == ModelManager::Loading) {
+        if (m_initialized) {
+            // Only show when initialized, otherwise we're showing the splash screen
+            // which shows a progress bar
+            m_mainWindow->showDataLoadingProgressView(true);
+        }
     }
-    networkController->setImages(images.toVector());
-    networkController->setPosesFilePath(currentSettings->getPosesFilePath());
-    networkController->setImagesPath(currentSettings->getImagesPath());
-    networkController->setSegmentationImagesPath(currentSettings->getSegmentationImagesPath());
-    networkController->inference(currentSettings->getNetworkConfigPath());
-}
-
-void MainController::onNetworkTrainingFinished() {
-    // Nothing to do here, training not yet implemented
-}
-
-void MainController::onNetworkInferenceFinished() {
-    mainWindow.hideNetworkProgressView();
-}
-
-void MainController::onFailedToLoadImages(const QString &message){
-    QString imagesPath = currentSettings->getImagesPath();
-    if (imagesPath != "." && imagesPath != "") {
-        //! "." is the default path and will likely never be used as image path, thus
-        //! do not display any warning - otherwise the warning would pop up three times
-        //! on startup, because the program tries to load images when setting the
-        //! images extension, the paths, etc.
-        mainWindow.displayWarning("Error loading images", message);
-    }
-}
-
-void MainController::onSettingsChanged(const QString &identifier) {
-    currentSettings = settingsStore->loadPreferencesByIdentifier(identifier);
-    // Load and store strategy updates itself
-    setSegmentationCodesOnGalleryObjectModelModel();
-    poseCreator->abortCreation();
 }

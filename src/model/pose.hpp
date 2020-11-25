@@ -6,32 +6,34 @@
 #include <QVector3D>
 #include <QMatrix3x3>
 #include <QString>
+#include <QQuaternion>
 
 //! This class represents a match between an object model and an image, i.e. stores where the object is located on the image and
 //! how it is rotated.
-class Pose {
-private:
-    //! The position of the object on the image. The value z is the depth, i.e. how large the object ist.
-    QVector3D position;
-    //! The rotation of the object on the image.
-    QMatrix3x3 rotation;
-    //! The image associated with this corresopndence.
-    const Image* image;
-    //! The object model associated with this pose.
-    const ObjectModel* objectModel;
-    //! The ID of the pose. This is necessary becuase images might contain some objects multiple times.
-    QString id;
+class Pose: public QObject {
+
+    Q_OBJECT
 
 public:
     //! Constructor of class ObjectImagePose.
     /*!
      * \brief ObjectImagePose Constructs an ObjectImagePose and assigns the passed values.
      * \param id the ID of the pose
-     * \param _image the associated image
-     * \param _objectModel the associated object model
+     * \param image the associated image
+     * \param objectModel the associated object model
+     */
+    Pose(QString id, QVector3D position, QQuaternion rotation,
+         ImagePtr image, ObjectModelPtr objectModel);
+
+    //! Constructor of class ObjectImagePose.
+    /*!
+     * \brief ObjectImagePose Constructs an ObjectImagePose and assigns the passed values.
+     * \param id the ID of the pose
+     * \param image the associated image
+     * \param objectModel the associated object model
      */
     Pose(QString id, QVector3D position, QMatrix3x3 rotation,
-                              const Image* image, const ObjectModel* objectModel);
+         ImagePtr image, ObjectModelPtr objectModel);
 
     /*!
      * \brief ObjectImagePose copy constructor for class ObjectImagePose.
@@ -44,33 +46,31 @@ public:
      * i.e. how big the object is.
      * \return the position of the image
      */
-    QVector3D getPosition() const;
+    QVector3D position() const;
 
     /*!
      * \brief getRotation Returns the rotation of the object on the image.
      * \return the rotation of the image
      */
-    QMatrix3x3 getRotation() const;
+    QQuaternion rotation() const;
 
     /*!
      * \brief getImage Returns the image associated with this pose.
      * \return the image associated with this pose
      */
-    const Image* getImage() const;
+    ImagePtr image() const;
+
     /*!
      * \brief getObjectModel Returns the object model associated with this pose.
      * \return the object model associated with this pose
      */
-    const ObjectModel* getObjectModel() const;
+    ObjectModelPtr objectModel() const;
 
-    void setPosition(QVector3D position);
-
-    void setRotation(QMatrix3x3 rotation);
     /*!
      * \brief getID Returns the unique ID of this pose.
      * \return the unique ID of this pose
      */
-    QString getID() const;
+    QString id() const;
 
     /*!
      * \brief operator == Returns true if the IDs of the two poses are the same.
@@ -81,6 +81,30 @@ public:
 
     Pose& operator=(const Pose &other);
 
+public Q_SLOTS:
+    void setPosition(const QVector3D &position);
+    void setRotation(const QMatrix3x3 &rotation);
+    void setRotation(const QQuaternion &rotation);
+
+
+Q_SIGNALS:
+    void positionChanged(QVector3D position);
+    void rotationChanged(QQuaternion rotation);
+
+private:
+    //! The position of the object on the image. The value z is the depth, i.e. how large the object ist.
+    QVector3D m_position;
+    //! The rotation of the object on the image.
+    QQuaternion m_rotation;
+    //! The image associated with this corresopndence.
+    ImagePtr m_image;
+    //! The object model associated with this pose.
+    ObjectModelPtr m_objectModel;
+    //! The ID of the pose. This is necessary becuase images might contain some objects multiple times.
+    QString m_id;
+
 };
+
+typedef QSharedPointer<Pose> PosePtr;
 
 #endif // OBJECTIMAGECORRESPONDENCE_H

@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsInterfacePage</class>
+ <widget class="QWidget" name="SettingsInterfacePage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>280</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>280</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>284</height>
+   </size>
+  </property>
+  <property name="palette">
+   <palette>
+    <active>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </active>
+    <inactive>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </inactive>
+    <disabled>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </disabled>
+   </palette>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>General</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets the size of the click visualization on the 3D model in the pose editor. You cannot set the size of the click visualization in the pose viewer because there the size is in pixels (set to a constant value which is clearly visible). Determining a good click circumference size for 3D models is difficult. That's why you have to set it here manually.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>3D click circumference</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="doubleSpinBoxClick3DCircumference">
+        <property name="decimals">
+         <number>4</number>
+        </property>
+        <property name="value">
+         <double>0.500000000000000</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Mouse Controls</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelAddCorrespondencePoint">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>3</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>The mouse button to add a 2D point on the image in the pose viewer.</string>
+        </property>
+        <property name="text">
+         <string>Add 2D correspondence point</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="labelRotatePose">
+        <property name="toolTip">
+         <string>The mouse button to rotate a 3D object model of a pose in the pose viewer with. The pose has to be selected to be able to rotate it.</string>
+        </property>
+        <property name="text">
+         <string>Rotate pose</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="labelMoveImage">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>The mouse button to move the image in the pose viewer with.</string>
+        </property>
+        <property name="text">
+         <string>Move image</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="labelSelectPose">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>The mouse button to select a 3D object model of a pose in the pose viewer.</string>
+        </property>
+        <property name="text">
+         <string>Select pose</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="labelTranslatePose">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The mouse button to move, i.e. translate, the 3D object model of a pose in the pose viewer. The pose needs to be selected to be able to translate it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Translate pose</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="comboBoxAddCorrespondencePoint">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>2</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="comboBoxMoveImage"/>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="comboBoxSelectPose"/>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="comboBoxTranslatePose"/>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="comboBoxRotatePose"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>comboBoxAddCorrespondencePoint</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>SettingsInterfacePage</receiver>
+   <slot>comboBoxAddCorrespondencePointSelectedIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>308</x>
+     <y>126</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxMoveImage</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>SettingsInterfacePage</receiver>
+   <slot>comboBoxMoveImageSelectedIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>308</x>
+     <y>156</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxSelectPose</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>SettingsInterfacePage</receiver>
+   <slot>comboBoxSelectPoseSelectedIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>308</x>
+     <y>186</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxTranslatePose</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>SettingsInterfacePage</receiver>
+   <slot>comboBoxTranslatePoseSelectedIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>308</x>
+     <y>216</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxRotatePose</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>SettingsInterfacePage</receiver>
+   <slot>comboBoxRotatePoseSelectedIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>308</x>
+     <y>246</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBoxClick3DCircumference</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>SettingsInterfacePage</receiver>
+   <slot>doubleSpinBoxClick3DCircumferenceChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>53</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>comboBoxAddCorrespondencePointSelectedIndexChanged(int)</slot>
+  <slot>comboBoxMoveImageSelectedIndexChanged(int)</slot>
+  <slot>comboBoxSelectPoseSelectedIndexChanged(int)</slot>
+  <slot>comboBoxTranslatePoseSelectedIndexChanged(int)</slot>
+  <slot>comboBoxRotatePoseSelectedIndexChanged(int)</slot>
+  <slot>doubleSpinBoxClick3DCircumferenceChanged(double)</slot>
+ </slots>
+</ui>

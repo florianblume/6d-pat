@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>about.png</file>
+        <file>icon.png</file>
+        <file>loading.gif</file>
+        <file alias="splashscreen.png">splash.png</file>
+    </qresource>
+</RCC>

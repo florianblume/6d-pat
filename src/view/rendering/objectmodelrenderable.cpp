@@ -1,131 +1,153 @@
 #include "objectmodelrenderable.hpp"
 
-#include <QOpenGLContext>
-#include <QOpenGLFunctions>
-#include <QtGlobal>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
+#include <QColor>
+#include <QUrl>
 
-ObjectModelRenderable::ObjectModelRenderable(const ObjectModel &objectModel,
-                                             int vertexAttributeLoc,
-                                             int normalAttributeLoc) :
-    objectModel(objectModel),
-    vertexBuffer(QOpenGLBuffer::VertexBuffer),
-    normalBuffer(QOpenGLBuffer::VertexBuffer),
-    indexBuffer(QOpenGLBuffer::IndexBuffer),
-    vertexAttributeLoc(vertexAttributeLoc),
-    normalAttributeLoc(normalAttributeLoc) {
+#include <Qt3DCore/QNode>
+#include <Qt3DCore/QNodeVector>
+#include <Qt3DExtras/QPhongMaterial>
+#include <Qt3DRender/QShaderProgramBuilder>
+#include <Qt3DRender/QEffect>
+#include <Qt3DRender/QParameter>
+#include <Qt3DRender/QShaderProgram>
+#include <Qt3DRender/QGeometryRenderer>
+#include <Qt3DRender/QGeometry>
+#include <Qt3DRender/QAttribute>
+#include <Qt3DExtras/QDiffuseMapMaterial>
+#include <Qt3DExtras/QDiffuseSpecularMapMaterial>
+#include <Qt3DExtras/QNormalDiffuseMapMaterial>
+#include <Qt3DExtras/QNormalDiffuseMapAlphaMaterial>
+#include <Qt3DExtras/QNormalDiffuseSpecularMapMaterial>
 
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(objectModel.getAbsolutePath().toStdString(),
-                                             aiProcess_GenSmoothNormals |
-                                             aiProcess_CalcTangentSpace |
-                                             aiProcess_Triangulate |
-                                             aiProcess_JoinIdenticalVertices |
-                                             aiProcess_SortByPType
-                                             );
-    if (scene) {
-        for (uint i = 0; i < scene->mNumMeshes; i++) {
-            processMesh(scene->mMeshes[0]);
+ObjectModelRenderable::ObjectModelRenderable(Qt3DCore::QEntity *parent)
+    : Qt3DCore::QEntity(parent) {
+    initialize();
+}
+
+ObjectModelRenderable::ObjectModelRenderable(Qt3DCore::QEntity *parent, const ObjectModel &objectModel)
+    : Qt3DCore::QEntity(parent) {
+    initialize();
+    setObjectModel(objectModel);
+}
+
+void ObjectModelRenderable::initialize() {
+    m_sceneLoader = new Qt3DRender::QSceneLoader(this);
+    this->addComponent(m_sceneLoader);
+    connect(m_sceneLoader, &Qt3DRender::QSceneLoader::statusChanged, this, &ObjectModelRenderable::onSceneLoaderStatusChanged);
+}
+
+Qt3DRender::QSceneLoader::Status ObjectModelRenderable::status() const {
+    return m_sceneLoader->status();
+}
+
+bool ObjectModelRenderable::isSelected() const {
+    return m_selected;
+}
+
+bool ObjectModelRenderable::isHovered() const {
+    if (!m_material.isNull()) {
+        return m_material->isHovered();
+    }
+    return false;
+}
+
+void ObjectModelRenderable::setObjectModel(const ObjectModel &objectModel) {
+    m_selected = false;
+    m_sceneLoader->setEnabled(false);
+    m_sceneLoader->setSource(QUrl::fromLocalFile(objectModel.absolutePath()));
+}
+
+void ObjectModelRenderable::setClicks(QList<QVector3D> clicks) {
+    if (!m_material.isNull()) {
+        m_material->setClicks(clicks);
+    }
+    Q_EMIT clicksChanged();
+}
+
+void ObjectModelRenderable::setSelected(bool selected) {
+    if (!m_material.isNull()) {
+        m_material->setSelected(selected);
+    }
+    m_selected = selected;
+    Q_EMIT selectedChanged(selected);
+}
+
+void ObjectModelRenderable::setHovered(bool hovered) {
+    if (!m_material.isNull()) {
+        m_material->setHovered(hovered);
+    }
+}
+
+void ObjectModelRenderable::setOpacity(float opacity) {
+    if (!m_material.isNull()) {
+        m_material->setOpacity(opacity);
+    }
+}
+
+void ObjectModelRenderable::setClickCircumference(float circumference) {
+    if (!m_material.isNull()) {
+        m_material->setClickCirumference(circumference);
+    }
+}
+
+void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status) {
+    /*
+     * This function is ugly but there is no way (that I know of) to get around it.
+     * We have to adjust the shaders of the loaded objects to be able to visualize clicks.
+     */
+    if (status == Qt3DRender::QSceneLoader::Ready) {
+        m_sceneLoader->setEnabled(true);
+        Qt3DCore::QEntity *entity = m_sceneLoader->entities()[0];
+        Qt3DCore::QNodeVector children = entity->childNodes();
+        for (Qt3DCore::QNode *node : children) {
+            Qt3DCore::QNodeVector subChildren = node->childNodes();
+            for (Qt3DCore::QNode *subChild : subChildren) {
+                if (Qt3DExtras::QPhongMaterial * phongMaterial = dynamic_cast<Qt3DExtras::QPhongMaterial *>(subChild)) {
+                    // In this case, the scene loader loaded a model without texture. We'll replace that phong material
+                    // with our own that can visualize clicks.
+                    Qt3DCore::QEntity *phongMaterialParent = (Qt3DCore::QEntity *) phongMaterial->parent();
+                    phongMaterialParent->removeComponent(phongMaterial);
+
+                    m_material = new ObjectModelRenderableMaterial(phongMaterialParent, false);
+                    m_material->setSpecular(phongMaterial->specular());
+                    // Better visible without shininess
+                    m_material->setShininess(0.f);
+                    m_material->setSelected(m_selected);
+
+                    phongMaterialParent->addComponent(m_material);
+                }
+
+                Qt3DCore::QEntity *subChildEntity = (Qt3DCore::QEntity *)subChild;
+                Qt3DCore::QNodeVector subSubChildren = subChild->childNodes();
+                for (Qt3DCore::QNode *subSubChild : subSubChildren) {
+                    bool isMaterial = false;
+                    // In this case we have a textured object
+                    // This is ugly but as long as the shader graphs don't support arrays (i.e. vec3 clicks[10]) we have to check
+                    // all the default materials so that the objects get rendered properly
+                    if (dynamic_cast<Qt3DExtras::QDiffuseMapMaterial *>(subSubChild) ||
+                        dynamic_cast<Qt3DExtras::QDiffuseSpecularMapMaterial *>(subSubChild) ||
+                        dynamic_cast<Qt3DExtras::QNormalDiffuseMapMaterial *>(subSubChild) ||
+                        dynamic_cast<Qt3DExtras::QNormalDiffuseMapAlphaMaterial *>(subSubChild) ||
+                        dynamic_cast<Qt3DExtras::QNormalDiffuseSpecularMapMaterial *>(subSubChild)) {
+                        m_material = new ObjectModelRenderableMaterial(subChildEntity, true);
+                        m_material->setAmbient(subSubChild->property("ambient").value<QColor>());
+                        m_material->setDiffuseTexture(subSubChild->property("diffuse").value<Qt3DRender::QAbstractTexture*>());
+                        m_material->setSpecular(subSubChild->property("specular").value<QColor>());
+                        // Better visible without shininess
+                        m_material->setShininess(0.f);
+                        m_material->setTextureScale(subSubChild->property("textureScale").toFloat());
+                        m_material->setSelected(m_selected);
+                        isMaterial = true;
+                    }
+                    if (isMaterial) {
+                        Qt3DCore::QComponent *oldMaterial = dynamic_cast<Qt3DCore::QComponent *>(subSubChild);
+                        subChildEntity->removeComponent(oldMaterial);
+                        oldMaterial->deleteLater();
+                        subChildEntity->addComponent(m_material);
+                    }
+                }
+            }
         }
-        populateVertexArrayObject();
     }
+    Q_EMIT statusChanged(status);
 }
-
-QOpenGLVertexArrayObject *ObjectModelRenderable::getVertexArrayObject() {
-    return &vao;
-}
-
-int ObjectModelRenderable::getIndicesCount() {
-    return indices.size();
-}
-
-ObjectModel ObjectModelRenderable::getObjectModel() {
-    return objectModel;
-}
-
-float ObjectModelRenderable::getLargestVertexValue() {
-    return largestVertexValue;
-}
-
-// Private functions from here
-
-void ObjectModelRenderable::processMesh(aiMesh *mesh) {
-    // Get Vertices
-    if (mesh->mNumVertices > 0)
-    {
-        for (uint ii = 0; ii < mesh->mNumVertices; ++ii)
-        {
-            aiVector3D &vec = mesh->mVertices[ii];
-
-            vertices.push_back(vec.x);
-            vertices.push_back(vec.y);
-            vertices.push_back(vec.z);
-
-            float m = qMax(vec.x, vec.y);
-            m = qMax(m, vec.z);
-            if (m > largestVertexValue)
-                largestVertexValue = m;
-        }
-    }
-
-    // Get Normals
-    if (mesh->HasNormals())
-    {
-        for (uint ii = 0; ii < mesh->mNumVertices; ++ii)
-        {
-            aiVector3D &vec = mesh->mNormals[ii];
-            normals.push_back(vec.x);
-            normals.push_back(vec.y);
-            normals.push_back(vec.z);
-        };
-    }
-
-    // Get mesh indexes
-    for (uint t = 0; t < mesh->mNumFaces; ++t)
-    {
-        aiFace* face = &mesh->mFaces[t];
-        if (face->mNumIndices != 3)
-        {
-            continue;
-        }
-
-        indices.push_back(face->mIndices[0]);
-        indices.push_back(face->mIndices[1]);
-        indices.push_back(face->mIndices[2]);
-    }
-}
-
-void ObjectModelRenderable::populateVertexArrayObject() {
-    vao.create();
-    QOpenGLVertexArrayObject::Binder vaoBinder(&vao);
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-
-    // Setup the vertex buffer object.
-    vertexBuffer.create();
-    vertexBuffer.bind();
-    vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    vertexBuffer.allocate(vertices.constData(),
-                                    vertices.size() * sizeof(GLfloat));
-    vertexBuffer.bind();
-    f->glEnableVertexAttribArray(vertexAttributeLoc);
-    f->glVertexAttribPointer(vertexAttributeLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
-
-    // Setup the normal buffer object.
-    normalBuffer.create();
-    normalBuffer.bind();
-    normalBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    normalBuffer.allocate(normals.constData(),
-                                    normals.size() * sizeof(GLfloat));
-    normalBuffer.bind();
-    f->glEnableVertexAttribArray(normalAttributeLoc);
-    f->glVertexAttribPointer(normalAttributeLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
-
-    // Setup the index buffer object.
-    indexBuffer.create();
-    indexBuffer.bind();
-    indexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    indexBuffer.allocate(indices.constData(),
-                                   indices.size() * sizeof(GLint));
-}
-

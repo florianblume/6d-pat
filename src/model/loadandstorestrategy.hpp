@@ -4,6 +4,7 @@
 #include "pose.hpp"
 #include "image.hpp"
 #include "objectmodel.hpp"
+#include "data.hpp"
 #include "settings/settingsstore.hpp"
 
 #include <QObject>
@@ -23,9 +24,25 @@ class LoadAndStoreStrategy : public QObject {
     Q_OBJECT
 
 public:
+    enum Error {
+        ImagesPathDoesNotExist,
+        SegmentationImagesPathDoesNotExist,
+        NotEnoughSegmentationImages,
+        CouldNotReadCamInfo,
+        CamInfoDoesNotExist,
+        InvalidCameraMatrices,
+        CamInfoPathIsNotAJSONFile,
+        NoImagesFound,
+        ObjectModelsPathDoesNotExist,
+        ObjectModelsPathIsNotAFolder,
+        PosesPathDoesNotExist,
+        PosesPathIsNotReadable,
+        PosesWithInvalidPosesData,
+        FailedToPersistPosePosesFileCouldNotBeRead,
+        FailedToPersistPosePosesPathIsNotAFile,
+    };
 
-    LoadAndStoreStrategy(SettingsStore *settingsStore,
-                         const QString &settingsIdentifier);
+    LoadAndStoreStrategy();
 
     virtual ~LoadAndStoreStrategy();
 
@@ -36,49 +53,51 @@ public:
      * \param deletePose indicates whether the pose should be persistently deleted
      * \return true if persisting the object image pose was successful, false if not
      */
-    virtual bool persistPose(Pose *objectImagePose,
-                                                  bool deletePose) = 0;
+    virtual bool persistPose(const Pose &objectImagePose,
+                             bool deletePose) = 0;
+
+    virtual void setImagesPath(const QString &imagesPath) = 0;
+
+    virtual void setSegmentationImagesPath(const QString &path) = 0;
 
     /*!
      * \brief loadImages Loads the images.
      * \return the list of images
      */
-    virtual QList<Image> loadImages() = 0;
+    virtual QList<ImagePtr> loadImages() = 0;
+
+    virtual QList<QString> imagesWithInvalidCameraMatrix() const = 0;
+
+    virtual void setObjectModelsPath(const QString &objectModelsPath) = 0;
 
     /*!
      * \brief loadObjectModels Loads the object models.
      * \return the list of object models
      */
-    virtual QList<ObjectModel> loadObjectModels() = 0;
+    virtual QList<ObjectModelPtr> loadObjectModels() = 0;
+
+    virtual void setPosesFilePath(const QString &posesFilePath) = 0;
 
     /*!
      * \brief loadPoses Loads the poses at the given path. How the poses
      * are stored depends on the strategy.
      * \return the list of all stored poses
      */
-    virtual QList<Pose> loadPoses(const QList<Image> &images,
-                                  const QList<ObjectModel> &objectModels) = 0;
+    virtual QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
+                                       const QList<ObjectModelPtr> &objectModels) = 0;
+
+    virtual QList<QString> posesWithInvalidPosesData() const = 0;
 
     void setSettingsStore(SettingsStore *value);
 
     void setSettingsIdentifier(const QString &value);
 
 signals:
-
-    void imagesChanged();
-    void failedToLoadImages(const QString& message);
-    void objectModelsChanged();
-    void failedToLoadObjectModels(const QString &message);
-    void posesChanged();
-    void failedToLoadPoses(const QString &message);
-    void failedToPersistPose(const QString &message);
+    void error(LoadAndStoreStrategy::Error error);
+    void dataChanged(int data);
 
 protected slots:
-    virtual void onSettingsChanged(const QString settingsIdentifier) = 0;
-
-protected:
-    SettingsStore *settingsStore;
-    QString settingsIdentifier;
+    virtual void onSettingsChanged(SettingsPtr settings) = 0;
 
 };
 

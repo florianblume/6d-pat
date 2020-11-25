@@ -1,14 +1,13 @@
 #include "settingssegmentationcodespage.hpp"
 #include "ui_settingssegmentationcodespage.h"
 #include "misc/generalhelper.hpp"
-#include "3rdparty/QtAwesome/QtAwesome.h"
+#include "view/misc/displayhelper.hpp"
 #include <QPushButton>
 #include <QColorDialog>
 
 SettingsSegmentationCodesPage::SettingsSegmentationCodesPage(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::SettingsSegmentationCodesPage)
-{
+    ui(new Ui::SettingsSegmentationCodesPage) {
     ui->setupUi(this);
     QHeaderView *headerView = ui->tableSegmentationCodes->horizontalHeader();
     headerView->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -16,34 +15,30 @@ SettingsSegmentationCodesPage::SettingsSegmentationCodesPage(QWidget *parent) :
     headerView->setSectionResizeMode(2, QHeaderView::Fixed);
 }
 
-SettingsSegmentationCodesPage::~SettingsSegmentationCodesPage()
-{
+SettingsSegmentationCodesPage::~SettingsSegmentationCodesPage() {
     delete ui;
 }
 
-void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *preferences,
-                                                                   QList<ObjectModel> objectModels) {
-    this->preferences = preferences;
-    this->objectModels = std::move(objectModels);
+void SettingsSegmentationCodesPage::setSettingsAndObjectModels(Settings *preferences,
+                                                               const QList<ObjectModelPtr> &objectModels) {
+    this->settings = preferences;
+    this->objectModels = objectModels;
 
     if (!preferences)
         return;
 
-    QtAwesome* awesome = new QtAwesome( qApp );
-    awesome->initFontAwesome();
-
     int i = 0;
-    for(const ObjectModel &objectModel : this->objectModels) {
-        const QString &code = preferences->getSegmentationCodeForObjectModel(objectModel.getPath());
+    for(const ObjectModelPtr &objectModel : this->objectModels) {
+        const QString &code = preferences->segmentationCodeForObjectModel(objectModel->path());
         ui->tableSegmentationCodes->insertRow(i);
-        ui->tableSegmentationCodes->setItem(i, 0, new QTableWidgetItem(objectModel.getPath()));
+        ui->tableSegmentationCodes->setItem(i, 0, new QTableWidgetItem(objectModel->path()));
         if (code.compare("") != 0) {
             QColor color = GeneralHelper::colorFromSegmentationCode(code);
             QTableWidgetItem *tableItem = new QTableWidgetItem();
             tableItem->setToolTip("[" + QString::number(color.red()) + ", "
                                   + QString::number(color.green()) + ", "
                                   + QString::number(color.blue()));
-            tableItem->setBackgroundColor(QColor(color));
+            tableItem->setBackground(QColor(color));
             ui->tableSegmentationCodes->setItem(i, 1, tableItem);
         } else {
             ui->tableSegmentationCodes->setItem(i, 1, new QTableWidgetItem("Undefined"));
@@ -55,8 +50,7 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *pref
 
         //! Create color edit button
         QPushButton* buttonEdit = new QPushButton();
-        buttonEdit->setFont(awesome->font(18));
-        buttonEdit->setIcon(awesome->icon(fa::paintbrush));
+        DisplayHelper::setIcon(buttonEdit, fa::paintbrush, 18);
         buttonEdit->setFixedSize(QSize(40, 20));
         buttonEdit->setToolTip("Edit color");
         connect(buttonEdit, &QPushButton::clicked, [this, i]() {showColorDialog(i);});
@@ -64,8 +58,7 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *pref
 
         //! Create delete button
         QPushButton* buttonUnset = new QPushButton();
-        buttonUnset->setFont(awesome->font(18));
-        buttonUnset->setIcon(awesome->icon(fa::remove));
+        DisplayHelper::setIcon(buttonUnset, fa::timescircle, 18);
         buttonUnset->setFixedSize(QSize(40, 20));
         buttonUnset->setToolTip("Remove color");
         connect(buttonUnset, &QPushButton::clicked, [this, i]() {removeColor(i);});
@@ -77,22 +70,24 @@ void SettingsSegmentationCodesPage::setPreferencesAndObjectModels(Settings *pref
 }
 
 void SettingsSegmentationCodesPage::showColorDialog(int index) {
-    QColor color = QColorDialog::getColor(Qt::yellow, this );
+    QColor color = QColorDialog::getColor(Qt::yellow, this,
+                                          "Choose segmentation color",
+                                          QColorDialog::DontUseNativeDialog);
     if (!color.isValid())
         return;
 
     QString colorCode = GeneralHelper::segmentationCodeFromColor(color);
-    const ObjectModel &objectModel = objectModels.at(index);
-    preferences->setSegmentationCodeForObjectModel(objectModel.getPath(), colorCode);
+    const ObjectModelPtr &objectModel = objectModels.at(index);
+    settings->setSegmentationCodeForObjectModel(objectModel->path(), colorCode);
     QTableWidgetItem *item = ui->tableSegmentationCodes->item(index, 1);
     item->setText("");
-    item->setBackgroundColor(color);
+    item->setBackground(color);
 }
 
 void SettingsSegmentationCodesPage::removeColor(int index) {
-    const ObjectModel &objectModel = objectModels.at(index);
-    preferences->removeSegmentationCodeForObjectModel(objectModel.getPath());
+    const ObjectModelPtr &objectModel = objectModels.at(index);
+    settings->removeSegmentationCodeForObjectModel(objectModel->path());
     QTableWidgetItem *item = ui->tableSegmentationCodes->item(index, 1);
-    item->setBackgroundColor(QColor(255, 255, 255));
+    item->setBackground(QColor(255, 255, 255));
     item->setText("Undefined");
 }

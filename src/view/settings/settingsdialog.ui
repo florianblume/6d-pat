@@ -194,7 +194,7 @@
        <number>0</number>
       </property>
       <item row="0" column="0">
-       <widget class="QListWidget" name="listWidget">
+       <widget class="QListWidget" name="listWidgetSettings">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
           <horstretch>1</horstretch>
@@ -203,34 +203,9 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>70</width>
+          <width>110</width>
           <height>16777215</height>
          </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QListView {
-    show-decoration-selected: 1;
-   selection-color:black;
-    selection-background-color: #0068d9;
-   border-color:#c1c1c1;
-}
-
-QListView::item:selected:active:hover{
-  border: 1px solid #5eb6ff;
-  background-color: #9ed2ff;
-}
-QListView::item:selected:active:!hover{
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}
-QListView::item:selected:!active{
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}
-QListView::item:!selected:hover{
-  border: 1px solid #75c1ff;
-  background-color: #c6e5ff;
-}</string>
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -258,7 +233,7 @@ QListView::item:!selected:hover{
         </property>
         <property name="iconSize">
          <size>
-          <width>65</width>
+          <width>110</width>
           <height>60</height>
          </size>
         </property>
@@ -292,7 +267,7 @@ QListView::item:!selected:hover{
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QStackedWidget" name="stackedWidget">
+       <widget class="QStackedWidget" name="stackedWidgetSettings">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>3</horstretch>
@@ -396,7 +371,11 @@ QListView::item:!selected:hover{
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
-        <widget class="SettingsGeneralPage" name="pageGeneral">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="SettingsInterfacePage" name="pageInterface"/>
+        <widget class="SettingsPathsPage" name="pagePaths">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -533,14 +512,6 @@ QListView::item:!selected:hover{
           </sizepolicy>
          </property>
         </widget>
-        <widget class="SettingsNetworkPage" name="pageNetwork">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
        </widget>
       </item>
      </layout>
@@ -550,21 +521,21 @@ QListView::item:!selected:hover{
  </widget>
  <customwidgets>
   <customwidget>
-   <class>SettingsGeneralPage</class>
-   <extends>QWidget</extends>
-   <header>view/settings/settingsgeneralpage.hpp</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>SettingsSegmentationCodesPage</class>
    <extends>QWidget</extends>
    <header>view/settings/settingssegmentationcodespage.hpp</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>SettingsNetworkPage</class>
+   <class>SettingsInterfacePage</class>
    <extends>QWidget</extends>
-   <header>view/settings/settingsnetworkpage.hpp</header>
+   <header>view/settings/settingsinterfacepage.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SettingsPathsPage</class>
+   <extends>QWidget</extends>
+   <header>view/settings/settingspathspage.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -603,7 +574,7 @@ QListView::item:!selected:hover{
    </hints>
   </connection>
   <connection>
-   <sender>listWidget</sender>
+   <sender>listWidgetSettings</sender>
    <signal>clicked(QModelIndex)</signal>
    <receiver>SettingsDialog</receiver>
    <slot>onListWidgetClicked(QModelIndex)</slot>

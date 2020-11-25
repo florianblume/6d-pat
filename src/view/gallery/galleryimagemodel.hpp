@@ -2,18 +2,21 @@
 #define GALLERYIMAGEMODEL_H
 
 #include "model/modelmanager.hpp"
+#include "loadingiconmodel.hpp"
 #include "resizeimagesrunnable.hpp"
 
 #include <QAbstractListModel>
 #include <QImage>
 #include <QThreadPool>
+#include <QPointer>
+#include <QMovie>
+#include <QIcon>
 
 /*!
  * \brief The GalleryImageModel class provides the image data for a listview that is supposed to
  * display images maintained by the injected model manager.
  */
-class GalleryImageModel : public QAbstractListModel
-{
+class GalleryImageModel : public LoadingIconModel {
     Q_OBJECT
 
 public:
@@ -28,21 +31,21 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex &) const;
 
-private:
-    ModelManager *modelManager;
-    QList<Image> imagesCache;
-    ResizeImagesRunnable *resizeImagesRunnable = Q_NULLPTR;
-    QThreadPool resizeImagesThreadpool;
-    QMap<QString, QImage> resizedImagesCache;
-    bool abortResize = false;
+private Q_SLOTS:
+    void onImageResized(int imageIndex, const QString &imagePath, const QImage &resizedImage);
+    void onDataChanged(int data);
 
+private:
     void threadedResizeImages();
     void resizeImages();
 
-private Q_SLOTS:
-    void onImageResized(int imageIndex, QString imagePath, QImage resizedImage);
-    void onImagesChanged();
-
+private:
+    ModelManager *modelManager;
+    QList<ImagePtr> imagesCache;
+    QPointer<ResizeImagesRunnable> resizeImagesRunnable;
+    QThreadPool resizeImagesThreadpool;
+    QMap<QString, QImage> resizedImagesCache;
+    bool abortResize = false;
 };
 
 #endif // GALLERYIMAGEMODEL_H

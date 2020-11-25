@@ -1,116 +1,201 @@
 #include "settings.hpp"
 
+const QMap<Qt::MouseButton, int> Settings::MOUSE_BUTTONS = {{Qt::LeftButton,    0},
+                                                            {Qt::RightButton,   1},
+                                                            {Qt::MiddleButton,  2},
+                                                            {Qt::BackButton,    3}};
 
-Settings::Settings(QString identifier) : identifier(identifier) {
+
+Settings::Settings(const QString &identifier) : m_identifier(identifier) {
 }
 
-Settings::Settings(const Settings &preferences) {
-    this->segmentationCodes = preferences.segmentationCodes;
-    this->segmentationImagesPath = preferences.segmentationImagesPath;
-    this->imagesPath = preferences.imagesPath;
-    this->objectModelsPath = preferences.objectModelsPath;
-    this->posesFilePath = preferences.posesFilePath;
-    this->identifier = preferences.identifier;
+Settings::Settings(const Settings &settings) {
+    this->m_segmentationCodes = settings.m_segmentationCodes;
+    this->m_segmentationImagesPath = settings.m_segmentationImagesPath;
+    this->m_imagesPath = settings.m_imagesPath;
+    this->m_objectModelsPath = settings.m_objectModelsPath;
+    this->m_posesFilePath = settings.m_posesFilePath;
+    this->m_identifier = settings.m_identifier;
+    this->m_addCorrespondencePointMouseButton = settings.m_addCorrespondencePointMouseButton;
+    this->m_moveBackgroundImageRenderableMouseButton = settings.m_moveBackgroundImageRenderableMouseButton;
+    this->m_selectPoseRenderableMouseButton = settings.m_selectPoseRenderableMouseButton;
+    this->m_translatePoseRenderableMouseButton = settings.m_translatePoseRenderableMouseButton;
+    this->m_rotatePoseRenderableMouseButton = settings.m_rotatePoseRenderableMouseButton;
 }
 
 Settings::~Settings() {
 }
 
-QString Settings::getSegmentationImagesPath() const {
-    return segmentationImagesPath;
+QString Settings::segmentationImagesPath() const {
+    return m_segmentationImagesPath;
 }
 
 void Settings::setSegmentationImagePath(const QString &value) {
-    segmentationImagesPath = value;
+    m_segmentationImagesPath = value;
 }
 
-QString Settings::getImagesPath() const {
-    return imagesPath;
+QString Settings::imagesPath() const {
+    return m_imagesPath;
 }
 
 void Settings::setImagesPath(const QString &value) {
-    imagesPath = value;
+    m_imagesPath = value;
 }
 
-QString Settings::getObjectModelsPath() const {
-    return objectModelsPath;
+QString Settings::objectModelsPath() const {
+    return m_objectModelsPath;
 }
 
 void Settings::setObjectModelsPath(const QString &value) {
-    objectModelsPath = value;
+    m_objectModelsPath = value;
 }
 
-QString Settings::getPosesFilePath() const {
-    return posesFilePath;
+QString Settings::posesFilePath() const {
+    return m_posesFilePath;
 }
 
 void Settings::setPosesFilePath(const QString &value) {
-    posesFilePath = value;
+    m_posesFilePath = value;
 }
 
-QMap<QString, QString> Settings::getSegmentationCodes() const {
-    return segmentationCodes;
+QMap<QString, QString> Settings::segmentationCodes() const {
+    return m_segmentationCodes;
 }
 
 void Settings::setSegmentationCodes(const QMap<QString, QString> codes) {
-    segmentationCodes = std::move(codes);
+    m_segmentationCodes = std::move(codes);
 }
 
 void Settings::removeSegmentationCodeForObjectModel(const QString &identifier) {
-    segmentationCodes.remove(identifier);
+    m_segmentationCodes.remove(identifier);
 }
 
 void Settings::setSegmentationCodeForObjectModel(const QString &identifier, const QString &code) {
-    segmentationCodes[identifier] = code;
+    m_segmentationCodes[identifier] = code;
 }
 
-QString Settings::getSegmentationCodeForObjectModel(const QString &identifier) {
-    if (segmentationCodes.contains(identifier))
-        return segmentationCodes[identifier];
+QString Settings::segmentationCodeForObjectModel(const QString &identifier) const {
+    if (m_segmentationCodes.contains(identifier))
+        return m_segmentationCodes[identifier];
     else
         return "";
 }
 
-QString Settings::getIdentifier() {
-    return identifier;
+QString Settings::identifier() const {
+    return m_identifier;
 }
 
-QString Settings::getTrainingScriptPath() const
+QString Settings::trainingScriptPath() const
 {
-    return trainingScriptPath;
+    return m_trainingScriptPath;
 }
 
 void Settings::setTrainingScriptPath(const QString &value)
 {
-    trainingScriptPath = value;
+    m_trainingScriptPath = value;
 }
 
-QString Settings::getInferenceScriptPath() const
+QString Settings::inferenceScriptPath() const
 {
-    return inferenceScriptPath;
+    return m_inferenceScriptPath;
 }
 
 void Settings::setInferenceScriptPath(const QString &value)
 {
-    inferenceScriptPath = value;
+    m_inferenceScriptPath = value;
 }
 
-QString Settings::getNetworkConfigPath() const
+QString Settings::networkConfigPath() const
 {
-    return networkConfigPath;
+    return m_networkConfigPath;
 }
 
 void Settings::setNetworkConfigPath(const QString &value)
 {
-    networkConfigPath = value;
+    m_networkConfigPath = value;
 }
 
-QString Settings::getPythonInterpreterPath() const
+QString Settings::pythonInterpreterPath() const
 {
-    return pythonInterpreterPath;
+    return m_pythonInterpreterPath;
 }
 
 void Settings::setPythonInterpreterPath(const QString &value)
 {
-    pythonInterpreterPath = value;
+    m_pythonInterpreterPath = value;
+}
+
+Qt::MouseButton Settings::addCorrespondencePointMouseButton() const
+{
+    return m_addCorrespondencePointMouseButton;
+}
+
+void Settings::setAddCorrespondencePointMouseButton(
+        const Qt::MouseButton &addCorrespondencePointMouseButton)
+{
+    m_addCorrespondencePointMouseButton = addCorrespondencePointMouseButton;
+}
+
+Qt::MouseButton Settings::moveBackgroundImageRenderableMouseButton() const
+{
+    return m_moveBackgroundImageRenderableMouseButton;
+}
+
+void Settings::setMoveBackgroundImageRenderableMouseButton(
+        const Qt::MouseButton &moveBackgroundImageRenderableMouseButton)
+{
+    m_moveBackgroundImageRenderableMouseButton = moveBackgroundImageRenderableMouseButton;
+}
+
+Qt::MouseButton Settings::selectPoseRenderableMouseButton() const
+{
+    return m_selectPoseRenderableMouseButton;
+}
+
+void Settings::setSelectPoseRenderableMouseButton(
+        const Qt::MouseButton &selectPoseRenderableMouseButton)
+{
+    m_selectPoseRenderableMouseButton = selectPoseRenderableMouseButton;
+}
+
+Qt::MouseButton Settings::rotatePoseRenderableMouseButton() const
+{
+    return m_rotatePoseRenderableMouseButton;
+}
+
+void Settings::setRotatePoseRenderableMouseButton(
+        const Qt::MouseButton &rotatePoseRenderableMouseButton)
+{
+    m_rotatePoseRenderableMouseButton = rotatePoseRenderableMouseButton;
+}
+
+Qt::MouseButton Settings::translatePoseRenderableMouseButton() const
+{
+    return m_translatePoseRenderableMouseButton;
+}
+
+void Settings::setTranslatePoseRenderableMouseButton(
+        const Qt::MouseButton &translatePoseRenderableMouseButton)
+{
+    m_translatePoseRenderableMouseButton = translatePoseRenderableMouseButton;
+}
+
+Settings::Theme Settings::theme() const
+{
+    return m_theme;
+}
+
+void Settings::setTheme(const Settings::Theme &theme)
+{
+    m_theme = theme;
+}
+
+float Settings::click3DSize() const
+{
+    return m_click3DSize;
+}
+
+void Settings::setClick3DSize(float click3DSize)
+{
+    m_click3DSize = click3DSize;
 }

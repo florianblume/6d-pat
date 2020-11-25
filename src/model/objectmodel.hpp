@@ -2,13 +2,10 @@
 #define OBJECTMODEL_H
 
 #include <QString>
+#include <QSharedPointer>
 
 //! Class ObjectModel stores the URL to the 3D model of the object.
 class ObjectModel {
-
-private:
-    QString objectModelPath;
-    QString basePath;
 
 public:
     //! Constructor of class ObjectModel.
@@ -30,23 +27,29 @@ public:
     /*!
       \return the path to the object model
     */
-    QString getPath() const;
+    QString path() const;
 
     /*!
      * \brief getAbsolutePath Returns the absolute path to the object model, i.e. the base path concatenated with the object model path.
      * \return the absolute path to the object model
      */
-    QString getAbsolutePath() const;
+    QString absolutePath() const;
 
     /*!
      * \brief getBasePath Returns the base path to the folder where either the model is direclty located or located within a subfolder.
      * \return the base path
      */
-    QString getBasePath() const;
+    QString basePath() const;
 
     bool operator==(const ObjectModel &other);
 
     ObjectModel& operator=(const ObjectModel &other);
+
+private:
+    QString m_objectModelPath;
+    QString m_basePath;
 };
+
+typedef QSharedPointer<ObjectModel> ObjectModelPtr;
 
 #endif // OBJECTMODEL_H

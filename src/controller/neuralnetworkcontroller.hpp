@@ -8,7 +8,7 @@
 
 #include <QString>
 #include <QObject>
-#include <QVector>
+#include <QList>
 #include <QTimer>
 
 using namespace std;
@@ -30,7 +30,7 @@ public:
     ~NeuralNetworkController();
     void training(const QString &configPath);
     void inference(const QString &configPath);
-    void setImages(const QVector<Image> &images);
+    void setImages(const QList<ImagePtr> &images);
     void setPosesFilePath(const QString &filePath);
     void stop();
 
@@ -61,7 +61,7 @@ private:
     QString posesFilePath;
     QString imagesPath;
     QString segmentationImagesPath;
-    QVector<Image> images;
+    QList<ImagePtr> images;
 
     QTimer queryTimer;
 

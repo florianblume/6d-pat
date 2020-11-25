@@ -4,60 +4,103 @@
 #include "model/objectmodel.hpp"
 #include <QString>
 #include <QMap>
+#include <QSharedPointer>
 
-class Settings
-{
+class Settings {
+
 public:
-    Settings(QString identifier);
-    Settings(const Settings &preferences);
+    static const QMap<Qt::MouseButton, int> MOUSE_BUTTONS;
+
+    enum Theme {
+      Light,
+      Dark
+    };
+
+    Settings(const QString &identifier);
+    Settings(const Settings &settings);
     ~Settings();
 
     void setSegmentationCodeForObjectModel(const QString &identifier, const QString &code);
     void removeSegmentationCodeForObjectModel(const QString &identifier);
 
-    QMap<QString, QString> getSegmentationCodes() const;
+    QMap<QString, QString> segmentationCodes() const;
     void setSegmentationCodes(const QMap<QString, QString> codes);
 
-    QString getSegmentationCodeForObjectModel(const QString &identifier);
+    QString segmentationCodeForObjectModel(const QString &identifier) const;
 
-    QString getSegmentationImagesPath() const;
+    QString segmentationImagesPath() const;
     void setSegmentationImagePath(const QString &value);
 
-    QString getImagesPath() const;
+    QString imagesPath() const;
     void setImagesPath(const QString &value);
 
-    QString getObjectModelsPath() const;
+    QString objectModelsPath() const;
     void setObjectModelsPath(const QString &value);
 
-    QString getPosesFilePath() const;
+    QString posesFilePath() const;
     void setPosesFilePath(const QString &value);
 
-    QString getIdentifier();
+    QString identifier() const;
 
-    QString getTrainingScriptPath() const;
+    QString trainingScriptPath() const;
     void setTrainingScriptPath(const QString &value);
 
-    QString getInferenceScriptPath() const;
+    QString inferenceScriptPath() const;
     void setInferenceScriptPath(const QString &value);
 
-    QString getNetworkConfigPath() const;
+    QString networkConfigPath() const;
     void setNetworkConfigPath(const QString &value);
 
-    QString getPythonInterpreterPath() const;
+    QString pythonInterpreterPath() const;
     void setPythonInterpreterPath(const QString &value);
 
-private:
-    QMap<QString, QString> segmentationCodes;
-    QString segmentationImagesPath;
-    QString imagesPath;
-    QString objectModelsPath;
-    QString posesFilePath;
-    QString pythonInterpreterPath;
-    QString trainingScriptPath;
-    QString inferenceScriptPath;
-    QString networkConfigPath;
+    Qt::MouseButton addCorrespondencePointMouseButton() const;
+    void setAddCorrespondencePointMouseButton(
+            const Qt::MouseButton &addCorrespondencePointMouseButton);
 
-    QString identifier;
+    Qt::MouseButton moveBackgroundImageRenderableMouseButton() const;
+    void setMoveBackgroundImageRenderableMouseButton(
+            const Qt::MouseButton &moveBackgroundImageRenderableMouseButton);
+
+    Qt::MouseButton selectPoseRenderableMouseButton() const;
+    void setSelectPoseRenderableMouseButton(
+            const Qt::MouseButton &selectPoseRenderableMouseButton);
+
+    Qt::MouseButton rotatePoseRenderableMouseButton() const;
+    void setRotatePoseRenderableMouseButton(
+            const Qt::MouseButton &rotatePoseRenderableMouseButton);
+
+    Qt::MouseButton translatePoseRenderableMouseButton() const;
+    void setTranslatePoseRenderableMouseButton(
+            const Qt::MouseButton &translatePoseRenderableMouseButton);
+
+    Theme theme() const;
+    void setTheme(const Theme &theme);
+
+    float click3DSize() const;
+    void setClick3DSize(float click3DSize);
+
+private:
+    QString m_identifier;
+
+    QMap<QString, QString> m_segmentationCodes;
+    QString m_segmentationImagesPath;
+    QString m_imagesPath;
+    QString m_objectModelsPath;
+    QString m_posesFilePath;
+    QString m_pythonInterpreterPath;
+    QString m_trainingScriptPath;
+    QString m_inferenceScriptPath;
+    QString m_networkConfigPath;
+    Qt::MouseButton m_addCorrespondencePointMouseButton;
+    Qt::MouseButton m_moveBackgroundImageRenderableMouseButton;
+    Qt::MouseButton m_selectPoseRenderableMouseButton;
+    Qt::MouseButton m_rotatePoseRenderableMouseButton;
+    Qt::MouseButton m_translatePoseRenderableMouseButton;
+    float m_click3DSize;
+    Theme m_theme;
 };
+
+typedef QSharedPointer<Settings> SettingsPtr;
 
 #endif // SETTINGSITEM_H

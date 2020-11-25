@@ -6,11 +6,12 @@
 #include "settings/settingsstore.hpp"
 #include "view/mainwindow.hpp"
 #include "misc/global.hpp"
-#include "view/gallery/galleryobjectmodelmodel.hpp"
-#include "view/gallery/galleryimagemodel.hpp"
-#include "controller/poserecoverer.hpp"
+#include "controller/poseseditingcontroller.hpp"
 #include "controller/neuralnetworkcontroller.hpp"
 
+#include "view/splashscreen/splashscreen.hpp"
+
+#include <QApplication>
 #include <QScopedPointer>
 #include <QSharedPointer>
 #include <QMap>
@@ -19,13 +20,28 @@
 //! This class is responsible for the overall program to work.
 //! It maintains references to all the important parts and
 //! ensures them to work properly and updates or makes update-requests when necessary.
-class MainController : public QObject {
+class MainController : public QApplication {
     Q_OBJECT
 
 public:
-    MainController();
+    MainController(int &argc, char **argv, int = ApplicationFlags);
     ~MainController();
 
+    /*!
+     * \brief exec executes the startup of this controller and enters the event loop
+     * \return the error code, if any happened
+     */
+    int exec();
+
+Q_SIGNALS:
+    void reloadingData();
+
+private Q_SLOTS:
+    void onSettingsChanged(SettingsPtr settings);
+    void onReloadViewsRequested();
+    void onModelManagerStateChanged(ModelManager::State state);
+
+private:
     /*!
      * \brief initialize initializes this controller, i.e. sets up the necessary models and further initializes the view.
      */
@@ -35,43 +51,26 @@ public:
      * \brief showView shows the view of this controller.
      */
     void showView();
-
-private:
-
-    QScopedPointer<JsonLoadAndStoreStrategy> strategy;
-    QScopedPointer<CachingModelManager> modelManager;
-    UniquePointer<PoseCreator> poseCreator;
-    QScopedPointer<NeuralNetworkController> networkController;
-    MainWindow mainWindow;
-
-    QMap<QString, ObjectModel*> segmentationCodes;
-    QSharedPointer<SettingsStore> settingsStore;
-    QSharedPointer<Settings> currentSettings;
-    QString settingsIdentifier = "default";
-
-    GalleryImageModel *galleryImageModel = Q_NULLPTR;
-    GalleryObjectModelModel *galleryObjectModelModel = Q_NULLPTR;
-
     void initializeSettingsItem();
     void initializeMainWindow();
-    void setSegmentationCodesOnGalleryObjectModelModel();
 
-private Q_SLOTS:
-    void onImageClicked(Image* image, QPoint position);
-    void onObjectModelClicked(ObjectModel* objectModel, QVector3D position);
-    // The slots that will be called from the main window when the user selects abort creation
-    // from the menu or aborts creation in another way
-    void onPoseCreationInterrupted();
-    void onPoseCreationAborted();
-    void onSettingsChanged(const QString &identifier);
-    void resetPoseCreation();
-    void onPoseCreationRequested();
-    void onPosePredictionRequested();
-    void onPosePredictionRequestedForImages(QList<Image> images);
-    void performPosePredictionForImages(QList<Image> images);
-    void onNetworkTrainingFinished();
-    void onNetworkInferenceFinished();
-    void onFailedToLoadImages(const QString &message);
+private:
+    bool m_initialized = false;
+    SplashScreen* m_splashScreen;
+
+    // Keep order! Initializiation must happen in this way
+    QSharedPointer<SettingsStore> m_settingsStore;
+    QSharedPointer<Settings> m_currentSettings;
+    // Could be changed dynamically when implementing profiles
+    QString m_settingsIdentifier = "default";
+
+    QScopedPointer<JsonLoadAndStoreStrategy> m_strategy;
+    QScopedPointer<CachingModelManager> m_modelManager;
+    QThread *m_modelManagerThread;
+    QScopedPointer<PosesEditingController> m_poseEditingModel;
+    QScopedPointer<NeuralNetworkController> m_networkController;
+
+    QScopedPointer<MainWindow> m_mainWindow;
 };
 
 #endif // MAINCONTROLLER_H

@@ -27,24 +27,25 @@ public:
      * \brief TextFileLoadAndStoreStrategy Constructor of this strategy. The paths MUST be set aferwards to use it
      * properly, otherwise the strategy won't deliver any content.
      */
-    JsonLoadAndStoreStrategy(SettingsStore *settingsStore,
-                             const QString settingsIdentifier);
-
-    /*!
-     * \brief TextFileLoadAndStoreStrategy Convenience constructor setting the paths already.
-     * \param _imagesPath
-     * \param _objectModelsPath
-     * \param _posesPath
-     */
     JsonLoadAndStoreStrategy();
 
     ~JsonLoadAndStoreStrategy();
 
-    bool persistPose(Pose *pose, bool deletePose) override;
+    bool persistPose(const Pose &pose, bool deletePose) override;
 
-    QList<Image> loadImages() override;
+    void setImagesPath(const QString &imagesPath) override;
 
-    QList<ObjectModel> loadObjectModels() override;
+    void setSegmentationImagesPath(const QString &path) override;
+
+    QList<ImagePtr> loadImages() override;
+
+    QList<QString> imagesWithInvalidCameraMatrix() const override;
+
+    void setObjectModelsPath(const QString &objectModelsPath) override;
+
+    QList<ObjectModelPtr> loadObjectModels() override;
+
+    void setPosesFilePath(const QString &posesFilePath) override;
 
     /*!
      * \brief loadPoses Loads the poses at the given path. How the poses are stored depends on the
@@ -59,24 +60,27 @@ public:
      * \return the list of all stored poses
      * \throws an exception if the path to the folder that should hold the poses has not been set previously
      */
-    QList<Pose> loadPoses(const QList<Image> &images,
-                                              const QList<ObjectModel> &objectModels) override;
+    QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
+                               const QList<ObjectModelPtr> &objectModels) override;
+
+    QList<QString> posesWithInvalidPosesData() const override;
 
 protected slots:
-    void onSettingsChanged(const QString settingsIdentifier) override;
+    void onSettingsChanged(SettingsPtr settings) override;
 
 private slots:
     void onDirectoryChanged(const QString &path);
     void onFileChanged(const QString &filePath);
 
 private:
-
     //! Stores the path to the folder that holds the images
     QString imagesPath;
+    QList<QString> m_imagesWithInvalidCameraMatrix;
     //! Stores the path to the folder that holds the object models
     QString objectModelsPath;
     //! Stores the path to the already created poses
     QString posesFilePath;
+    QList<QString> m_posesWithInvalidPosesData;
     //! Stores the suffix that is used to try to load segmentation images
     QString segmentationImagesPath;
 
@@ -84,11 +88,15 @@ private:
 
     void connectWatcherSignals();
 
+    // We need to ignore changes to the file once after we have written
+    // a new pose to it because the model manager already emits a signal
+    // whenever a new pose has been added for example
+    // We only want this signal when the poses file has been changed
+    // externally
+    bool ignorePosesFileChanged = false;
+
     //! Internal methods to react to path changes
-    bool setImagesPath(const QString &path);
-    void setSegmentationImagesPath(const QString &path);
-    bool setObjectModelsPath(const QString &path);
-    bool setPosesFilePath(const QString &path);
+    bool setPath(const QString &path, QString &oldPath);
 };
 
 #endif // TEXTFILELOADANDSTORESTRATEGY_H
