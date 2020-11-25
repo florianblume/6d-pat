@@ -10,6 +10,10 @@ QPushButton:hover:!pressed {
     background-color: #c6e5ff;
 }
 
+QMainWindow {
+    background: white;
+}
+
 QPushButton:pressed {
     border: 1px solid #5eb6ff;
     border-radius: 1px;
@@ -37,6 +41,10 @@ QListView::item:selected {
     border: 1px solid #5eb6ff;
     border-radius: 1px;
     background-color: #9ed2ff;
+}
+
+QMenuBar {
+    background: transparent;
 }
 
 QMenuBar::item {

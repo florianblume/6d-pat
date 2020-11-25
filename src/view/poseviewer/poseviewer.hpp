@@ -40,6 +40,7 @@ public:
     ImagePtr currentlyViewedImage();
 
     void setSettingsStore(SettingsStore *settingsStore);
+    QSize imageSize();
 
 public Q_SLOTS:
     void setImage(ImagePtr image);

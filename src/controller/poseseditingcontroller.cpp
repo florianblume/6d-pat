@@ -393,6 +393,8 @@ QString correspondenceToString(QPoint point2D, QVector3D point3D) {
 void PosesEditingController::recoverPose() {
     // TODO show warnings in mainwindow
     switch (m_state) {
+        case ReadyForPoseCreation:
+            break;
         case Empty:
         case NotEnoughCorrespondences:
         case Missing2DPoint:
@@ -414,7 +416,7 @@ void PosesEditingController::recoverPose() {
         QVector3D point3D = m_points3D[i];
         QPoint point2D = m_points2D[i];
         objectPoints.push_back(cv::Point3f(point3D.x(), point3D.y(), point3D.z()));
-        imagePoints.push_back(cv::Point2f(point2D.x(), point2D.y()));
+        imagePoints.push_back(cv::Point2f(point2D.x(), m_mainWindow->poseViewer()->imageSize().height() - point2D.y()));
         qDebug() << correspondenceToString(point2D, point3D);
     }
 
@@ -471,7 +473,7 @@ void PosesEditingController::recoverPose() {
 
     addPose(newPose);
     m_mainWindow->setStatusBarTextStartAddingCorrespondences();
-    m_mainWindow->showPoseRecoveringProgressView(true);
+    m_mainWindow->showPoseRecoveringProgressView(false);
 }
 
 void PosesEditingController::abortPoseRecovering() {

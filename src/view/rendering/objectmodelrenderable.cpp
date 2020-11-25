@@ -107,6 +107,12 @@ void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader:
                     m_material->setSelected(m_selected);
 
                     phongMaterialParent->addComponent(m_material);
+                } else if (Qt3DRender::QGeometryRenderer * geometryRenderer = dynamic_cast<Qt3DRender::QGeometryRenderer *>(subChild)) {
+                    Qt3DRender::QGeometry *geometry = geometryRenderer->geometry();
+                    connect(geometry, &Qt3DRender::QGeometry::maxExtentChanged, [geometry, this](){
+                        QVector3D diff = geometry->maxExtent() - geometry->minExtent();
+                        m_material->setCirumfence(diff.length() / 200.f);
+                    });
                 }
 
                 Qt3DCore::QEntity *subChildEntity = (Qt3DCore::QEntity *)subChild;
@@ -130,6 +136,12 @@ void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader:
                         m_material->setTextureScale(subSubChild->property("textureScale").toFloat());
                         m_material->setSelected(m_selected);
                         isMaterial = true;
+                    } else if (Qt3DRender::QGeometryRenderer * geometryRenderer = dynamic_cast<Qt3DRender::QGeometryRenderer *>(subChild)) {
+                        Qt3DRender::QGeometry *geometry = geometryRenderer->geometry();
+                        connect(geometry, &Qt3DRender::QGeometry::maxExtentChanged, [geometry, this](){
+                            QVector3D diff = geometry->maxExtent() - geometry->minExtent();
+                            m_material->setCirumfence(diff.length() / 200.f);
+                        });
                     }
                     if (isMaterial) {
                         Qt3DCore::QComponent *oldMaterial = dynamic_cast<Qt3DCore::QComponent *>(subSubChild);

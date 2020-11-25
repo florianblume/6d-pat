@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QLayout>
+#include <QGraphicsBlurEffect>
 
 //! The main window of the application that holds the individual components.<
 MainWindow::MainWindow(QWidget *parent,
@@ -192,8 +193,10 @@ void MainWindow::setStatusBarText(const QString& text) {
 void MainWindow::showProgressView(bool show) {
     if (show) {
         progressDialog->show();
+        this->setGraphicsEffect(new QGraphicsBlurEffect);
     } else {
         progressDialog->close();
+        this->setGraphicsEffect({});
     }
 }
 
