@@ -232,13 +232,18 @@ void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
 }
 
 void MainWindow::displayWarning(const QString &title, const QString &text) {
-    QMessageBox::warning(this, title, text);
+    DisplayHelper::QMessageBoxPtr messageBox = DisplayHelper::messageBox(this,
+                                                                         QMessageBox::Warning,
+                                                                         title,
+                                                                         text,
+                                                                         "Ok", QMessageBox::AcceptRole);
+    messageBox->exec();
 }
 
 bool MainWindow::showSaveUnsavedChangesDialog() {
     DisplayHelper::QMessageBoxPtr messageBox = DisplayHelper::messageBox(this,
                                                                          QMessageBox::Warning,
-                                                                        "Unsaved pose modifications",
+                                                                         "Unsaved pose modifications",
                                                                          "You have unsaved modifications of the currently edited pose."
                                                                          " The action you just performed would discard these modifications. "
                                                                          "Save them now?",
@@ -356,7 +361,7 @@ void MainWindow::onModelManagerStateChanged(ModelManager::State state) {
                 message = "There were not enough segmentation images to match them with all images.";
                 break;
         }
-        displayWarning("An error occured in the data maanger", message);
+        displayWarning("An error occured in the data manger", message);
     }
 }
 

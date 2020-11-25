@@ -105,8 +105,8 @@ void SettingsStore::setCurrentSettings(const QString &identifier) {
     Q_EMIT currentSettingsChanged(m_currentSettings);
 }
 
-const QString SettingsStore::ORGANIZATION = "preferences";
-const QString SettingsStore::APPLICATION = "preferences";
+const QString SettingsStore::ORGANIZATION = "Floretti Konfetti Inc.";
+const QString SettingsStore::APPLICATION = "6D-PAT";
 const QString SettingsStore::PREFERENCES = "preferences";
 const QString SettingsStore::IMAGES_PATH = "imagesPath";
 const QString SettingsStore::OBJECT_MODELS_PATH = "objectModelsPath";
