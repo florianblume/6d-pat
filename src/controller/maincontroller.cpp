@@ -57,9 +57,14 @@ void MainController::initialize() {
             this, &MainController::onModelManagerStateChanged);
     m_mainWindow->poseViewer()->setSettingsStore(m_settingsStore.get());
     showView();
-    QPixmap pixmap(":/images/splash.png");
-    m_splashScreen = new QSplashScreen(pixmap);
+    m_splashScreen = new SplashScreen();
+    // Make it a infinite progress bar
+    m_splashScreen->setMaximum(0);
+    m_splashScreen->setMinimum(0);
     m_splashScreen->show();
+    QTimer::singleShot(500, [this](){
+        m_splashScreen->showProgressBar(true);
+    });
     m_poseEditingModel.reset(new PosesEditingController(Q_NULLPTR, m_modelManager.get(), m_mainWindow.get()));
     // This makes the ModelManager load data don't call it before creating the MainWindow as we
     // want to show the progress loading view in the ModelManager state change callback
@@ -108,6 +113,10 @@ void MainController::onModelManagerStateChanged(ModelManager::State state) {
         QTimer::singleShot(1000, m_splashScreen, &QWidget::close);
         m_initialized = true;
     } else if (state == ModelManager::Loading) {
-        m_mainWindow->showDataLoadingProgressView(true);
+        if (m_initialized) {
+            // Only show when initialized, otherwise we're showing the splash screen
+            // which shows a progress bar
+            m_mainWindow->showDataLoadingProgressView(true);
+        }
     }
 }

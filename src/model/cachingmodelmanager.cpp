@@ -205,7 +205,6 @@ bool CachingModelManager::removePose(const QString &id) {
 
 void CachingModelManager::reload() {
     Q_EMIT stateChanged(State::Loading);
-    QThread::sleep(10);
     m_images = loadAndStoreStrategy.loadImages();
     m_objectModels = loadAndStoreStrategy.loadObjectModels();
     m_poses = loadAndStoreStrategy.loadPoses(m_images, m_objectModels);

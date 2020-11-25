@@ -429,7 +429,7 @@ void PosesEditingController::recoverPose() {
     cv::Mat resultRotation;
     cv::Mat resultTranslation;
 
-    cv::solvePnP(objectPoints, imagePoints, cameraMatrix, coefficient, resultRotation, resultTranslation);
+    cv::solvePnPRansac(objectPoints, imagePoints, cameraMatrix, coefficient, resultRotation, resultTranslation);
 
     m_points2D.clear();
     m_mainWindow->poseViewer()->onPoseCreationAborted();

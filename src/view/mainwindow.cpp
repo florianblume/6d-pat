@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent,
     progressDialog->setRange(0, 0);
     progressDialog->setCancelButton(Q_NULLPTR);
     progressDialog->setModal(true);
-    progressDialog->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
+    progressDialog->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
     progressDialog->setFixedSize(progressDialog->size());
     // The controller handles showing the progress dialog externally
     //dataLoadingProgressDialog->show();

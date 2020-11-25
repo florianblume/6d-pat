@@ -9,7 +9,8 @@
 #include "controller/poseseditingcontroller.hpp"
 #include "controller/neuralnetworkcontroller.hpp"
 
-#include <QSplashScreen>
+#include "view/splashscreen/splashscreen.hpp"
+
 #include <QApplication>
 #include <QScopedPointer>
 #include <QSharedPointer>
@@ -56,7 +57,7 @@ private:
 
 private:
     bool m_initialized = false;
-    QSplashScreen* m_splashScreen;
+    SplashScreen* m_splashScreen;
 
     // Keep order! Initializiation must happen in this way
     QSharedPointer<SettingsStore> m_settingsStore;

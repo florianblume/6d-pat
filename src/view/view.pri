@@ -1,6 +1,7 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
+    $$PWD/splashscreen/splashscreen.hpp \
     view/settings/settingspathspage.hpp \
     view/gallery/loadingiconmodel.hpp \
     view/gallery/galleryobjectmodels.hpp \
@@ -29,6 +30,7 @@ HEADERS += \
     view/rendering/clickvisualizationrenderable.hpp
 
 SOURCES += \
+    $$PWD/splashscreen/splashscreen.cpp \
     view/gallery/loadingiconmodel.cpp \
     view/settings/settingspathspage.cpp \
     view/gallery/galleryobjectmodels.cpp \
