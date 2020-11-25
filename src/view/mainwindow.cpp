@@ -55,13 +55,6 @@ MainWindow::MainWindow(QWidget *parent,
     connect(ui->galleryRight, &Gallery::selectedItemChanged,
             this, &MainWindow::poseCreationAborted);
 
-    // Prevent crashing of the program when the user clicks too quickly in the
-    // object models gallery
-    connect(ui->poseEditor, &PoseEditor::loadingObjectModel,
-            ui->galleryRight, &Gallery::disable);
-    connect(ui->poseEditor, &PoseEditor::objectModelLoaded,
-            ui->galleryRight, &Gallery::enable);
-
     setStatusBarText("Ready.");
 
     progressDialog->close();

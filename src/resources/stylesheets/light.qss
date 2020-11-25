@@ -52,12 +52,13 @@ QMenuBar::item {
     background-color:transparent;
 }
 
-QMenuBar::item:hover:!pressed {
+QMenuBar::item:hover {
     padding: -1px;
     border: 1px solid #75c1ff;
     border-radius: 1px;
     background-color: #c6e5ff;
     padding: 3px 5px;
+    color: #c6e5ff;
 }
 
 QMenuBar::item:selected {

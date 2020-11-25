@@ -60,11 +60,7 @@ void ClickVisualizationMaterial::setSize(QSize size) {
     for (QPoint &click : m_clicks) {
         click.setX((int) (click.x() * aspectRatioWidth));
         click.setY((int) (click.y() * aspectRatioHeight));
-        qDebug() << click;
     }
-    qDebug() << aspectRatioHeight;
-    qDebug() << aspectRatioWidth;
-    qDebug() << m_size;
     this->m_size = size;
     udpateParameters();
 }

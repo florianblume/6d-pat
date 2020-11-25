@@ -70,12 +70,12 @@ void PoseViewer::removePose(PosePtr pose) {
 }
 
 void PoseViewer::setClicks(const QList<QPoint> &clicks) {
-    QList<QPoint> _clicks = clicks;
-    for (QPoint &click : _clicks) {
+    QList<QPoint> scaledClicks = clicks;
+    for (QPoint &click : scaledClicks) {
         click.setX((int) (click.x() * this->m_zoomMultiplier));
         click.setY((int) (click.y() * this->m_zoomMultiplier));
     }
-    m_poseViewer3DWidget->setClicks(_clicks);
+    m_poseViewer3DWidget->setClicks(scaledClicks);
 }
 
 void PoseViewer::setSliderZoomEnabled(bool enabled) {

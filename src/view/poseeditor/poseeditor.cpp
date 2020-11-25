@@ -36,17 +36,6 @@ PoseEditor::PoseEditor(QWidget *parent) :
             [this](){
         ui->buttonCopy->setEnabled(true);
     });
-    // To prevent clicking again in the object models list view because clicking too
-    // quickly crashes the program
-    connect(poseEditor3DWindow, &PoseEditor3DWindow::loadingObjectModel,
-            this, &PoseEditor::loadingObjectModel);
-    // After loading pass on the signal so that the ObjectModelsGallery recieves it, too
-    // and also react to the finishing of the loading and re-enable controls that
-    // have been deactivated
-    connect(poseEditor3DWindow, &PoseEditor3DWindow::objectModelLoaded,
-            this, &PoseEditor::objectModelLoaded);
-    connect(poseEditor3DWindow, &PoseEditor3DWindow::objectModelLoaded,
-            this, &PoseEditor::onObjectModelLoaded);
 }
 
 PoseEditor::~PoseEditor() {
@@ -321,6 +310,7 @@ void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
     currentlySelectedPose = selected;
 
     QModelIndex indexToSelect;
+    setEnabledPoseEditorControls(false);
 
     if (selected.isNull()) {
         resetControlsValues();
@@ -335,12 +325,7 @@ void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
         indexToSelect = ui->listViewPoses->model()->index(index, 0);
         poseEditor3DWindow->setObjectModel(*selected->objectModel());
         // The user selected a pose, deselected it and selected it again
-        if (previouslySelectedPose == selected && deselected.isNull()) {
-            // We have to emit this signal manually becaues the 3D viewer
-            // won't because nothing changes
-            Q_EMIT objectModelLoaded();
-            // Also activate pose invariant controls and editor controls
-            setEnabledPoseInvariantControls(true);
+        if (!selected.isNull()) {
             setEnabledPoseEditorControls(true);
         }
     }

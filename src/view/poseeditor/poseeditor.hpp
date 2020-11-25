@@ -49,11 +49,6 @@ public Q_SLOTS:
     void reset();
 
 Q_SIGNALS:
-    // Signals to make sure the object models gallery is enabled
-    // only when loading has finished
-    void loadingObjectModel();
-    void objectModelLoaded();
-
     void objectModelClickedAt(const QVector3D &position);
 
     void poseSelected(PosePtr pose);

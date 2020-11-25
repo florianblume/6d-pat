@@ -29,8 +29,6 @@ public:
 
 Q_SIGNALS:
     void positionClicked(const QVector3D &position);
-    void loadingObjectModel();
-    void objectModelLoaded();
 
 private Q_SLOTS:
     void onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status status);
@@ -40,7 +38,7 @@ private:
     Qt3DCore::QEntity *rootEntity;
     Qt3DRender::QObjectPicker *picker;
     Qt3DExtras::QOrbitCameraController *cameraController;
-    ObjectModelRenderable *objectModelRenderable;
+    ObjectModelRenderable *objectModelRenderable = nullptr;
 
     bool mouseDown = false;
     bool mouseMoved = false;

@@ -18,9 +18,8 @@
 #include <Qt3DRender/qpickingsettings.h>
 
 PoseEditor3DWindow::PoseEditor3DWindow()
-    : Qt3DExtras::Qt3DWindow(),
-      rootEntity(new Qt3DCore::QEntity) {
-    Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
+    : Qt3DExtras::Qt3DWindow() {
+    rootEntity = new Qt3DCore::QEntity();
     setRootEntity(rootEntity);
 
     Qt3DRender::QCamera *cameraEntity = this->camera();
@@ -60,9 +59,6 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     });
     connect(picker, &Qt3DRender::QObjectPicker::moved,
             this, &PoseEditor3DWindow::onPoseRenderableMoved);
-    // Needs to be placed after setRootEntity on the window because it doesn't work otherwise -> leave it here
-    objectModelRenderable = new ObjectModelRenderable(rootEntity);
-    connect(objectModelRenderable, &ObjectModelRenderable::statusChanged, this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
 
 }
 
@@ -71,14 +67,8 @@ PoseEditor3DWindow::~PoseEditor3DWindow() {
     objectModelRenderable->deleteLater();
 }
 
-void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status status) {
+void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status /*status*/) {
     camera()->viewAll();
-    if (status == Qt3DRender::QSceneLoader::Ready) {
-        // Delay firing the loaded signal because some objects still take some time to be properly loaded
-        QTimer::singleShot(700, [this](){
-            Q_EMIT objectModelLoaded();
-        });
-    }
 }
 
 void PoseEditor3DWindow::onPoseRenderableMoved() {
@@ -88,19 +78,29 @@ void PoseEditor3DWindow::onPoseRenderableMoved() {
 }
 
 void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
-    Q_EMIT loadingObjectModel();
+    if (objectModelRenderable) {
+        objectModelRenderable->setParent((Qt3DCore::QNode*) 0);
+        delete objectModelRenderable;
+    }
+    objectModelRenderable = new ObjectModelRenderable(rootEntity);
+    // Needs to be placed after setRootEntity on the window because it doesn't work otherwise -> leave it here
+    connect(objectModelRenderable, &ObjectModelRenderable::statusChanged, this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
     objectModelRenderable->setObjectModel(objectModel);
     objectModelRenderable->setEnabled(true);
     setClicks({});
 }
 
 void PoseEditor3DWindow::setClicks(const QList<QVector3D> &clicks) {
-    objectModelRenderable->setClicks(clicks);
+    if (objectModelRenderable) {
+        objectModelRenderable->setClicks(clicks);
+    }
 }
 
 void PoseEditor3DWindow::reset() {
     setClicks({});
-    objectModelRenderable->setEnabled(false);
+    if (objectModelRenderable) {
+        objectModelRenderable->setEnabled(false);
+    }
 }
 
 void PoseEditor3DWindow::mousePressEvent(QMouseEvent *e) {
