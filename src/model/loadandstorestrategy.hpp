@@ -27,16 +27,19 @@ public:
     enum Error {
         ImagesPathDoesNotExist,
         SegmentationImagesPathDoesNotExist,
+        NotEnoughSegmentationImages,
         CouldNotReadCamInfo,
         CamInfoDoesNotExist,
+        InvalidCameraMatrices,
         CamInfoPathIsNotAJSONFile,
         NoImagesFound,
         ObjectModelsPathDoesNotExist,
         ObjectModelsPathIsNotAFolder,
         PosesPathDoesNotExist,
         PosesPathIsNotReadable,
+        PosesWithInvalidPosesData,
         FailedToPersistPosePosesFileCouldNotBeRead,
-        FailedToPersistPosePosesPathIsNotAFile
+        FailedToPersistPosePosesPathIsNotAFile,
     };
 
     LoadAndStoreStrategy();
@@ -63,6 +66,8 @@ public:
      */
     virtual QList<ImagePtr> loadImages() = 0;
 
+    virtual QList<QString> imagesWithInvalidCameraMatrix() const = 0;
+
     virtual void setObjectModelsPath(const QString &objectModelsPath) = 0;
 
     /*!
@@ -80,6 +85,8 @@ public:
      */
     virtual QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
                                        const QList<ObjectModelPtr> &objectModels) = 0;
+
+    virtual QList<QString> posesWithInvalidPosesData() const = 0;
 
     void setSettingsStore(SettingsStore *value);
 

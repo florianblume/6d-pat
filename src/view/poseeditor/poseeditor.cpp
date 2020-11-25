@@ -50,6 +50,10 @@ void PoseEditor::setEnabledButtonSave(bool enabled) {
     ui->buttonSave->setEnabled(enabled);
 }
 
+void PoseEditor::reset3DViewOnPoseSelectionChange(bool reset) {
+    reset3DViewerOnPoseSelectionChange = reset;
+}
+
 void PoseEditor::setCurrentImage(ImagePtr image) {
     currentImage = image;
     setEnabledPoseInvariantControls(!currentImage.isNull());
@@ -315,7 +319,13 @@ void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
     if (selected.isNull()) {
         resetControlsValues();
         indexToSelect = ui->listViewPoses->model()->index(0, 0);
-        poseEditor3DWindow->reset();
+        // This check allows controlling externally when the 3D viewer is reset
+        // when selecting a null pose. Selecting a null pose also happens when
+        // the user selects different image to view from the gallery but we
+        // don't want the object model to hide in this case
+        if (reset3DViewerOnPoseSelectionChange) {
+            poseEditor3DWindow->reset();
+        }
         // Here we enable the controls directly and do not wait for the objectModelLoaded signal
         // by the 3D viewer because no object model will be loaded
         setEnabledPoseInvariantControls(!currentImage.isNull());

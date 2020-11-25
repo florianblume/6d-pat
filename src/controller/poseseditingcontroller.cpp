@@ -284,6 +284,8 @@ void PosesEditingController::onSelectedImageChanged(int index) {
     m_posesToRemove.clear();
     m_dirtyPoses.clear();
     m_unmodifiedPoses.clear();
+    // So that the object model doesn't get reset by selecting a new image
+    m_mainWindow->poseEditor()->reset3DViewOnPoseSelectionChange(false);
     // Do not reset the editor because then we reset the object model that
     // is being displayed -> Might become annoying when selecting the next
     // image showing the same object and having to search for the object
@@ -308,6 +310,7 @@ void PosesEditingController::onSelectedImageChanged(int index) {
         m_mainWindow->poseViewer()->setImage(m_currentImage);
         m_mainWindow->poseViewer()->setPoses(m_posesForImage);
     }
+    m_mainWindow->poseEditor()->reset3DViewOnPoseSelectionChange(true);
 }
 
 void PosesEditingController::onSelectedObjectModelChanged(int index) {

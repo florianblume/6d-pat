@@ -140,6 +140,9 @@ static QMatrix3x3 rotVectorFromJsonRotMatrix(QJsonArray &jsonRotationMatrix) {
 static ImagePtr createImageWithJsonParams(const QString& filename, const QString &segmentationFilename,
                                           const QString &imagesPath, QJsonObject &json) {
     QJsonObject parameters = json[filename].toObject();
+    if (!parameters.contains("K")) {
+        return ImagePtr();
+    }
     QJsonArray cameraMatrix = parameters["K"].toArray();
     float values[9] = {
         (float) cameraMatrix[0].toDouble(),
@@ -152,11 +155,22 @@ static ImagePtr createImageWithJsonParams(const QString& filename, const QString
         (float) cameraMatrix[7].toDouble(),
         (float) cameraMatrix[8].toDouble()};
     QMatrix3x3 qtCameraMatrix = QMatrix3x3(values);
-    return ImagePtr(new Image(filename, segmentationFilename, imagesPath, qtCameraMatrix));
+    float nearPlane = 50;
+    float farPlane = 2000;
+    if (parameters.contains("nearPlane")) {
+        nearPlane = (float) parameters["nearPlane"].toDouble();
+    }
+    if (parameters.contains("farPlane")) {
+        farPlane = (float) parameters["farPlane"].toDouble();
+    }
+    return ImagePtr(new Image(filename, segmentationFilename, imagesPath, qtCameraMatrix,
+                              nearPlane, farPlane));
 }
 
 QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     QList<ImagePtr> images;
+
+    m_imagesWithInvalidCameraMatrix.clear();
 
     // we do not need to throw an exception here, the only time the path cannot exist
     // is if this strategy was constructed with an empty path, all other methods of
@@ -199,6 +213,8 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     // Read in the camera parameters from the JSON file
     QFile jsonFile(QDir(imagesPath).filePath("info.json"));
 
+    bool foundImageWithInvalidCameraMatrix = false;
+
     if (imageFiles.size() > 0 && jsonFile.open(QFile::ReadOnly)) {
         QByteArray data = jsonFile.readAll();
         QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
@@ -206,19 +222,31 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
         for (int i = 0; i < imageFiles.size(); i ++) {
             QString image = imageFiles[i];
             QString imageFilename = QFileInfo(image).fileName();
+            ImagePtr newImage;
             if (segmentationImagesPathSet) {
+                if (i > segmentationImageFiles.size() - 1) {
+                    Q_EMIT error(NotEnoughSegmentationImages);
+                    return images;
+                }
                 QString segmentationImageFile = segmentationImageFiles[i];
                 QString segmentationImageFilePath =
                         QDir(segmentationImagesPath).absoluteFilePath(segmentationImageFile);
-                images.push_back(createImageWithJsonParams(imageFilename,
-                                                           segmentationImageFilePath,
-                                                           imagesPath,
-                                                           jsonObject));
+                newImage = createImageWithJsonParams(imageFilename,
+                                                     segmentationImageFilePath,
+                                                     imagesPath,
+                                                     jsonObject);
             } else {
-                images.push_back(createImageWithJsonParams(imageFilename,
-                                                           "",
-                                                           imagesPath,
-                                                           jsonObject));
+                newImage = createImageWithJsonParams(imageFilename,
+                                                     "",
+                                                     imagesPath,
+                                                     jsonObject);
+            }
+            if (!newImage) {
+                // This can only happen when the camera matrix is invalid
+                foundImageWithInvalidCameraMatrix = true;
+                m_imagesWithInvalidCameraMatrix.append(imageFilename);
+            } else {
+                images.push_back(newImage);
             }
         }
     } else if (imageFiles.size() > 0) {
@@ -228,7 +256,15 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
         Q_EMIT error(NoImagesFound);
     }
 
+    if (foundImageWithInvalidCameraMatrix) {
+        Q_EMIT error(InvalidCameraMatrices);
+    }
+
     return images;
+}
+
+QList<QString> JsonLoadAndStoreStrategy::imagesWithInvalidCameraMatrix() const {
+    return m_imagesWithInvalidCameraMatrix;
 }
 
 void JsonLoadAndStoreStrategy::setObjectModelsPath(const QString &objectModelsPath) {
@@ -299,12 +335,15 @@ QMap<QString, ObjectModelPtr> createObjectModelMap(const QList<ObjectModelPtr> &
 QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images,
                                                      const QList<ObjectModelPtr> &objectModels) {
     QList<PosePtr> poses;
+    m_posesWithInvalidPosesData.clear();
 
     //! See loadImages for why we don't throw an exception here
     if (!QFileInfo(posesFilePath).exists()) {
         Q_EMIT error(PosesPathDoesNotExist);
         return poses;
     }
+
+    bool foundPosesWithInvalidPosesData = false;
 
     QFile jsonFile(posesFilePath);
     if (jsonFile.open(QFile::ReadWrite)) {
@@ -323,9 +362,12 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
             int index = 0;
             for(const QJsonValue &poseEntryRaw : entriesForImage) {
                 QJsonObject poseEntry = poseEntryRaw.toObject();
-                Q_ASSERT(poseEntry.contains("R"));
-                Q_ASSERT(poseEntry.contains("t"));
-                Q_ASSERT(poseEntry.contains("obj"));
+                if (!poseEntry.contains("R") ||
+                    !poseEntry.contains("t") ||
+                    !poseEntry.contains("obj")) {
+                    foundPosesWithInvalidPosesData = true;
+                    continue;
+                }
 
                 //! Read rotation vector from json file
                 QJsonArray jsonRotationMatrix = poseEntry["R"].toArray();
@@ -382,7 +424,15 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
         Q_EMIT error(PosesPathIsNotReadable);
     }
 
+    if (foundPosesWithInvalidPosesData) {
+        Q_EMIT error(PosesWithInvalidPosesData);
+    }
+
     return poses;
+}
+
+QList<QString> JsonLoadAndStoreStrategy::posesWithInvalidPosesData() const {
+    return m_posesWithInvalidPosesData;
 }
 
 void JsonLoadAndStoreStrategy::onSettingsChanged(SettingsPtr settings) {

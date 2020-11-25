@@ -115,7 +115,8 @@ void PoseViewer::setImage(ImagePtr image) {
     }
     QString toDisplay = m_showingNormalImage ?  m_currentlyDisplayedImage->absoluteImagePath() :
                                     m_currentlyDisplayedImage->absoluteSegmentationImagePath();
-    m_poseViewer3DWidget->setBackgroundImage(toDisplay, image->getCameraMatrix());
+    m_poseViewer3DWidget->setBackgroundImage(toDisplay, image->getCameraMatrix(),
+                                             image->nearPlane(), image->farPlane());
 }
 
 void PoseViewer::reset() {
@@ -149,12 +150,17 @@ void PoseViewer::switchImage() {
                            (m_showingNormalImage ? fa::toggleon : fa::toggleoff),
                            18);
 
-    if (m_showingNormalImage)
+    if (m_showingNormalImage) {
         m_poseViewer3DWidget->setBackgroundImage(m_currentlyDisplayedImage->absoluteImagePath(),
-                                               m_currentlyDisplayedImage->getCameraMatrix());
-    else
+                                                 m_currentlyDisplayedImage->getCameraMatrix(),
+                                                 m_currentlyDisplayedImage->nearPlane(),
+                                                 m_currentlyDisplayedImage->farPlane());
+    } else {
         m_poseViewer3DWidget->setBackgroundImage(m_currentlyDisplayedImage->absoluteSegmentationImagePath(),
-                                               m_currentlyDisplayedImage->getCameraMatrix());
+                                                 m_currentlyDisplayedImage->getCameraMatrix(),
+                                                 m_currentlyDisplayedImage->nearPlane(),
+                                                 m_currentlyDisplayedImage->farPlane());
+    }
 
     if (m_showingNormalImage)
         qDebug() << "Setting viewer to display normal image.";

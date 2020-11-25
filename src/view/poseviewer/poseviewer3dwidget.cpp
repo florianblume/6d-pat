@@ -111,7 +111,8 @@ void PoseViewer3DWidget::initializeQt3D() {
     renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
 }
 
-void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix) {
+void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3x3 &cameraMatrix,
+                                            float nearPlane, float farPlane) {
     QImage loadedImage(image);
     this->m_imageSize = loadedImage.size();
     this->resize(loadedImage.size());

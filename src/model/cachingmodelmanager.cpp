@@ -40,17 +40,17 @@ void CachingModelManager::createConditionalCache() {
 void CachingModelManager::onDataChanged(int data) {
     Q_EMIT stateChanged(State::Loading);
     if (data == Images) {
-        m_images = loadAndStoreStrategy.loadImages();
+        m_images = m_loadAndStoreStrategy.loadImages();
         // Add to flag that poses have been changed too
         data |= Data::Poses;
     }
     if (data == ObjectModels) {
-        m_objectModels = loadAndStoreStrategy.loadObjectModels();
+        m_objectModels = m_loadAndStoreStrategy.loadObjectModels();
         // Add to flag that poses have been changed too
         data |= Data::Poses;
     }
     // We need to load poses no matter what
-    m_poses = loadAndStoreStrategy.loadPoses(m_images, m_objectModels);
+    m_poses = m_loadAndStoreStrategy.loadPoses(m_images, m_objectModels);
     createConditionalCache();
     Q_EMIT stateChanged(State::Ready);
     Q_EMIT dataChanged(data);
@@ -121,7 +121,7 @@ PosePtr CachingModelManager::addPose(ImagePtr image,
 
 PosePtr CachingModelManager::addPose(const Pose &pose) {
     // Persist the pose
-    if (!loadAndStoreStrategy.persistPose(pose, false)) {
+    if (!m_loadAndStoreStrategy.persistPose(pose, false)) {
         //! if there is an error persisting the pose for any reason we should not add the pose to this manager
         return PosePtr();
     }
@@ -159,7 +159,7 @@ bool CachingModelManager::updatePose(const QString &id,
     pose->setPosition(position);
     pose->setRotation(rotation);
 
-    if (!loadAndStoreStrategy.persistPose(*pose, false)) {
+    if (!m_loadAndStoreStrategy.persistPose(*pose, false)) {
         // if there is an error persisting the pose for any reason we should not keep the new values
         pose->setPosition(previousPosition);
         pose->setRotation(previousRotation);
@@ -185,7 +185,7 @@ bool CachingModelManager::removePose(const QString &id) {
         return false;
     }
 
-    if (!loadAndStoreStrategy.persistPose(*pose, true)) {
+    if (!m_loadAndStoreStrategy.persistPose(*pose, true)) {
         //! there was an error persistently removing the corresopndence, maybe wrong folder, maybe the pose didn't exist
         //! thus it doesn't make sense to remove the pose from this manager
         return false;
@@ -205,9 +205,9 @@ bool CachingModelManager::removePose(const QString &id) {
 
 void CachingModelManager::reload() {
     Q_EMIT stateChanged(State::Loading);
-    m_images = loadAndStoreStrategy.loadImages();
-    m_objectModels = loadAndStoreStrategy.loadObjectModels();
-    m_poses = loadAndStoreStrategy.loadPoses(m_images, m_objectModels);
+    m_images = m_loadAndStoreStrategy.loadImages();
+    m_objectModels = m_loadAndStoreStrategy.loadObjectModels();
+    m_poses = m_loadAndStoreStrategy.loadPoses(m_images, m_objectModels);
     createConditionalCache();
     Q_EMIT dataReady();
 }

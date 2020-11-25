@@ -39,6 +39,8 @@ public:
 
     QList<ImagePtr> loadImages() override;
 
+    QList<QString> imagesWithInvalidCameraMatrix() const override;
+
     void setObjectModelsPath(const QString &objectModelsPath) override;
 
     QList<ObjectModelPtr> loadObjectModels() override;
@@ -61,6 +63,8 @@ public:
     QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
                                const QList<ObjectModelPtr> &objectModels) override;
 
+    QList<QString> posesWithInvalidPosesData() const override;
+
 protected slots:
     void onSettingsChanged(SettingsPtr settings) override;
 
@@ -71,10 +75,12 @@ private slots:
 private:
     //! Stores the path to the folder that holds the images
     QString imagesPath;
+    QList<QString> m_imagesWithInvalidCameraMatrix;
     //! Stores the path to the folder that holds the object models
     QString objectModelsPath;
     //! Stores the path to the already created poses
     QString posesFilePath;
+    QList<QString> m_posesWithInvalidPosesData;
     //! Stores the suffix that is used to try to load segmentation images
     QString segmentationImagesPath;
 

@@ -99,7 +99,7 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
+   <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Mouse Controls</string>
@@ -119,13 +119,19 @@
           <verstretch>1</verstretch>
          </sizepolicy>
         </property>
+        <property name="toolTip">
+         <string>The mouse button to add a 2D point on the image in the pose viewer.</string>
+        </property>
         <property name="text">
-         <string>Add correspondence point</string>
+         <string>Add 2D correspondence point</string>
         </property>
        </widget>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="labelRotatePose">
+        <property name="toolTip">
+         <string>The mouse button to rotate a 3D object model of a pose in the pose viewer with. The pose has to be selected to be able to rotate it.</string>
+        </property>
         <property name="text">
          <string>Rotate pose</string>
         </property>
@@ -145,6 +151,9 @@
           <height>0</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>The mouse button to move the image in the pose viewer with.</string>
+        </property>
         <property name="text">
          <string>Move image</string>
         </property>
@@ -160,6 +169,9 @@
           <horstretch>1</horstretch>
           <verstretch>1</verstretch>
          </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>The mouse button to select a 3D object model of a pose in the pose viewer.</string>
         </property>
         <property name="text">
          <string>Select pose</string>
@@ -179,6 +191,9 @@
           <width>20</width>
           <height>0</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The mouse button to move, i.e. translate, the 3D object model of a pose in the pose viewer. The pose needs to be selected to be able to translate it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>Translate pose</string>
@@ -209,42 +224,6 @@
       </item>
       <item row="4" column="1">
        <widget class="QComboBox" name="comboBoxRotatePose"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Appearance</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="1">
-       <widget class="QRadioButton" name="radioButtonLight">
-        <property name="text">
-         <string>Light</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="labelTheme">
-        <property name="text">
-         <string>Theme</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QRadioButton" name="radioButtonDark">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Dark</string>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>

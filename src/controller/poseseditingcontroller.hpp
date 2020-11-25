@@ -95,7 +95,7 @@ private:
     QMap<PosePtr, bool> m_dirtyPoses;
 
     // Pose Recovering
-    int m_minimumNumberOfPoints = 4;
+    int m_minimumNumberOfPoints = 6;
     PoseRecoveringState m_state = Empty;
     QList<QPoint> m_points2D;
     QList<QVector3D> m_points3D;

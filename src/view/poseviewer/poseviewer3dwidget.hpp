@@ -39,7 +39,8 @@ public:
 
     void initializeQt3D() override;
 
-    void setBackgroundImage(const QString& image, QMatrix3x3 cameraMatrix);
+    void setBackgroundImage(const QString& image, const QMatrix3x3 &cameraMatrix,
+                            float nearPlane, float farPlane);
     void setPoses(const QList<PosePtr> &poses);
     void addPose(PosePtr pose);
     void removePose(PosePtr pose);
@@ -154,12 +155,6 @@ private:
     Qt::MouseButton clickedMouseButton;
 
     QSize m_imageSize;
-
-    // TODO Read from file
-    float farPlane = 2000.f;
-    float nearPlane = 100.f;
-
-    float oldDepth = -1.f;
 
     SettingsPtr settings;
 

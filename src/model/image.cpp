@@ -9,19 +9,25 @@ Image::Image()
 
 }
 
-Image::Image(const QString& imagePath, const QString& basePath, QMatrix3x3 cameraMatrix)
+Image::Image(const QString& imagePath, const QString& basePath, QMatrix3x3 cameraMatrix,
+             float nearPlane, float farPlane)
     : m_imagePath(imagePath),
       m_segmentationImagePath(""),
       m_basePath(basePath),
-      m_cameraMatrix(cameraMatrix) {
+      m_cameraMatrix(cameraMatrix),
+      m_nearPlane(nearPlane),
+      m_farPlane(farPlane) {
 }
 
 Image::Image(const QString& imagePath, const QString& segmentationImagePath,
-             const QString& basePath, QMatrix3x3 cameraMatrix)
+             const QString& basePath, QMatrix3x3 cameraMatrix,
+             float nearPlane, float farPlane)
     : m_imagePath(imagePath),
       m_segmentationImagePath(segmentationImagePath),
       m_basePath(basePath),
-      m_cameraMatrix(cameraMatrix) {
+      m_cameraMatrix(cameraMatrix),
+      m_nearPlane(nearPlane),
+      m_farPlane(farPlane) {
 }
 
 Image::Image(const Image &other) {
@@ -70,4 +76,12 @@ Image& Image::operator=(const Image &other) {
     m_segmentationImagePath = other.m_segmentationImagePath;
     m_cameraMatrix = other.m_cameraMatrix;
     return *this;
+}
+
+float Image::farPlane() const {
+    return m_farPlane;
+}
+
+float Image::nearPlane() const {
+    return m_nearPlane;
 }

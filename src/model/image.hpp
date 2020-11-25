@@ -21,7 +21,7 @@ public:
       \param imagePath the path to the image relative to the base path
       \param basePath the base path to the folder where this image is directly located or within a subfolder
     */
-    Image(const QString& imagePath, const QString& basePath, QMatrix3x3 cameraMatrix);
+    Image(const QString& imagePath, const QString& basePath, QMatrix3x3 cameraMatrix, float nearPlane, float farPlane);
 
     //! Constructor of class Image.
     /*!
@@ -31,7 +31,7 @@ public:
       \param segmentationImagePath the path to the segmentation image
     */
     Image(const QString& imagePath, const QString& segmentationImagePath,
-          const QString& basePath, QMatrix3x3 cameraMatrix);
+          const QString& basePath, QMatrix3x3 cameraMatrix, float nearPlane, float farPlane);
 
     Image(const Image &other);
 
@@ -73,11 +73,17 @@ public:
 
     Image& operator=(const Image &other);
 
+    float nearPlane() const;
+
+    float farPlane() const;
+
 private:
     QString m_imagePath;
     QString m_segmentationImagePath;
     QString m_basePath;
     QMatrix3x3 m_cameraMatrix;
+    float m_nearPlane;
+    float m_farPlane;
 
 };
 

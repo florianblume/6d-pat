@@ -29,6 +29,16 @@ public:
     ~PoseEditor();
     void setEnabledButtonRecoverPose(bool enabled);
     void setEnabledButtonSave(bool enabled);
+    /*!
+     * \brief reset3DViewOnPoseSelectionChange cryptic name for a function that
+     * simply sets this bool value so that the PoseEditingController can set it to
+     * false to keep the PoseEditor from resetting the 3D viewer when selecting
+     * a different image (we don't want to reset the 3D viewer in thise case
+     * because then the user has to search for it again but likely the next
+     * image shows the same object model)
+     * \param reset
+     */
+    void reset3DViewOnPoseSelectionChange(bool reset);
 
 public Q_SLOTS:
     // We don't actually need the image, only to check
@@ -124,6 +134,7 @@ private:
     // when we receive the selected pose changed signal from the PoseEditingController
     bool ignorePoseSelectionChanges = false;
 
+    bool reset3DViewerOnPoseSelectionChange = true;
 };
 
 #endif // CORRESPONDENCEEDITORCONTROLS_H

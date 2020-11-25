@@ -30,7 +30,7 @@ class ModelManager : public QObject {
 
 protected:
     //! The strategy that is used to persist and also to load entities
-    LoadAndStoreStrategy& loadAndStoreStrategy;
+    LoadAndStoreStrategy& m_loadAndStoreStrategy;
 
 public:
     enum State {

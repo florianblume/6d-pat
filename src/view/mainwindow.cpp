@@ -346,6 +346,15 @@ void MainWindow::onModelManagerStateChanged(ModelManager::State state) {
             case LoadAndStoreStrategy::PosesPathIsNotReadable:
                 message = "The specified poses file is not readable.";
                 break;
+            case LoadAndStoreStrategy::InvalidCameraMatrices:
+                message = "There were invalid camera matrices in the cam.info file.";
+                break;
+            case LoadAndStoreStrategy::PosesWithInvalidPosesData:
+                message = "There were invalid entries for poses in the poses file.";
+                break;
+            case LoadAndStoreStrategy::NotEnoughSegmentationImages:
+                message = "There were not enough segmentation images to match them with all images.";
+                break;
         }
         displayWarning("An error occured in the data maanger", message);
     }
