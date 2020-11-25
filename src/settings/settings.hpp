@@ -77,6 +77,9 @@ public:
     Theme theme() const;
     void setTheme(const Theme &theme);
 
+    float click3DSize() const;
+    void setClick3DSize(float click3DSize);
+
 private:
     QString m_identifier;
 
@@ -94,6 +97,7 @@ private:
     Qt::MouseButton m_selectPoseRenderableMouseButton;
     Qt::MouseButton m_rotatePoseRenderableMouseButton;
     Qt::MouseButton m_translatePoseRenderableMouseButton;
+    float m_click3DSize;
     Theme m_theme;
 };
 

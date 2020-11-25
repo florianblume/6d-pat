@@ -3,6 +3,7 @@
 
 #include "model/objectmodel.hpp"
 #include "view/rendering/objectmodelrenderable.hpp"
+#include "settings/settingsstore.hpp"
 
 #include <QString>
 #include <QList>
@@ -22,6 +23,7 @@ public:
     void setObjectModel(const ObjectModel &objectModel);
     void setClicks(const QList<QVector3D> &clicks);
     void reset();
+    void setSettingsStore(SettingsStore *settingsStore);
 
     void mousePressEvent(QMouseEvent *e) override;
 
@@ -33,12 +35,15 @@ Q_SIGNALS:
 private Q_SLOTS:
     void onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status status);
     void onPoseRenderableMoved();
+    void onCurrentSettingsChanged(SettingsPtr settings);
 
 private:
     Qt3DCore::QEntity *rootEntity;
     Qt3DRender::QObjectPicker *picker;
     Qt3DExtras::QOrbitCameraController *cameraController;
-    ObjectModelRenderable *objectModelRenderable = nullptr;
+    ObjectModelRenderable *objectModelRenderable = Q_NULLPTR;
+
+    SettingsStore *m_settingsStore = Q_NULLPTR;
 
     bool mouseDown = false;
     bool mouseMoved = false;

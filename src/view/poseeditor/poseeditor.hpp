@@ -39,6 +39,7 @@ public:
      * \param reset
      */
     void reset3DViewOnPoseSelectionChange(bool reset);
+    void setSettingsStore(SettingsStore *settingsStore);
 
 public Q_SLOTS:
     // We don't actually need the image, only to check

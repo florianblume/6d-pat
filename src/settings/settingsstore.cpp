@@ -33,6 +33,7 @@ void SettingsStore::saveCurrentSettings() {
                       Settings::MOUSE_BUTTONS[m_currentSettings->rotatePoseRenderableMouseButton()]);
     settings.setValue(TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON,
                       Settings::MOUSE_BUTTONS[m_currentSettings->translatePoseRenderableMouseButton()]);
+    settings.setValue(CLICK_3D_SIZE, m_currentSettings->click3DSize());
     settings.endGroup();
 
     //! Persist the object color codes so that the user does not have to enter them at each program start
@@ -87,6 +88,7 @@ void SettingsStore::setCurrentSettings(const QString &identifier) {
     settingsPointer->setRotatePoseRenderableMouseButton(
                 Settings::MOUSE_BUTTONS.keys().at(
                     settings.value(ROTATE_POSE_RENDERABLE_MOUSE_BUTTON, Settings::MOUSE_BUTTONS[Qt::RightButton]).toInt()));
+    settingsPointer->setClick3DSize(settings.value(CLICK_3D_SIZE, 0.5).toFloat());
     // TODO read mouse buttons
     settings.endGroup();
 
@@ -121,3 +123,4 @@ const QString SettingsStore::MOVE_BACKGROUNDIMAGE_RENDERABLE_MOUSE_BUTTON = "mov
 const QString SettingsStore::SELECT_POSE_RENDERABLE_MOUSE_BUTTON = "selectPoseRenderableMouseButton";
 const QString SettingsStore::ROTATE_POSE_RENDERABLE_MOUSE_BUTTON = "rotatePoseRenderableMouseButton";
 const QString SettingsStore::TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON = "translatePoseRenderableMouseButton";
+const QString SettingsStore::CLICK_3D_SIZE = "click3dsize";

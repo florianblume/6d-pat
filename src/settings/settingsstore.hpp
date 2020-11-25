@@ -79,6 +79,7 @@ private:
     static const QString SELECT_POSE_RENDERABLE_MOUSE_BUTTON;
     static const QString ROTATE_POSE_RENDERABLE_MOUSE_BUTTON;
     static const QString TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON;
+    static const QString CLICK_3D_SIZE;
 };
 
 #endif // PREFERENCESSTORE_H

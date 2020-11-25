@@ -28,6 +28,7 @@ private Q_SLOTS:
     void comboBoxSelectPoseSelectedIndexChanged(int index);
     void comboBoxTranslatePoseSelectedIndexChanged(int index);
     void comboBoxRotatePoseSelectedIndexChanged(int index);
+    void doubleSpinBoxClick3DCircumferenceChanged(double value);
 
 private:
     void setComboBoxSelectedForMouseButton(QComboBox *comboBox, Qt::MouseButton button);

@@ -53,7 +53,6 @@ private:
     void showView();
     void initializeSettingsItem();
     void initializeMainWindow();
-    void setPathsOnLoadAndStoreStrategy();
 
 private:
     bool m_initialized = false;

@@ -63,17 +63,28 @@ PoseEditor3DWindow::PoseEditor3DWindow()
 }
 
 PoseEditor3DWindow::~PoseEditor3DWindow() {
-    objectModelRenderable->setParent((Qt3DCore::QNode *) 0);
-    objectModelRenderable->deleteLater();
+    if (objectModelRenderable) {
+        objectModelRenderable->setParent((Qt3DCore::QNode *) 0);
+        objectModelRenderable->deleteLater();
+    }
 }
 
-void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status /*status*/) {
+void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status status) {
     camera()->viewAll();
+    if (status == Qt3DRender::QSceneLoader::Ready) {
+        objectModelRenderable->setClickCircumference(m_settingsStore->currentSettings()->click3DSize());
+    }
 }
 
 void PoseEditor3DWindow::onPoseRenderableMoved() {
     if (mouseDown) {
         mouseMoved = true;
+    }
+}
+
+void PoseEditor3DWindow::onCurrentSettingsChanged(SettingsPtr settings) {
+    if (objectModelRenderable) {
+        objectModelRenderable->setClickCircumference(settings->click3DSize());
     }
 }
 
@@ -87,6 +98,9 @@ void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
     connect(objectModelRenderable, &ObjectModelRenderable::statusChanged, this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
     objectModelRenderable->setObjectModel(objectModel);
     objectModelRenderable->setEnabled(true);
+    if (m_settingsStore) {
+        objectModelRenderable->setClickCircumference(m_settingsStore->currentSettings()->click3DSize());
+    }
     setClicks({});
 }
 
@@ -101,6 +115,17 @@ void PoseEditor3DWindow::reset() {
     if (objectModelRenderable) {
         objectModelRenderable->setEnabled(false);
     }
+}
+
+void PoseEditor3DWindow::setSettingsStore(SettingsStore *settingsStore) {
+    Q_ASSERT(settingsStore);
+    if (!this->m_settingsStore) {
+        disconnect(settingsStore, &SettingsStore::currentSettingsChanged,
+                   this, &PoseEditor3DWindow::onCurrentSettingsChanged);
+    }
+    this->m_settingsStore = settingsStore;
+    connect(settingsStore, &SettingsStore::currentSettingsChanged,
+            this, &PoseEditor3DWindow::onCurrentSettingsChanged);
 }
 
 void PoseEditor3DWindow::mousePressEvent(QMouseEvent *e) {

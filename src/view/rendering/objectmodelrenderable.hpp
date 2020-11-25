@@ -42,6 +42,7 @@ public Q_SLOTS:
     void setSelected(bool selected);
     void setHovered(bool hovered);
     void setOpacity(float opacity);
+    void setClickCircumference(float circumference);
 
 private Q_SLOTS:
     void onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status);

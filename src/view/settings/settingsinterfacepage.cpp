@@ -36,6 +36,7 @@ void SettingsInterfacePage::setSettings(Settings* settings) {
                                       settings->translatePoseRenderableMouseButton());
     setComboBoxSelectedForMouseButton(ui->comboBoxRotatePose,
                                       settings->rotatePoseRenderableMouseButton());
+    ui->doubleSpinBoxClick3DCircumference->setValue(settings->click3DSize());
 }
 
 void SettingsInterfacePage::comboBoxAddCorrespondencePointSelectedIndexChanged(int index) {
@@ -65,6 +66,12 @@ void SettingsInterfacePage::comboBoxTranslatePoseSelectedIndexChanged(int index)
 void SettingsInterfacePage::comboBoxRotatePoseSelectedIndexChanged(int index) {
     if (settings) {
         settings->setRotatePoseRenderableMouseButton(Settings::MOUSE_BUTTONS.keys()[index]);
+    }
+}
+
+void SettingsInterfacePage::doubleSpinBoxClick3DCircumferenceChanged(double value) {
+    if (settings) {
+        settings->setClick3DSize(value);
     }
 }
 

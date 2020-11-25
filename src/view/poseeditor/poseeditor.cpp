@@ -54,6 +54,10 @@ void PoseEditor::reset3DViewOnPoseSelectionChange(bool reset) {
     reset3DViewerOnPoseSelectionChange = reset;
 }
 
+void PoseEditor::setSettingsStore(SettingsStore *settingsStore) {
+    poseEditor3DWindow->setSettingsStore(settingsStore);
+}
+
 void PoseEditor::setCurrentImage(ImagePtr image) {
     currentImage = image;
     setEnabledPoseInvariantControls(!currentImage.isNull());

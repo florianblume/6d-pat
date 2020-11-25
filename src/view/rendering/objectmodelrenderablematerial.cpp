@@ -139,7 +139,7 @@ void ObjectModelRenderableMaterial::setDiffuseColor(const QColor &color) {
     m_diffuseParameter->setValue(color);
 }
 
-void ObjectModelRenderableMaterial::setCirumfence(float circumfence) {
+void ObjectModelRenderableMaterial::setClickCirumference(float circumfence) {
     m_circumfenceParameter->setValue(circumfence);
 }
 

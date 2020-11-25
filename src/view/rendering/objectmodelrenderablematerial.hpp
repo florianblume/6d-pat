@@ -46,7 +46,7 @@ public Q_SLOTS:
     void setDiffuseTexture(Qt3DRender::QAbstractTexture *diffuse);
     void setTextureScale(float textureScale);
     void setDiffuseColor(const QColor &color);
-    void setCirumfence(float circumfence);
+    void setClickCirumference(float circumfence);
     void setSelected(bool selected);
     void setHovered(bool hovered);
     void setOpacity(float opacity);

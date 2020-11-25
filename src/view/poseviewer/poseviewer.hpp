@@ -38,7 +38,6 @@ public:
     explicit PoseViewer(QWidget *parent = 0);
     ~PoseViewer();
     ImagePtr currentlyViewedImage();
-
     void setSettingsStore(SettingsStore *settingsStore);
     QSize imageSize();
 

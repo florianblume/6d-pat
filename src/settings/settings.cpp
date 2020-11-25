@@ -189,3 +189,13 @@ void Settings::setTheme(const Settings::Theme &theme)
 {
     m_theme = theme;
 }
+
+float Settings::click3DSize() const
+{
+    return m_click3DSize;
+}
+
+void Settings::setClick3DSize(float click3DSize)
+{
+    m_click3DSize = click3DSize;
+}

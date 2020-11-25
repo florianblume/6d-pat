@@ -42,7 +42,10 @@ void MainController::initialize() {
     m_currentSettings.reset(new Settings(tmp));
     m_strategy.reset(new JsonLoadAndStoreStrategy());
     m_strategy->moveToThread(m_modelManagerThread);
-    setPathsOnLoadAndStoreStrategy();
+    m_strategy->setImagesPath(m_currentSettings->imagesPath());
+    m_strategy->setObjectModelsPath(m_currentSettings->objectModelsPath());
+    m_strategy->setPosesFilePath(m_currentSettings->posesFilePath());
+    m_strategy->setSegmentationImagesPath(m_currentSettings->segmentationImagesPath());
     m_modelManager.reset(new CachingModelManager(*m_strategy.data()));
     connect(this, &MainController::reloadingData,
             m_modelManager.get(), &ModelManager::reload);
@@ -56,6 +59,7 @@ void MainController::initialize() {
     connect(m_modelManager.get(), &ModelManager::stateChanged,
             this, &MainController::onModelManagerStateChanged);
     m_mainWindow->poseViewer()->setSettingsStore(m_settingsStore.get());
+    m_mainWindow->poseEditor()->setSettingsStore(m_settingsStore.get());
     showView();
     m_splashScreen = new SplashScreen();
     // Make it a infinite progress bar
@@ -75,13 +79,6 @@ void MainController::showView() {
     m_mainWindow->show();
     m_mainWindow->raise();
     m_mainWindow->repaint();
-}
-
-void MainController::setPathsOnLoadAndStoreStrategy() {
-    m_strategy->setImagesPath(m_currentSettings->imagesPath());
-    m_strategy->setObjectModelsPath(m_currentSettings->objectModelsPath());
-    m_strategy->setPosesFilePath(m_currentSettings->posesFilePath());
-    m_strategy->setSegmentationImagesPath(m_currentSettings->segmentationImagesPath());
 }
 
 void MainController::onSettingsChanged(SettingsPtr settings) {
