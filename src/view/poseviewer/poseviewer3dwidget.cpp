@@ -119,6 +119,9 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
     if (backgroundImageRenderable.isNull()) {
         backgroundImageRenderable = new BackgroundImageRenderable(root, image);
         backgroundImageRenderable->addComponent(backgroundLayer);
+        // Only set the image position the first time
+        move(-loadedImage.width() / 2 + ((QWidget*) this->parent())->width() / 2,
+             -loadedImage.height() / 2 + ((QWidget*) this->parent())->height() / 2);
     } else {
         backgroundImageRenderable->setImage(image);
     }
@@ -135,8 +138,6 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, QMatrix3x3 cam
                                                 0,                0,                     -1, 0);
     posesCamera->setProjectionMatrix(projectionMatrix);
     backgroundImageRenderable->setEnabled(true);
-    // TODO remove
-    move(-500, -500);
 }
 
 void PoseViewer3DWidget::setPoses(const QList<PosePtr> &poses) {

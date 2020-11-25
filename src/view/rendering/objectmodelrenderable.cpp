@@ -111,7 +111,7 @@ void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader:
                     Qt3DRender::QGeometry *geometry = geometryRenderer->geometry();
                     connect(geometry, &Qt3DRender::QGeometry::maxExtentChanged, [geometry, this](){
                         QVector3D diff = geometry->maxExtent() - geometry->minExtent();
-                        m_material->setCirumfence(diff.length() / 200.f);
+                        m_material->setCirumfence(diff.length() / 250.f);
                     });
                 }
 
@@ -140,7 +140,7 @@ void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader:
                         Qt3DRender::QGeometry *geometry = geometryRenderer->geometry();
                         connect(geometry, &Qt3DRender::QGeometry::maxExtentChanged, [geometry, this](){
                             QVector3D diff = geometry->maxExtent() - geometry->minExtent();
-                            m_material->setCirumfence(diff.length() / 200.f);
+                            m_material->setCirumfence(diff.length() / 250.f);
                         });
                     }
                     if (isMaterial) {
