@@ -18,9 +18,8 @@ The program allows you to select a folder and view the images contained in it in
 
 ## Requirements
 
-1. Qt >= 5.6
+1. Qt >= 5.14
 2. OpenCV >= 4.0
-3. Assimp >= 4.1
 4. OpenGL >= 3.0
 5. g++ >= 7.3
 
