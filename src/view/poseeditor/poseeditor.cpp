@@ -92,12 +92,14 @@ void PoseEditor::addPose(PosePtr pose) {
     // respectively
     setEnabledAllControls(true);
     ui->buttonCreate->setEnabled(false);
+
     poseEditor3DWindow->setClicks({});
     poses.append(pose);
     // Add the pose to the list view and select it
     // but do not react to selection change
     ignorePoseSelectionChanges = true;
     setPosesOnPosesListView(pose->id());
+    setPoseValuesOnControls(*pose);
 }
 
 void PoseEditor::removePose(PosePtr pose) {

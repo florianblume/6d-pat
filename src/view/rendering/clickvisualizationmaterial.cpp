@@ -18,7 +18,7 @@ ClickVisualizationMaterial::ClickVisualizationMaterial(Qt3DCore::QNode *parent)
     , m_clickColorsParameter(new Qt3DRender::QParameter(QStringLiteral("colors[0]"), QVariantList()))
     , m_clickCountParameter(new Qt3DRender::QParameter(QStringLiteral("clickCount"), 0))
     // Click size
-    , m_circumfenceParameter(new Qt3DRender::QParameter(QStringLiteral("circumfence"), 3.0)) {
+    , m_circumfenceParameter(new Qt3DRender::QParameter(QStringLiteral("circumfence"), 2.0)) {
 
     m_shaderProgram->setVertexShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/clicks.vert"))));
     m_shaderProgram->setFragmentShaderCode(Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/clicks.frag"))));

@@ -4,6 +4,7 @@
 #include "view/gallery/galleryobjectmodels.hpp"
 #include "misc/generalhelper.hpp"
 
+#include <iostream>
 #include <QList>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/core/core.hpp>
@@ -406,59 +407,49 @@ void PosesEditingController::recoverPose() {
 
     m_mainWindow->showPoseRecoveringProgressView(true);
 
-    std::vector<cv::Point3f> objectPoints;
     std::vector<cv::Point2f> imagePoints;
+    std::vector<cv::Point3f> objectPoints;
 
-    QImage loadedImage = QImage(m_currentImage->absoluteImagePath());
-
-    qDebug() << "Creating pose for the following points:";
     for (int i = 0; i < m_points2D.size(); i ++) {
         QVector3D point3D = m_points3D[i];
         QPoint point2D = m_points2D[i];
         objectPoints.push_back(cv::Point3f(point3D.x(), point3D.y(), point3D.z()));
-        imagePoints.push_back(cv::Point2f(point2D.x(), m_mainWindow->poseViewer()->imageSize().height() - point2D.y()));
+        imagePoints.push_back(cv::Point2f(point2D.x(), point2D.y()));
         qDebug() << correspondenceToString(point2D, point3D);
     }
 
-    cv::Mat cameraMatrix =
-            (cv::Mat_<float>(3,3) << m_currentImage->getCameraMatrix()(0, 0), 0, m_currentImage->getCameraMatrix()(0, 2),
-                                     0 , m_currentImage->getCameraMatrix()(1, 1), m_currentImage->getCameraMatrix()(1, 2),
-                                     0, 0, 1);
-    cv::Mat coefficient = cv::Mat::zeros(4,1,cv::DataType<float>::type);
+    // Setup camera matrix
+    float values[9] = {m_currentImage->getCameraMatrix()(0, 0), 0, m_currentImage->getCameraMatrix()(0, 2),
+                       0 , m_currentImage->getCameraMatrix()(1, 1), m_currentImage->getCameraMatrix()(1, 2),
+                       0, 0, 1};
+    cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32F, values);
 
-    cv::Mat resultRotation;
-    cv::Mat resultTranslation;
+    // Setup coefficient matrix
+    cv::Mat distCoeffs(4,1,cv::DataType<float>::type);
+    distCoeffs.at<float>(0) = 0;
+    distCoeffs.at<float>(1) = 0;
+    distCoeffs.at<float>(2) = 0;
+    distCoeffs.at<float>(3) = 0;
 
-    cv::solvePnPRansac(objectPoints, imagePoints, cameraMatrix, coefficient, resultRotation, resultTranslation);
+    cv::Mat rvec(3,1,cv::DataType<float>::type);
+    cv::Mat tvec(3,1,cv::DataType<float>::type);
 
-    m_points2D.clear();
-    m_mainWindow->poseViewer()->onPoseCreationAborted();
-    m_points3D.clear();
-    m_mainWindow->poseEditor()->onPoseCreationAborted();
+    cv::solvePnP(objectPoints, imagePoints, cameraMatrix, distCoeffs, rvec, tvec);
 
-    for (int i = 0; i < resultTranslation.size[0]; i++) {
-        for (int j = 0; j < resultTranslation.size[1]; j++) {
-            qDebug() << "Result translation [" + QString::number(i) + ", " +
-                                                 QString::number(j) + "]: " +
-                                                 QString::number(resultTranslation.at<float>(i, j));
-        }
-    }
+    qDebug() << "Result translation: " << tvec.at<float>(0, 0) << ", "
+                                       << tvec.at<float>(1, 0) << ", "
+                                       << tvec.at<float>(2, 0);
 
-    for (int i = 0; i < resultRotation.size[0]; i++) {
-        for (int j = 0; j < resultRotation.size[1]; j++) {
-            qDebug() << "Result rotation [" + QString::number(i) + ", " +
-                                              QString::number(j) + "]: " +
-                                              QString::number(resultRotation.at<float>(i, j));
-        }
-    }
+    qDebug() << "Result rotation: " << rvec.at<float>(0, 0) << ", "
+                                    << rvec.at<float>(1, 0) << ", "
+                                    << rvec.at<float>(2, 0);
 
-    // The adding process already notifies observers of the new correspondnece
-    QVector3D position(resultTranslation.at<float>(0, 0),
-                       resultTranslation.at<float>(1, 0),
-                       resultTranslation.at<float>(2, 0));
-    // Conversion from radians to degrees
     cv::Mat rotMatrix;
-    cv::Rodrigues(resultRotation, rotMatrix);
+    cv::Rodrigues(rvec, rotMatrix);
+
+    QVector3D position(tvec.at<float>(0, 0),
+                       tvec.at<float>(1, 0),
+                       tvec.at<float>(2, 0));
     QMatrix3x3 rotationMatrix(new float[9] {
         rotMatrix.at<float>(0, 0), rotMatrix.at<float>(0, 1), rotMatrix.at<float>(0, 2),
         rotMatrix.at<float>(1, 0), rotMatrix.at<float>(1, 1), rotMatrix.at<float>(1, 2),
@@ -473,6 +464,10 @@ void PosesEditingController::recoverPose() {
 
     addPose(newPose);
     m_mainWindow->setStatusBarTextStartAddingCorrespondences();
+    m_points2D.clear();
+    m_mainWindow->poseViewer()->onPoseCreationAborted();
+    m_points3D.clear();
+    m_mainWindow->poseEditor()->onPoseCreationAborted();
     m_mainWindow->showPoseRecoveringProgressView(false);
 }
 
