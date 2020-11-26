@@ -1,7 +1,7 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    $$PWD/splashscreen/splashscreen.hpp \
+    view/splashscreen/splashscreen.hpp \
     view/settings/settingspathspage.hpp \
     view/gallery/loadingiconmodel.hpp \
     view/gallery/galleryobjectmodels.hpp \
@@ -27,10 +27,11 @@ HEADERS += \
     view/gallery/resizeimagesrunnable.hpp \
     view/rendering/objectmodelrenderable.hpp \
     view/rendering/clickvisualizationmaterial.hpp \
-    view/rendering/clickvisualizationrenderable.hpp
+    view/rendering/clickvisualizationrenderable.hpp \
+    view/tutorialscreen/tutorialscreen.hpp
 
 SOURCES += \
-    $$PWD/splashscreen/splashscreen.cpp \
+    view/splashscreen/splashscreen.cpp \
     view/gallery/loadingiconmodel.cpp \
     view/settings/settingspathspage.cpp \
     view/gallery/galleryobjectmodels.cpp \
@@ -56,10 +57,11 @@ SOURCES += \
     view/rendering/objectmodelrenderable.cpp \
     view/rendering/objectmodelrenderablematerial.cpp \
     view/rendering/clickvisualizationmaterial.cpp \
-    view/rendering/clickvisualizationrenderable.cpp
+    view/rendering/clickvisualizationrenderable.cpp \
+    view/tutorialscreen/tutorialscreen.cpp
 
 FORMS += \
-    $$PWD/breadcrumb/breadcrumbview.ui \
+    view/breadcrumb/breadcrumbview.ui \
     view/settings/settingspathspage.ui \
     view/mainwindow.ui \
     view/gallery/gallery.ui \

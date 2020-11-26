@@ -196,7 +196,7 @@
             </size>
            </property>
            <property name="title">
-            <string>Pose</string>
+            <string>Poses</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0">
             <property name="spacing">
@@ -662,7 +662,7 @@
             </size>
            </property>
            <property name="title">
-            <string>Copy From</string>
+            <string>Copy poses from</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_5">
             <property name="leftMargin">

@@ -29,6 +29,9 @@ MainWindow::MainWindow(QWidget *parent,
     // The controller handles showing the progress dialog externally
     //dataLoadingProgressDialog->show();
 
+    //tutorialScreen = new TutorialScreen(this);
+    //tutorialScreen->setGeometry(this->geometry());
+
     statusBar()->addPermanentWidget(statusBarLabel, 1);
     setStatusBarText(QString("Loading..."));
     connect(modelManager, &ModelManager::stateChanged,
@@ -177,6 +180,15 @@ void MainWindow::showEvent(QShowEvent *e) {
     }
     showInitialized = true;
     QMainWindow::showEvent(e);
+}
+
+void MainWindow::resizeEvent(QResizeEvent *e) {
+    QMainWindow::resizeEvent(e);
+    if (tutorialScreen) {
+        tutorialScreen->setGeometry(0, 0,
+                                    this->geometry().width(), this->geometry().height());
+        tutorialScreen->setCurrentViewWindow(QRect(100, 100, 100, 100));
+    }
 }
 
 void MainWindow::setStatusBarText(const QString& text) {

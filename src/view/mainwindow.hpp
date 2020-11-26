@@ -8,6 +8,7 @@
 #include "view/poseeditor/poseeditor.hpp"
 #include "view/gallery/gallery.hpp"
 #include "view/gallery/galleryobjectmodels.hpp"
+#include "view/tutorialscreen/tutorialscreen.hpp"
 
 #include <QGuiApplication>
 #include <QMainWindow>
@@ -37,6 +38,7 @@ public:
     */
     virtual void closeEvent(QCloseEvent *event) override;
     void showEvent(QShowEvent *e) override;
+    void resizeEvent(QResizeEvent *e) override;
 
     void abortPoseCreation();
     void setStatusBarTextStartAddingCorrespondences();
@@ -143,12 +145,14 @@ private:
 
     bool showInitialized = false;
 
+    TutorialScreen *tutorialScreen = Q_NULLPTR;
+
     // The label that displays the status of the program, like how many pose points have
     // been added, etc.
     QLabel *statusBarLabel = new QLabel();
 
     SettingsStore *settingsStore = Q_NULLPTR;
-    ModelManager* modelManager;
+    ModelManager *modelManager;
 
     QProgressDialog *progressDialog;
 

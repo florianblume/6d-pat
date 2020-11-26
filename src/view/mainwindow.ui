@@ -881,7 +881,7 @@
   </action>
   <action name="actionTutorial">
    <property name="text">
-    <string>Tutorial</string>
+    <string>Tutorial Screen</string>
    </property>
   </action>
   <action name="actionAbort_Pose_Creation">

@@ -1,4 +1,6 @@
 #include "settingsstore.hpp"
+#include "misc/global.hpp"
+
 #include <QSettings>
 #include <QDir>
 #include <QDebug>
@@ -58,11 +60,11 @@ void SettingsStore::setCurrentSettings(const QString &identifier) {
     const QString &fullIdentifier = PREFERENCES + identifier;
     settings.beginGroup(fullIdentifier);
     settingsPointer->setImagesPath(
-                settings.value(IMAGES_PATH, QDir::homePath()).toString());
+                settings.value(IMAGES_PATH, Global::NO_PATH).toString());
     settingsPointer->setObjectModelsPath(
-                settings.value(OBJECT_MODELS_PATH, QDir::homePath()).toString());
+                settings.value(OBJECT_MODELS_PATH, Global::NO_PATH).toString());
     settingsPointer->setPosesFilePath(
-                settings.value(POSES_FILE_PATH, QDir::homePath()).toString());
+                settings.value(POSES_FILE_PATH, Global::NO_PATH).toString());
     settingsPointer->setSegmentationImagePath(
                 settings.value(SEGMENTATION_IMAGES_PATH, "").toString());
     settingsPointer->setPythonInterpreterPath(
@@ -106,7 +108,7 @@ void SettingsStore::setCurrentSettings(const QString &identifier) {
 }
 
 const QString SettingsStore::ORGANIZATION = "Floretti Konfetti Inc.";
-const QString SettingsStore::APPLICATION = "6D-PAT";
+const QString SettingsStore::APPLICATION = "6D-PAT 2";
 const QString SettingsStore::PREFERENCES = "preferences";
 const QString SettingsStore::IMAGES_PATH = "imagesPath";
 const QString SettingsStore::OBJECT_MODELS_PATH = "objectModelsPath";

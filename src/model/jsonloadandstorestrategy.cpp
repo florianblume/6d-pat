@@ -1,5 +1,6 @@
 #include "jsonloadandstorestrategy.hpp"
 #include "misc/generalhelper.hpp"
+#include "misc/global.hpp"
 
 #include <opencv2/core/mat.hpp>
 
@@ -169,8 +170,15 @@ static ImagePtr createImageWithJsonParams(const QString& filename, const QString
 
 QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     QList<ImagePtr> images;
-
     m_imagesWithInvalidCameraMatrix.clear();
+
+    if (imagesPath == Global::NO_PATH) {
+        // The only time when the images path can be equal to the NO_PATH is
+        // when the program is first started -> then we show a hint in the
+        // breaadcrumbs to select an actual path, i.e. not a problem that we
+        // return early here
+        return images;
+    }
 
     // we do not need to throw an exception here, the only time the path cannot exist
     // is if this strategy was constructed with an empty path, all other methods of
@@ -275,6 +283,14 @@ void JsonLoadAndStoreStrategy::setObjectModelsPath(const QString &objectModelsPa
 QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
     QList<ObjectModelPtr> objectModels;
 
+    if (objectModelsPath == Global::NO_PATH) {
+        // The only time when the object models path can be equal to the NO_PATH is
+        // when the program is first started -> then we show a hint in the
+        // breaadcrumbs to select an actual path, i.e. not a problem that we
+        // return early here
+        return objectModels;
+    }
+
     // See explanation under loadImages for why we don't throw an exception here
     QFileInfo info(objectModelsPath);
     if (!info.exists()) {
@@ -336,6 +352,14 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
                                                      const QList<ObjectModelPtr> &objectModels) {
     QList<PosePtr> poses;
     m_posesWithInvalidPosesData.clear();
+
+    if (posesFilePath == Global::NO_PATH) {
+        // The only time when the poses file path can be equal to the NO_PATH is
+        // when the program is first started -> then we show a hint in the
+        // breaadcrumbs to select an actual path, i.e. not a problem that we
+        // return early here
+        return poses;
+    }
 
     //! See loadImages for why we don't throw an exception here
     if (!QFileInfo(posesFilePath).exists()) {
@@ -451,7 +475,10 @@ void JsonLoadAndStoreStrategy::onSettingsChanged(SettingsPtr settings) {
 }
 
 bool JsonLoadAndStoreStrategy::setPath(const QString &path, QString &oldPath) {
-    if (!QFileInfo(path).exists())
+    // Only check if path exists if the new path is not equal to NO_PATH
+    // NO_PATH is the path set in the beginning when the program is launched the
+    // first time
+    if (!QFileInfo(path).exists() && path != Global::NO_PATH)
         return false;
     if (oldPath == path)
         return true;

@@ -68,7 +68,7 @@ RUN tar -czvf ${libPath}/opencv.tar.gz /usr/local/lib/libopencv_calib3d.so /usr/
                                        /usr/local/lib/libopencv_imgproc.so /usr/local/lib/libopencv_imgproc.so.4* \
                                        /usr/local/include/opencv4
 
-FROM ubuntu:19.10 AS runtime
+FROM vookimedlo/ubuntu-qt:5.14_gcc_bionic AS runtime
 
 ARG prefix=/usr/local
 ARG binPath=$prefix/bin
@@ -81,9 +81,7 @@ RUN apt-get update \
       gcc \
       build-essential \
       libtbb2 \
-      cmake \ 
-      qt5-default \
-      libassimp-dev
+      cmake
 
 # Copy compiled libraries
 COPY --from=builder ${libPath}/opencv.tar.gz ${libPath}/opencv.tar.gz

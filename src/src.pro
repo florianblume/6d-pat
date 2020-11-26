@@ -20,11 +20,11 @@ lessThan(QT_MAJOR_VERSION, 5) {
     error(OpenCV not found. Please install it.)
 }
 
-INCLUDEPATH += /usr/local/include/opencv4 \
-            += ../../../include
+INCLUDEPATH += ../../../include/opencv4 \
+            += ../../../include/qt3dwidget
 
-LIBS += -L/usr/local/lib/ -lopencv_core -lopencv_calib3d \
-        -L../../../lib/ -lqt3dwidget
+LIBS += -L../../../lib/opencv4 -lopencv_core -lopencv_calib3d \
+        -L../../../lib/qt3dwidget -lqt3dwidget
 
 include(controller/controller.pri)
 include(misc/misc.pri)
