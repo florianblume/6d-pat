@@ -15,11 +15,6 @@ lessThan(QT_MINOR_VERSION, 14) {
     }
 }
 
-# If you have installed OpenCV to a different location, remove the check or alter the location
-!exists(/usr/local/lib/libopencv_core.so){
-    error(OpenCV not found. Please install it.)
-}
-
 INCLUDEPATH += ../../../include/opencv4 \
             += ../../../include/qt3dwidget
 
