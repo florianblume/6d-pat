@@ -14,7 +14,7 @@ The program allows you to select a folder and view the images contained in it in
 
 **Requirements and Setup are only provided for Ubuntu. Given the portability of the used frameworks a setup on Windows, etc. should be possible, as well.**
 
-# Manual Installation
+# Installation
 
 ## Requirements
 
@@ -27,9 +27,11 @@ The program allows you to select a folder and view the images contained in it in
 
 1. To install Qt, open the terminal and execute `sudo apt install qt5-default`.
 2. To be able to build or debug the program, install Qt-Creator `sudo apt install qtcreator`.
-3. Please build OpenCV yourself, if you haven't done so already. The OpenCV version that is installable under Linux does not output correct poses. You can download OpenCV from (here)[https://github.com/opencv/opencv]. A tutorial how to make OpenCV can be found (here)[https://docs.opencv.org/3.4/d7/d9f/tutorial_linux_install.html].
+3. Please build OpenCV yourself, if you haven't done so already. The OpenCV version that is installable under Linux does not output correct poses. You can download OpenCV from [here](https://github.com/opencv/opencv). A tutorial how to make OpenCV can be found [here](https://docs.opencv.org/3.4/d7/d9f/tutorial_linux_install.html).
 5. OpenGL should be installed in Ubuntu already.
 6. Open Qt-Creator installed in step 2 and open the project. You should now be able to run (i.e. build) the program.
+
+**Check out the wiki pages for other setups!**
 
 # Getting Started
 
