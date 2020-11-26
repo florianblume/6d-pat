@@ -27,37 +27,9 @@ The program allows you to select a folder and view the images contained in it in
 
 1. To install Qt, open the terminal and execute `sudo apt install qt5-default`.
 2. To be able to build or debug the program, install Qt-Creator `sudo apt install qtcreator`.
-3. Please build OpenCV yourself, if you haven't done so already. The OpenCV version that is installable under Linux does not output correct poses. You can download OpenCV from [here](https://github.com/opencv/opencv). A tutorial how to make OpenCV can be found [here](https://docs.opencv.org/3.4/d7/d9f/tutorial_linux_install.html).
-4. To install Assimp. open the terminal and execute `sudo apt install libassimp-dev`.
+3. Please build OpenCV yourself, if you haven't done so already. The OpenCV version that is installable under Linux does not output correct poses. You can download OpenCV from (here)[https://github.com/opencv/opencv]. A tutorial how to make OpenCV can be found (here)[https://docs.opencv.org/3.4/d7/d9f/tutorial_linux_install.html].
 5. OpenGL should be installed in Ubuntu already.
 6. Open Qt-Creator installed in step 2 and open the project. You should now be able to run (i.e. build) the program.
-
-# Docker
-
-You can use the pre-built Docker image [florianblume/6dpat](https://hub.docker.com/repository/docker/florianblume/6dpat) and run 6D-PAT by first running
-
-    xhost +local:root
-
-and then
-
-    docker run -ti --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix florianblume/6dpat
-
-I feel like it feels a bit laggy but if you want to try out the program without going through the installation process this is your best shot.
-
-# Including custom-built libraries
-
-You can also build 1 - 3 from the respective sources. Please refer to the documentations how to achieve this. If you want to use your custom built OpenCV and Assimp you have to adjust the `INCLUDEPATH` and `LIBS` variable in 6dpatsources.pri. For example, change the path to the OpenCV include files from `/usr/include/opencv` to `/usr/local/include/opencv`.
-
-# Manually including Qt libraries
-
-Please be aware that the OpenCV and Assimp libraries are currently loaded from `/usr/lib/x86_64-linux-gnu`, where `apt` installs them. If you want to use a different Qt version than the one installed by `apt` you have to include the Qt libraries manually before including OpenCV and Assimp. The `INCLUDEPATH` AND `LIBS` variables could look like this in this case (leave the rest of the `INCLUDEPATH` of course):
-```
-INCLUDEPATH += /path/to/qt5.XX/5.XX/gcc_64/include
-
-LIBS += -L/path/to/qt5.XX/5.XX/gcc_64/lib -lQt5Core -lQt5Gui
-        -L/usr/lib/x86_64-linux-gnu -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_calib3d -lassimp
-```
-Instead of building the program from sources you can also use the pre-built binaries in the folder of the same name. This version expects Qt version 5.9 at apt's default installation location (`/usr/lib/x86_64-linux-gnu`) together with OpenCV and Assimp.
 
 # Getting Started
 
