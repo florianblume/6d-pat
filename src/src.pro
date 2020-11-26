@@ -7,11 +7,11 @@ CONFIG += c++11
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
-lessThan(QT_MAJOR_VERSION, 5) {
-    error(Needs at least Qt > 5.9 to run - found $$QT_VERSION.)
+lessThan(QT_MINOR_VERSION, 14) {
+    error(Needs at least Qt >= 5.14 to run - found $$QT_VERSION.)
 } else {
-    lessThan(QT_MINOR_VERSION, 9) {
-        error(Needs at least Qt > 5.9 to run - found $$QT_VERSION.)
+    lessThan(QT_MAJOR_VERSION, 5) {
+        error(Needs at least Qt >= 5.14 to run - found $$QT_VERSION.)
     }
 }
 
@@ -23,8 +23,11 @@ lessThan(QT_MAJOR_VERSION, 5) {
 INCLUDEPATH += ../../../include/opencv4 \
             += ../../../include/qt3dwidget
 
-LIBS += -L../../../lib/opencv4 -lopencv_core -lopencv_calib3d \
-        -L../../../lib/qt3dwidget -lqt3dwidget
+LIBS += -L../../../libs/opencv4 -lopencv_core -lopencv_calib3d \
+        -L../../../libs/qt3dwidget -lqt3dwidget
+
+QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/libs/opencv4\'"
+QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/libs/qt3dwidget\'"
 
 include(controller/controller.pri)
 include(misc/misc.pri)
