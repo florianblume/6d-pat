@@ -16,6 +16,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: qmake
-      run: qmake 6dpat.pro
+      run: /opt/qt514/bin/qmake 6dpat.pro
     - name: make
       run: make
