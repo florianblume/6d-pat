@@ -18,18 +18,13 @@ The program allows you to select a folder and view the images contained in it in
 
 ## Requirements
 
-1. Qt >= 5.14
-2. OpenCV >= 4.0
-4. OpenGL >= 3.0
-5. g++ >= 7.3
+* OpenGL >= 3.0
 
 ## Setup
 
 1. Download the latest release from the releases page.
-2. You need to install Qt >= 5.14. Go to their website and download the installer.
-3. Please build OpenCV yourself, if you haven't done so already. The OpenCV version that is installable under Linux does not output correct poses. You can download OpenCV from [here](https://github.com/opencv/opencv). A tutorial how to make OpenCV can be found [here](https://docs.opencv.org/3.4/d7/d9f/tutorial_linux_install.html).
-4. OpenGL should be installed in Ubuntu already.
-5. You should now be able to run the program.
+2. All needed libraries are included in the bundle.
+5. You should now be able to run the program directly.
 
 **Check out the wiki pages for other setups!**
 
