@@ -7,6 +7,8 @@ CONFIG += c++11
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
+# This check is only there for when you build the project with your
+# own Qt libraries
 lessThan(QT_MINOR_VERSION, 14) {
     error(Needs at least Qt >= 5.14 to run - found $$QT_VERSION.)
 } else {
@@ -18,11 +20,13 @@ lessThan(QT_MINOR_VERSION, 14) {
 INCLUDEPATH += ../../../include/opencv4 \
             += ../../../include/qt3dwidget
 
-LIBS += -L../../../libs/opencv4 -lopencv_core -lopencv_calib3d \
-        -L../../../libs/qt3dwidget -lqt3dwidget
+LIBS += -L../../../lib/qt/lib -lQt5Core -lQt5Gui -lQt53DCore -lQt53DInput -lQt53DRender -lQt53DExtras \
+        -L../../../lib/opencv4 -lopencv_core -lopencv_calib3d \
+        -L../../../lib/qt3dwidget -lqt3dwidget
 
-QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/libs/opencv4\'"
-QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/libs/qt3dwidget\'"
+QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/lib/qt\'"
+QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/lib/opencv4\'"
+QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/lib/qt3dwidget\'"
 
 include(controller/controller.pri)
 include(misc/misc.pri)
