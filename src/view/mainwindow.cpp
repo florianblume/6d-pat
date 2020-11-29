@@ -355,10 +355,10 @@ void MainWindow::onModelManagerStateChanged(ModelManager::State state) {
                 message = "The specified poses file does not exist.";
                 break;
             case LoadAndStoreStrategy::FailedToPersistPosePosesFileCouldNotBeRead:
-                message = "Could not read the poses file while trying to save a pose.";
+                message = "Could not read the poses file (error while trying to save poses).";
                 break;
             case LoadAndStoreStrategy::FailedToPersistPosePosesPathIsNotAFile:
-                message = "The specified poses file is not a file (error while trying to save a pose).";
+                message = "The specified poses file is not a file (error while trying to save poses).";
                 break;
             case LoadAndStoreStrategy::PosesPathIsNotReadable:
                 message = "The specified poses file is not readable.";
@@ -378,7 +378,7 @@ void MainWindow::onModelManagerStateChanged(ModelManager::State state) {
 }
 
 const QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";
-const QString MainWindow::SETTINGS_PROGRAM_NAME = "Otiat";
+const QString MainWindow::SETTINGS_PROGRAM_NAME = "6D-PAT";
 const QString MainWindow::SETTINGS_GROUP_NAME = "mainwindow";
 const QString MainWindow::WINDOW_IS_FULLSCREEN_KEY = "isfullscreen";
 const QString MainWindow::WINDOW_SIZE_KEY = "windowsize";

@@ -236,6 +236,7 @@ void PosesEditingController::savePosesOrRestoreState() {
 bool PosesEditingController::_savePoses(bool showDialog) {
     QList<PosePtr> posesToSave = m_dirtyPoses.keys(true);
     m_mainWindow->poseEditor()->setEnabledButtonSave(false);
+    bool noErrorSavingPoses = true;
     if (posesToSave.size() || m_posesToAdd.size() || m_posesToRemove.size()) {
         qDebug() << posesToSave.size() + m_posesToAdd.size() + m_posesToRemove.size() << " poses dirty.";
         bool result = !showDialog;
@@ -247,23 +248,36 @@ bool PosesEditingController::_savePoses(bool showDialog) {
         if (!showDialog || result) {
             qDebug() << "Adding " << m_posesToAdd.size() << " poses.";
             for (const PosePtr &pose : m_posesToAdd) {
-                m_modelManager->addPose(*pose);
+                PosePtr newPose = m_modelManager->addPose(*pose);
+                // If there was an error saving the pose, the returned pointer will be null
+                noErrorSavingPoses &= !newPose.isNull();
             }
-            m_posesToAdd.clear();
             qDebug() << "Saving " << posesToSave.size() << " poses.";
             for (const PosePtr &pose : posesToSave) {
                 // No need to display a warning here because if something goes wrong
                 // the LoadAndStoreStrategy already notifies the MainWindow
-                m_modelManager->updatePose(pose->id(), pose->position(), pose->rotation().toRotationMatrix());
-                m_dirtyPoses[pose] = false;
-                m_unmodifiedPoses[pose->id()] = {.position = pose->position(),
-                                                 .rotation = pose->rotation()};
+                bool updatedPoseSuccessfully = m_modelManager->updatePose(pose->id(),
+                                                                          pose->position(),
+                                                                          pose->rotation().toRotationMatrix());
+                noErrorSavingPoses &= updatedPoseSuccessfully;
+                if (updatedPoseSuccessfully) {
+                    m_dirtyPoses[pose] = false;
+                    m_unmodifiedPoses[pose->id()] = {.position = pose->position(),
+                                                     .rotation = pose->rotation()};
+                }
             }
             qDebug() << "Removing " << m_posesToRemove.size() << " poses.";
             for (const PosePtr &pose : m_posesToRemove) {
-                m_modelManager->removePose(pose->id());
+                noErrorSavingPoses  &= m_modelManager->removePose(pose->id());
             }
+        }
+        if (noErrorSavingPoses) {
+            m_posesToAdd.clear();
             m_posesToRemove.clear();
+        } else {
+            // There was an error so we allow the option to try and save
+            // the poses again
+            m_mainWindow->poseEditor()->setEnabledButtonSave(true);
         }
         // Result is either true if the user was shown the save dialog and clicked yes,
         // false if the user clicked no or true if there was no dialog to be shown but
