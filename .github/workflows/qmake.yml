@@ -24,7 +24,6 @@ jobs:
         target: 'desktop'
         dir: '${{ github.workspace }}'
         install-deps: 'true'
-        modules: 'qt3d'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
         tools: 'tools_ifw,4.0,qt.tools.ifw.40 tools_qtcreator,4.13.2-0,qt.tools.qtcreator'
         tools-only: 'false'
