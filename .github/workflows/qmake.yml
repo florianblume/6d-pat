@@ -30,7 +30,11 @@ jobs:
         tools-only: 'false'
         aqtversion: '==0.9.7'
         py7zrversion: '==0.10.1'
+    - name: Create build folder
+      run: mkdir -p ./build/release
     - name: qmake
-      run: qmake 6dpat.pro
+      working-directory: ./build/release
+      run: qmake ../../6dpat.pro
     - name: make
+      working-directory: ./build/release
       run: make
