@@ -8,14 +8,30 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-18.04
-    
-    container: florianblume/6dpat-environment:latest
-    
+    runs-on: ubuntu-latest
     steps:
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1
+      with:
+        path: ${{ github.workspace }}/Qt
+        key: ${{ runner.os }}-QtCache
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: '5.14.2'
+        host: 'linux'
+        target: 'desktop'
+        dir: '${{ github.workspace }}'
+        install-deps: 'true'
+        modules: 'qt3d'
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        tools: 'tools_ifw,4.0,qt.tools.ifw.40 tools_qtcreator,4.13.2-0,qt.tools.qtcreator'
+        tools-only: 'false'
+        aqtversion: '==0.9.7'
+        py7zrversion: '==0.10.1'
     - uses: actions/checkout@v2
     - name: qmake
-      run: /opt/qt514/bin/qmake 6dpat.pro
+      run: qmake 6dpat.pro
     - name: make
       run: make
