@@ -31,9 +31,12 @@ jobs:
         aqtversion: '==0.9.7'
         py7zrversion: '==0.10.1'
     - name: test
-      run: execute_process(
-            COMMAND locate -b '\qmake'
+      run: |
+        if ("${{ runner.os }}" STREQUAL "Linux")
+          execute_process(
+            COMMAND locate qmake
           )
+        endif()
     - name: qmake
       run: $GITHUB_WORKSPACE/Qt/5.14.2/gcc_64/bin/qmake 6dpat.pro
     - name: make
