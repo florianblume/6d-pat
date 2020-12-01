@@ -10,6 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
@@ -24,14 +25,16 @@ jobs:
         target: 'desktop'
         dir: '${{ github.workspace }}'
         install-deps: 'true'
-        modules: 'qt3d'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
         tools: 'tools_ifw,4.0,qt.tools.ifw.40 tools_qtcreator,4.13.2-0,qt.tools.qtcreator'
         tools-only: 'false'
         aqtversion: '==0.9.7'
         py7zrversion: '==0.10.1'
-    - uses: actions/checkout@v2
+    - name: Create build folder
+      run: mkdir -p ./build/release
     - name: qmake
-      run: qmake 6dpat.pro
+      working-directory: ./build/release
+      run: qmake ../../6dpat.pro
     - name: make
+      working-directory: ./build/release
       run: make
