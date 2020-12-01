@@ -10,6 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
@@ -29,7 +30,10 @@ jobs:
         tools-only: 'false'
         aqtversion: '==0.9.7'
         py7zrversion: '==0.10.1'
-    - uses: actions/checkout@v2
+    - name: test
+      run: execute_process(
+            COMMAND locate -b '\qmake'
+          )
     - name: qmake
       run: $GITHUB_WORKSPACE/Qt/5.14.2/gcc_64/bin/qmake 6dpat.pro
     - name: make
