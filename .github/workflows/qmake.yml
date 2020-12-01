@@ -22,7 +22,7 @@ jobs:
         version: '5.14.2'
         host: 'linux'
         target: 'desktop'
-        dir: '${{ github.workspace }}/'
+        dir: '${{ github.workspace }}'
         install-deps: 'true'
         modules: 'qt3d'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
