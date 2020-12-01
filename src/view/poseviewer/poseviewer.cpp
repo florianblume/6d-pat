@@ -175,21 +175,20 @@ void PoseViewer::onOpacityChanged(int opacity) {
 
 void PoseViewer::onZoomChanged(int zoom) {
     this->m_zoom = zoom;
-    if (zoom == 1) {
-        this->m_zoomMultiplier = 0.5f;
-    } else if (zoom == 2) {
-        this->m_zoomMultiplier = 1.f;
-    } else if (zoom == 3) {
-        this->m_zoomMultiplier = 2.f;
-    }
-    m_poseViewer3DWidget->setGeometry(QRect(m_poseViewer3DWidget->x(),
-                                            m_poseViewer3DWidget->y(),
-                                            m_poseViewer3DWidget->imageSize().width() * this->m_zoomMultiplier,
-                                            m_poseViewer3DWidget->imageSize().height() * this->m_zoomMultiplier));
+    this->m_zoomMultiplier = zoom / 5.f;
+    this->ui->labelZoom->setText(QString::number(this->m_zoomMultiplier * 100) + "%");
+    QSize oldSize = m_poseViewer3DWidget->size();
+    QSize newSize = QSize(m_poseViewer3DWidget->imageSize().width() * this->m_zoomMultiplier,
+                          m_poseViewer3DWidget->imageSize().height() * this->m_zoomMultiplier);
+    QSize diff = QSize(newSize.width() - oldSize.width(), newSize.height() - oldSize.height());
+    m_poseViewer3DWidget->setGeometry(QRect(m_poseViewer3DWidget->x() - diff.width() / 2,
+                                            m_poseViewer3DWidget->y() - diff.height() / 2,
+                                            newSize.width(), newSize.height()));
 }
 
 void PoseViewer::resetPositionOfGraphicsView() {
-    m_poseViewer3DWidget->setGeometry(0, 0, m_poseViewer3DWidget->width(), m_poseViewer3DWidget->height());
+    m_poseViewer3DWidget->move(-m_poseViewer3DWidget->width() / 2 + width() / 2,
+                               -m_poseViewer3DWidget->height() / 2 + height() / 2);
 }
 
 void PoseViewer::onImageClicked(QPoint point) {
