@@ -8,8 +8,7 @@ HEADERS += \
     model/modelmanager.hpp \
     model/objectmodel.hpp \
     model/jsonloadandstorestrategy.hpp \
-    model/pose.hpp \
-    model/poseeditingmodel.hpp
+    model/pose.hpp
 
 SOURCES += \
     model/image.cpp \
