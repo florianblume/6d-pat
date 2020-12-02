@@ -24,9 +24,9 @@ LIBS += -L../../../lib/qt/lib -lQt5Core -lQt5Gui -lQt53DCore -lQt53DInput -lQt53
         -L../../../lib/opencv4 -lopencv_core -lopencv_calib3d \
         -L../../../lib/qt3dwidget -lqt3dwidget
 
-QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/lib/qt\'"
-QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/lib/opencv4\'"
-QMAKE_LFLAGS += "-Wl,-rpath,\'\$$ORIGIN/lib/qt3dwidget\'"
+QMAKE_LFLAGS += "-Wl,-rpath,\'\$$PWD/lib/qt\'"
+QMAKE_LFLAGS += "-Wl,-rpath,\'\$$PWD/lib/opencv4\'"
+QMAKE_LFLAGS += "-Wl,-rpath,\'\$$PWD/lib/qt3dwidget\'"
 
 include(controller/controller.pri)
 include(misc/misc.pri)
