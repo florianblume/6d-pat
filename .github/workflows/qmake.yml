@@ -36,4 +36,4 @@ jobs:
       working-directory: ./build/release
       run: qmake ../../6dpat.pro
     - name: make
-      run: make -j8 in ./build/release
+      run: make -j8 --directory ./build/release
