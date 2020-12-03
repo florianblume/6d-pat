@@ -20,18 +20,19 @@ lessThan(QT_MINOR_VERSION, 14) {
 INCLUDEPATH += ../../../include/opencv4 \
             += ../../../include/qt3dwidget
 
-LIBS += -L../../../lib/qt/lib -lQt5Core -lQt5Gui -lQt53DCore -lQt53DInput -lQt53DRender -lQt53DExtras \
+LIBS += -lm \
+        -L../../../lib/qt/lib -lQt5Core -lQt5Gui -lQt53DCore -lQt5Widgets -lQt53DInput -lQt53DRender -lQt53DExtras -lQt53DLogic \
         -L../../../lib/opencv4 -lopencv_core -lopencv_calib3d \
-        -L../../../lib/qt3dwidget -lqt3dwidget
+        ../../../lib/qt3dwidget/libqt3dwidget.a
 
 QMAKE_RPATHDIR += \$\$ORIGIN
 QMAKE_RPATHDIR += \$\$ORIGIN/lib
 QMAKE_RPATHDIR += \$\$ORIGIN/lib/qt
 QMAKE_RPATHDIR += \$\$ORIGIN/lib/opencv4
-QMAKE_RPATHDIR += \$\$ORIGIN/lib/qt3dwidget
 RPATH = $$join( QMAKE_RPATHDIR, ":" )
 
 QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,$${RPATH}\'
+QMAKE_RPATHDIR =
 
 #QMAKE_RPATHDIR += lib/qt
 #QMAKE_RPATHDIR += lib/opencv4
