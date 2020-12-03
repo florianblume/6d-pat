@@ -24,9 +24,19 @@ LIBS += -L../../../lib/qt/lib -lQt5Core -lQt5Gui -lQt53DCore -lQt53DInput -lQt53
         -L../../../lib/opencv4 -lopencv_core -lopencv_calib3d \
         -L../../../lib/qt3dwidget -lqt3dwidget
 
-QMAKE_RPATHDIR += lib/qt
-QMAKE_RPATHDIR += lib/opencv4
-QMAKE_RPATHDIR += lib/qt3dwidget
+QMAKE_RPATHDIR += \$\$ORIGIN
+QMAKE_RPATHDIR += \$\$ORIGIN/lib
+QMAKE_RPATHDIR += \$\$ORIGIN/lib/qt
+QMAKE_RPATHDIR += \$\$ORIGIN/lib/opencv4
+QMAKE_RPATHDIR += \$\$ORIGIN/lib/qt3dwidget
+RPATH = $$join( QMAKE_RPATHDIR, ":" )
+
+QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,$${RPATH}\'
+QMAKE_RPATHDIR =
+
+#QMAKE_RPATHDIR += lib/qt
+#QMAKE_RPATHDIR += lib/opencv4
+#QMAKE_RPATHDIR += lib/qt3dwidget
 
 #QMAKE_LFLAGS += "-Wl,-rpath,\'\$$PWD/lib/qt\'"
 #QMAKE_LFLAGS += "-Wl,-rpath,\'\$$PWD/lib/opencv4\'"
