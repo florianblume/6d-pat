@@ -32,7 +32,6 @@ QMAKE_RPATHDIR += \$\$ORIGIN/lib/qt3dwidget
 RPATH = $$join( QMAKE_RPATHDIR, ":" )
 
 QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,$${RPATH}\'
-QMAKE_RPATHDIR =
 
 #QMAKE_RPATHDIR += lib/qt
 #QMAKE_RPATHDIR += lib/opencv4
