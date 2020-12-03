@@ -20,10 +20,11 @@ lessThan(QT_MINOR_VERSION, 14) {
 INCLUDEPATH += ../../../include/opencv4 \
             += ../../../include/qt3dwidget
 
-LIBS += -lm \
-        -L../../../lib/qt/lib -lQt5Core -lQt5Gui -lQt53DCore -lQt5Widgets -lQt53DInput -lQt53DRender -lQt53DExtras -lQt53DLogic \
+LIBS += -L../../../lib/qt/lib -lQt5Core -lQt5Gui -lQt53DCore -lQt5Widgets -lQt53DInput -lQt53DRender -lQt53DExtras -lQt53DLogic \
         -L../../../lib/opencv4 -lopencv_core -lopencv_calib3d \
         ../../../lib/qt3dwidget/libqt3dwidget.a
+
+LIBS = -lm $$LIBS
 
 QMAKE_RPATHDIR += \$\$ORIGIN
 QMAKE_RPATHDIR += \$\$ORIGIN/lib
