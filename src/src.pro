@@ -18,10 +18,11 @@ lessThan(QT_MINOR_VERSION, 14) {
 }
 
 INCLUDEPATH += ../../../include/qt3dwidget \
-            += ../../../include/opencv4
+            += /usr/include/opencv4
 
 LIBS += -L../../../lib/qt/lib -lQt5Core -lQt5Gui -lQt53DCore -lQt5Widgets -lQt53DInput -lQt53DRender -lQt53DExtras -lQt53DLogic \
-        ../../../lib/qt3dwidget/libqt3dwidget.a
+        -L/usr/local/lib -lopencv_core -lopencv_calib3d \
+        -L../../../lib/qt3dwidget/libqt3dwidget.a
 
 LIBS = -lm $$LIBS
 
