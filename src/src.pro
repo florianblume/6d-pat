@@ -21,7 +21,8 @@ INCLUDEPATH += ../../../include/qt3dwidget \
             += ../../../include/opencv4
 
 LIBS += -L../../../lib/qt/lib -lQt5Core -lQt5Gui -lQt53DCore -lQt5Widgets -lQt53DInput -lQt53DRender -lQt53DExtras -lQt53DLogic \
-        ../../../lib/qt3dwidget/libqt3dwidget.a
+        -L../../../lib/opencv4 -lopencv_core -lopencv_imgproc -lopencv_flann -lopencv_features2d -lopencv_calib3d \
+        -L../../../lib/qt3dwidget -lqt3dwidget
 
 LIBS = -lm $$LIBS
 
@@ -32,15 +33,6 @@ QMAKE_RPATHDIR += \$\$ORIGIN/lib/opencv4
 RPATH = $$join( QMAKE_RPATHDIR, ":" )
 
 QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,$${RPATH}\'
-QMAKE_RPATHDIR =
-
-#QMAKE_RPATHDIR += lib/qt
-#QMAKE_RPATHDIR += lib/opencv4
-#QMAKE_RPATHDIR += lib/qt3dwidget
-
-#QMAKE_LFLAGS += "-Wl,-rpath,\'\$$PWD/lib/qt\'"
-#QMAKE_LFLAGS += "-Wl,-rpath,\'\$$PWD/lib/opencv4\'"
-#QMAKE_LFLAGS += "-Wl,-rpath,\'\$$PWD/lib/qt3dwidget\'"
 
 include(controller/controller.pri)
 include(misc/misc.pri)
@@ -55,4 +47,3 @@ RESOURCES += resources/shaders/shaders.qrc \
              resources/images/images.qrc \
              resources/fonts/fonts.qrc \
              resources/stylesheets/stylesheets.qrc
-
