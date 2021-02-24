@@ -10,10 +10,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # This check is only there for when you build the project with your
 # own Qt libraries
 lessThan(QT_MINOR_VERSION, 14) {
-    error(Needs at least Qt >= 5.14 to run - found $$QT_VERSION.)
+    error(Needs at least Qt >= 5.14 to run - found $$[QT_VERSION].)
 } else {
     lessThan(QT_MAJOR_VERSION, 5) {
-        error(Needs at least Qt >= 5.14 to run - found $$QT_VERSION.)
+        error(Needs at least Qt >= 5.14 to run - found $$[QT_VERSION].)
     }
 }
 
@@ -22,16 +22,6 @@ INCLUDEPATH += ../../../include/qt3dwidget \
 
 LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgproc -lopencv_flann -lopencv_features2d -lopencv_calib3d \
         -L../../../lib/qt3dwidget -lqt3dwidget
-
-LIBS = -lm $$LIBS
-
-QMAKE_RPATHDIR += \$\$ORIGIN
-QMAKE_RPATHDIR += \$\$ORIGIN/lib
-QMAKE_RPATHDIR += \$\$ORIGIN/lib/qt
-QMAKE_RPATHDIR += \$\$ORIGIN/lib/opencv4
-RPATH = $$join( QMAKE_RPATHDIR, ":" )
-
-QMAKE_LFLAGS += -Wl,-z,origin \'-Wl,-rpath,$${RPATH}\'
 
 include(controller/controller.pri)
 include(misc/misc.pri)
