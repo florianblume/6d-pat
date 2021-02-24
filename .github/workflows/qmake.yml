@@ -51,6 +51,6 @@ jobs:
       run: mkdir -p ./build/release
     - name: qmake
       working-directory: ./build/release
-      run: qmake ../../6d-pat.pro
+      run: /home/runner/work/6d-pat/6d-pat/Qt/5.15.2/gcc_64/lib/qmake ../../6d-pat.pro
     - name: make
       run: make -j8 --directory ./build/release
