@@ -28,6 +28,7 @@ jobs:
         tools-only: 'false'
         aqtversion: '==0.11.1'
         py7zrversion: '==0.11.3'
+    - run: qmake --version
     - uses: actions/checkout@v2
     - name: Create build folder
       run: mkdir -p ./build/release
