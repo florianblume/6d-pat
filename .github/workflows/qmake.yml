@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Install OpenCV
+      run: sudo apt-get install -y libopencv-dev
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
@@ -29,8 +31,6 @@ jobs:
         tools-only: 'false'
         aqtversion: '==0.11.1'
         py7zrversion: '==0.11.3'
-    - name: Install OpenCV
-      run: sudo apt-get install -y libopencv-dev
     - uses: actions/checkout@v2
     - name: Create build folder
       run: mkdir -p ./build/release
