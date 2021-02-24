@@ -42,6 +42,10 @@ jobs:
         dir: ./opencv-install
         cached: ${{ steps.opencv-cache.outputs.cache-hit }}
         opencv-version: '4.2.0'
+        BUILD_EXAMPLES: OFF
+        INSTALL_C_EXAMPLES: OFF
+        INSTALL_PYTHON_EXAMPLES: OFF
+        WITH_QT: OFF
     - uses: actions/checkout@v2
     - name: Create build folder
       run: mkdir -p ./build/release
