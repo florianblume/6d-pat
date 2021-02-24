@@ -17,11 +17,13 @@ lessThan(QT_MINOR_VERSION, 14) {
     }
 }
 
-INCLUDEPATH += ../../../include/qt3dwidget \
-            += /usr/local/include/opencv4
+unix: CONFIG += link_pkgconfig
+unix: PKGCONFIG += opencv4
 
-LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgproc -lopencv_flann -lopencv_features2d -lopencv_calib3d \
-        -L../../../lib/qt3dwidget -lqt3dwidget
+# Assuming build folder to be 3 levels deeper than library
+INCLUDEPATH += ../../../include/qt3dwidget
+
+LIBS += -L../../../lib/qt3dwidget -lqt3dwidget
 
 include(controller/controller.pri)
 include(misc/misc.pri)
