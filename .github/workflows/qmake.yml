@@ -30,6 +30,14 @@ jobs:
         tools-only: 'false'
         aqtversion: '==0.9.7'
         py7zrversion: '==0.10.1'
+    - name: Install OpenCV
+      uses: Dovyski/setup-opencv-action@v1
+      with:
+        opencv-version: 4.2.0
+        ENABLE_PRECOMPILED_HEADERS: OFF
+        INSTALL_C_EXAMPLES: OFF
+        BUILD_EXAMPLES: OFF
+    - uses: actions/checkout@v2
     - name: Create build folder
       run: mkdir -p ./build/release
     - name: qmake
