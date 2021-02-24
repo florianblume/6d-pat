@@ -20,22 +20,22 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
-        version: '5.14.2'
+        version: '5.15.2'
         host: 'linux'
         target: 'desktop'
         dir: '${{ github.workspace }}'
         install-deps: 'true'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
-        tools: 'tools_ifw,4.0,qt.tools.ifw.40 tools_qtcreator,4.13.2-0,qt.tools.qtcreator'
         tools-only: 'false'
-        aqtversion: '==0.9.7'
-        py7zrversion: '==0.10.1'
+        aqtversion: '==0.11.1'
+        py7zrversion: '==0.11.3'
     - name: Cache OpenCV
       id: opencv-cache
       uses: actions/cache@v2
       with:
         path: ./opencv-install
         key: ${{ runner.os }}-opencv-cache
+    - run: qmake --version
     - name: Install OpenCV
       uses: rayandrews/with-opencv-action@v1
       with:  
