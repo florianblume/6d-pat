@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Install OpenCV
+      run: sudo apt-get install -y libopencv-dev
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
@@ -26,31 +28,14 @@ jobs:
         dir: '${{ github.workspace }}'
         install-deps: 'true'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        tools: 'tools_ifw,4.0,qt.tools.ifw.40 tools_qtcreator,4.13.2-0,qt.tools.qtcreator'
         tools-only: 'false'
         aqtversion: '==0.11.1'
         py7zrversion: '==0.11.3'
-    - name: Cache OpenCV
-      id: opencv-cache
-      uses: actions/cache@v2
-      with:
-        path: ./opencv-install
-        key: ${{ runner.os }}-opencv-cache
-    - run: qmake --version
-    - name: Install OpenCV
-      uses: rayandrews/with-opencv-action@v1
-      with:  
-        dir: ./opencv-install
-        cached: ${{ steps.opencv-cache.outputs.cache-hit }}
-        opencv-version: '4.2.0'
-        BUILD_EXAMPLES: OFF
-        INSTALL_C_EXAMPLES: OFF
-        INSTALL_PYTHON_EXAMPLES: OFF
-        WITH_QT: OFF
-    - uses: actions/checkout@v2
     - name: Create build folder
       run: mkdir -p ./build/release
     - name: qmake
       working-directory: ./build/release
-      run: /home/runner/work/6d-pat/6d-pat/Qt/5.15.2/gcc_64/bin/qmake ../../6d-pat.pro
+      run: qmake ../../6d-pat.pro
     - name: make
       run: make -j8 --directory ./build/release
