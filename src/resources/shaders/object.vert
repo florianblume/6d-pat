@@ -1,4 +1,4 @@
-#version 150 core
+#version 140
 
 in vec3 vertexPosition;
 in vec3 vertexNormal;

@@ -1,4 +1,4 @@
-#version 150 core
+#version 140
 
 uniform mat4 modelViewProjection;
 
