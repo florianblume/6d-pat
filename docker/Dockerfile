@@ -4,10 +4,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apt-get update && apt-get -y install \
+RUN apt-get update -qq && apt-get -y install \
     gcc   \
     make  \
     cmake \
+    checkinstall \
     git   \
     software-properties-common \
     build-essential \
@@ -26,42 +27,28 @@ RUN apt-get update && apt-get -y install \
     libtiff-dev \
     libavformat-dev \
     libpq-dev \
+    libopencv-dev \
 && rm -rf /var/lib/apt/lists/*
 
 # Install OpenCV
-ENV OPENCV_VERSION="4.5.0"
-RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
-&& unzip ${OPENCV_VERSION}.zip \
-&& mkdir /opencv-${OPENCV_VERSION}/cmake_binary \
-&& cd /opencv-${OPENCV_VERSION}/cmake_binary \
-&& cmake -DBUILD_TIFF=ON \
-  -DBUILD_opencv_java=OFF \
-  -DWITH_CUDA=OFF \
-  -DBUILD_TESTS=OFF \
-  -DBUILD_PERF_TESTS=OFF \
-  -DCMAKE_BUILD_TYPE=RELEASE \
-  .. \
-&& make install \
-&& rm /${OPENCV_VERSION}.zip \
-&& rm -r /opencv-${OPENCV_VERSION}
+#ENV OPENCV_VERSION="4.5.0"
+#RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
+#&& unzip ${OPENCV_VERSION}.zip \
+#&& mkdir /opencv-${OPENCV_VERSION}/cmake_binary \
+#&& cd /opencv-${OPENCV_VERSION}/cmake_binary \
+#&& cmake -DBUILD_TIFF=ON \
+#  -DBUILD_opencv_java=OFF \
+#  -DWITH_CUDA=OFF \
+#  -DBUILD_TESTS=OFF \
+#  -DBUILD_PERF_TESTS=OFF \
+#  -DCMAKE_BUILD_TYPE=RELEASE \
+#  .. \
+#&& checkinstall --install=no --default --pkgname=opencv \
+#&& cp /opencv-4.5.0/cmake_binary/opencv_*.deb /opencv.deb \
+#&& rm /${OPENCV_VERSION}.zip \
+#&& rm -r /opencv-${OPENCV_VERSION}
 
-FROM ubuntu:focal AS runner
-
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=UTC
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-COPY --from=builder /usr/local/lib /usr/local/lib
-COPY --from=builder /usr/local/include /usr/local/include
-
-RUN apt-get update && apt-get -y install\
-    software-properties-common \
-    build-essential \
-    gcc   \
-    make  \
-    cmake \
-    git   \
-&& rm -rf /var/lib/apt/lists/*
+#RUN dpkg -i /opencv.deb
 
 RUN add-apt-repository -y ppa:beineri/opt-qt-5.14.2-focal
 RUN apt-get update -qq
@@ -82,4 +69,18 @@ RUN git clone https://github.com/florianblume/6d-pat && \
     /opt/qt514/bin/qmake ../../6d-pat.pro && \
     make -j6
     
-RUN mv /6d-pat/build/release/src/6DPAT 6DPAT
+RUN mv /6d-pat/build/release/src/6DPAT /6DPAT
+
+FROM ubuntu:focal AS runner
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+COPY --from=builder /6DPAT /
+
+RUN apt-get update -qq && apt-get -y install \
+    software-properties-common \
+    && add-apt-repository -y ppa:beineri/opt-qt-5.14.2-focal \
+    && apt-get update -qq \
+    && apt-get -y install qt514-meta-minimal qt5143d qt514gamepad libopencv-dev \
