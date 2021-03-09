@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install OpenCV
-      run: sudo apt-get udpate –fix-missing && sudo apt-get install -y libopencv-dev
+      run: sudo apt-get udpate –-fix-missing && sudo apt-get install -y libopencv-dev
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
