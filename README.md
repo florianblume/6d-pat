@@ -19,18 +19,28 @@ The program allows you to select a folder and view the images contained in it in
 ## Requirements
 
 * OpenGL >= 3.0
+* Qt >= 5.14
+* OpenCV >= 4.5
 
 ## Setup
 
-1. Download the latest release from the releases page.
-2. All needed libraries are included in the bundle.
-5. You should now be able to run the program directly.
+You need to have Qt >= 5.14 and OpenCV >= 4.5 installed. You can do so this way for example (if you don't want to manually install Qt and build OpenCV):
+
+    sudo add-apt-repository -y ppa:beineri/opt-qt-5.14.2-focal
+    sudo apt-get update -qq
+    sudo apt-get -y install qt514-meta-minimal qt5143d qt514gamepad libopencv-de
+
+Either:
+* Download the latest release from the release page
+* Or use the Docker image
+
+Check out the [getting the program wiki page](https://github.com/florianblume/6d-pat/wiki/1.-Getting-the-Program) for more details.
 
 **Check out the wiki pages for other setups!**
 
 # Getting Started
 
-Check out the [wiki page](https://github.com/florianblume/6d-pat/wiki/Setting-up-the-Program) to see in detail how to set up the program.
+Check out the [program setup wiki page](https://github.com/florianblume/6d-pat/wiki/2.-Setting-up-the-Program) to see in detail how to set up the program.
 
 # Recovering Poses
 
