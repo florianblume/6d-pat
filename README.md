@@ -22,10 +22,6 @@ The program allows you to select a folder and view the images contained in it in
 --- | --- | --- | ---
 **Version** | *3.0* | *5.14* | *4.5*
 
-* OpenGL >= 3.0
-* Qt >= 5.14
-* OpenCV >= 4.5
-
 ## Setup
 
 You have two options:
