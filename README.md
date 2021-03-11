@@ -12,13 +12,9 @@ With 6D-PAT you can create 6D annotations on images for 6D pose estimation, i.e.
 
 The program allows you to select a folder and view the images contained in it in a gallery. Selecting one of the images will display it at a larger scale to create new 6D pose annotations. The 3D models for those annotations are displayed in a second gallery which also loads the models from a specified folder. In the 3D viewer of the program, you can inspect a selected 3D model, rotate it and use it to create a new pose annotation.
 
-**Requirements and Setup are only provided for Ubuntu. Given the portability of the used frameworks a setup on Windows, etc. should be possible, as well.**
-
 ![Imgur](https://i.imgur.com/lwsKfn3.png)
 
 *Objects and images are from the [T-Less Dataset](http://cmp.felk.cvut.cz/t-less/).*
-
-# Installation
 
 ## Requirements
 
@@ -28,25 +24,37 @@ The program allows you to select a folder and view the images contained in it in
 
 ## Setup
 
+You have two options:
+1. Install all requirements and build from source or download a release
+2. Or run the Docker image
+
+#### 1. Build from source or run release
 You need to have Qt >= 5.14 and OpenCV >= 4.5 installed. You can do so this way for example (if you don't want to manually install Qt and build OpenCV):
 
     sudo add-apt-repository -y ppa:beineri/opt-qt-5.14.2-focal
     sudo apt-get update -qq
-    sudo apt-get -y install qt514-meta-minimal qt5143d qt514gamepad libopencv-dev
+    sudo apt-get -y install qt514-meta-minimal qt5143d qt514gamepad
+    sudo apt-get -y install libopencv-dev
 
-Either:
-* Download the latest release from the release page
-* Or use the Docker image
+#### 2. Run the Docker image
+
+Enable X-server display for Docker:
+
+    xhost +local:root
+    
+Run the Docker image:
+
+    docker run -ti --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix -v /dev/dri/card0:/dev/dri/card0 florianblume/6dpat /6DPAT
 
 Check out the [getting the program wiki page](https://github.com/florianblume/6d-pat/wiki/1.-Getting-the-Program) for more details.
 
-**Check out the wiki pages for other setups!**
+**Requirements and Setup are only provided for Ubuntu. Given the portability of the used frameworks a setup on Windows, etc. should be possible, as well.**
 
-# Getting Started
+## Getting Started
 
 Check out the [program setup wiki page](https://github.com/florianblume/6d-pat/wiki/2.-Setting-up-the-Program) to see in detail how to set up the program.
 
-# Recovering Poses
+### Recovering Poses
 
 To start recovering poses, follow these steps:
 1. Select an image
