@@ -4,6 +4,10 @@
 
 ![Build](https://github.com/florianblume/6d-pat/workflows/build/badge.svg) [![Coverage Status](https://coveralls.io/repos/github/florianblume/6d-pat/badge.svg?branch=master)](https://coveralls.io/github/florianblume/6d-pat?branch=master) [![CodeFactor](https://www.codefactor.io/repository/github/florianblume/6d-pat/badge)](https://www.codefactor.io/repository/github/florianblume/6d-pat)  [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/florianblume/6d-pat/issues) 
 
+![Imgur](https://i.imgur.com/lwsKfn3.png)
+
+*Objects and images are from the [T-Less Dataset](http://cmp.felk.cvut.cz/t-less/).*
+
 ### What is it?
 
 With 6D-PAT you can create 6D annotations on images for 6D pose estimation, i.e. annotate 2D images with the 3D rotation and 3D translation of 3D models.
@@ -53,9 +57,7 @@ To start recovering poses, follow these steps:
 6. Repeat setps 4 - 5 until at least *6* correspondences were created - more correspondences help to make the pose more accurate
 7. Click the "Create" button at the bottom of the pose editor
 8. You should see the recovered pose on the image
-9. To refine the pose, select it from the drop down and edit it using the controls
+9. You can refine it using the number fields or by dragging or rotating it directly with the mouse after selecting the 3D model
 10. After pose refinement, don't forget to press "Save"
-
-![The pose recover process](https://i.imgur.com/JiQqxwv.png "The pose recover process")
 
 More steps and details are on the [wiki page](https://github.com/florianblume/6d-pat/wiki/Recovering-Poses).
