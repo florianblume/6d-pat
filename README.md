@@ -4,10 +4,6 @@
 
 ![Build](https://github.com/florianblume/6d-pat/workflows/build/badge.svg) [![Coverage Status](https://coveralls.io/repos/github/florianblume/6d-pat/badge.svg?branch=master)](https://coveralls.io/github/florianblume/6d-pat?branch=master) [![CodeFactor](https://www.codefactor.io/repository/github/florianblume/6d-pat/badge)](https://www.codefactor.io/repository/github/florianblume/6d-pat)  [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/florianblume/6d-pat/issues) 
 
-![Imgur](https://i.imgur.com/lwsKfn3.png)
-
-*Objects and images are from the [T-Less Dataset](http://cmp.felk.cvut.cz/t-less/).*
-
 ### What is it?
 
 With 6D-PAT you can create 6D annotations on images for 6D pose estimation, i.e. annotate 2D images with the 3D rotation and 3D translation of 3D models.
@@ -17,6 +13,10 @@ With 6D-PAT you can create 6D annotations on images for 6D pose estimation, i.e.
 The program allows you to select a folder and view the images contained in it in a gallery. Selecting one of the images will display it at a larger scale to create new 6D pose annotations. The 3D models for those annotations are displayed in a second gallery which also loads the models from a specified folder. In the 3D viewer of the program, you can inspect a selected 3D model, rotate it and use it to create a new pose annotation.
 
 **Requirements and Setup are only provided for Ubuntu. Given the portability of the used frameworks a setup on Windows, etc. should be possible, as well.**
+
+![Imgur](https://i.imgur.com/lwsKfn3.png)
+
+*Objects and images are from the [T-Less Dataset](http://cmp.felk.cvut.cz/t-less/).*
 
 # Installation
 
