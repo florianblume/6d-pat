@@ -32,7 +32,7 @@ You need to have Qt >= 5.14 and OpenCV >= 4.5 installed. You can do so this way 
 
     sudo add-apt-repository -y ppa:beineri/opt-qt-5.14.2-focal
     sudo apt-get update -qq
-    sudo apt-get -y install qt514-meta-minimal qt5143d qt514gamepad libopencv-de
+    sudo apt-get -y install qt514-meta-minimal qt5143d qt514gamepad libopencv-dev
 
 Either:
 * Download the latest release from the release page
