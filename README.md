@@ -18,6 +18,10 @@ The program allows you to select a folder and view the images contained in it in
 
 ## Requirements
 
+|  | OpenGL | Qt | OpenCV
+--- | --- | --- | ---
+**Version** | *3.0* | *5.14* | *4.5*
+
 * OpenGL >= 3.0
 * Qt >= 5.14
 * OpenCV >= 4.5
@@ -28,7 +32,7 @@ You have two options:
 1. Install all requirements and build from source or download a release
 2. Or run the Docker image
 
-#### 1. Build from source or run release
+### 1. Build from source or run release
 You need to have Qt >= 5.14 and OpenCV >= 4.5 installed. You can do so this way for example (if you don't want to manually install Qt and build OpenCV):
 
     sudo add-apt-repository -y ppa:beineri/opt-qt-5.14.2-focal
@@ -36,7 +40,7 @@ You need to have Qt >= 5.14 and OpenCV >= 4.5 installed. You can do so this way 
     sudo apt-get -y install qt514-meta-minimal qt5143d qt514gamepad
     sudo apt-get -y install libopencv-dev
 
-#### 2. Run the Docker image
+### 2. Run the Docker image
 
 Enable X-server display for Docker:
 
@@ -50,11 +54,11 @@ Check out the [getting the program wiki page](https://github.com/florianblume/6d
 
 **Requirements and Setup are only provided for Ubuntu. Given the portability of the used frameworks a setup on Windows, etc. should be possible, as well.**
 
-## Getting Started
+## Setting up the program
 
 Check out the [program setup wiki page](https://github.com/florianblume/6d-pat/wiki/2.-Setting-up-the-Program) to see in detail how to set up the program.
 
-### Recovering Poses
+## Recovering poses
 
 To start recovering poses, follow these steps:
 1. Select an image
