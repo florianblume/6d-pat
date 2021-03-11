@@ -20,7 +20,7 @@ The program allows you to select a folder and view the images contained in it in
 
 |  | OpenGL | Qt | OpenCV
 --- | --- | --- | ---
-**Version** | *3.0* | *5.14* | *4.5*
+**Version** | *3.1* | *5.14* | *4.5*
 
 ## Setup
 
