@@ -14,7 +14,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-cache search libxcb
-        sudo apt-get update && sudo apt-get install -y libopencv-dev libxcb-icccm4 libxcb-image0
+        sudo apt-get update && sudo apt-get install -y libopencv-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
