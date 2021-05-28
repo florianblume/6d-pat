@@ -42,7 +42,7 @@ jobs:
     - name: Create appdir
       run: pwd & ls & ls ./build/release/ & mkdir appdir
     - name: Copy executable and 
-      run: cp ./build/release/src/6DPAT appdir & cp ./src/resources/images/6DPAT.png appdir
+      run: cp ./build/release/src/6DPAT appdir & cp ./src/resources/images/icon.png appdir
     - name: Get linuxdeployqt and run it
       run: |
         wget https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage
