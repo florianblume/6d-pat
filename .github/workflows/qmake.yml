@@ -12,7 +12,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install Dependencies
-      run: sudo apt-get update && sudo apt-get install -y libopencv-dev libxcb-iccm4
+      run: |
+        sudo apt-cache search libxcb
+        sudo apt-get update && sudo apt-get install -y libopencv-dev libxcb-iccm4
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
