@@ -36,6 +36,18 @@ jobs:
       run: mkdir -p ./build/release
     - name: qmake
       working-directory: ./build/release
-      run: qmake ../../6d-pat.pro
+      run: qmake CONFIG+="Release" ../../6d-pat.pro
     - name: make
       run: make -j8 --directory ./build/release
+    - name: Create appdir
+      working-directory: ../..
+      run: mkdir appdir
+    - name: Copy executable and assets
+      working-directory: ../..
+      run: cp ./build/release/src/6DPAT appdir & cp ./src/resources/images/6DPAT.png appdir
+    - name: Get linuxdeployqt and run it
+      working-directory: ../..
+      run: |
+        wget https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage
+        chmod +x linuxdeployqt-5-x86_64.AppImage
+        linuxdeployqt-5-x86_64.AppImage appdir
