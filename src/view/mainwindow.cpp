@@ -323,53 +323,56 @@ void MainWindow::onActionReloadViewsTriggered() {
     setStatusBarText("Ready.");
 }
 
-void MainWindow::onModelManagerStateChanged(ModelManager::State state) {
-    if (state == ModelManager::Error) {
+void MainWindow::onModelManagerStateChanged(ModelManager::State state, ModelManager::Error error) {
+    if (state == ModelManager::ErrorOccured) {
         QString message("An unkown error occured in the data manager.");
-        switch (modelManager->error()) {
-            case LoadAndStoreStrategy::CamInfoDoesNotExist:
+        switch (error) {
+            case ModelManager::Error::None:
+                // Cannot occur, just so that there is no warning here
+                break;
+            case ModelManager::Error::CamInfoDoesNotExist:
                 message = "The camera info file info.json does not exist.";
                 break;
-            case LoadAndStoreStrategy::ImagesPathDoesNotExist:
+            case ModelManager::Error::ImagesPathDoesNotExist:
                 message = "The images path does not exist.";
                 break;
-            case LoadAndStoreStrategy::SegmentationImagesPathDoesNotExist:
+            case ModelManager::Error::SegmentationImagesPathDoesNotExist:
                 message = "The segmentation images path does not exist.";
                 break;
-            case LoadAndStoreStrategy::CouldNotReadCamInfo:
+            case ModelManager::Error::CouldNotReadCamInfo:
                 message = "Could not read the camera info file info.json.";
                 break;
-            case LoadAndStoreStrategy::CamInfoPathIsNotAJSONFile:
+            case ModelManager::Error::CamInfoPathIsNotAJSONFile:
                 message = "The camera info file info.json is not a valid file.";
                 break;
-            case LoadAndStoreStrategy::NoImagesFound:
+            case ModelManager::Error::NoImagesFound:
                 message = "No images found at the specified images path.";
                 break;
-            case LoadAndStoreStrategy::ObjectModelsPathDoesNotExist:
+            case ModelManager::Error::ObjectModelsPathDoesNotExist:
                 message = "The object models path does not exist.";
                 break;
-            case LoadAndStoreStrategy::ObjectModelsPathIsNotAFolder:
+            case ModelManager::Error::ObjectModelsPathIsNotAFolder:
                 message = "The object models path is not a folder.";
                 break;
-            case LoadAndStoreStrategy::PosesPathDoesNotExist:
+            case ModelManager::Error::PosesPathDoesNotExist:
                 message = "The specified poses file does not exist.";
                 break;
-            case LoadAndStoreStrategy::FailedToPersistPosePosesFileCouldNotBeRead:
+            case ModelManager::Error::FailedToPersistPosePosesFileCouldNotBeRead:
                 message = "Could not read the poses file (error while trying to save poses).";
                 break;
-            case LoadAndStoreStrategy::FailedToPersistPosePosesPathIsNotAFile:
+            case ModelManager::Error::FailedToPersistPosePosesPathIsNotAFile:
                 message = "The specified poses file is not a file (error while trying to save poses).";
                 break;
-            case LoadAndStoreStrategy::PosesPathIsNotReadable:
+            case ModelManager::Error::PosesPathIsNotReadable:
                 message = "The specified poses file is not readable.";
                 break;
-            case LoadAndStoreStrategy::InvalidCameraMatrices:
+            case ModelManager::Error::InvalidCameraMatrices:
                 message = "There were invalid camera matrices in the cam.info file.";
                 break;
-            case LoadAndStoreStrategy::PosesWithInvalidPosesData:
+            case ModelManager::Error::PosesWithInvalidPosesData:
                 message = "There were invalid entries for poses in the poses file.";
                 break;
-            case LoadAndStoreStrategy::NotEnoughSegmentationImages:
+            case ModelManager::Error::NotEnoughSegmentationImages:
                 message = "There were not enough segmentation images to match them with all images.";
                 break;
         }

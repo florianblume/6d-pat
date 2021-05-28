@@ -25,6 +25,7 @@ class LoadAndStoreStrategy : public QObject {
 
 public:
     enum Error {
+        None,
         ImagesPathDoesNotExist,
         SegmentationImagesPathDoesNotExist,
         NotEnoughSegmentationImages,
@@ -88,9 +89,6 @@ public:
 
     virtual QList<QString> posesWithInvalidPosesData() const = 0;
 
-    void setSettingsStore(SettingsStore *value);
-
-    void setSettingsIdentifier(const QString &value);
 
 signals:
     void error(LoadAndStoreStrategy::Error error);

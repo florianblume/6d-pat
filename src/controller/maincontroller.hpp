@@ -34,12 +34,16 @@ public:
     int exec();
 
 Q_SIGNALS:
+    /*!
+     * \brief reloadingData is needed to call reloadData on the model manager in a threadded
+     * way, directly calling methods on the model manager does not perform actions threadded.
+     */
     void reloadingData();
 
 private Q_SLOTS:
     void onSettingsChanged(SettingsPtr settings);
     void onReloadViewsRequested();
-    void onModelManagerStateChanged(ModelManager::State state);
+    void onModelManagerStateChanged(ModelManager::State state, ModelManager::Error error);
 
 private:
     /*!

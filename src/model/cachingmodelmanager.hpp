@@ -86,10 +86,6 @@ private:
 
     LoadAndStoreStrategy::Error m_error;
 
-    // For threadding
-    QFuture<void> reloadFuture;
-    QFutureWatcher<void> reloadFutureWatcher;
-
 };
 
 #endif // CACHINGMODELMANAGER_H

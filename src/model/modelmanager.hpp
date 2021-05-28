@@ -33,11 +33,20 @@ protected:
     LoadAndStoreStrategy& m_loadAndStoreStrategy;
 
 public:
+
+    typedef LoadAndStoreStrategy::Error Error;
+
+    Q_ENUM(Error)
+
     enum State {
         Loading,
-        Error,
+        // Weird name to prevent issues with the typedef
+        ErrorOccured,
         Ready
     };
+
+    Q_ENUM(State)
+
     /*!
      * \brief ModelManager Constructor of class ModelManager.
      *
@@ -138,7 +147,7 @@ public:
      */
     virtual bool removePose(const QString &id) = 0;
 
-    virtual LoadAndStoreStrategy::Error error() = 0;
+    virtual Error error() = 0;
 
 public Q_SLOTS:
     /*!
@@ -152,7 +161,7 @@ Q_SIGNALS:
     void poseAdded(PosePtr pose);
     void poseUpdated(PosePtr pose);
     void poseDeleted(PosePtr pose);
-    void stateChanged(ModelManager::State state);
+    void stateChanged(ModelManager::State state, Error error);
 };
 
 #endif // MODELMANAGER_H

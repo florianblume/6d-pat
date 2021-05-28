@@ -7,9 +7,3 @@ LoadAndStoreStrategy::LoadAndStoreStrategy() {
 LoadAndStoreStrategy::~LoadAndStoreStrategy() {
 
 }
-
-void LoadAndStoreStrategy::setSettingsStore(SettingsStore *value) {
-}
-
-void LoadAndStoreStrategy::setSettingsIdentifier(const QString &value) {
-}

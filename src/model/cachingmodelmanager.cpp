@@ -1,19 +1,13 @@
 #include "cachingmodelmanager.hpp"
 #include "misc/generalhelper.hpp"
 
-#include <QtConcurrent/QtConcurrent>
-#include <QThread>
 #include <QApplication>
 
 CachingModelManager::CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy) : ModelManager(loadAndStoreStrategy) {
     connect(&loadAndStoreStrategy, &LoadAndStoreStrategy::dataChanged,
             this, &CachingModelManager::dataChanged);
-    //connect(&reloadFutureWatcher, &QFutureWatcher<void>::finished, this, &CachingModelManager::dataReady);
     connect(&loadAndStoreStrategy, &LoadAndStoreStrategy::error,
-            [this](LoadAndStoreStrategy::Error error){
-        this->m_error = error;
-        Q_EMIT stateChanged(ModelManager::Error);
-    });
+            this, &CachingModelManager::onLoadAndStoreStrategyError);
 }
 
 CachingModelManager::~CachingModelManager() {
@@ -38,7 +32,7 @@ void CachingModelManager::createConditionalCache() {
 }
 
 void CachingModelManager::onDataChanged(int data) {
-    Q_EMIT stateChanged(State::Loading);
+    Q_EMIT stateChanged(State::Loading, Error::None);
     if (data == Images) {
         m_images = m_loadAndStoreStrategy.loadImages();
         // Add to flag that poses have been changed too
@@ -52,7 +46,7 @@ void CachingModelManager::onDataChanged(int data) {
     // We need to load poses no matter what
     m_poses = m_loadAndStoreStrategy.loadPoses(m_images, m_objectModels);
     createConditionalCache();
-    Q_EMIT stateChanged(State::Ready);
+    Q_EMIT stateChanged(State::Ready, Error::None);
     Q_EMIT dataChanged(data);
 }
 
@@ -204,7 +198,7 @@ bool CachingModelManager::removePose(const QString &id) {
 }
 
 void CachingModelManager::reload() {
-    Q_EMIT stateChanged(State::Loading);
+    Q_EMIT stateChanged(State::Loading, Error::None);
     m_images = m_loadAndStoreStrategy.loadImages();
     m_objectModels = m_loadAndStoreStrategy.loadObjectModels();
     m_poses = m_loadAndStoreStrategy.loadPoses(m_images, m_objectModels);
@@ -218,10 +212,10 @@ LoadAndStoreStrategy::Error CachingModelManager::error() {
 
 void CachingModelManager::onLoadAndStoreStrategyError(LoadAndStoreStrategy::Error error) {
     m_error = error;
-    Q_EMIT stateChanged(State::Error);
+    Q_EMIT stateChanged(State::ErrorOccured, error);
 }
 
 void CachingModelManager::dataReady() {
-    Q_EMIT stateChanged(State::Ready);
+    Q_EMIT stateChanged(State::Ready, Error::None);
     Q_EMIT dataChanged(Data::Images | Data::ObjectModels | Data::Poses);
 }
