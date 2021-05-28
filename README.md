@@ -16,29 +16,13 @@ The program allows you to select a folder and view the images contained in it in
 
 *Objects and images are from the [T-Less Dataset](http://cmp.felk.cvut.cz/t-less/).*
 
-## Requirements
+## Getting the program
 
-|  | OpenGL | Qt | OpenCV
---- | --- | --- | ---
-**Version** | *3.1* | *5.14* | *4.5*
+### Running a release
 
-## Setup
+You can download the latest AppImage from the [releases page](https://github.com/florianblume/6d-pat/releases) which contains everything the program needs to run and should work on the latest Ubuntu out of the box.
 
-You have two options:
-1. Install all requirements and build from source or download a release
-2. Or run the Docker image
-
-### 1. Build from source or run release
-You need to have Qt >= 5.14 and OpenCV >= 4.5 installed. You can do so this way for example (if you don't want to manually install Qt and build OpenCV):
-
-    sudo add-apt-repository -y ppa:beineri/opt-qt-5.14.2-focal
-    sudo apt-get update -qq
-    sudo apt-get -y install qt514-meta-minimal qt5143d qt514gamepad
-    sudo apt-get -y install libopencv-dev
-
-Then open the project's main `6d-pat.pro` file in QtCreator and build the project. Everything should compile successfully.
-
-### 2. Run the Docker image
+### Run the Docker image
 
 Enable X-server display for Docker:
 
@@ -50,9 +34,24 @@ Run the Docker image:
 
 Check out the [getting the program wiki page](https://github.com/florianblume/6d-pat/wiki/1.-Getting-the-Program) for more details.
 
-**Requirements and Setup are only provided for Ubuntu. Given the portability of the used frameworks a setup on Windows, etc. should be possible, as well.**
+### Build from source
 
-## Setting up the program
+#### Requirements
+
+|  | OpenGL | Qt | OpenCV
+--- | --- | --- | ---
+**Version** | *3.1* | *5.14* | *4.5*
+
+You need to have Qt >= 5.14 and OpenCV >= 4.5 installed. You can do so this way for example (if you don't want to manually install Qt and build OpenCV):
+
+    sudo add-apt-repository -y ppa:beineri/opt-qt-5.14.2-focal
+    sudo apt-get update -qq
+    sudo apt-get -y install qt514-meta-minimal qt5143d qt514gamepad
+    sudo apt-get -y install libopencv-dev
+
+Then open the project's main `6d-pat.pro` file in QtCreator and build the project. Everything should compile successfully.
+
+## Setting up the program the first time
 
 Check out the [program setup wiki page](https://github.com/florianblume/6d-pat/wiki/2.-Setting-up-the-Program) to see in detail how to set up the program.
 
