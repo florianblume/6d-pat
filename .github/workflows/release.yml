@@ -49,7 +49,7 @@ jobs:
         cp ./build/release/src/6DPAT appdir & cp ./src/resources/images/icon.png appdir
         mv appdir/icon.png appdir/6DPAT.png
     - name: Create desktop file
-      run: echo $'[Desktop Entry]\nType=Application\nName=6DPAT\nExec=6DPAT\nIcon=6DPAT' > 6DPAT.desktop
+      run: echo $'[Desktop Entry]\nType=Application\nName=6DPAT\nExec=6DPAT\nIcon=6DPAT' > appdir/6DPAT.desktop
     - name: Run linuxdeployqt
       run: |
         wget https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage
