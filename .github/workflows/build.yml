@@ -1,0 +1,41 @@
+name: build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install OpenCV
+      run: sudo apt-get update && sudo apt-get install -y libopencv-dev
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1
+      with:
+        path: ${{ github.workspace }}/Qt
+        key: ${{ runner.os }}-QtCache
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: '5.15.2'
+        host: 'linux'
+        target: 'desktop'
+        dir: '${{ github.workspace }}'
+        install-deps: 'true'
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        tools: 'tools_ifw,4.0,qt.tools.ifw.40 tools_qtcreator,4.13.2-0,qt.tools.qtcreator'
+        tools-only: 'false'
+        aqtversion: '==0.11.1'
+        py7zrversion: '==0.11.3'
+    - name: Create build folder
+      run: mkdir -p ./build/release
+    - name: qmake
+      working-directory: ./build/release
+      run: qmake ../../6d-pat.pro
+    - name: make
+      run: make -j8 --directory ./build/release
