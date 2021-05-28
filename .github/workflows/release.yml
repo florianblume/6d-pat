@@ -50,11 +50,16 @@ jobs:
         mv appdir/icon.png appdir/6DPAT.png
     - name: Create desktop file
       run: echo $'[Desktop Entry]\nType=Application\nName=6DPAT\nExec=6DPAT\nIcon=6DPAT' > 6DPAT.desktop
-    - name: Get linuxdeployqt and run it
+    - name: Run linuxdeployqt
       run: |
         wget https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage
         chmod +x linuxdeployqt-5-x86_64.AppImage
         ./linuxdeployqt-5-x86_64.AppImage appdir/6DPAT
+    - name: Run appimagetool
+      run: |
+        wget https://github.com/AppImage/AppImageKit/releases/download/12/appimagetool-x86_64.AppImage
+        chmod +x appimagetool-x86_64.AppImage
+        ./appimagetool-x86_64.AppImage appdir
         ls
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
