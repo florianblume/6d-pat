@@ -50,7 +50,7 @@ jobs:
         mv appdir/icon.png appdir/6DPAT.png
     - name: Create desktop file
       run: |
-        echo $'[Desktop Entry]\nType=Application\nName=6DPAT\nExec=6DPAT\nIcon=6DPAT' > 6DPAT.desktop
+        echo $'[Desktop Entry]\nType=Application\nName=6DPAT\nExec=6DPAT\nIcon=6DPAT\nCategories=Utility;Application;' > 6DPAT.desktop
         mv 6DPAT.desktop appdir/6DPAT.desktop
         ls
         ls appdir
