@@ -56,10 +56,10 @@ jobs:
         chmod +x linuxdeployqt-5-x86_64.AppImage
         ./linuxdeployqt-5-x86_64.AppImage appdir/6DPAT
     - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
-          files: |
-            LICENSE
-            README.md
-            6DPAT-x86_64.AppImage
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        files: |
+          LICENSE
+          README.md
+          6DPAT-x86_64.AppImage
