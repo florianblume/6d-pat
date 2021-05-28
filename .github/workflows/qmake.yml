@@ -40,8 +40,7 @@ jobs:
     - name: make
       run: make -j8 --directory ./build/release
     - name: Create appdir
-      working-directory: ../..
-      run: pwd & ls & mkdir appdir
+      run: pwd & ls & ls ./build/release/ & mkdir appdir
     - name: Copy executable and 
       run: cp ./build/release/src/6DPAT appdir & cp ./src/resources/images/6DPAT.png appdir
     - name: Get linuxdeployqt and run it
