@@ -34,18 +34,12 @@ protected:
 
 public:
 
-    typedef LoadAndStoreStrategy::Error Error;
-
-    Q_ENUM(Error)
-
     enum State {
         Loading,
         // Weird name to prevent issues with the typedef
         ErrorOccured,
         Ready
     };
-
-    Q_ENUM(State)
 
     /*!
      * \brief ModelManager Constructor of class ModelManager.
@@ -147,8 +141,6 @@ public:
      */
     virtual bool removePose(const QString &id) = 0;
 
-    virtual Error error() = 0;
-
 public Q_SLOTS:
     /*!
      * \brief reload reads all data from the persitence storage again and
@@ -161,7 +153,7 @@ Q_SIGNALS:
     void poseAdded(PosePtr pose);
     void poseUpdated(PosePtr pose);
     void poseDeleted(PosePtr pose);
-    void stateChanged(ModelManager::State state, Error error);
+    void stateChanged(ModelManager::State state, LoadAndStoreStrategy::Error error);
 };
 
 #endif // MODELMANAGER_H

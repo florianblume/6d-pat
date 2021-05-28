@@ -52,8 +52,6 @@ public:
 
     bool removePose(const QString &id) override;
 
-    LoadAndStoreStrategy::Error error() override;
-
 public Q_SLOTS:
     void reload() override;
 
@@ -83,8 +81,6 @@ private:
     QMap<QString, QList<PosePtr>> m_posesForObjectModels;
     //! The list of the object image poses
     QList<PosePtr> m_poses;
-
-    LoadAndStoreStrategy::Error m_error;
 
 };
 

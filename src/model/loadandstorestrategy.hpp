@@ -99,4 +99,6 @@ protected slots:
 
 };
 
+//Q_DECLARE_METATYPE(LoadAndStoreStrategy::Error)
+
 #endif // LOADANDSTORESTRATEGY_H

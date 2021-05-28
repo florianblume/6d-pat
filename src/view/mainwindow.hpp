@@ -116,7 +116,7 @@ private Q_SLOTS:
     void onActionSettingsTriggered();
     void onActionAbortCreationTriggered();
     void onActionReloadViewsTriggered();
-    void onModelManagerStateChanged(ModelManager::State state, ModelManager::Error error);
+    void onModelManagerStateChanged(ModelManager::State state, LoadAndStoreStrategy::Error error);
 
     /*!
      * \brief displayWarning displays a warning as a popup box.
