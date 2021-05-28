@@ -55,6 +55,7 @@ jobs:
         wget https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage
         chmod +x linuxdeployqt-5-x86_64.AppImage
         ./linuxdeployqt-5-x86_64.AppImage appdir/6DPAT
+        ls
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
