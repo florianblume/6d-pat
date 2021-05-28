@@ -323,53 +323,56 @@ void MainWindow::onActionReloadViewsTriggered() {
     setStatusBarText("Ready.");
 }
 
-void MainWindow::onModelManagerStateChanged(ModelManager::State state) {
-    if (state == ModelManager::Error) {
+void MainWindow::onModelManagerStateChanged(ModelManager::State state, LoadAndStoreStrategy::Error error) {
+    if (state == ModelManager::ErrorOccured) {
         QString message("An unkown error occured in the data manager.");
-        switch (modelManager->error()) {
-            case LoadAndStoreStrategy::CamInfoDoesNotExist:
+        switch (error) {
+            case LoadAndStoreStrategy::Error::None:
+                // Cannot occur, just so that there is no warning here
+                break;
+            case LoadAndStoreStrategy::Error::CamInfoDoesNotExist:
                 message = "The camera info file info.json does not exist.";
                 break;
-            case LoadAndStoreStrategy::ImagesPathDoesNotExist:
+            case LoadAndStoreStrategy::Error::ImagesPathDoesNotExist:
                 message = "The images path does not exist.";
                 break;
-            case LoadAndStoreStrategy::SegmentationImagesPathDoesNotExist:
+            case LoadAndStoreStrategy::Error::SegmentationImagesPathDoesNotExist:
                 message = "The segmentation images path does not exist.";
                 break;
-            case LoadAndStoreStrategy::CouldNotReadCamInfo:
+            case LoadAndStoreStrategy::Error::CouldNotReadCamInfo:
                 message = "Could not read the camera info file info.json.";
                 break;
-            case LoadAndStoreStrategy::CamInfoPathIsNotAJSONFile:
+            case LoadAndStoreStrategy::Error::CamInfoPathIsNotAJSONFile:
                 message = "The camera info file info.json is not a valid file.";
                 break;
-            case LoadAndStoreStrategy::NoImagesFound:
+            case LoadAndStoreStrategy::Error::NoImagesFound:
                 message = "No images found at the specified images path.";
                 break;
-            case LoadAndStoreStrategy::ObjectModelsPathDoesNotExist:
+            case LoadAndStoreStrategy::Error::ObjectModelsPathDoesNotExist:
                 message = "The object models path does not exist.";
                 break;
-            case LoadAndStoreStrategy::ObjectModelsPathIsNotAFolder:
+            case LoadAndStoreStrategy::Error::ObjectModelsPathIsNotAFolder:
                 message = "The object models path is not a folder.";
                 break;
-            case LoadAndStoreStrategy::PosesPathDoesNotExist:
+            case LoadAndStoreStrategy::Error::PosesPathDoesNotExist:
                 message = "The specified poses file does not exist.";
                 break;
-            case LoadAndStoreStrategy::FailedToPersistPosePosesFileCouldNotBeRead:
+            case LoadAndStoreStrategy::Error::FailedToPersistPosePosesFileCouldNotBeRead:
                 message = "Could not read the poses file (error while trying to save poses).";
                 break;
-            case LoadAndStoreStrategy::FailedToPersistPosePosesPathIsNotAFile:
+            case LoadAndStoreStrategy::Error::FailedToPersistPosePosesPathIsNotAFile:
                 message = "The specified poses file is not a file (error while trying to save poses).";
                 break;
-            case LoadAndStoreStrategy::PosesPathIsNotReadable:
+            case LoadAndStoreStrategy::Error::PosesPathIsNotReadable:
                 message = "The specified poses file is not readable.";
                 break;
-            case LoadAndStoreStrategy::InvalidCameraMatrices:
+            case LoadAndStoreStrategy::Error::InvalidCameraMatrices:
                 message = "There were invalid camera matrices in the cam.info file.";
                 break;
-            case LoadAndStoreStrategy::PosesWithInvalidPosesData:
+            case LoadAndStoreStrategy::Error::PosesWithInvalidPosesData:
                 message = "There were invalid entries for poses in the poses file.";
                 break;
-            case LoadAndStoreStrategy::NotEnoughSegmentationImages:
+            case LoadAndStoreStrategy::Error::NotEnoughSegmentationImages:
                 message = "There were not enough segmentation images to match them with all images.";
                 break;
         }
