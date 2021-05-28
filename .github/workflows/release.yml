@@ -64,7 +64,6 @@ jobs:
         wget https://github.com/AppImage/AppImageKit/releases/download/12/appimagetool-x86_64.AppImage
         chmod +x appimagetool-x86_64.AppImage
         ./appimagetool-x86_64.AppImage appdir
-        ls
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
