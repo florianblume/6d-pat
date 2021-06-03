@@ -2,15 +2,15 @@ name: tagged-release
 
 on:
   push:
-    branches:
-      - master
     tags:
-      - "v*"
+      - '*'
 
 jobs:
   tagged-release:
     runs-on: ubuntu-latest
     steps:
+    - name: Set commit tag
+      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: Install Dependencies
       run: |
@@ -73,9 +73,20 @@ jobs:
           LICENSE
           README.md
           6DPAT-x86_64.AppImage
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        automatic_release_tag: ${{ env.RELEASE_VERSION }}
+        files: |
+          LICENSE
+          README.md
+          6DPAT-x86_64.AppImage
   docker:
     runs-on: ubuntu-latest
     steps:
+      - name: Set commit tag
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -91,6 +102,4 @@ jobs:
         with:
           file: docker/Dockerfile
           push: true
-          tags: florianblume/6dpat:latest
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+          tags: florianblume/6dpat:latest,florianblume/6dpat:${{ env.RELEASE_VERSION }}
