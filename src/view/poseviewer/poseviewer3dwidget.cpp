@@ -32,6 +32,7 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       posesCameraSelector(new Qt3DRender::QCameraSelector),
       posesDepthTest(new Qt3DRender::QDepthTest),
       posesMultiSampling(new Qt3DRender::QMultiSampleAntiAliasing),
+      posesRenderCapture(new Qt3DRender::QRenderCapture),
       clickVisualizationLayerFilter(new Qt3DRender::QLayerFilter),
       clickVisualizationLayer(new Qt3DRender::QLayer),
       clickVisualizationCameraSelector(new Qt3DRender::QCameraSelector),
@@ -87,6 +88,7 @@ void PoseViewer3DWidget::initializeQt3D() {
     posesDepthTest->setParent(posesCameraSelector);
     posesDepthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
     posesMultiSampling->setParent(posesDepthTest);
+    posesRenderCapture->setParent(posesMultiSampling);
 
     setActiveFrameGraph(viewport);
 
@@ -225,6 +227,11 @@ QVector3D PoseViewer3DWidget::arcBallVectorForMousePos(const QPointF pos) {
     return QVector3D(ndcX, ndcY, 0.0);
 }
 
+void PoseViewer3DWidget::onPosesSnapshotReady() {
+    posesRenderCaptureReply->saveImage("test.png");
+    delete posesRenderCaptureReply;
+}
+
 // This method is not directly called from the signal but further top by a lambda
 // which checks if the signaling pose is selected
 void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent) {
@@ -289,6 +296,9 @@ void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent
 }
 
 void PoseViewer3DWidget::onPoseRenderablePressed(Qt3DRender::QPickEvent *pickEvent) {
+    posesRenderCaptureReply = posesRenderCapture->requestCapture();
+    connect(posesRenderCaptureReply, &Qt3DRender::QRenderCaptureReply::completed,
+            this, &PoseViewer3DWidget::onPosesSnapshotReady);
     poseRenderablePressed = true;
 }
 

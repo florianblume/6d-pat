@@ -28,6 +28,8 @@
 #include <Qt3DRender/QLayer>
 #include <Qt3DRender/QNoPicking>
 #include <Qt3DRender/QMultiSampleAntiAliasing>
+#include <Qt3DRender/QRenderCapture>
+#include <Qt3DRender/QRenderCaptureReply>
 
 class PoseViewer3DWidget : public Qt3DWidget
 {
@@ -67,6 +69,9 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
 
+private Q_SLOTS:
+    void onPosesSnapshotReady();
+
 private:
     QVector3D arcBallVectorForMousePos(const QPointF pos);
 
@@ -98,6 +103,8 @@ private:
     Qt3DRender::QCameraSelector *posesCameraSelector;
     Qt3DRender::QDepthTest *posesDepthTest;
     Qt3DRender::QMultiSampleAntiAliasing *posesMultiSampling;
+    Qt3DRender::QRenderCapture *posesRenderCapture;
+    Qt3DRender::QRenderCaptureReply *posesRenderCaptureReply;
 
     // Clear depth buffer before drawing clicks
     Qt3DRender::QClearBuffers *clearBuffers2;
