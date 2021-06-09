@@ -62,7 +62,7 @@ protected:
 
     QVariant optionValueForModeAndState( const QString& baseKey, QIcon::Mode mode, QIcon::State state, const QVariantMap& options )
     {
-        foreach( QString key, optionKeysForModeAndState(baseKey, mode, state) ) {
+        Q_FOREACH(QString key, optionKeysForModeAndState(baseKey, mode, state)) {
             //if ( options.contains(key) && options.value(key).toString().isEmpty()) qDebug() << "Not found:" << key;
             if( options.contains(key) && !(options.value(key).toString().isEmpty()) )
                 return options.value(key);

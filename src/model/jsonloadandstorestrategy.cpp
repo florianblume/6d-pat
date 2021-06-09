@@ -184,10 +184,10 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     // is if this strategy was constructed with an empty path, all other methods of
     // setting the path check if the path exists
     if (!QFileInfo(imagesPath).exists()) {
-        emit error(ImagesPathDoesNotExist);
+        Q_EMIT error(ImagesPathDoesNotExist);
         return images;
     } else if (segmentationImagesPath != "" && !QFileInfo(segmentationImagesPath).exists()) {
-        emit error(SegmentationImagesPathDoesNotExist);
+        Q_EMIT error(SegmentationImagesPathDoesNotExist);
         return images;
     }
 

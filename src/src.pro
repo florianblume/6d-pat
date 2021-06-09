@@ -3,7 +3,7 @@ TARGET = 6DPAT
 TEMPLATE = app
 
 QT     += core gui widgets 3dcore 3dextras 3drender
-CONFIG += c++11
+CONFIG += c++11 no_keywords
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
@@ -21,9 +21,11 @@ unix: CONFIG += link_pkgconfig
 unix: PKGCONFIG += opencv4
 
 # Assuming build folder to be 3 levels deeper than library
-INCLUDEPATH += ../../../include/qt3dwidget
+INCLUDEPATH += ../../../include/qt3dwidget \
+               /home/flo/miniconda3/include/python3.8
 
-LIBS += -L../../../lib/qt3dwidget -lqt3dwidget
+LIBS += -L../../../lib/qt3dwidget -lqt3dwidget \
+        -L/home/flo/miniconda3/lib -lpython3.8
 
 include(controller/controller.pri)
 include(misc/misc.pri)

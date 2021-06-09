@@ -1,3 +1,5 @@
+#include <Python.h>
+
 #include "controller/maincontroller.hpp"
 
 int main(int argc, char *argv[]) {

@@ -65,10 +65,10 @@ public:
 
     QList<QString> posesWithInvalidPosesData() const override;
 
-protected slots:
+protected Q_SLOTS:
     void onSettingsChanged(SettingsPtr settings) override;
 
-private slots:
+private Q_SLOTS:
     void onDirectoryChanged(const QString &path);
     void onFileChanged(const QString &filePath);
 

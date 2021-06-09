@@ -90,11 +90,11 @@ public:
     virtual QList<QString> posesWithInvalidPosesData() const = 0;
 
 
-signals:
+Q_SIGNALS:
     void error(LoadAndStoreStrategy::Error error);
     void dataChanged(int data);
 
-protected slots:
+protected Q_SLOTS:
     virtual void onSettingsChanged(SettingsPtr settings) = 0;
 
 };

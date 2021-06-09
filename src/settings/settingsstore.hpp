@@ -46,7 +46,7 @@ public:
      */
     SettingsPtr currentSettings();
 
-signals:
+Q_SIGNALS:
     /*!
      * \brief currentSettingsChanged is emitted whenever the current settings of this SettingsStore
      * are saved or the identifier of the current settings is changed, causing the SettingsStore
