@@ -2,12 +2,14 @@
 #include "ui_mainwindow.h"
 #include "view/misc/displayhelper.hpp"
 #include "view/settings/settingsdialog.hpp"
+
 #include <QSettings>
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QLayout>
 #include <QGraphicsBlurEffect>
+#include <QStandardPaths>
 
 //! The main window of the application that holds the individual components.<
 MainWindow::MainWindow(QWidget *parent,
@@ -321,6 +323,13 @@ void MainWindow::onActionAbortCreationTriggered() {
 void MainWindow::onActionReloadViewsTriggered() {
     Q_EMIT reloadingViews();
     setStatusBarText("Ready.");
+}
+
+void MainWindow::onActionTakeSnapshotTriggered() {
+    QString path = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+    QDir dir(path);
+    QString absPath = QFileInfo{dir.filePath("snapshot.png")}.absoluteFilePath();
+    ui->poseViewer->takeSnapshot(absPath);
 }
 
 void MainWindow::onModelManagerStateChanged(ModelManager::State state, LoadAndStoreStrategy::Error error) {

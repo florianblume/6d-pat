@@ -11,28 +11,35 @@
 
 #include <Qt3DRender/QCameraLens>
 #include <Qt3DRender/QPickingSettings>
+#include <Qt3DRender/QFilterKey>
+#include <Qt3DRender/QParameter>
 
 PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
     : Qt3DWidget(parent),
       root(new Qt3DCore::QEntity),
-      renderSurfaceSelector(new Qt3DRender::QRenderSurfaceSelector),
-
+      // Main branch
       viewport(new Qt3DRender::QViewport),
       clearBuffers(new Qt3DRender::QClearBuffers),
       noDraw(new Qt3DRender::QNoDraw),
+      // Background branch
       backgroundLayerFilter(new Qt3DRender::QLayerFilter),
       backgroundLayer(new Qt3DRender::QLayer),
       backgroundCamera(new Qt3DRender::QCamera),
       backgroundCameraSelector(new Qt3DRender::QCameraSelector),
       backgroundNoDepthMask(new Qt3DRender::QNoDepthMask),
       backgroundNoPicking(new Qt3DRender::QNoPicking),
+      // Poses branch
       posesLayerFilter(new Qt3DRender::QLayerFilter),
       posesLayer(new Qt3DRender::QLayer),
+      snapshotRenderPassFilter(new Qt3DRender::QRenderPassFilter),
+      removeHighlightParameter(new Qt3DRender::QParameter),
+      // Rest of poses branch
       posesCamera(new Qt3DRender::QCamera),
       posesCameraSelector(new Qt3DRender::QCameraSelector),
       posesDepthTest(new Qt3DRender::QDepthTest),
       posesMultiSampling(new Qt3DRender::QMultiSampleAntiAliasing),
-      posesRenderCapture(new Qt3DRender::QRenderCapture),
+      snapshotRenderCapture(new Qt3DRender::QRenderCapture),
+      // Click visualization branch
       clickVisualizationLayerFilter(new Qt3DRender::QLayerFilter),
       clickVisualizationLayer(new Qt3DRender::QLayer),
       clickVisualizationCameraSelector(new Qt3DRender::QCameraSelector),
@@ -75,12 +82,16 @@ void PoseViewer3DWidget::initializeQt3D() {
     noDraw2 = new Qt3DRender::QNoDraw(clearBuffers2);
 
     // Third branch that draws the poses
-    // We don't need a layer filter here because only the poses travel through this branch somehow
     posesLayerFilter->setParent(viewport);
     posesLayerFilter->addLayer(backgroundLayer);
     posesLayerFilter->addLayer(clickVisualizationLayer);
     posesLayerFilter->setFilterMode(Qt3DRender::QLayerFilter::DiscardAnyMatchingLayers);
-    posesCameraSelector->setParent(posesLayerFilter);
+    snapshotRenderPassFilter->setParent(posesLayerFilter);
+    removeHighlightParameter->setName("selected");
+    removeHighlightParameter->setValue(QVector4D(0.f, 0.f, 0.f, 0.f));
+    // Will be added when a snapshot is requested
+    //snapshotRenderPassFilter->addParameter(removeHighlightParameter);
+    posesCameraSelector->setParent(snapshotRenderPassFilter);
     posesCameraSelector->setCamera(posesCamera);
     posesCamera->setPosition({0, 0, 0});
     posesCamera->setViewCenter({0, 0, 1});
@@ -88,11 +99,11 @@ void PoseViewer3DWidget::initializeQt3D() {
     posesDepthTest->setParent(posesCameraSelector);
     posesDepthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
     posesMultiSampling->setParent(posesDepthTest);
-    posesRenderCapture->setParent(posesMultiSampling);
+    snapshotRenderCapture->setParent(posesMultiSampling);
 
-    setActiveFrameGraph(viewport);
+    // Fourth branch that captures the rendered output
 
-    // Fourth branch draws the clicks
+    // Fith branch draws the clicks
     clickVisualizationLayerFilter->setParent(viewport);
     clickVisualizationLayerFilter->addLayer(clickVisualizationLayer);
     clickVisualizationCameraSelector->setParent(clickVisualizationLayerFilter);
@@ -108,6 +119,8 @@ void PoseViewer3DWidget::initializeQt3D() {
     clickVisualizationRenderable->setParent(root);
     clickVisualizationRenderable->addComponent(clickVisualizationLayer);
     clickVisualizationRenderable->setSize(this->size());
+
+    setActiveFrameGraph(viewport);
 
     // No need to set a QRenderSurfaceSelector because this is already in the Qt3DWidget
     renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
@@ -227,11 +240,6 @@ QVector3D PoseViewer3DWidget::arcBallVectorForMousePos(const QPointF pos) {
     return QVector3D(ndcX, ndcY, 0.0);
 }
 
-void PoseViewer3DWidget::onPosesSnapshotReady() {
-    posesRenderCaptureReply->saveImage("test.png");
-    delete posesRenderCaptureReply;
-}
-
 // This method is not directly called from the signal but further top by a lambda
 // which checks if the signaling pose is selected
 void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent) {
@@ -296,10 +304,21 @@ void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent
 }
 
 void PoseViewer3DWidget::onPoseRenderablePressed(Qt3DRender::QPickEvent *pickEvent) {
-    posesRenderCaptureReply = posesRenderCapture->requestCapture();
-    connect(posesRenderCaptureReply, &Qt3DRender::QRenderCaptureReply::completed,
-            this, &PoseViewer3DWidget::onPosesSnapshotReady);
     poseRenderablePressed = true;
+}
+
+void PoseViewer3DWidget::onSnapshotReady() {
+    snapshotRenderPassFilter->removeParameter(removeHighlightParameter);
+    snapshotRenderCaptureReply->saveImage(snapshotPath);
+    delete snapshotRenderCaptureReply;
+}
+
+void PoseViewer3DWidget::takeSnapshot(const QString &path) {
+    snapshotPath = path;
+    snapshotRenderPassFilter->addParameter(removeHighlightParameter);
+    snapshotRenderCaptureReply = snapshotRenderCapture->requestCapture();
+    connect(snapshotRenderCaptureReply, &Qt3DRender::QRenderCaptureReply::completed,
+            this, &PoseViewer3DWidget::onSnapshotReady);
 }
 
 /*!

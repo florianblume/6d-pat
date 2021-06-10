@@ -20,15 +20,15 @@ int MainController::exec() {
     stream.open(QIODevice::ReadOnly);
     qApp->setStyleSheet(stream.readAll());
 
-    initialize();
-
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
     format.setStencilBufferSize(0);
     format.setSamples(8);
     format.setProfile(QSurfaceFormat::CoreProfile);
-    format.setVersion(3, 0);
+    format.setVersion(4, 3);
     QSurfaceFormat::setDefaultFormat(format);
+
+    initialize();
 
     return QApplication::exec();
 }

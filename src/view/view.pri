@@ -1,6 +1,7 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
+    $$PWD/poseviewer/snapshotlocationchooser.hpp \
     view/splashscreen/splashscreen.hpp \
     view/settings/settingspathspage.hpp \
     view/gallery/loadingiconmodel.hpp \
@@ -31,6 +32,7 @@ HEADERS += \
     view/tutorialscreen/tutorialscreen.hpp
 
 SOURCES += \
+    $$PWD/poseviewer/snapshotlocationchooser.cpp \
     view/splashscreen/splashscreen.cpp \
     view/gallery/loadingiconmodel.cpp \
     view/settings/settingspathspage.cpp \
@@ -61,6 +63,7 @@ SOURCES += \
     view/tutorialscreen/tutorialscreen.cpp
 
 FORMS += \
+    $$PWD/poseviewer/snapshotlocationchooser.ui \
     view/breadcrumb/breadcrumbview.ui \
     view/settings/settingspathspage.ui \
     view/mainwindow.ui \
