@@ -10,6 +10,7 @@
 #include <QLayout>
 #include <QGraphicsBlurEffect>
 #include <QStandardPaths>
+#include <QFileDialog>
 
 //! The main window of the application that holds the individual components.<
 MainWindow::MainWindow(QWidget *parent,
@@ -326,10 +327,25 @@ void MainWindow::onActionReloadViewsTriggered() {
 }
 
 void MainWindow::onActionTakeSnapshotTriggered() {
-    QString path = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
-    QDir dir(path);
-    QString absPath = QFileInfo{dir.filePath("snapshot.png")}.absoluteFilePath();
-    ui->poseViewer->takeSnapshot(absPath);
+    if (!ui->poseViewer->currentlyViewedImage().isNull()) {
+        QSettings settings("Floretti Konfetti Inc.", "6D-PAT");
+        QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+        QString path = settings.value("snapshotPath", defaultPath).toString();
+        QString chosenPath = QFileDialog::getExistingDirectory(this, tr("Choose snapshot folder"),
+                                                               path,
+                                                               QFileDialog::ShowDirsOnly
+                                                               | QFileDialog::DontResolveSymlinks
+                                                               | QFileDialog::DontUseNativeDialog);
+        settings.setValue("snapshotPath", chosenPath);
+        QDir dir(chosenPath);
+        Image *currentlyViewedImage = ui->poseViewer->currentlyViewedImage().get();
+        const QString &imagePath = currentlyViewedImage->absoluteImagePath();
+        const QString &imageName = QFileInfo{imagePath}.fileName();
+        QString absPath = QFileInfo{dir.filePath("snapshot_" + imageName)}.absoluteFilePath();
+        ui->poseViewer->takeSnapshot(absPath);
+    } else {
+        displayWarning("Error taking snapshot", "Please select an image before taking a snapshot.");
+    }
 }
 
 void MainWindow::onModelManagerStateChanged(ModelManager::State state, LoadAndStoreStrategy::Error error) {
