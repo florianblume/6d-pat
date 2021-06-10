@@ -52,6 +52,7 @@ public Q_SLOTS:
 
     void reset();
     void onPoseCreationAborted();
+    void takeSnapshot(const QString &path);
 
 Q_SIGNALS:
     void imageClicked(QPoint position);

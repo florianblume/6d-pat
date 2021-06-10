@@ -16,7 +16,6 @@
 #include <QMatrix4x4>
 #include <QResizeEvent>
 
-#include <Qt3DRender/QRenderSurfaceSelector>
 #include <Qt3DRender/QClearBuffers>
 #include <Qt3DRender/QCamera>
 #include <Qt3DRender/QCameraSelector>
@@ -28,6 +27,10 @@
 #include <Qt3DRender/QLayer>
 #include <Qt3DRender/QNoPicking>
 #include <Qt3DRender/QMultiSampleAntiAliasing>
+#include <Qt3DRender/QRenderCapture>
+#include <Qt3DRender/QRenderCaptureReply>
+#include <Qt3DRender/QRenderPassFilter>
+#include <Qt3DRender/QParameter>
 
 class PoseViewer3DWidget : public Qt3DWidget
 {
@@ -57,6 +60,7 @@ public Q_SLOTS:
     // React to object pickers
     void onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent);
     void onPoseRenderablePressed(Qt3DRender::QPickEvent *pickEvent);
+    void takeSnapshot(const QString &path);
 
 Q_SIGNALS:
     void positionClicked(QPoint position);
@@ -67,6 +71,9 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
 
+private Q_SLOTS:
+    void onSnapshotReady();
+
 private:
     QVector3D arcBallVectorForMousePos(const QPointF pos);
 
@@ -75,7 +82,6 @@ private:
     Qt3DCore::QEntity *root;
 
     // Base framegraph
-    Qt3DRender::QRenderSurfaceSelector *renderSurfaceSelector;
     Qt3DRender::QViewport *viewport;
 
     // First branch - clear the buffers
@@ -94,10 +100,18 @@ private:
     // Poses branch
     Qt3DRender::QLayerFilter *posesLayerFilter;
     Qt3DRender::QLayer *posesLayer;
+    // Filter which adds the parameter which removes the highlight color
+    // Must be before the rest which draws the objects
+    Qt3DRender::QRenderPassFilter *snapshotRenderPassFilter;
+    Qt3DRender::QParameter *removeHighlightParameter;
+    // The main part of the poses branch
     Qt3DRender::QCamera *posesCamera;
     Qt3DRender::QCameraSelector *posesCameraSelector;
     Qt3DRender::QDepthTest *posesDepthTest;
     Qt3DRender::QMultiSampleAntiAliasing *posesMultiSampling;
+    // Stuff to perform the snapshot
+    Qt3DRender::QRenderCapture *snapshotRenderCapture;
+    Qt3DRender::QRenderCaptureReply *snapshotRenderCaptureReply;
 
     // Clear depth buffer before drawing clicks
     Qt3DRender::QClearBuffers *clearBuffers2;
@@ -118,6 +132,8 @@ private:
     QMatrix4x4 rotationMat;
 
     PosePtr selectedPose;
+
+    QString snapshotPath;
 
     // Arc ball vectors for rotation with mouse
     QVector3D arcBallStartVector;

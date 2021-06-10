@@ -133,6 +133,10 @@ void PoseViewer::onPoseCreationAborted() {
     m_poseViewer3DWidget->setClicks({});
 }
 
+void PoseViewer::takeSnapshot(const QString &path) {
+    m_poseViewer3DWidget->takeSnapshot(path);
+}
+
 void PoseViewer::currentSettingsChanged(SettingsPtr settings) {
     // Cannot accept empty settings but should never happen
     Q_ASSERT(!settings.isNull());
