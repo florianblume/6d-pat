@@ -182,7 +182,7 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     poseRenderableForId[pose->id()] = poseRenderable;
     connect(poseRenderable, &PoseRenderable::clicked,
             [poseRenderable, this](Qt3DRender::QPickEvent *e){
-        if (e->button() == Qt3DRender::QPickEvent::RightButton && !poseRenderableMoved) {
+        if (e->button() == settings->selectPoseRenderableMouseButton() && !poseRenderableMoved) {
             Q_EMIT poseSelected(poseRenderable->pose());
         }
         // We can set this to false here because the clicked event is only emitted when
@@ -303,7 +303,7 @@ void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent
     currentClickPos = QPoint(pickEvent->position().x(), pickEvent->position().y());
 }
 
-void PoseViewer3DWidget::onPoseRenderablePressed(Qt3DRender::QPickEvent *pickEvent) {
+void PoseViewer3DWidget::onPoseRenderablePressed(Qt3DRender::QPickEvent */*pickEvent*/) {
     poseRenderablePressed = true;
 }
 
@@ -311,6 +311,7 @@ void PoseViewer3DWidget::onSnapshotReady() {
     snapshotRenderPassFilter->removeParameter(removeHighlightParameter);
     snapshotRenderCaptureReply->saveImage(snapshotPath);
     delete snapshotRenderCaptureReply;
+    Q_EMIT snapshotSaved();
 }
 
 void PoseViewer3DWidget::takeSnapshot(const QString &path) {

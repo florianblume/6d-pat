@@ -31,6 +31,8 @@ PoseViewer::PoseViewer(QWidget *parent) :
             this, &PoseViewer::onImageClicked);
     connect(m_poseViewer3DWidget, &PoseViewer3DWidget::poseSelected,
             this, &PoseViewer::poseSelected);
+    connect(m_poseViewer3DWidget, &PoseViewer3DWidget::snapshotSaved,
+            this, &PoseViewer::snapshotSaved);
 }
 
 PoseViewer::~PoseViewer() {
