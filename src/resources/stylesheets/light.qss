@@ -91,6 +91,17 @@ QMenu::item:selected {
     padding: 4px 9px;
 }
 
+QMenu::item:disabled {
+    padding: -1px;
+    border-style: solid;
+    border-color: #959595;
+    border-radius: 0px;
+    border-width: 1px 1px 0px 1px;
+    background-color: white;
+    padding: 4px 9px;
+    color: #aaaaaa;
+}
+
 QLineEdit {
     border: 1px solid #cccccc;
     border-radius: 2px;

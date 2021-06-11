@@ -383,6 +383,12 @@ void MainWindow::onSnapshotSaved() {
     }
 }
 
+void MainWindow::onActionTutorialScreenTriggered() {
+    displayWarning("Tutorial not yet implemented", "Unfortunately, the tutorial has not yet been implemented. "
+                                                   "Feel free to contribute one on GitHub: https://github.com/"
+                                                   "florianblume/6d-pat/issues/63");
+}
+
 void MainWindow::onModelManagerStateChanged(ModelManager::State state, LoadAndStoreStrategy::Error error) {
     if (state == ModelManager::ErrorOccured) {
         QString message("An unkown error occured in the data manager.");

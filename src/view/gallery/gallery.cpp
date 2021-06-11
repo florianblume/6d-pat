@@ -18,6 +18,7 @@ Gallery::Gallery(QWidget *parent) :
     DisplayHelper::setIcon(ui->buttonNavigateLeft, fa::chevronleft, 20);
     DisplayHelper::setIcon(ui->buttonNavigateRight, fa::chevronright, 20);
     ui->frame->layout()->setAlignment(Qt::AlignVCenter);
+    ui->listView->horizontalScrollBar()->setSingleStep(10);
 }
 
 Gallery::~Gallery() {

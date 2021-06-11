@@ -888,7 +888,7 @@
   </action>
   <action name="actionTutorial">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Tutorial Screen</string>
@@ -1086,8 +1086,24 @@
    <slot>onActionTakeSnapshotTriggered()</slot>
    <hints>
     <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
      <x>449</x>
      <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionTutorial</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onActionTutorialScreenTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>449</x>
@@ -1119,5 +1135,6 @@
   <slot>onPosePredictionRequested()</slot>
   <slot>onActionNetworkPredictTriggered()</slot>
   <slot>onActionTakeSnapshotTriggered()</slot>
+  <slot>onActionTutorialScreenTriggered()</slot>
  </slots>
 </ui>
