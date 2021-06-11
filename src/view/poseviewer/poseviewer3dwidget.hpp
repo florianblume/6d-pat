@@ -65,6 +65,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void positionClicked(QPoint position);
     void poseSelected(PosePtr pose);
+    void snapshotSaved();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;

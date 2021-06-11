@@ -57,6 +57,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void imageClicked(QPoint position);
     void poseSelected(PosePtr pose);
+    void snapshotSaved();
 
 private Q_SLOTS:
     /*!

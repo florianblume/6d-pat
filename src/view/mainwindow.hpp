@@ -117,6 +117,7 @@ private Q_SLOTS:
     void onActionAbortCreationTriggered();
     void onActionReloadViewsTriggered();
     void onActionTakeSnapshotTriggered();
+    void onSnapshotSaved();
     void onModelManagerStateChanged(ModelManager::State state, LoadAndStoreStrategy::Error error);
 
     /*!

@@ -11,6 +11,7 @@
 #include <QGraphicsBlurEffect>
 #include <QStandardPaths>
 #include <QFileDialog>
+#include <QCheckBox>
 
 //! The main window of the application that holds the individual components.<
 MainWindow::MainWindow(QWidget *parent,
@@ -60,6 +61,9 @@ MainWindow::MainWindow(QWidget *parent,
             this, &MainWindow::poseCreationAborted);
     connect(ui->galleryRight, &Gallery::selectedItemChanged,
             this, &MainWindow::poseCreationAborted);
+
+    connect(ui->poseViewer, &PoseViewer::snapshotSaved,
+            this, &MainWindow::onSnapshotSaved);
 
     setStatusBarText("Ready.");
 
@@ -329,22 +333,53 @@ void MainWindow::onActionReloadViewsTriggered() {
 void MainWindow::onActionTakeSnapshotTriggered() {
     if (!ui->poseViewer->currentlyViewedImage().isNull()) {
         QSettings settings("Floretti Konfetti Inc.", "6D-PAT");
-        QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
-        QString path = settings.value("snapshotPath", defaultPath).toString();
-        QString chosenPath = QFileDialog::getExistingDirectory(this, tr("Choose snapshot folder"),
-                                                               path,
-                                                               QFileDialog::ShowDirsOnly
-                                                               | QFileDialog::DontResolveSymlinks
-                                                               | QFileDialog::DontUseNativeDialog);
-        settings.setValue("snapshotPath", chosenPath);
-        QDir dir(chosenPath);
+        QString picturesLocation = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
         Image *currentlyViewedImage = ui->poseViewer->currentlyViewedImage().get();
         const QString &imagePath = currentlyViewedImage->absoluteImagePath();
         const QString &imageName = QFileInfo{imagePath}.fileName();
-        QString absPath = QFileInfo{dir.filePath("snapshot_" + imageName)}.absoluteFilePath();
-        ui->poseViewer->takeSnapshot(absPath);
+        // Default new image name and path when none have been set
+        QString defaultPath = QFileInfo(QDir(picturesLocation).filePath("snapshot_" + imageName)).absoluteFilePath();
+        QString path = settings.value("snapshotPath", defaultPath).toString();
+        QString chosenPath = QFileDialog::getOpenFileName(this,
+                                                          tr("Save snapshot as"),
+                                                          path,
+                                                          tr("PNG Files (*.png)"),
+                                                          Q_NULLPTR,
+                                                          QFileDialog::DontUseNativeDialog);
+        QFileInfo chosenPathInfo(chosenPath);
+        bool takeSnapshot = true;
+        if (chosenPathInfo.exists()) {
+            QMessageBox::StandardButton reply = QMessageBox::question(this, "File exists", "The specified file exists. Overwrite?",
+                                                                      QMessageBox::Yes|QMessageBox::No);
+            takeSnapshot = reply == QMessageBox::Yes;
+        }
+        if (chosenPath != "") {
+            settings.setValue("snapshotPath", chosenPath);
+            ui->poseViewer->takeSnapshot(chosenPath);
+        }
     } else {
         displayWarning("Error taking snapshot", "Please select an image before taking a snapshot.");
+    }
+}
+
+void MainWindow::onSnapshotSaved() {
+    QSettings settings("Floretti Konfetti Inc.", "6D-PAT");
+    bool showSnapshotSavedMessageBox = settings.value("showSnapshotSavedMessageBox", true).toBool();
+    if (showSnapshotSavedMessageBox) {
+        QCheckBox *cb = new QCheckBox("Do not show again");
+        QMessageBox msgbox;
+        msgbox.setText("Snapshot successfullly saved!");
+        msgbox.setIcon(QMessageBox::Icon::Information);
+        msgbox.addButton(QMessageBox::Ok);
+        msgbox.setCheckBox(cb);
+
+        QObject::connect(cb, &QCheckBox::stateChanged, [](int state){
+            QSettings settings("Floretti Konfetti Inc.", "6D-PAT");
+            settings.setValue("showSnapshotSavedMessageBox",
+                              static_cast<Qt::CheckState>(state) != Qt::CheckState::Checked);
+        });
+
+        msgbox.exec();
     }
 }
 
