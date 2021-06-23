@@ -1,11 +1,11 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
-#include "qt3dwidget.h"
 #include "model/pose.hpp"
 #include "view/rendering/backgroundimagerenderable.hpp"
 #include "view/rendering/poserenderable.hpp"
 #include "view/rendering/clickvisualizationrenderable.hpp"
+#include "view/qt3dwidget/qt3dwidget.hpp"
 #include "settings/settings.hpp"
 
 #include <QString>
@@ -31,6 +31,8 @@
 #include <Qt3DRender/QRenderCaptureReply>
 #include <Qt3DRender/QRenderPassFilter>
 #include <Qt3DRender/QParameter>
+#include <Qt3DRender/QRenderStateSet>
+#include <Qt3DRender/QFrustumCulling>
 
 class PoseViewer3DWidget : public Qt3DWidget
 {
@@ -101,6 +103,7 @@ private:
     // Poses branch
     Qt3DRender::QLayerFilter *posesLayerFilter;
     Qt3DRender::QLayer *posesLayer;
+    Qt3DRender::QFrustumCulling *posesFrustumCulling;
     // Filter which adds the parameter which removes the highlight color
     // Must be before the rest which draws the objects
     Qt3DRender::QRenderPassFilter *snapshotRenderPassFilter;
@@ -108,8 +111,6 @@ private:
     // The main part of the poses branch
     Qt3DRender::QCamera *posesCamera;
     Qt3DRender::QCameraSelector *posesCameraSelector;
-    Qt3DRender::QDepthTest *posesDepthTest;
-    Qt3DRender::QMultiSampleAntiAliasing *posesMultiSampling;
     // Stuff to perform the snapshot
     Qt3DRender::QRenderCapture *snapshotRenderCapture;
     Qt3DRender::QRenderCaptureReply *snapshotRenderCaptureReply;

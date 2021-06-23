@@ -31,13 +31,12 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       // Poses branch
       posesLayerFilter(new Qt3DRender::QLayerFilter),
       posesLayer(new Qt3DRender::QLayer),
+      posesFrustumCulling(new Qt3DRender::QFrustumCulling),
       snapshotRenderPassFilter(new Qt3DRender::QRenderPassFilter),
       removeHighlightParameter(new Qt3DRender::QParameter),
       // Rest of poses branch
       posesCamera(new Qt3DRender::QCamera),
       posesCameraSelector(new Qt3DRender::QCameraSelector),
-      posesDepthTest(new Qt3DRender::QDepthTest),
-      posesMultiSampling(new Qt3DRender::QMultiSampleAntiAliasing),
       snapshotRenderCapture(new Qt3DRender::QRenderCapture),
       // Click visualization branch
       clickVisualizationLayerFilter(new Qt3DRender::QLayerFilter),
@@ -53,6 +52,8 @@ PoseViewer3DWidget::~PoseViewer3DWidget() {
 
 void PoseViewer3DWidget::initializeQt3D() {
     setRootEntity(root);
+
+    // Viewport will be set as active framegraph at the end of initialization
 
     // First branch that clears the buffers
     clearBuffers->setParent(viewport);
@@ -86,7 +87,8 @@ void PoseViewer3DWidget::initializeQt3D() {
     posesLayerFilter->addLayer(backgroundLayer);
     posesLayerFilter->addLayer(clickVisualizationLayer);
     posesLayerFilter->setFilterMode(Qt3DRender::QLayerFilter::DiscardAnyMatchingLayers);
-    snapshotRenderPassFilter->setParent(posesLayerFilter);
+    posesFrustumCulling->setParent(posesLayerFilter);
+    snapshotRenderPassFilter->setParent(posesFrustumCulling);
     removeHighlightParameter->setName("selected");
     removeHighlightParameter->setValue(QVector4D(0.f, 0.f, 0.f, 0.f));
     // Will be added when a snapshot is requested
@@ -96,10 +98,6 @@ void PoseViewer3DWidget::initializeQt3D() {
     posesCamera->setPosition({0, 0, 0});
     posesCamera->setViewCenter({0, 0, 1});
     posesCamera->setUpVector({0, -1, 0});
-    posesDepthTest->setParent(posesCameraSelector);
-    posesDepthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
-    posesMultiSampling->setParent(posesDepthTest);
-    snapshotRenderCapture->setParent(posesMultiSampling);
 
     // Fourth branch that captures the rendered output
 

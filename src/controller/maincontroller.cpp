@@ -20,14 +20,6 @@ int MainController::exec() {
     stream.open(QIODevice::ReadOnly);
     qApp->setStyleSheet(stream.readAll());
 
-    QSurfaceFormat format;
-    format.setDepthBufferSize(24);
-    format.setStencilBufferSize(0);
-    format.setSamples(8);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    format.setVersion(4, 3);
-    QSurfaceFormat::setDefaultFormat(format);
-
     initialize();
 
     return QApplication::exec();
@@ -49,6 +41,7 @@ void MainController::initialize() {
     m_strategy->setPosesFilePath(m_currentSettings->posesFilePath());
     m_strategy->setSegmentationImagesPath(m_currentSettings->segmentationImagesPath());
 
+
     m_modelManager.reset(new CachingModelManager(*m_strategy.data()));
     connect(this, &MainController::reloadingData,
             m_modelManager.get(), &ModelManager::reload);
@@ -61,6 +54,7 @@ void MainController::initialize() {
             this, &MainController::onReloadViewsRequested);
     connect(m_modelManager.get(), &ModelManager::stateChanged,
             this, &MainController::onModelManagerStateChanged);
+
 
     m_mainWindow->poseViewer()->setSettingsStore(m_settingsStore.get());
     m_mainWindow->poseEditor()->setSettingsStore(m_settingsStore.get());
@@ -83,6 +77,7 @@ void MainController::initialize() {
     // want to show the progress loading view in the ModelManager state change callback
     // Emit the signal to load data threadded, directly calling the methods
     // does not do anything threadded
+
     Q_EMIT reloadingData();
 }
 

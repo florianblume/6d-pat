@@ -20,11 +20,6 @@ lessThan(QT_MINOR_VERSION, 14) {
 unix: CONFIG += link_pkgconfig
 unix: PKGCONFIG += opencv4
 
-# Assuming build folder to be 3 levels deeper than library
-INCLUDEPATH += ../../../include/qt3dwidget
-
-LIBS += -L../../../lib/qt3dwidget -lqt3dwidget
-
 include(controller/controller.pri)
 include(misc/misc.pri)
 include(model/model.pri)

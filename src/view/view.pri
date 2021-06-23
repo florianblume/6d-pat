@@ -28,7 +28,9 @@ HEADERS += \
     view/rendering/objectmodelrenderable.hpp \
     view/rendering/clickvisualizationmaterial.hpp \
     view/rendering/clickvisualizationrenderable.hpp \
-    view/tutorialscreen/tutorialscreen.hpp
+    view/tutorialscreen/tutorialscreen.hpp \
+    view/qt3dwidget/qt3dwidget.hpp \
+    view/qt3dwidget/qt3dwidget_p.hpp
 
 SOURCES += \
     view/splashscreen/splashscreen.cpp \
@@ -58,7 +60,8 @@ SOURCES += \
     view/rendering/objectmodelrenderablematerial.cpp \
     view/rendering/clickvisualizationmaterial.cpp \
     view/rendering/clickvisualizationrenderable.cpp \
-    view/tutorialscreen/tutorialscreen.cpp
+    view/tutorialscreen/tutorialscreen.cpp \
+    view/qt3dwidget/qt3dwidget.cpp
 
 FORMS += \
     view/breadcrumb/breadcrumbview.ui \
