@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <QtMath>
+#include <QTime>
 
 #include <QApplication>
 #include <QFrame>
