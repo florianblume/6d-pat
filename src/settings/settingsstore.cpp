@@ -22,9 +22,8 @@ void SettingsStore::saveCurrentSettings() {
     settings.setValue(POSES_FILE_PATH, m_currentSettings->posesFilePath());
     settings.setValue(SEGMENTATION_IMAGES_PATH, m_currentSettings->segmentationImagesPath());
     settings.setValue(PYTHON_INTERPRETER_PATH, m_currentSettings->pythonInterpreterPath());
-    settings.setValue(TRAINING_SCRIPT_PATH, m_currentSettings->trainingScriptPath());
-    settings.setValue(INFERENCE_SCRIPT_PATH, m_currentSettings->inferenceScriptPath());
-    settings.setValue(NETWORK_CONFIG_PATH, m_currentSettings->networkConfigPath());
+    settings.setValue(LOAD_SAVE_SCRIPT_PATH, m_currentSettings->loadSaveScriptPath());
+    settings.setValue(USED_LOAD_AND_STORE_STRATEGY, m_currentSettings->usedLoadAndStoreStrategy());
     settings.setValue(ADD_CORRESPONDENCE_POINT_MOUSE_BUTTON,
                       Settings::MOUSE_BUTTONS[m_currentSettings->addCorrespondencePointMouseButton()]);
     settings.setValue(MOVE_BACKGROUNDIMAGE_RENDERABLE_MOUSE_BUTTON,
@@ -68,13 +67,11 @@ void SettingsStore::setCurrentSettings(const QString &identifier) {
     settingsPointer->setSegmentationImagePath(
                 settings.value(SEGMENTATION_IMAGES_PATH, "").toString());
     settingsPointer->setPythonInterpreterPath(
-                settings.value(PYTHON_INTERPRETER_PATH, "").toString());
-    settingsPointer->setTrainingScriptPath(
-                settings.value(TRAINING_SCRIPT_PATH, "").toString());
-    settingsPointer->setInferenceScriptPath(
-                settings.value(INFERENCE_SCRIPT_PATH, "").toString());
-    settingsPointer->setNetworkConfigPath(
-                settings.value(NETWORK_CONFIG_PATH, "").toString());
+                settings.value(PYTHON_INTERPRETER_PATH, Global::NO_PATH).toString());
+    settingsPointer->setLoadSaveScriptPath(
+                settings.value(LOAD_SAVE_SCRIPT_PATH, Global::NO_PATH).toString());
+    settingsPointer->setUsedLoadAndStoreStrategy(
+                settings.value(USED_LOAD_AND_STORE_STRATEGY, Settings::UsedLoadAndStoreStrategy::Default).toInt());
     settingsPointer->setAddCorrespondencePointMouseButton(
                 Settings::MOUSE_BUTTONS.keys().at(
                     settings.value(ADD_CORRESPONDENCE_POINT_MOUSE_BUTTON, Settings::MOUSE_BUTTONS[Qt::LeftButton]).toInt()));
@@ -117,9 +114,8 @@ const QString SettingsStore::SEGMENTATION_IMAGES_PATH = "segmentationImagesPath"
 const QString SettingsStore::COLOR_CODES = "colorCodes";
 const QString SettingsStore::COLOR_CODES_GROUP = "-colorcodes";
 const QString SettingsStore::PYTHON_INTERPRETER_PATH = "pythonInterpreterPath";
-const QString SettingsStore::TRAINING_SCRIPT_PATH = "trainingScriptPath";
-const QString SettingsStore::INFERENCE_SCRIPT_PATH = "inferenceScriptPath";
-const QString SettingsStore::NETWORK_CONFIG_PATH = "networkConfigPath";
+const QString SettingsStore::LOAD_SAVE_SCRIPT_PATH = "loadSaveScriptPath";
+const QString SettingsStore::USED_LOAD_AND_STORE_STRATEGY = "usedLoadAndStoreStrategy";
 const QString SettingsStore::ADD_CORRESPONDENCE_POINT_MOUSE_BUTTON = "addCorrespondencePointMouseButton";
 const QString SettingsStore::MOVE_BACKGROUNDIMAGE_RENDERABLE_MOUSE_BUTTON = "moveBackgroundImageRenderableMouseButton";
 const QString SettingsStore::SELECT_POSE_RENDERABLE_MOUSE_BUTTON = "selectPoseRenderableMouseButton";

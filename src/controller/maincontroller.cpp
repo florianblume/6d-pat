@@ -1,5 +1,7 @@
 #include "maincontroller.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
+#include "model/jsonloadandstorestrategy.hpp"
+#include "model/pythonloadandstorestrategy.hpp"
 
 #include <QSplashScreen>
 #include <QFile>
@@ -30,7 +32,7 @@ void MainController::initialize() {
     Settings tmp(*m_settingsStore->currentSettings());
     m_currentSettings.reset(new Settings(tmp));
 
-    m_strategy.reset(new JsonLoadAndStoreStrategy());
+    m_strategy.reset(new PythonLoadAndStoreStrategy());
     // Move the strategy to a new thread to allow threadded data loading
     // This also means that we have to call the strategy's methods
     // through signals and slots, directly calling them does not do

@@ -16,6 +16,11 @@ public:
       Dark
     };
 
+    enum UsedLoadAndStoreStrategy {
+        Default,
+        Python
+    };
+
     Settings(const QString &identifier);
     Settings(const Settings &settings);
     ~Settings();
@@ -41,18 +46,6 @@ public:
     void setPosesFilePath(const QString &value);
 
     QString identifier() const;
-
-    QString trainingScriptPath() const;
-    void setTrainingScriptPath(const QString &value);
-
-    QString inferenceScriptPath() const;
-    void setInferenceScriptPath(const QString &value);
-
-    QString networkConfigPath() const;
-    void setNetworkConfigPath(const QString &value);
-
-    QString pythonInterpreterPath() const;
-    void setPythonInterpreterPath(const QString &value);
 
     Qt::MouseButton addCorrespondencePointMouseButton() const;
     void setAddCorrespondencePointMouseButton(
@@ -80,6 +73,15 @@ public:
     float click3DSize() const;
     void setClick3DSize(float click3DSize);
 
+    QString pythonInterpreterPath() const;
+    void setPythonInterpreterPath(const QString &pythonInterpreterPath);
+
+    QString loadSaveScriptPath() const;
+    void setLoadSaveScriptPath(const QString &loadSaveScriptPath);
+
+    int usedLoadAndStoreStrategy() const;
+    void setUsedLoadAndStoreStrategy(int usedLoadAndStoreStrategy);
+
 private:
     QString m_identifier;
 
@@ -89,9 +91,8 @@ private:
     QString m_objectModelsPath;
     QString m_posesFilePath;
     QString m_pythonInterpreterPath;
-    QString m_trainingScriptPath;
-    QString m_inferenceScriptPath;
-    QString m_networkConfigPath;
+    QString m_loadSaveScriptPath;
+    int m_usedLoadAndStoreStrategy;
     Qt::MouseButton m_addCorrespondencePointMouseButton;
     Qt::MouseButton m_moveBackgroundImageRenderableMouseButton;
     Qt::MouseButton m_selectPoseRenderableMouseButton;

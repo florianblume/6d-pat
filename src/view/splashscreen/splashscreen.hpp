@@ -10,7 +10,7 @@ class SplashScreen : public QSplashScreen {
 public:
     explicit SplashScreen(QWidget *parent = 0);
 
-public slots:
+public Q_SLOTS:
     void showProgressBar(bool show);
     void setProgress(int value);
     void setMaximum(int maximum);

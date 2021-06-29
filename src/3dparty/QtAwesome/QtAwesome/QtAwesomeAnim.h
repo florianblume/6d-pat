@@ -20,7 +20,7 @@ public:
 
     void setup( QPainter& painter, const QRect& rect );
 
-public slots:
+public Q_SLOTS:
     void update();
 
 private:

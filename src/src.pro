@@ -1,12 +1,3 @@
-TARGET = 6DPAT
-
-TEMPLATE = app
-
-QT     += core gui widgets 3dcore 3dextras 3drender
-CONFIG += c++11
-
-DEFINES += QT_DEPRECATED_WARNINGS
-
 # This check is only there for when you build the project with your
 # own Qt libraries
 lessThan(QT_MINOR_VERSION, 14) {
@@ -16,6 +7,19 @@ lessThan(QT_MINOR_VERSION, 14) {
         error(Needs at least Qt >= 5.14 to run - found $$[QT_VERSION].)
     }
 }
+
+TARGET = 6DPAT
+
+TEMPLATE = app
+
+QT     += core gui widgets 3dcore 3dextras 3drender
+CONFIG += c++11 no_keywords
+
+DEFINES += QT_DEPRECATED_WARNINGS
+
+INCLUDEPATH += /usr/include/python3.8 \
+               /usr/include/pybind11
+LIBS += -lpython3.8
 
 unix: CONFIG += link_pkgconfig
 unix: PKGCONFIG += opencv4

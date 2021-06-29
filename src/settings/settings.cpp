@@ -16,6 +16,9 @@ Settings::Settings(const Settings &settings) {
     this->m_objectModelsPath = settings.m_objectModelsPath;
     this->m_posesFilePath = settings.m_posesFilePath;
     this->m_identifier = settings.m_identifier;
+    this->m_pythonInterpreterPath = settings.m_pythonInterpreterPath;
+    this->m_loadSaveScriptPath = settings.m_loadSaveScriptPath;
+    this->m_usedLoadAndStoreStrategy = settings.m_usedLoadAndStoreStrategy;
     this->m_addCorrespondencePointMouseButton = settings.m_addCorrespondencePointMouseButton;
     this->m_moveBackgroundImageRenderableMouseButton = settings.m_moveBackgroundImageRenderableMouseButton;
     this->m_selectPoseRenderableMouseButton = settings.m_selectPoseRenderableMouseButton;
@@ -83,46 +86,6 @@ QString Settings::segmentationCodeForObjectModel(const QString &identifier) cons
 
 QString Settings::identifier() const {
     return m_identifier;
-}
-
-QString Settings::trainingScriptPath() const
-{
-    return m_trainingScriptPath;
-}
-
-void Settings::setTrainingScriptPath(const QString &value)
-{
-    m_trainingScriptPath = value;
-}
-
-QString Settings::inferenceScriptPath() const
-{
-    return m_inferenceScriptPath;
-}
-
-void Settings::setInferenceScriptPath(const QString &value)
-{
-    m_inferenceScriptPath = value;
-}
-
-QString Settings::networkConfigPath() const
-{
-    return m_networkConfigPath;
-}
-
-void Settings::setNetworkConfigPath(const QString &value)
-{
-    m_networkConfigPath = value;
-}
-
-QString Settings::pythonInterpreterPath() const
-{
-    return m_pythonInterpreterPath;
-}
-
-void Settings::setPythonInterpreterPath(const QString &value)
-{
-    m_pythonInterpreterPath = value;
 }
 
 Qt::MouseButton Settings::addCorrespondencePointMouseButton() const
@@ -198,4 +161,34 @@ float Settings::click3DSize() const
 void Settings::setClick3DSize(float click3DSize)
 {
     m_click3DSize = click3DSize;
+}
+
+QString Settings::pythonInterpreterPath() const
+{
+    return m_pythonInterpreterPath;
+}
+
+void Settings::setPythonInterpreterPath(const QString &pythonInterpreterPath)
+{
+    m_pythonInterpreterPath = pythonInterpreterPath;
+}
+
+QString Settings::loadSaveScriptPath() const
+{
+    return m_loadSaveScriptPath;
+}
+
+void Settings::setLoadSaveScriptPath(const QString &loadSaveScriptPath)
+{
+    m_loadSaveScriptPath = loadSaveScriptPath;
+}
+
+int Settings::usedLoadAndStoreStrategy() const
+{
+    return m_usedLoadAndStoreStrategy;
+}
+
+void Settings::setUsedLoadAndStoreStrategy(int usedLoadAndStoreStrategy)
+{
+    m_usedLoadAndStoreStrategy = usedLoadAndStoreStrategy;
 }

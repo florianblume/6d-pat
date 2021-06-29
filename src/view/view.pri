@@ -1,6 +1,7 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
+    $$PWD/settings/settingsloadsavepage.hpp \
     view/splashscreen/splashscreen.hpp \
     view/settings/settingspathspage.hpp \
     view/gallery/loadingiconmodel.hpp \
@@ -33,6 +34,7 @@ HEADERS += \
     view/qt3dwidget/qt3dwidget_p.hpp
 
 SOURCES += \
+    $$PWD/settings/settingsloadsavepage.cpp \
     view/splashscreen/splashscreen.cpp \
     view/gallery/loadingiconmodel.cpp \
     view/settings/settingspathspage.cpp \
@@ -64,6 +66,7 @@ SOURCES += \
     view/qt3dwidget/qt3dwidget.cpp
 
 FORMS += \
+    $$PWD/settings/settingsloadsavepage.ui \
     view/breadcrumb/breadcrumbview.ui \
     view/settings/settingspathspage.ui \
     view/mainwindow.ui \

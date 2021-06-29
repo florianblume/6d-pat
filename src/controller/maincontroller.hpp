@@ -2,14 +2,13 @@
 #define MAINCONTROLLER_H
 
 #include "model/cachingmodelmanager.hpp"
-#include "model/jsonloadandstorestrategy.hpp"
+#include "model/loadandstorestrategy.hpp"
 #include "settings/settingsstore.hpp"
 #include "view/mainwindow.hpp"
+#include "view/splashscreen/splashscreen.hpp"
 #include "misc/global.hpp"
 #include "controller/poseseditingcontroller.hpp"
 #include "controller/neuralnetworkcontroller.hpp"
-
-#include "view/splashscreen/splashscreen.hpp"
 
 #include <QApplication>
 #include <QScopedPointer>
@@ -68,7 +67,7 @@ private:
     // Could be changed dynamically when implementing profiles
     QString m_settingsIdentifier = "default";
 
-    QScopedPointer<JsonLoadAndStoreStrategy> m_strategy;
+    QScopedPointer<LoadAndStoreStrategy> m_strategy;
     QScopedPointer<CachingModelManager> m_modelManager;
     QThread *m_modelManagerThread;
     QScopedPointer<PosesEditingController> m_poseEditingModel;

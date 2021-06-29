@@ -11,6 +11,7 @@
 #include <QString>
 #include <QList>
 #include <QDir>
+#include <QFileSystemWatcher>
 
 using namespace std;
 
@@ -57,9 +58,9 @@ public:
     virtual bool persistPose(const Pose &objectImagePose,
                              bool deletePose) = 0;
 
-    virtual void setImagesPath(const QString &imagesPath) = 0;
+    void setImagesPath(const QString &imagesPath);
 
-    virtual void setSegmentationImagesPath(const QString &path) = 0;
+    void setSegmentationImagesPath(const QString &path);
 
     /*!
      * \brief loadImages Loads the images.
@@ -67,17 +68,17 @@ public:
      */
     virtual QList<ImagePtr> loadImages() = 0;
 
-    virtual QList<QString> imagesWithInvalidCameraMatrix() const = 0;
+    virtual QList<QString> imagesWithInvalidCameraMatrix() const;
 
-    virtual void setObjectModelsPath(const QString &objectModelsPath) = 0;
+    void setObjectModelsPath(const QString &objectModelsPath);
 
     /*!
      * \brief loadObjectModels Loads the object models.
      * \return the list of object models
      */
-    virtual QList<ObjectModelPtr> loadObjectModels() = 0;
+    virtual QList<ObjectModelPtr> loadObjectModels();
 
-    virtual void setPosesFilePath(const QString &posesFilePath) = 0;
+    void setPosesFilePath(const QString &posesFilePath);
 
     /*!
      * \brief loadPoses Loads the poses at the given path. How the poses
@@ -87,16 +88,47 @@ public:
     virtual QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
                                        const QList<ObjectModelPtr> &objectModels) = 0;
 
-    virtual QList<QString> posesWithInvalidPosesData() const = 0;
+    virtual QList<QString> posesWithInvalidPosesData() const;
 
 
-signals:
+Q_SIGNALS:
     void error(LoadAndStoreStrategy::Error error);
     void dataChanged(int data);
 
-protected slots:
-    virtual void onSettingsChanged(SettingsPtr settings) = 0;
+protected Q_SLOTS:
+    virtual void onSettingsChanged(SettingsPtr settings);
+    void onDirectoryChanged(const QString &path);
+    void onFileChanged(const QString &filePath);
 
+protected:
+    //! Unmodifiable constants (i.e. not changable by the user at runtime)
+    static const QStringList IMAGE_FILES_EXTENSIONS;
+    static const QStringList OBJECT_MODEL_FILES_EXTENSIONS;
+
+    //! Stores the path to the folder that holds the images
+    QString imagesPath;
+    QList<QString> m_imagesWithInvalidCameraMatrix;
+    //! Stores the path to the folder that holds the object models
+    QString objectModelsPath;
+    //! Stores the path to the already created poses
+    QString posesFilePath;
+    QList<QString> m_posesWithInvalidPosesData;
+    //! Stores the suffix that is used to try to load segmentation images
+    QString segmentationImagesPath;
+
+    QFileSystemWatcher watcher;
+
+    void connectWatcherSignals();
+
+    // We need to ignore changes to the file once after we have written
+    // a new pose to it because the model manager already emits a signal
+    // whenever a new pose has been added for example
+    // We only want this signal when the poses file has been changed
+    // externally
+    bool ignorePosesFileChanged = false;
+
+    //! Internal methods to react to path changes
+    bool setPath(const QString &path, QString &oldPath);
 };
 
 //Q_DECLARE_METATYPE(LoadAndStoreStrategy::Error)
