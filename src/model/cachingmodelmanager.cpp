@@ -202,7 +202,6 @@ void CachingModelManager::reload() {
     m_images = m_loadAndStoreStrategy->loadImages();
     m_objectModels = m_loadAndStoreStrategy->loadObjectModels();
     m_poses = m_loadAndStoreStrategy->loadPoses(m_images, m_objectModels);
-    qDebug() << "poses" << m_poses;
     createConditionalCache();
     Q_EMIT dataReady();
 }

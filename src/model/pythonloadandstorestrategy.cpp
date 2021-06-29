@@ -9,10 +9,12 @@
 namespace py = pybind11;
 
 PythonLoadAndStoreStrategy::PythonLoadAndStoreStrategy() {
+    py::initialize_interpreter();
 }
 
 PythonLoadAndStoreStrategy::~PythonLoadAndStoreStrategy() {
     keepRunning = false;
+    py::finalize_interpreter();
 }
 
 QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
@@ -24,10 +26,8 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
         return images;
     }
 
-    py::scoped_interpreter python;
     QString dirname = fileInfo.dir().absolutePath();
     py::module sys = py::module::import("sys");
-    py::print(sys.attr("path"));
     sys.attr("path").attr("insert")(0, dirname.toUtf8().data());
 
 
@@ -161,8 +161,32 @@ bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool d
     return true;
 }
 
-QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images, const QList<ObjectModelPtr> &objectModels) {
-    return QList<PosePtr>();
+QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images,
+                                                     const QList<ObjectModelPtr> &objectModels) {
+    QList<PosePtr> poses;
+
+    QFileInfo fileInfo(loadSaveScript);
+    if (!fileInfo.exists()) {
+        // TODO error
+        return poses;
+    }
+
+    // TODO remove
+
+    QString dirname = fileInfo.dir().absolutePath();
+    py::module sys = py::module::import("sys");
+    sys.attr("path").attr("insert")(0, dirname.toUtf8().data());
+
+
+    QString filename = fileInfo.fileName();
+    py::module script = py::module::import(filename.mid(0, filename.length() - 3).toUtf8().data());
+
+    /*
+    py::object result = script.attr("load_poses")(imagesPath.toUtf8().data(), py::none());
+    py::print(result);
+    */
+
+    return poses;
 }
 
 QList<QString> PythonLoadAndStoreStrategy::posesWithInvalidData() const {
