@@ -33,43 +33,8 @@ Qt3DWidgetPrivate::Qt3DWidgetPrivate()
     , m_initialized(false) {
 }
 
-void Qt3DWidgetPrivate::init() {
-    static const int coords[4][3] = {
-         { +1, 0, 0 }, { 0, 0, 0 }, { 0, +1, 0 }, { +1, +1, 0 }
-    };
-
-    for (int i = 0; i < 4; ++i) {
-        // vertex position
-        m_vertexData.append(coords[i][0]);
-        m_vertexData.append(coords[i][1]);
-        m_vertexData.append(coords[i][2]);
-        // texture coordinate
-        m_vertexData.append(i == 0 || i == 1);
-        m_vertexData.append(i == 0 || i == 3);
-    }
-
-    // Setup our vertex array object. We later only need to bind this
-    // to be able to draw.
-    m_vao.create();
-    // The binder automatically binds the vao and unbinds it at the end
-    // of the function.
-    QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
-
-    // Setup our vertex buffer object.
-    m_vbo.create();
-    m_vbo.bind();
-    m_vbo.allocate(m_vertexData.constData(), m_vertexData.count() * sizeof(GLfloat));
-
-    m_vbo.bind();
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-    f->glEnableVertexAttribArray(m_vertexAttributeLoc);
-    f->glEnableVertexAttribArray(m_texCoordAttributeLoc);
-    f->glVertexAttribPointer(m_vertexAttributeLoc, 3, GL_FLOAT,
-                             GL_FALSE, 5 * sizeof(GLfloat), 0);
-    f->glVertexAttribPointer(m_texCoordAttributeLoc, 2, GL_FLOAT,
-                             GL_FALSE, 5 * sizeof(GLfloat),
-                             reinterpret_cast<void *>(3 * sizeof(GLfloat)));
-    m_vbo.release();
+void Qt3DWidgetPrivate::init(int width, int height) {
+    updateVertexData(width, height);
 
     m_shaderProgram.reset(new QOpenGLShaderProgram);
     m_shaderProgram->addShaderFromSourceCode(
@@ -109,6 +74,51 @@ void Qt3DWidgetPrivate::init() {
     m_shaderProgram->setUniformValue("texture", 0);
     m_shaderProgram->setUniformValue("samples", QSurfaceFormat::defaultFormat().samples());
     m_shaderProgram->release();
+}
+
+void Qt3DWidgetPrivate::updateVertexData(int width, int height) {
+    static const int coords[4][3] = {
+         { width, 0, 0 }, { 0, 0, 0 }, { 0, height, 0 }, { width, height, 0 }
+    };
+
+    for (int i = 0; i < 4; ++i) {
+        // vertex position
+        m_vertexData.append(coords[i][0]);
+        m_vertexData.append(coords[i][1]);
+        m_vertexData.append(coords[i][2]);
+        // texture coordinate
+        m_vertexData.append(i == 0 || i == 1);
+        m_vertexData.append(i == 0 || i == 3);
+    }
+
+    if (m_vao.isCreated()) {
+        m_vao.destroy();
+    }
+    // Setup our vertex array object. We later only need to bind this
+    // to be able to draw.
+    m_vao.create();
+    // The binder automatically binds the vao and unbinds it at the end
+    // of the function.
+    QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
+
+    if (m_vbo.isCreated()) {
+        m_vbo.destroy();
+    }
+    // Setup our vertex buffer object.
+    m_vbo.create();
+    m_vbo.bind();
+    m_vbo.allocate(m_vertexData.constData(), m_vertexData.count() * sizeof(GLfloat));
+    m_vbo.bind();
+
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+    f->glEnableVertexAttribArray(m_vertexAttributeLoc);
+    f->glEnableVertexAttribArray(m_texCoordAttributeLoc);
+    f->glVertexAttribPointer(m_vertexAttributeLoc, 3, GL_FLOAT,
+                             GL_FALSE, 5 * sizeof(GLfloat), 0);
+    f->glVertexAttribPointer(m_texCoordAttributeLoc, 2, GL_FLOAT,
+                             GL_FALSE, 5 * sizeof(GLfloat),
+                             reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+    m_vbo.release();
 }
 
 Qt3DWidget::Qt3DWidget(QWidget *parent)
@@ -189,7 +199,7 @@ Qt3DWidget::~Qt3DWidget() {
 void Qt3DWidget::paintGL() {
     Q_D(Qt3DWidget);
 
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glDisable(GL_BLEND);
     glEnable(GL_MULTISAMPLE);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -197,8 +207,9 @@ void Qt3DWidget::paintGL() {
     d->m_shaderProgram->bind();
     {
         QMatrix4x4 m;
-        m.ortho(0, 1, 0, 1, 1.0f, 3.0f);
-        m.translate(0.0f, 0.0f, -2.0f);
+        m.viewport(0, 0, d->m_renderingWidth, d->m_renderingHeight);
+        m.ortho(0, d->m_renderingWidth, 0, d->m_renderingHeight, 1.0f, 3.0f);
+        m.translate(0, 0, -2.0f);
 
         QOpenGLVertexArrayObject::Binder vaoBinder(&d->m_vao);
 
@@ -211,7 +222,7 @@ void Qt3DWidget::paintGL() {
 
 void Qt3DWidget::initializeGL() {
     Q_D(Qt3DWidget);
-    d->init();
+    d->init(this->width(), this->height());
     initializeQt3D();
 }
 
@@ -221,6 +232,14 @@ void Qt3DWidget::resizeGL(int w, int h) {
     d->m_colorTexture->setSize(w, h);
     d->m_depthTexture->setSize(w, h);
     d->m_renderSurfaceSelector->setExternalRenderTargetSize(QSize(w, h));
+    d->updateVertexData(w, h);
+    d->m_renderingWidth = w;
+    d->m_renderingHeight = h;
+    //d->updateVertexData(w, h);
+}
+
+void Qt3DWidget::setRenderingSize(int w, int h) {
+    qDebug() << w << h;
 }
 
 void Qt3DWidget::registerAspect(Qt3DCore::QAbstractAspect *aspect) {
@@ -269,6 +288,12 @@ Qt3DRender::QCamera *Qt3DWidget::camera() const {
 Qt3DRender::QRenderSettings *Qt3DWidget::renderSettings() const {
     Q_D(const Qt3DWidget);
     return d->m_renderSettings;
+}
+
+void Qt3DWidget::moveRenderingTo(float x, float y) {
+    Q_D(Qt3DWidget);
+    d->m_renderingX = x;
+    d->m_renderingY = y;
 }
 
 void Qt3DWidget::initializeQt3D() {

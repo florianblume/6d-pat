@@ -42,7 +42,8 @@ public:
     typedef QScopedPointer<QOpenGLShaderProgram> ShaderProgramPtr;
 
     Qt3DWidgetPrivate();
-    void init();
+    void init(int width, int height);
+    void updateVertexData(int width, int height);
 
     Qt3DCore::QAspectEngine *m_aspectEngine;
 
@@ -88,6 +89,11 @@ public:
     QOpenGLTexture *m_texture = Q_NULLPTR;
     int m_vertexAttributeLoc = 0;
     int m_texCoordAttributeLoc = 0;
+
+    float m_renderingWidth = 0;
+    float m_renderingHeight = 0;
+    float m_renderingX = 0;
+    float m_renderingY = 0;
 
     bool m_initialized;
 };

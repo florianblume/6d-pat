@@ -3,6 +3,7 @@
 #include "view/misc/displayhelper.hpp"
 
 #include <QRect>
+#include <QHBoxLayout>
 
 PoseViewer::PoseViewer(QWidget *parent) :
         QWidget(parent),
@@ -10,7 +11,9 @@ PoseViewer::PoseViewer(QWidget *parent) :
         m_poseViewer3DWidget(new PoseViewer3DWidget) {
     ui->setupUi(this);
 
-    m_poseViewer3DWidget->setParent(ui->graphicsContainer);
+    //m_poseViewer3DWidget->setParent(ui->graphicsContainer);
+    ui->graphicsContainer->setLayout(new QHBoxLayout);
+    ui->graphicsContainer->layout()->addWidget(m_poseViewer3DWidget);
 
     DisplayHelper::setIcon(ui->buttonSwitchView, fa::toggleoff, 18);
     ui->buttonSwitchView->setToolTip("Click to switch views between segmentation \n"

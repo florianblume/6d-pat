@@ -21,6 +21,8 @@ public:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
 
+    void setRenderingSize(int w, int h);
+
     void registerAspect(Qt3DCore::QAbstractAspect *aspect);
     void registerAspect(const QString &name);
 
@@ -32,6 +34,8 @@ public:
 
     Qt3DRender::QCamera *camera() const;
     Qt3DRender::QRenderSettings *renderSettings() const;
+
+    void moveRenderingTo(float x, float y);
 
     virtual void initializeQt3D();
 

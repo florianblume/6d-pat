@@ -129,14 +129,15 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
                                             float nearPlane, float farPlane) {
     QImage loadedImage(image);
     this->m_imageSize = loadedImage.size();
-    this->resize(loadedImage.size());
+    setRenderingSize(loadedImage.width(), loadedImage.height());
 
     if (backgroundImageRenderable.isNull()) {
         backgroundImageRenderable = new BackgroundImageRenderable(root, image);
         backgroundImageRenderable->addComponent(backgroundLayer);
         // Only set the image position the first time
-        move(-loadedImage.width() / 2 + ((QWidget*) this->parent())->width() / 2,
-             -loadedImage.height() / 2 + ((QWidget*) this->parent())->height() / 2);
+        // TODO this is not feasible anymore
+        moveRenderingTo(-loadedImage.width() / 2 + ((QWidget*) this->parent())->width() / 2,
+                        -loadedImage.height() / 2 + ((QWidget*) this->parent())->height() / 2);
     } else {
         backgroundImageRenderable->setImage(image);
     }
@@ -327,7 +328,7 @@ void PoseViewer3DWidget::takeSnapshot(const QString &path) {
  */
 
 void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
-    firstClickPos = event->globalPos() - QPoint(geometry().x(), geometry().y());
+    firstClickPos = event->localPos();
     currentClickPos = event->globalPos();
     localClickPos = event->localPos();
 
@@ -348,10 +349,11 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
             // translating or rotating the pose
             && !(poseRenderablePressed && event->buttons() == settings->translatePoseRenderableMouseButton())
             && !(poseRenderablePressed && event->buttons() == settings->rotatePoseRenderableMouseButton())) {
-        currentClickPos = event->globalPos();
+        currentClickPos = event->localPos();
         newPos.setX(currentClickPos.x() - firstClickPos.x());
         newPos.setY(currentClickPos.y() - firstClickPos.y());
-        move(newPos);
+        qDebug() << newPos;
+        moveRenderingTo(newPos.x(), newPos.y());
     }
     mouseMoved = true;
 }

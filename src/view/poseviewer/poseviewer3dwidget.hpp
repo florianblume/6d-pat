@@ -149,9 +149,9 @@ private:
     float depth = 0.f;
 
     // To handle dragging of the widget and clicking
-    QPoint firstClickPos;
-    QPoint newPos;
-    QPoint currentClickPos;
+    QPointF firstClickPos;
+    QPointF newPos;
+    QPointF currentClickPos;
     QPointF localClickPos;
     // To check whether the moved signal of the pose was because the user
     // wants to rotate or translte the pose (and therefore holds down a button)

@@ -32,7 +32,7 @@ void MainController::initialize() {
     Settings tmp(*m_settingsStore->currentSettings());
     m_currentSettings.reset(new Settings(tmp));
 
-    m_strategy.reset(new PythonLoadAndStoreStrategy());
+    m_strategy.reset(new JsonLoadAndStoreStrategy());
     // Move the strategy to a new thread to allow threadded data loading
     // This also means that we have to call the strategy's methods
     // through signals and slots, directly calling them does not do
