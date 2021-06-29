@@ -1,7 +1,6 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    $$PWD/pythoncontext.hpp \
     $$PWD/pythonloadandstorestrategy.hpp \
     model/cachingmodelmanager.hpp \
     model/data.hpp \
@@ -13,7 +12,6 @@ HEADERS += \
     model/pose.hpp
 
 SOURCES += \
-    $$PWD/pythoncontext.cpp \
     $$PWD/pythonloadandstorestrategy.cpp \
     model/image.cpp \
     model/objectmodel.cpp \

@@ -13,6 +13,8 @@
 
 using namespace std;
 
+typedef QSharedPointer<LoadAndStoreStrategy> LoadAndStoreStrategyPtr;
+
 //! Interface ModelManager defines methods to load entities of the program and store them as well.
 /*!
  * A ModelManager is there to read in images and 3D models as well as poses already created by the user. It does so automatically on
@@ -30,7 +32,7 @@ class ModelManager : public QObject {
 
 protected:
     //! The strategy that is used to persist and also to load entities
-    LoadAndStoreStrategy& m_loadAndStoreStrategy;
+    LoadAndStoreStrategyPtr m_loadAndStoreStrategy;
 
 public:
 
@@ -48,9 +50,11 @@ public:
      *
      * \param _LoadAndStoreStrategy
      */
-    ModelManager(LoadAndStoreStrategy& loadAndStoreStrategy);
+    ModelManager(LoadAndStoreStrategyPtr loadAndStoreStrategy);
 
     virtual ~ModelManager();
+
+    void setLoadAndStoreStrategy(LoadAndStoreStrategyPtr strategy);
 
     /*!
      * \brief getImages Returns the list of all images loaded by this manager.

@@ -28,8 +28,8 @@ void LoadAndStoreStrategy::setSegmentationImagesPath(const QString &path) {
     setPath(path, this->segmentationImagesPath);
 }
 
-QList<QString> LoadAndStoreStrategy::imagesWithInvalidCameraMatrix() const {
-    return m_imagesWithInvalidCameraMatrix;
+QList<QString> LoadAndStoreStrategy::imagesWithInvalidData() const {
+    return m_imagesWithInvalidData;
 }
 
 void LoadAndStoreStrategy::setObjectModelsPath(const QString &objectModelsPath) {
@@ -84,8 +84,8 @@ void LoadAndStoreStrategy::setPosesFilePath(const QString &posesFilePath) {
     setPath(posesFilePath, this->posesFilePath);
 }
 
-QList<QString> LoadAndStoreStrategy::posesWithInvalidPosesData() const {
-    return m_posesWithInvalidPosesData;
+QList<QString> LoadAndStoreStrategy::posesWithInvalidData() const {
+    return m_posesWithInvalidData;
 }
 
 bool LoadAndStoreStrategy::setPath(const QString &path, QString &oldPath) {
@@ -139,19 +139,4 @@ void LoadAndStoreStrategy::connectWatcherSignals() {
             this, &LoadAndStoreStrategy::onDirectoryChanged);
     connect(&watcher, &QFileSystemWatcher::fileChanged,
             this, &LoadAndStoreStrategy::onFileChanged);
-}
-
-void LoadAndStoreStrategy::onSettingsChanged(SettingsPtr settings) {
-    if (settings->imagesPath() != imagesPath) {
-        setImagesPath(settings->imagesPath());
-    }
-    if (settings->segmentationImagesPath() != segmentationImagesPath) {
-        setSegmentationImagesPath(settings->segmentationImagesPath());
-    }
-    if (settings->objectModelsPath() != objectModelsPath) {
-        setObjectModelsPath(settings->objectModelsPath());
-    }
-    if (settings->posesFilePath() != posesFilePath) {
-        setPosesFilePath(settings->posesFilePath());
-    }
 }

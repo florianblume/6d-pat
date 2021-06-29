@@ -160,7 +160,7 @@ static ImagePtr createImageWithJsonParams(const QString& filename, const QString
 
 QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     QList<ImagePtr> images;
-    m_imagesWithInvalidCameraMatrix.clear();
+    m_imagesWithInvalidData.clear();
 
     if (imagesPath == Global::NO_PATH) {
         // The only time when the images path can be equal to the NO_PATH is
@@ -242,7 +242,7 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
             if (!newImage) {
                 // This can only happen when the camera matrix is invalid
                 foundImageWithInvalidCameraMatrix = true;
-                m_imagesWithInvalidCameraMatrix.append(imageFilename);
+                m_imagesWithInvalidData.append(imageFilename);
             } else {
                 images.push_back(newImage);
             }
@@ -284,7 +284,7 @@ QMap<QString, ObjectModelPtr> createObjectModelMap(const QList<ObjectModelPtr> &
 QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images,
                                                      const QList<ObjectModelPtr> &objectModels) {
     QList<PosePtr> poses;
-    m_posesWithInvalidPosesData.clear();
+    m_posesWithInvalidData.clear();
 
     if (posesFilePath == Global::NO_PATH) {
         // The only time when the poses file path can be equal to the NO_PATH is

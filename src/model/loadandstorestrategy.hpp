@@ -68,7 +68,7 @@ public:
      */
     virtual QList<ImagePtr> loadImages() = 0;
 
-    virtual QList<QString> imagesWithInvalidCameraMatrix() const;
+    virtual QList<QString> imagesWithInvalidData() const;
 
     void setObjectModelsPath(const QString &objectModelsPath);
 
@@ -88,7 +88,7 @@ public:
     virtual QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
                                        const QList<ObjectModelPtr> &objectModels) = 0;
 
-    virtual QList<QString> posesWithInvalidPosesData() const;
+    virtual QList<QString> posesWithInvalidData() const;
 
 
 Q_SIGNALS:
@@ -96,7 +96,6 @@ Q_SIGNALS:
     void dataChanged(int data);
 
 protected Q_SLOTS:
-    virtual void onSettingsChanged(SettingsPtr settings);
     void onDirectoryChanged(const QString &path);
     void onFileChanged(const QString &filePath);
 
@@ -107,12 +106,12 @@ protected:
 
     //! Stores the path to the folder that holds the images
     QString imagesPath;
-    QList<QString> m_imagesWithInvalidCameraMatrix;
+    QList<QString> m_imagesWithInvalidData;
     //! Stores the path to the folder that holds the object models
     QString objectModelsPath;
     //! Stores the path to the already created poses
     QString posesFilePath;
-    QList<QString> m_posesWithInvalidPosesData;
+    QList<QString> m_posesWithInvalidData;
     //! Stores the suffix that is used to try to load segmentation images
     QString segmentationImagesPath;
 

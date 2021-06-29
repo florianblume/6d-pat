@@ -20,7 +20,7 @@ class CachingModelManager : public ModelManager
 
 public:
 
-    CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy);
+    CachingModelManager(LoadAndStoreStrategyPtr loadAndStoreStrategy);
 
     ~CachingModelManager();
 

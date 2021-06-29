@@ -49,6 +49,7 @@ private:
      * \brief initialize initializes this controller, i.e. sets up the necessary models and further initializes the view.
      */
     void initialize();
+    void createStrategy();
 
     /*!
      * \brief showView shows the view of this controller.
@@ -62,12 +63,12 @@ private:
     SplashScreen* m_splashScreen;
 
     // Keep order! Initializiation must happen in this way
-    QSharedPointer<SettingsStore> m_settingsStore;
-    QSharedPointer<Settings> m_currentSettings;
+    SettingsStorePtr m_settingsStore;
+    SettingsPtr m_currentSettings;
     // Could be changed dynamically when implementing profiles
     QString m_settingsIdentifier = "default";
 
-    QScopedPointer<LoadAndStoreStrategy> m_strategy;
+    LoadAndStoreStrategyPtr m_strategy;
     QScopedPointer<CachingModelManager> m_modelManager;
     QThread *m_modelManagerThread;
     QScopedPointer<PosesEditingController> m_poseEditingModel;

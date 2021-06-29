@@ -18,15 +18,18 @@ public:
 
     QList<ImagePtr> loadImages() override;
 
-    QList<QString> imagesWithInvalidCameraMatrix() const override;
+    QList<QString> imagesWithInvalidData() const override;
 
     QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
                              const QList<ObjectModelPtr> &objectModels) override;
 
-    QList<QString> posesWithInvalidPosesData() const override;
+    QList<QString> posesWithInvalidData() const override;
+
+    void setLoadSaveScript(const QString &value);
 
 private:
-    QString testScript = "tless";
+    QString loadSaveScript;
+    bool keepRunning = true;
 };
 
 #endif // PYTHONLOADANDSTORESTRATEGY_H

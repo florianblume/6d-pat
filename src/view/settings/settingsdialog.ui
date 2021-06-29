@@ -378,7 +378,7 @@
          <enum>QFrame::Box</enum>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="SettingsInterfacePage" name="pageInterface"/>
         <widget class="SettingsPathsPage" name="pagePaths">
