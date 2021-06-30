@@ -1,4 +1,4 @@
-﻿#ifndef LOADANDSTORESTRATEGY_H
+#ifndef LOADANDSTORESTRATEGY_H
 #define LOADANDSTORESTRATEGY_H
 
 #include "pose.hpp"
@@ -119,24 +119,24 @@ protected:
     static const QStringList OBJECT_MODEL_FILES_EXTENSIONS;
 
     //! Stores the path to the folder that holds the images
-    QString imagesPath;
+    QString m_imagesPath;
     QList<QString> m_imagesWithInvalidData;
     //! Stores the path to the folder that holds the object models
-    QString objectModelsPath;
+    QString m_objectModelsPath;
     //! Stores the path to the already created poses
-    QString posesFilePath;
+    QString m_posesFilePath;
     QList<QString> m_posesWithInvalidData;
     //! Stores the suffix that is used to try to load segmentation images
-    QString segmentationImagesPath;
+    QString m_segmentationImagesPath;
 
-    QFileSystemWatcher watcher;
+    QFileSystemWatcher m_fileSystemWatcher;
 
     // We need to ignore changes to the file once after we have written
     // a new pose to it because the model manager already emits a signal
     // whenever a new pose has been added for example
     // We only want this signal when the poses file has been changed
     // externally
-    bool ignorePosesFileChanged = false;
+    bool m_ignorePosesFileChanged = false;
 };
 
 //Q_DECLARE_METATYPE(LoadAndStoreStrategy::Error)

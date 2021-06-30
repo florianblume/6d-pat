@@ -20,14 +20,8 @@ public:
 
     QList<ImagePtr> loadImages() override;
 
-    QList<QString> imagesWithInvalidData() const override;
-
     QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
                              const QList<ObjectModelPtr> &objectModels) override;
-
-    QList<QString> posesWithInvalidData() const override;
-
-    void setLoadSaveScript(const QString &value);
 
 private:
     QString m_loadSaveScript;

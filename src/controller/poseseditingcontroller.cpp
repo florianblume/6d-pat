@@ -276,7 +276,8 @@ bool PosesEditingController::_savePoses(bool showDialog) {
             m_posesToRemove.clear();
         } else {
             // There was an error so we allow the option to try and save
-            // the poses again
+            // the poses again. We don't need a message here since saving
+            // already emits errors in the model manager.
             m_mainWindow->poseEditor()->setEnabledButtonSave(true);
         }
         // Result is either true if the user was shown the save dialog and clicked yes,
