@@ -84,7 +84,7 @@ public:
      * \brief loadObjectModels Loads the object models.
      * \return the list of object models
      */
-    virtual QList<ObjectModelPtr> loadObjectModels();
+    virtual QList<ObjectModelPtr> loadObjectModels() = 0;
 
     void setPosesFilePath(const QString &posesFilePath);
 

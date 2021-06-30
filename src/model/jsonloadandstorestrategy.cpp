@@ -270,6 +270,54 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     return images;
 }
 
+QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
+    QList<ObjectModelPtr> objectModels;
+
+    if (m_objectModelsPath == Global::NO_PATH) {
+        // The only time when the object models path can be equal to the NO_PATH is
+        // when the program is first started -> then we show a hint in the
+        // breaadcrumbs to select an actual path, i.e. not a problem that we
+        // return early here
+        return objectModels;
+    }
+
+    // See explanation under loadImages for why we don't throw an exception here
+    QFileInfo info(m_objectModelsPath);
+    if (!info.exists()) {
+        Q_EMIT error(ObjectModelsPathDoesNotExist);
+        return objectModels;
+    } else if (!info.isDir()) {
+        Q_EMIT error(ObjectModelsPathIsNotAFolder);
+        return objectModels;
+    }
+
+    QDirIterator it(m_objectModelsPath, OBJECT_MODEL_FILES_EXTENSIONS, QDir::Files, QDirIterator::Subdirectories);
+    int index = 0;
+    while (it.hasNext()) {
+        QFileInfo fileInfo(it.next());
+        // We store only the filename as object model path, because that's
+        // the format of the ground truth file used by the neural network
+        ObjectModelPtr objectModel(new ObjectModel(QString::number(index),
+                                                   fileInfo.fileName(),
+                                                   fileInfo.absolutePath()));
+        objectModels.append(objectModel);
+        index++;
+    }
+
+    QCollator collator;
+    collator.setNumericMode(true);
+
+    std::sort(
+        objectModels.begin(),
+        objectModels.end(),
+        [&collator](ObjectModelPtr o1, ObjectModelPtr o2)
+        {
+            return collator.compare(o1->path(), o2->path()) < 0;
+        });
+
+    return objectModels;
+}
+
 QMap<QString, ImagePtr> createImageMap(const QList<ImagePtr> &images) {
     QMap<QString, ImagePtr> imageMap;
 

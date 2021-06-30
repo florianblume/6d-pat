@@ -2,6 +2,7 @@ import os
 import yaml
 
 image_extensions = ['jpg', 'png', 'bmp']
+object_models_extensions = ['.obj', '.ply', '.3ds', '.fbx']
 
 def get_files_at_path_of_extensions(path, extensions):
     return [fn for fn in os.listdir(path) if any(fn.endswith(ext) for ext in extensions)]
@@ -30,10 +31,10 @@ def load_images(images_path, segmentation_images_path):
                                                                            image_extensions)
             sort_list_by_num_in_string_entries(segmentation_image_filenames)
 
-        index = 0
-        for filename in image_filenames:
+        for index, filename in enumerate(image_filenames):
             info = cam_info[index]
-            converted_single = {'image_path' : filename,
+            converted_single = {'img_id' : index,
+                                'img_path' : filename,
                                 'base_path' : images_path,
                                 'K' : info['cam_K'], 
                                 'mode' : info['mode'], 
@@ -47,10 +48,24 @@ def load_images(images_path, segmentation_images_path):
                 converted_single['R'] = info['cam_R_w2c']
                 converted_single['t'] = info['cam_t_w2c']
             converted.append(converted_single)
-            index += 1
         return converted
 
     return 'Error: info.yml could not be read.'
+
+def load_object_models(object_models_path):
+    converted = []
+
+    object_model_filenames = get_files_at_path_of_extensions(object_models_path, object_models_extensions)
+    sort_list_by_num_in_string_entries(object_model_filenames)
+
+    print(object_model_filenames)
+
+    for index, filename in enumerate(object_model_filenames):
+        converted_single = {'obj_id' : index,
+                            'obj_model_path' : filename,
+                            'base_path' : object_models_path}
+        converted.append(converted_single)
+    return converted
 
 def load_poses(path):
     gt_file_path = os.path.abspath(path)
@@ -70,6 +85,9 @@ def load_poses(path):
                                     't' : gt_entry['cam_t_m2c']}
                 if 'pose_id' in gt_entry:
                     converted_single['pose_id'] = gt_entry['pose_id']
+                else:
+                    #TODO Make up an ID, it's required by the program -> Need to also store it in the GT file
+                    pass
                 entries_for_image.append(converted_single)
             converted.append(entries_for_image)
         return converted

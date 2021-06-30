@@ -50,14 +50,33 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
                 py::object item = result_list[i];
                 if (py::isinstance<py::dict>(item)) {
                     py::dict itemDict = py::dict(item);
-                    QString imagePath, basePath, segmentationImagePath;
+                    QString imageID, imagePath, basePath, segmentationImagePath;
                     float nearPlane, farPlane;
                     QMatrix3x3 cameraMatrix;
-                    if (itemDict.contains("image_path")) {
-                        py::object imagePathItem = itemDict["image_path"];
+                    if (itemDict.contains("img_id")) {
+                        py::object imageIDItem = itemDict["img_id"];
+                        // image_id can be a string or an int
+                        if (py::isinstance<py::str>(imageIDItem)) {
+                            imageID = QString::fromStdString(
+                                        itemDict["img_id"].cast<std::string>());
+                        } else if (py::isinstance<py::int_>(imageIDItem)) {
+                            imageID = QString::number(
+                                        itemDict["img_id"].cast<int>());
+                        } else {
+                            qDebug() << "error 1";
+                            continue;
+                            // image_id not a string -> error handling
+                            // print & add to invalid data &  continue
+                        }
+                    } else {
+                        // If we don't find any ID simply use the index
+                        imageID = QString::number(i);
+                    }
+                    if (itemDict.contains("img_path")) {
+                        py::object imagePathItem = itemDict["img_path"];
                         if (py::isinstance<py::str>(imagePathItem)) {
                             imagePath = QString::fromStdString(
-                                        itemDict["image_path"].cast<std::string>());
+                                        itemDict["img_path"].cast<std::string>());
                         } else {
                             qDebug() << "error 1";
                             continue;
@@ -146,7 +165,8 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
                     } else {
                         farPlane = 2000;
                     }
-                    images.append(ImagePtr(new Image(imagePath, basePath, cameraMatrix, nearPlane, farPlane)));
+                    images.append(ImagePtr(new Image(imageID, imagePath, basePath,
+                                                     cameraMatrix, nearPlane, farPlane)));
                 } else {
                     qDebug() << "error 11";
                     // Not a dict
@@ -166,6 +186,105 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
     return images;
 }
 
+QList<ObjectModelPtr> PythonLoadAndStoreStrategy::loadObjectModels() {
+    QList<ObjectModelPtr> objectModels;
+
+    QFileInfo fileInfo(m_loadSaveScript);
+    if (!fileInfo.exists()) {
+        qDebug() << "script not found";
+        return objectModels;
+    }
+
+    try {
+        QString dirname = fileInfo.dir().absolutePath();
+        py::module sys = py::module::import("sys");
+        sys.attr("path").attr("insert")(0, dirname.toUtf8().data());
+
+
+        QString filename = fileInfo.fileName();
+        py::module script = py::module::import(filename.mid(0, filename.length() - 3).toUtf8().data());
+
+        py::object result = script.attr("load_object_models")(m_objectModelsPath.toUtf8().data());
+
+        if (py::isinstance<py::list>(result)) {
+            py::list result_list = py::list(result);
+            int length = result_list.size();
+            for (int i = 0; i < length; i++) {
+                py::object item = result_list[i];
+                if (py::isinstance<py::dict>(item)) {
+                    py::dict itemDict = py::dict(item);
+                    QString objID, objectModelPath, basePath;
+                    if (itemDict.contains("obj_id")) {
+                        py::object objIDItem = itemDict["obj_id"];
+                        // image_id can be a string or an int
+                        if (py::isinstance<py::str>(objIDItem)) {
+                            objID = QString::fromStdString(
+                                        itemDict["obj_id"].cast<std::string>());
+                        } else if (py::isinstance<py::int_>(objIDItem)) {
+                            objID = QString::number(
+                                        itemDict["obj_id"].cast<int>());
+                        } else {
+                            qDebug() << "error 1";
+                            continue;
+                            // image_id not a string -> error handling
+                            // print & add to invalid data &  continue
+                        }
+                    } else {
+                        // If we don't find any ID simply use the index
+                        objID = QString::number(i);
+                    }
+                    if (itemDict.contains("obj_model_path")) {
+                        py::object objModelPathItem = itemDict["obj_model_path"];
+                        // image_id can be a string or an int
+                        if (py::isinstance<py::str>(objModelPathItem)) {
+                            objectModelPath = QString::fromStdString(
+                                        itemDict["obj_model_path"].cast<std::string>());
+                        } else {
+                            qDebug() << "error 1";
+                            continue;
+                            // image_id not a string -> error handling
+                            // print & add to invalid data &  continue
+                        }
+                    } else {
+                        // If we don't find any ID simply use the index
+                        qDebug() << "Error";
+                    }
+                    if (itemDict.contains("base_path")) {
+                        py::object basePathItem = itemDict["base_path"];
+                        // image_id can be a string or an int
+                        if (py::isinstance<py::str>(basePathItem)) {
+                            basePath = QString::fromStdString(
+                                        itemDict["base_path"].cast<std::string>());
+                        } else {
+                            qDebug() << "error 1";
+                            continue;
+                            // image_id not a string -> error handling
+                            // print & add to invalid data &  continue
+                        }
+                    } else {
+                        // If we don't find any ID simply use the index
+                        qDebug() << "Error";
+                    }
+                    objectModels.append(ObjectModelPtr(new ObjectModel(objID, objectModelPath, basePath)));
+                } else {
+                    qDebug() << "error 11";
+                    // Not a dict
+                }
+            }
+        } else if (py::isinstance<py::str>(result)) {
+            // The script returned an error -> pass it on to the view
+            qDebug() << "error 14";
+        } else {
+            qDebug() << "error 12";
+            // Not a list
+        }
+    } catch (py::error_already_set &e) {
+        // Some crazy error happened
+        qDebug() << "error 13";
+    }
+    return objectModels;
+}
+
 bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool deletePose) {
     return true;
 }
@@ -173,6 +292,20 @@ bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool d
 QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images,
                                                      const QList<ObjectModelPtr> &objectModels) {
     QList<PosePtr> poses;
+    QMap<QString, ImagePtr> imagesForID;
+    Q_FOREACH(ImagePtr image, images) {
+        if (imagesForID.contains(image->id())) {
+            qDebug() << "whoops two images with the same ID Error";
+        }
+        imagesForID[image->id()] = image;
+    }
+    QMap<QString, ObjectModelPtr> objectModelsForID;
+    Q_FOREACH(ObjectModelPtr objectModel, objectModels) {
+        if (objectModelsForID.contains(objectModel->id())) {
+            qDebug() << "whoops two object models with the same ID Error";
+        }
+        objectModelsForID[objectModel->id()] = objectModel;
+    }
 
     QFileInfo fileInfo(m_loadSaveScript);
     if (!fileInfo.exists()) {
@@ -210,32 +343,25 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                             if (poseDict.contains("img_id")) {
                                 py::object imgIDItem = poseDict["img_id"];
                                 py::isinstance<py::int_>(imgIDItem);
+                                QString imageID;
                                 if (py::isinstance<py::int_>(imgIDItem)) {
-                                    int imgID = poseDict["img_id"].cast<int>();
-                                    if (imgID >= 0 && imgID < images.size()) {
-                                        image = images[imgID];
-                                    } else {
-                                        qDebug() << "img index out of bounds";
-                                    }
+                                    imageID = QString::number(imgIDItem.cast<int>());
                                 } else if (py::isinstance<py::str>(imgIDItem)) {
-                                    bool imageFound = false;
-                                    Q_FOREACH(ImagePtr _image, images) {
-                                        QString imageName = QString::fromStdString(imgIDItem.cast<std::string>());
-                                        if (_image->imagePath() == imageName) {
-                                            image = _image;
-                                            imageFound = true;
-                                            break;
-                                        }
-                                        if (!imageFound) {
-                                            qDebug() << "Image not found Error";
-                                        }
-                                    }
+                                    imageID = QString::fromStdString(imgIDItem.cast<std::string>());
                                 } else {
                                     qDebug() << "error 1";
                                     continue;
                                     // image_path not a string -> error handling
                                     // print & add to invalid data &  continue
                                 }
+                                if (imagesForID.contains(imageID)) {
+                                    image = imagesForID[imageID];
+                                } else {
+                                    qDebug() << "Image not found Error";
+                                    continue;
+                                }
+                            } else if (poseDict.contains("img_path")) {
+                                // TODO check for Image with the given path
                             } else {
                                 qDebug() << "error 2";
                                 continue;
@@ -244,31 +370,25 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                             }
                             if (poseDict.contains("obj_id")) {
                                 py::object objIDItem = poseDict["obj_id"];
+                                QString objectModelID;
                                 if (py::isinstance<py::int_>(objIDItem)) {
-                                    int objID = poseDict["obj_id"].cast<int>();
-                                    if (objID >= 0 && objID < objectModels.size()) {
-                                        objectModel = objectModels[objID];
-                                    }
+                                    objectModelID = QString::number(objIDItem.cast<int>());
                                 } else if (py::isinstance<py::str>(objIDItem)) {
-                                    QString objectModelName = QString::fromStdString(objIDItem.cast<std::string>());
-                                    bool objFound = false;
-                                    Q_FOREACH(ObjectModelPtr _objectModel, objectModels) {
-                                        QString imageName = QString::fromStdString(objIDItem.cast<std::string>());
-                                        if (_objectModel->path() == objectModelName) {
-                                            objectModel = _objectModel;
-                                            objFound = true;
-                                            break;
-                                        }
-                                        if (!objFound) {
-                                            qDebug() << "Obj not found Error";
-                                        }
-                                    }
+                                    objectModelID = QString::fromStdString(objIDItem.cast<std::string>());
                                 } else {
                                     qDebug() << "error 3";
                                     continue;
                                     // image_path not a string -> error handling
                                     // print & add to invalid data &  continue
                                 }
+                                if (objectModelsForID.contains(objectModelID)) {
+                                    objectModel = objectModelsForID[objectModelID];
+                                } else {
+                                    qDebug() << "Image not found Error";
+                                    continue;
+                                }
+                            } else if (poseDict.contains("obj_model_path")) {
+                                // TODO check for ObjectModel with the given path
                             } else {
                                 qDebug() << "error 4";
                                 continue;
@@ -348,6 +468,11 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                                 // print & add to invalid data &  continue
                             }
 
+                            if (image.isNull() || objectModel.isNull()) {
+                                qDebug() << "weird error";
+                                continue;
+                            }
+
                             if (poseDict.contains("pose_id")) {
                                 py::object poseIDItem = poseDict["pose_id"];
                                 if (py::isinstance<py::str>(poseIDItem)) {
@@ -359,6 +484,7 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                                     // print & add to invalid data &  continue
                                 }
                             } else {
+                                // TODO Error: Our code works based on IDs and requires them
                                 // No error, if no ID is present, create one
                                 poseID = GeneralHelper::createPoseId(*image, *objectModel);
                             }

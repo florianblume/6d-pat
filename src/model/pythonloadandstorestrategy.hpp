@@ -20,6 +20,8 @@ public:
 
     QList<ImagePtr> loadImages() override;
 
+    QList<ObjectModelPtr> loadObjectModels() override;
+
     QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
                              const QList<ObjectModelPtr> &objectModels) override;
 
