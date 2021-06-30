@@ -77,6 +77,8 @@ void Qt3DWidgetPrivate::init(int width, int height) {
 }
 
 void Qt3DWidgetPrivate::updateVertexData(int width, int height) {
+    width = 2560;
+    height = 1920;
     static const int coords[4][3] = {
          { width, 0, 0 }, { 0, 0, 0 }, { 0, height, 0 }, { width, height, 0 }
     };
@@ -208,8 +210,8 @@ void Qt3DWidget::paintGL() {
     {
         QMatrix4x4 m;
         m.viewport(0, 0, d->m_renderingWidth, d->m_renderingHeight);
-        m.ortho(0, d->m_renderingWidth, 0, d->m_renderingHeight, 1.0f, 3.0f);
-        m.translate(0, 0, -2.0f);
+        m.ortho(0, d->m_renderingWidth, 0, d->m_renderingHeight, 1.0f, 2.0f);
+        m.translate(-0.5, -0.5, 0.0f);
 
         QOpenGLVertexArrayObject::Binder vaoBinder(&d->m_vao);
 
