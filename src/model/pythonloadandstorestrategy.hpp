@@ -14,6 +14,8 @@ public:
 
     ~PythonLoadAndStoreStrategy();
 
+    void applySettings(SettingsPtr settings) override;
+
     bool persistPose(const Pose &objectImagePose, bool deletePose) override;
 
     QList<ImagePtr> loadImages() override;
@@ -28,8 +30,9 @@ public:
     void setLoadSaveScript(const QString &value);
 
 private:
-    QString loadSaveScript;
-    bool keepRunning = true;
+    QString m_loadSaveScript;
 };
+
+typedef QSharedPointer<PythonLoadAndStoreStrategy> PythonLoadAndStoreStrategyPtr;
 
 #endif // PYTHONLOADANDSTORESTRATEGY_H

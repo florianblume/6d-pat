@@ -54,7 +54,12 @@ public:
 
     virtual ~ModelManager();
 
-    void setLoadAndStoreStrategy(LoadAndStoreStrategyPtr strategy);
+    /*!
+     * \brief setLoadAndStoreStrategy sets the load and store strategy used by this model manager.
+     * It's purely virtual to force subclasses to take care of signals & slots de-registering.
+     * \param strategy
+     */
+    virtual void setLoadAndStoreStrategy(LoadAndStoreStrategyPtr strategy) = 0;
 
     /*!
      * \brief getImages Returns the list of all images loaded by this manager.

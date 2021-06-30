@@ -49,7 +49,8 @@ private:
      * \brief initialize initializes this controller, i.e. sets up the necessary models and further initializes the view.
      */
     void initialize();
-    void createStrategy();
+    void initializeStrategies();
+    void selectCurrentStrategy();
 
     /*!
      * \brief showView shows the view of this controller.
@@ -68,7 +69,8 @@ private:
     // Could be changed dynamically when implementing profiles
     QString m_settingsIdentifier = "default";
 
-    LoadAndStoreStrategyPtr m_strategy;
+    QMap<Settings::UsedLoadAndStoreStrategy, LoadAndStoreStrategyPtr> m_strategies;
+    LoadAndStoreStrategyPtr m_currentStrategy;
     QScopedPointer<CachingModelManager> m_modelManager;
     QThread *m_modelManagerThread;
     QScopedPointer<PosesEditingController> m_poseEditingModel;

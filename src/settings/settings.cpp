@@ -88,107 +88,87 @@ QString Settings::identifier() const {
     return m_identifier;
 }
 
-Qt::MouseButton Settings::addCorrespondencePointMouseButton() const
-{
+Qt::MouseButton Settings::addCorrespondencePointMouseButton() const {
     return m_addCorrespondencePointMouseButton;
 }
 
 void Settings::setAddCorrespondencePointMouseButton(
-        const Qt::MouseButton &addCorrespondencePointMouseButton)
-{
+        const Qt::MouseButton &addCorrespondencePointMouseButton) {
     m_addCorrespondencePointMouseButton = addCorrespondencePointMouseButton;
 }
 
-Qt::MouseButton Settings::moveBackgroundImageRenderableMouseButton() const
-{
+Qt::MouseButton Settings::moveBackgroundImageRenderableMouseButton() const {
     return m_moveBackgroundImageRenderableMouseButton;
 }
 
 void Settings::setMoveBackgroundImageRenderableMouseButton(
-        const Qt::MouseButton &moveBackgroundImageRenderableMouseButton)
-{
+        const Qt::MouseButton &moveBackgroundImageRenderableMouseButton) {
     m_moveBackgroundImageRenderableMouseButton = moveBackgroundImageRenderableMouseButton;
 }
 
-Qt::MouseButton Settings::selectPoseRenderableMouseButton() const
-{
+Qt::MouseButton Settings::selectPoseRenderableMouseButton() const {
     return m_selectPoseRenderableMouseButton;
 }
 
 void Settings::setSelectPoseRenderableMouseButton(
-        const Qt::MouseButton &selectPoseRenderableMouseButton)
-{
+        const Qt::MouseButton &selectPoseRenderableMouseButton) {
     m_selectPoseRenderableMouseButton = selectPoseRenderableMouseButton;
 }
 
-Qt::MouseButton Settings::rotatePoseRenderableMouseButton() const
-{
+Qt::MouseButton Settings::rotatePoseRenderableMouseButton() const {
     return m_rotatePoseRenderableMouseButton;
 }
 
 void Settings::setRotatePoseRenderableMouseButton(
-        const Qt::MouseButton &rotatePoseRenderableMouseButton)
-{
+        const Qt::MouseButton &rotatePoseRenderableMouseButton) {
     m_rotatePoseRenderableMouseButton = rotatePoseRenderableMouseButton;
 }
 
-Qt::MouseButton Settings::translatePoseRenderableMouseButton() const
-{
+Qt::MouseButton Settings::translatePoseRenderableMouseButton() const {
     return m_translatePoseRenderableMouseButton;
 }
 
 void Settings::setTranslatePoseRenderableMouseButton(
-        const Qt::MouseButton &translatePoseRenderableMouseButton)
-{
+        const Qt::MouseButton &translatePoseRenderableMouseButton) {
     m_translatePoseRenderableMouseButton = translatePoseRenderableMouseButton;
 }
 
-Settings::Theme Settings::theme() const
-{
+Settings::Theme Settings::theme() const {
     return m_theme;
 }
 
-void Settings::setTheme(const Settings::Theme &theme)
-{
+void Settings::setTheme(const Settings::Theme &theme) {
     m_theme = theme;
 }
 
-float Settings::click3DSize() const
-{
+float Settings::click3DSize() const {
     return m_click3DSize;
 }
 
-void Settings::setClick3DSize(float click3DSize)
-{
+void Settings::setClick3DSize(float click3DSize) {
     m_click3DSize = click3DSize;
 }
 
-QString Settings::pythonInterpreterPath() const
-{
+QString Settings::pythonInterpreterPath() const {
     return m_pythonInterpreterPath;
 }
 
-void Settings::setPythonInterpreterPath(const QString &pythonInterpreterPath)
-{
+void Settings::setPythonInterpreterPath(const QString &pythonInterpreterPath) {
     m_pythonInterpreterPath = pythonInterpreterPath;
 }
 
-QString Settings::loadSaveScriptPath() const
-{
+QString Settings::loadSaveScriptPath() const {
     return m_loadSaveScriptPath;
 }
 
-void Settings::setLoadSaveScriptPath(const QString &loadSaveScriptPath)
-{
+void Settings::setLoadSaveScriptPath(const QString &loadSaveScriptPath) {
     m_loadSaveScriptPath = loadSaveScriptPath;
 }
 
-int Settings::usedLoadAndStoreStrategy() const
-{
+Settings::UsedLoadAndStoreStrategy Settings::usedLoadAndStoreStrategy() const {
     return m_usedLoadAndStoreStrategy;
 }
 
-void Settings::setUsedLoadAndStoreStrategy(int usedLoadAndStoreStrategy)
-{
+void Settings::setUsedLoadAndStoreStrategy(UsedLoadAndStoreStrategy usedLoadAndStoreStrategy) {
     m_usedLoadAndStoreStrategy = usedLoadAndStoreStrategy;
 }

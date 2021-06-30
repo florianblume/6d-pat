@@ -47,4 +47,6 @@ public:
                                const QList<ObjectModelPtr> &objectModels) override;
 };
 
+typedef QSharedPointer<JsonLoadAndStoreStrategy> JsonLoadAndStoreStrategyPtr;
+
 #endif // TEXTFILELOADANDSTORESTRATEGY_H

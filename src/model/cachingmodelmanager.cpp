@@ -13,6 +13,18 @@ CachingModelManager::CachingModelManager(LoadAndStoreStrategyPtr loadAndStoreStr
 CachingModelManager::~CachingModelManager() {
 }
 
+void CachingModelManager::setLoadAndStoreStrategy(LoadAndStoreStrategyPtr strategy) {
+    disconnect(m_loadAndStoreStrategy.get(), &LoadAndStoreStrategy::dataChanged,
+            this, &CachingModelManager::dataChanged);
+    disconnect(m_loadAndStoreStrategy.get(), &LoadAndStoreStrategy::error,
+            this, &CachingModelManager::onLoadAndStoreStrategyError);
+    m_loadAndStoreStrategy = strategy;
+    connect(m_loadAndStoreStrategy.get(), &LoadAndStoreStrategy::dataChanged,
+            this, &CachingModelManager::dataChanged);
+    connect(m_loadAndStoreStrategy.get(), &LoadAndStoreStrategy::error,
+            this, &CachingModelManager::onLoadAndStoreStrategyError);
+}
+
 void CachingModelManager::createConditionalCache() {
     m_posesForImages.clear();
     m_posesForObjectModels.clear();

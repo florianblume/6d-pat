@@ -32,15 +32,12 @@ void MainController::initialize() {
     Settings tmp(*m_settingsStore->currentSettings());
     m_currentSettings.reset(new Settings(tmp));
 
-    createStrategy();
-    // Move the strategy to a new thread to allow threadded data loading
-    // This also means that we have to call the strategy's methods
-    // through signals and slots, directly calling them does not do
-    // anything threadded
-    m_strategy->moveToThread(m_modelManagerThread);
+    initializeStrategies();
+    selectCurrentStrategy();
 
-
-    m_modelManager.reset(new CachingModelManager(m_strategy));
+    m_modelManager.reset(new CachingModelManager(m_currentStrategy));
+    // This connects the signal of the MainController to the ModelManager's reload
+    // method to ensure that data loading happens on the model manager thread
     connect(this, &MainController::reloadingData,
             m_modelManager.get(), &ModelManager::reload);
     m_modelManager->moveToThread(m_modelManagerThread);
@@ -78,19 +75,27 @@ void MainController::initialize() {
     Q_EMIT reloadingData();
 }
 
-void MainController::createStrategy() {
-    if (m_currentSettings->usedLoadAndStoreStrategy() == Settings::UsedLoadAndStoreStrategy::Default) {
-        m_strategy.reset(new JsonLoadAndStoreStrategy());
-    } else if (m_currentSettings->usedLoadAndStoreStrategy() == Settings::UsedLoadAndStoreStrategy::Python) {
-        m_strategy.reset(new PythonLoadAndStoreStrategy());
-        ((PythonLoadAndStoreStrategy *) m_strategy.get())->setLoadSaveScript(m_currentSettings->loadSaveScriptPath());
-    } else {
-        qDebug() << "Error: Unkown load and store strategy requested.";
+void MainController::initializeStrategies() {
+    // We have to construct the strategies and keep them alive because
+    // Python doesn't like to be destroyed...
+    m_strategies[Settings::UsedLoadAndStoreStrategy::Default]
+            = JsonLoadAndStoreStrategyPtr(new JsonLoadAndStoreStrategy);
+    m_strategies[Settings::UsedLoadAndStoreStrategy::Python]
+            = PythonLoadAndStoreStrategyPtr(new PythonLoadAndStoreStrategy);
+
+    // Move the strategies to a new thread to allow threadded data loading
+    // This also means that we have to call the strategy's methods
+    // through signals and slots, directly calling them does not do
+    // anything threadded
+    Q_FOREACH(LoadAndStoreStrategyPtr strategy, m_strategies.values()) {
+        strategy->moveToThread(m_modelManagerThread);
     }
-    m_strategy->setImagesPath(m_currentSettings->imagesPath());
-    m_strategy->setObjectModelsPath(m_currentSettings->objectModelsPath());
-    m_strategy->setPosesFilePath(m_currentSettings->posesFilePath());
-    m_strategy->setSegmentationImagesPath(m_currentSettings->segmentationImagesPath());
+}
+
+void MainController::selectCurrentStrategy() {
+    // Get strategy from the pre-loaded strategies
+    m_currentStrategy = m_strategies[m_currentSettings->usedLoadAndStoreStrategy()];
+    m_currentStrategy->applySettings(m_currentSettings);
 }
 
 void MainController::showView() {
@@ -101,7 +106,7 @@ void MainController::showView() {
 
 void MainController::onSettingsChanged(SettingsPtr settings) {
     bool changed = m_currentSettings->imagesPath() != settings->imagesPath() ||
-                   m_currentSettings->segmentationImagesPath() != settings->segmentationImagesPath() ||
+            m_currentSettings->segmentationImagesPath() != settings->segmentationImagesPath() ||
                    m_currentSettings->objectModelsPath() != settings->objectModelsPath() ||
                    m_currentSettings->posesFilePath() != settings->posesFilePath() ||
                    m_currentSettings->usedLoadAndStoreStrategy() != settings->usedLoadAndStoreStrategy() ||
@@ -111,8 +116,8 @@ void MainController::onSettingsChanged(SettingsPtr settings) {
     // altered but we want to be able to compare if something has changed
     Settings tmp(*settings);
     m_currentSettings.reset(new Settings(tmp));
-    createStrategy();
-    m_modelManager->setLoadAndStoreStrategy(m_strategy);
+    selectCurrentStrategy();
+    m_modelManager->setLoadAndStoreStrategy(m_currentStrategy);
     if (changed) {
         // Emit the signal to load data threadded, directly calling the methods
         // does not do anything threadded

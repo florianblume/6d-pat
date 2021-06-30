@@ -6,7 +6,3 @@ ModelManager::ModelManager(LoadAndStoreStrategyPtr loadAndStoreStrategy) : m_loa
 
 ModelManager::~ModelManager() {
 }
-
-void ModelManager::setLoadAndStoreStrategy(LoadAndStoreStrategyPtr strategy) {
-    m_loadAndStoreStrategy = strategy;
-}

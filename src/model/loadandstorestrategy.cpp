@@ -20,6 +20,13 @@ LoadAndStoreStrategy::~LoadAndStoreStrategy() {
 
 }
 
+void LoadAndStoreStrategy::applySettings(SettingsPtr settings) {
+    setImagesPath(settings->imagesPath());
+    setObjectModelsPath(settings->objectModelsPath());
+    setPosesFilePath(settings->posesFilePath());
+    setSegmentationImagesPath(settings->segmentationImagesPath());
+}
+
 void LoadAndStoreStrategy::setImagesPath(const QString &imagesPath) {
     setPath(imagesPath, this->imagesPath);
 }

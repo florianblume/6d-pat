@@ -49,6 +49,14 @@ public:
     virtual ~LoadAndStoreStrategy();
 
     /*!
+     * \brief useSettings uses the given settings to adjust all attributes
+     * of this LoadAndStoreStrategy. Can be overwritten by subclasses to
+     * care for special attributes.
+     * \param settings the settings to use
+     */
+    virtual void applySettings(SettingsPtr settings);
+
+    /*!
      * \brief persistObjectImagePose Persists the given ObjectImagePose. The details of
      * how the data is persisted depends on the LoadAndStoreStrategy implementation.
      * \param objectImagePose the object image pose to persist
@@ -100,6 +108,12 @@ protected Q_SLOTS:
     void onFileChanged(const QString &filePath);
 
 protected:
+    void connectWatcherSignals();
+
+    //! Internal methods to react to path changes
+    bool setPath(const QString &path, QString &oldPath);
+
+protected:
     //! Unmodifiable constants (i.e. not changable by the user at runtime)
     static const QStringList IMAGE_FILES_EXTENSIONS;
     static const QStringList OBJECT_MODEL_FILES_EXTENSIONS;
@@ -117,17 +131,12 @@ protected:
 
     QFileSystemWatcher watcher;
 
-    void connectWatcherSignals();
-
     // We need to ignore changes to the file once after we have written
     // a new pose to it because the model manager already emits a signal
     // whenever a new pose has been added for example
     // We only want this signal when the poses file has been changed
     // externally
     bool ignorePosesFileChanged = false;
-
-    //! Internal methods to react to path changes
-    bool setPath(const QString &path, QString &oldPath);
 };
 
 //Q_DECLARE_METATYPE(LoadAndStoreStrategy::Error)

@@ -24,6 +24,8 @@ public:
 
     ~CachingModelManager();
 
+    void setLoadAndStoreStrategy(LoadAndStoreStrategyPtr strategy) override;
+
     QList<ImagePtr> images() const override;
 
     QList<PosePtr> posesForImage(const Image &image) const override;
