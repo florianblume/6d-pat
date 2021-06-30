@@ -6,7 +6,6 @@
 #include <pybind11/embed.h>
 #include <QFileInfo>
 #include <QList>
-#include <QElapsedTimer>
 
 namespace py = pybind11;
 
@@ -24,8 +23,6 @@ void PythonLoadAndStoreStrategy::applySettings(SettingsPtr settings) {
 }
 
 QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
-    QElapsedTimer timer;
-    timer.start();
     QList<ImagePtr> images;
 
     QFileInfo fileInfo(m_loadSaveScript);
@@ -165,7 +162,6 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
         // Some crazy error happened
         qDebug() << "error 13";
     }
-    qDebug() << "Loading images took " << timer.elapsed() << " miliseconds";
     return images;
 }
 
@@ -175,8 +171,6 @@ bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool d
 
 QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images,
                                                      const QList<ObjectModelPtr> &objectModels) {
-    QElapsedTimer timer;
-    timer.start();
     QList<PosePtr> poses;
 
     QFileInfo fileInfo(m_loadSaveScript);
@@ -319,7 +313,6 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
 
                             if (imgID < 0 || imgID >= images.size() || objID < 0 || objID >= objectModels.size()) {
                                 // Error
-                                qDebug() << "Error 16" << imgID << objID;
                                 continue;
                             }
 
@@ -361,7 +354,6 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
     }  catch (py::error_already_set &e) {
         qDebug() << "poses error 16";
     }
-    qDebug() << "Loading poses took " << timer.elapsed() << " miliseconds";
 
     return poses;
 }
