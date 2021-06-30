@@ -27,7 +27,8 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
 
     QFileInfo fileInfo(m_loadSaveScript);
     if (!fileInfo.exists()) {
-        // TODO error
+
+        qDebug() << "script not found";
         return images;
     }
 
@@ -202,14 +203,33 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                         if (py::isinstance<py::dict>(listPosesForImages[j])) {
                             py::dict poseDict = py::dict(listPosesForImages[j]);
                             QString poseID;
-                            int imgID, objID;
+                            ImagePtr image;
+                            ObjectModelPtr objectModel;
                             QMatrix3x3 rotation;
                             QVector3D translation;
                             if (poseDict.contains("img_id")) {
                                 py::object imgIDItem = poseDict["img_id"];
                                 py::isinstance<py::int_>(imgIDItem);
                                 if (py::isinstance<py::int_>(imgIDItem)) {
-                                    imgID = poseDict["img_id"].cast<int>();
+                                    int imgID = poseDict["img_id"].cast<int>();
+                                    if (imgID >= 0 && imgID < images.size()) {
+                                        image = images[imgID];
+                                    } else {
+                                        qDebug() << "img index out of bounds";
+                                    }
+                                } else if (py::isinstance<py::str>(imgIDItem)) {
+                                    bool imageFound = false;
+                                    Q_FOREACH(ImagePtr _image, images) {
+                                        QString imageName = QString::fromStdString(imgIDItem.cast<std::string>());
+                                        if (_image->imagePath() == imageName) {
+                                            image = _image;
+                                            imageFound = true;
+                                            break;
+                                        }
+                                        if (!imageFound) {
+                                            qDebug() << "Image not found Error";
+                                        }
+                                    }
                                 } else {
                                     qDebug() << "error 1";
                                     continue;
@@ -225,7 +245,24 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                             if (poseDict.contains("obj_id")) {
                                 py::object objIDItem = poseDict["obj_id"];
                                 if (py::isinstance<py::int_>(objIDItem)) {
-                                    objID = poseDict["obj_id"].cast<int>();
+                                    int objID = poseDict["obj_id"].cast<int>();
+                                    if (objID >= 0 && objID < objectModels.size()) {
+                                        objectModel = objectModels[objID];
+                                    }
+                                } else if (py::isinstance<py::str>(objIDItem)) {
+                                    QString objectModelName = QString::fromStdString(objIDItem.cast<std::string>());
+                                    bool objFound = false;
+                                    Q_FOREACH(ObjectModelPtr _objectModel, objectModels) {
+                                        QString imageName = QString::fromStdString(objIDItem.cast<std::string>());
+                                        if (_objectModel->path() == objectModelName) {
+                                            objectModel = _objectModel;
+                                            objFound = true;
+                                            break;
+                                        }
+                                        if (!objFound) {
+                                            qDebug() << "Obj not found Error";
+                                        }
+                                    }
                                 } else {
                                     qDebug() << "error 3";
                                     continue;
@@ -310,14 +347,6 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                                 // Doesn't contain camera matrix -> error handling
                                 // print & add to invalid data &  continue
                             }
-
-                            if (imgID < 0 || imgID >= images.size() || objID < 0 || objID >= objectModels.size()) {
-                                // Error
-                                continue;
-                            }
-
-                            ImagePtr image = images[imgID];
-                            ObjectModelPtr objectModel = objectModels[objID];
 
                             if (poseDict.contains("pose_id")) {
                                 py::object poseIDItem = poseDict["pose_id"];
