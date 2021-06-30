@@ -34,7 +34,7 @@ Qt3DWidgetPrivate::Qt3DWidgetPrivate()
 }
 
 void Qt3DWidgetPrivate::init(int width, int height) {
-    updateVertexData(width, height);
+    //updateVertexData(width, height);
 
     m_shaderProgram.reset(new QOpenGLShaderProgram);
     m_shaderProgram->addShaderFromSourceCode(
@@ -77,10 +77,11 @@ void Qt3DWidgetPrivate::init(int width, int height) {
 }
 
 void Qt3DWidgetPrivate::updateVertexData(int width, int height) {
-    width = 2560;
-    height = 1920;
-    static const int coords[4][3] = {
-         { width, 0, 0 }, { 0, 0, 0 }, { 0, height, 0 }, { width, height, 0 }
+    width = 0;
+    height = 1;
+    m_vertexData.clear();
+    const int coords[4][3] = {
+         { -1000, 0, 1000 }, { 0, 0, 10 }, { 0, 10, 0 }, { 0, 0, 0 }
     };
 
     for (int i = 0; i < 4; ++i) {
@@ -208,14 +209,19 @@ void Qt3DWidget::paintGL() {
 
     d->m_shaderProgram->bind();
     {
-        QMatrix4x4 m;
-        m.viewport(0, 0, d->m_renderingWidth, d->m_renderingHeight);
-        m.ortho(0, d->m_renderingWidth, 0, d->m_renderingHeight, 1.0f, 2.0f);
-        m.translate(-0.5, -0.5, 0.0f);
+        QMatrix4x4 projectionMatrix;
+        projectionMatrix.ortho(0, d->m_renderingWidth, 0, d->m_renderingHeight, 1.0f, 2.0f);
+
+        QMatrix4x4 viewMatrix;
+        viewMatrix.viewport(0, 0, d->m_renderingWidth, d->m_renderingHeight);
+
+        QMatrix4x4 modelMatrix;
+        modelMatrix.translate(-1, -1, 0.0f);
+        modelMatrix.scale(2, 2);
 
         QOpenGLVertexArrayObject::Binder vaoBinder(&d->m_vao);
 
-        d->m_shaderProgram->setUniformValue("matrix", m);
+        d->m_shaderProgram->setUniformValue("matrix", modelMatrix * viewMatrix * projectionMatrix);
         glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, d->m_colorTexture->handle().toUInt());
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
