@@ -33,8 +33,6 @@ RUN apt-get update -qq && apt-get -y install \
     python3-pybind11 \
 && rm -rf /var/lib/apt/lists/*
 
-RUN find / -name "Python.h"
-
 RUN add-apt-repository -y ppa:beineri/opt-qt-5.14.2-focal
 RUN apt-get update -qq
 RUN apt-get -y install qt514-meta-minimal qt5143d qt514gamepad
