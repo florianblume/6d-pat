@@ -48,9 +48,9 @@ QString SettingsPathsPage::openFolderDialogForPath(QString path) {
 
 QString SettingsPathsPage::openFileDialogForPath(QString path) {
     QString dir = QFileDialog::getOpenFileName(this,
-                                               tr("Open JSON File"),
+                                               tr("Open File"),
                                                path,
-                                               tr("JSON Files (*.json)"),
+                                               tr("*.*"),
                                                Q_NULLPTR,
                                                QFileDialog::DontUseNativeDialog);
     return dir;

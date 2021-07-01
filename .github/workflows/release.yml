@@ -15,7 +15,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-cache search libxcb
-        sudo apt-get update && sudo apt-get install -y libopencv-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0
+        sudo apt-get update && sudo apt-get install -y libopencv-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 python3-pybind11
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1

@@ -1,8 +1,9 @@
 #include "objectmodel.hpp"
 #include <QDir>
 
-ObjectModel::ObjectModel(const QString& objectModelPath, const QString& basePath)
-    : m_objectModelPath(objectModelPath),
+ObjectModel::ObjectModel(const QString &id, const QString& objectModelPath, const QString& basePath)
+    : m_id(id),
+      m_objectModelPath(objectModelPath),
       m_basePath(basePath) {
 }
 
@@ -32,4 +33,9 @@ ObjectModel& ObjectModel::operator=(const ObjectModel &other) {
     m_basePath = other.m_basePath;
     m_objectModelPath = other.m_objectModelPath;
     return *this;
+}
+
+QString ObjectModel::id() const
+{
+    return m_id;
 }

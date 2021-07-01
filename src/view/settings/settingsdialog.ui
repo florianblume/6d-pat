@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>550</width>
-    <height>350</height>
+    <height>410</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -510,6 +510,7 @@
           <bool>true</bool>
          </property>
         </widget>
+        <widget class="SettingsLoadSavePage" name="pageLoadSave"/>
         <widget class="SettingsSegmentationCodesPage" name="pageSegmentationCodes">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -542,6 +543,12 @@
    <class>SettingsPathsPage</class>
    <extends>QWidget</extends>
    <header>view/settings/settingspathspage.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SettingsLoadSavePage</class>
+   <extends>QWidget</extends>
+   <header>view/settings/settingsloadsavepage.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

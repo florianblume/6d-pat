@@ -20,9 +20,11 @@ class CachingModelManager : public ModelManager
 
 public:
 
-    CachingModelManager(LoadAndStoreStrategy& loadAndStoreStrategy);
+    CachingModelManager(LoadAndStoreStrategyPtr loadAndStoreStrategy);
 
     ~CachingModelManager();
+
+    void setLoadAndStoreStrategy(LoadAndStoreStrategyPtr strategy) override;
 
     QList<ImagePtr> images() const override;
 
@@ -59,7 +61,7 @@ private Q_SLOTS:
     // Callback for threadded data loading
     void dataReady();
     void onDataChanged(int data);
-    void onLoadAndStoreStrategyError(LoadAndStoreStrategy::Error error);
+    void onLoadAndStoreStrategyError(const QString &error);
 
 private:
     /*!
