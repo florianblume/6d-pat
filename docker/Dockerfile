@@ -28,6 +28,7 @@ RUN apt-get update -qq && apt-get -y install \
     libavformat-dev \
     libpq-dev \
     libopencv-dev \
+    python3-pybind11 \
 && rm -rf /var/lib/apt/lists/*
 
 # Install OpenCV
