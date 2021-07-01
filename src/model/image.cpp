@@ -1,10 +1,12 @@
 #include "image.hpp"
+#include "misc/global.hpp"
+
 #include <QDir>
 
 Image::Image()
-    : m_imagePath("invalid"),
-      m_segmentationImagePath("invalid"),
-      m_basePath("invalid"),
+    : m_imagePath(Global::NO_PATH),
+      m_segmentationImagePath(Global::NO_PATH),
+      m_basePath(Global::NO_PATH),
       m_cameraMatrix() {
 
 }
@@ -14,7 +16,7 @@ Image::Image(const QString &id, const QString& imagePath,
              float nearPlane, float farPlane)
     : m_id(id),
       m_imagePath(imagePath),
-      m_segmentationImagePath(""),
+      m_segmentationImagePath(Global::NO_PATH),
       m_basePath(basePath),
       m_cameraMatrix(cameraMatrix),
       m_nearPlane(nearPlane),

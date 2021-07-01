@@ -10,6 +10,23 @@
 #include <QList>
 #include <QElapsedTimer>
 
+const char * KEY_LOAD_IMAGES = "load_images";
+const char * KEY_LOAD_OBJECT_MODELS = "load_object_models";
+const char * KEY_LOAD_POSES = "load_poses";
+const char * KEY_PERSIST_POSE = "persist_pose";
+const char * KEY_IMG_ID = "img_id";
+const char * KEY_IMG_PATH = "img_path";
+const char * KEY_BASE_PATH = "base_path";
+const char * KEY_SEGMENTATION_IMAGE_PATH = "segmentation_image_path";
+const char * KEY_NEAR_PLANE = "near_plane";
+const char * KEY_FAR_PLANE = "far_plane";
+const char * KEY_OBJ_ID = "obj_id";
+const char * KEY_OBJ_MODEL_PATH = "obj_model_path";
+const char * KEY_K = "K";
+const char * KEY_R = "R";
+const char * KEY_T = "t";
+const char * KEY_POSE_ID = "pose_id";
+
 PythonLoadAndStoreStrategy::PythonLoadAndStoreStrategy() {
     py::initialize_interpreter();
     sys  = py::module::import("sys");
@@ -26,17 +43,24 @@ void PythonLoadAndStoreStrategy::applySettings(SettingsPtr settings) {
     QFileInfo fileInfo(m_loadSaveScript);
     if (scriptInitialized) {
         // Remove inserted path
-        sys.attr("path").attr("remove")(0);
+        //sys.attr("path").attr("remove")(0);
     }
-    QString dirname = fileInfo.dir().absolutePath();
-    sys.attr("path").attr("insert")(0, dirname.toUtf8().data());
-    QString filename = fileInfo.fileName();
-    if (scriptInitialized) {
-        script.reload();
-    } else {
-        script = py::module::import(filename.mid(0, filename.length() - 3).toUtf8().data());
+    try {
+        QString dirname = fileInfo.dir().absolutePath();
+        sys.attr("path").attr("insert")(0, dirname.toUtf8().data());
+        QString filename = fileInfo.fileName();
+        if (scriptInitialized) {
+            script.reload();
+        } else {
+            script = py::module::import(filename.mid(0, filename.length() - 3).toUtf8().data());
+        }
+        scriptInitialized = true;
+    } catch (py::error_already_set &e) {
+        scriptInitialized = false;
+        QString message = "Failed to load the requested Pyton script: ";
+        message += QString::fromUtf8(e.what());
+        Q_EMIT error(tr(message.toStdString().c_str()));
     }
-    scriptInitialized = true;
     LoadAndStoreStrategy::applySettings(settings);
 }
 
@@ -109,8 +133,9 @@ bool PythonLoadAndStoreStrategy::extractIDOrPathAndRetrieve(pybind11::dict &dict
         } else if (py::isinstance<py::str>(idItem)) {
             id = QString::fromStdString(idItem.cast<std::string>());
         } else {
-            qDebug() << "\"img_id\" in return dict but is neither "
-                        "string nor int (Index: "  << i << ", " << j << "). Skipping " + type + ".";
+            qDebug() << "\'img_id\' in return dict but is neither "
+                        "string nor int (Index: "  + QString::number(i) + ", " +
+                        QString::number(j) + "). Skipping " + type + ".";
             invalidData.append(QString::number(i) + ", " +
                                           QString::number(j));
             return false;
@@ -119,7 +144,7 @@ bool PythonLoadAndStoreStrategy::extractIDOrPathAndRetrieve(pybind11::dict &dict
             itemToSet = itemsForID[id];
             return true;
         } else {
-            qDebug() << "The specified image " << id << " "
+            qDebug() << "The specified image " + id + " "
                         "could not be found. Skipping " + type + ".";
             invalidData.append(QString::number(i) + ", " +
                                           QString::number(j));
@@ -133,25 +158,25 @@ bool PythonLoadAndStoreStrategy::extractIDOrPathAndRetrieve(pybind11::dict &dict
                 itemToSet = itemsForPath[path];
                 return true;
             } else {
-                qDebug() << "The specified image " << path << " "
+                qDebug() << "The specified image " + path + " "
                             "could not be found. Skipping " + type + ".";
                 invalidData.append(QString::number(i) + ", " +
                                               QString::number(j));
                 return false;
             }
         } else {
-            qDebug() << "\"img_path\" in return dict but is neither "
-                        "string nor int (Index: "  << i << ", " << j << "). Skipping " + type + ".";
+            qDebug() << "\'img_path\' in return dict but is neither "
+                        "string nor int (Index: "  + QString::number(i) + ", " +
+                        QString::number(j) + "). Skipping " + type + ".";
             invalidData.append(QString::number(i) + ", " +
                                           QString::number(j));
             return false;
         }
     } else {
         qDebug() << "The return dict for the pose contains neither "
-                    "\"img_id\" nor \"img_path\" but one needs to be present "
-                    "(Index: "  << i << ", " << j <<  "). Skipping " + type + ".";
-        invalidData.append(QString::number(i) + ", " +
-                                      QString::number(j));
+                    "\'img_id\' nor \'img_path\' but one needs to be present "
+                    "(Index: "  + QString::number(i) + ", " + QString::number(j) +  "). Skipping " + type + ".";
+        invalidData.append(QString::number(i) + ", " + QString::number(j));
         return false;
     }
 }
@@ -260,6 +285,7 @@ bool PythonLoadAndStoreStrategy::extractFloat(py::dict &dict, const char *key,
 
 QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
     QList<ImagePtr> images;
+    m_imagesWithInvalidData.clear();
 
     QFileInfo fileInfo(m_loadSaveScript);
     if (!fileInfo.exists()) {
@@ -267,8 +293,14 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
         return images;
     }
 
+    if (!scriptInitialized) {
+        // There was a previous error while loading the script (see applySettings)
+        Q_EMIT error(tr("The Python script could not be loaded (see previous errors)."));
+        return images;
+    }
+
     try {
-        py::object result = script.attr("load_images")(m_imagesPath.toUtf8().data(), py::none());
+        py::object result = script.attr(KEY_LOAD_IMAGES)(m_imagesPath.toUtf8().data(), py::none());
 
         if (py::isinstance<py::list>(result)) {
             py::list result_list = py::list(result);
@@ -280,30 +312,30 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
                     QString imageID, imagePath, basePath, segmentationImagePath;
                     float nearPlane, farPlane;
                     QMatrix3x3 cameraMatrix;
-                    if (!extractID(itemDict, "img_id", imageID, "image", i)) {
+                    if (!extractID(itemDict, KEY_IMG_ID, imageID, "image", i)) {
                         continue;
                     }
-                    if (!extractPath(itemDict, "img_path", imagePath,
+                    if (!extractPath(itemDict, KEY_IMG_PATH, imagePath,
                                      "image", imageID, m_imagesWithInvalidData,
                                      true)) {
                         continue;
                     }
-                    if (!extractPath(itemDict, "base_path", basePath,
+                    if (!extractPath(itemDict, KEY_BASE_PATH, basePath,
                                      "image", imageID, m_imagesWithInvalidData,
                                      true)) {
                         continue;
                     }
-                    if (!extractPath(itemDict, "segmentation_image_path", segmentationImagePath,
+                    if (!extractPath(itemDict, KEY_SEGMENTATION_IMAGE_PATH, segmentationImagePath,
                                      "image", imageID, m_imagesWithInvalidData,
                                      false)) {
                         continue;
                     }
-                    if (!extract3x3Matrix(itemDict, "K", cameraMatrix, "image", "Camera matrix",
+                    if (!extract3x3Matrix(itemDict, KEY_K, cameraMatrix, "image", "Camera matrix",
                                           imagePath, m_imagesWithInvalidData)) {
                         continue;
                     }
-                    extractFloat(itemDict, "near_plane", nearPlane, NEAR_PLANE);
-                    extractFloat(itemDict, "far_plane", farPlane, FAR_PLANE);
+                    extractFloat(itemDict, KEY_NEAR_PLANE, nearPlane, NEAR_PLANE);
+                    extractFloat(itemDict, KEY_FAR_PLANE, farPlane, FAR_PLANE);
                     images.append(ImagePtr(new Image(imageID, imagePath, basePath,
                                                      cameraMatrix, nearPlane, farPlane)));
                 } else {
@@ -336,6 +368,7 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
 
 QList<ObjectModelPtr> PythonLoadAndStoreStrategy::loadObjectModels() {
     QList<ObjectModelPtr> objectModels;
+    m_objectModelsWithInvalidData.clear();
 
     QFileInfo fileInfo(m_loadSaveScript);
     if (!fileInfo.exists()) {
@@ -343,8 +376,14 @@ QList<ObjectModelPtr> PythonLoadAndStoreStrategy::loadObjectModels() {
         return objectModels;
     }
 
+    if (!scriptInitialized) {
+        // There was a previous error while loading the script (see applySettings)
+        Q_EMIT error(tr("The Python script could not be loaded (see previous errors)."));
+        return objectModels;
+    }
+
     try {
-        py::object result = script.attr("load_object_models")(m_objectModelsPath.toUtf8().data());
+        py::object result = script.attr(KEY_LOAD_OBJECT_MODELS)(m_objectModelsPath.toUtf8().data());
 
         if (py::isinstance<py::list>(result)) {
             py::list result_list = py::list(result);
@@ -354,15 +393,15 @@ QList<ObjectModelPtr> PythonLoadAndStoreStrategy::loadObjectModels() {
                 if (py::isinstance<py::dict>(item)) {
                     py::dict itemDict = py::dict(item);
                     QString objID, objectModelPath, basePath;
-                    if (!extractID(itemDict, "obj_id", objID, "object model", i)) {
+                    if (!extractID(itemDict, KEY_OBJ_ID, objID, "object model", i)) {
                         continue;
                     }
-                    if (!extractPath(itemDict, "obj_model_path", objectModelPath,
+                    if (!extractPath(itemDict, KEY_OBJ_MODEL_PATH, objectModelPath,
                                      "object model", objID, m_objectModelsWithInvalidData,
                                      true)) {
                         continue;
                     }
-                    if (!extractPath(itemDict, "base_path", basePath,
+                    if (!extractPath(itemDict, KEY_BASE_PATH, basePath,
                                      "object model", objID, m_objectModelsWithInvalidData,
                                      true)) {
                         continue;
@@ -405,6 +444,12 @@ bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool d
         return false;
     }
 
+    if (!scriptInitialized) {
+        // There was a previous error while loading the script (see applySettings)
+        Q_EMIT error(tr("The Python script could not be loaded (see previous errors)."));
+        return false;
+    }
+
     try {
         QString poseIdD = objectImagePose.id();
         QString imageID = objectImagePose.image()->id();
@@ -422,15 +467,15 @@ bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool d
             translation.append(objectImagePose.position()[0]);
 
         }
-        py::object result = script.attr("persist_pose")(m_posesFilePath.toStdString(),
-                                                        poseIdD.toStdString(),
-                                                        imageID.toStdString(),
-                                                        imagePath.toStdString(),
-                                                        objID.toStdString(),
-                                                        objectModelPath.toStdString(),
-                                                        rotation,
-                                                        translation,
-                                                        deletePose);
+        py::object result = script.attr(KEY_PERSIST_POSE)(m_posesFilePath.toStdString(),
+                                                            poseIdD.toStdString(),
+                                                            imageID.toStdString(),
+                                                            imagePath.toStdString(),
+                                                            objID.toStdString(),
+                                                            objectModelPath.toStdString(),
+                                                            rotation,
+                                                            translation,
+                                                            deletePose);
         if (py::isinstance<py::bool_>(result)) {
             return result.cast<bool>();
         } else if (py::isinstance<py::str>(result)) {
@@ -456,10 +501,17 @@ bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool d
 QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images,
                                                      const QList<ObjectModelPtr> &objectModels) {
     QList<PosePtr> poses;
+    m_posesWithInvalidData.clear();
 
     QFileInfo fileInfo(m_loadSaveScript);
     if (!fileInfo.exists()) {
         Q_EMIT error(tr("The script does not exist."));
+        return poses;
+    }
+
+    if (!scriptInitialized) {
+        // There was a previous error while loading the script (see applySettings)
+        Q_EMIT error(tr("The Python script could not be loaded (see previous errors)."));
         return poses;
     }
 
@@ -484,7 +536,7 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
     }
 
     try {
-        py::object result = script.attr("load_poses")(m_posesFilePath.toUtf8().data());
+        py::object result = script.attr(KEY_LOAD_POSES)(m_posesFilePath.toUtf8().data());
 
         if (py::isinstance<py::list>(result)) {
             py::list result_list = py::list(result);
@@ -502,22 +554,22 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                             ObjectModelPtr objectModel;
                             QMatrix3x3 rotation;
                             QVector3D translation;
-                            if (!extractIDOrPathAndRetrieve(poseDict, "img_id", "img_path",
-                                                            i, j, image, m_imagesWithInvalidData,
+                            if (!extractIDOrPathAndRetrieve(poseDict, KEY_IMG_ID, KEY_IMG_PATH,
+                                                            i, j, image, m_posesWithInvalidData,
                                                             imagesForID, imagesForPath, "pose")) {
                                 continue;
                             }
-                            if (!extractIDOrPathAndRetrieve(poseDict, "obj_id", "obj_path",
-                                                            i, j, objectModel, m_objectModelsWithInvalidData,
+                            if (!extractIDOrPathAndRetrieve(poseDict, KEY_OBJ_ID, KEY_OBJ_MODEL_PATH,
+                                                            i, j, objectModel, m_posesWithInvalidData,
                                                             objectModelsForID, objectModelsForPath, "pose")) {
                                 continue;
                             }
                             // Can only do this at the end since we need the image and object model
                             // to create an ID if we don't receive one
-                            if (poseDict.contains("pose_id")) {
-                                py::object poseIDItem = poseDict["pose_id"];
+                            if (poseDict.contains(KEY_POSE_ID)) {
+                                py::object poseIDItem = poseDict[KEY_POSE_ID];
                                 if (py::isinstance<py::str>(poseIDItem)) {
-                                    poseID = QString::fromStdString(poseDict["pose_id"].cast<std::string>());
+                                    poseID = QString::fromStdString(poseDict[KEY_POSE_ID].cast<std::string>());
                                 } else {
                                     qDebug() << "\"poseID\" in return dict but is not "
                                                 "a string (Index: "  << i << ", " << j <<  "). Skipping pose.";
@@ -530,11 +582,11 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                                 poseID = GeneralHelper::createPoseId(*image, *objectModel);
                             }
                             // Get rotation
-                            if (!extract3x3Matrix(poseDict, "R", rotation, "pose", "Rotation matrix",
+                            if (!extract3x3Matrix(poseDict, KEY_R, rotation, "pose", "Rotation matrix",
                                                   poseID, m_posesWithInvalidData)) {
                                 continue;
                             }
-                            if (!extract3DVector(poseDict, "t", translation, "pose", "Translation vector",
+                            if (!extract3DVector(poseDict, KEY_T, translation, "pose", "Translation vector",
                                                   poseID, m_posesWithInvalidData)) {
                                 continue;
                             }
@@ -568,8 +620,12 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
         message += QString::fromUtf8(e.what());
         Q_EMIT error(tr(message.toStdString().c_str()));
     }
+
     if (m_posesWithInvalidData.size() > 0) {
         Q_EMIT error(tr("There were poses with invalid data."));
+    }
+    if (poses.size() == 0) {
+        Q_EMIT error(tr("No poses loaded (either there exist none or all contained invalid data)."));
     }
     return poses;
 }

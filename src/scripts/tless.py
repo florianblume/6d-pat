@@ -35,12 +35,15 @@ def load_images(images_path, segmentation_images_path):
 
         for index, filename in enumerate(image_filenames):
             info = cam_info[index]
+            if 'cam_K' not in info:
+                   # To cause the Python loader to display a warning
+                   # that there were images with illegal data
+                converted.append({})
+                continue
             converted_single = {'img_id' : index,
                                 'img_path' : filename,
                                 'base_path' : images_path,
-                                'K' : info['cam_K'], 
-                                'mode' : info['mode'], 
-                                'elev' : info['elev']}
+                                'K' : info['cam_K']}
             if segmentation_images_path is not None:
                 segmentation_filename = os.path.basename(
                     segmentation_image_filenames[index])
@@ -84,6 +87,13 @@ def load_poses(path):
         for img_index, entry in gt.items():
             entries_for_image = []
             for gt_entry in entry:
+                if 'obj_id' not in gt_entry or\
+                   'cam_R_m2c' not in gt_entry or\
+                   'cam_t_m2c' not in gt_entry:
+                   # To cause the Python loader to display a warning
+                   # that there were poses with illegal data
+                   entries_for_image.append({})
+                   continue
                 converted_single = {'img_id' : img_index,
                                     # obj_id starts counting at 1
                                     'obj_id' : int(gt_entry['obj_id']) -1,

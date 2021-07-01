@@ -63,23 +63,6 @@ private:
     py::module sys;
     py::module script;
     bool scriptInitialized = false;
-
-    static const std::string KEY_LOAD_IMAGES;
-    static const std::string KEY_LOAD_OBJECT_MODELS;
-    static const std::string KEY_LOAD_POSES;
-    static const std::string KEY_ID_PATH;
-    static const std::string KEY_IMG_PATH;
-    static const std::string KEY_BASE_PATH;
-    static const std::string KEY_SEGMENTATION_IMAGE_PATH;
-    static const std::string KEY_NEAR_PLANE;
-    static const std::string KEY_FAR_PLANE;
-    static const std::string KEY_OBJ_ID;
-    static const std::string KEY_OBJ_MODEL_PATH;
-    static const std::string KEY_K;
-    static const std::string KEY_R;
-    static const std::string KEY_T;
-    static const std::string KEY_POSE_ID;
-
 };
 
 typedef QSharedPointer<PythonLoadAndStoreStrategy> PythonLoadAndStoreStrategyPtr;

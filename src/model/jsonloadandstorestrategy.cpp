@@ -133,7 +133,8 @@ static QMatrix3x3 rotVectorFromJsonRotMatrix(QJsonArray &jsonRotationMatrix) {
     return rotationMatrix;
 }
 
-static ImagePtr createImageWithJsonParams(const QString& filename, const QString &segmentationFilename,
+static ImagePtr createImageWithJsonParams(const QString &id, const QString& filename,
+                                          const QString &segmentationFilename,
                                           const QString &imagesPath, QJsonObject &json) {
     QJsonObject parameters = json[filename].toObject();
     if (!parameters.contains("K")) {
@@ -159,7 +160,7 @@ static ImagePtr createImageWithJsonParams(const QString& filename, const QString
     if (parameters.contains("farPlane")) {
         farPlane = (float) parameters["farPlane"].toDouble();
     }
-    return ImagePtr(new Image(filename, segmentationFilename, imagesPath, qtCameraMatrix,
+    return ImagePtr(new Image(id, filename, segmentationFilename, imagesPath, qtCameraMatrix,
                               nearPlane, farPlane));
 }
 
@@ -221,56 +222,69 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
 
     bool foundImageWithInvalidCameraMatrix = false;
 
-    if (imageFiles.size() > 0 && jsonFile.open(QFile::ReadOnly)) {
-        QByteArray data = jsonFile.readAll();
-        QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
-        if (jsonDocument.isNull()) {
-            QJsonObject jsonObject = jsonDocument.object();
-            for (int i = 0; i < imageFiles.size(); i ++) {
-                QString image = imageFiles[i];
-                QString imageFilename = QFileInfo(image).fileName();
-                ImagePtr newImage;
-                if (segmentationImagesPathSet) {
-                    if (i > segmentationImageFiles.size() - 1) {
-                        Q_EMIT error(tr("Failed to load images. Number of segmentation images "
-                                        "does not match number of images."));
-                        return images;
-                    }
-                    QString segmentationImageFile = segmentationImageFiles[i];
-                    QString segmentationImageFilePath =
-                            QDir(m_segmentationImagesPath).absoluteFilePath(segmentationImageFile);
-                    newImage = createImageWithJsonParams(imageFilename,
-                                                         segmentationImageFilePath,
-                                                         m_imagesPath,
-                                                         jsonObject);
-                } else {
-                    newImage = createImageWithJsonParams(imageFilename,
-                                                         "",
-                                                         m_imagesPath,
-                                                         jsonObject);
-                }
-                if (!newImage) {
-                    // This can only happen when the camera matrix is invalid
-                    foundImageWithInvalidCameraMatrix = true;
-                    m_imagesWithInvalidData.append(imageFilename);
-                } else {
-                    images.push_back(newImage);
-                }
-            }
-        } else {
-            //  TODO Document is null, ie there was an error
-        }
-    } else if (imageFiles.size() > 0) {
-        // Only if we can read images but do not find the JSON info file we raise the exception
-        Q_EMIT error(tr("Failed to load images. Camera info file info.json does not exist."));
-    } else if (imageFiles.size() == 0) {
+    if (imageFiles.size() == 0) {
         Q_EMIT error(tr("No images found at give location."));
+        return images;
+    } else if (!jsonFile.exists()) {
+        Q_EMIT error(tr("Failed to load images. Camera info file info.json does not exist."));
+        return images;
+    } else if (!jsonFile.open(QFile::ReadOnly)) {
+        Q_EMIT error(tr("Failed to load images. Camera info file info.json is not readable."));
+        return images;
+    }
+
+    QByteArray data = jsonFile.readAll();
+    QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
+    if (jsonDocument.isNull()) {
+        Q_EMIT error(tr("Failed to load images. Camera info file info.json is not a JSON file."));
+        return images;
+    }
+
+    QJsonObject jsonObject = jsonDocument.object();
+    for (int i = 0; i < imageFiles.size(); i ++) {
+        QString image = imageFiles[i];
+        QString imageFilename = QFileInfo(image).fileName();
+        ImagePtr newImage;
+        if (segmentationImagesPathSet) {
+            if (i > segmentationImageFiles.size() - 1) {
+                Q_EMIT error(tr("Failed to load images. Number of segmentation images "
+                                "does not match number of images."));
+                return images;
+            }
+            QString segmentationImageFile = segmentationImageFiles[i];
+            QString segmentationImageFilePath =
+                    QDir(m_segmentationImagesPath).absoluteFilePath(segmentationImageFile);
+            newImage = createImageWithJsonParams(QString::number(i),
+                                                 imageFilename,
+                                                 segmentationImageFilePath,
+                                                 m_imagesPath,
+                                                 jsonObject);
+        } else {
+            newImage = createImageWithJsonParams(QString::number(i),
+                                                 imageFilename,
+                                                 Global::NO_PATH,
+                                                 m_imagesPath,
+                                                 jsonObject);
+        }
+        if (!newImage) {
+            // This can only happen when the camera matrix is invalid
+            foundImageWithInvalidCameraMatrix = true;
+            m_imagesWithInvalidData.append(imageFilename);
+        } else {
+            images.push_back(newImage);
+        }
     }
 
     if (foundImageWithInvalidCameraMatrix) {
         Q_EMIT error(tr("There were images with invalid camera matrices."));
     }
 
+    if (images.size() == 0) {
+        Q_EMIT error(tr("No images loaded (maybe because "
+                        "camera matrix contains only invalid entries."));
+        return images;
+    }
+    jsonFile.close();
     return images;
 }
 
@@ -319,6 +333,9 @@ QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
             return collator.compare(o1->path(), o2->path()) < 0;
         });
 
+    if (objectModels.size() == 0) {
+        Q_EMIT error(tr("No object models found at object models path."));
+    }
     return objectModels;
 }
 
@@ -364,91 +381,97 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
     bool foundPosesWithInvalidPosesData = false;
 
     QFile jsonFile(m_posesFilePath);
-    if (jsonFile.open(QFile::ReadWrite)) {
-        QMap<QString, ImagePtr> imageMap = createImageMap(images);
-        QMap<QString, ObjectModelPtr> objectModelMap = createObjectModelMap(objectModels);
-        QByteArray data = jsonFile.readAll();
-        QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
-        if (jsonDocument.isNull()) {
-            QJsonObject jsonObject = jsonDocument.object();
-            //! If we need to update missing IDs we have to write back the document
-            bool documentDirty = false;
-            for(const QString& imagePath : jsonObject.keys()) {
-                QJsonArray entriesForImage = jsonObject[imagePath].toArray();
-                //! Index to keep track of entries to be able to update the
-                //! poses' IDs if necessary. See reason to update the IDs
-                //! further below.
-                int index = 0;
-                for(const QJsonValue &poseEntryRaw : entriesForImage) {
-                    QJsonObject poseEntry = poseEntryRaw.toObject();
-                    if (!poseEntry.contains("R") ||
-                        !poseEntry.contains("t") ||
-                        !poseEntry.contains("obj")) {
-                        foundPosesWithInvalidPosesData = true;
-                        continue;
-                    }
-
-                    //! Read rotation vector from json file
-                    QJsonArray jsonRotationMatrix = poseEntry["R"].toArray();
-                    QMatrix3x3 rotationMatrix = rotVectorFromJsonRotMatrix(jsonRotationMatrix);
-
-                    QJsonArray translation = poseEntry["t"].toArray();
-                    QVector3D qtTranslationVector = QVector3D((float) translation[0].toDouble(),
-                                                              (float) translation[1].toDouble(),
-                                                              (float) translation[2].toDouble());
-
-                    QString objectModelPath = poseEntry["obj"].toString();
-                    ImagePtr image = imageMap.value(imagePath);
-                    ObjectModelPtr objectModel = objectModelMap.value(objectModelPath);
-
-                    if (image && objectModel) {
-                        //! If either is NULL, we do not manage the image or object model
-                        //! specified in the JSON file, that's why we just skip the entry
-                        //!
-                        QString id = "";
-                        //! An external ground truth file (e.g. from TLESS) might not have
-                        //! IDs of exisiting poses. We need IDs to be able to
-                        //! modify poses but if we are not the creator of the
-                        //! pose we thus have to add an ID.
-                        if (poseEntry.contains("id")) {
-                            id = poseEntry["id"].toString();
-                        } else {
-                            id = GeneralHelper::createPoseId(*image, *objectModel);
-                            //! No ID attatched to the entry yet -> write it to the file
-                            //! to be able to identify the poses later
-                            QJsonObject modifiedEntry(poseEntry);
-                            modifiedEntry["id"] = id;
-                            entriesForImage.replace(index, modifiedEntry);
-                            jsonObject[imagePath] = entriesForImage;
-                            documentDirty = true;
-                        }
-
-                        PosePtr pose(new Pose(id,
-                                              qtTranslationVector,
-                                              rotationMatrix,
-                                              image,
-                                              objectModel));
-                        poses.append(pose);
-                    }
-                    index++;
-                }
-            }
-
-            if (documentDirty) {
-                //! We want to replace the old content, i.e. seek to 0
-                jsonFile.resize(0);
-                jsonFile.write(QJsonDocument(jsonObject).toJson());
-            }
-        } else {
-            // TODO Json document is null, ie there was an error
-        }
-    } else {
+    if (!jsonFile.open(QFile::ReadWrite)) {
         Q_EMIT error(tr("Failed to load poses. Poses file is not readable or writable."));
+        return poses;
+    }
+
+    QMap<QString, ImagePtr> imageMap = createImageMap(images);
+    QMap<QString, ObjectModelPtr> objectModelMap = createObjectModelMap(objectModels);
+    QByteArray data = jsonFile.readAll();
+    QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
+
+    if (jsonDocument.isNull()) {
+        Q_EMIT error(tr("Failed to load poses. The poses file is not a JSON document."));
+        return poses;
+    }
+
+    QJsonObject jsonObject = jsonDocument.object();
+    //! If we need to update missing IDs we have to write back the document
+    bool documentDirty = false;
+    for(const QString& imagePath : jsonObject.keys()) {
+        QJsonArray entriesForImage = jsonObject[imagePath].toArray();
+        //! Index to keep track of entries to be able to update the
+        //! poses' IDs if necessary. See reason to update the IDs
+        //! further below.
+        int index = 0;
+        for(const QJsonValue &poseEntryRaw : entriesForImage) {
+            QJsonObject poseEntry = poseEntryRaw.toObject();
+            if (!poseEntry.contains("R") ||
+                !poseEntry.contains("t") ||
+                !poseEntry.contains("obj")) {
+                foundPosesWithInvalidPosesData = true;
+                continue;
+            }
+
+            //! Read rotation vector from json file
+            QJsonArray jsonRotationMatrix = poseEntry["R"].toArray();
+            QMatrix3x3 rotationMatrix = rotVectorFromJsonRotMatrix(jsonRotationMatrix);
+
+            QJsonArray translation = poseEntry["t"].toArray();
+            QVector3D qtTranslationVector = QVector3D((float) translation[0].toDouble(),
+                                                      (float) translation[1].toDouble(),
+                                                      (float) translation[2].toDouble());
+
+            QString objectModelPath = poseEntry["obj"].toString();
+            ImagePtr image = imageMap.value(imagePath);
+            ObjectModelPtr objectModel = objectModelMap.value(objectModelPath);
+
+            if (image && objectModel) {
+                //! If either is NULL, we do not manage the image or object model
+                //! specified in the JSON file, that's why we just skip the entry
+                //!
+                QString id = "";
+                //! An external ground truth file (e.g. from TLESS) might not have
+                //! IDs of exisiting poses. We need IDs to be able to
+                //! modify poses but if we are not the creator of the
+                //! pose we thus have to add an ID.
+                if (poseEntry.contains("id")) {
+                    id = poseEntry["id"].toString();
+                } else {
+                    id = GeneralHelper::createPoseId(*image, *objectModel);
+                    //! No ID attatched to the entry yet -> write it to the file
+                    //! to be able to identify the poses later
+                    QJsonObject modifiedEntry(poseEntry);
+                    modifiedEntry["id"] = id;
+                    entriesForImage.replace(index, modifiedEntry);
+                    jsonObject[imagePath] = entriesForImage;
+                    documentDirty = true;
+                }
+
+                PosePtr pose(new Pose(id,
+                                      qtTranslationVector,
+                                      rotationMatrix,
+                                      image,
+                                      objectModel));
+                poses.append(pose);
+            }
+            index++;
+        }
+        if (documentDirty) {
+            //! We want to replace the old content, i.e. seek to 0
+            jsonFile.resize(0);
+            jsonFile.write(QJsonDocument(jsonObject).toJson());
+        }
     }
 
     if (foundPosesWithInvalidPosesData) {
         Q_EMIT error(tr("There were poses with invalid data."));
     }
 
+    if (objectModels.size() == 0) {
+        // Nothing to do here, maybe the file is empty
+        qDebug() << "No poses loaded";
+    }
     return poses;
 }
