@@ -13,6 +13,8 @@
 
 using namespace std;
 
+typedef QSharedPointer<LoadAndStoreStrategy> LoadAndStoreStrategyPtr;
+
 //! Interface ModelManager defines methods to load entities of the program and store them as well.
 /*!
  * A ModelManager is there to read in images and 3D models as well as poses already created by the user. It does so automatically on
@@ -30,7 +32,7 @@ class ModelManager : public QObject {
 
 protected:
     //! The strategy that is used to persist and also to load entities
-    LoadAndStoreStrategy& m_loadAndStoreStrategy;
+    LoadAndStoreStrategyPtr m_loadAndStoreStrategy;
 
 public:
 
@@ -48,9 +50,16 @@ public:
      *
      * \param _LoadAndStoreStrategy
      */
-    ModelManager(LoadAndStoreStrategy& loadAndStoreStrategy);
+    ModelManager(LoadAndStoreStrategyPtr loadAndStoreStrategy);
 
     virtual ~ModelManager();
+
+    /*!
+     * \brief setLoadAndStoreStrategy sets the load and store strategy used by this model manager.
+     * It's purely virtual to force subclasses to take care of signals & slots de-registering.
+     * \param strategy
+     */
+    virtual void setLoadAndStoreStrategy(LoadAndStoreStrategyPtr strategy) = 0;
 
     /*!
      * \brief getImages Returns the list of all images loaded by this manager.
@@ -153,7 +162,7 @@ Q_SIGNALS:
     void poseAdded(PosePtr pose);
     void poseUpdated(PosePtr pose);
     void poseDeleted(PosePtr pose);
-    void stateChanged(ModelManager::State state, LoadAndStoreStrategy::Error error);
+    void stateChanged(ModelManager::State state, const QString &error);
 };
 
 #endif // MODELMANAGER_H

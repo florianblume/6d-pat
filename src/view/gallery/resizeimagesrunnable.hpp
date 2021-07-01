@@ -17,7 +17,7 @@ public:
     void run() override;
     void stop();
 
-signals:
+Q_SIGNALS:
     void imageResized(int imageIndex, const QString &imagePath, const QImage &resizedImage);
 
 private:

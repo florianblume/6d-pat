@@ -15,13 +15,20 @@ public:
       \param basePath the path to the folder (or parent folder) where relative to
       the object model lies
     */
-    ObjectModel(const QString& objectModelPath, const QString& basePath);
+    ObjectModel(const QString &id, const QString& objectModelPath, const QString& basePath);
 
     /*!
      * \brief ObjectModel copy constructor
      * \param other
      */
     ObjectModel(const ObjectModel &other);
+
+    /*!
+     * \brief id returns the ID of this object model. Can be the index of the object model
+     * in the filesystem or some custom ID.
+     * \return
+     */
+    QString id() const;
 
     //! Returns the path to the object model.
     /*!
@@ -46,6 +53,7 @@ public:
     ObjectModel& operator=(const ObjectModel &other);
 
 private:
+    QString m_id;
     QString m_objectModelPath;
     QString m_basePath;
 };

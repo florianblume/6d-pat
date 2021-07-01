@@ -2,14 +2,13 @@
 #define MAINCONTROLLER_H
 
 #include "model/cachingmodelmanager.hpp"
-#include "model/jsonloadandstorestrategy.hpp"
+#include "model/loadandstorestrategy.hpp"
 #include "settings/settingsstore.hpp"
 #include "view/mainwindow.hpp"
+#include "view/splashscreen/splashscreen.hpp"
 #include "misc/global.hpp"
 #include "controller/poseseditingcontroller.hpp"
 #include "controller/neuralnetworkcontroller.hpp"
-
-#include "view/splashscreen/splashscreen.hpp"
 
 #include <QApplication>
 #include <QScopedPointer>
@@ -43,13 +42,16 @@ Q_SIGNALS:
 private Q_SLOTS:
     void onSettingsChanged(SettingsPtr settings);
     void onReloadViewsRequested();
-    void onModelManagerStateChanged(ModelManager::State state, LoadAndStoreStrategy::Error error);
+    void onModelManagerStateChanged(ModelManager::State state,
+                                    const QString &error);
 
 private:
     /*!
      * \brief initialize initializes this controller, i.e. sets up the necessary models and further initializes the view.
      */
     void initialize();
+    void initializeStrategies();
+    void selectCurrentStrategy();
 
     /*!
      * \brief showView shows the view of this controller.
@@ -63,12 +65,13 @@ private:
     SplashScreen* m_splashScreen;
 
     // Keep order! Initializiation must happen in this way
-    QSharedPointer<SettingsStore> m_settingsStore;
-    QSharedPointer<Settings> m_currentSettings;
+    SettingsStorePtr m_settingsStore;
+    SettingsPtr m_currentSettings;
     // Could be changed dynamically when implementing profiles
     QString m_settingsIdentifier = "default";
 
-    QScopedPointer<JsonLoadAndStoreStrategy> m_strategy;
+    QMap<Settings::UsedLoadAndStoreStrategy, LoadAndStoreStrategyPtr> m_strategies;
+    LoadAndStoreStrategyPtr m_currentStrategy;
     QScopedPointer<CachingModelManager> m_modelManager;
     QThread *m_modelManagerThread;
     QScopedPointer<PosesEditingController> m_poseEditingModel;

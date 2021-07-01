@@ -1,5 +1,7 @@
 #include "maincontroller.hpp"
 #include "view/gallery/galleryimagemodel.hpp"
+#include "model/jsonloadandstorestrategy.hpp"
+#include "model/pythonloadandstorestrategy.hpp"
 
 #include <QSplashScreen>
 #include <QFile>
@@ -20,14 +22,6 @@ int MainController::exec() {
     stream.open(QIODevice::ReadOnly);
     qApp->setStyleSheet(stream.readAll());
 
-    QSurfaceFormat format;
-    format.setDepthBufferSize(24);
-    format.setStencilBufferSize(0);
-    format.setSamples(8);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    format.setVersion(4, 3);
-    QSurfaceFormat::setDefaultFormat(format);
-
     initialize();
 
     return QApplication::exec();
@@ -38,18 +32,12 @@ void MainController::initialize() {
     Settings tmp(*m_settingsStore->currentSettings());
     m_currentSettings.reset(new Settings(tmp));
 
-    m_strategy.reset(new JsonLoadAndStoreStrategy());
-    // Move the strategy to a new thread to allow threadded data loading
-    // This also means that we have to call the strategy's methods
-    // through signals and slots, directly calling them does not do
-    // anything threadded
-    m_strategy->moveToThread(m_modelManagerThread);
-    m_strategy->setImagesPath(m_currentSettings->imagesPath());
-    m_strategy->setObjectModelsPath(m_currentSettings->objectModelsPath());
-    m_strategy->setPosesFilePath(m_currentSettings->posesFilePath());
-    m_strategy->setSegmentationImagesPath(m_currentSettings->segmentationImagesPath());
+    initializeStrategies();
+    selectCurrentStrategy();
 
-    m_modelManager.reset(new CachingModelManager(*m_strategy.data()));
+    m_modelManager.reset(new CachingModelManager(m_currentStrategy));
+    // This connects the signal of the MainController to the ModelManager's reload
+    // method to ensure that data loading happens on the model manager thread
     connect(this, &MainController::reloadingData,
             m_modelManager.get(), &ModelManager::reload);
     m_modelManager->moveToThread(m_modelManagerThread);
@@ -57,7 +45,7 @@ void MainController::initialize() {
     connect(m_settingsStore.data(), &SettingsStore::currentSettingsChanged,
             this, &MainController::onSettingsChanged);
     m_mainWindow.reset(new MainWindow(0, m_modelManager.get(), m_settingsStore.get()));
-    connect(m_mainWindow.get(), &MainWindow::reloadingViews,
+    connect(m_mainWindow.get(), &MainWindow::reloadViewsRequested,
             this, &MainController::onReloadViewsRequested);
     connect(m_modelManager.get(), &ModelManager::stateChanged,
             this, &MainController::onModelManagerStateChanged);
@@ -83,7 +71,31 @@ void MainController::initialize() {
     // want to show the progress loading view in the ModelManager state change callback
     // Emit the signal to load data threadded, directly calling the methods
     // does not do anything threadded
+
     Q_EMIT reloadingData();
+}
+
+void MainController::initializeStrategies() {
+    // We have to construct the strategies and keep them alive because
+    // Python doesn't like to be destroyed...
+    m_strategies[Settings::UsedLoadAndStoreStrategy::Default]
+            = JsonLoadAndStoreStrategyPtr(new JsonLoadAndStoreStrategy);
+    m_strategies[Settings::UsedLoadAndStoreStrategy::Python]
+            = PythonLoadAndStoreStrategyPtr(new PythonLoadAndStoreStrategy);
+
+    // Move the strategies to a new thread to allow threadded data loading
+    // This also means that we have to call the strategy's methods
+    // through signals and slots, directly calling them does not do
+    // anything threadded
+    Q_FOREACH(LoadAndStoreStrategyPtr strategy, m_strategies.values()) {
+        strategy->moveToThread(m_modelManagerThread);
+    }
+}
+
+void MainController::selectCurrentStrategy() {
+    // Get strategy from the pre-loaded strategies
+    m_currentStrategy = m_strategies[m_currentSettings->usedLoadAndStoreStrategy()];
+    m_currentStrategy->applySettings(m_currentSettings);
 }
 
 void MainController::showView() {
@@ -94,23 +106,23 @@ void MainController::showView() {
 
 void MainController::onSettingsChanged(SettingsPtr settings) {
     bool changed = m_currentSettings->imagesPath() != settings->imagesPath() ||
-                   m_currentSettings->segmentationImagesPath() != settings->segmentationImagesPath() ||
+            m_currentSettings->segmentationImagesPath() != settings->segmentationImagesPath() ||
                    m_currentSettings->objectModelsPath() != settings->objectModelsPath() ||
-                   m_currentSettings->posesFilePath() != settings->posesFilePath();
-    m_strategy->setImagesPath(settings->imagesPath());
-    m_strategy->setObjectModelsPath(settings->objectModelsPath());
-    m_strategy->setPosesFilePath(settings->posesFilePath());
-    m_strategy->setSegmentationImagesPath(settings->segmentationImagesPath());
-    if (changed) {
-        // Emit the signal to load data threadded, directly calling the methods
-        // does not do anything threadded
-        Q_EMIT reloadingData();
-    }
+                   m_currentSettings->posesFilePath() != settings->posesFilePath() ||
+                   m_currentSettings->usedLoadAndStoreStrategy() != settings->usedLoadAndStoreStrategy() ||
+                   m_currentSettings->loadSaveScriptPath() != settings->loadSaveScriptPath();
     // We need to reset the stored currentSettings like this here because we need settings
     // that are independend of the settings of the settings store because those might get
     // altered but we want to be able to compare if something has changed
     Settings tmp(*settings);
     m_currentSettings.reset(new Settings(tmp));
+    selectCurrentStrategy();
+    m_modelManager->setLoadAndStoreStrategy(m_currentStrategy);
+    if (changed) {
+        // Emit the signal to load data threadded, directly calling the methods
+        // does not do anything threadded
+        Q_EMIT reloadingData();
+    }
 }
 
 void MainController::onReloadViewsRequested() {
@@ -119,7 +131,7 @@ void MainController::onReloadViewsRequested() {
     Q_EMIT reloadingData();
 }
 
-void MainController::onModelManagerStateChanged(ModelManager::State state, LoadAndStoreStrategy::Error /*error*/) {
+void MainController::onModelManagerStateChanged(ModelManager::State state, const QString &error) {
     // First hide the progress viwe (e.g. for Ready or ErrorOccured)
     m_mainWindow->showDataLoadingProgressView(false);
     if (state == ModelManager::Ready && !m_initialized) {
