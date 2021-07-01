@@ -4,8 +4,10 @@
 #include <Python.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/embed.h>
+#include <pybind11/stl.h>
 #include <QFileInfo>
 #include <QList>
+#include <QElapsedTimer>
 
 namespace py = pybind11;
 
@@ -39,6 +41,8 @@ bool PythonLoadAndStoreStrategy::extractFloat() {
 }
 
 QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
+    QElapsedTimer timer;
+    timer.start();
     QList<ImagePtr> images;
 
     QFileInfo fileInfo(m_loadSaveScript);
@@ -48,6 +52,7 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
     }
 
     try {
+        qDebug() << "iamge import" << timer.elapsed();
         QString dirname = fileInfo.dir().absolutePath();
         py::module sys = py::module::import("sys");
         sys.attr("path").attr("insert")(0, dirname.toUtf8().data());
@@ -55,6 +60,7 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
 
         QString filename = fileInfo.fileName();
         py::module script = py::module::import(filename.mid(0, filename.length() - 3).toUtf8().data());
+        qDebug() << "iamge import ready" << timer.elapsed();
 
         py::object result = script.attr("load_images")(m_imagesPath.toUtf8().data(), py::none());
 
@@ -199,10 +205,13 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
         // Some crazy error happened
         qDebug() << "image error 13";
     }
+    qDebug() << "image laod time" << timer.elapsed();
     return images;
 }
 
 QList<ObjectModelPtr> PythonLoadAndStoreStrategy::loadObjectModels() {
+    QElapsedTimer timer;
+    timer.start();
     QList<ObjectModelPtr> objectModels;
 
     QFileInfo fileInfo(m_loadSaveScript);
@@ -299,6 +308,7 @@ QList<ObjectModelPtr> PythonLoadAndStoreStrategy::loadObjectModels() {
         // Some crazy error happened
         qDebug() << "obj error 13";
     }
+    qDebug() << "object models load time" << timer.elapsed();
     return objectModels;
 }
 
@@ -314,7 +324,6 @@ bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool d
         py::module sys = py::module::import("sys");
         sys.attr("path").attr("insert")(0, dirname.toUtf8().data());
 
-
         QString filename = fileInfo.fileName();
         py::module script = py::module::import(filename.mid(0, filename.length() - 3).toUtf8().data());
 
@@ -323,30 +332,44 @@ bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool d
         QString objID = objectImagePose.objectModel()->id();
         QString imagePath = objectImagePose.image()->imagePath();
         QString objectModelPath = objectImagePose.objectModel()->path();
-        const float *rotation = objectImagePose.rotation().toRotationMatrix().constData();
-        const float translation[3] = {objectImagePose.position()[0],
-                                      objectImagePose.position()[1],
-                                      objectImagePose.position()[2]};
+        py::list rotation;
+        // Transposed because QMatrix3x3 transposes it when loading from the float array
+        const float* rotationValues = objectImagePose.rotation().toRotationMatrix().transposed().constData();
+        for (int i = 0; i < 9; i++) {
+            rotation.append(rotationValues[i]);
+        }
+        py::list translation;
+        for (int i = 0; i < 3; i++) {
+            translation.append(objectImagePose.position()[0]);
 
-        py::object result = script.attr("save_pose")(m_posesFilePath,
-                                                     poseIdD,
-                                                     imageID,
-                                                     imagePath,
-                                                     objID,
-                                                     objectModelPath,
-                                                     rotation,
-                                                     translation,
-                                                     deletePose);
+        }
+        py::object result = script.attr("persist_pose")(m_posesFilePath.toStdString(),
+                                                        poseIdD.toStdString(),
+                                                        imageID.toStdString(),
+                                                        imagePath.toStdString(),
+                                                        objID.toStdString(),
+                                                        objectModelPath.toStdString(),
+                                                        rotation,
+                                                        translation,
+                                                        deletePose);
+        if (py::isinstance<py::bool_>(result)) {
+            return result.cast<bool>();
+        } else {
+            // an error occured
+            qDebug() << "Error while saving pose";
+        }
     } catch (py::error_already_set &e) {
         qDebug() << e.what();
         qDebug() << "obj error 13";
     }
 
-    return true;
+    return false;
 }
 
 QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images,
                                                      const QList<ObjectModelPtr> &objectModels) {
+    QElapsedTimer timer;
+    timer.start();
     QList<PosePtr> poses;
     // For faster lookup by ID
     QMap<QString, ImagePtr> imagesForID;
@@ -596,6 +619,6 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
         qDebug() << e.what();
         qDebug() << "poses error 16";
     }
-
+    qDebug() << "poses load time" << timer.elapsed();
     return poses;
 }

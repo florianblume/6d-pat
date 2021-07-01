@@ -106,6 +106,7 @@ def load_poses(path):
     return 'Error: info.yml could not be read.'
 
 def persist_pose(path, pose_id, image_id, image_path, obj_id, obj_path, rotation, translation, remove):
+    # We passed obj_id - 1 to the code -> reverse here
+    obj_id = int(obj_id) + 1
     print(path, pose_id, image_id, image_path, obj_id, obj_path, rotation, translation, remove)
-    print('persist pose')
-    pass
+    return True
