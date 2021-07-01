@@ -126,7 +126,8 @@ private Q_SLOTS:
     void onActionTakeSnapshotTriggered();
     void onSnapshotSaved();
     void onActionTutorialScreenTriggered();
-    void onModelManagerStateChanged(ModelManager::State state, LoadAndStoreStrategy::Error error);
+    void onModelManagerStateChanged(ModelManager::State state,
+                                    const QString &error);
 
     /*!
      * \brief displayWarning displays a warning as a popup box.

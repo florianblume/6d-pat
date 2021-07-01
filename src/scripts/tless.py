@@ -72,6 +72,9 @@ def load_poses(path):
 
     converted = None
     needs_update = False
+
+    if not os.path.exists(path) or not os.path.isfile(path):
+        return 'The poses file does not exist or is not a file'
     
     with open(gt_file_path, 'r') as gt_file:
         gt = yaml.safe_load(gt_file)
@@ -103,7 +106,7 @@ def load_poses(path):
                 yaml.dump(gt, gt_file)
         return converted
 
-    return 'Error: info.yml could not be read.'
+    return 'Error: gt.yml could not be read.'
 
 def persist_pose(path, pose_id, image_id, image_path, obj_id, obj_path, rotation, translation, remove):
     # We passed obj_id - 1 to the code -> reverse here

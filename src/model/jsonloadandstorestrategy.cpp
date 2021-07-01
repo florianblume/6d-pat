@@ -29,12 +29,12 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
     QFile jsonFile(m_posesFilePath);
 
     if (!info.isFile()) {
-        Q_EMIT error(FailedToPersistPosePosesPathIsNotAFile);
+        Q_EMIT error(tr("Failed to persist pose. Poses file is not a file."));
         return false;
     }
 
     if (!jsonFile.open(QFile::ReadWrite)) {
-        Q_EMIT error(FailedToPersistPosePosesFileCouldNotBeRead);
+        Q_EMIT error(tr("Failed to persist pose. Poses file could not be read."));
         return false;
     }
 
@@ -179,10 +179,13 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     // is if this strategy was constructed with an empty path, all other methods of
     // setting the path check if the path exists
     if (!QFileInfo(m_imagesPath).exists()) {
-        Q_EMIT error(ImagesPathDoesNotExist);
+        Q_EMIT error(tr("Failed to load images. Images path does not exist."));
+        return images;
+    } else if (!QFileInfo(m_imagesPath).isDir()) {
+        Q_EMIT error(tr("Failed to load images. Images path is not a folder."));
         return images;
     } else if (m_segmentationImagesPath != "" && !QFileInfo(m_segmentationImagesPath).exists()) {
-        Q_EMIT error(SegmentationImagesPathDoesNotExist);
+        Q_EMIT error(tr("Failed to load segmentation images. Segmentation images path does not exist."));
         return images;
     }
 
@@ -229,7 +232,8 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
                 ImagePtr newImage;
                 if (segmentationImagesPathSet) {
                     if (i > segmentationImageFiles.size() - 1) {
-                        Q_EMIT error(NotEnoughSegmentationImages);
+                        Q_EMIT error(tr("Failed to load images. Number of segmentation images "
+                                        "does not match number of images."));
                         return images;
                     }
                     QString segmentationImageFile = segmentationImageFiles[i];
@@ -258,13 +262,13 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
         }
     } else if (imageFiles.size() > 0) {
         // Only if we can read images but do not find the JSON info file we raise the exception
-        Q_EMIT error(CamInfoDoesNotExist);
+        Q_EMIT error(tr("Failed to load images. Camera info file info.json does not exist."));
     } else if (imageFiles.size() == 0) {
-        Q_EMIT error(NoImagesFound);
+        Q_EMIT error(tr("No images found at give location."));
     }
 
     if (foundImageWithInvalidCameraMatrix) {
-        Q_EMIT error(InvalidCameraMatrices);
+        Q_EMIT error(tr("There were images with invalid camera matrices."));
     }
 
     return images;
@@ -284,10 +288,10 @@ QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
     // See explanation under loadImages for why we don't throw an exception here
     QFileInfo info(m_objectModelsPath);
     if (!info.exists()) {
-        Q_EMIT error(ObjectModelsPathDoesNotExist);
+        Q_EMIT error(tr("Failed to load object models. Object models path does not exist."));
         return objectModels;
     } else if (!info.isDir()) {
-        Q_EMIT error(ObjectModelsPathIsNotAFolder);
+        Q_EMIT error(tr("Failed to load object models. Object models path is not a folder."));
         return objectModels;
     }
 
@@ -353,7 +357,7 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
 
     //! See loadImages for why we don't throw an exception here
     if (!QFileInfo(m_posesFilePath).exists()) {
-        Q_EMIT error(PosesPathDoesNotExist);
+        Q_EMIT error(tr("Failed to load poses. Poses path does not exist."));
         return poses;
     }
 
@@ -439,11 +443,11 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
             // TODO Json document is null, ie there was an error
         }
     } else {
-        Q_EMIT error(PosesPathIsNotReadable);
+        Q_EMIT error(tr("Failed to load poses. Poses file is not readable or writable."));
     }
 
     if (foundPosesWithInvalidPosesData) {
-        Q_EMIT error(PosesWithInvalidPosesData);
+        Q_EMIT error(tr("There were poses with invalid data."));
     }
 
     return poses;

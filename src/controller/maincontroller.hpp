@@ -42,7 +42,8 @@ Q_SIGNALS:
 private Q_SLOTS:
     void onSettingsChanged(SettingsPtr settings);
     void onReloadViewsRequested();
-    void onModelManagerStateChanged(ModelManager::State state, LoadAndStoreStrategy::Error error);
+    void onModelManagerStateChanged(ModelManager::State state,
+                                    const QString &error);
 
 private:
     /*!

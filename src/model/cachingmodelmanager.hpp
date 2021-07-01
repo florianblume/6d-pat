@@ -61,7 +61,7 @@ private Q_SLOTS:
     // Callback for threadded data loading
     void dataReady();
     void onDataChanged(int data);
-    void onLoadAndStoreStrategyError(LoadAndStoreStrategy::Error error);
+    void onLoadAndStoreStrategyError(const QString &error);
 
 private:
     /*!

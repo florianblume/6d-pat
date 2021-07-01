@@ -394,60 +394,10 @@ void MainWindow::onActionTutorialScreenTriggered() {
                                                    "florianblume/6d-pat/issues/63");
 }
 
-void MainWindow::onModelManagerStateChanged(ModelManager::State state, LoadAndStoreStrategy::Error error) {
-    if (state == ModelManager::ErrorOccured) {
-        QString message("An unkown error occured in the data manager.");
-        switch (error) {
-            case LoadAndStoreStrategy::Error::None:
-                // Cannot occur, just so that there is no warning here
-                break;
-            case LoadAndStoreStrategy::Error::CamInfoDoesNotExist:
-                message = "The camera info file info.json does not exist.";
-                break;
-            case LoadAndStoreStrategy::Error::ImagesPathDoesNotExist:
-                message = "The images path does not exist.";
-                break;
-            case LoadAndStoreStrategy::Error::SegmentationImagesPathDoesNotExist:
-                message = "The segmentation images path does not exist.";
-                break;
-            case LoadAndStoreStrategy::Error::CouldNotReadCamInfo:
-                message = "Could not read the camera info file info.json.";
-                break;
-            case LoadAndStoreStrategy::Error::CamInfoPathIsNotAJSONFile:
-                message = "The camera info file info.json is not a valid file.";
-                break;
-            case LoadAndStoreStrategy::Error::NoImagesFound:
-                message = "No images found at the specified images path.";
-                break;
-            case LoadAndStoreStrategy::Error::ObjectModelsPathDoesNotExist:
-                message = "The object models path does not exist.";
-                break;
-            case LoadAndStoreStrategy::Error::ObjectModelsPathIsNotAFolder:
-                message = "The object models path is not a folder.";
-                break;
-            case LoadAndStoreStrategy::Error::PosesPathDoesNotExist:
-                message = "The specified poses file does not exist.";
-                break;
-            case LoadAndStoreStrategy::Error::FailedToPersistPosePosesFileCouldNotBeRead:
-                message = "Could not read the poses file (error while trying to save poses).";
-                break;
-            case LoadAndStoreStrategy::Error::FailedToPersistPosePosesPathIsNotAFile:
-                message = "The specified poses file is not a file (error while trying to save poses).";
-                break;
-            case LoadAndStoreStrategy::Error::PosesPathIsNotReadable:
-                message = "The specified poses file is not readable.";
-                break;
-            case LoadAndStoreStrategy::Error::InvalidCameraMatrices:
-                message = "There were invalid camera matrices in the cam.info file.";
-                break;
-            case LoadAndStoreStrategy::Error::PosesWithInvalidPosesData:
-                message = "There were invalid entries for poses in the poses file.";
-                break;
-            case LoadAndStoreStrategy::Error::NotEnoughSegmentationImages:
-                message = "There were not enough segmentation images to match them with all images.";
-                break;
-        }
-        displayWarning("An error occured in the data manger", message);
+void MainWindow::onModelManagerStateChanged(ModelManager::State state,
+                                            const QString &error) {
+    if (state == ModelManager::ErrorOccured || !error.isNull()) {
+        displayWarning("Error while loading or saving data", error);
     }
 }
 

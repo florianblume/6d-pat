@@ -131,7 +131,7 @@ void MainController::onReloadViewsRequested() {
     Q_EMIT reloadingData();
 }
 
-void MainController::onModelManagerStateChanged(ModelManager::State state, LoadAndStoreStrategy::Error /*error*/) {
+void MainController::onModelManagerStateChanged(ModelManager::State state, const QString &error) {
     // First hide the progress viwe (e.g. for Ready or ErrorOccured)
     m_mainWindow->showDataLoadingProgressView(false);
     if (state == ModelManager::Ready && !m_initialized) {

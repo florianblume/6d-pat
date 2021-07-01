@@ -162,7 +162,7 @@ Q_SIGNALS:
     void poseAdded(PosePtr pose);
     void poseUpdated(PosePtr pose);
     void poseDeleted(PosePtr pose);
-    void stateChanged(ModelManager::State state, LoadAndStoreStrategy::Error error);
+    void stateChanged(ModelManager::State state, const QString &error);
 };
 
 #endif // MODELMANAGER_H

@@ -25,24 +25,6 @@ class LoadAndStoreStrategy : public QObject {
     Q_OBJECT
 
 public:
-    enum Error {
-        None,
-        ImagesPathDoesNotExist,
-        SegmentationImagesPathDoesNotExist,
-        NotEnoughSegmentationImages,
-        CouldNotReadCamInfo,
-        CamInfoDoesNotExist,
-        InvalidCameraMatrices,
-        CamInfoPathIsNotAJSONFile,
-        NoImagesFound,
-        ObjectModelsPathDoesNotExist,
-        ObjectModelsPathIsNotAFolder,
-        PosesPathDoesNotExist,
-        PosesPathIsNotReadable,
-        PosesWithInvalidPosesData,
-        FailedToPersistPosePosesFileCouldNotBeRead,
-        FailedToPersistPosePosesPathIsNotAFile,
-    };
 
     LoadAndStoreStrategy();
 
@@ -100,7 +82,7 @@ public:
 
 
 Q_SIGNALS:
-    void error(LoadAndStoreStrategy::Error error);
+    void error(const QString &error);
     void dataChanged(int data);
 
 protected Q_SLOTS:
@@ -123,6 +105,7 @@ protected:
     QList<QString> m_imagesWithInvalidData;
     //! Stores the path to the folder that holds the object models
     QString m_objectModelsPath;
+    QList<QString> m_objectModelsWithInvalidData;
     //! Stores the path to the already created poses
     QString m_posesFilePath;
     QList<QString> m_posesWithInvalidData;

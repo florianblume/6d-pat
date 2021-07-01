@@ -12,7 +12,6 @@ const QStringList LoadAndStoreStrategy::IMAGE_FILES_EXTENSIONS =
                                             QStringList({"*.jpg", "*.jpeg", "*.png", "*.tiff"});
 
 LoadAndStoreStrategy::LoadAndStoreStrategy() {
-    qRegisterMetaType<LoadAndStoreStrategy::Error>("LoadAndStoreStrategy::Error");
     connectWatcherSignals();
 }
 
