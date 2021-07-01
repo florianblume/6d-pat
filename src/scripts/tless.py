@@ -1,5 +1,7 @@
 import os
 import yaml
+import time
+import datetime
 
 image_extensions = ['jpg', 'png', 'bmp']
 object_models_extensions = ['.obj', '.ply', '.3ds', '.fbx']
@@ -58,8 +60,6 @@ def load_object_models(object_models_path):
     object_model_filenames = get_files_at_path_of_extensions(object_models_path, object_models_extensions)
     sort_list_by_num_in_string_entries(object_model_filenames)
 
-    print(object_model_filenames)
-
     for index, filename in enumerate(object_model_filenames):
         converted_single = {'obj_id' : index,
                             'obj_model_path' : filename,
@@ -69,6 +69,9 @@ def load_object_models(object_models_path):
 
 def load_poses(path):
     gt_file_path = os.path.abspath(path)
+
+    converted = None
+    needs_update = False
     
     with open(gt_file_path, 'r') as gt_file:
         gt = yaml.safe_load(gt_file)
@@ -86,14 +89,23 @@ def load_poses(path):
                 if 'pose_id' in gt_entry:
                     converted_single['pose_id'] = gt_entry['pose_id']
                 else:
-                    #TODO Make up an ID, it's required by the program -> Need to also store it in the GT file
-                    pass
+                    needs_update = True
+                    ts = time.time()
+                    timestamp = datetime.datetime.fromtimestamp(ts).strftime('%d.%m.%y_%H:%M:%S')
+                    gt_entry['pose_id'] = str(img_index) + '_' + str(int(gt_entry['obj_id']) -1) + '_' + timestamp
                 entries_for_image.append(converted_single)
             converted.append(entries_for_image)
+
+    if converted is not None:
+        if needs_update:
+            # Try to write back the updated IDs
+            with open(gt_file_path, 'w') as gt_file:
+                yaml.dump(gt, gt_file)
         return converted
 
     return 'Error: info.yml could not be read.'
 
-def persist_pose(path, pose):
+def persist_pose(path, pose_id, image_id, image_path, obj_id, obj_path, rotation, translation, remove):
+    print(path, pose_id, image_id, image_path, obj_id, obj_path, rotation, translation, remove)
     print('persist pose')
     pass

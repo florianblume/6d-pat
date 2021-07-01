@@ -55,15 +55,17 @@ PosesEditingController::PosesEditingController(QObject *parent, ModelManager *mo
     connect(mainWindow->poseEditor(), &PoseEditor::objectModelClickedAt,
             this, &PosesEditingController::add3DPoint);
     connect(mainWindow->poseEditor(), &PoseEditor::buttonCreateClicked,
-            this, &PosesEditingController::recoverPose);
+            this, &PosesEditingController::createPose);
     connect(mainWindow->poseViewer(), &PoseViewer::imageClicked,
             this, &PosesEditingController::add2DPoint);
 
     // React to mainwindow signals
     connect(mainWindow, &MainWindow::closingProgram,
             this, &PosesEditingController::onProgramClose);
-    connect(mainWindow, &MainWindow::poseCreationAborted,
-            this, &PosesEditingController::abortPoseRecovering);
+    connect(mainWindow, &MainWindow::abortPoseCreationRequested,
+            this, &PosesEditingController::abortPoseCreation);
+    connect(mainWindow, &MainWindow::resetRequested,
+            this, &PosesEditingController::reset);
 
     connect(mainWindow->galleryImages(), &Gallery::selectedItemChanged,
             this, &PosesEditingController::onSelectedImageChanged);
@@ -115,7 +117,7 @@ void PosesEditingController::addPose(PosePtr pose) {
     // here because PoseViewer and PoseEditor already
     // select the new pose interally
     m_selectedPose = pose;
-    abortPoseRecovering();
+    abortPoseCreation();
 }
 
 void PosesEditingController::removePose() {
@@ -137,7 +139,7 @@ void PosesEditingController::removePose() {
     }
     m_mainWindow->poseViewer()->removePose(m_selectedPose);
     m_mainWindow->poseEditor()->removePose(m_selectedPose);
-    abortPoseRecovering();
+    abortPoseCreation();
     m_selectedPose.reset();
     enableSaveButtonOnPoseEditor();
     // Save button of PoseEditor gets enabled or disabled
@@ -150,7 +152,7 @@ void PosesEditingController::duplicatePose() {
 }
 
 void PosesEditingController::copyPosesFromImage(ImagePtr image) {
-    abortPoseRecovering();
+    abortPoseCreation();
     QList<PosePtr> poses = m_modelManager->posesForImage(*image);
     for (const PosePtr &pose : poses) {
         PosePtr newPose = createNewPoseFromPose(pose);
@@ -194,7 +196,7 @@ void PosesEditingController::onDataChanged(int /*data*/) {
     // poses file has been changed but it might be an accident
     // so we try to save it
     savePosesOrRestoreState();
-    abortPoseRecovering();
+    abortPoseCreation();
 
     // No matter what changed we need to reset the controller's state
     m_selectedPose.reset();
@@ -335,7 +337,7 @@ void PosesEditingController::onSelectedObjectModelChanged(int index) {
         m_mainWindow->poseEditor()->setObjectModel(objectModel);
         m_currentObjectModel = objectModel;
     }
-    abortPoseRecovering();
+    abortPoseCreation();
 }
 
 PosePtr PosesEditingController::createNewPoseFromPose(PosePtr pose) {
@@ -409,7 +411,7 @@ QString correspondenceToString(QPoint point2D, QVector3D point3D) {
             + QString::number(point3D.z()) + ")";
 }
 
-void PosesEditingController::recoverPose() {
+void PosesEditingController::createPose() {
     // TODO show warnings in mainwindow
     switch (m_state) {
         case ReadyForPoseCreation:
@@ -489,7 +491,7 @@ void PosesEditingController::recoverPose() {
     m_mainWindow->showPoseRecoveringProgressView(false);
 }
 
-void PosesEditingController::abortPoseRecovering() {
+void PosesEditingController::abortPoseCreation() {
     m_state = Empty;
     m_points2D.clear();
     m_points3D.clear();
@@ -498,9 +500,8 @@ void PosesEditingController::abortPoseRecovering() {
     m_mainWindow->poseViewer()->onPoseCreationAborted();
 }
 
-void PosesEditingController::onReloadViews() {
+void PosesEditingController::reset() {
     savePosesOrRestoreState();
-    onDataChanged(0);
 }
 
 void PosesEditingController::onProgramClose() {

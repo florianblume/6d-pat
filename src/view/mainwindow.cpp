@@ -58,9 +58,9 @@ MainWindow::MainWindow(QWidget *parent,
 
     // If the selected image changes, we also need to cancel any started creation of a pose
     connect(ui->galleryLeft, &Gallery::selectedItemChanged,
-            this, &MainWindow::poseCreationAborted);
+            this, &MainWindow::abortPoseCreationRequested);
     connect(ui->galleryRight, &Gallery::selectedItemChanged,
-            this, &MainWindow::poseCreationAborted);
+            this, &MainWindow::abortPoseCreationRequested);
 
     connect(ui->poseViewer, &PoseViewer::snapshotSaved,
             this, &MainWindow::onSnapshotSaved);
@@ -322,12 +322,17 @@ void MainWindow::onActionSettingsTriggered() {
 
 void MainWindow::onActionAbortCreationTriggered() {
     setStatusBarText("Ready.");
-    Q_EMIT poseCreationAborted();
+    Q_EMIT abortPoseCreationRequested();
+}
+
+void MainWindow::onActionResetTriggered() {
+    setStatusBarText("Ready.");
+    Q_EMIT resetRequested();
 }
 
 void MainWindow::onActionReloadViewsTriggered() {
-    Q_EMIT reloadingViews();
     setStatusBarText("Ready.");
+    Q_EMIT reloadViewsRequested();
 }
 
 void MainWindow::onActionTakeSnapshotTriggered() {

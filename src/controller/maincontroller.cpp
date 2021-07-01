@@ -45,7 +45,7 @@ void MainController::initialize() {
     connect(m_settingsStore.data(), &SettingsStore::currentSettingsChanged,
             this, &MainController::onSettingsChanged);
     m_mainWindow.reset(new MainWindow(0, m_modelManager.get(), m_settingsStore.get()));
-    connect(m_mainWindow.get(), &MainWindow::reloadingViews,
+    connect(m_mainWindow.get(), &MainWindow::reloadViewsRequested,
             this, &MainController::onReloadViewsRequested);
     connect(m_modelManager.get(), &ModelManager::stateChanged,
             this, &MainController::onModelManagerStateChanged);

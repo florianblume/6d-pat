@@ -22,12 +22,27 @@ void PythonLoadAndStoreStrategy::applySettings(SettingsPtr settings) {
     LoadAndStoreStrategy::applySettings(settings);
 }
 
+bool PythonLoadAndStoreStrategy::extractPath() {
+
+}
+
+bool PythonLoadAndStoreStrategy::extractID() {
+
+}
+
+bool PythonLoadAndStoreStrategy::extractVector() {
+
+}
+
+bool PythonLoadAndStoreStrategy::extractFloat() {
+
+}
+
 QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
     QList<ImagePtr> images;
 
     QFileInfo fileInfo(m_loadSaveScript);
     if (!fileInfo.exists()) {
-
         qDebug() << "script not found";
         return images;
     }
@@ -180,8 +195,9 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
             // Not a list
         }
     } catch (py::error_already_set &e) {
+        qDebug() << e.what();
         // Some crazy error happened
-        qDebug() << "error 13";
+        qDebug() << "image error 13";
     }
     return images;
 }
@@ -279,36 +295,82 @@ QList<ObjectModelPtr> PythonLoadAndStoreStrategy::loadObjectModels() {
             // Not a list
         }
     } catch (py::error_already_set &e) {
+        qDebug() << e.what();
         // Some crazy error happened
-        qDebug() << "error 13";
+        qDebug() << "obj error 13";
     }
     return objectModels;
 }
 
 bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool deletePose) {
+    QFileInfo fileInfo(m_loadSaveScript);
+    if (!fileInfo.exists()) {
+        qDebug() << "Script not found";
+        return false;
+    }
+
+    try {
+        QString dirname = fileInfo.dir().absolutePath();
+        py::module sys = py::module::import("sys");
+        sys.attr("path").attr("insert")(0, dirname.toUtf8().data());
+
+
+        QString filename = fileInfo.fileName();
+        py::module script = py::module::import(filename.mid(0, filename.length() - 3).toUtf8().data());
+
+        QString poseIdD = objectImagePose.id();
+        QString imageID = objectImagePose.image()->id();
+        QString objID = objectImagePose.objectModel()->id();
+        QString imagePath = objectImagePose.image()->imagePath();
+        QString objectModelPath = objectImagePose.objectModel()->path();
+        const float *rotation = objectImagePose.rotation().toRotationMatrix().constData();
+        const float translation[3] = {objectImagePose.position()[0],
+                                      objectImagePose.position()[1],
+                                      objectImagePose.position()[2]};
+
+        py::object result = script.attr("save_pose")(m_posesFilePath,
+                                                     poseIdD,
+                                                     imageID,
+                                                     imagePath,
+                                                     objID,
+                                                     objectModelPath,
+                                                     rotation,
+                                                     translation,
+                                                     deletePose);
+    } catch (py::error_already_set &e) {
+        qDebug() << e.what();
+        qDebug() << "obj error 13";
+    }
+
     return true;
 }
 
 QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images,
                                                      const QList<ObjectModelPtr> &objectModels) {
     QList<PosePtr> poses;
+    // For faster lookup by ID
     QMap<QString, ImagePtr> imagesForID;
+    QMap<QString, ImagePtr> imagesForPath;
     Q_FOREACH(ImagePtr image, images) {
         if (imagesForID.contains(image->id())) {
-            qDebug() << "whoops two images with the same ID Error";
+            qDebug() << "whoops two images with the same ID Error shouldn't happen";
         }
         imagesForID[image->id()] = image;
+        imagesForPath[image->imagePath()] = image;
     }
     QMap<QString, ObjectModelPtr> objectModelsForID;
+    QMap<QString, ObjectModelPtr> objectModelsForPath;
     Q_FOREACH(ObjectModelPtr objectModel, objectModels) {
         if (objectModelsForID.contains(objectModel->id())) {
-            qDebug() << "whoops two object models with the same ID Error";
+            qDebug() << "whoops two object models with the same ID Error shouldn't happen";
         }
         objectModelsForID[objectModel->id()] = objectModel;
+        objectModelsForPath[objectModel->path()] = objectModel;
     }
 
     QFileInfo fileInfo(m_loadSaveScript);
     if (!fileInfo.exists()) {
+        qDebug() << "Script not found";
         // TODO error
         return poses;
     }
@@ -361,7 +423,19 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                                     continue;
                                 }
                             } else if (poseDict.contains("img_path")) {
-                                // TODO check for Image with the given path
+                                py::object imagePathItem = poseDict["img_path"];
+                                if (py::isinstance<py::str>(imagePathItem)) {
+                                    QString imagePath = QString::fromStdString(imagePathItem.cast<std::string>());
+                                    if (imagesForPath.contains(imagePath)) {
+                                        image = imagesForPath[imagePath];
+                                    } else {
+                                        qDebug() << "image_path found but no corresponding image exists";
+                                        continue;
+                                    }
+                                } else {
+                                    qDebug() << "image_path found but is not a string";
+                                    continue;
+                                }
                             } else {
                                 qDebug() << "error 2";
                                 continue;
@@ -388,7 +462,19 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                                     continue;
                                 }
                             } else if (poseDict.contains("obj_model_path")) {
-                                // TODO check for ObjectModel with the given path
+                                py::object objectModelPathItem = poseDict["obj_model_path"];
+                                if (py::isinstance<py::str>(objectModelPathItem)) {
+                                    QString objectModelPath = QString::fromStdString(objectModelPathItem.cast<std::string>());
+                                    if (objectModelsForPath.contains(objectModelPath)) {
+                                        objectModel = objectModelsForPath[objectModelPath];
+                                    } else {
+                                        qDebug() << "object_model_path found but no corresponding object model exists";
+                                        continue;
+                                    }
+                                } else {
+                                    qDebug() << "object_model_path found but is not a string";
+                                    continue;
+                                }
                             } else {
                                 qDebug() << "error 4";
                                 continue;
@@ -507,6 +593,7 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
             // Not a list
         }
     }  catch (py::error_already_set &e) {
+        qDebug() << e.what();
         qDebug() << "poses error 16";
     }
 

@@ -78,7 +78,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     /*!
-     * \brief poseCreationInterrupted this signal is Q_EMITted when the user clicks the
+     * \brief poseCreationInterrupted this signal is emitted when the user clicks the
      * overlay that is being added to the view as soon as the image is clicked anywhere. Clicking
      * the overlay can be an accident or because the image was clicked at the wrong position.
      * Thus we assume that the user only interrupted the creation, not aborted it. The user
@@ -87,13 +87,19 @@ Q_SIGNALS:
     void poseCreationInterrupted();
 
     /*!
-     * \brief poseCreationAborted is Q_EMITted when the user clicks the abort creation
+     * \brief poseCreationAborted is emitted when the user clicks the abort creation
      * button
      */
-    void poseCreationAborted();
+    void abortPoseCreationRequested();
 
     /*!
-     * \brief imagesPathChanged Q_EMITted when the images path changes because the user used the
+     * \brief resetting is emitted when the user clicks the reset button which reset only
+     * the changes made to the current view
+     */
+    void resetRequested();
+
+    /*!
+     * \brief imagesPathChanged emitted when the images path changes because the user used the
      * navigation controls to change it
      * \param newPath the new images path that was set
      */
@@ -106,7 +112,7 @@ Q_SIGNALS:
      */
     void objectModelsPathChanged(const QString &newPath);
 
-    void reloadingViews();
+    void reloadViewsRequested();
     void closingProgram();
 
 private Q_SLOTS:
@@ -115,6 +121,7 @@ private Q_SLOTS:
     void onActionExitTriggered();
     void onActionSettingsTriggered();
     void onActionAbortCreationTriggered();
+    void onActionResetTriggered();
     void onActionReloadViewsTriggered();
     void onActionTakeSnapshotTriggered();
     void onSnapshotSaved();
