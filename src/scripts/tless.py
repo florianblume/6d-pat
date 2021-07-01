@@ -14,6 +14,9 @@ def sort_list_by_num_in_string_entries(list_of_strings):
 
 def load_images(images_path, segmentation_images_path):
     cam_info_file_path = os.path.abspath(os.path.join(images_path, '..', 'info.yml'))
+
+    if not os.path.exists(cam_info_file_path):
+        return "Camera info file info.yml not found."
     
     with open(cam_info_file_path, 'r') as cam_info_file:
         cam_info = yaml.safe_load(cam_info_file)
