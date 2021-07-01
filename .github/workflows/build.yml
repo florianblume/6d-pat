@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install OpenCV
-      run: sudo apt-get update && sudo apt-get install -y libopencv-dev python-pybind11
+      run: sudo apt-get update && sudo apt-get install -y libopencv-dev python3-pybind11
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
