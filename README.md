@@ -46,7 +46,7 @@ You need to have Qt >= 5.14 and OpenCV >= 4.5 installed. You can do so this way 
 
     sudo add-apt-repository -y ppa:beineri/opt-qt-5.14.2-focal
     sudo apt-get update -qq
-    sudo apt-get -y install qt514-meta-minimal qt5143d qt514gamepad
+    sudo apt-get -y install qt514-meta-minimal qt5143d qt514gamepad python3 python3-dev python3-pybind11
     sudo apt-get -y install libopencv-dev
 
 Then open the project's main `6d-pat.pro` file in QtCreator and build the project. Everything should compile successfully.
