@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>99</height>
+    <height>101</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -121,23 +121,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QRadioButton" name="radioButtonPythonScript">
-        <property name="text">
-         <string>Python Script</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="radioButtonDefault">
-        <property name="text">
-         <string>Default JSON</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="2">
        <widget class="QPushButton" name="buttonPythonScript">
         <property name="sizePolicy">
@@ -157,6 +140,37 @@
         </property>
         <property name="flat">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="radioButtonPythonScript">
+        <property name="text">
+         <string>Python Script</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="radioButtonDefault">
+        <property name="text">
+         <string>Default JSON</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QPushButton" name="buttonPythonScriptHelp">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QPushButton" name="buttonDefaultJsonHelp">
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>
@@ -215,10 +229,44 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonDefaultJsonHelp</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsLoadSavePage</receiver>
+   <slot>buttonDefaultJsonHelpClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>354</x>
+     <y>36</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>50</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonPythonScriptHelp</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsLoadSavePage</receiver>
+   <slot>buttonPythonScriptHelpClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>354</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>50</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>buttonPythonScriptClicked()</slot>
   <slot>radioButtonDefaultClicked()</slot>
   <slot>radioButtonPythonScriptClicked()</slot>
+  <slot>buttonPythonScriptHelpClicked()</slot>
+  <slot>buttonDefaultJsonHelpClicked()</slot>
  </slots>
 </ui>
