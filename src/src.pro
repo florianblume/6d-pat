@@ -1,3 +1,4 @@
+
 # This check is only there for when you build the project with your
 # own Qt libraries
 lessThan(QT_MINOR_VERSION, 14) {
