@@ -52,7 +52,6 @@ RUN git clone https://github.com/florianblume/6d-pat && \
     /opt/qt514/bin/qmake ../../6d-pat.pro && \
     make -j6
 
+# To ensure that libpython3.8 will be found
 ENV ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PAT
 RUN mv /6d-pat/build/release/src/6DPAT /6DPAT
-
-COPY --from=builder /6DPAT /
