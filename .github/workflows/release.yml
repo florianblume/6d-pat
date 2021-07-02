@@ -1,4 +1,4 @@
-name: tagged-release
+name: release
 
 on:
   push:
