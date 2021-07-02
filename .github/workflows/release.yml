@@ -91,7 +91,7 @@ jobs:
         with:
           image: florianblume/6dpat
           tags: ${{ env.RELEASE_VERSION }}, latest
-          registry: docker.com
+          registry: docker.io
           dockerfile: docker/Dockerfile
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
