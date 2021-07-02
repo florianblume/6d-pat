@@ -90,7 +90,7 @@ jobs:
       - name: Print info
         run: |
              echo "Building docker for tag:"
-             echo $GITHUB_ENV
+             echo ${{ env.RELEASE_VERSION }}
       - uses: actions/checkout@v2
         name: Check out code
         with:
