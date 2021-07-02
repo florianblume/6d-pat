@@ -22,6 +22,8 @@ private Q_SLOTS:
     void radioButtonDefaultClicked();
     void radioButtonPythonScriptClicked();
     void buttonPythonScriptClicked();
+    void buttonDefaultJsonHelpClicked();
+    void buttonPythonScriptHelpClicked();
 
 private:
     QString openFileDialogForPath(QString path);

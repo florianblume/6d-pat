@@ -1,3 +1,4 @@
+
 # This check is only there for when you build the project with your
 # own Qt libraries
 lessThan(QT_MINOR_VERSION, 14) {
@@ -15,7 +16,7 @@ TEMPLATE = app
 QT     += core gui widgets 3dcore 3dextras 3drender
 CONFIG += c++11 no_keywords
 
-DEFINES += QT_DEPRECATED_WARNINGS
+DEFINES += QT_DEPRECATED_WARNINGS PYBIND11_PYTHON_VERSION="3.8"
 
 INCLUDEPATH += /usr/include/python3.8 \
                /usr/include/pybind11

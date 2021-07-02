@@ -830,6 +830,7 @@
      <string>Edit</string>
     </property>
     <addaction name="actionAbort_Pose_Creation"/>
+    <addaction name="actionReset"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -917,6 +918,11 @@
   <action name="actionTake_Snapshot">
    <property name="text">
     <string>Take Snapshot</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset</string>
    </property>
   </action>
  </widget>
@@ -1111,6 +1117,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionReset</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onActionResetTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>selectedObjectModelChanged(ObjectModel*)</signal>
@@ -1136,5 +1158,6 @@
   <slot>onActionNetworkPredictTriggered()</slot>
   <slot>onActionTakeSnapshotTriggered()</slot>
   <slot>onActionTutorialScreenTriggered()</slot>
+  <slot>onActionResetTriggered()</slot>
  </slots>
 </ui>

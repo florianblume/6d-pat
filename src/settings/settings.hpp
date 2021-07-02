@@ -79,8 +79,8 @@ public:
     QString loadSaveScriptPath() const;
     void setLoadSaveScriptPath(const QString &loadSaveScriptPath);
 
-    int usedLoadAndStoreStrategy() const;
-    void setUsedLoadAndStoreStrategy(int usedLoadAndStoreStrategy);
+    UsedLoadAndStoreStrategy usedLoadAndStoreStrategy() const;
+    void setUsedLoadAndStoreStrategy(UsedLoadAndStoreStrategy usedLoadAndStoreStrategy);
 
 private:
     QString m_identifier;
@@ -92,7 +92,7 @@ private:
     QString m_posesFilePath;
     QString m_pythonInterpreterPath;
     QString m_loadSaveScriptPath;
-    int m_usedLoadAndStoreStrategy;
+    UsedLoadAndStoreStrategy m_usedLoadAndStoreStrategy;
     Qt::MouseButton m_addCorrespondencePointMouseButton;
     Qt::MouseButton m_moveBackgroundImageRenderableMouseButton;
     Qt::MouseButton m_selectPoseRenderableMouseButton;

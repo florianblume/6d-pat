@@ -42,7 +42,8 @@ void SettingsStore::saveCurrentSettings() {
     settings.beginGroup(identifier + COLOR_CODES_GROUP);
     settings.remove("");
     for (auto objectModelIdentifier : currentSettings()->segmentationCodes().keys()) {
-        settings.setValue(objectModelIdentifier, currentSettings()->segmentationCodeForObjectModel(objectModelIdentifier));
+        settings.setValue(objectModelIdentifier,
+                          currentSettings()->segmentationCodeForObjectModel(objectModelIdentifier));
     }
     settings.endGroup();
 
@@ -70,23 +71,30 @@ void SettingsStore::setCurrentSettings(const QString &identifier) {
                 settings.value(PYTHON_INTERPRETER_PATH, Global::NO_PATH).toString());
     settingsPointer->setLoadSaveScriptPath(
                 settings.value(LOAD_SAVE_SCRIPT_PATH, Global::NO_PATH).toString());
+    int usedLoadAndStoreStrategy = settings.value(USED_LOAD_AND_STORE_STRATEGY,
+                                                  Settings::UsedLoadAndStoreStrategy::Default).toInt();
     settingsPointer->setUsedLoadAndStoreStrategy(
-                settings.value(USED_LOAD_AND_STORE_STRATEGY, Settings::UsedLoadAndStoreStrategy::Default).toInt());
+                Settings::UsedLoadAndStoreStrategy(usedLoadAndStoreStrategy));
     settingsPointer->setAddCorrespondencePointMouseButton(
                 Settings::MOUSE_BUTTONS.keys().at(
-                    settings.value(ADD_CORRESPONDENCE_POINT_MOUSE_BUTTON, Settings::MOUSE_BUTTONS[Qt::LeftButton]).toInt()));
+                    settings.value(ADD_CORRESPONDENCE_POINT_MOUSE_BUTTON,
+                                   Settings::MOUSE_BUTTONS[Qt::LeftButton]).toInt()));
     settingsPointer->setMoveBackgroundImageRenderableMouseButton(
                 Settings::MOUSE_BUTTONS.keys().at(
-                    settings.value(MOVE_BACKGROUNDIMAGE_RENDERABLE_MOUSE_BUTTON, Settings::MOUSE_BUTTONS[Qt::MiddleButton]).toInt()));
+                    settings.value(MOVE_BACKGROUNDIMAGE_RENDERABLE_MOUSE_BUTTON,
+                                   Settings::MOUSE_BUTTONS[Qt::MiddleButton]).toInt()));
     settingsPointer->setSelectPoseRenderableMouseButton(
                 Settings::MOUSE_BUTTONS.keys().at(
-                    settings.value(SELECT_POSE_RENDERABLE_MOUSE_BUTTON, Settings::MOUSE_BUTTONS[Qt::RightButton]).toInt()));
+                    settings.value(SELECT_POSE_RENDERABLE_MOUSE_BUTTON,
+                                   Settings::MOUSE_BUTTONS[Qt::RightButton]).toInt()));
     settingsPointer->setTranslatePoseRenderableMouseButton(
                 Settings::MOUSE_BUTTONS.keys().at(
-                    settings.value(TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON, Settings::MOUSE_BUTTONS[Qt::LeftButton]).toInt()));
+                    settings.value(TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON,
+                                   Settings::MOUSE_BUTTONS[Qt::LeftButton]).toInt()));
     settingsPointer->setRotatePoseRenderableMouseButton(
                 Settings::MOUSE_BUTTONS.keys().at(
-                    settings.value(ROTATE_POSE_RENDERABLE_MOUSE_BUTTON, Settings::MOUSE_BUTTONS[Qt::RightButton]).toInt()));
+                    settings.value(ROTATE_POSE_RENDERABLE_MOUSE_BUTTON,
+                                   Settings::MOUSE_BUTTONS[Qt::RightButton]).toInt()));
     settingsPointer->setClick3DSize(settings.value(CLICK_3D_SIZE, 0.5).toFloat());
     // TODO read mouse buttons
     settings.endGroup();
@@ -115,10 +123,16 @@ const QString SettingsStore::COLOR_CODES = "colorCodes";
 const QString SettingsStore::COLOR_CODES_GROUP = "-colorcodes";
 const QString SettingsStore::PYTHON_INTERPRETER_PATH = "pythonInterpreterPath";
 const QString SettingsStore::LOAD_SAVE_SCRIPT_PATH = "loadSaveScriptPath";
-const QString SettingsStore::USED_LOAD_AND_STORE_STRATEGY = "usedLoadAndStoreStrategy";
-const QString SettingsStore::ADD_CORRESPONDENCE_POINT_MOUSE_BUTTON = "addCorrespondencePointMouseButton";
-const QString SettingsStore::MOVE_BACKGROUNDIMAGE_RENDERABLE_MOUSE_BUTTON = "moveBackgroundImageRenderableMouseButton";
-const QString SettingsStore::SELECT_POSE_RENDERABLE_MOUSE_BUTTON = "selectPoseRenderableMouseButton";
-const QString SettingsStore::ROTATE_POSE_RENDERABLE_MOUSE_BUTTON = "rotatePoseRenderableMouseButton";
-const QString SettingsStore::TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON = "translatePoseRenderableMouseButton";
+const QString SettingsStore::USED_LOAD_AND_STORE_STRATEGY =
+        "usedLoadAndStoreStrategy";
+const QString SettingsStore::ADD_CORRESPONDENCE_POINT_MOUSE_BUTTON =
+        "addCorrespondencePointMouseButton";
+const QString SettingsStore::MOVE_BACKGROUNDIMAGE_RENDERABLE_MOUSE_BUTTON =
+        "moveBackgroundImageRenderableMouseButton";
+const QString SettingsStore::SELECT_POSE_RENDERABLE_MOUSE_BUTTON =
+        "selectPoseRenderableMouseButton";
+const QString SettingsStore::ROTATE_POSE_RENDERABLE_MOUSE_BUTTON =
+        "rotatePoseRenderableMouseButton";
+const QString SettingsStore::TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON =
+        "translatePoseRenderableMouseButton";
 const QString SettingsStore::CLICK_3D_SIZE = "click3dsize";

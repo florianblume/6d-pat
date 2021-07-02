@@ -21,7 +21,9 @@ public:
       \param imagePath the path to the image relative to the base path
       \param basePath the base path to the folder where this image is directly located or within a subfolder
     */
-    Image(const QString& imagePath, const QString& basePath, QMatrix3x3 cameraMatrix, float nearPlane, float farPlane);
+    Image(const QString &id, const QString& imagePath,
+          const QString& basePath, QMatrix3x3 cameraMatrix,
+          float nearPlane, float farPlane);
 
     //! Constructor of class Image.
     /*!
@@ -30,10 +32,17 @@ public:
       \param basePath the base path to the folder where the image is either directly located or located within a subfolder
       \param segmentationImagePath the path to the segmentation image
     */
-    Image(const QString& imagePath, const QString& segmentationImagePath,
+    Image(const QString &id, const QString& imagePath, const QString& segmentationImagePath,
           const QString& basePath, QMatrix3x3 cameraMatrix, float nearPlane, float farPlane);
 
     Image(const Image &other);
+
+    /*!
+     * \brief getId Returns the ID of this image. Can be the index of the image in
+     * filesystem or some custom ID.
+     * \return
+     */
+    QString id() const;
 
     //! Returns the path to the actual image relative to the base path.
     /*!
@@ -78,6 +87,7 @@ public:
     float farPlane() const;
 
 private:
+    QString m_id;
     QString m_imagePath;
     QString m_segmentationImagePath;
     QString m_basePath;

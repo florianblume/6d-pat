@@ -1,6 +1,6 @@
 #include "modelmanager.hpp"
 
-ModelManager::ModelManager(LoadAndStoreStrategy& loadAndStoreStrategy) : m_loadAndStoreStrategy(loadAndStoreStrategy) {
+ModelManager::ModelManager(LoadAndStoreStrategyPtr loadAndStoreStrategy) : m_loadAndStoreStrategy(loadAndStoreStrategy) {
     qRegisterMetaType<ModelManager::State>("ModelManager::State");
 }
 

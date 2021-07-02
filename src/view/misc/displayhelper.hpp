@@ -16,6 +16,7 @@
 class DisplayHelper {
 
 public:
+
     typedef std::unique_ptr<QMessageBox> QMessageBoxPtr;
 
     /*!

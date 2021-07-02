@@ -12,9 +12,9 @@
  * It has a currentSettings which can be retrieved and saved. Setting the current settings identifier
  * makes the SettingsStore update its currentSettings and emit a signal that it has changed.
  */
-class SettingsStore : public QObject
-{
-    Q_OBJECT
+class SettingsStore : public QObject {
+
+Q_OBJECT
 
 public:
     /*!
@@ -80,5 +80,7 @@ private:
     static const QString TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON;
     static const QString CLICK_3D_SIZE;
 };
+
+typedef QSharedPointer<SettingsStore> SettingsStorePtr;
 
 #endif // PREFERENCESSTORE_H

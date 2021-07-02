@@ -1,28 +1,33 @@
 #include "image.hpp"
+#include "misc/global.hpp"
+
 #include <QDir>
 
 Image::Image()
-    : m_imagePath("invalid"),
-      m_segmentationImagePath("invalid"),
-      m_basePath("invalid"),
+    : m_imagePath(Global::NO_PATH),
+      m_segmentationImagePath(Global::NO_PATH),
+      m_basePath(Global::NO_PATH),
       m_cameraMatrix() {
 
 }
 
-Image::Image(const QString& imagePath, const QString& basePath, QMatrix3x3 cameraMatrix,
+Image::Image(const QString &id, const QString& imagePath,
+             const QString& basePath, QMatrix3x3 cameraMatrix,
              float nearPlane, float farPlane)
-    : m_imagePath(imagePath),
-      m_segmentationImagePath(""),
+    : m_id(id),
+      m_imagePath(imagePath),
+      m_segmentationImagePath(Global::NO_PATH),
       m_basePath(basePath),
       m_cameraMatrix(cameraMatrix),
       m_nearPlane(nearPlane),
       m_farPlane(farPlane) {
 }
 
-Image::Image(const QString& imagePath, const QString& segmentationImagePath,
+Image::Image(const QString &id, const QString& imagePath, const QString& segmentationImagePath,
              const QString& basePath, QMatrix3x3 cameraMatrix,
              float nearPlane, float farPlane)
-    : m_imagePath(imagePath),
+    : m_id(id),
+      m_imagePath(imagePath),
       m_segmentationImagePath(segmentationImagePath),
       m_basePath(basePath),
       m_cameraMatrix(cameraMatrix),
@@ -31,6 +36,7 @@ Image::Image(const QString& imagePath, const QString& segmentationImagePath,
 }
 
 Image::Image(const Image &other) {
+    m_id = other.m_id;
     m_imagePath = other.m_imagePath;
     m_segmentationImagePath = other.m_segmentationImagePath;
     m_basePath = other.m_basePath;
@@ -80,6 +86,11 @@ Image& Image::operator=(const Image &other) {
 
 float Image::farPlane() const {
     return m_farPlane;
+}
+
+QString Image::id() const
+{
+    return m_id;
 }
 
 float Image::nearPlane() const {

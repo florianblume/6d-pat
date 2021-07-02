@@ -1,4 +1,4 @@
-﻿#ifndef LOADANDSTORESTRATEGY_H
+#ifndef LOADANDSTORESTRATEGY_H
 #define LOADANDSTORESTRATEGY_H
 
 #include "pose.hpp"
@@ -25,28 +25,18 @@ class LoadAndStoreStrategy : public QObject {
     Q_OBJECT
 
 public:
-    enum Error {
-        None,
-        ImagesPathDoesNotExist,
-        SegmentationImagesPathDoesNotExist,
-        NotEnoughSegmentationImages,
-        CouldNotReadCamInfo,
-        CamInfoDoesNotExist,
-        InvalidCameraMatrices,
-        CamInfoPathIsNotAJSONFile,
-        NoImagesFound,
-        ObjectModelsPathDoesNotExist,
-        ObjectModelsPathIsNotAFolder,
-        PosesPathDoesNotExist,
-        PosesPathIsNotReadable,
-        PosesWithInvalidPosesData,
-        FailedToPersistPosePosesFileCouldNotBeRead,
-        FailedToPersistPosePosesPathIsNotAFile,
-    };
 
     LoadAndStoreStrategy();
 
     virtual ~LoadAndStoreStrategy();
+
+    /*!
+     * \brief useSettings uses the given settings to adjust all attributes
+     * of this LoadAndStoreStrategy. Can be overwritten by subclasses to
+     * care for special attributes.
+     * \param settings the settings to use
+     */
+    virtual void applySettings(SettingsPtr settings);
 
     /*!
      * \brief persistObjectImagePose Persists the given ObjectImagePose. The details of
@@ -68,7 +58,7 @@ public:
      */
     virtual QList<ImagePtr> loadImages() = 0;
 
-    virtual QList<QString> imagesWithInvalidCameraMatrix() const;
+    virtual QList<QString> imagesWithInvalidData() const;
 
     void setObjectModelsPath(const QString &objectModelsPath);
 
@@ -76,7 +66,7 @@ public:
      * \brief loadObjectModels Loads the object models.
      * \return the list of object models
      */
-    virtual QList<ObjectModelPtr> loadObjectModels();
+    virtual QList<ObjectModelPtr> loadObjectModels() = 0;
 
     void setPosesFilePath(const QString &posesFilePath);
 
@@ -88,17 +78,22 @@ public:
     virtual QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
                                        const QList<ObjectModelPtr> &objectModels) = 0;
 
-    virtual QList<QString> posesWithInvalidPosesData() const;
+    virtual QList<QString> posesWithInvalidData() const;
 
 
 Q_SIGNALS:
-    void error(LoadAndStoreStrategy::Error error);
+    void error(const QString &error);
     void dataChanged(int data);
 
 protected Q_SLOTS:
-    virtual void onSettingsChanged(SettingsPtr settings);
     void onDirectoryChanged(const QString &path);
     void onFileChanged(const QString &filePath);
+
+protected:
+    void connectWatcherSignals();
+
+    //! Internal methods to react to path changes
+    bool setPath(const QString &path, QString &oldPath);
 
 protected:
     //! Unmodifiable constants (i.e. not changable by the user at runtime)
@@ -106,29 +101,25 @@ protected:
     static const QStringList OBJECT_MODEL_FILES_EXTENSIONS;
 
     //! Stores the path to the folder that holds the images
-    QString imagesPath;
-    QList<QString> m_imagesWithInvalidCameraMatrix;
+    QString m_imagesPath;
+    QList<QString> m_imagesWithInvalidData;
     //! Stores the path to the folder that holds the object models
-    QString objectModelsPath;
+    QString m_objectModelsPath;
+    QList<QString> m_objectModelsWithInvalidData;
     //! Stores the path to the already created poses
-    QString posesFilePath;
-    QList<QString> m_posesWithInvalidPosesData;
+    QString m_posesFilePath;
+    QList<QString> m_posesWithInvalidData;
     //! Stores the suffix that is used to try to load segmentation images
-    QString segmentationImagesPath;
+    QString m_segmentationImagesPath;
 
-    QFileSystemWatcher watcher;
-
-    void connectWatcherSignals();
+    QFileSystemWatcher m_fileSystemWatcher;
 
     // We need to ignore changes to the file once after we have written
     // a new pose to it because the model manager already emits a signal
     // whenever a new pose has been added for example
     // We only want this signal when the poses file has been changed
     // externally
-    bool ignorePosesFileChanged = false;
-
-    //! Internal methods to react to path changes
-    bool setPath(const QString &path, QString &oldPath);
+    bool m_ignorePosesFileChanged = false;
 };
 
 //Q_DECLARE_METATYPE(LoadAndStoreStrategy::Error)

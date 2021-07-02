@@ -1,4 +1,4 @@
-name: tagged-release
+name: release
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-cache search libxcb
-        sudo apt-get update && sudo apt-get install -y libopencv-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0
+        sudo apt-get update && sudo apt-get install -y libopencv-dev libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 python3 python3-dev python3-pybind11
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
@@ -68,15 +68,6 @@ jobs:
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: false
-        automatic_release_tag: "latest"
-        files: |
-          LICENSE
-          README.md
-          6DPAT-x86_64.AppImage
-    - uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: false
         automatic_release_tag: ${{ env.RELEASE_VERSION }}
         files: |
           LICENSE
@@ -87,19 +78,25 @@ jobs:
     steps:
       - name: Set commit tag
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Login to DockerHub
-        uses: docker/login-action@v1 
+      - name: Print info
+        run: |
+             echo "Building docker for tag:"
+             echo ${{ env.RELEASE_VERSION }}
+      - uses: actions/checkout@v2
+        name: Check out code
+        with:
+          ref: refs/tags/${{ env.RELEASE_VERSION }}
+      - uses: docker/login-action@v1
+        # Somehow login of the build and push action doesn't work
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
+      - uses: mr-smithers-excellent/docker-build-push@v5
+        name: Build & push Docker image
         with:
-          file: docker/Dockerfile
-          push: true
-          tags: florianblume/6dpat:latest,florianblume/6dpat:${{ env.RELEASE_VERSION }}
+          image: florianblume/6dpat
+          tags: ${{ env.RELEASE_VERSION }}, latest
+          registry: docker.io
+          dockerfile: docker/Dockerfile
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}

@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>180</height>
+    <height>101</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -95,14 +95,29 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title">
       <string/>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="radioButtonDefault">
-        <property name="text">
-         <string>Default</string>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="editPythonScriptPath">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>3</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="readOnly">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -128,22 +143,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="editPythonScriptPath">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>3</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="readOnly">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
        <widget class="QRadioButton" name="radioButtonPythonScript">
         <property name="text">
@@ -151,20 +150,27 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="editPythonInterpreterPath"/>
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="radioButtonDefault">
+        <property name="text">
+         <string>Default JSON</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QPushButton" name="buttonPythonInterpreter">
+      <item row="1" column="3">
+       <widget class="QPushButton" name="buttonPythonScriptHelp">
         <property name="text">
          <string/>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label">
+      <item row="0" column="3">
+       <widget class="QPushButton" name="buttonDefaultJsonHelp">
         <property name="text">
-         <string>Python Interpreter</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -179,7 +185,7 @@
    <sender>buttonPythonScript</sender>
    <signal>clicked()</signal>
    <receiver>SettingsLoadSavePage</receiver>
-   <slot>buttonSegmentationImagesPathClicked()</slot>
+   <slot>buttonPythonScriptClicked()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>366</x>
@@ -191,12 +197,76 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>radioButtonDefault</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsLoadSavePage</receiver>
+   <slot>radioButtonDefaultClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>35</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>49</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButtonPythonScript</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsLoadSavePage</receiver>
+   <slot>radioButtonPythonScriptClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>65</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>49</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonDefaultJsonHelp</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsLoadSavePage</receiver>
+   <slot>buttonDefaultJsonHelpClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>354</x>
+     <y>36</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>50</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonPythonScriptHelp</sender>
+   <signal>clicked()</signal>
+   <receiver>SettingsLoadSavePage</receiver>
+   <slot>buttonPythonScriptHelpClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>354</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>50</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
-  <slot>buttonImagesPathClicked()</slot>
-  <slot>buttonObjectModelsPathClicked()</slot>
-  <slot>buttonPosesPathClicked()</slot>
-  <slot>onComboBoxImageFilesExtensionCurrentIndexChanged(int)</slot>
-  <slot>buttonSegmentationImagesPathClicked()</slot>
+  <slot>buttonPythonScriptClicked()</slot>
+  <slot>radioButtonDefaultClicked()</slot>
+  <slot>radioButtonPythonScriptClicked()</slot>
+  <slot>buttonPythonScriptHelpClicked()</slot>
+  <slot>buttonDefaultJsonHelpClicked()</slot>
  </slots>
 </ui>

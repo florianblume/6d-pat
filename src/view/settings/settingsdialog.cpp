@@ -15,7 +15,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     buttonCancel->setIcon(DisplayHelper::noIcon());
     ui->listWidgetSettings->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::windowmaximize), "Interface"));
     ui->listWidgetSettings->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::folderopen), "Paths"));
-    ui->listWidgetSettings->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::save), "Load & Save"));
+    ui->listWidgetSettings->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::exchange), "Load & Save"));
     ui->listWidgetSettings->addItem(new QListWidgetItem(DisplayHelper::qtAwesome()->icon(fa::blacktie), "Segmentations"));
     QModelIndex modelIndex = ui->listWidgetSettings->model()->index(0, 0);
     ui->listWidgetSettings->selectionModel()->select(modelIndex, QItemSelectionModel::ClearAndSelect);

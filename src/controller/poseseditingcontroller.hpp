@@ -41,8 +41,11 @@ private Q_SLOTS:
     // Pose Recovering
     void add2DPoint(QPoint imagePoint);
     void add3DPoint(QVector3D objectModelPoint);
-    void recoverPose();
-    void abortPoseRecovering();
+    void createPose();
+    void abortPoseCreation();
+    // Resets the current modifications so that the user doesn't have to
+    // select a new image to reset the current view
+    void reset();
 
     // This function is there for e.g. when the user selects a different image and has modified
     // a pose without saving, savePoses simply saves the poses when the user clicks on the
@@ -51,7 +54,6 @@ private Q_SLOTS:
     void savePoses();
     void savePosesOrRestoreState();
     bool _savePoses(bool showDialog);
-    void onReloadViews();
     void onProgramClose();
 
     // React to clicks in the galleries

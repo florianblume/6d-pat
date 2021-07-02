@@ -1,10 +1,10 @@
 #include "pose.hpp"
 
 Pose::Pose(QString id,
-            QVector3D position,
-            QQuaternion rotation,
-            ImagePtr image,
-            ObjectModelPtr objectModel)
+           QVector3D position,
+           QQuaternion rotation,
+           ImagePtr image,
+           ObjectModelPtr objectModel)
     : m_position(position),
       m_rotation(rotation),
       m_image(image),

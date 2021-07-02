@@ -30,6 +30,8 @@ public:
 
     QList<ImagePtr> loadImages() override;
 
+    QList<ObjectModelPtr> loadObjectModels() override;
+
     /*!
      * \brief loadPoses Loads the poses at the given path. How the poses are stored depends on the
      * strategy.
@@ -46,5 +48,7 @@ public:
     QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
                                const QList<ObjectModelPtr> &objectModels) override;
 };
+
+typedef QSharedPointer<JsonLoadAndStoreStrategy> JsonLoadAndStoreStrategyPtr;
 
 #endif // TEXTFILELOADANDSTORESTRATEGY_H
