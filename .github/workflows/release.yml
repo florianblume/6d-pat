@@ -86,6 +86,11 @@ jobs:
         name: Check out code
         with:
           ref: refs/tags/${{ env.RELEASE_VERSION }}
+      - uses: docker/login-action@v1
+        # Somehow login of the build and push action doesn't work
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: mr-smithers-excellent/docker-build-push@v5
         name: Build & push Docker image
         with:
