@@ -68,15 +68,6 @@ jobs:
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: false
-        automatic_release_tag: "latest"
-        files: |
-          LICENSE
-          README.md
-          6DPAT-x86_64.AppImage
-    - uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: false
         automatic_release_tag: ${{ env.RELEASE_VERSION }}
         files: |
           LICENSE
