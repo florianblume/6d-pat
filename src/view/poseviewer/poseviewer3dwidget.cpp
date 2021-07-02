@@ -119,10 +119,10 @@ void PoseViewer3DWidget::initializeQt3D() {
     clickVisualizationRenderable->addComponent(clickVisualizationLayer);
     clickVisualizationRenderable->setSize(this->size());
 
-    setActiveFrameGraph(viewport);
+   // setActiveFrameGraph(viewport);
 
     // No need to set a QRenderSurfaceSelector because this is already in the Qt3DWidget
-    renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    //renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
 }
 
 void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3x3 &cameraMatrix,
@@ -136,8 +136,8 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
         backgroundImageRenderable->addComponent(backgroundLayer);
         // Only set the image position the first time
         // TODO this is not feasible anymore
-        moveRenderingTo(-loadedImage.width() / 2 + ((QWidget*) this->parent())->width() / 2,
-                        -loadedImage.height() / 2 + ((QWidget*) this->parent())->height() / 2);
+        //moveRenderingTo(-loadedImage.width() / 2 + ((QWidget*) this->parent())->width() / 2,
+         //               -loadedImage.height() / 2 + ((QWidget*) this->parent())->height() / 2);
     } else {
         backgroundImageRenderable->setImage(image);
     }
@@ -331,6 +331,7 @@ void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
     firstClickPos = event->localPos();
     currentClickPos = event->globalPos();
     localClickPos = event->localPos();
+    initialRenderingPosition = renderingPosition();
 
     arcBallStartVector = arcBallVectorForMousePos(event->localPos());
     arcBallEndVector   = arcBallStartVector;
@@ -350,10 +351,10 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
             && !(poseRenderablePressed && event->buttons() == settings->translatePoseRenderableMouseButton())
             && !(poseRenderablePressed && event->buttons() == settings->rotatePoseRenderableMouseButton())) {
         currentClickPos = event->localPos();
-        newPos.setX(currentClickPos.x() - firstClickPos.x());
-        newPos.setY(currentClickPos.y() - firstClickPos.y());
-        qDebug() << newPos;
-        moveRenderingTo(newPos.x(), newPos.y());
+        QPointF diff(currentClickPos.x() - firstClickPos.x(), currentClickPos.y() - firstClickPos.y());
+        newPos.setX(diff.x());
+        newPos.setY(diff.y());
+        moveRenderingTo(initialRenderingPosition.x() + diff.x(), initialRenderingPosition.y() + diff.y());
     }
     mouseMoved = true;
 }

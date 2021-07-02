@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QOpenGLWidget>
+#include <QSharedPointer>
+#include <QPropertyAnimation>
 #include <Qt3DCore/QEntity>
 #include <Qt3DCore/QAbstractAspect>
 #include <Qt3DRender/QFrameGraphNode>
@@ -14,6 +16,8 @@ class Qt3DWidgetPrivate;
 
 class Qt3DWidget : public QOpenGLWidget {
     Q_OBJECT
+
+    Q_PROPERTY(float zoom READ zoom WRITE setZoom NOTIFY zoomChanged)
 
 public:
     explicit Qt3DWidget(QWidget *parent = nullptr);
@@ -36,6 +40,10 @@ public:
     Qt3DRender::QRenderSettings *renderSettings() const;
 
     void moveRenderingTo(float x, float y);
+    QPointF renderingPosition();
+    void setZoom(float zoom);
+    void animatedZoom(float zoom);
+    float zoom();
 
     virtual void initializeQt3D();
 
@@ -43,12 +51,14 @@ public Q_SLOTS:
     void paintGL() override;
 
 Q_SIGNALS:
+    void zoomChanged();
 
 protected:
     void showEvent(QShowEvent *e) override;
     Qt3DWidgetPrivate *d_ptr;
 
 private:
+    QSharedPointer<QPropertyAnimation> animation;
     Q_DECLARE_PRIVATE(Qt3DWidget)
 
 };

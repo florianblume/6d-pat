@@ -186,18 +186,24 @@ void PoseViewer::onZoomChanged(int zoom) {
     this->m_zoom = zoom;
     this->m_zoomMultiplier = zoom / 5.f;
     this->ui->labelZoom->setText(QString::number(this->m_zoomMultiplier * 100) + "%");
+    m_poseViewer3DWidget->animatedZoom(m_zoomMultiplier);
+    /*
     QSize oldSize = m_poseViewer3DWidget->size();
     QSize newSize = QSize(m_poseViewer3DWidget->imageSize().width() * this->m_zoomMultiplier,
                           m_poseViewer3DWidget->imageSize().height() * this->m_zoomMultiplier);
     QSize diff = QSize(newSize.width() - oldSize.width(), newSize.height() - oldSize.height());
+
     m_poseViewer3DWidget->setGeometry(QRect(m_poseViewer3DWidget->x() - diff.width() / 2,
                                             m_poseViewer3DWidget->y() - diff.height() / 2,
                                             newSize.width(), newSize.height()));
+    m_poseViewer3DWidget->setRenderingSize(diff.width(), diff.height());
+    */
 }
 
 void PoseViewer::resetPositionOfGraphicsView() {
+    /*
     m_poseViewer3DWidget->move(-m_poseViewer3DWidget->width() / 2 + width() / 2,
-                               -m_poseViewer3DWidget->height() / 2 + height() / 2);
+                               -m_poseViewer3DWidget->height() / 2 + height() / 2);*/
 }
 
 void PoseViewer::onImageClicked(QPoint point) {

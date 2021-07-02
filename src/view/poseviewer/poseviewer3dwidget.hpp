@@ -153,6 +153,7 @@ private:
     QPointF newPos;
     QPointF currentClickPos;
     QPointF localClickPos;
+    QPointF initialRenderingPosition;
     // To check whether the moved signal of the pose was because the user
     // wants to rotate or translte the pose (and therefore holds down a button)
     bool mouseDown = false;

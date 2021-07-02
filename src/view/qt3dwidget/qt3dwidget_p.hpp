@@ -11,7 +11,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QResizeEvent>
-
+#include <QTimer>
 #include <Qt3DCore/QAspectEngine>
 #include <Qt3DRender/QRenderAspect>
 #include <Qt3DInput/QInputAspect>
@@ -81,6 +81,20 @@ public:
     Qt3DRender::QRenderTargetOutput *m_depthOutput;
     Qt3DRender::QTexture2DMultisample *m_depthTexture;
 
+    QOpenGLTexture *backgroundTexture = 0;
+    QOpenGLShaderProgram *backgroundProgram;
+    QOpenGLVertexArrayObject backgroundVao;
+    QOpenGLBuffer backgroundVbo;
+    QVector<GLfloat> backgroundVertexData;
+    QMatrix4x4 orthoMatrix;
+    int offset_y = 100;
+    int offset_x = 100;
+    float scale_x = 1;
+    float scale_y = 1;
+    QTimer timer;
+
+    bool direction = true;
+
     // OpenGL setup
     ShaderProgramPtr m_shaderProgram;
     QOpenGLVertexArrayObject m_vao;
@@ -88,7 +102,7 @@ public:
     QVector<GLfloat> m_vertexData;
     QOpenGLTexture *m_texture = Q_NULLPTR;
     int m_vertexAttributeLoc = 0;
-    int m_texCoordAttributeLoc = 0;
+    int m_texCoordAttributeLoc = 1;
 
     float m_renderingWidth = 0;
     float m_renderingHeight = 0;
