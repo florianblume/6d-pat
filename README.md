@@ -38,9 +38,9 @@ Check out the [getting the program wiki page](https://github.com/florianblume/6d
 
 #### Requirements
 
-|  | OpenGL | Qt | OpenCV
---- | --- | --- | ---
-**Version** | *3.1* | *5.14* | *4.5*
+|  | OpenGL | Qt | OpenCV | Pybind11
+--- | --- | --- | --- | ---
+**Version** | *3.1* | *5.14* | *4.5* | *2.6.2*
 
 You need to have Qt >= 5.14 and OpenCV >= 4.5 installed. You can do so this way for example (if you don't want to manually install Qt and build OpenCV):
 
