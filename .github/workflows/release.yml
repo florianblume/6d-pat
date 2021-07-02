@@ -102,4 +102,4 @@ jobs:
         with:
           file: docker/Dockerfile
           push: true
-          tags: florianblume/6dpat:latest,florianblume/6dpat:${{ env.RELEASE_VERSION }}
+          tags: florianblume/6dpat:${{ env.RELEASE_VERSION }},florianblume/6dpat:latest
