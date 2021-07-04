@@ -7,7 +7,30 @@
 #include <QOpenGLTexture>
 #include <QOpenGLFunctions>
 
-Qt3DWidgetPrivate::Qt3DWidgetPrivate() {
+Qt3DWidgetPrivate::Qt3DWidgetPrivate()
+    : m_aspectEngine(new Qt3DCore::QAspectEngine)
+    , m_renderAspect(new Qt3DRender::QRenderAspect(Qt3DRender::QRenderAspect::Threaded))
+    , m_inputAspect(new Qt3DInput::QInputAspect)
+    , m_logicAspect(new Qt3DLogic::QLogicAspect)
+    , m_renderSettings(new Qt3DRender::QRenderSettings)
+    , m_forwardRenderer(new Qt3DExtras::QForwardRenderer)
+    , m_defaultCamera(new Qt3DRender::QCamera)
+    , m_inputSettings(new Qt3DInput::QInputSettings)
+    , m_frameAction(new Qt3DLogic::QFrameAction)
+    , m_root(new Qt3DCore::QEntity)
+    , m_userRoot(nullptr)
+    , m_offscreenSurface(new QOffscreenSurface)
+    , m_renderStateSet(new Qt3DRender::QRenderStateSet)
+    , m_depthTest(new Qt3DRender::QDepthTest)
+    , m_multisampleAntialiasing(new Qt3DRender::QMultiSampleAntiAliasing)
+    , m_renderTargetSelector(new Qt3DRender::QRenderTargetSelector)
+    , m_renderSurfaceSelector(new Qt3DRender::QRenderSurfaceSelector)
+    , m_renderTarget(new Qt3DRender::QRenderTarget)
+    , m_colorOutput(new Qt3DRender::QRenderTargetOutput)
+    , m_colorTexture(new Qt3DRender::QTexture2DMultisample)
+    , m_depthOutput(new Qt3DRender::QRenderTargetOutput)
+    , m_depthTexture(new Qt3DRender::QTexture2DMultisample)
+    , m_initialized(false) {
 }
 
 const char *vertexShaderBackgroundSource =
@@ -121,8 +144,6 @@ Qt3DWidget::Qt3DWidget(QWidget *parent)
 
     int samples = QSurfaceFormat::defaultFormat().samples();
 
-    /*
-
     d->m_offscreenSurface->setFormat(QSurfaceFormat::defaultFormat());
     d->m_offscreenSurface->create();
 
@@ -180,14 +201,13 @@ Qt3DWidget::Qt3DWidget(QWidget *parent)
 
     d->m_activeFrameGraph = d->m_forwardRenderer;
     d->m_forwardRenderer->setClearColor("white");
-    */
 }
 
 Qt3DWidget::~Qt3DWidget() {
     Q_D(Qt3DWidget);
     if (d->m_initialized) {
         // Set empty QEntity to stop the simulation loop
-        //d->m_aspectEngine->setRootEntity(Qt3DCore::QEntityPtr());
+        d->m_aspectEngine->setRootEntity(Qt3DCore::QEntityPtr());
     }
     delete d->m_aspectEngine;
 }
@@ -208,7 +228,8 @@ void Qt3DWidget::paintGL() {
         QOpenGLVertexArrayObject::Binder vaoBinder(&d->backgroundVao);
 
         d->backgroundProgram->setUniformValue("matrix", m);
-        d->backgroundTexture->bind();
+        //d->backgroundTexture->bind();
+        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, d->m_colorTexture->handle().toUInt());
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
     d->backgroundProgram->release();
@@ -227,6 +248,10 @@ void Qt3DWidget::initializeGL() {
 
 void Qt3DWidget::resizeGL(int w, int h) {
     Q_D(Qt3DWidget);
+    d->m_defaultCamera->setAspectRatio(w / (float) h);
+    d->m_colorTexture->setSize(w, h);
+    d->m_depthTexture->setSize(w, h);
+    d->m_renderSurfaceSelector->setExternalRenderTargetSize(QSize(w, h));
     // We don't allow the user to resize the window
     //m_proj.perspective(45.0f, GLfloat(width) / height, 0.01f, 1000.0f);
     glViewport(0, 0, w, h);
@@ -239,32 +264,30 @@ void Qt3DWidget::setRenderingSize(int w, int h) {
 
 void Qt3DWidget::registerAspect(Qt3DCore::QAbstractAspect *aspect) {
     Q_D(Qt3DWidget);
-    //d->m_aspectEngine->registerAspect(aspect);
+    d->m_aspectEngine->registerAspect(aspect);
 }
 
 void Qt3DWidget::registerAspect(const QString &name) {
     Q_D(Qt3DWidget);
-    //d->m_aspectEngine->registerAspect(name);
+    d->m_aspectEngine->registerAspect(name);
 }
 
 void Qt3DWidget::setRootEntity(Qt3DCore::QEntity *root) {
     Q_D(Qt3DWidget);
     if (d->m_userRoot != root) {
-        //if (d->m_userRoot != nullptr)
-            //d->m_userRoot->setParent(static_cast<Qt3DCore::QNode*>(nullptr));
-        //if (root != nullptr)
-            //root->setParent(d->m_root);
-        //d->m_userRoot = root;
+        if (d->m_userRoot != nullptr)
+            d->m_userRoot->setParent(static_cast<Qt3DCore::QNode*>(nullptr));
+        if (root != nullptr)
+            root->setParent(d->m_root);
+        d->m_userRoot = root;
     }
 }
 
 void Qt3DWidget::setActiveFrameGraph(Qt3DRender::QFrameGraphNode *activeFrameGraph) {
     Q_D(Qt3DWidget);
-    /*
     d->m_activeFrameGraph->setParent(static_cast<Qt3DCore::QNode*>(nullptr));
     d->m_activeFrameGraph = activeFrameGraph;
     activeFrameGraph->setParent(d->m_renderSurfaceSelector);
-    */
 }
 
 Qt3DRender::QFrameGraphNode *Qt3DWidget::activeFrameGraph() const {
@@ -329,16 +352,15 @@ void Qt3DWidget::initializeQt3D() {
 void Qt3DWidget::showEvent(QShowEvent *e) {
     Q_D(Qt3DWidget);
     if (!d->m_initialized) {
-        /*
         d->m_root->addComponent(d->m_renderSettings);
         d->m_root->addComponent(d->m_inputSettings);
         d->m_root->addComponent(d->m_frameAction);
         connect(d->m_frameAction, &Qt3DLogic::QFrameAction::triggered,
-                [this](){this->update();});
+                [this](){
+            this->update();
+        });
         d->m_aspectEngine->setRootEntity(Qt3DCore::QEntityPtr(d->m_root));
-
         d->m_initialized = true;
-        */
     }
     QWidget::showEvent(e);
 }

@@ -345,7 +345,7 @@ void MainWindow::onActionTakeSnapshotTriggered() {
         // Default new image name and path when none have been set
         QString defaultPath = QFileInfo(QDir(picturesLocation).filePath("snapshot_" + imageName)).absoluteFilePath();
         QString path = settings.value("snapshotPath", defaultPath).toString();
-        QString chosenPath = QFileDialog::getOpenFileName(this,
+        QString chosenPath = QFileDialog::getSaveFileName(this,
                                                           tr("Save snapshot as"),
                                                           path,
                                                           tr("PNG Files (*.png)"),

@@ -119,7 +119,7 @@ void PoseViewer3DWidget::initializeQt3D() {
     clickVisualizationRenderable->addComponent(clickVisualizationLayer);
     clickVisualizationRenderable->setSize(this->size());
 
-   // setActiveFrameGraph(viewport);
+    setActiveFrameGraph(viewport);
 
     // No need to set a QRenderSurfaceSelector because this is already in the Qt3DWidget
     //renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
