@@ -186,7 +186,7 @@ Qt3DWidget::~Qt3DWidget() {
 void Qt3DWidget::paintGL() {
     Q_D(Qt3DWidget);
 
-    glClearColor(0, 0, 0, 1);
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     d->backgroundProgram->bind();
@@ -306,7 +306,7 @@ void Qt3DWidget::animatedZoom(float zoom)
     Q_D(Qt3DWidget);
     if (animation.isNull()) {
         animation.reset(new QPropertyAnimation(this, "zoom"));
-        animation->setDuration(100);
+        animation->setDuration(50);
     } else {
         animation->stop();
     }

@@ -179,7 +179,7 @@ void PoseViewer::switchImage() {
 }
 
 void PoseViewer::onOpacityChanged(int opacity) {
-    m_poseViewer3DWidget->setObjectsOpacity(opacity / 100.0);
+    m_poseViewer3DWidget->setAnimatedObjectsOpacity(opacity / 100.0);
 }
 
 void PoseViewer::onZoomChanged(int zoom) {

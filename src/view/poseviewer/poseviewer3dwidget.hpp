@@ -33,10 +33,13 @@
 #include <Qt3DRender/QParameter>
 #include <Qt3DRender/QRenderStateSet>
 #include <Qt3DRender/QFrustumCulling>
+#include <QPropertyAnimation>
 
 class PoseViewer3DWidget : public Qt3DWidget
 {
     Q_OBJECT
+
+    Q_PROPERTY(float opacity WRITE setObjectsOpacity)
 
 public:
     explicit PoseViewer3DWidget(QWidget *parent = nullptr);
@@ -52,6 +55,7 @@ public:
 
     void selectPose(PosePtr selected, PosePtr deselected);
     void setObjectsOpacity(float opacity);
+    void setAnimatedObjectsOpacity(float opacity);
     void setClicks(const QList<QPoint> &clicks);
     QSize imageSize() const;
     void reset();
@@ -130,6 +134,8 @@ private:
     QList<PoseRenderable *> poseRenderables;
     QMap<QString, PoseRenderable*> poseRenderableForId;
     QMatrix4x4 projectionMatrix;
+    float opacity = 1.0;
+    QScopedPointer<QPropertyAnimation> opacityAnimation;
 
     QMatrix4x4 rotationMat;
 

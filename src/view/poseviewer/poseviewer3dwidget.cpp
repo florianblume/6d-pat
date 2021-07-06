@@ -242,6 +242,18 @@ QVector3D PoseViewer3DWidget::arcBallVectorForMousePos(const QPointF pos) {
     return QVector3D(ndcX, ndcY, 0.0);
 }
 
+void PoseViewer3DWidget::setAnimatedObjectsOpacity(float opacity) {
+    if (opacityAnimation.isNull()) {
+        opacityAnimation.reset(new QPropertyAnimation(this, "opacity"));
+        opacityAnimation->setDuration(50);
+    } else {
+        opacityAnimation->stop();
+    }
+    opacityAnimation->setStartValue(opacityAnimation->currentValue());
+    opacityAnimation->setEndValue(opacity);
+    opacityAnimation->start();
+}
+
 // This method is not directly called from the signal but further top by a lambda
 // which checks if the signaling pose is selected
 void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent) {
@@ -382,6 +394,7 @@ void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
+    this->opacity = opacity;
     for (PoseRenderable *poseRenderable : poseRenderables) {
         poseRenderable->setOpacity(opacity);
     }
