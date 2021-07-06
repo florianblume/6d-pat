@@ -184,7 +184,7 @@ void PoseViewer::onOpacityChanged(int opacity) {
 
 void PoseViewer::onZoomChanged(int zoom) {
     this->m_zoom = zoom;
-    this->m_zoomMultiplier = zoom / 5.f;
+    this->m_zoomMultiplier = zoom / 50.f;
     this->ui->labelZoom->setText(QString::number(this->m_zoomMultiplier * 100) + "%");
     m_poseViewer3DWidget->animatedZoom(m_zoomMultiplier);
     /*

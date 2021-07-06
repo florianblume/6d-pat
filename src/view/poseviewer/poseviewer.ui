@@ -408,7 +408,7 @@ QPushButton:pressed {
          <number>1</number>
         </property>
         <property name="maximum">
-         <number>10</number>
+         <number>100</number>
         </property>
         <property name="singleStep">
          <number>1</number>
@@ -417,7 +417,7 @@ QPushButton:pressed {
          <number>1</number>
         </property>
         <property name="value">
-         <number>5</number>
+         <number>50</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -435,6 +435,24 @@ QPushButton:pressed {
       </item>
       <item>
        <widget class="QLabel" name="labelZoom">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>45</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>45</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
          <string>100%</string>
         </property>

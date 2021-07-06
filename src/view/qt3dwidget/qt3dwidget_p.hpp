@@ -87,10 +87,12 @@ public:
     QOpenGLBuffer backgroundVbo;
     QVector<GLfloat> backgroundVertexData;
     QMatrix4x4 orthoMatrix;
-    int offset_y = 50;
-    int offset_x = 50;
+    int offset_y = 0;
+    int offset_x = 0;
     float scale_x = 1;
     float scale_y = 1;
+    int renderingSizeX = 0;
+    int renderingSizeY = 0;
     QTimer timer;
 
     bool direction = true;

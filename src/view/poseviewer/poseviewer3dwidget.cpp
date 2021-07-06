@@ -1,4 +1,5 @@
-#include "poseviewer3dwidget.hpp"
+﻿#include "poseviewer3dwidget.hpp"
+#include "mousecoordinatesmodificationeventfilter.hpp"
 #include "misc/global.hpp"
 
 #include <math.h>
@@ -46,6 +47,7 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       clickVisualizationCamera(new Qt3DRender::QCamera),
       clickVisualizationNoDepthMask(new Qt3DRender::QNoDepthMask),
       clickVisualizationRenderable(new ClickVisualizationRenderable) {
+    installEventFilter(new MouseCoordinatesModificationEventFilter());
 }
 
 PoseViewer3DWidget::~PoseViewer3DWidget() {

@@ -1,6 +1,7 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
+    $$PWD/poseviewer/mousecoordinatesmodificationeventfilter.hpp \
     $$PWD/settings/settingsloadsavepage.hpp \
     view/splashscreen/splashscreen.hpp \
     view/settings/settingspathspage.hpp \
@@ -34,6 +35,7 @@ HEADERS += \
     view/qt3dwidget/qt3dwidget_p.hpp
 
 SOURCES += \
+    $$PWD/poseviewer/mousecoordinatesmodificationeventfilter.cpp \
     $$PWD/settings/settingsloadsavepage.cpp \
     view/splashscreen/splashscreen.cpp \
     view/gallery/loadingiconmodel.cpp \
