@@ -77,9 +77,9 @@ public:
     Qt3DRender::QRenderSurfaceSelector *m_renderSurfaceSelector;
     Qt3DRender::QRenderTarget *m_renderTarget;
     Qt3DRender::QRenderTargetOutput *m_colorOutput;
-    Qt3DRender::QTexture2DMultisample *m_colorTexture;
+    Qt3DRender::QTexture2D *m_colorTexture;
     Qt3DRender::QRenderTargetOutput *m_depthOutput;
-    Qt3DRender::QTexture2DMultisample *m_depthTexture;
+    Qt3DRender::QTexture2D *m_depthTexture;
 
     QOpenGLTexture *backgroundTexture = 0;
     QOpenGLShaderProgram *backgroundProgram;
@@ -87,8 +87,8 @@ public:
     QOpenGLBuffer backgroundVbo;
     QVector<GLfloat> backgroundVertexData;
     QMatrix4x4 orthoMatrix;
-    int offset_y = 100;
-    int offset_x = 100;
+    int offset_y = 50;
+    int offset_x = 50;
     float scale_x = 1;
     float scale_y = 1;
     QTimer timer;

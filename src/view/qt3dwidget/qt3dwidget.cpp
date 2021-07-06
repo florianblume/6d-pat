@@ -27,37 +27,34 @@ Qt3DWidgetPrivate::Qt3DWidgetPrivate()
     , m_renderSurfaceSelector(new Qt3DRender::QRenderSurfaceSelector)
     , m_renderTarget(new Qt3DRender::QRenderTarget)
     , m_colorOutput(new Qt3DRender::QRenderTargetOutput)
-    , m_colorTexture(new Qt3DRender::QTexture2DMultisample)
+    , m_colorTexture(new Qt3DRender::QTexture2D)
     , m_depthOutput(new Qt3DRender::QRenderTargetOutput)
-    , m_depthTexture(new Qt3DRender::QTexture2DMultisample)
+    , m_depthTexture(new Qt3DRender::QTexture2D)
     , m_initialized(false) {
 }
 
 const char *vertexShaderBackgroundSource =
-        "attribute highp vec4 vertex;\n"
-        "attribute mediump vec4 texCoord;\n"
-        "varying mediump vec4 texc;\n"
+        "attribute highp vec3 vertex;\n"
+        "attribute mediump vec2 texCoord;\n"
+        "varying mediump vec2 texc;\n"
         "uniform mediump mat4 matrix;\n"
         "void main(void)\n"
         "{\n"
-        "    gl_Position = matrix * vec4(vertex.xy, 0, 1);\n"
+        "    gl_Position = matrix * vec4(vertex.xyz, 1.0);\n"
         "    texc = texCoord;\n"
         "}\n";
 
 const char *fragmentShaderBackgroundSource =
         "uniform sampler2D texture;\n"
-        "varying mediump vec4 texc;\n"
+        "varying mediump vec2 texc;\n"
         "void main(void)\n"
         "{\n"
-        "    gl_FragColor = texture2D(texture, texc.st);\n"
+        "    gl_FragColor = texture2D(texture, texc);\n"
         "}\n";
 
-void Qt3DWidgetPrivate::init(int width, int height) {
-
-    //initializeOpenGLFunctions();
-
-    width = 1280;
-    height = 720;
+void Qt3DWidgetPrivate::init(int w, int h) {
+    int width = 1280;
+    int height = 720;
     static const int coords[4][3] = {
          { width, 0, 0 }, { 0, 0, 0 },
         { 0, height, 0 }, { width, height, 0 }
@@ -115,24 +112,84 @@ void Qt3DWidgetPrivate::init(int width, int height) {
     backgroundVbo.release();
     backgroundProgram->release();
 
-    timer.setInterval(10);
-    connect(&timer, &QTimer::timeout, [this](){
-        if (direction && this->scale_x < 2) {
-            this->scale_x += 0.0025;
-            this->scale_y += 0.0025;
-        } else {
-            direction = false;
-            this->scale_x -= 0.0025;
-            this->scale_y -= 0.0025;
-            if (this->scale_x < 0.1) {
-                direction = true;
-            }
-        }
-    });
-    //timer.start();
-}
+    /*
+    static const int coords[4][3] = {
+         { w, 0, 0 }, { 0, 0, 0 }, { 0, h, 0 }, { w, h, 0 }
+    };
 
-void Qt3DWidgetPrivate::updateVertexData(int width, int height) {
+    for (int i = 0; i < 4; ++i) {
+        // vertex position
+        m_vertexData.append(coords[i][0]);
+        m_vertexData.append(coords[i][1]);
+        m_vertexData.append(coords[i][2]);
+        // texture coordinate
+        m_vertexData.append(i == 0 || i == 1);
+        m_vertexData.append(i == 0 || i == 3);
+    }
+
+    QImage textureImage = QImage(QUrl::fromLocalFile("/home/flo/Pictures/unkorrigiert.jpg").path()).mirrored();
+    backgroundTexture = new QOpenGLTexture(textureImage);
+    backgroundTexture->setMagnificationFilter(QOpenGLTexture::Linear);
+    backgroundTexture->setMinificationFilter(QOpenGLTexture::Linear);
+
+    m_shaderProgram.reset(new QOpenGLShaderProgram);
+    m_shaderProgram->addShaderFromSourceCode(
+                QOpenGLShader::Vertex,
+                "#version 150\n"
+                "in highp vec3 vertex;\n"
+                "in mediump vec2 texCoord;\n"
+                "out mediump vec2 texc;\n"
+                "uniform mediump mat4 matrix;\n"
+                "void main(void)\n"
+                "{\n"
+                "        gl_Position = matrix * vec4(vertex, 1.0);\n"
+                "        texc = texCoord;\n"
+                "}\n"
+    );
+    m_shaderProgram->addShaderFromSourceCode(
+                QOpenGLShader::Fragment,
+                "#version 150\n"
+                "uniform sampler2D texture;\n"
+                "in mediump vec2 texc;\n"
+                "uniform int samples;\n"
+                "void main(void)\n"
+                "{\n"
+                "   gl_FragColor = texture2D(texture, texc);\n"
+                "}\n"
+    );
+    m_shaderProgram->bindAttributeLocation("vertex", m_vertexAttributeLoc);
+    m_shaderProgram->bindAttributeLocation("texCoord", m_vertexAttributeLoc);
+    m_shaderProgram->link();
+
+    m_shaderProgram->bind();
+    m_shaderProgram->setUniformValue("texture", 0);
+    //m_shaderProgram->setUniformValue("samples", 1);
+
+    // Setup our vertex array object. We later only need to bind this
+    // to be able to draw.
+    m_vao.create();
+    // The binder automatically binds the vao and unbinds it at the end
+    // of the function.
+    QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
+
+    // Setup our vertex buffer object.
+    m_vbo.create();
+    m_vbo.bind();
+    m_vbo.allocate(m_vertexData.constData(), m_vertexData.count() * sizeof(GLfloat));
+
+    m_vbo.bind();
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+    f->glEnableVertexAttribArray(m_vertexAttributeLoc);
+    f->glEnableVertexAttribArray(m_texCoordAttributeLoc);
+    f->glVertexAttribPointer(m_vertexAttributeLoc, 3, GL_FLOAT,
+                             GL_FALSE, 5 * sizeof(GLfloat), 0);
+    f->glVertexAttribPointer(m_texCoordAttributeLoc, 2, GL_FLOAT,
+                             GL_FALSE, 5 * sizeof(GLfloat),
+                             reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+    m_vbo.release();
+
+    m_shaderProgram->release();
+    */
 }
 
 Qt3DWidget::Qt3DWidget(QWidget *parent)
@@ -142,7 +199,7 @@ Qt3DWidget::Qt3DWidget(QWidget *parent)
 
     setMouseTracking(true);
 
-    int samples = QSurfaceFormat::defaultFormat().samples();
+    int samples = 1;//QSurfaceFormat::defaultFormat().samples();
 
     d->m_offscreenSurface->setFormat(QSurfaceFormat::defaultFormat());
     d->m_offscreenSurface->create();
@@ -163,9 +220,7 @@ Qt3DWidget::Qt3DWidget(QWidget *parent)
 
     // Hook the texture up to our output, and the output up to this object.
     d->m_colorOutput->setTexture(d->m_colorTexture);
-    d->m_colorTexture->setSamples(samples);
-    d->m_colorTexture->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
-    d->m_colorTexture->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
+    //d->m_colorTexture->setSamples(samples);
     d->m_renderTarget->addOutput(d->m_colorOutput);
 
     // Setup depth
@@ -181,10 +236,10 @@ Qt3DWidget::Qt3DWidget(QWidget *parent)
 
     // Hook up the depth texture
     d->m_depthOutput->setTexture(d->m_depthTexture);
-    d->m_depthTexture->setSamples(samples);
+    //d->m_depthTexture->setSamples(samples);
     d->m_renderTarget->addOutput(d->m_depthOutput);
 
-    d->m_renderStateSet->addRenderState(d->m_multisampleAntialiasing);
+    //d->m_renderStateSet->addRenderState(d->m_multisampleAntialiasing);
     d->m_renderStateSet->addRenderState(d->m_depthTest);
     d->m_depthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
     d->m_renderTargetSelector->setParent(d->m_renderStateSet);
@@ -200,7 +255,7 @@ Qt3DWidget::Qt3DWidget(QWidget *parent)
     d->m_inputSettings->setEventSource(this);
 
     d->m_activeFrameGraph = d->m_forwardRenderer;
-    d->m_forwardRenderer->setClearColor("white");
+    d->m_forwardRenderer->setClearColor("yellow");
 }
 
 Qt3DWidget::~Qt3DWidget() {
@@ -229,20 +284,15 @@ void Qt3DWidget::paintGL() {
 
         d->backgroundProgram->setUniformValue("matrix", m);
         //d->backgroundTexture->bind();
-        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, d->m_colorTexture->handle().toUInt());
+        glBindTexture(GL_TEXTURE_2D, d->m_colorTexture->handle().toUInt());
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
     d->backgroundProgram->release();
-
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    update();
 }
 
 void Qt3DWidget::initializeGL() {
     Q_D(Qt3DWidget);
-    d->init(this->width(), this->height());
+    d->init(width(), height());
     initializeQt3D();
 }
 
@@ -252,13 +302,11 @@ void Qt3DWidget::resizeGL(int w, int h) {
     d->m_colorTexture->setSize(w, h);
     d->m_depthTexture->setSize(w, h);
     d->m_renderSurfaceSelector->setExternalRenderTargetSize(QSize(w, h));
-    // We don't allow the user to resize the window
-    //m_proj.perspective(45.0f, GLfloat(width) / height, 0.01f, 1000.0f);
     glViewport(0, 0, w, h);
 }
 
-void Qt3DWidget::setRenderingSize(int w, int h) {
-    qDebug() << w << h;
+void Qt3DWidget::setRenderingSize(int w, int h)
+{
 
 }
 
@@ -310,24 +358,30 @@ Qt3DRender::QRenderSettings *Qt3DWidget::renderSettings() const {
     return d->m_renderSettings;
 }
 
-void Qt3DWidget::moveRenderingTo(float x, float y) {
+void Qt3DWidget::moveRenderingTo(float x, float y)
+{
     Q_D(Qt3DWidget);
     d->offset_x = x;
     d->offset_y = y;
 }
 
-QPointF Qt3DWidget::renderingPosition() {
+QPointF Qt3DWidget::renderingPosition()
+{
     Q_D(Qt3DWidget);
     return QPointF(d->offset_x, d->offset_y);
 }
 
-void Qt3DWidget::setZoom(float zoom) {
+void Qt3DWidget::setZoom(float zoom)
+{
+
     Q_D(Qt3DWidget);
     d->scale_x = zoom;
     d->scale_y = zoom;
 }
 
-void Qt3DWidget::animatedZoom(float zoom) {
+void Qt3DWidget::animatedZoom(float zoom)
+{
+
     Q_D(Qt3DWidget);
     if (animation.isNull()) {
         animation.reset(new QPropertyAnimation(this, "zoom"));
@@ -340,7 +394,9 @@ void Qt3DWidget::animatedZoom(float zoom) {
     animation->start();
 }
 
-float Qt3DWidget::zoom() {
+float Qt3DWidget::zoom()
+{
+
     Q_D(Qt3DWidget);
     return d->scale_x;
 }
@@ -360,7 +416,9 @@ void Qt3DWidget::showEvent(QShowEvent *e) {
             this->update();
         });
         d->m_aspectEngine->setRootEntity(Qt3DCore::QEntityPtr(d->m_root));
+
         d->m_initialized = true;
     }
     QWidget::showEvent(e);
 }
+
