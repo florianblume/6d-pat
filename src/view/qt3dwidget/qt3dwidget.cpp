@@ -53,8 +53,8 @@ const char *fragmentShaderBackgroundSource =
         "}\n";
 
 void Qt3DWidgetPrivate::init(int w, int h) {
-    int width = 0.5 * 2560;
-    int height = 0.5 * 1920;
+    int width = 1;
+    int height = 1;
     static const int coords[4][3] = {
          { width, 0, 0 }, { 0, 0, 0 },
         { 0, height, 0 }, { width, height, 0 }
@@ -168,7 +168,7 @@ Qt3DWidget::Qt3DWidget(QWidget *parent)
     d->m_forwardRenderer->setSurface(d->m_offscreenSurface);
     d->m_forwardRenderer->setParent(d->m_renderSurfaceSelector);
     d->m_renderSettings->setActiveFrameGraph(d->m_renderStateSet);
-    d->m_inputSettings->setEventSource(this);
+    //d->m_inputSettings->setEventSource(this);
 
     d->m_activeFrameGraph = d->m_forwardRenderer;
     d->m_forwardRenderer->setClearColor("yellow");
@@ -194,6 +194,7 @@ void Qt3DWidget::paintGL() {
         QMatrix4x4 m;
         m.ortho(0, width(), height(), 0, 1.0f, 3.0f);
         m.translate(d->offset_x, d->offset_y, -2.0f);
+        m.scale(d->renderingSizeX, d->renderingSizeY);
         m.scale(d->scale_x, d->scale_y);
 
         QOpenGLVertexArrayObject::Binder vaoBinder(&d->backgroundVao);
@@ -214,9 +215,6 @@ void Qt3DWidget::initializeGL() {
 
 void Qt3DWidget::resizeGL(int w, int h) {
     Q_D(Qt3DWidget);
-    //w = h = 3000;
-    //d->m_defaultCamera->setAspectRatio(w / (float) h);
-    glViewport(0, 0, w, h);
 }
 
 void Qt3DWidget::setRenderingSize(int w, int h) {
@@ -289,9 +287,7 @@ QPointF Qt3DWidget::renderingPosition()
     return QPointF(d->offset_x, d->offset_y);
 }
 
-void Qt3DWidget::setZoom(float zoom)
-{
-
+void Qt3DWidget::setZoom(float zoom) {
     Q_D(Qt3DWidget);
     d->scale_x = zoom;
     d->scale_y = zoom;
@@ -320,6 +316,11 @@ float Qt3DWidget::zoom()
 
     Q_D(Qt3DWidget);
     return d->scale_x;
+}
+
+void Qt3DWidget::setInputSource(QObject *inputSource) {
+    Q_D(Qt3DWidget);
+    d->m_inputSettings->setEventSource(inputSource);
 }
 
 void Qt3DWidget::initializeQt3D() {

@@ -6,6 +6,7 @@
 #include "view/rendering/poserenderable.hpp"
 #include "view/rendering/clickvisualizationrenderable.hpp"
 #include "view/qt3dwidget/qt3dwidget.hpp"
+#include "mousecoordinatesmodificationeventfilter.hpp"
 #include "settings/settings.hpp"
 
 #include <QString>
@@ -15,6 +16,8 @@
 #include <QList>
 #include <QMatrix4x4>
 #include <QResizeEvent>
+#include <QWheelEvent>
+#include <QObject>
 
 #include <Qt3DRender/QClearBuffers>
 #include <Qt3DRender/QCamera>
@@ -60,7 +63,6 @@ public:
     QSize imageSize() const;
     void reset();
     void setSettings(SettingsPtr settings);
-    void resizeEvent(QResizeEvent *event) override;
 
 public Q_SLOTS:
     // React to object pickers
@@ -72,11 +74,15 @@ Q_SIGNALS:
     void positionClicked(QPoint position);
     void poseSelected(PosePtr pose);
     void snapshotSaved();
+    void zoomChanged(float zoom);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
 private Q_SLOTS:
     void onSnapshotReady();
@@ -178,6 +184,10 @@ private:
     // pick events don't deliver them in their events when the
     // mouse is moved after clicking and holding down the mouse button
     Qt::MouseButton clickedMouseButton;
+
+    MouseCoordinatesModificationEventFilter *mouseCoordinatesModificationEventFilter;
+    bool mouseCoordinatesModificationEventFilterInstalled = false;
+    QScopedPointer<QObject> eventProxy;
 
     QSize m_imageSize;
 

@@ -299,7 +299,7 @@ void MainWindow::onActionAboutTriggered() {
                                 "network."
                                 "\n"
                                 "\n"
-                                "© Florian Blume, 2020"));
+                                "Created by Florian Blume, 2020 - 2021, GPLv3"));
     about.setStandardButtons(QMessageBox::Ok);
     QPixmap icon(":/images/about.png");
     about.setIconPixmap(icon);

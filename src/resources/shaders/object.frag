@@ -91,7 +91,7 @@ void main()
     }
     vec4 currentColor = phongFunction(ka, finalDiffuse, ks, shininess, worldPosition, normalize(((eyePosition - worldPosition))), normalize(worldNormal));
 
-    currentColor -= selected;
+    currentColor += selected;
     currentColor = vec4(vec3(currentColor), opacity);
 
     bool isClicked = false;

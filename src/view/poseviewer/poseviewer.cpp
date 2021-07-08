@@ -1,6 +1,7 @@
 #include "poseviewer.hpp"
 #include "ui_poseviewer.h"
 #include "view/misc/displayhelper.hpp"
+#include "mousecoordinatesmodificationeventfilter.hpp"
 
 #include <QRect>
 #include <QHBoxLayout>
@@ -36,6 +37,8 @@ PoseViewer::PoseViewer(QWidget *parent) :
             this, &PoseViewer::poseSelected);
     connect(m_poseViewer3DWidget, &PoseViewer3DWidget::snapshotSaved,
             this, &PoseViewer::snapshotSaved);
+    connect(m_poseViewer3DWidget, &PoseViewer3DWidget::zoomChanged,
+            this, &PoseViewer::onZoomChangedBy3DWidget);
 }
 
 PoseViewer::~PoseViewer() {
@@ -198,6 +201,11 @@ void PoseViewer::onZoomChanged(int zoom) {
                                             newSize.width(), newSize.height()));
     m_poseViewer3DWidget->setRenderingSize(diff.width(), diff.height());
     */
+}
+
+void PoseViewer::onZoomChangedBy3DWidget(float zoom) {
+    int _zoom = zoom * 100.0;
+    ui->sliderZoom->setValue(_zoom);
 }
 
 void PoseViewer::resetPositionOfGraphicsView() {

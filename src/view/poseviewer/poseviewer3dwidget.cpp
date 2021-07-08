@@ -5,6 +5,7 @@
 #include <math.h>
 #include <QtMath>
 #include <QTime>
+#include <QTimer>
 
 #include <QApplication>
 #include <QFrame>
@@ -47,7 +48,14 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       clickVisualizationCamera(new Qt3DRender::QCamera),
       clickVisualizationNoDepthMask(new Qt3DRender::QNoDepthMask),
       clickVisualizationRenderable(new ClickVisualizationRenderable) {
-    installEventFilter(new MouseCoordinatesModificationEventFilter());
+    // Don't install it as an event filter on the proxy object here already
+    // since Qt3D works threadded and installs its own input filters after
+    // ours -> Qt3D's filter will get called first and we can't modify the
+    // coordinates
+    mouseCoordinatesModificationEventFilter =
+            new MouseCoordinatesModificationEventFilter();
+    eventProxy.reset(new QObject());
+    setInputSource(eventProxy.get());
 }
 
 PoseViewer3DWidget::~PoseViewer3DWidget() {
@@ -121,10 +129,9 @@ void PoseViewer3DWidget::initializeQt3D() {
     clickVisualizationRenderable->addComponent(clickVisualizationLayer);
     clickVisualizationRenderable->setSize(this->size());
 
-    setActiveFrameGraph(viewport);
+    renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
 
-    // No need to set a QRenderSurfaceSelector because this is already in the Qt3DWidget
-    //renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    setActiveFrameGraph(viewport);
 }
 
 void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3x3 &cameraMatrix,
@@ -132,14 +139,19 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
     QImage loadedImage(image);
     this->m_imageSize = loadedImage.size();
     setRenderingSize(loadedImage.width(), loadedImage.height());
+    clickVisualizationRenderable->setSize(loadedImage.size());
+    clickVisualizationCamera->lens()->setOrthographicProjection(-loadedImage.width() / 2.f, loadedImage.width() / 2.f,
+                                                                -loadedImage.height() / 2.f, loadedImage.height() / 2.f,
+                                                                0.1f, 1000.f);
 
     if (backgroundImageRenderable.isNull()) {
         backgroundImageRenderable = new BackgroundImageRenderable(root, image);
         backgroundImageRenderable->addComponent(backgroundLayer);
         // Only set the image position the first time
-        // TODO this is not feasible anymore
-        //moveRenderingTo(-loadedImage.width() / 2 + ((QWidget*) this->parent())->width() / 2,
-         //               -loadedImage.height() / 2 + ((QWidget*) this->parent())->height() / 2);
+        int x = -loadedImage.width() / 2 + ((QWidget*) this->parent())->width() / 2;
+        int y = -loadedImage.height() / 2 + ((QWidget*) this->parent())->height() / 2;
+        moveRenderingTo(x, y);
+        mouseCoordinatesModificationEventFilter->setOffset(x, y);
     } else {
         backgroundImageRenderable->setImage(image);
     }
@@ -236,6 +248,45 @@ void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
     selectedPose = selected;
 }
 
+void PoseViewer3DWidget::onSnapshotReady() {
+    snapshotRenderPassFilter->removeParameter(removeHighlightParameter);
+    snapshotRenderCaptureReply->saveImage(snapshotPath);
+    delete snapshotRenderCaptureReply;
+    Q_EMIT snapshotSaved();
+}
+
+void PoseViewer3DWidget::takeSnapshot(const QString &path) {
+    snapshotPath = path;
+    snapshotRenderPassFilter->addParameter(removeHighlightParameter);
+    snapshotRenderCaptureReply = snapshotRenderCapture->requestCapture();
+    connect(snapshotRenderCaptureReply, &Qt3DRender::QRenderCaptureReply::completed,
+            this, &PoseViewer3DWidget::onSnapshotReady);
+}
+
+void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
+    this->opacity = opacity;
+    for (PoseRenderable *poseRenderable : poseRenderables) {
+        poseRenderable->setOpacity(opacity);
+    }
+}
+
+void PoseViewer3DWidget::setClicks(const QList<QPoint> &clicks) {
+    clickVisualizationRenderable->setClicks(clicks);
+}
+
+void PoseViewer3DWidget::reset() {
+    setClicks({});
+    setPoses({});
+    if (backgroundImageRenderable != Q_NULLPTR) {
+        // Only disable and save creating it again
+        backgroundImageRenderable->setEnabled(false);
+    }
+}
+
+void PoseViewer3DWidget::setSettings(SettingsPtr settings) {
+    this->settings = settings;
+}
+
 QVector3D PoseViewer3DWidget::arcBallVectorForMousePos(const QPointF pos) {
     float ndcX = 2.0f * pos.x() / width() - 1.0f;
     float ndcY = 1.0 - 2.0f * pos.y() / height();
@@ -321,21 +372,6 @@ void PoseViewer3DWidget::onPoseRenderablePressed(Qt3DRender::QPickEvent */*pickE
     poseRenderablePressed = true;
 }
 
-void PoseViewer3DWidget::onSnapshotReady() {
-    snapshotRenderPassFilter->removeParameter(removeHighlightParameter);
-    snapshotRenderCaptureReply->saveImage(snapshotPath);
-    delete snapshotRenderCaptureReply;
-    Q_EMIT snapshotSaved();
-}
-
-void PoseViewer3DWidget::takeSnapshot(const QString &path) {
-    snapshotPath = path;
-    snapshotRenderPassFilter->addParameter(removeHighlightParameter);
-    snapshotRenderCaptureReply = snapshotRenderCapture->requestCapture();
-    connect(snapshotRenderCaptureReply, &Qt3DRender::QRenderCaptureReply::completed,
-            this, &PoseViewer3DWidget::onSnapshotReady);
-}
-
 /*!
  * In the following events it's not necessary to map the buttons because those are already
  * standard Qt mouse buttons.
@@ -346,6 +382,7 @@ void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
     currentClickPos = event->globalPos();
     localClickPos = event->localPos();
     initialRenderingPosition = renderingPosition();
+    mouseCoordinatesModificationEventFilter->setOffset(initialRenderingPosition.x(), initialRenderingPosition.y());
 
     arcBallStartVector = arcBallVectorForMousePos(event->localPos());
     arcBallEndVector   = arcBallStartVector;
@@ -358,18 +395,21 @@ void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
-    Qt3DWidget::mouseMoveEvent(event);
+    currentClickPos = event->localPos();
+    QPointF diff = currentClickPos - firstClickPos;
+    QPointF finalPoint = QPointF(initialRenderingPosition.x() + diff.x(),
+                                 initialRenderingPosition.y() + diff.y());
+
     if (event->buttons() == settings->moveBackgroundImageRenderableMouseButton()
             // Only move when not and pose has been pressed with a mouse button either responsible for
             // translating or rotating the pose
             && !(poseRenderablePressed && event->buttons() == settings->translatePoseRenderableMouseButton())
             && !(poseRenderablePressed && event->buttons() == settings->rotatePoseRenderableMouseButton())) {
-        currentClickPos = event->localPos();
-        QPointF diff(currentClickPos.x() - firstClickPos.x(), currentClickPos.y() - firstClickPos.y());
         newPos.setX(diff.x());
         newPos.setY(diff.y());
-        moveRenderingTo(initialRenderingPosition.x() + diff.x(), initialRenderingPosition.y() + diff.y());
+        moveRenderingTo(finalPoint.x(), finalPoint.y());
     }
+    QApplication::sendEvent(eventProxy.get(), event);
     mouseMoved = true;
 }
 
@@ -378,6 +418,8 @@ void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
             && !mouseMoved && backgroundImageRenderable != Q_NULLPTR) {
         Q_EMIT positionClicked(event->pos());
     }
+
+    mouseCoordinatesModificationEventFilter->setOffset(renderingPosition().x(), renderingPosition().y());
 
     // PoseRenderableMovedFirst means that the user clicked the renderable and modified it
     // We test this here because the application might set another cursor somewhere else
@@ -393,28 +435,16 @@ void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
     clickedMouseButton = Qt::NoButton;
 }
 
-void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
-    this->opacity = opacity;
-    for (PoseRenderable *poseRenderable : poseRenderables) {
-        poseRenderable->setOpacity(opacity);
+void PoseViewer3DWidget::wheelEvent(QWheelEvent *event) {
+    QPoint numDegrees = event->angleDelta() / 8;
+    qDebug() << numDegrees;
+    float delta = numDegrees.y() / 100.f;
+    qDebug() << delta;
+    float newZoom = zoom() + delta;
+    if (newZoom > 0 && newZoom < 2) {
+        animatedZoom(newZoom);
+        Q_EMIT zoomChanged(newZoom);
     }
-}
-
-void PoseViewer3DWidget::setClicks(const QList<QPoint> &clicks) {
-    clickVisualizationRenderable->setClicks(clicks);
-}
-
-void PoseViewer3DWidget::reset() {
-    setClicks({});
-    setPoses({});
-    if (backgroundImageRenderable != Q_NULLPTR) {
-        // Only disable and save creating it again
-        backgroundImageRenderable->setEnabled(false);
-    }
-}
-
-void PoseViewer3DWidget::setSettings(SettingsPtr settings) {
-    this->settings = settings;
 }
 
 void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
@@ -423,6 +453,22 @@ void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
     clickVisualizationCamera->lens()->setOrthographicProjection(-event->size().width() / 2.f, event->size().width() / 2.f,
                                                                 -event->size().height() / 2.f, event->size().height() / 2.f,
                                                                 0.1f, 1000.f);
+}
+
+void PoseViewer3DWidget::showEvent(QShowEvent *event) {
+    Qt3DWidget::showEvent(event);
+    // Need to do it this late to ensure Qt3D has added its event filter already (it does
+    // so asynchronously in jobs, i.e. executing cannot be predicted). The filter that
+    // is installed last is activated first which is why we have to ensure that our
+    // filter gets added last.
+    // We'll fire the time later in the showEvent function to ensure that Qt3D has been
+    // properly loaded
+    if (!mouseCoordinatesModificationEventFilterInstalled) {
+        QTimer::singleShot(500, [this](){
+                eventProxy->installEventFilter(mouseCoordinatesModificationEventFilter);
+                mouseCoordinatesModificationEventFilterInstalled = true;
+        });
+    }
 }
 
 QSize PoseViewer3DWidget::imageSize() const {

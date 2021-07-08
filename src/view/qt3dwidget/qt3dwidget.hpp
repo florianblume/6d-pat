@@ -44,6 +44,7 @@ public:
     void setZoom(float zoom);
     void animatedZoom(float zoom);
     float zoom();
+    void setInputSource(QObject *inputSource);
 
     virtual void initializeQt3D();
 

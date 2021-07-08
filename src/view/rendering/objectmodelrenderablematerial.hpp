@@ -83,8 +83,8 @@ private:
     Qt3DRender::QBlendEquationArguments *m_blendState;
     Qt3DRender::QBlendEquation *m_blendEquation;
 
-    QVector4D m_selectedColor = QVector4D(0.15, 0.1, 0.0, 0.0);
-    QVector4D m_highlightColor = QVector4D(0.05, 0.025, 0.0, 0.0);
+    QVector4D m_selectedColor = QVector4D(0.15, 0.15, 0.15, 0.0);
+    QVector4D m_highlightColor = QVector4D(0.1, 0.1, 0.1, 0.0);
 
     bool m_selected = false;
     bool m_hovered = false;

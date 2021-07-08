@@ -65,7 +65,9 @@ private Q_SLOTS:
      */
     void switchImage();
     void onOpacityChanged(int opacity);
+    // TODO rename to onZoomSliderValueChanged
     void onZoomChanged(int zoom);
+    void onZoomChangedBy3DWidget(float zoom);
     void resetPositionOfGraphicsView();
     void onImageClicked(QPoint point);
     // To get the new mouse buttons
@@ -86,6 +88,8 @@ private:
     // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
     // segmentation image
     bool m_showingNormalImage = true;
+
+    MouseCoordinatesModificationEventFilter *mouseCoordinatesModificationEventFilter;
 
     int m_zoom = 3;
     float m_zoomMultiplier = 1.f;
