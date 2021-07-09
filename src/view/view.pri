@@ -30,9 +30,7 @@ HEADERS += \
     view/rendering/objectmodelrenderable.hpp \
     view/rendering/clickvisualizationmaterial.hpp \
     view/rendering/clickvisualizationrenderable.hpp \
-    view/tutorialscreen/tutorialscreen.hpp \
-    view/qt3dwidget/qt3dwidget.hpp \
-    view/qt3dwidget/qt3dwidget_p.hpp
+    view/tutorialscreen/tutorialscreen.hpp
 
 SOURCES += \
     $$PWD/poseviewer/mousecoordinatesmodificationeventfilter.cpp \
@@ -64,8 +62,7 @@ SOURCES += \
     view/rendering/objectmodelrenderablematerial.cpp \
     view/rendering/clickvisualizationmaterial.cpp \
     view/rendering/clickvisualizationrenderable.cpp \
-    view/tutorialscreen/tutorialscreen.cpp \
-    view/qt3dwidget/qt3dwidget.cpp
+    view/tutorialscreen/tutorialscreen.cpp
 
 FORMS += \
     $$PWD/settings/settingsloadsavepage.ui \

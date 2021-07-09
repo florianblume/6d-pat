@@ -193,7 +193,7 @@ void PoseViewer::onOpacityChanged(int opacity) {
 void PoseViewer::onSliderZoomValueChanged(int zoom) {
     if (!m_ignoreZoomSliderChange) {
         this->ui->labelZoom->setText(QString::number(zoom) + "%");
-        m_poseViewer3DWidget->setZoomAnimated(zoom);
+        m_poseViewer3DWidget->setAnimatedZoom(zoom);
     }
     m_ignoreZoomSliderChange = false;
 }
