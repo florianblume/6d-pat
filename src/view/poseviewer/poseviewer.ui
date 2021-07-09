@@ -1008,7 +1008,7 @@ QPushButton:pressed {
    <sender>sliderZoom</sender>
    <signal>valueChanged(int)</signal>
    <receiver>PoseViewer</receiver>
-   <slot>onZoomChanged(int)</slot>
+   <slot>onSliderZoomValueChanged(int)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>201</x>
@@ -1027,6 +1027,6 @@ QPushButton:pressed {
   <slot>imageClicked(QPoint)</slot>
   <slot>resetPositionOfGraphicsView()</slot>
   <slot>onOpacityChanged(int)</slot>
-  <slot>onZoomChanged(int)</slot>
+  <slot>onSliderZoomValueChanged(int)</slot>
  </slots>
 </ui>

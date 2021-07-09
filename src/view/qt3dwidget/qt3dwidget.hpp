@@ -25,6 +25,14 @@ public:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
 
+    void setRenderingPosition(float x, float y);
+    void setRenderingPosition(QPoint position);
+    QPoint renderingPosition();
+    virtual void setZoom(int zoom);
+    void setZoomAnimated(int zoom);
+    int zoom();
+    void setInputSource(QObject *inputSource);
+
     void setRenderingSize(int w, int h);
 
     void registerAspect(Qt3DCore::QAbstractAspect *aspect);
@@ -39,24 +47,20 @@ public:
     Qt3DRender::QCamera *camera() const;
     Qt3DRender::QRenderSettings *renderSettings() const;
 
-    void moveRenderingTo(float x, float y);
-    QPointF renderingPosition();
-    void setZoom(float zoom);
-    void animatedZoom(float zoom);
-    float zoom();
-    void setInputSource(QObject *inputSource);
-
     virtual void initializeQt3D();
 
 public Q_SLOTS:
     void paintGL() override;
 
 Q_SIGNALS:
-    void zoomChanged();
+    void zoomChanged(int zoom);
 
 protected:
     void showEvent(QShowEvent *e) override;
     Qt3DWidgetPrivate *d_ptr;
+    // TODO make configurable in settings
+    int m_maxZoom = 200;
+    int m_minZoom = 1;
 
 private:
     QSharedPointer<QPropertyAnimation> animation;

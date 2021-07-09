@@ -1,4 +1,4 @@
-﻿#include "poseviewer3dwidget.hpp"
+#include "poseviewer3dwidget.hpp"
 #include "mousecoordinatesmodificationeventfilter.hpp"
 #include "misc/global.hpp"
 
@@ -139,10 +139,6 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
     QImage loadedImage(image);
     this->m_imageSize = loadedImage.size();
     setRenderingSize(loadedImage.width(), loadedImage.height());
-    clickVisualizationRenderable->setSize(loadedImage.size());
-    clickVisualizationCamera->lens()->setOrthographicProjection(-loadedImage.width() / 2.f, loadedImage.width() / 2.f,
-                                                                -loadedImage.height() / 2.f, loadedImage.height() / 2.f,
-                                                                0.1f, 1000.f);
 
     if (backgroundImageRenderable.isNull()) {
         backgroundImageRenderable = new BackgroundImageRenderable(root, image);
@@ -150,7 +146,7 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
         // Only set the image position the first time
         int x = -loadedImage.width() / 2 + ((QWidget*) this->parent())->width() / 2;
         int y = -loadedImage.height() / 2 + ((QWidget*) this->parent())->height() / 2;
-        moveRenderingTo(x, y);
+        setRenderingPosition(x, y);
         mouseCoordinatesModificationEventFilter->setOffset(x, y);
     } else {
         backgroundImageRenderable->setImage(image);
@@ -287,6 +283,23 @@ void PoseViewer3DWidget::setSettings(SettingsPtr settings) {
     this->settings = settings;
 }
 
+void PoseViewer3DWidget::setRenderingSize(int w, int h) {
+    Qt3DWidget::setRenderingSize(w, h);
+    clickVisualizationRenderable->setSize(QSize(w, h));
+    clickVisualizationCamera->lens()->setOrthographicProjection(-w / 2.f, w / 2.f,
+                                                                -h / 2.f, h / 2.f,
+                                                                0.1f, 1000.f);
+}
+
+void PoseViewer3DWidget::setZoom(int zoom) {
+    Qt3DWidget::setZoom(zoom);
+    float _zoom = zoom / 100.f;
+    clickVisualizationRenderable->setSize(m_imageSize * _zoom);
+    clickVisualizationCamera->lens()->setOrthographicProjection(-(m_imageSize.width() * _zoom) / 2.f, (m_imageSize.width() * _zoom) / 2.f,
+                                                                -(m_imageSize.height() * _zoom) / 2.f, (m_imageSize.height() * _zoom) / 2.f,
+                                                                0.1f, 1000.f);
+}
+
 QVector3D PoseViewer3DWidget::arcBallVectorForMousePos(const QPointF pos) {
     float ndcX = 2.0f * pos.x() / width() - 1.0f;
     float ndcY = 1.0 - 2.0f * pos.y() / height();
@@ -407,7 +420,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
             && !(poseRenderablePressed && event->buttons() == settings->rotatePoseRenderableMouseButton())) {
         newPos.setX(diff.x());
         newPos.setY(diff.y());
-        moveRenderingTo(finalPoint.x(), finalPoint.y());
+        setRenderingPosition(finalPoint.x(), finalPoint.y());
     }
     QApplication::sendEvent(eventProxy.get(), event);
     mouseMoved = true;
@@ -416,7 +429,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
 void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (event->button() == settings->addCorrespondencePointMouseButton()
             && !mouseMoved && backgroundImageRenderable != Q_NULLPTR) {
-        Q_EMIT positionClicked(event->pos());
+        Q_EMIT positionClicked(event->pos() - renderingPosition());
     }
 
     mouseCoordinatesModificationEventFilter->setOffset(renderingPosition().x(), renderingPosition().y());
@@ -436,23 +449,19 @@ void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 void PoseViewer3DWidget::wheelEvent(QWheelEvent *event) {
+    // Convert angleDelta to 15 degree portions
     QPoint numDegrees = event->angleDelta() / 8;
-    qDebug() << numDegrees;
-    float delta = numDegrees.y() / 100.f;
-    qDebug() << delta;
-    float newZoom = zoom() + delta;
-    if (newZoom > 0 && newZoom < 2) {
-        animatedZoom(newZoom);
-        Q_EMIT zoomChanged(newZoom);
+    // Calculate actual delta in steps of 10, based on the angle delta
+    int delta = (numDegrees.y() / 15) * m_zoomNormalizingFactor;
+    // Make sure we always step multiples of 10 in each direction
+    int newZoom = ((zoom() + delta) / m_zoomNormalizingFactor) * m_zoomNormalizingFactor;
+    // Calculate rendering offset so that we zoom directly to the mouse location
+    QPoint newRenderingPosition = event->pos() - float(newZoom) / float(zoom()) * (event->pos() - renderingPosition());
+    setZoom(newZoom);
+    if (newZoom >= m_minZoom && newZoom <= m_maxZoom) {
+        setRenderingPosition(newRenderingPosition);
+        mouseCoordinatesModificationEventFilter->setOffset(newRenderingPosition);
     }
-}
-
-void PoseViewer3DWidget::resizeEvent(QResizeEvent *event) {
-    Qt3DWidget::resizeEvent(event);
-    clickVisualizationRenderable->setSize(event->size());
-    clickVisualizationCamera->lens()->setOrthographicProjection(-event->size().width() / 2.f, event->size().width() / 2.f,
-                                                                -event->size().height() / 2.f, event->size().height() / 2.f,
-                                                                0.1f, 1000.f);
 }
 
 void PoseViewer3DWidget::showEvent(QShowEvent *event) {

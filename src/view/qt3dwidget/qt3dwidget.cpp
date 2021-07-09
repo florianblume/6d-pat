@@ -200,7 +200,6 @@ void Qt3DWidget::paintGL() {
         QOpenGLVertexArrayObject::Binder vaoBinder(&d->backgroundVao);
 
         d->backgroundProgram->setUniformValue("matrix", m);
-        //d->backgroundTexture->bind();
         glBindTexture(GL_TEXTURE_2D, d->m_colorTexture->handle().toUInt());
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
@@ -274,31 +273,37 @@ Qt3DRender::QRenderSettings *Qt3DWidget::renderSettings() const {
     return d->m_renderSettings;
 }
 
-void Qt3DWidget::moveRenderingTo(float x, float y)
-{
+void Qt3DWidget::setRenderingPosition(float x, float y) {
     Q_D(Qt3DWidget);
     d->offset_x = x;
     d->offset_y = y;
 }
 
-QPointF Qt3DWidget::renderingPosition()
-{
-    Q_D(Qt3DWidget);
-    return QPointF(d->offset_x, d->offset_y);
+void Qt3DWidget::setRenderingPosition(QPoint position) {
+    setRenderingPosition(position.x(), position.y());
 }
 
-void Qt3DWidget::setZoom(float zoom) {
+QPoint Qt3DWidget::renderingPosition() {
     Q_D(Qt3DWidget);
-    d->scale_x = zoom;
-    d->scale_y = zoom;
+    return QPoint(d->offset_x, d->offset_y);
+}
+
+void Qt3DWidget::setZoom(int zoom) {
+    Q_D(Qt3DWidget);
+    zoom = std::min(zoom, m_maxZoom);
+    zoom = std::max(zoom, m_minZoom);
+    d->scale_x = zoom / 100.f;
+    d->scale_y = zoom / 100.f;
     d->m_colorTexture->setSize(d->renderingSizeX * d->scale_x, d->renderingSizeY * d->scale_x);
     d->m_depthTexture->setSize(d->renderingSizeX * d->scale_x, d->renderingSizeY * d->scale_x);
-    d->m_renderSurfaceSelector->setExternalRenderTargetSize(QSize(d->renderingSizeX * d->scale_x, d->renderingSizeY * d->scale_x));
+    d->m_renderSurfaceSelector->setExternalRenderTargetSize(QSize(d->renderingSizeX * d->scale_x,
+                                                                  d->renderingSizeY * d->scale_x));
+
+
+    Q_EMIT zoomChanged(zoom);
 }
 
-void Qt3DWidget::animatedZoom(float zoom)
-{
-
+void Qt3DWidget::setZoomAnimated(int zoom) {
     Q_D(Qt3DWidget);
     if (animation.isNull()) {
         animation.reset(new QPropertyAnimation(this, "zoom"));
@@ -306,16 +311,14 @@ void Qt3DWidget::animatedZoom(float zoom)
     } else {
         animation->stop();
     }
-    animation->setStartValue(d->scale_x);
+    animation->setStartValue(d->scale_x * 100.f);
     animation->setEndValue(zoom);
     animation->start();
 }
 
-float Qt3DWidget::zoom()
-{
-
+int Qt3DWidget::zoom() {
     Q_D(Qt3DWidget);
-    return d->scale_x;
+    return d->scale_x * 100.f;
 }
 
 void Qt3DWidget::setInputSource(QObject *inputSource) {

@@ -325,6 +325,8 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
                                      true)) {
                         continue;
                     }
+                    // Path is not required and extractPath returns true if
+                    // the key is not present
                     if (!extractPath(itemDict, KEY_SEGMENTATION_IMAGE_PATH, segmentationImagePath,
                                      "image", imageID, m_imagesWithInvalidData,
                                      false)) {

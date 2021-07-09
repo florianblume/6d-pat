@@ -63,6 +63,8 @@ public:
     QSize imageSize() const;
     void reset();
     void setSettings(SettingsPtr settings);
+    void setRenderingSize(int w, int h);
+    void setZoom(int zoom) override;
 
 public Q_SLOTS:
     // React to object pickers
@@ -74,14 +76,12 @@ Q_SIGNALS:
     void positionClicked(QPoint position);
     void poseSelected(PosePtr pose);
     void snapshotSaved();
-    void zoomChanged(float zoom);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
     void showEvent(QShowEvent *event) override;
 
 private Q_SLOTS:
@@ -147,6 +147,9 @@ private:
 
     PosePtr selectedPose;
 
+    // Stores the path to store the snapshot at between requesting
+    // the snapshot and receiving it (Qt3D takes some time until
+    // the snapshot is ready and doesn't deliver it immediatly)
     QString snapshotPath;
 
     // Arc ball vectors for rotation with mouse
@@ -188,6 +191,8 @@ private:
     MouseCoordinatesModificationEventFilter *mouseCoordinatesModificationEventFilter;
     bool mouseCoordinatesModificationEventFilterInstalled = false;
     QScopedPointer<QObject> eventProxy;
+
+    int m_zoomNormalizingFactor = 10;
 
     QSize m_imageSize;
 

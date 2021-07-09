@@ -262,7 +262,7 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
         } else {
             newImage = createImageWithJsonParams(QString::number(i),
                                                  imageFilename,
-                                                 Global::NO_PATH,
+                                                 "",
                                                  m_imagesPath,
                                                  jsonObject);
         }

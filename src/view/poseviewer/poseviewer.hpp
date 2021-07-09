@@ -66,8 +66,8 @@ private Q_SLOTS:
     void switchImage();
     void onOpacityChanged(int opacity);
     // TODO rename to onZoomSliderValueChanged
-    void onZoomChanged(int zoom);
-    void onZoomChangedBy3DWidget(float zoom);
+    void onSliderZoomValueChanged(int zoom);
+    void onZoomChangedBy3DWidget(int zoom);
     void resetPositionOfGraphicsView();
     void onImageClicked(QPoint point);
     // To get the new mouse buttons
@@ -93,6 +93,9 @@ private:
 
     int m_zoom = 3;
     float m_zoomMultiplier = 1.f;
+    int m_maxZoom = 200;
+
+    bool m_ignoreZoomSliderChange = false;
 };
 
 #endif // CORRESPONDENCEEDITOR_H
