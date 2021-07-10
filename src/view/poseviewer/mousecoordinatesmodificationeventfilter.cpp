@@ -18,6 +18,10 @@ void MouseCoordinatesModificationEventFilter::setOffset(QPoint offset) {
     m_offsetY = offset.y();
 }
 
+QPoint MouseCoordinatesModificationEventFilter::offset() {
+    return QPoint(m_offsetX, m_offsetY);
+}
+
 bool MouseCoordinatesModificationEventFilter::eventFilter(QObject *obj, QEvent *event) {
     if (event->type() == QEvent::HoverMove ||
         event->type() == QEvent::MouseMove ||

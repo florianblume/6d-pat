@@ -109,7 +109,14 @@ void PoseViewer3DWidget::initializeGL() {
     // coordinates
     m_mouseCoordinatesModificationEventFilter =
             new MouseCoordinatesModificationEventFilter();
-    m_eventProxy.reset(new QObject());
+    // This filter will undo the mouse coordinates modifications so that our
+    // widget can process the normal events after Qt3D has done its processing
+    // Note that we have to install the event filter first to get it executed
+    // last
+    m_undoMouseCoordinatesModificationEventFilter =
+            new UndoMouseCoordinatesModificationEventFilter(Q_NULLPTR,
+                                                            m_mouseCoordinatesModificationEventFilter);
+    installEventFilter(m_undoMouseCoordinatesModificationEventFilter);
     initOpenGL();
     initQt3D();
 }
@@ -305,7 +312,7 @@ void PoseViewer3DWidget::initQt3D() {
                 Qt3DRender::QPickingSettings::TrianglePicking);
     // RenderStateSet is the first node of the overall framegraph
     m_renderSettings->setActiveFrameGraph(m_renderStateSet);
-    m_inputSettings->setEventSource(m_eventProxy.get());
+    m_inputSettings->setEventSource(this);
 }
 
 void PoseViewer3DWidget::paintGL() {
@@ -358,8 +365,8 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
         // Only set the image position the first time
         int x = -loadedImage.width() / 2 + ((QWidget*) this->parent())->width() / 2;
         int y = -loadedImage.height() / 2 + ((QWidget*) this->parent())->height() / 2;
-        setRenderingPosition(x, y);
-        m_mouseCoordinatesModificationEventFilter->setOffset(x, y);
+        //setRenderingPosition(x, y);
+        //m_mouseCoordinatesModificationEventFilter->setOffset(x, y);
     } else {
         m_backgroundImageRenderable->setImage(image);
     }
@@ -515,7 +522,9 @@ void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent
 
         m_translationEndVector = QVector3D(pickEvent->position().x(), posY, m_depth);
         QVector3D newPos = m_translationEndVector.unproject(m_posesCamera->viewMatrix(),
-                                                          m_projectionMatrix, QRect(0, 0, width(), height()));
+                                                            m_projectionMatrix, QRect(0, 0,
+                                                                                      m_imageSize.width(),
+                                                                                      m_imageSize.height()));
         m_translationDifference = newPos - m_translationStartVector;
         m_translationDifference.setZ(0);
         QVector3D newTranslation = m_translationStart + m_translationDifference;
@@ -700,6 +709,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
     QPointF finalPoint = QPointF(m_initialRenderingPosition.x() + diff.x(),
                                  m_initialRenderingPosition.y() + diff.y());
 
+    // Handling of moving background image
     if (event->buttons() == m_settings->moveBackgroundImageRenderableMouseButton()
             // Only move when not and pose has been pressed with a mouse button either responsible for
             // translating or rotating the pose
@@ -709,7 +719,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
         m_newPos.setY(diff.y());
         setRenderingPosition(finalPoint.x(), finalPoint.y());
     }
-    QApplication::sendEvent(m_eventProxy.get(), event);
+    // TODO handle moving and rotating poses here instead of in the Qt3D event handlers
     m_mouseMoved = true;
 }
 
@@ -779,7 +789,7 @@ void PoseViewer3DWidget::showEvent(QShowEvent *event) {
     // properly loaded
     if (!m_mouseCoordinatesModificationEventFilterInstalled) {
         QTimer::singleShot(500, [this](){
-                m_eventProxy->installEventFilter(m_mouseCoordinatesModificationEventFilter);
+                this->installEventFilter(m_mouseCoordinatesModificationEventFilter);
                 m_mouseCoordinatesModificationEventFilterInstalled = true;
         });
     }

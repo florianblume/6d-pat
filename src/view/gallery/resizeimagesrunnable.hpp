@@ -21,8 +21,10 @@ Q_SIGNALS:
     void imageResized(int imageIndex, const QString &imagePath, const QImage &resizedImage);
 
 private:
-    QList<ImagePtr> images;
-    bool stopProcess = false;
+    // Not ImagePtr since the runnable runs asynchronously and should
+    // retrain its own list to not crash when the rest of the app shuts down
+    QList<Image> m_images;
+    bool m_stopProcess = false;
 };
 
 #endif // RESIZEIMAGESRUNNABLE_H

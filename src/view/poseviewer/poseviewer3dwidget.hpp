@@ -6,6 +6,7 @@
 #include "view/rendering/poserenderable.hpp"
 #include "view/rendering/clickvisualizationrenderable.hpp"
 #include "mousecoordinatesmodificationeventfilter.hpp"
+#include "undomousecoordinatesmodificationeventfilter.hpp"
 #include "settings/settings.hpp"
 
 #include <QString>
@@ -316,14 +317,12 @@ private:
     // containing widget (i.e. size of what's actually visible) but we need the
     // coordinates on the (potentially) offset image, we need to modify the mouse
     // coordinates to match the local coordinates of the image before passing
-    // them on to Qt3D. The event proxy gets all events from the widget and is
-    // set as input source on Qt3D. Then we install the event filter on the event
-    // proxy and modify the coordinates. Modifying the coordinates of the widget
-    // directly doesn't work because we still need the normal mouse move events
-    // and so on.
+    // them on to Qt3D.
     MouseCoordinatesModificationEventFilter *m_mouseCoordinatesModificationEventFilter;
+    // Afterwards we undo the modifications so that our widget receives the normal coordinates.
+    // Note that we have to add the undo filter first to get it executed last
+    UndoMouseCoordinatesModificationEventFilter *m_undoMouseCoordinatesModificationEventFilter;
     bool m_mouseCoordinatesModificationEventFilterInstalled = false;
-    QScopedPointer<QObject> m_eventProxy;
 
     // Zoom stuff
     QSharedPointer<QPropertyAnimation> m_zoomAnimation;

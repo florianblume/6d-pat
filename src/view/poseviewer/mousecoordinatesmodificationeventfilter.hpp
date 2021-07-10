@@ -10,6 +10,7 @@ public:
     explicit MouseCoordinatesModificationEventFilter(QObject *parent = Q_NULLPTR);
     void setOffset(int x, int y);
     void setOffset(QPoint offset);
+    QPoint offset();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

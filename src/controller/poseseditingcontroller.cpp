@@ -224,14 +224,15 @@ void PosesEditingController::savePosesOrRestoreState() {
     bool result = _savePoses(true);
     // Result is true if poses have been saved
     if (!result) {
-        // The user click no - don't save poses, i.e. we must restore
-        // the pose values because the pointers have been modified
+        // Set all poses to not dirty
         QList<PosePtr> dirtyPoses = m_dirtyPoses.keys(true);
         for (const PosePtr &pose : dirtyPoses) {
-            PoseValues poseValues = m_unmodifiedPoses[pose->id()];
-            pose->setPosition(poseValues.position);
-            pose->setRotation(poseValues.rotation);
+            m_dirtyPoses[pose] = false;
         }
+        // Set the original poses again
+        m_posesForImage = m_modelManager->posesForImage(*m_currentImage);
+        m_mainWindow->poseEditor()->setPoses(m_posesForImage);
+        m_mainWindow->poseViewer()->setPoses(m_posesForImage);
     }
 }
 
@@ -272,11 +273,14 @@ bool PosesEditingController::_savePoses(bool showDialog) {
             for (const PosePtr &pose : m_posesToRemove) {
                 noErrorSavingPoses  &= m_modelManager->removePose(pose->id());
             }
+        } else if (showDialog && !result) {
+            qDebug() << "Not saving poses as requested.";
         }
         if (noErrorSavingPoses) {
             m_posesToAdd.clear();
             m_posesToRemove.clear();
         } else {
+            qDebug() << "There was an error saving the poses.";
             // There was an error so we allow the option to try and save
             // the poses again. We don't need a message here since saving
             // already emits errors in the model manager.

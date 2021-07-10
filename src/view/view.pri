@@ -2,6 +2,7 @@ INCLUDEPATH += $$PWD
 
 HEADERS += \
     $$PWD/poseviewer/mousecoordinatesmodificationeventfilter.hpp \
+    $$PWD/poseviewer/undomousecoordinatesmodificationeventfilter.hpp \
     $$PWD/settings/settingsloadsavepage.hpp \
     view/splashscreen/splashscreen.hpp \
     view/settings/settingspathspage.hpp \
@@ -34,6 +35,7 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/poseviewer/mousecoordinatesmodificationeventfilter.cpp \
+    $$PWD/poseviewer/undomousecoordinatesmodificationeventfilter.cpp \
     $$PWD/settings/settingsloadsavepage.cpp \
     view/splashscreen/splashscreen.cpp \
     view/gallery/loadingiconmodel.cpp \
