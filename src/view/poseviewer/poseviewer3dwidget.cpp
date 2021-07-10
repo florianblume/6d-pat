@@ -103,8 +103,6 @@ void PoseViewer3DWidget::initializeGL() {
     // We need a current context to setup OpenGL that's why
     // we call the init methods here
     setMouseTracking(true);
-    initOpenGL();
-    initQt3D();
     // Don't install it as an event filter on the proxy object here already
     // since Qt3D works threadded and installs its own input filters after
     // ours -> Qt3D's filter will get called first and we can't modify the
@@ -112,6 +110,8 @@ void PoseViewer3DWidget::initializeGL() {
     m_mouseCoordinatesModificationEventFilter =
             new MouseCoordinatesModificationEventFilter();
     m_eventProxy.reset(new QObject());
+    initOpenGL();
+    initQt3D();
 }
 
 void PoseViewer3DWidget::initOpenGL() {
@@ -306,7 +306,6 @@ void PoseViewer3DWidget::initQt3D() {
     // RenderStateSet is the first node of the overall framegraph
     m_renderSettings->setActiveFrameGraph(m_renderStateSet);
     m_inputSettings->setEventSource(m_eventProxy.get());
-
 }
 
 void PoseViewer3DWidget::paintGL() {
@@ -415,13 +414,15 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     connect(poseRenderable, &PoseRenderable::moved,
             [this, poseRenderable](Qt3DRender::QPickEvent *e){
         poseRenderable->setHovered(true);
+        m_hoveredPose = poseRenderable;
         if (poseRenderable->isSelected()) {
             onPoseRenderableMoved(e);
         }
     });
     connect(poseRenderable, &PoseRenderable::exited,
-            [poseRenderable](){
+            [this, poseRenderable](){
         poseRenderable->setHovered(false);
+        m_hoveredPose = Q_NULLPTR;
     });
     connect(poseRenderable, &PoseRenderable::pressed,
             [this](Qt3DRender::QPickEvent *e){
@@ -546,7 +547,6 @@ QPoint PoseViewer3DWidget::renderingPosition() {
 }
 
 void PoseViewer3DWidget::setRenderingPosition(float x, float y) {
-    qDebug() << x << y;
     m_renderingPosition = QPoint(x, y);
 }
 
@@ -786,7 +786,11 @@ void PoseViewer3DWidget::showEvent(QShowEvent *event) {
 }
 
 void PoseViewer3DWidget::leaveEvent(QEvent *event) {
-
+    if (m_hoveredPose) {
+        // When the mouse leaves the widget the hovering
+        // color does not get removed
+        m_hoveredPose->setHovered(false);
+    }
 }
 
 QSize PoseViewer3DWidget::imageSize() const {

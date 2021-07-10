@@ -894,15 +894,24 @@
    <property name="text">
     <string>Tutorial Screen</string>
    </property>
+   <property name="toolTip">
+    <string>Not yet implemented.</string>
+   </property>
   </action>
   <action name="actionAbort_Pose_Creation">
    <property name="text">
     <string>Abort Creation</string>
    </property>
+   <property name="toolTip">
+    <string>Abort pose creation, i.e. remove all correspondences.</string>
+   </property>
   </action>
   <action name="actionReload_Views">
    <property name="text">
     <string>Reload</string>
+   </property>
+   <property name="toolTip">
+    <string>Reloads all data from hard disk.</string>
    </property>
   </action>
   <action name="actionTrain">
@@ -919,10 +928,16 @@
    <property name="text">
     <string>Take Snapshot</string>
    </property>
+   <property name="toolTip">
+    <string>Take a snapshot of the current image, including poses.</string>
+   </property>
   </action>
   <action name="actionReset">
    <property name="text">
     <string>Reset</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset all modifications of the currently viewed image.</string>
    </property>
   </action>
  </widget>

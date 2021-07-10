@@ -502,6 +502,7 @@ void PosesEditingController::abortPoseCreation() {
 
 void PosesEditingController::reset() {
     savePosesOrRestoreState();
+    abortPoseCreation();
 }
 
 void PosesEditingController::onProgramClose() {

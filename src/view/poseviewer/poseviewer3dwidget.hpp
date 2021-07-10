@@ -310,6 +310,8 @@ private:
     // mouse is moved after clicking and holding down the mouse button
     Qt::MouseButton m_clickedMouseButton;
 
+    PoseRenderable *m_hoveredPose = Q_NULLPTR;
+
     // Since the orthographic projection in Qt3D uses the width and height of the
     // containing widget (i.e. size of what's actually visible) but we need the
     // coordinates on the (potentially) offset image, we need to modify the mouse

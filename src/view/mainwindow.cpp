@@ -30,8 +30,6 @@ MainWindow::MainWindow(QWidget *parent,
     progressDialog->setModal(true);
     progressDialog->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
     progressDialog->setFixedSize(progressDialog->size());
-    // The controller handles showing the progress dialog externally
-    //dataLoadingProgressDialog->show();
 
     //tutorialScreen = new TutorialScreen(this);
     //tutorialScreen->setGeometry(this->geometry());
@@ -199,7 +197,7 @@ void MainWindow::resizeEvent(QResizeEvent *e) {
 }
 
 void MainWindow::setStatusBarText(const QString& text) {
-    statusBarLabel->setText(text);
+    statusBarLabel->setText(tr(text.toStdString().c_str()));
 }
 
 void MainWindow::showProgressView(bool show) {
@@ -229,12 +227,12 @@ Gallery *MainWindow::galleryImages() {
 }
 
 void MainWindow::showDataLoadingProgressView(bool show) {
-    progressDialog->setLabelText("Loading data...");
+    progressDialog->setLabelText(tr("Loading data..."));
     showProgressView(show);
 }
 
 void MainWindow::showPoseRecoveringProgressView(bool show) {
-    progressDialog->setLabelText("Recovering pose...");
+    progressDialog->setLabelText(tr("Recovering pose..."));
     showProgressView(show);
 }
 
@@ -253,8 +251,8 @@ void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
 void MainWindow::displayWarning(const QString &title, const QString &text) {
     DisplayHelper::QMessageBoxPtr messageBox = DisplayHelper::messageBox(this,
                                                                          QMessageBox::Warning,
-                                                                         title,
-                                                                         text,
+                                                                         tr(title.toStdString().c_str()),
+                                                                         tr(text.toStdString().c_str()),
                                                                          "Ok", QMessageBox::AcceptRole);
     messageBox->exec();
 }
@@ -321,17 +319,17 @@ void MainWindow::onActionSettingsTriggered() {
 }
 
 void MainWindow::onActionAbortCreationTriggered() {
-    setStatusBarText("Ready.");
+    setStatusBarText(tr("Creating pose..."));
     Q_EMIT abortPoseCreationRequested();
 }
 
 void MainWindow::onActionResetTriggered() {
-    setStatusBarText("Ready.");
+    setStatusBarTextStartAddingCorrespondences();
     Q_EMIT resetRequested();
 }
 
 void MainWindow::onActionReloadViewsTriggered() {
-    setStatusBarText("Ready.");
+    setStatusBarTextStartAddingCorrespondences();
     Q_EMIT reloadViewsRequested();
 }
 
