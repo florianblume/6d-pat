@@ -123,9 +123,6 @@ Q_SIGNALS:
 private Q_SLOTS:
     // Called by Qt3D when the snapshot is ready
     void onSnapshotReady();
-    // React to object pickers
-    void onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent);
-    void onPoseRenderablePressed(Qt3DRender::QPickEvent *pickEvent);
 
 private:
     void init();
@@ -139,6 +136,7 @@ private:
 
 private:
     PosePtr m_selectedPose;
+    PoseRenderable *m_selectedPoseRenderable = Q_NULLPTR;
     PoseRenderable *m_hoveredPose = Q_NULLPTR;
     // The size of the loaded image
     QSize m_imageSize;
@@ -289,23 +287,14 @@ private:
     QPointF m_firstClickPos;
     QPointF m_newPos;
     QPointF m_currentClickPos;
-    QPointF m_localClickPos;
     // Save the initial rendering position for the mouse move events
     // or
     QPointF m_initialRenderingPosition;
-    // To check whether the moved signal of the pose was because the user
-    // wants to rotate or translte the pose (and therefore holds down a button)
-    bool m_mouseDown = false;
-    // To check whether the user has clicked (e.g. by adding a correspondence point)
-    // or really moved the mouse while holding buttons
     bool m_mouseMoved = false;
-    // To check whether the pose renderable has already been moved, we need this
-    // to initialize some values for rotation and translation
-    bool m_poseRenderableMoved = false;
-    // This is important to check whether a pose renderable has been pressed
-    // and we therefore should only move the image around when the used button
-    // is not one of the buttons defined to rotate or translate a pose
+    bool m_mouseOverPoseRenderable = false;
     bool m_poseRenderablePressed = false;
+    bool m_poseRenderableTranslated = false;
+    bool m_poseRenderableRotated = false;
 
     // Store the mouse button that was clicked because the Qt3D
     // pick events don't deliver them in their events when the
