@@ -520,10 +520,11 @@ void PoseViewer3DWidget::onPoseRenderableMoved(Qt3DRender::QPickEvent *pickEvent
 
         //QApplication::setOverrideCursor(Qt::BlankCursor);
     } else if (m_clickedMouseButton == m_settings->translatePoseRenderableMouseButton()) {
+        QPointF pickPosition = pickEvent->position() / (m_zoom / 100.f);
         // Translate the object
-        float posY = m_imageSize.height() - pickEvent->position().y() - 1.0f;
+        float posY = m_imageSize.height() - pickPosition.y() - 1.0f;
 
-        m_translationEndVector = QVector3D(pickEvent->position().x(), posY, m_depth);
+        m_translationEndVector = QVector3D(pickPosition.x(), posY, m_depth);
         QVector3D newPos = m_translationEndVector.unproject(m_posesCamera->viewMatrix(),
                                                             m_projectionMatrix,
                                                             QRect(0, 0,
