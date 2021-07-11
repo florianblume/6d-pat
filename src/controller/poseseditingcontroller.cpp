@@ -227,6 +227,9 @@ void PosesEditingController::savePosesOrRestoreState() {
         // Set all poses to not dirty
         QList<PosePtr> dirtyPoses = m_dirtyPoses.keys(true);
         for (const PosePtr &pose : dirtyPoses) {
+            PoseValues poseValues = m_unmodifiedPoses[pose->id()];
+            pose->setPosition(poseValues.position);
+            pose->setRotation(poseValues.rotation);
             m_dirtyPoses[pose] = false;
         }
         // Set the original poses again

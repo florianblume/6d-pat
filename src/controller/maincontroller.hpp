@@ -8,7 +8,6 @@
 #include "view/splashscreen/splashscreen.hpp"
 #include "misc/global.hpp"
 #include "controller/poseseditingcontroller.hpp"
-#include "controller/neuralnetworkcontroller.hpp"
 
 #include <QApplication>
 #include <QScopedPointer>
@@ -75,7 +74,6 @@ private:
     QScopedPointer<CachingModelManager> m_modelManager;
     QThread *m_modelManagerThread;
     QScopedPointer<PosesEditingController> m_poseEditingModel;
-    QScopedPointer<NeuralNetworkController> m_networkController;
 
     QScopedPointer<MainWindow> m_mainWindow;
 };

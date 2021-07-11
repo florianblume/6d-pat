@@ -139,6 +139,7 @@ private:
 
 private:
     PosePtr m_selectedPose;
+    PoseRenderable *m_hoveredPose = Q_NULLPTR;
     // The size of the loaded image
     QSize m_imageSize;
     SettingsPtr m_settings;
@@ -310,8 +311,6 @@ private:
     // pick events don't deliver them in their events when the
     // mouse is moved after clicking and holding down the mouse button
     Qt::MouseButton m_clickedMouseButton;
-
-    PoseRenderable *m_hoveredPose = Q_NULLPTR;
 
     // Since the orthographic projection in Qt3D uses the width and height of the
     // containing widget (i.e. size of what's actually visible) but we need the
