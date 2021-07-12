@@ -1,6 +1,8 @@
 #include "resizeimagesrunnable.hpp"
 
 #include <QUrl>
+#include <QImageReader>
+#include <QElapsedTimer>
 
 ResizeImagesRunnable::ResizeImagesRunnable(const QList<ImagePtr> &images) {
     for (ImagePtr image: images) {
@@ -14,10 +16,13 @@ void ResizeImagesRunnable::run() {
         if (m_stopProcess) {
             break;
         }
-        QImage loadedImage(QUrl::fromLocalFile(image.absoluteImagePath()).path());
+        QElapsedTimer timer;
+        timer.start();
+        QImageReader imageReader(QUrl::fromLocalFile(image.absoluteImagePath()).path());
+        float aspectRatio = imageReader.size().width() / (float) imageReader.size().height();
         // No one is going to view images larger than 300 px height
-        loadedImage = loadedImage.scaledToHeight(300);
-        Q_EMIT imageResized(i, image.imagePath(), loadedImage);
+        imageReader.setScaledSize(QSize(300 * aspectRatio, 300));
+        Q_EMIT imageResized(i, image.imagePath(), imageReader.read());
         i++;
     }
 }
