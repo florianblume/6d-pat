@@ -1,14 +1,14 @@
 #include "loadingiconmodel.hpp"
 
 LoadingIconModel::LoadingIconModel()
-    : loadingAnimation(new QMovie(":/images/loading.gif")) {
+    : loadingAnimation(new QMovie(":/images/loader.gif")) {
     connect(loadingAnimation.get(), &QMovie::frameChanged,
             [this](){
         currentLoadingAnimationFrame = QIcon(loadingAnimation->currentPixmap());
     });
     loadingAnimation->start();
-    // Update every 10ms
-    m_updateTimer.setInterval(10);
+    // Update every 30ms
+    m_updateTimer.setInterval(30);
     connect(&m_updateTimer, &QTimer::timeout,
             this, &LoadingIconModel::updateListView);
 }
