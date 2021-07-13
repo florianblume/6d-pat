@@ -27,6 +27,7 @@ QListView:disabled {
 QListView::item {
     color: #000000;
     background-color:transparent;
+    margin-bottom: 5px;
 }
 
 QListView::item:hover:!pressed {
@@ -41,6 +42,40 @@ QListView::item:selected {
     border: 1px solid #5eb6ff;
     border-radius: 2px;
     background-color: #9ed2ff;
+}
+
+QScrollBar:horizontal {
+    border: none;
+    background: #efefef;
+}
+
+QScrollBar::handle:horizontal {
+    background: #9ed2ff;
+    min-height: 20px;
+    min-width: 30px;
+    margin: 0 10px 0 10px;
+}
+
+QScrollBar::add-line {
+      border: none;
+      background: white;
+}
+
+QScrollBar::sub-line {
+      border: none;
+      background: white;
+}
+
+QScrollBar:vertical {
+    border: none;
+    background: #efefef;
+    width: 10px;
+}
+
+QScrollBar::handle:vertical {
+    background: #9ed2ff;
+    min-height: 30px;
+    min-width: 10px;
 }
 
 QMenuBar {
@@ -133,4 +168,21 @@ QListWidget#listWidgetSettings {
 QStackedWidget#stackedWidgetSettings {
     border: 1px solid rgb(200, 200, 200);
     border-radius: 2px;
+}
+
+QMessageBox {
+    background: #ffffff;
+}
+
+QSlider::groove:horizontal {
+        background-color: #efefef;
+        border: none;
+        height: 10px;
+}
+
+QSlider::handle:horizontal {
+        background-color: #9ed2ff;
+        width: 16px;
+        height: 20px;
+        line-height: 20px;
 }
