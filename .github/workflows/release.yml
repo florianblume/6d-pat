@@ -74,3 +74,30 @@ jobs:
           LICENSE
           README.md
           6DPAT-x86_64.AppImage
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set commit tag
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Print info
+        run: |
+             echo "Building docker for tag:"
+             echo ${{ env.RELEASE_VERSION }}
+      - uses: actions/checkout@v2
+        name: Check out code
+        with:
+          ref: refs/tags/${{ env.RELEASE_VERSION }}
+      - uses: docker/login-action@v1
+        # Somehow login of the build and push action doesn't work
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: mr-smithers-excellent/docker-build-push@v5
+        name: Build & push Docker image
+        with:
+          image: florianblume/6dpat
+          tags: ${{ env.RELEASE_VERSION }}, latest
+          registry: docker.io
+          dockerfile: docker/Dockerfile
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
