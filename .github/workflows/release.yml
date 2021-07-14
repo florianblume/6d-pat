@@ -58,7 +58,7 @@ jobs:
       run: |
         wget https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage
         chmod +x linuxdeployqt-5-x86_64.AppImage
-        ./linuxdeployqt-5-x86_64.AppImage appdir/6DPAT -extra-plugins=renderers
+        ./linuxdeployqt-5-x86_64.AppImage appdir/6DPAT -extra-plugins=renderers,sceneparsers
     - name: Run appimagetool
       run: |
         wget https://github.com/AppImage/AppImageKit/releases/download/12/appimagetool-x86_64.AppImage
