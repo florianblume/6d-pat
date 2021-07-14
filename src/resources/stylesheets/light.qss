@@ -46,7 +46,7 @@ QListView::item:selected {
 
 QScrollBar:horizontal {
     border: none;
-    background: #efefef;
+    background: #f9f9f9;
 }
 
 QScrollBar::handle:horizontal {
@@ -68,7 +68,7 @@ QScrollBar::sub-line {
 
 QScrollBar:vertical {
     border: none;
-    background: #efefef;
+    background: #f9f9f9;
     width: 10px;
 }
 
@@ -175,14 +175,18 @@ QMessageBox {
 }
 
 QSlider::groove:horizontal {
-        background-color: #efefef;
-        border: none;
-        height: 10px;
+    background-color: #efefef;
+    border: none;
+    height: 10px;
 }
 
 QSlider::handle:horizontal {
-        background-color: #9ed2ff;
-        width: 16px;
-        height: 20px;
-        line-height: 20px;
+    background-color: #9ed2ff;
+    width: 16px;
+    height: 20px;
+    line-height: 20px;
+}
+
+QLabel[accessibleName="m_fpsLabel"] {
+    color: rgb(0, 255, 0);
 }

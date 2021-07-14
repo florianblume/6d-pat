@@ -1,10 +1,11 @@
 #include "controller/maincontroller.hpp"
 
 int main(int argc, char *argv[]) {
+    // Need to set this before the application starts
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
     format.setStencilBufferSize(0);
-    format.setSamples(8);
+    format.setSamples(4);
     format.setProfile(QSurfaceFormat::CoreProfile);
     format.setVersion(3, 0);
     QSurfaceFormat::setDefaultFormat(format);

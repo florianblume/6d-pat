@@ -38,9 +38,9 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_renderSurfaceSelector(new Qt3DRender::QRenderSurfaceSelector)
       , m_renderTarget(new Qt3DRender::QRenderTarget)
       , m_colorOutput(new Qt3DRender::QRenderTargetOutput)
-      , m_colorTexture(new Qt3DRender::QTexture2D)
+      , m_colorTexture(new Qt3DRender::QTexture2DMultisample)
       , m_depthOutput(new Qt3DRender::QRenderTargetOutput)
-      , m_depthTexture(new Qt3DRender::QTexture2D)
+      , m_depthTexture(new Qt3DRender::QTexture2DMultisample)
       , m_initialized(false)
       , m_sceneRoot(new Qt3DCore::QEntity)
       // Main branch
@@ -71,6 +71,17 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_clickVisualizationCamera(new Qt3DRender::QCamera)
       , m_clickVisualizationNoDepthMask(new Qt3DRender::QNoDepthMask)
       , m_clickVisualizationRenderable(new ClickVisualizationRenderable) {
+    m_samples = QSurfaceFormat::defaultFormat().samples();
+    m_fpsLabel = new QLabel(this);
+    m_fpsLabel->setGeometry(QRect(10, 10, 80, 20));
+    m_fpsLabel->setAccessibleName("m_fpsLabel");
+    m_elapsedTimer.start();
+    connect(&m_updateFPSLabelTimer, &QTimer::timeout, [this](){
+        m_avgElapsed = m_fpsAlpha * m_avgElapsed + (1.0 - m_fpsAlpha) * m_elapsed;
+        m_fpsLabel->setText(QString::number((int)(1000.f / m_avgElapsed)) + " FPS");
+    });
+    m_updateFPSLabelTimer.setInterval(150);
+    m_updateFPSLabelTimer.start();
 }
 
 PoseViewer3DWidget::~PoseViewer3DWidget() {
@@ -81,6 +92,7 @@ PoseViewer3DWidget::~PoseViewer3DWidget() {
 }
 
 const char *vertexShaderSource =
+        "#version 150\n"
         "attribute highp vec3 vertex;\n"
         "attribute mediump vec2 texCoord;\n"
         "varying mediump vec2 texc;\n"
@@ -92,11 +104,18 @@ const char *vertexShaderSource =
         "}\n";
 
 const char *fragmentShaderSource =
-        "uniform sampler2D texture;\n"
+        "#version 150\n"
+        "uniform sampler2DMS texture;\n"
         "varying mediump vec2 texc;\n"
+        "uniform int samples;\n"
         "void main(void)\n"
         "{\n"
-        "    gl_FragColor = texture2D(texture, texc);\n"
+        "   ivec2 tc = ivec2(floor(textureSize(texture) * texc));\n"
+        "   vec4 color = vec4(0.0);\n"
+        "   for(int i = 0; i < samples; i++) {\n"
+        "       color += texelFetch(texture, tc, i);\n"
+        "   }\n"
+        "   gl_FragColor = color / float(samples);\n"
         "}\n";
 
 void PoseViewer3DWidget::initializeGL() {
@@ -155,6 +174,7 @@ void PoseViewer3DWidget::initOpenGL() {
 
     m_shaderProgram->bind();
     m_shaderProgram->setUniformValue("texture", 0);
+    m_shaderProgram->setUniformValue("samples", m_samples);
     m_shaderProgram->release();
 
 
@@ -184,7 +204,6 @@ void PoseViewer3DWidget::initQt3D() {
      * Setup of the framegraph that renders everything into
      * an offscreen texture.
      */
-    int samples = QSurfaceFormat::defaultFormat().samples();
 
     m_offscreenSurface->setFormat(QSurfaceFormat::defaultFormat());
     m_offscreenSurface->create();
@@ -205,7 +224,7 @@ void PoseViewer3DWidget::initQt3D() {
 
     // Hook the texture up to our output, and the output up to this object.
     m_colorOutput->setTexture(m_colorTexture);
-    m_colorTexture->setSamples(samples);
+    m_colorTexture->setSamples(m_samples);
     m_renderTarget->addOutput(m_colorOutput);
 
     // Setup depth
@@ -213,6 +232,7 @@ void PoseViewer3DWidget::initQt3D() {
 
     // Create depth texture
     m_depthTexture->setSize(width(), height());
+    m_depthTexture->setSamples(m_samples);
     m_depthTexture->setFormat(Qt3DRender::QAbstractTexture::DepthFormat);
     m_depthTexture->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
     m_depthTexture->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
@@ -221,10 +241,10 @@ void PoseViewer3DWidget::initQt3D() {
 
     // Hook up the depth texture
     m_depthOutput->setTexture(m_depthTexture);
-    m_depthTexture->setSamples(samples);
+    m_depthTexture->setSamples(m_samples);
     m_renderTarget->addOutput(m_depthOutput);
 
-    //m_renderStateSet->addRenderState(m_multisampleAntialiasing);
+    m_renderStateSet->addRenderState(m_multisampleAntialiasing);
     m_renderStateSet->addRenderState(m_depthTest);
     m_depthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
     m_renderTargetSelector->setParent(m_renderStateSet);
@@ -316,8 +336,13 @@ void PoseViewer3DWidget::initQt3D() {
 }
 
 void PoseViewer3DWidget::paintGL() {
+    m_elapsed = m_elapsedTimer.elapsed();
+    // Restart the timer
+    m_elapsedTimer.start();
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_MULTISAMPLE);
+    glDisable(GL_BLEND);
 
     m_shaderProgram->bind();
     {
@@ -330,7 +355,7 @@ void PoseViewer3DWidget::paintGL() {
         QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
         m_shaderProgram->setUniformValue("matrix", m);
-        glBindTexture(GL_TEXTURE_2D, m_colorTexture->handle().toUInt());
+        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_colorTexture->handle().toUInt());
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
     m_shaderProgram->release();
@@ -486,6 +511,17 @@ void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
         m_selectedPoseRenderable = newSelected;
     }
     m_selectedPose = selected;
+}
+
+void PoseViewer3DWidget::setSamples(int samples) {
+    m_samples = samples;
+    m_colorTexture->setSamples(samples);
+    m_depthTexture->setSamples(samples);
+    makeCurrent();
+    m_shaderProgram->bind();
+    m_shaderProgram->setUniformValue("samples", m_samples);
+    m_shaderProgram->release();
+    doneCurrent();
 }
 
 void PoseViewer3DWidget::setRenderingSize(int w, int h) {

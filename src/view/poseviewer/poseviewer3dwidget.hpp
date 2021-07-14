@@ -10,6 +10,7 @@
 #include "settings/settings.hpp"
 
 #include <QString>
+#include <QLabel>
 #include <QList>
 #include <QMap>
 #include <QSharedPointer>
@@ -21,6 +22,8 @@
 #include <QOffscreenSurface>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
+#include <QElapsedTimer>
+#include <QTimer>
 
 #include <QOpenGLWidget>
 #include <QOpenGLShaderProgram>
@@ -89,6 +92,7 @@ public:
     QSize imageSize() const;
 
     // Rendering related methods
+    void setSamples(int samples);
     void setRenderingPosition(float x, float y);
     void setRenderingPosition(QPoint position);
     void setAnimatedRenderingPosition(float x, float y);
@@ -141,6 +145,12 @@ private:
     // The size of the loaded image
     QSize m_imageSize;
     SettingsPtr m_settings;
+    QLabel *m_fpsLabel;
+    QElapsedTimer m_elapsedTimer;
+    qint64 m_elapsed = 1;
+    float m_avgElapsed = 1.0;
+    float m_fpsAlpha = 0.9;
+    QTimer m_updateFPSLabelTimer;
 
     /*!
      *
@@ -149,6 +159,8 @@ private:
      * of a quad in the paintGL() function.
      *
      */
+
+    int m_samples = 1;
 
     Qt3DCore::QAspectEngine *m_aspectEngine;
 
@@ -179,9 +191,9 @@ private:
     Qt3DRender::QRenderSurfaceSelector *m_renderSurfaceSelector;
     Qt3DRender::QRenderTarget *m_renderTarget;
     Qt3DRender::QRenderTargetOutput *m_colorOutput;
-    Qt3DRender::QTexture2D *m_colorTexture;
+    Qt3DRender::QTexture2DMultisample *m_colorTexture;
     Qt3DRender::QRenderTargetOutput *m_depthOutput;
-    Qt3DRender::QTexture2D *m_depthTexture;
+    Qt3DRender::QTexture2DMultisample *m_depthTexture;
 
     // OpenGL setup
     bool m_initialized;
