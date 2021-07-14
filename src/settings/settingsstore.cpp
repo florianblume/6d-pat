@@ -35,6 +35,8 @@ void SettingsStore::saveCurrentSettings() {
     settings.setValue(TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON,
                       Settings::MOUSE_BUTTONS[m_currentSettings->translatePoseRenderableMouseButton()]);
     settings.setValue(CLICK_3D_SIZE, m_currentSettings->click3DSize());
+    settings.setValue(MULTISAMPLING_SAMLPES, m_currentSettings->multisampleSamples());
+    settings.setValue(SHOW_FPS_LABEL, m_currentSettings->showFPSLabel());
     settings.endGroup();
 
     //! Persist the object color codes so that the user does not have to enter them at each program start
@@ -96,6 +98,8 @@ void SettingsStore::setCurrentSettings(const QString &identifier) {
                     settings.value(ROTATE_POSE_RENDERABLE_MOUSE_BUTTON,
                                    Settings::MOUSE_BUTTONS[Qt::RightButton]).toInt()));
     settingsPointer->setClick3DSize(settings.value(CLICK_3D_SIZE, 0.5).toFloat());
+    settingsPointer->setMultisampleSamples(settings.value(MULTISAMPLING_SAMLPES, 2).toInt());
+    settingsPointer->setShowFPSLabel(settings.value(SHOW_FPS_LABEL, true).toBool());
     // TODO read mouse buttons
     settings.endGroup();
 
@@ -136,3 +140,5 @@ const QString SettingsStore::ROTATE_POSE_RENDERABLE_MOUSE_BUTTON =
 const QString SettingsStore::TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON =
         "translatePoseRenderableMouseButton";
 const QString SettingsStore::CLICK_3D_SIZE = "click3dsize";
+const QString SettingsStore::MULTISAMPLING_SAMLPES = "multisampleSamples";
+const QString SettingsStore::SHOW_FPS_LABEL = "showFPSLabel";

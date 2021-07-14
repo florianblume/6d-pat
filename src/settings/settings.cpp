@@ -172,3 +172,19 @@ Settings::UsedLoadAndStoreStrategy Settings::usedLoadAndStoreStrategy() const {
 void Settings::setUsedLoadAndStoreStrategy(UsedLoadAndStoreStrategy usedLoadAndStoreStrategy) {
     m_usedLoadAndStoreStrategy = usedLoadAndStoreStrategy;
 }
+
+int Settings::multisampleSamples() const {
+    return m_multisampleSamples;
+}
+
+void Settings::setMultisampleSamples(int newMultisampleSamples) {
+    m_multisampleSamples = newMultisampleSamples;
+}
+
+bool Settings::showFPSLabel() const {
+    return m_showFPSLabel;
+}
+
+void Settings::setShowFPSLabel(bool newShowFPSLabel) {
+    m_showFPSLabel = newShowFPSLabel;
+}

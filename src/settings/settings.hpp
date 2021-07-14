@@ -82,6 +82,12 @@ public:
     UsedLoadAndStoreStrategy usedLoadAndStoreStrategy() const;
     void setUsedLoadAndStoreStrategy(UsedLoadAndStoreStrategy usedLoadAndStoreStrategy);
 
+    int multisampleSamples() const;
+    void setMultisampleSamples(int newMultisampleSamples);
+
+    bool showFPSLabel() const;
+    void setShowFPSLabel(bool newShowFPSLabel);
+
 private:
     QString m_identifier;
 
@@ -100,6 +106,8 @@ private:
     Qt::MouseButton m_translatePoseRenderableMouseButton;
     float m_click3DSize;
     Theme m_theme;
+    int m_multisampleSamples = 2;
+    bool m_showFPSLabel = true;
 };
 
 typedef QSharedPointer<Settings> SettingsPtr;

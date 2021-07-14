@@ -79,6 +79,8 @@ private:
     static const QString ROTATE_POSE_RENDERABLE_MOUSE_BUTTON;
     static const QString TRANSLATE_POSE_RENDERABLE_MOUSE_BUTTON;
     static const QString CLICK_3D_SIZE;
+    static const QString MULTISAMPLING_SAMLPES;
+    static const QString SHOW_FPS_LABEL;
 };
 
 typedef QSharedPointer<SettingsStore> SettingsStorePtr;

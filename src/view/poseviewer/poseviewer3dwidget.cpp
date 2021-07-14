@@ -372,6 +372,8 @@ void PoseViewer3DWidget::reset() {
 
 void PoseViewer3DWidget::setSettings(SettingsPtr settings) {
     this->m_settings = settings;
+    setSamples(settings->multisampleSamples());
+    m_fpsLabel->setVisible(settings->showFPSLabel());
 }
 
 void PoseViewer3DWidget::setClicks(const QList<QPoint> &clicks) {
@@ -514,14 +516,16 @@ void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
 }
 
 void PoseViewer3DWidget::setSamples(int samples) {
-    m_samples = samples;
-    m_colorTexture->setSamples(samples);
-    m_depthTexture->setSamples(samples);
-    makeCurrent();
-    m_shaderProgram->bind();
-    m_shaderProgram->setUniformValue("samples", m_samples);
-    m_shaderProgram->release();
-    doneCurrent();
+    m_samples = round(qPow(2, (double) samples));
+    m_colorTexture->setSamples(m_samples);
+    m_depthTexture->setSamples(m_samples);
+    if (m_initialized) {
+        makeCurrent();
+        m_shaderProgram->bind();
+        m_shaderProgram->setUniformValue("samples", m_samples);
+        m_shaderProgram->release();
+        doneCurrent();
+    }
 }
 
 void PoseViewer3DWidget::setRenderingSize(int w, int h) {

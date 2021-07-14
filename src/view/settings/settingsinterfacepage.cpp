@@ -1,7 +1,10 @@
-#include "settingsinterfacepage.hpp"
+﻿#include "settingsinterfacepage.hpp"
 #include "ui_settingsinterfacepage.h"
 #include "view/misc/displayhelper.hpp"
+
+#include <QtMath>
 #include <QFileDialog>
+#include <QDebug>
 
 SettingsInterfacePage::SettingsInterfacePage(QWidget *parent) :
     QWidget(parent),
@@ -37,6 +40,8 @@ void SettingsInterfacePage::setSettings(Settings* settings) {
     setComboBoxSelectedForMouseButton(ui->comboBoxRotatePose,
                                       settings->rotatePoseRenderableMouseButton());
     ui->doubleSpinBoxClick3DCircumference->setValue(settings->click3DSize());
+    ui->checkBoxShowFPSLabel->setChecked(settings->showFPSLabel());
+    ui->comboBoxMultisampling->setCurrentIndex(settings->multisampleSamples());
 }
 
 void SettingsInterfacePage::comboBoxAddCorrespondencePointSelectedIndexChanged(int index) {
@@ -73,6 +78,16 @@ void SettingsInterfacePage::doubleSpinBoxClick3DCircumferenceChanged(double valu
     if (settings) {
         settings->setClick3DSize(value);
     }
+}
+
+void SettingsInterfacePage::comboBoxMultisampleSamlpesSelectedIndexChanged(int index) {
+    if (settings) {
+        settings->setMultisampleSamples(index);
+    }
+}
+
+void SettingsInterfacePage::checkBoxShowFPSLabelStateChanged(int state) {
+    settings->setShowFPSLabel(state == Qt::Checked);
 }
 
 void SettingsInterfacePage::setComboBoxSelectedForMouseButton(QComboBox *comboBox, Qt::MouseButton button) {

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>280</height>
+    <height>350</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,13 +19,13 @@
   <property name="minimumSize">
    <size>
     <width>0</width>
-    <height>280</height>
+    <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>16777215</width>
-    <height>284</height>
+    <height>400</height>
    </size>
   </property>
   <property name="palette">
@@ -102,9 +102,26 @@
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>General</string>
+      <string>3D</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="doubleSpinBoxClick3DCircumference">
+        <property name="decimals">
+         <number>4</number>
+        </property>
+        <property name="value">
+         <double>0.500000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Multisampling</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="toolTip">
@@ -115,14 +132,41 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QDoubleSpinBox" name="doubleSpinBoxClick3DCircumference">
-        <property name="decimals">
-         <number>4</number>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="checkBoxShowFPSLabel">
+        <property name="text">
+         <string>Show FPS Label</string>
         </property>
-        <property name="value">
-         <double>0.500000000000000</double>
+        <property name="checked">
+         <bool>true</bool>
         </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="comboBoxMultisampling">
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Off</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>2x</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>4x</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>8x</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>
@@ -357,6 +401,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>checkBoxShowFPSLabel</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>SettingsInterfacePage</receiver>
+   <slot>checkBoxShowFPSLabelStateChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>108</x>
+     <y>114</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxMultisampling</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>SettingsInterfacePage</receiver>
+   <slot>comboBoxMultisampleSamlpesSelectedIndexChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>290</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>comboBoxAddCorrespondencePointSelectedIndexChanged(int)</slot>
@@ -365,5 +441,7 @@
   <slot>comboBoxTranslatePoseSelectedIndexChanged(int)</slot>
   <slot>comboBoxRotatePoseSelectedIndexChanged(int)</slot>
   <slot>doubleSpinBoxClick3DCircumferenceChanged(double)</slot>
+  <slot>comboBoxMultisampleSamlpesSelectedIndexChanged(int)</slot>
+  <slot>checkBoxShowFPSLabelStateChanged(int)</slot>
  </slots>
 </ui>
