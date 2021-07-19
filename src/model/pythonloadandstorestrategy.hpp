@@ -60,9 +60,9 @@ private:
 
 private:
     QString m_loadSaveScript;
-    py::module sys;
-    py::module script;
-    bool scriptInitialized = false;
+    py::module m_sys;
+    py::module m_script;
+    bool m_scriptInitialized = false;
 };
 
 typedef QSharedPointer<PythonLoadAndStoreStrategy> PythonLoadAndStoreStrategyPtr;

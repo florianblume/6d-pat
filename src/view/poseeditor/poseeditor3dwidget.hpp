@@ -13,6 +13,9 @@
 #include <Qt3DCore/QEntity>
 #include <Qt3DRender/QObjectPicker>
 #include <Qt3DExtras/QOrbitCameraController>
+#include <Qt3DRender/QRenderStateSet>
+#include <Qt3DRender/QDepthTest>
+#include <Qt3DRender/QMultiSampleAntiAliasing>
 
 class PoseEditor3DWindow : public Qt3DExtras::Qt3DWindow
 {
@@ -38,15 +41,19 @@ private Q_SLOTS:
     void onCurrentSettingsChanged(SettingsPtr settings);
 
 private:
-    Qt3DCore::QEntity *rootEntity;
-    Qt3DRender::QObjectPicker *picker;
-    Qt3DExtras::QOrbitCameraController *cameraController;
+    Qt3DCore::QEntity *m_rootEntity;
+    Qt3DRender::QObjectPicker *m_picker;
+    Qt3DExtras::QOrbitCameraController *m_cameraController;
+    Qt3DRender::QRenderStateSet *m_renderStateSet;
+    Qt3DRender::QMultiSampleAntiAliasing *m_multisampleAntialiasing;
+    Qt3DRender::QDepthTest *m_depthTest;
     ObjectModelRenderable *objectModelRenderable = Q_NULLPTR;
+    Qt3DCore::QEntity *m_lightEntity;
 
     SettingsStore *m_settingsStore = Q_NULLPTR;
 
-    bool mouseDown = false;
-    bool mouseMoved = false;
+    bool m_mouseDown = false;
+    bool m_mouseMoved = false;
 };
 
 #endif

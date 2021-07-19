@@ -23,12 +23,12 @@ public:
 public Q_SLOTS:
     void onAccepted(QAbstractButton* button);
 
+private Q_SLOTS:
+    void onListWidgetClicked(const QModelIndex &index);
+
 private:
     Ui::SettingsDialog *ui;
     SettingsStore *m_settingsStore;
-
-private Q_SLOTS:
-    void onListWidgetClicked(const QModelIndex &index);
 };
 
 #endif // SETTINGSDIALOG_H

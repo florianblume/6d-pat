@@ -56,6 +56,13 @@ QScrollBar::handle:horizontal {
     margin: 0 10px 0 10px;
 }
 
+QScrollBar::handle:vertical:disabled {
+    background: #aaaaaa;
+    min-height: 20px;
+    min-width: 30px;
+    margin: 0 10px 0 10px;
+}
+
 QScrollBar::add-line {
       border: none;
       background: white;
@@ -189,4 +196,9 @@ QSlider::handle:horizontal {
 
 QLabel[accessibleName="m_fpsLabel"] {
     color: rgb(0, 255, 0);
+}
+
+QToolTip {
+    background-color: white;
+    border: 1px solid #75c1ff;
 }

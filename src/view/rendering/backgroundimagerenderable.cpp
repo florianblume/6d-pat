@@ -8,30 +8,30 @@
 BackgroundImageRenderable::BackgroundImageRenderable(Qt3DCore::QNode *parent,
                                                      const QString &image)
     : Qt3DCore::QEntity(parent) {
-    mesh = new Qt3DExtras::QPlaneMesh();
-    mesh->setWidth(2);
-    mesh->setHeight(2);
-    material = new Qt3DExtras::QTextureMaterial();
-    texture = new Qt3DRender::QTexture2D();
-    textureImage = new Qt3DRender::QTextureImage();
-    textureImage->setSource(QUrl::fromLocalFile(image));
-    textureImage->setMirrored(false);
-    texture->addTextureImage(textureImage);
-    material->setTexture(texture);
-    transform = new Qt3DCore::QTransform();
-    transform->setRotationX(90);
-    objectPicker = new Qt3DRender::QObjectPicker();
-    connect(objectPicker, &Qt3DRender::QObjectPicker::clicked,
+    m_mesh = new Qt3DExtras::QPlaneMesh();
+    m_mesh->setWidth(2);
+    m_mesh->setHeight(2);
+    m_material = new Qt3DExtras::QTextureMaterial();
+    m_texture = new Qt3DRender::QTexture2D();
+    m_textureImage = new Qt3DRender::QTextureImage();
+    m_textureImage->setSource(QUrl::fromLocalFile(image));
+    m_textureImage->setMirrored(false);
+    m_texture->addTextureImage(m_textureImage);
+    m_material->setTexture(m_texture);
+    m_transform = new Qt3DCore::QTransform();
+    m_transform->setRotationX(90);
+    m_objectPicker = new Qt3DRender::QObjectPicker();
+    connect(m_objectPicker, &Qt3DRender::QObjectPicker::clicked,
             this, &BackgroundImageRenderable::clicked);
-    connect(objectPicker, &Qt3DRender::QObjectPicker::moved,
+    connect(m_objectPicker, &Qt3DRender::QObjectPicker::moved,
             this, &BackgroundImageRenderable::moved);
-    connect(objectPicker, &Qt3DRender::QObjectPicker::pressed,
+    connect(m_objectPicker, &Qt3DRender::QObjectPicker::pressed,
             this, &BackgroundImageRenderable::pressed);
-    objectPicker->setDragEnabled(true);
-    objectPicker->setHoverEnabled(true);
-    this->addComponent(mesh);
-    this->addComponent(material);
-    this->addComponent(transform);
+    m_objectPicker->setDragEnabled(true);
+    m_objectPicker->setHoverEnabled(true);
+    this->addComponent(m_mesh);
+    this->addComponent(m_material);
+    this->addComponent(m_transform);
     // This causes the object pickers of the poses to fire two signals when the mouse
     // is moved while being pressed: one for the pose and one for the background image.
     // This seems to be a bug in Qt3D and we disable the picking of the background image
@@ -51,5 +51,5 @@ BackgroundImageRenderable::~BackgroundImageRenderable() {
 }
 
 void BackgroundImageRenderable::setImage(const QString &image) {
-    textureImage->setSource(QUrl::fromLocalFile(image));
+    m_textureImage->setSource(QUrl::fromLocalFile(image));
 }

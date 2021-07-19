@@ -3,7 +3,7 @@
 
 #include "loadingiconmodel.hpp"
 #include "model/modelmanager.hpp"
-#include "view/gallery/rendering/offscreenengine.hpp"
+#include "view/rendering/offscreenengine.hpp"
 
 #include <QAbstractListModel>
 #include <QColor>
@@ -59,7 +59,7 @@ private:
     void createIndexMapping();
 
 private:
-    ModelManager* modelManager;
+    ModelManager* m_modelManager;
     QList<ObjectModelPtr> m_objectModels;
     QMap<QString,QImage> m_renderedObjectsModels;
     OffscreenEngine m_offscreenEngine{QSize(300, 300)};

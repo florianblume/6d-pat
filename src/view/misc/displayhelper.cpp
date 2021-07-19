@@ -5,6 +5,7 @@
 #include <QVariant>
 #include <QDebug>
 #include <QApplication>
+#include <QtMath>
 
 QColor DisplayHelper::colorForPosePointIndex(int index) {
     switch(index) {
@@ -121,4 +122,8 @@ DisplayHelper::QMessageBoxPtr DisplayHelper::messageBox(QWidget* parent,
     QPushButton *button = _messageBox->addButton(button2Text, button2Role);
     button->setIcon(awesomeIconForButtonRole(button2Role));
     return _messageBox;
+}
+
+int DisplayHelper::indexToMultisampleSamlpes(int index) {
+    return round(qPow(2, (double) index));
 }

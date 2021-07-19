@@ -5,32 +5,32 @@
 
 GalleryImageModel::GalleryImageModel(ModelManager* modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
-    this->modelManager = modelManager;
-    imagesCache = modelManager->images();
+    this->m_modelManager = modelManager;
+    m_imagesCache = modelManager->images();
     resizeImages();
     connect(modelManager, &ModelManager::dataChanged,
             this, &GalleryImageModel::onDataChanged);
 }
 
 GalleryImageModel::~GalleryImageModel() {
-    resizeImagesThreadpool.killTimer(0);
-    resizeImagesRunnable->stop();
-    resizeImagesThreadpool.waitForDone();
-    delete resizeImagesRunnable;
+    m_resizeImagesThreadpool.killTimer(0);
+    m_resizeImagesRunnable->stop();
+    m_resizeImagesThreadpool.waitForDone();
+    delete m_resizeImagesRunnable;
 }
 
 QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
     // Just in case for some weird asynchronous behavior
     // Not entirely thread-safe but might catch some errors
-    if (index.row() >= imagesCache.size())
+    if (index.row() >= m_imagesCache.size())
         return QVariant();
 
-    QString imagePath = imagesCache[index.row()]->imagePath();
+    QString imagePath = m_imagesCache[index.row()]->imagePath();
     if (role == Qt::DecorationRole) {
-        if (resizedImagesCache.contains(imagePath)) {
-            return QIcon(QPixmap::fromImage(resizedImagesCache[imagePath]));
+        if (m_resizedImagesCache.contains(imagePath)) {
+            return QIcon(QPixmap::fromImage(m_resizedImagesCache[imagePath]));
         } else {
-            return QIcon(currentLoadingAnimationFrame);
+            return QIcon(m_currentLoadingAnimationFrame);
         }
     } else if (role == Qt::ToolTipRole) {
         return imagePath;
@@ -39,37 +39,37 @@ QVariant GalleryImageModel::data(const QModelIndex &index, int role) const {
 }
 
 int GalleryImageModel::rowCount(const QModelIndex &/* parent */) const {
-    return imagesCache.size();
+    return m_imagesCache.size();
 }
 
 void GalleryImageModel::resizeImages() {
-    if (!resizeImagesRunnable.isNull()) {
-        resizeImagesRunnable->stop();
-        resizeImagesThreadpool.clear();
-        resizeImagesThreadpool.waitForDone();
+    if (!m_resizeImagesRunnable.isNull()) {
+        m_resizeImagesRunnable->stop();
+        m_resizeImagesThreadpool.clear();
+        m_resizeImagesThreadpool.waitForDone();
     }
-    resizedImagesCache.clear();
-    resizeImagesRunnable = new ResizeImagesRunnable(imagesCache);
-    connect(resizeImagesRunnable, &ResizeImagesRunnable::imageResized,
+    m_resizedImagesCache.clear();
+    m_resizeImagesRunnable = new ResizeImagesRunnable(m_imagesCache);
+    connect(m_resizeImagesRunnable, &ResizeImagesRunnable::imageResized,
             this, &GalleryImageModel::onImageResized);
-    resizeImagesThreadpool.start(resizeImagesRunnable);
+    m_resizeImagesThreadpool.start(m_resizeImagesRunnable);
 }
 
 void GalleryImageModel::onImageResized(int imageIndex, const QString &imagePath, const QImage &resizedImage) {
-    resizedImagesCache[imagePath] = resizedImage;
-    if (imageIndex == imagesCache.size()) {
-        m_updateTimer.stop();
+    m_resizedImagesCache[imagePath] = resizedImage;
+    if (imageIndex == m_imagesCache.size()) {
+        m_loadingIconUpdateTimer.stop();
     }
 }
 
 void GalleryImageModel::onDataChanged(int data) {
     // Check if images were changed
     if (data & Data::Images) {
-        m_updateTimer.start();
-        imagesCache = modelManager->images();
+        m_loadingIconUpdateTimer.start();
+        m_imagesCache = m_modelManager->images();
         resizeImages();
         QModelIndex top = index(0, 0);
-        QModelIndex bottom = index(imagesCache.size() - 1, 0);
+        QModelIndex bottom = index(m_imagesCache.size() - 1, 0);
         Q_EMIT dataChanged(top, bottom);
     }
 }

@@ -35,6 +35,7 @@ public:
     Qt3DRender::QSceneLoader::Status status() const;
     bool isSelected() const;
     bool isHovered() const;
+    bool hasTextureMaterial() const;
 
 public Q_SLOTS:
     void setObjectModel(const ObjectModel &m_objectModel);
@@ -48,14 +49,23 @@ private Q_SLOTS:
     void onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status);
 
 private:
+    void initialize();
+    QList<ObjectModelRenderableMaterial*> traverseNodes(Qt3DCore::QNode *currentNode);
+
+private:
     bool m_selected = false;
-    QTimer timer;
+    QTimer m_timer;
 
     QPointer<Qt3DRender::QSceneLoader> m_sceneLoader;
     QPointer<ObjectModelRenderableMaterial> m_material;
+    QList<Qt3DRender::QParameter*> m_opacityParameters;
+    QList<Qt3DRender::QParameter*> m_highlightedOrSelectedParameters;
     Qt3DRender::QObjectPicker *m_picker;
 
-    void initialize();
+    QVector4D m_selectedColor = QVector4D(0.15, 0.15, 0.15, 0.0);
+    QVector4D m_highlightedColor = QVector4D(0.1, 0.1, 0.1, 0.0);
+
+    bool m_hasTextureMaterial = false;
 };
 
 #endif // OBJECTRENDERABLE_H

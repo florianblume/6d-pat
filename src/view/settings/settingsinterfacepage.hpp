@@ -37,7 +37,7 @@ private:
 
 private:
     Ui::SettingsInterfacePage *ui;
-    Settings *settings = Q_NULLPTR;
+    Settings *m_settings = Q_NULLPTR;
     QStringListModel *m_mouseButtonModel;
 };
 

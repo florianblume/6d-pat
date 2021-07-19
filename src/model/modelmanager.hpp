@@ -38,8 +38,7 @@ public:
 
     enum State {
         Loading,
-        // Weird name to prevent issues with the typedef
-        ErrorOccured,
+        Error,
         Ready
     };
 

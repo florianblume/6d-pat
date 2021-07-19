@@ -29,34 +29,34 @@ const char * KEY_POSE_ID = "pose_id";
 
 PythonLoadAndStoreStrategy::PythonLoadAndStoreStrategy() {
     py::initialize_interpreter();
-    sys  = py::module::import("sys");
+    m_sys  = py::module::import("sys");
 }
 
 PythonLoadAndStoreStrategy::~PythonLoadAndStoreStrategy() {
     // Necessary to avoid crashes
-    script.dec_ref();
+    m_script.dec_ref();
     py::finalize_interpreter();
 }
 
 void PythonLoadAndStoreStrategy::applySettings(SettingsPtr settings) {
     m_loadSaveScript = settings->loadSaveScriptPath();
     QFileInfo fileInfo(m_loadSaveScript);
-    if (scriptInitialized) {
+    if (m_scriptInitialized) {
         // Remove inserted path
         //sys.attr("path").attr("remove")(0);
     }
     try {
         QString dirname = fileInfo.dir().absolutePath();
-        sys.attr("path").attr("insert")(0, dirname.toUtf8().data());
+        m_sys.attr("path").attr("insert")(0, dirname.toUtf8().data());
         QString filename = fileInfo.fileName();
-        if (scriptInitialized) {
-            script.reload();
+        if (m_scriptInitialized) {
+            m_script.reload();
         } else {
-            script = py::module::import(filename.mid(0, filename.length() - 3).toUtf8().data());
+            m_script = py::module::import(filename.mid(0, filename.length() - 3).toUtf8().data());
         }
-        scriptInitialized = true;
+        m_scriptInitialized = true;
     } catch (py::error_already_set &e) {
-        scriptInitialized = false;
+        m_scriptInitialized = false;
         QString message = "Failed to load the requested Pyton script: ";
         message += QString::fromUtf8(e.what());
         Q_EMIT error(tr(message.toStdString().c_str()));
@@ -293,14 +293,14 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
         return images;
     }
 
-    if (!scriptInitialized) {
+    if (!m_scriptInitialized) {
         // There was a previous error while loading the script (see applySettings)
         Q_EMIT error(tr("The Python script could not be loaded (see previous errors)."));
         return images;
     }
 
     try {
-        py::object result = script.attr(KEY_LOAD_IMAGES)(m_imagesPath.toUtf8().data(), py::none());
+        py::object result = m_script.attr(KEY_LOAD_IMAGES)(m_imagesPath.toUtf8().data(), py::none());
 
         if (py::isinstance<py::list>(result)) {
             py::list result_list = py::list(result);
@@ -378,14 +378,14 @@ QList<ObjectModelPtr> PythonLoadAndStoreStrategy::loadObjectModels() {
         return objectModels;
     }
 
-    if (!scriptInitialized) {
+    if (!m_scriptInitialized) {
         // There was a previous error while loading the script (see applySettings)
         Q_EMIT error(tr("The Python script could not be loaded (see previous errors)."));
         return objectModels;
     }
 
     try {
-        py::object result = script.attr(KEY_LOAD_OBJECT_MODELS)(m_objectModelsPath.toUtf8().data());
+        py::object result = m_script.attr(KEY_LOAD_OBJECT_MODELS)(m_objectModelsPath.toUtf8().data());
 
         if (py::isinstance<py::list>(result)) {
             py::list result_list = py::list(result);
@@ -446,7 +446,7 @@ bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool d
         return false;
     }
 
-    if (!scriptInitialized) {
+    if (!m_scriptInitialized) {
         // There was a previous error while loading the script (see applySettings)
         Q_EMIT error(tr("The Python script could not be loaded (see previous errors)."));
         return false;
@@ -469,7 +469,7 @@ bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool d
             translation.append(objectImagePose.position()[0]);
 
         }
-        py::object result = script.attr(KEY_PERSIST_POSE)(m_posesFilePath.toStdString(),
+        py::object result = m_script.attr(KEY_PERSIST_POSE)(m_posesFilePath.toStdString(),
                                                             poseIdD.toStdString(),
                                                             imageID.toStdString(),
                                                             imagePath.toStdString(),
@@ -511,7 +511,7 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
         return poses;
     }
 
-    if (!scriptInitialized) {
+    if (!m_scriptInitialized) {
         // There was a previous error while loading the script (see applySettings)
         Q_EMIT error(tr("The Python script could not be loaded (see previous errors)."));
         return poses;
@@ -538,7 +538,7 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
     }
 
     try {
-        py::object result = script.attr(KEY_LOAD_POSES)(m_posesFilePath.toUtf8().data());
+        py::object result = m_script.attr(KEY_LOAD_POSES)(m_posesFilePath.toUtf8().data());
 
         if (py::isinstance<py::list>(result)) {
             py::list result_list = py::list(result);

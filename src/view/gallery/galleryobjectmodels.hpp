@@ -13,7 +13,7 @@ public:
     void selectObjectModelByID(const ObjectModel &objectModel, bool emitSignals = false);
 
 private:
-    bool ignoreSelectionChanges = false;
+    bool m_ignoreSelectionChanges = false;
 };
 
 #endif // OBJECTMODELSGALLERY_H

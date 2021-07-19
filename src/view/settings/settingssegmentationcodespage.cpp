@@ -21,14 +21,14 @@ SettingsSegmentationCodesPage::~SettingsSegmentationCodesPage() {
 
 void SettingsSegmentationCodesPage::setSettingsAndObjectModels(Settings *preferences,
                                                                const QList<ObjectModelPtr> &objectModels) {
-    this->settings = preferences;
-    this->objectModels = objectModels;
+    this->m_settings = preferences;
+    this->m_objectModels = objectModels;
 
     if (!preferences)
         return;
 
     int i = 0;
-    for(const ObjectModelPtr &objectModel : this->objectModels) {
+    for(const ObjectModelPtr &objectModel : this->m_objectModels) {
         const QString &code = preferences->segmentationCodeForObjectModel(objectModel->path());
         ui->tableSegmentationCodes->insertRow(i);
         ui->tableSegmentationCodes->setItem(i, 0, new QTableWidgetItem(objectModel->path()));
@@ -77,16 +77,16 @@ void SettingsSegmentationCodesPage::showColorDialog(int index) {
         return;
 
     QString colorCode = GeneralHelper::segmentationCodeFromColor(color);
-    const ObjectModelPtr &objectModel = objectModels.at(index);
-    settings->setSegmentationCodeForObjectModel(objectModel->path(), colorCode);
+    const ObjectModelPtr &objectModel = m_objectModels.at(index);
+    m_settings->setSegmentationCodeForObjectModel(objectModel->path(), colorCode);
     QTableWidgetItem *item = ui->tableSegmentationCodes->item(index, 1);
     item->setText("");
     item->setBackground(color);
 }
 
 void SettingsSegmentationCodesPage::removeColor(int index) {
-    const ObjectModelPtr &objectModel = objectModels.at(index);
-    settings->removeSegmentationCodeForObjectModel(objectModel->path());
+    const ObjectModelPtr &objectModel = m_objectModels.at(index);
+    m_settings->removeSegmentationCodeForObjectModel(objectModel->path());
     QTableWidgetItem *item = ui->tableSegmentationCodes->item(index, 1);
     item->setBackground(QColor(255, 255, 255));
     item->setText("Undefined");

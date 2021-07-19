@@ -704,6 +704,9 @@
               <property name="enabled">
                <bool>false</bool>
               </property>
+              <property name="toolTip">
+               <string>Copies all poses from the selected image to the current one.</string>
+              </property>
               <property name="text">
                <string>Copy</string>
               </property>

@@ -1,7 +1,8 @@
-#include "objectmodelrenderable.hpp"
+﻿#include "objectmodelrenderable.hpp"
 
 #include <QColor>
 #include <QUrl>
+#include <QRgb>
 
 #include <Qt3DCore/QNode>
 #include <Qt3DCore/QNodeVector>
@@ -13,6 +14,7 @@
 #include <Qt3DRender/QGeometryRenderer>
 #include <Qt3DRender/QGeometry>
 #include <Qt3DRender/QAttribute>
+#include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DExtras/QDiffuseMapMaterial>
 #include <Qt3DExtras/QDiffuseSpecularMapMaterial>
 #include <Qt3DExtras/QNormalDiffuseMapMaterial>
@@ -36,6 +38,10 @@ void ObjectModelRenderable::initialize() {
     connect(m_sceneLoader, &Qt3DRender::QSceneLoader::statusChanged, this, &ObjectModelRenderable::onSceneLoaderStatusChanged);
 }
 
+bool ObjectModelRenderable::hasTextureMaterial() const {
+    return m_hasTextureMaterial;
+}
+
 Qt3DRender::QSceneLoader::Status ObjectModelRenderable::status() const {
     return m_sceneLoader->status();
 }
@@ -53,6 +59,8 @@ bool ObjectModelRenderable::isHovered() const {
 
 void ObjectModelRenderable::setObjectModel(const ObjectModel &objectModel) {
     m_selected = false;
+    m_opacityParameters.clear();
+    m_highlightedOrSelectedParameters.clear();
     m_sceneLoader->setEnabled(false);
     m_sceneLoader->setSource(QUrl::fromLocalFile(objectModel.absolutePath()));
 }
@@ -65,22 +73,34 @@ void ObjectModelRenderable::setClicks(QList<QVector3D> clicks) {
 }
 
 void ObjectModelRenderable::setSelected(bool selected) {
-    if (!m_material.isNull()) {
-        m_material->setSelected(selected);
+    QVector4D color;
+    if (selected) {
+        color = m_selectedColor;
+    } else {
+        color = QVector4D(0.0, 0.0, 0.0, 0.0);
+    }
+    for (Qt3DRender::QParameter *parameter : m_highlightedOrSelectedParameters) {
+        parameter->setValue(color);
     }
     m_selected = selected;
     Q_EMIT selectedChanged(selected);
 }
 
 void ObjectModelRenderable::setHovered(bool hovered) {
-    if (!m_material.isNull()) {
-        m_material->setHovered(hovered);
+    QVector4D color;
+    if (hovered) {
+        color = m_highlightedColor;
+    } else {
+        color = QVector4D(0.0, 0.0, 0.0, 0.0);
+    }
+    for (Qt3DRender::QParameter *parameter : m_highlightedOrSelectedParameters) {
+        parameter->setValue(color);
     }
 }
 
 void ObjectModelRenderable::setOpacity(float opacity) {
-    if (!m_material.isNull()) {
-        m_material->setOpacity(opacity);
+    for (Qt3DRender::QParameter *parameter : m_opacityParameters) {
+        parameter->setValue(opacity);
     }
 }
 
@@ -88,6 +108,38 @@ void ObjectModelRenderable::setClickCircumference(float circumference) {
     if (!m_material.isNull()) {
         m_material->setClickCirumference(circumference);
     }
+}
+
+QList<ObjectModelRenderableMaterial*> ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
+    QList<ObjectModelRenderableMaterial*> materials;
+    for (Qt3DCore::QNode *node : currentNode->childNodes()) {
+        if (Qt3DRender::QMaterial* material = dynamic_cast<Qt3DRender::QMaterial *>(node)) {
+            Qt3DRender::QParameter *opacityParameter = new Qt3DRender::QParameter();
+            opacityParameter->setName("opacity");
+            opacityParameter->setValue(1.0);
+            material->addParameter(opacityParameter);
+            m_opacityParameters.append(opacityParameter);
+            Qt3DRender::QParameter *highlightedOrSelectedParameter = new Qt3DRender::QParameter();
+            highlightedOrSelectedParameter->setName("highlightedOrSelectedColor");
+            highlightedOrSelectedParameter->setValue(QVector4D(0.f, 0.f, 0.f, 0.f));
+            material->addParameter(highlightedOrSelectedParameter);
+            m_opacityParameters.append(highlightedOrSelectedParameter);
+        }
+        if (Qt3DExtras::QPhongMaterial* material = dynamic_cast<Qt3DExtras::QPhongMaterial *>(node)) {
+            material->setAmbient(QColor::fromRgb(10, 10, 10));
+            material->setShininess(0.0);
+        }
+        if (Qt3DRender::QShaderProgramBuilder *shaderProgramBuilder =
+                dynamic_cast<Qt3DRender::QShaderProgramBuilder*>(node)) {
+            QObject::connect(shaderProgramBuilder, &Qt3DRender::QShaderProgramBuilder::fragmentShaderCodeChanged, [shaderProgramBuilder](){
+                //qDebug() << QString(shaderProgramBuilder->fragmentShaderCode());
+            });
+            shaderProgramBuilder->setFragmentShaderGraph(QUrl(QStringLiteral("qrc:/shaders/phong.frag.json")));
+
+        }
+        traverseNodes(node);
+    }
+    return materials;
 }
 
 void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status) {
@@ -98,56 +150,7 @@ void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader:
     if (status == Qt3DRender::QSceneLoader::Ready) {
         m_sceneLoader->setEnabled(true);
         Qt3DCore::QEntity *entity = m_sceneLoader->entities()[0];
-        Qt3DCore::QNodeVector children = entity->childNodes();
-        for (Qt3DCore::QNode *node : children) {
-            Qt3DCore::QNodeVector subChildren = node->childNodes();
-            for (Qt3DCore::QNode *subChild : subChildren) {
-                if (Qt3DExtras::QPhongMaterial * phongMaterial = dynamic_cast<Qt3DExtras::QPhongMaterial *>(subChild)) {
-                    // In this case, the scene loader loaded a model without texture. We'll replace that phong material
-                    // with our own that can visualize clicks.
-                    Qt3DCore::QEntity *phongMaterialParent = (Qt3DCore::QEntity *) phongMaterial->parent();
-                    phongMaterialParent->removeComponent(phongMaterial);
-
-                    m_material = new ObjectModelRenderableMaterial(phongMaterialParent, false);
-                    m_material->setSpecular(phongMaterial->specular());
-                    // Better visible without shininess
-                    m_material->setShininess(0.f);
-                    m_material->setSelected(m_selected);
-
-                    phongMaterialParent->addComponent(m_material);
-                }
-
-                Qt3DCore::QEntity *subChildEntity = (Qt3DCore::QEntity *)subChild;
-                Qt3DCore::QNodeVector subSubChildren = subChild->childNodes();
-                for (Qt3DCore::QNode *subSubChild : subSubChildren) {
-                    bool isMaterial = false;
-                    // In this case we have a textured object
-                    // This is ugly but as long as the shader graphs don't support arrays (i.e. vec3 clicks[10]) we have to check
-                    // all the default materials so that the objects get rendered properly
-                    if (dynamic_cast<Qt3DExtras::QDiffuseMapMaterial *>(subSubChild) ||
-                        dynamic_cast<Qt3DExtras::QDiffuseSpecularMapMaterial *>(subSubChild) ||
-                        dynamic_cast<Qt3DExtras::QNormalDiffuseMapMaterial *>(subSubChild) ||
-                        dynamic_cast<Qt3DExtras::QNormalDiffuseMapAlphaMaterial *>(subSubChild) ||
-                        dynamic_cast<Qt3DExtras::QNormalDiffuseSpecularMapMaterial *>(subSubChild)) {
-                        m_material = new ObjectModelRenderableMaterial(subChildEntity, true);
-                        m_material->setAmbient(subSubChild->property("ambient").value<QColor>());
-                        m_material->setDiffuseTexture(subSubChild->property("diffuse").value<Qt3DRender::QAbstractTexture*>());
-                        m_material->setSpecular(subSubChild->property("specular").value<QColor>());
-                        // Better visible without shininess
-                        m_material->setShininess(0.f);
-                        m_material->setTextureScale(subSubChild->property("textureScale").toFloat());
-                        m_material->setSelected(m_selected);
-                        isMaterial = true;
-                    }
-                    if (isMaterial) {
-                        Qt3DCore::QComponent *oldMaterial = dynamic_cast<Qt3DCore::QComponent *>(subSubChild);
-                        subChildEntity->removeComponent(oldMaterial);
-                        oldMaterial->deleteLater();
-                        subChildEntity->addComponent(m_material);
-                    }
-                }
-            }
-        }
+        traverseNodes(entity);
     }
     Q_EMIT statusChanged(status);
 }

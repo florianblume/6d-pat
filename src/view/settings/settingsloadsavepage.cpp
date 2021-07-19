@@ -21,7 +21,7 @@ SettingsLoadSavePage::~SettingsLoadSavePage() {
 }
 
 void SettingsLoadSavePage::setSettings(Settings *settings) {
-    this->settings = settings;
+    this->m_settings = settings;
     ui->radioButtonDefault->setChecked(settings->usedLoadAndStoreStrategy()
                                        == Settings::UsedLoadAndStoreStrategy::Default);
     ui->radioButtonPythonScript->setChecked(settings->usedLoadAndStoreStrategy()
@@ -32,23 +32,23 @@ void SettingsLoadSavePage::setSettings(Settings *settings) {
 }
 
 void SettingsLoadSavePage::radioButtonDefaultClicked() {
-    settings->setUsedLoadAndStoreStrategy(Settings::UsedLoadAndStoreStrategy::Default);
+    m_settings->setUsedLoadAndStoreStrategy(Settings::UsedLoadAndStoreStrategy::Default);
 }
 
 void SettingsLoadSavePage::radioButtonPythonScriptClicked() {
-    settings->setUsedLoadAndStoreStrategy(Settings::UsedLoadAndStoreStrategy::Python);
+    m_settings->setUsedLoadAndStoreStrategy(Settings::UsedLoadAndStoreStrategy::Python);
 }
 
 void SettingsLoadSavePage::buttonPythonScriptClicked() {
     QString newPath;
-    if (settings->loadSaveScriptPath() != Global::NO_PATH) {
-        newPath = openFileDialogForPath(settings->loadSaveScriptPath());
+    if (m_settings->loadSaveScriptPath() != Global::NO_PATH) {
+        newPath = openFileDialogForPath(m_settings->loadSaveScriptPath());
     } else {
         newPath = openFileDialogForPath("");
     }
     if (newPath.compare("") != 0) {
         ui->editPythonScriptPath->setText(newPath);
-        settings->setLoadSaveScriptPath(newPath);
+        m_settings->setLoadSaveScriptPath(newPath);
         ui->radioButtonPythonScript->setChecked(true);
     }
 }

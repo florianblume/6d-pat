@@ -19,6 +19,7 @@ BreadcrumbView::BreadcrumbView(QWidget *parent, const QString &initialPath)
 }
 
 BreadcrumbView::~BreadcrumbView() {
+    delete ui;
 }
 
 void BreadcrumbView::setCurrentPath(const QString &newPathToShow) {

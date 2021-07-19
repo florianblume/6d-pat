@@ -18,9 +18,18 @@
 #include <Qt3DRender/qpickingsettings.h>
 
 PoseEditor3DWindow::PoseEditor3DWindow()
-    : Qt3DExtras::Qt3DWindow() {
-    rootEntity = new Qt3DCore::QEntity();
-    setRootEntity(rootEntity);
+    : Qt3DExtras::Qt3DWindow()
+    , m_renderStateSet(new Qt3DRender::QRenderStateSet)
+    , m_multisampleAntialiasing(new Qt3DRender::QMultiSampleAntiAliasing)
+    , m_depthTest(new Qt3DRender::QDepthTest) {
+    m_rootEntity = new Qt3DCore::QEntity();
+    setRootEntity(m_rootEntity);
+
+    m_depthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
+    m_renderStateSet->addRenderState(m_depthTest);
+    m_renderStateSet->addRenderState(m_multisampleAntialiasing);
+    activeFrameGraph()->setParent(m_renderStateSet);
+    setActiveFrameGraph(m_renderStateSet);
 
     Qt3DRender::QCamera *cameraEntity = this->camera();
 
@@ -29,35 +38,35 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     cameraEntity->setUpVector(QVector3D(0, 1, 0));
     cameraEntity->setViewCenter(QVector3D(0, 0, 0));
 
-    cameraController = new Qt3DExtras::QOrbitCameraController(rootEntity);
-    cameraController->setCamera(camera());
+    m_cameraController = new Qt3DExtras::QOrbitCameraController(m_rootEntity);
+    m_cameraController->setCamera(camera());
 
-    Qt3DCore::QEntity *lightEntity = new Qt3DCore::QEntity(rootEntity);
-    Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(lightEntity);
+    m_lightEntity = new Qt3DCore::QEntity(m_rootEntity);
+    Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(m_lightEntity);
     light->setColor("white");
-    light->setIntensity(1);
-    lightEntity->addComponent(light);
-    Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
+    light->setIntensity(0.5);
+    m_lightEntity->addComponent(light);
+    Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(m_lightEntity);
     lightTransform->setTranslation(cameraEntity->position());
-    lightEntity->addComponent(lightTransform);
+    m_lightEntity->addComponent(lightTransform);
     connect(camera(), &Qt3DRender::QCamera::positionChanged,
             [lightTransform, this](){lightTransform->setTranslation(this->camera()->position());});
 
     this->renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
 
-    picker = new Qt3DRender::QObjectPicker(rootEntity);
-    picker->setHoverEnabled(true);
-    picker->setDragEnabled(true);
-    rootEntity->addComponent(picker);
-    connect(picker, &Qt3DRender::QObjectPicker::clicked,
+    m_picker = new Qt3DRender::QObjectPicker(m_rootEntity);
+    m_picker->setHoverEnabled(true);
+    m_picker->setDragEnabled(true);
+    m_rootEntity->addComponent(m_picker);
+    connect(m_picker, &Qt3DRender::QObjectPicker::clicked,
            [this](Qt3DRender::QPickEvent *pickEvent){
-        if (!mouseMoved) {
+        if (!m_mouseMoved) {
             Q_EMIT positionClicked(pickEvent->localIntersection());
         }
-        mouseMoved = false;
-        mouseDown = false;
+        m_mouseMoved = false;
+        m_mouseDown = false;
     });
-    connect(picker, &Qt3DRender::QObjectPicker::moved,
+    connect(m_picker, &Qt3DRender::QObjectPicker::moved,
             this, &PoseEditor3DWindow::onPoseRenderableMoved);
 
 }
@@ -70,6 +79,7 @@ PoseEditor3DWindow::~PoseEditor3DWindow() {
 }
 
 void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status status) {
+    m_lightEntity->setEnabled(!objectModelRenderable->hasTextureMaterial());
     camera()->viewAll();
     if (status == Qt3DRender::QSceneLoader::Ready) {
         objectModelRenderable->setClickCircumference(m_settingsStore->currentSettings()->click3DSize());
@@ -77,8 +87,8 @@ void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoade
 }
 
 void PoseEditor3DWindow::onPoseRenderableMoved() {
-    if (mouseDown) {
-        mouseMoved = true;
+    if (m_mouseDown) {
+        m_mouseMoved = true;
     }
 }
 
@@ -93,7 +103,7 @@ void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
         objectModelRenderable->setParent((Qt3DCore::QNode*) 0);
         delete objectModelRenderable;
     }
-    objectModelRenderable = new ObjectModelRenderable(rootEntity);
+    objectModelRenderable = new ObjectModelRenderable(m_rootEntity);
     // Needs to be placed after setRootEntity on the window because it doesn't work otherwise -> leave it here
     connect(objectModelRenderable, &ObjectModelRenderable::statusChanged, this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
     objectModelRenderable->setObjectModel(objectModel);
@@ -129,5 +139,5 @@ void PoseEditor3DWindow::setSettingsStore(SettingsStore *settingsStore) {
 }
 
 void PoseEditor3DWindow::mousePressEvent(QMouseEvent *e) {
-    mouseDown = true;
+    m_mouseDown = true;
 }

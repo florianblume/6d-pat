@@ -154,26 +154,26 @@ private:
 private:
     Ui::MainWindow *ui;
 
-    bool showInitialized = false;
+    bool m_showInitialized = false;
 
-    TutorialScreen *tutorialScreen = Q_NULLPTR;
+    TutorialScreen *m_tutorialScreen = Q_NULLPTR;
 
     // The label that displays the status of the program, like how many pose points have
     // been added, etc.
-    QLabel *statusBarLabel = new QLabel();
+    QLabel *m_statusBarLabel = new QLabel();
 
-    SettingsStore *settingsStore = Q_NULLPTR;
-    ModelManager *modelManager;
+    SettingsStore *m_settingsStore = Q_NULLPTR;
+    ModelManager *m_modelManager;
 
-    QProgressDialog *progressDialog;
+    QProgressDialog *m_progressDialog;
 
-    GalleryImageModel *galleryImageModel = Q_NULLPTR;
-    GalleryObjectModelModel *galleryObjectModelModel = Q_NULLPTR;
+    GalleryImageModel *m_galleryImageModel = Q_NULLPTR;
+    GalleryObjectModelModel *m_galleryObjectModelModel = Q_NULLPTR;
 
     // To indicate whether to Q_EMIT signal pose
     // creation aborted when the user clicks anywhere on
     // the window
-    bool poseCreationInProgress = false;
+    bool m_poseCreationInProgress = false;
 
     // The name of the settings - QT requests this to store settings "offline"
     static const QString SETTINGS_NAME;

@@ -109,33 +109,33 @@ private:
 private:
     Ui::PoseEditor *ui;
 
-    PoseEditor3DWindow *poseEditor3DWindow;
+    PoseEditor3DWindow *m_poseEditor3DWindow;
 
-    QList<ImagePtr> images;
-    ImagePtr currentImage;
-    ObjectModelPtr currentObjectModel;
-    QList<PosePtr> poses;
-    PosePtr currentlySelectedPose;
-    PosePtr previouslySelectedPose;
+    QList<ImagePtr> m_images;
+    ImagePtr m_currentImage;
+    ObjectModelPtr m_currentObjectModel;
+    QList<PosePtr> m_poses;
+    PosePtr m_currentlySelectedPose;
+    PosePtr m_previouslySelectedPose;
 
     // When the pose is selected by the pose viewer we still emit the pose selected signal
     // which causes the program to crash
-    bool doNotEmitPoseSelected = false;
+    bool m_doNotEmitPoseSelected = false;
 
     // Indices of the list view for simplicity
-    QMap<QString, int> posesIndices;
+    QMap<QString, int> m_posesIndices;
 
-    QStringListModel *listViewPosesModel;
-    QStringListModel *listViewImagesModel;
+    QStringListModel m_listViewPosesModel;
+    QStringListModel m_listViewImagesModel;
 
     // To prevent the spin boxes from emitting their changed signal when we set the pose
     // values e.g. because the user selected a pose in the PoseViewer
-    bool ignoreSpinBoxValueChanges = false;
+    bool m_ignoreSpinBoxValueChanges = false;
     // To prevent from reacting to the poses list view selection changed signal again
     // when we receive the selected pose changed signal from the PoseEditingController
-    bool ignorePoseSelectionChanges = false;
+    bool m_ignorePoseSelectionChanges = false;
 
-    bool reset3DViewerOnPoseSelectionChange = true;
+    bool m_reset3DViewerOnPoseSelectionChange = true;
 };
 
 #endif // CORRESPONDENCEEDITORCONTROLS_H

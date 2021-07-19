@@ -1,6 +1,7 @@
 #include "poseviewer3dwidget.hpp"
 #include "mousecoordinatesmodificationeventfilter.hpp"
 #include "misc/global.hpp"
+#include "view/misc/displayhelper.hpp"
 
 #include <math.h>
 #include <QtMath>
@@ -57,6 +58,9 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       // Poses branch
       , m_posesLayerFilter(new Qt3DRender::QLayerFilter)
       , m_posesLayer(new Qt3DRender::QLayer)
+      , m_posesRenderStateSet(new Qt3DRender::QRenderStateSet)
+      , m_posesBlendState(new Qt3DRender::QBlendEquationArguments)
+      , m_posesBlendEquation(new Qt3DRender::QBlendEquation)
       , m_posesFrustumCulling(new Qt3DRender::QFrustumCulling)
       , m_snapshotRenderPassFilter(new Qt3DRender::QRenderPassFilter)
       , m_removeHighlightParameter(new Qt3DRender::QParameter)
@@ -86,6 +90,7 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
 
 PoseViewer3DWidget::~PoseViewer3DWidget() {
     makeCurrent();
+    delete m_shaderProgram;
     m_vao.destroy();
     m_vbo.destroy();
     doneCurrent();
@@ -126,16 +131,16 @@ void PoseViewer3DWidget::initializeGL() {
     // since Qt3D works threadded and installs its own input filters after
     // ours -> Qt3D's filter will get called first and we can't modify the
     // coordinates
-    m_mouseCoordinatesModificationEventFilter =
-            new MouseCoordinatesModificationEventFilter();
+    m_mouseCoordinatesModificationEventFilter.reset(
+            new MouseCoordinatesModificationEventFilter());
     // This filter will undo the mouse coordinates modifications so that our
     // widget can process the normal events after Qt3D has done its processing
     // Note that we have to install the event filter first to get it executed
     // last
-    m_undoMouseCoordinatesModificationEventFilter =
-            new UndoMouseCoordinatesModificationEventFilter(Q_NULLPTR,
-                                                            m_mouseCoordinatesModificationEventFilter);
-    installEventFilter(m_undoMouseCoordinatesModificationEventFilter);
+    m_undoMouseCoordinatesModificationEventFilter.reset(
+            new UndoMouseCoordinatesModificationEventFilter(
+                    Q_NULLPTR, m_mouseCoordinatesModificationEventFilter.get()));
+    installEventFilter(m_undoMouseCoordinatesModificationEventFilter.get());
     initOpenGL();
     initQt3D();
 }
@@ -296,7 +301,13 @@ void PoseViewer3DWidget::initQt3D() {
     m_posesLayerFilter->addLayer(m_backgroundLayer);
     m_posesLayerFilter->addLayer(m_clickVisualizationLayer);
     m_posesLayerFilter->setFilterMode(Qt3DRender::QLayerFilter::DiscardAnyMatchingLayers);
-    m_posesFrustumCulling->setParent(m_posesLayerFilter);
+    m_posesRenderStateSet->setParent(m_posesLayerFilter);
+    m_posesRenderStateSet->addRenderState(m_posesBlendState);
+    m_posesRenderStateSet->addRenderState(m_posesBlendEquation);
+    m_posesBlendState->setSourceRgb(Qt3DRender::QBlendEquationArguments::SourceAlpha);
+    m_posesBlendState->setDestinationRgb(Qt3DRender::QBlendEquationArguments::OneMinusSourceAlpha);
+    m_posesBlendEquation->setBlendFunction(Qt3DRender::QBlendEquation::Add);
+    m_posesFrustumCulling->setParent(m_posesRenderStateSet);
     m_snapshotRenderPassFilter->setParent(m_posesFrustumCulling);
     m_removeHighlightParameter->setName("selected");
     m_removeHighlightParameter->setValue(QVector4D(0.f, 0.f, 0.f, 0.f));
@@ -465,17 +476,22 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
         m_poseRenderableRotated = false;
         m_poseRenderableTranslated = false;
         if (poseRenderable == m_selectedPoseRenderable) {
-            // Simply inform that a pose renderable has been pressed
+            // Here we set all initial values that the mouseMove event
+            // method needs to translate/rotate the pose
             m_poseRenderablePressed = true;
-            // First time the move method is called, we never get to this point when
-            // the background image renderable is moved first (we check that above)
+            // We need the world intersection to calculate the absolute difference
             m_translationStartVector = e->worldIntersection();
+            // Reset the translation difference to start new
             m_translationDifference = QVector3D(0, 0, 0);
-            m_translationStart = poseRenderable->transform()->translation();
+            m_initialPosition = poseRenderable->transform()->translation();
             QVector3D pointOnModel = e->localIntersection();
+            // Project the point on the model using its transform, the view and the projection matrix
+            // to obtain the depth at that mouse position
             QVector3D projected = pointOnModel.project(m_posesCamera->viewMatrix() * poseRenderable->transform()->matrix(),
                                                        m_projectionMatrix,
                                                        QRect(0, 0, m_imageSize.width(), m_imageSize.height()));
+            // Store the depth for the mouseMove event
+            // TODO do we need to make that configurable if the camera is somehow rotated?
             m_depth = projected.z();
         }
     });
@@ -516,7 +532,7 @@ void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
 }
 
 void PoseViewer3DWidget::setSamples(int samples) {
-    m_samples = round(qPow(2, (double) samples));
+    m_samples = DisplayHelper::indexToMultisampleSamlpes(samples);
     m_colorTexture->setSamples(m_samples);
     m_depthTexture->setSamples(m_samples);
     if (m_initialized) {
@@ -725,7 +741,6 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
     }
     if (translatingPose) {
         QPointF pickPosition = mousePosOnImage / (m_zoom / 100.f);
-        // Translate the object
         float posY = m_imageSize.height() - pickPosition.y() - 1.0f;
 
         m_translationEndVector = QVector3D(pickPosition.x(), posY, m_depth);
@@ -735,8 +750,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
                                                                   m_imageSize.width(),
                                                                   m_imageSize.height()));
         m_translationDifference = newPos - m_translationStartVector;
-        m_translationDifference.setZ(0);
-        QVector3D newTranslation = m_translationStart + m_translationDifference;
+        QVector3D newTranslation = m_initialPosition + m_translationDifference;
         // We can assume that the selected pose renderable is not null
         // since the selected pose is not null
         m_selectedPoseRenderable->transform()->setTranslation(newTranslation);
@@ -828,7 +842,7 @@ void PoseViewer3DWidget::showEvent(QShowEvent *event) {
     // properly loaded
     if (!m_mouseCoordinatesModificationEventFilterInstalled) {
         QTimer::singleShot(500, [this](){
-                this->installEventFilter(m_mouseCoordinatesModificationEventFilter);
+                this->installEventFilter(m_mouseCoordinatesModificationEventFilter.get());
                 m_mouseCoordinatesModificationEventFilterInstalled = true;
         });
     }

@@ -106,7 +106,7 @@ bool ObjectModelRenderableMaterial::isSelected() const {
 }
 
 bool ObjectModelRenderableMaterial::isHovered() const {
-
+    return m_hovered;
 }
 
 void ObjectModelRenderableMaterial::setAmbient(const QColor &color) {

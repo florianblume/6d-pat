@@ -47,6 +47,7 @@ public:
                                      const QString &title, const QString &message,
                                      const QString &button1Text, QMessageBox::ButtonRole button1Role,
                                      const QString &button2Text, QMessageBox::ButtonRole button2Role);
+    static int indexToMultisampleSamlpes(int index);
 
 private:
     static QPointer<QtAwesome> m_qtAwesome;
