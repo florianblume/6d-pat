@@ -1,15 +1,66 @@
 {
     "prototypes": {
         "setOpacity": {
-          "inputs": ["color", "opacity"],
-          "outputs": ["finalColor"],
-          "rules": [
+            "inputs": ["color", "opacity"],
+            "outputs": ["finalColor"],
+            "rules": [
             {
               "format": { "api": "OpenGLCoreProfile", "major": 3,"minor": 0 },
                "substitution": "vec4 $finalColor = vec4($color.rgb, $opacity);"
             }
-          ]
-        }
+            ]
+        },
+        "uniformArrayInput": {
+            "outputs": [
+                "value"
+            ],
+            "parameters": {
+                "name": "defaultName",
+                "size": "1",
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec3"
+                },
+                "location": "0"
+            },
+            "rules": [
+                {
+                    "format": {
+                        "api": "OpenGLES",
+                        "major": 2,
+                        "minor": 0
+                    },
+                    "headerSnippets": [
+                        "uniform highp $type $name[$size];"
+                    ],
+                    "substitution": "highp $type $value = $name;"
+                },
+                {
+                    "format": {
+                        "api": "OpenGLCoreProfile",
+                        "major": 3,
+                        "minor": 0
+                    },
+                    "headerSnippets": [
+                        "uniform $type $name[$size];"
+                    ],
+                    "substitution": "$type $value = $name;"
+                }
+            ]
+        },
+        "visualizeClicks": {
+            "inputs": ["currentColor", "interpolatedVertex", "clickCount", "clicks", "clickColors", "clickDiameter"],
+            "outputs": ["result"],
+            "rules": [
+              {
+                "format": { "api": "OpenGLCoreProfile", "major": 3,"minor": 0 },
+                "headerSnippets": [
+                  "#pragma include :shaders/visualizeclicks.inc.frag"
+                 ],
+                 "substitution": "vec4 $result = visualizeClicks($currentColor, $interpolatedVertex, $clickCount, $clicks, $clickColors, $clickDiameter);"
+              }
+            ]
+      }
     },
     "nodes": [
         {
@@ -39,6 +90,67 @@
                 "type": {
                     "type": "QShaderLanguage::VariableType",
                     "value": "QShaderLanguage::Vec4"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000103}",
+            "type": "input",
+            "parameters": {
+                "name": "interpolatedVertex",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Input"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec3"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000104}",
+            "type": "input",
+            "parameters": {
+                "name": "clickCount",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Uniform"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Int"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000105}",
+            "type": "uniformArrayInput",
+            "parameters": {
+                "size": 10,
+                "name": "clicks"
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000106}",
+            "type": "uniformArrayInput",
+            "parameters": {
+                "size": 10,
+                "name": "clickColors"
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000107}",
+            "type": "input",
+            "parameters": {
+                "name": "clickDiameter",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Uniform"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Float"
                 }
             }
         },
@@ -312,7 +424,7 @@
             "type": "phongFunction"
         },
         {
-            "uuid": "{00000000-0000-0000-0000-000000000103}",
+            "uuid": "{00000000-0000-0000-0000-000000000109}",
             "type": "add",
             "parameters": {
                 "type": {
@@ -322,7 +434,11 @@
             }
         },
         {
-            "uuid": "{00000000-0000-0000-0000-000000000104}",
+            "uuid": "{00000000-0000-0000-0000-000000000110}",
+            "type": "visualizeClicks"
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000111}",
             "type": "setOpacity"
         },
         {
@@ -515,29 +631,65 @@
         {
             "sourceUuid": "{00000000-0000-0000-0000-000000000024}",
             "sourcePort": "outputColor",
-            "targetUuid": "{00000000-0000-0000-0000-000000000103}",
+            "targetUuid": "{00000000-0000-0000-0000-000000000109}",
             "targetPort": "first"
         },
         {
             "sourceUuid": "{00000000-0000-0000-0000-000000000102}",
             "sourcePort": "value",
-            "targetUuid": "{00000000-0000-0000-0000-000000000103}",
+            "targetUuid": "{00000000-0000-0000-0000-000000000109}",
             "targetPort": "second"
         },
         {
-            "sourceUuid": "{00000000-0000-0000-0000-000000000103}",
+            "sourceUuid": "{00000000-0000-0000-0000-000000000109}",
             "sourcePort": "sum",
-            "targetUuid": "{00000000-0000-0000-0000-000000000104}",
+            "targetUuid": "{00000000-0000-0000-0000-000000000110}",
+            "targetPort": "currentColor"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000103}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000110}",
+            "targetPort": "interpolatedVertex"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000104}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000110}",
+            "targetPort": "clickCount"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000105}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000110}",
+            "targetPort": "clicks"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000106}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000110}",
+            "targetPort": "clickColors"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000107}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000110}",
+            "targetPort": "clickDiameter"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000110}",
+            "sourcePort": "result",
+            "targetUuid": "{00000000-0000-0000-0000-000000000111}",
             "targetPort": "color"
         },
         {
             "sourceUuid": "{00000000-0000-0000-0000-000000000101}",
             "sourcePort": "value",
-            "targetUuid": "{00000000-0000-0000-0000-000000000104}",
+            "targetUuid": "{00000000-0000-0000-0000-000000000111}",
             "targetPort": "opacity"
         },
         {
-            "sourceUuid": "{00000000-0000-0000-0000-000000000104}",
+            "sourceUuid": "{00000000-0000-0000-0000-000000000111}",
             "sourcePort": "finalColor",
             "targetUuid": "{00000000-0000-0000-0000-000000000025}",
             "targetPort": "fragColor"

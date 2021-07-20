@@ -1,0 +1,453 @@
+{
+    "prototypes": {
+        "maxtMultWithVectorWithNewW": {
+            "inputs": ["matrix", "vector"],
+            "outputs": ["result"],
+            "parameters": {
+                "newW": 1.0
+            },
+            "rules": [
+            {
+              "format": { "api": "OpenGLCoreProfile", "major": 3,"minor": 0 },
+               "substitution": "vec3 $result = vec3($matrix * vec4($vector.xyz, $newW));"
+            }
+            ]
+        },
+        "vec4ToVec3": {
+            "inputs": ["vector"],
+            "outputs": ["outputVector"],
+            "rules": [
+            {
+              "format": { "api": "OpenGLCoreProfile", "major": 3,"minor": 0 },
+               "substitution": "vec3 $outputVector = vec3($vector);"
+            }
+            ]
+        },
+        "setWOnVector": {
+            "inputs": ["vector", "W"],
+            "outputs": ["outputVector"],
+            "rules": [
+            {
+              "format": { "api": "OpenGLCoreProfile", "major": 3,"minor": 0 },
+               "substitution": "vec4 $outputVector = vec4(vec3($vector), $W);"
+            }
+            ]
+        },
+        "getWOfVector": {
+            "inputs": ["vector"],
+            "outputs": ["W"],
+            "rules": [
+            {
+              "format": { "api": "OpenGLCoreProfile", "major": 3,"minor": 0 },
+               "substitution": "vec4 $W = $vector.w;"
+            }
+            ]
+        },
+        "output": {
+            "inputs": [
+                "value"
+            ],
+            "parameters": {
+                "name": "defaultName",
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec3"
+                }
+            },
+            "rules": [
+                {
+                    "format": {
+                        "api": "OpenGLCoreProfile",
+                        "major": 3,
+                        "minor": 0
+                    },
+                    "headerSnippets": [
+                        "out $type $name;"
+                    ],
+                    "substitution": "$name = $value;"
+                }
+            ]
+        },
+        "glPosition": {
+            "inputs": ["position"],
+            "rules": [
+            {
+              "format": { "api": "OpenGLCoreProfile", "major": 3,"minor": 0 },
+               "substitution": "gl_Position = $position;"
+            }
+            ]
+        }
+    },
+    "nodes": [
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000001}",
+            "type": "input",
+            "parameters": {
+                "name": "vertexPosition",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Input"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec3"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000002}",
+            "type": "input",
+            "parameters": {
+                "name": "vertexNormal",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Input"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec3"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000003}",
+            "type": "input",
+            "parameters": {
+                "name": "vertexTangent",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Input"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec4"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000004}",
+            "type": "input",
+            "parameters": {
+                "name": "vertexTexCoord",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Input"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec2"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000006}",
+            "type": "input",
+            "parameters": {
+                "name": "modelMatrix",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Uniform"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Mat4x4"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000007}",
+            "type": "input",
+            "parameters": {
+                "name": "modelNormalMatrix",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Uniform"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Mat3x3"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000008}",
+            "type": "input",
+            "parameters": {
+                "name": "modelViewProjection",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Uniform"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Mat4x4"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000009}",
+            "type": "input",
+            "parameters": {
+                "name": "texCoordScale",
+                "qualifier": {
+                    "type": "QShaderLanguage::StorageQualifier",
+                    "value": "QShaderLanguage::Uniform"
+                },
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Float"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000010}",
+            "type": "multiply"
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000011}",
+            "type": "output",
+            "parameters": {
+                "name": "texCoord",
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec2"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000012}",
+            "newW": 1.0,
+            "type": "maxtMultWithVectorWithNewW"
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000013}",
+            "type": "output",
+            "parameters": {
+                "name": "worldPosition",
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec3"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000014}",
+            "type": "multiply"
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000015}",
+            "type": "normalize"
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000016}",
+            "type": "output",
+            "parameters": {
+                "name": "worldNormal",
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec3"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000017}",
+            "parameters": {
+                "newW": 0.0
+            },
+            "type": "maxtMultWithVectorWithNewW"
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000018}",
+            "type": "normalize"
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000020}",
+            "type": "getWOfVector"
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000021}",
+            "type": "setWOnVector"
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000022}",
+            "type": "output",
+            "parameters": {
+                "name": "worldTangent",
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec4"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000023}",
+            "type": "output",
+            "parameters": {
+                "name": "interpolatedVertex",
+                "type": {
+                    "type": "QShaderLanguage::VariableType",
+                    "value": "QShaderLanguage::Vec3"
+                }
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000024}",
+            "type": "constant",
+            "parameters": {
+                "constant": 1.0
+            }
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000025}",
+            "type": "setWOnVector"
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000026}",
+            "type": "multiply"
+        },
+        {
+            "uuid": "{00000000-0000-0000-0000-000000000027}",
+            "type": "glPosition"
+        }
+    ],
+    "edges": [
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000004}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000010}",
+            "targetPort": "first"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000009}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000010}",
+            "targetPort": "second"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000010}",
+            "sourcePort": "product",
+            "targetUuid": "{00000000-0000-0000-0000-000000000011}",
+            "targetPort": "value"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000006}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000012}",
+            "targetPort": "matrix"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000001}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000012}",
+            "targetPort": "vector"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000012}",
+            "sourcePort": "result",
+            "targetUuid": "{00000000-0000-0000-0000-000000000013}",
+            "targetPort": "value"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000007}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000014}",
+            "targetPort": "first"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000002}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000014}",
+            "targetPort": "second"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000014}",
+            "sourcePort": "product",
+            "targetUuid": "{00000000-0000-0000-0000-000000000015}",
+            "targetPort": "input"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000015}",
+            "sourcePort": "output",
+            "targetUuid": "{00000000-0000-0000-0000-000000000016}",
+            "targetPort": "value"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000006}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000017}",
+            "targetPort": "matrix"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000003}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000017}",
+            "targetPort": "vector"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000017}",
+            "sourcePort": "result",
+            "targetUuid": "{00000000-0000-0000-0000-000000000018}",
+            "targetPort": "input"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000003}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000020}",
+            "targetPort": "vector"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000018}",
+            "sourcePort": "output",
+            "targetUuid": "{00000000-0000-0000-0000-000000000021}",
+            "targetPort": "vector"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000020}",
+            "sourcePort": "W",
+            "targetUuid": "{00000000-0000-0000-0000-000000000021}",
+            "targetPort": "W"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000021}",
+            "sourcePort": "outputVector",
+            "targetUuid": "{00000000-0000-0000-0000-000000000022}",
+            "targetPort": "value"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000001}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000023}",
+            "targetPort": "value"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000001}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000025}",
+            "targetPort": "vector"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000024}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000025}",
+            "targetPort": "W"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000008}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000026}",
+            "targetPort": "first"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000025}",
+            "sourcePort": "outputVector",
+            "targetUuid": "{00000000-0000-0000-0000-000000000026}",
+            "targetPort": "second"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000026}",
+            "sourcePort": "product",
+            "targetUuid": "{00000000-0000-0000-0000-000000000027}",
+            "targetPort": "position"
+        }
+    ]
+}

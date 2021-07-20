@@ -60,6 +60,10 @@ private:
     QPointer<ObjectModelRenderableMaterial> m_material;
     QList<Qt3DRender::QParameter*> m_opacityParameters;
     QList<Qt3DRender::QParameter*> m_highlightedOrSelectedParameters;
+    QList<Qt3DRender::QParameter*> m_clicksParameters;
+    QList<Qt3DRender::QParameter*> m_colorsParameters;
+    QList<Qt3DRender::QParameter*> m_clickCountParameters;
+    QList<Qt3DRender::QParameter*> m_clickDiameterParameters;
     Qt3DRender::QObjectPicker *m_picker;
 
     QVector4D m_selectedColor = QVector4D(0.15, 0.15, 0.15, 0.0);
