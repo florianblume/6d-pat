@@ -301,7 +301,7 @@ void MainWindow::onActionAboutTriggered() {
                                 "\n"
                                 "Created by Florian Blume, 2020 - 2021, GPLv3"));
     about.setStandardButtons(QMessageBox::Ok);
-    QPixmap icon(":/images/about.png");
+    QPixmap icon(":/images/splashscreen.png");
     about.setIconPixmap(icon);
     about.setDefaultButton(QMessageBox::Ok);
     about.show();

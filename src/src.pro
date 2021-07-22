@@ -13,7 +13,7 @@ TARGET = 6DPAT
 
 TEMPLATE = app
 
-QT     += core gui widgets 3dcore 3dextras 3drender
+QT     += core gui widgets 3dcore 3dextras 3drender 3dinput
 CONFIG += c++11 no_keywords
 
 DEFINES += QT_DEPRECATED_WARNINGS PYBIND11_PYTHON_VERSION="3.8"
