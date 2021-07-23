@@ -641,8 +641,20 @@
             "targetPort": "second"
         },
         {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000101}",
+            "sourcePort": "value",
+            "targetUuid": "{00000000-0000-0000-0000-000000000111}",
+            "targetPort": "opacity"
+        },
+        {
             "sourceUuid": "{00000000-0000-0000-0000-000000000109}",
             "sourcePort": "sum",
+            "targetUuid": "{00000000-0000-0000-0000-000000000111}",
+            "targetPort": "color"
+        },
+        {
+            "sourceUuid": "{00000000-0000-0000-0000-000000000111}",
+            "sourcePort": "finalColor",
             "targetUuid": "{00000000-0000-0000-0000-000000000110}",
             "targetPort": "currentColor"
         },
@@ -679,18 +691,6 @@
         {
             "sourceUuid": "{00000000-0000-0000-0000-000000000110}",
             "sourcePort": "result",
-            "targetUuid": "{00000000-0000-0000-0000-000000000111}",
-            "targetPort": "color"
-        },
-        {
-            "sourceUuid": "{00000000-0000-0000-0000-000000000101}",
-            "sourcePort": "value",
-            "targetUuid": "{00000000-0000-0000-0000-000000000111}",
-            "targetPort": "opacity"
-        },
-        {
-            "sourceUuid": "{00000000-0000-0000-0000-000000000111}",
-            "sourcePort": "finalColor",
             "targetUuid": "{00000000-0000-0000-0000-000000000025}",
             "targetPort": "fragColor"
         }

@@ -125,7 +125,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets the size of the click visualization on the 3D model in the pose editor. You cannot set the size of the click visualization in the pose viewer because there the size is in pixels (set to a constant value which is clearly visible). Determining a good click circumference size for 3D models is difficult. That's why you have to set it here manually.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets the size of the click visualization on the 3D model in the pose editor. The circumference of the clicks is computed by using the distance of the minimum and maximum 3D extent of the object multiplied by this factor.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>3D click circumference</string>

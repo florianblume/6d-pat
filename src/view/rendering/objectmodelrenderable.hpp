@@ -9,7 +9,6 @@
 #include <QVector4D>
 #include <QList>
 #include <QColor>
-#include <QTimer>
 #include <QPointer>
 
 #include <Qt3DCore/QEntity>
@@ -56,7 +55,6 @@ private:
 private:
     bool m_selected = false;
     bool m_hovered = false;
-    QTimer m_timer;
 
     QPointer<Qt3DRender::QSceneLoader> m_sceneLoader;
     QList<Qt3DRender::QParameter*> m_opacityParameters;
@@ -66,6 +64,11 @@ private:
     QList<Qt3DRender::QParameter*> m_clickCountParameters;
     QList<Qt3DRender::QParameter*> m_clickDiameterParameters;
     Qt3DRender::QObjectPicker *m_picker;
+
+    QList<QVector3D> m_clicks;
+    QVector3D m_maxMeshExtent;
+    QVector3D m_minMeshExtent;
+    float m_clickDiameter = 0.01f;
 
     QVector4D m_selectedColor = QVector4D(0.2, 0.2, 0.2, 0.0);
     QVector4D m_highlightedColor = QVector4D(0.1, 0.1, 0.1, 0.0);

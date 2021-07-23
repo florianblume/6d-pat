@@ -17,8 +17,7 @@
 #include <Qt3DRender/QDepthTest>
 #include <Qt3DRender/QMultiSampleAntiAliasing>
 
-class PoseEditor3DWindow : public Qt3DExtras::Qt3DWindow
-{
+class PoseEditor3DWindow : public Qt3DExtras::Qt3DWindow {
     Q_OBJECT
 
 public:

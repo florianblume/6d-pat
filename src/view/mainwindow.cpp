@@ -282,30 +282,23 @@ void MainWindow::onSettingsChanged(SettingsPtr settings) {
 }
 
 void MainWindow::onActionAboutTriggered() {
-    QMessageBox about;
-    about.setText(tr("What is 6D-PAT?"));
-    about.setInformativeText(tr("6D pose annotation tool, "
-                                "or shorter 6D-PAT, is a tool "
-                                "that allows users to "
-                                "position 3D models of objects "
-                                "on images. Depending on the "
-                                "selected storage options the "
-                                "position and rotation are "
-                                "persisted for later use. "
-                                "The so annotated images can "
-                                "be used to e.g. train a neural "
-                                "network."
-                                "\n"
-                                "\n"
-                                "https://github.com/florianblume/6d-pat\n"
-                                "\n"
-                                "Created by Florian Blume, 2020 - 2021, GPLv3"));
-    about.setStandardButtons(QMessageBox::Ok);
-    QPixmap icon(":/images/splashscreen.png");
-    about.setIconPixmap(icon);
-    about.setDefaultButton(QMessageBox::Ok);
-    about.show();
-    about.exec();
+    QMessageBox::about(this, "6D-PAT",
+                       tr("6D pose annotation tool, "
+                            "or shorter 6D-PAT, is a tool "
+                            "that allows users to "
+                            "position 3D models of objects "
+                            "on images. Depending on the "
+                            "selected storage options the "
+                            "position and rotation are "
+                            "persisted for later use. "
+                            "The so annotated images can "
+                            "be used to e.g. train a neural "
+                            "network."
+                            "\n"
+                            "\n"
+                            "https://github.com/florianblume/6d-pat\n"
+                            "\n"
+                            "Created by Florian Blume, 2020 - 2021, GPLv3"));
 }
 
 void MainWindow::onActionExitTriggered() {

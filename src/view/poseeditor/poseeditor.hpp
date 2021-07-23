@@ -20,8 +20,8 @@ namespace Ui {
 class PoseEditor;
 }
 
-class PoseEditor : public QWidget
-{
+class PoseEditor : public QWidget {
+
     Q_OBJECT
 
 public:

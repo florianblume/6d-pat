@@ -9,6 +9,7 @@
 #include <Qt3DCore/QNodeVector>
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DRender/QShaderProgramBuilder>
+#include <Qt3DRender/QGeometryRenderer>
 #include <Qt3DRender/QEffect>
 #include <Qt3DRender/QParameter>
 #include <Qt3DRender/QShaderProgram>
@@ -57,6 +58,9 @@ bool ObjectModelRenderable::isHovered() const {
 
 void ObjectModelRenderable::setObjectModel(const ObjectModel &objectModel) {
     m_selected = false;
+    m_clicksParameters.clear();
+    m_clickDiameterParameters.clear();
+    m_colorsParameters.clear();
     m_opacityParameters.clear();
     m_highlightedOrSelectedParameters.clear();
     m_sceneLoader->setEnabled(false);
@@ -66,6 +70,7 @@ void ObjectModelRenderable::setObjectModel(const ObjectModel &objectModel) {
 void ObjectModelRenderable::setClicks(QList<QVector3D> clicks) {
     QVariantList convertedClicks;
     QVariantList convertedColors;
+    m_clicks = clicks;
     for (int i = 0; i < clicks.size(); i++) {
         convertedClicks << clicks[i];
         QColor c = DisplayHelper::colorForPosePointIndex(i);
@@ -119,15 +124,16 @@ void ObjectModelRenderable::setOpacity(float opacity) {
 }
 
 void ObjectModelRenderable::setClickDiameter(float clickDiameter) {
+    m_clickDiameter = clickDiameter;
     for (Qt3DRender::QParameter *parameter : m_clickDiameterParameters) {
-        parameter->setValue(clickDiameter);
+        parameter->setValue((m_minMeshExtent - m_maxMeshExtent).length() * clickDiameter);
     }
 }
 
 void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
     for (Qt3DCore::QNode *node : currentNode->childNodes()) {
         if (Qt3DRender::QMaterial* material = dynamic_cast<Qt3DRender::QMaterial *>(node)) {
-
+            qDebug() << material;
             Qt3DRender::QParameter *opacityParameter = new Qt3DRender::QParameter();
             opacityParameter->setName("opacity");
             opacityParameter->setValue(1.0);
@@ -180,6 +186,25 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
             shaderProgramBuilder->setFragmentShaderGraph(QUrl(QStringLiteral("qrc:/shaders/object.frag.json")));
             shaderProgramBuilder->setVertexShaderGraph(QUrl(QStringLiteral("qrc:/shaders/object.vert.json")));
         }
+        if (Qt3DRender::QGeometryRenderer *geometryRenderer = dynamic_cast<Qt3DRender::QGeometryRenderer*>(node)) {
+            Qt3DRender::QGeometry *geometry = geometryRenderer->geometry();
+            QObject::connect(geometry, &Qt3DRender::QGeometry::maxExtentChanged, [this, geometry](){
+                QVector3D maxExtent = geometry->maxExtent();
+                m_maxMeshExtent.setX(qMax(maxExtent.x(), m_maxMeshExtent.x()));
+                m_maxMeshExtent.setX(qMax(maxExtent.y(), m_maxMeshExtent.y()));
+                m_maxMeshExtent.setX(qMax(maxExtent.z(), m_maxMeshExtent.z()));
+                // Need to update when the extents change
+                setClickDiameter(m_clickDiameter);
+            });
+            QObject::connect(geometry, &Qt3DRender::QGeometry::minExtentChanged, [this, geometry](){
+                QVector3D minExtent = geometry->minExtent();
+                m_minMeshExtent.setX(qMax(minExtent.x(), m_minMeshExtent.x()));
+                m_minMeshExtent.setX(qMax(minExtent.y(), m_minMeshExtent.y()));
+                m_minMeshExtent.setX(qMax(minExtent.z(), m_minMeshExtent.z()));
+                // Need to update when the extents change
+                setClickDiameter(m_clickDiameter);
+            });
+        }
         traverseNodes(node);
     }
 }
@@ -193,6 +218,7 @@ void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader:
         m_sceneLoader->setEnabled(true);
         Qt3DCore::QEntity *entity = m_sceneLoader->entities()[0];
         traverseNodes(entity);
+        //setClickDiameter((m_minMeshExtent - m_maxMeshExtent).length());
     }
     Q_EMIT statusChanged(status);
 }

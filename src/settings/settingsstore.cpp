@@ -97,7 +97,7 @@ void SettingsStore::setCurrentSettings(const QString &identifier) {
                 Settings::MOUSE_BUTTONS.keys().at(
                     settings.value(ROTATE_POSE_RENDERABLE_MOUSE_BUTTON,
                                    Settings::MOUSE_BUTTONS[Qt::RightButton]).toInt()));
-    settingsPointer->setClick3DSize(settings.value(CLICK_3D_SIZE, 0.5).toFloat());
+    settingsPointer->setClick3DSize(settings.value(CLICK_3D_SIZE, 0.01).toFloat());
     settingsPointer->setMultisampleSamples(settings.value(MULTISAMPLING_SAMLPES, 2).toInt());
     settingsPointer->setShowFPSLabel(settings.value(SHOW_FPS_LABEL, true).toBool());
     // TODO read mouse buttons
