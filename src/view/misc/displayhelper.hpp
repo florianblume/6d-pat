@@ -12,6 +12,7 @@
 #include <QIcon>
 #include <QMessageBox>
 #include <QScopedPointer>
+#include <QVector3D>
 
 class DisplayHelper {
 
@@ -48,6 +49,8 @@ public:
                                      const QString &button1Text, QMessageBox::ButtonRole button1Role,
                                      const QString &button2Text, QMessageBox::ButtonRole button2Role);
     static int indexToMultisampleSamlpes(int index);
+
+    static QVector3D arcBallVectorForMousePos(const QPointF &pos, const QSize &size);
 
 private:
     static QPointer<QtAwesome> m_qtAwesome;

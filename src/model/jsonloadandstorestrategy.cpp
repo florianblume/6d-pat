@@ -455,6 +455,8 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
                                       image,
                                       objectModel));
                 poses.append(pose);
+            } else {
+                foundPosesWithInvalidPosesData = true;
             }
             index++;
         }
@@ -469,7 +471,7 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
         Q_EMIT error(tr("There were poses with invalid data."));
     }
 
-    if (objectModels.size() == 0) {
+    if (poses.size() == 0) {
         // Nothing to do here, maybe the file is empty
         qDebug() << "No poses loaded";
     }

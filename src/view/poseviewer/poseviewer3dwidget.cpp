@@ -685,12 +685,6 @@ float PoseViewer3DWidget::opacity() {
     return m_opacity;
 }
 
-QVector3D PoseViewer3DWidget::arcBallVectorForMousePos(const QPointF pos) {
-    float ndcX = 2.0f * pos.x() / m_imageSize.width() - 1.0f;
-    float ndcY = 1.0 - 2.0f * pos.y() / m_imageSize.height();
-    return QVector3D(ndcX, ndcY, 0.0);
-}
-
 /*!
  * In the following events it's not necessary to map the buttons because those are already
  * standard Qt mouse buttons.
@@ -703,7 +697,7 @@ void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
 
     // We need to subtract the rendering position because our widget receives the unmodified
     // coordinates (i.e. with added rendering position offset)
-    m_arcBallStartVector = arcBallVectorForMousePos(event->localPos() - m_renderingPosition);
+    m_arcBallStartVector = DisplayHelper::arcBallVectorForMousePos(event->localPos() - m_renderingPosition, m_imageSize);
     m_arcBallEndVector   = m_arcBallStartVector;
 
     m_mouseMoved = false;
@@ -759,7 +753,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
         QApplication::setOverrideCursor(Qt::BlankCursor);
     }
     if (rotatingPose) {
-        m_arcBallEndVector = arcBallVectorForMousePos(mousePosOnImage);
+        m_arcBallEndVector = DisplayHelper::arcBallVectorForMousePos(mousePosOnImage, m_imageSize);
 
         QVector3D direction = m_arcBallEndVector - m_arcBallStartVector;
         QVector3D rotationAxis = QVector3D(-direction.y(), direction.x(), 0.0).normalized();

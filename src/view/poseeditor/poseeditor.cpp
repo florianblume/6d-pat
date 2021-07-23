@@ -21,8 +21,14 @@ PoseEditor::PoseEditor(QWidget *parent) :
     m_poseEditor3DWindow(new PoseEditor3DWindow) {
     ui->setupUi(this);
 
+    DisplayHelper::setIcon(ui->buttonReset3DScene, fa::repeat, 18);
+
     connect(m_poseEditor3DWindow, &PoseEditor3DWindow::positionClicked,
             this, &PoseEditor::onObjectModelClickedAt);
+    connect(m_poseEditor3DWindow, &PoseEditor3DWindow::mouseMoved,
+            this, &PoseEditor::onObjectModelMouseMoved);
+    connect(m_poseEditor3DWindow, &PoseEditor3DWindow::mouseExited,
+            this, &PoseEditor::onObjectModelMouseExited);
     QWidget *poseEditor3DWindowContainer = QWidget::createWindowContainer(m_poseEditor3DWindow);
     ui->graphicsContainer->layout()->addWidget(poseEditor3DWindowContainer);
 
@@ -218,6 +224,10 @@ void PoseEditor::onSpinBoxValueChanged() {
     }
 }
 
+void PoseEditor::onButtonReset3DSceneClicked() {
+    m_poseEditor3DWindow->reset3DScene();
+}
+
 void PoseEditor::onObjectModelLoaded() {
     setEnabledPoseInvariantControls(!m_currentImage.isNull());
     setEnabledPoseEditorControls(!m_currentlySelectedPose.isNull());
@@ -231,6 +241,17 @@ void PoseEditor::onObjectModelClickedAt(const QVector3D &position) {
                 + ", "
                 + QString::number(position.z())+ ").";
     Q_EMIT objectModelClickedAt(position);
+}
+
+void PoseEditor::onObjectModelMouseMoved(const QVector3D &position) {
+    QString labelText = "x: " + QString::number(position.x())
+            + ", y: " + QString::number(position.y())
+            + ", z: " + QString::number(position.z());
+    ui->labelMousePosition->setText(labelText);
+}
+
+void PoseEditor::onObjectModelMouseExited() {
+    ui->labelMousePosition->setText("");
 }
 
 void PoseEditor::updateCurrentlyEditedPose() {
@@ -375,4 +396,8 @@ void PoseEditor::reset() {
     m_listViewImagesModel.setStringList({});
     resetControlsValues();
     setEnabledAllControls(false);
+}
+
+void PoseEditor::leaveEvent(QEvent */*event*/) {
+    ui->labelMousePosition->setText("");
 }

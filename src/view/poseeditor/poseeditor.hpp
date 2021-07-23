@@ -58,6 +58,7 @@ public Q_SLOTS:
     void onPosesSaved();
     void onPoseCreationAborted();
     void reset();
+    void leaveEvent(QEvent* event) override;
 
 Q_SIGNALS:
     void objectModelClickedAt(const QVector3D &position);
@@ -75,13 +76,15 @@ private Q_SLOTS:
      * \brief onObjectModelClickedAt handles clicking the 3D model
      */
     void onObjectModelClickedAt(const QVector3D &position);
+    void onObjectModelMouseMoved(const QVector3D &position);
+    void onObjectModelMouseExited();
     /*!
      * \brief updateCurrentlyEditedPose gets called whenever the user clicks on one of
      * the position or rotation controls or modifies the articulation angle.
      */
     void updateCurrentlyEditedPose();
     void onSpinBoxValueChanged();
-
+    void onButtonReset3DSceneClicked();
     void onButtonCreateClicked();
     void onButtonSaveClicked();
     void onButtonDuplicateClicked();

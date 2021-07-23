@@ -135,7 +135,6 @@ private:
     void initOpenGL();
     void initQt3D();
     void setRenderingSize(int w, int h);
-    QVector3D arcBallVectorForMousePos(const QPointF pos);
     void setupZoomAnimation(int zoom);
     void setupRenderingPositionAnimation(int x, int y);
     void setupRenderingPositionAnimation(QPoint reinderingPosition);
