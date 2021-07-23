@@ -52,10 +52,7 @@ bool ObjectModelRenderable::isSelected() const {
 }
 
 bool ObjectModelRenderable::isHovered() const {
-    if (!m_material.isNull()) {
-        return m_material->isHovered();
-    }
-    return false;
+    return m_hovered;
 }
 
 void ObjectModelRenderable::setObjectModel(const ObjectModel &objectModel) {
@@ -112,6 +109,7 @@ void ObjectModelRenderable::setHovered(bool hovered) {
     for (Qt3DRender::QParameter *parameter : m_highlightedOrSelectedParameters) {
         parameter->setValue(color);
     }
+    m_hovered = hovered;
 }
 
 void ObjectModelRenderable::setOpacity(float opacity) {
@@ -120,11 +118,13 @@ void ObjectModelRenderable::setOpacity(float opacity) {
     }
 }
 
-void ObjectModelRenderable::setClickCircumference(float circumference) {
+void ObjectModelRenderable::setClickDiameter(float clickDiameter) {
+    for (Qt3DRender::QParameter *parameter : m_clickDiameterParameters) {
+        parameter->setValue(clickDiameter);
+    }
 }
 
-QList<ObjectModelRenderableMaterial*> ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
-    QList<ObjectModelRenderableMaterial*> materials;
+void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
     for (Qt3DCore::QNode *node : currentNode->childNodes()) {
         if (Qt3DRender::QMaterial* material = dynamic_cast<Qt3DRender::QMaterial *>(node)) {
 
@@ -141,7 +141,7 @@ QList<ObjectModelRenderableMaterial*> ObjectModelRenderable::traverseNodes(Qt3DC
             m_highlightedOrSelectedParameters.append(highlightedOrSelectedParameter);
 
             Qt3DRender::QParameter *clicksParameter = new Qt3DRender::QParameter();
-            clicksParameter->setName("clicks");
+            clicksParameter->setName("clicks[0]");
             clicksParameter->setValue(QVariantList());
             material->addParameter(clicksParameter);
             m_clicksParameters.append(clicksParameter);
@@ -153,7 +153,7 @@ QList<ObjectModelRenderableMaterial*> ObjectModelRenderable::traverseNodes(Qt3DC
             m_clickCountParameters.append(clickCountParameter);
 
             Qt3DRender::QParameter *colorsParameter = new Qt3DRender::QParameter();
-            colorsParameter->setName("clickColors");
+            colorsParameter->setName("clickColors[0]");
             colorsParameter->setValue(QVariantList());
             material->addParameter(colorsParameter);
             m_colorsParameters.append(colorsParameter);
@@ -177,26 +177,11 @@ QList<ObjectModelRenderableMaterial*> ObjectModelRenderable::traverseNodes(Qt3DC
         }
         if (Qt3DRender::QShaderProgramBuilder *shaderProgramBuilder =
                 dynamic_cast<Qt3DRender::QShaderProgramBuilder*>(node)) {
-            QObject::connect(shaderProgramBuilder, &Qt3DRender::QShaderProgramBuilder::vertexShaderCodeChanged, [shaderProgramBuilder](){
-                //qDebug() << "";
-                //qDebug() << "";
-                qDebug() << QString(shaderProgramBuilder->vertexShaderCode());
-                qDebug() << "";
-                qDebug() << "";
-            });
-            QObject::connect(shaderProgramBuilder, &Qt3DRender::QShaderProgramBuilder::fragmentShaderCodeChanged, [shaderProgramBuilder](){
-                //qDebug() << "";
-                //qDebug() << "";
-                qDebug() << QString(shaderProgramBuilder->fragmentShaderCode());
-                qDebug() << "";
-                qDebug() << "";
-            });
             shaderProgramBuilder->setFragmentShaderGraph(QUrl(QStringLiteral("qrc:/shaders/object.frag.json")));
             shaderProgramBuilder->setVertexShaderGraph(QUrl(QStringLiteral("qrc:/shaders/object.vert.json")));
         }
         traverseNodes(node);
     }
-    return materials;
 }
 
 void ObjectModelRenderable::onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status) {

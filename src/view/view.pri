@@ -26,7 +26,6 @@ HEADERS += \
     view/poseeditor/poseeditor3dwidget.hpp \
     view/gallery/resizeimagesrunnable.hpp \
     view/rendering/offscreenengine.hpp \
-    view/rendering/objectmodelrenderablematerial.hpp \
     view/rendering/poserenderable.hpp \
     view/rendering/objectmodelrenderable.hpp \
     view/rendering/texturerendertarget.hpp \
@@ -63,7 +62,6 @@ SOURCES += \
     view/rendering/backgroundimagerenderable.cpp \
     view/rendering/poserenderable.cpp \
     view/rendering/objectmodelrenderable.cpp \
-    view/rendering/objectmodelrenderablematerial.cpp \
     view/rendering/clickvisualizationmaterial.cpp \
     view/rendering/clickvisualizationrenderable.cpp \
     view/tutorialscreen/tutorialscreen.cpp

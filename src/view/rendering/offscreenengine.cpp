@@ -102,6 +102,7 @@ void OffscreenEngine::onRenderCaptureReady() {
         delete m_reply;
         image.convertTo(QImage::Format_ARGB32);
         // Not very performant
+        // TODO check if we can render the image directly using alpha
         for(int x = 0; x < image.width(); x++) {
             for(int y = 0; y < image.height(); y++) {
                 if (image.pixel(x, y) == qRgba(255, 255, 255, 255)) {

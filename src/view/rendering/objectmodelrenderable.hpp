@@ -3,10 +3,10 @@
 
 #include "misc/global.hpp"
 #include "model/objectmodel.hpp"
-#include "view/rendering/objectmodelrenderablematerial.hpp"
 
 #include <QObject>
 #include <QVector3D>
+#include <QVector4D>
 #include <QList>
 #include <QColor>
 #include <QTimer>
@@ -16,6 +16,7 @@
 #include <Qt3DRender/QSceneLoader>
 #include <Qt3DRender/QTexture>
 #include <Qt3DRender/QObjectPicker>
+#include <Qt3DRender/QParameter>
 
 class ObjectModelRenderable : public Qt3DCore::QEntity
 {
@@ -43,21 +44,21 @@ public Q_SLOTS:
     void setSelected(bool selected);
     void setHovered(bool hovered);
     void setOpacity(float opacity);
-    void setClickCircumference(float circumference);
+    void setClickDiameter(float circumference);
 
 private Q_SLOTS:
     void onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status);
 
 private:
     void initialize();
-    QList<ObjectModelRenderableMaterial*> traverseNodes(Qt3DCore::QNode *currentNode);
+    void traverseNodes(Qt3DCore::QNode *currentNode);
 
 private:
     bool m_selected = false;
+    bool m_hovered = false;
     QTimer m_timer;
 
     QPointer<Qt3DRender::QSceneLoader> m_sceneLoader;
-    QPointer<ObjectModelRenderableMaterial> m_material;
     QList<Qt3DRender::QParameter*> m_opacityParameters;
     QList<Qt3DRender::QParameter*> m_highlightedOrSelectedParameters;
     QList<Qt3DRender::QParameter*> m_clicksParameters;
@@ -66,7 +67,7 @@ private:
     QList<Qt3DRender::QParameter*> m_clickDiameterParameters;
     Qt3DRender::QObjectPicker *m_picker;
 
-    QVector4D m_selectedColor = QVector4D(0.15, 0.15, 0.15, 0.0);
+    QVector4D m_selectedColor = QVector4D(0.2, 0.2, 0.2, 0.0);
     QVector4D m_highlightedColor = QVector4D(0.1, 0.1, 0.1, 0.0);
 
     bool m_hasTextureMaterial = false;
