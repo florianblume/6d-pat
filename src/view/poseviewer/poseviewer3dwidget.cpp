@@ -318,6 +318,10 @@ void PoseViewer3DWidget::initQt3D() {
     m_posesCamera->setPosition({0, 0, 0});
     m_posesCamera->setViewCenter({0, 0, 1});
     m_posesCamera->setUpVector({0, -1, 0});
+    m_poseRotationHandler.setProjectionMatrix(m_posesCamera->projectionMatrix());
+    m_poseRotationHandler.setViewMatrix(m_posesCamera->viewMatrix());
+    m_poseTranslationHandler.setProjectionMatrix(m_posesCamera->projectionMatrix());
+    m_poseTranslationHandler.setViewMatrix(m_posesCamera->viewMatrix());
 
     // Fourth branch that captures the rendered output
 
@@ -394,8 +398,10 @@ void PoseViewer3DWidget::setClicks(const QList<QPoint> &clicks) {
 void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3x3 &cameraMatrix,
                                             float nearPlane, float farPlane) {
     QImage loadedImage(image);
-    this->m_imageSize = loadedImage.size();
+    m_imageSize = loadedImage.size();
     setRenderingSize(loadedImage.width(), loadedImage.height());
+    m_poseRotationHandler.setSize(m_imageSize);
+    m_poseTranslationHandler.setSize(m_imageSize);
 
     if (m_backgroundImageRenderable.isNull()) {
         m_backgroundImageRenderable = new BackgroundImageRenderable(m_sceneRoot, image);
@@ -479,24 +485,13 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
             // Here we set all initial values that the mouseMove event
             // method needs to translate/rotate the pose
             m_poseRenderablePressed = true;
-            // We need the world intersection to calculate the absolute difference
-            m_translationStartVector = e->worldIntersection();
-            // Reset the translation difference to start new
-            m_translationDifference = QVector3D(0, 0, 0);
-            m_initialPosition = poseRenderable->transform()->translation();
-            QVector3D pointOnModel = e->localIntersection();
-            // Project the point on the model using its transform, the view and the projection matrix
-            // to obtain the depth at that mouse position
-            QVector3D projected = pointOnModel.project(m_posesCamera->viewMatrix() * poseRenderable->transform()->matrix(),
-                                                       m_projectionMatrix,
-                                                       QRect(0, 0, m_imageSize.width(), m_imageSize.height()));
-            // Store the depth for the mouseMove event
-            // TODO do we need to make that configurable if the camera is somehow rotated?
-            m_depth = projected.z();
+            m_poseRotationHandler.setTransform(poseRenderable->transform());
+            m_poseTranslationHandler.setTransform(poseRenderable->transform());
+            m_poseTranslationHandler.initialize(e->localIntersection(), e->worldIntersection());
         }
     });
     connect(poseRenderable, &PoseRenderable::released,
-            [this](Qt3DRender::QPickEvent *e){
+            [this](){
         m_poseRenderablePressed = false;
     });
 }
@@ -697,8 +692,7 @@ void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
 
     // We need to subtract the rendering position because our widget receives the unmodified
     // coordinates (i.e. with added rendering position offset)
-    m_arcBallStartVector = DisplayHelper::arcBallVectorForMousePos(event->localPos() - m_renderingPosition, m_imageSize);
-    m_arcBallEndVector   = m_arcBallStartVector;
+    m_poseRotationHandler.initialize(event->localPos() - m_renderingPosition);
 
     m_mouseMoved = false;
 
@@ -709,12 +703,6 @@ void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
 // instead of Qt3D itself because if we move the mouse too fast
 // it doesn't receive events anymore
 void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
-    m_currentClickPos = event->localPos();
-    QPointF diff = m_currentClickPos - m_firstClickPos;
-    QPointF finalPoint = QPointF(m_initialRenderingPosition.x() + diff.x(),
-                                 m_initialRenderingPosition.y() + diff.y());
-
-    // Handling of moving background image
     // The user is translating a pose when they have selected one, clicked it, and are now
     // moving the mouse with the mouse button down
     bool translatingPose = m_poseRenderablePressed && event->buttons()
@@ -723,11 +711,17 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
     bool rotatingPose = m_poseRenderablePressed && event->buttons()
                           == m_settings->rotatePoseRenderableMouseButton()
                         && !m_selectedPose.isNull();
-    QPoint mousePosOnImage = event->pos() - m_renderingPosition;
-    // Only translate the whole image when the user is not currently rotating or translating a pose
-    if (event->buttons()
+    bool translatingBackgroundImage = event->buttons()
             == m_settings->moveBackgroundImageRenderableMouseButton()
-        && !translatingPose && !rotatingPose) {
+        && !translatingPose && !rotatingPose;
+    QPoint mousePosOnImage = event->pos() - m_renderingPosition;
+
+    // Only translate the whole image when the user is not currently rotating or translating a pose
+    if (translatingBackgroundImage) {
+        m_currentClickPos = event->localPos();
+        QPointF diff = m_currentClickPos - m_firstClickPos;
+        QPointF finalPoint = QPointF(m_initialRenderingPosition.x() + diff.x(),
+                                     m_initialRenderingPosition.y() + diff.y());
         m_newPos.setX(diff.x());
         m_newPos.setY(diff.y());
         setRenderingPosition(finalPoint.x(), finalPoint.y());
@@ -735,40 +729,14 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
     }
     if (translatingPose) {
         QPointF pickPosition = mousePosOnImage / (m_zoom / 100.f);
-        float posY = m_imageSize.height() - pickPosition.y() - 1.0f;
-
-        m_translationEndVector = QVector3D(pickPosition.x(), posY, m_depth);
-        QVector3D newPos = m_translationEndVector.unproject(m_posesCamera->viewMatrix(),
-                                                            m_projectionMatrix,
-                                                            QRect(0, 0,
-                                                                  m_imageSize.width(),
-                                                                  m_imageSize.height()));
-        m_translationDifference = newPos - m_translationStartVector;
-        QVector3D newTranslation = m_initialPosition + m_translationDifference;
-        // We can assume that the selected pose renderable is not null
-        // since the selected pose is not null
-        m_selectedPoseRenderable->transform()->setTranslation(newTranslation);
-        m_selectedPose->setPosition(newTranslation);
+        m_poseTranslationHandler.translate(pickPosition);
+        m_selectedPose->setPosition(m_selectedPoseRenderable->transform()->translation());
         m_poseRenderableTranslated = true;
         QApplication::setOverrideCursor(Qt::BlankCursor);
     }
     if (rotatingPose) {
-        m_arcBallEndVector = DisplayHelper::arcBallVectorForMousePos(mousePosOnImage, m_imageSize);
-
-        QVector3D direction = m_arcBallEndVector - m_arcBallStartVector;
-        QVector3D rotationAxis = QVector3D(-direction.y(), direction.x(), 0.0).normalized();
-        float angle = (float)qRadiansToDegrees(direction.length() * 3.141593);
-
-        QMatrix4x4 addRotation;
-        addRotation.rotate(angle, rotationAxis.x(), rotationAxis.y(), rotationAxis.z());
-        QMatrix4x4 rotation = m_selectedPoseRenderable->transform()->matrix();
-        rotation = addRotation * rotation;
-        // Restore position of before rotation
-        rotation.setColumn(3, QVector4D(m_selectedPoseRenderable->transform()->translation(), 1.0));
-        m_selectedPoseRenderable->transform()->setMatrix(rotation);
+        m_poseRotationHandler.rotate(mousePosOnImage);
         m_selectedPose->setRotation(m_selectedPoseRenderable->transform()->rotation().toRotationMatrix());
-
-        m_arcBallStartVector = m_arcBallEndVector;
         m_poseRenderableRotated = true;
         QApplication::setOverrideCursor(Qt::BlankCursor);
     }

@@ -625,6 +625,8 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
 
     if (m_posesWithInvalidData.size() > 0) {
         Q_EMIT error(tr("There were poses with invalid data."));
+        qDebug() << "Poses with invalid data: ";
+        qDebug() << m_posesWithInvalidData;
     }
     if (poses.size() == 0) {
         Q_EMIT error(tr("No poses loaded (either there exist none or all contained invalid data)."));

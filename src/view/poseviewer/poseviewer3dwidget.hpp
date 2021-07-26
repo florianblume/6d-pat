@@ -5,8 +5,10 @@
 #include "view/rendering/backgroundimagerenderable.hpp"
 #include "view/rendering/poserenderable.hpp"
 #include "view/rendering/clickvisualizationrenderable.hpp"
-#include "mousecoordinatesmodificationeventfilter.hpp"
-#include "undomousecoordinatesmodificationeventfilter.hpp"
+#include "view/rendering/arcballrotationhandler.hpp"
+#include "view/rendering/translationhandler.hpp"
+#include "view/poseviewer/mousecoordinatesmodificationeventfilter.hpp"
+#include "view/poseviewer/undomousecoordinatesmodificationeventfilter.hpp"
 #include "settings/settings.hpp"
 
 #include <QString>
@@ -287,9 +289,9 @@ private:
 
     QMatrix4x4 m_rotationMat;
 
-    // Arc ball vectors for rotation with mouse
-    QVector3D m_arcBallStartVector;
-    QVector3D m_arcBallEndVector;
+    ArcBallRotationHandler m_poseRotationHandler;
+    TranslationHandler m_poseTranslationHandler;
+
 
     // Arc ball vectors for translation with mouse
     QVector3D m_translationStartVector;

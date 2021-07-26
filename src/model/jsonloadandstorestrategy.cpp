@@ -457,6 +457,9 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
                 poses.append(pose);
             } else {
                 foundPosesWithInvalidPosesData = true;
+                if (poseEntry.contains("id")) {
+                    m_posesWithInvalidData.append(poseEntry["id"].toString());
+                }
             }
             index++;
         }
@@ -469,6 +472,8 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
 
     if (foundPosesWithInvalidPosesData) {
         Q_EMIT error(tr("There were poses with invalid data."));
+        qDebug() << "Poses with invalid data: ";
+        qDebug() << m_posesWithInvalidData;
     }
 
     if (poses.size() == 0) {

@@ -3,18 +3,20 @@
 
 #include "model/objectmodel.hpp"
 #include "view/rendering/objectmodelrenderable.hpp"
+#include "view/rendering/translationhandler.hpp"
+#include "view/rendering/arcballrotationhandler.hpp"
 #include "settings/settingsstore.hpp"
 
 #include <QString>
 #include <QList>
 #include <QVector3D>
+#include <QWheelEvent>
 
 #include <Qt3DExtras/Qt3DWindow>
 #include <Qt3DCore/QTransform>
-#include <Qt3DInput/QMouseDevice>
-#include <Qt3DInput/QMouseHandler>
 #include <Qt3DCore/QEntity>
 #include <Qt3DRender/QObjectPicker>
+#include <Qt3DRender/QPickEvent>
 #include <Qt3DExtras/QOrbitCameraController>
 #include <Qt3DRender/QRenderStateSet>
 #include <Qt3DRender/QDepthTest>
@@ -29,6 +31,9 @@ public:
     void setClicks(const QList<QVector3D> &clicks);
     void reset();
     void setSettingsStore(SettingsStore *settingsStore);
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
     ~PoseEditor3DWindow();
 
@@ -46,27 +51,25 @@ private Q_SLOTS:
     void onObjectModelRenderableReleased(Qt3DRender::QPickEvent *event);
     void onObjectModelRenderableMoved(Qt3DRender::QPickEvent *event);
     void onCurrentSettingsChanged(SettingsPtr settings);
-    void onMousePositionChanged(Qt3DInput::QMouseEvent *mouse);
-    void onMouseWheel(Qt3DInput::QWheelEvent *wheel);
 
 private:
     Qt3DCore::QEntity *m_rootEntity;
+    // We need a second root because we attach a transform to it that
+    // we can rotate and translate. If we attached this transform to the
+    // topmost entity, the light gets transformed, too (bad).
+    Qt3DCore::QEntity *m_objectModelRoot;
     Qt3DRender::QObjectPicker *m_picker;
     Qt3DCore::QTransform *m_objectModelTransform;
-    //Qt3DExtras::QOrbitCameraController *m_cameraController;
     Qt3DRender::QRenderStateSet *m_renderStateSet;
     Qt3DRender::QMultiSampleAntiAliasing *m_multisampleAntialiasing;
     Qt3DRender::QDepthTest *m_depthTest;
     ObjectModelRenderable *objectModelRenderable = Q_NULLPTR;
     Qt3DCore::QEntity *m_lightEntity;
-    Qt3DInput::QMouseDevice *m_mouseDevice;
-    Qt3DInput::QMouseHandler *m_mouseHandler;
+    Qt3DCore::QTransform *m_lightTransform;
 
-    QVector3D m_translationStartVector;
-    QVector3D m_translationDifference;
-    QVector3D m_initialPosition;
-    QVector3D m_arcBallEndVector;
-    float m_depth;
+    Qt3DRender::QPickEvent::Buttons m_pressedMouseButton = Qt3DRender::QPickEvent::NoButton;
+    TranslationHandler m_translationHandler;
+    ArcBallRotationHandler m_rotationHandler;
 
     SettingsStore *m_settingsStore = Q_NULLPTR;
 

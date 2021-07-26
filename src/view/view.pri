@@ -2,6 +2,9 @@ INCLUDEPATH += $$PWD
 
 HEADERS += \
     $$PWD/poseviewer/renderframegraph.hpp \
+    $$PWD/rendering/arcballrotationhandler.hpp \
+    $$PWD/rendering/modificationhandler.hpp \
+    $$PWD/rendering/translationhandler.hpp \
     view/poseviewer/mousecoordinatesmodificationeventfilter.hpp \
     view/poseviewer/undomousecoordinatesmodificationeventfilter.hpp \
     view/settings/settingsloadsavepage.hpp \
@@ -35,6 +38,9 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/poseviewer/renderframegraph.cpp \
+    $$PWD/rendering/arcballrotationhandler.cpp \
+    $$PWD/rendering/modificationhandler.cpp \
+    $$PWD/rendering/translationhandler.cpp \
     view/poseviewer/mousecoordinatesmodificationeventfilter.cpp \
     view/poseviewer/undomousecoordinatesmodificationeventfilter.cpp \
     view/settings/settingsloadsavepage.cpp \

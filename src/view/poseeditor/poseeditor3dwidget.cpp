@@ -20,15 +20,17 @@
 
 PoseEditor3DWindow::PoseEditor3DWindow()
     : Qt3DExtras::Qt3DWindow()
+    , m_rootEntity(new Qt3DCore::QEntity)
+    , m_objectModelRoot(new Qt3DCore::QEntity)
     , m_objectModelTransform(new Qt3DCore::QTransform)
     , m_renderStateSet(new Qt3DRender::QRenderStateSet)
     , m_multisampleAntialiasing(new Qt3DRender::QMultiSampleAntiAliasing)
-    , m_depthTest(new Qt3DRender::QDepthTest)
-    , m_mouseDevice(new Qt3DInput::QMouseDevice)
-    , m_mouseHandler(new Qt3DInput::QMouseHandler) {
-    m_rootEntity = new Qt3DCore::QEntity();
+    , m_depthTest(new Qt3DRender::QDepthTest) {
     setRootEntity(m_rootEntity);
-    m_rootEntity->addComponent(m_objectModelTransform);
+    m_objectModelRoot->setParent(m_rootEntity);
+    m_objectModelRoot->addComponent(m_objectModelTransform);
+    m_rotationHandler.setTransform(m_objectModelTransform);
+    m_translationHandler.setTransform(m_objectModelTransform);
 
     m_depthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
     m_renderStateSet->addRenderState(m_depthTest);
@@ -42,17 +44,49 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     camera->setPosition(QVector3D(0, 0, 20.0f));
     camera->setUpVector(QVector3D(0, 1, 0));
     camera->setViewCenter(QVector3D(0, 0, 0));
+    connect(camera, &Qt3DRender::QCamera::viewMatrixChanged,
+            [this, camera](){
+        m_rotationHandler.setViewMatrix(camera->viewMatrix());
+        m_translationHandler.setViewMatrix(camera->viewMatrix());
+    });
+    connect(camera, &Qt3DRender::QCamera::projectionMatrixChanged,
+            [this, camera](){
+        m_rotationHandler.setProjectionMatrix(camera->projectionMatrix());
+        m_translationHandler.setProjectionMatrix(camera->projectionMatrix());
+
+    });
+    connect(this, &Qt3DExtras::Qt3DWindow::widthChanged,
+            [this](){
+        m_rotationHandler.setWidth(this->width());
+        m_translationHandler.setWidth(this->width());
+        this->camera()->lens()->setPerspectiveProjection(45.0f,
+                                                         this->width() / (float) this->height(),
+                                                         0.1f, 1000.0f);
+
+    });
+    connect(this, &Qt3DExtras::Qt3DWindow::heightChanged,
+            [this](){
+        m_rotationHandler.setHeight(this->height());
+        m_translationHandler.setHeight(this->height());
+        this->camera()->lens()->setPerspectiveProjection(45.0f,
+                                                         this->width() / (float) this->height(),
+                                                         0.1f, 1000.0f);
+
+    });
 
     m_lightEntity = new Qt3DCore::QEntity(m_rootEntity);
     Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(m_lightEntity);
     light->setColor("white");
     light->setIntensity(0.5);
     m_lightEntity->addComponent(light);
-    Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(m_lightEntity);
-    lightTransform->setTranslation(camera->position());
-    m_lightEntity->addComponent(lightTransform);
+    Qt3DCore::QTransform *m_lightTransform = new Qt3DCore::QTransform(m_lightEntity);
+    m_lightTransform->setTranslation(camera->position());
+    m_lightEntity->addComponent(m_lightTransform);
+    // Need to keep this although we do not actually move the camera anymore
     connect(camera, &Qt3DRender::QCamera::positionChanged,
-            [lightTransform, this](){lightTransform->setTranslation(this->camera()->position());});
+            [m_lightTransform, this](){
+        m_lightTransform->setTranslation(this->camera()->position());
+    });
 
     this->renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
 
@@ -75,14 +109,6 @@ PoseEditor3DWindow::PoseEditor3DWindow()
             this, &PoseEditor3DWindow::onObjectModelRenderableMoved);
     connect(m_picker, &Qt3DRender::QObjectPicker::exited,
             this, &PoseEditor3DWindow::mouseExited);
-
-    m_rootEntity->addComponent(m_mouseHandler);
-    connect(m_mouseHandler, &Qt3DInput::QMouseHandler::positionChanged,
-            this, &PoseEditor3DWindow::onMousePositionChanged);
-    connect(m_mouseHandler, &Qt3DInput::QMouseHandler::wheel,
-            this, &PoseEditor3DWindow::onMouseWheel);
-    m_mouseDevice->setParent(m_rootEntity);
-    m_mouseHandler->setSourceDevice(m_mouseDevice);
 }
 
 PoseEditor3DWindow::~PoseEditor3DWindow() {
@@ -93,11 +119,8 @@ PoseEditor3DWindow::~PoseEditor3DWindow() {
 }
 
 void PoseEditor3DWindow::reset3DScene() {
-    Qt3DRender::QCamera *camera = this->camera();
-    camera->setPosition(QVector3D(0, 0, 20.0f));
-    camera->setUpVector(QVector3D(0, 1, 0));
-    camera->setViewCenter(QVector3D(0, 0, 0));
-    camera->viewAll();
+    m_objectModelTransform->setTranslation(QVector3D());
+    m_objectModelTransform->setRotation(QQuaternion());
 }
 
 void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status status) {
@@ -109,26 +132,15 @@ void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoade
 }
 
 void PoseEditor3DWindow::onObjectModelRenderablePressed(Qt3DRender::QPickEvent *event) {
+    m_pressedMouseButton = event->button();
     // Set this so we know for rotation that the mouse was pressed on the renderable first
     m_mouseMovedOnObjectModelRenderable = false;
     m_mouseDownOnObjectModelRenderable = true;
-    // We need the world intersection to calculate the absolute difference
-    m_translationStartVector = event->worldIntersection();
-    // Reset the translation difference to start new
-    m_translationDifference = QVector3D(0, 0, 0);
-    m_initialPosition = m_objectModelTransform->translation();
-    QVector3D pointOnModel = event->localIntersection();
-    // Project the point on the model using its transform, the view and the projection matrix
-    // to obtain the depth at that mouse position
-    QVector3D projected = pointOnModel.project(camera()->viewMatrix() * m_objectModelTransform->matrix(),
-                                               camera()->projectionMatrix(),
-                                               QRect(0, 0, width(), height()));
-    // Store the depth for the mouseMove event
-    // TODO do we need to make that configurable if the camera is somehow rotated?
-    m_depth = projected.z();
+    m_rotationHandler.initialize(event->position());
+    m_translationHandler.initialize(event->localIntersection(), event->worldIntersection());
 }
 
-void PoseEditor3DWindow::onObjectModelRenderableReleased(Qt3DRender::QPickEvent *event) {
+void PoseEditor3DWindow::onObjectModelRenderableReleased(Qt3DRender::QPickEvent */*event*/) {
     m_mouseDownOnObjectModelRenderable = false;
     m_mouseMovedOnObjectModelRenderable = false;
 }
@@ -138,30 +150,23 @@ void PoseEditor3DWindow::onObjectModelRenderableMoved(Qt3DRender::QPickEvent *ev
     Q_EMIT mouseMoved(event->localIntersection());
 }
 
-void PoseEditor3DWindow::onMousePositionChanged(Qt3DInput::QMouseEvent *mouse) {
-    /*
-    m_arcBallEndVector = DisplayHelper::arcBallVectorForMousePos(QPoint(mouse->x(), mouse->y()), size());
-
-    QVector3D direction = m_arcBallEndVector - m_arcBallStartVector;
-    QVector3D rotationAxis = QVector3D(-direction.y(), direction.x(), 0.0).normalized();
-    float angle = (float)qRadiansToDegrees(direction.length() * 3.141593);
-
-    QMatrix4x4 addRotation;
-    addRotation.rotate(angle, rotationAxis.x(), rotationAxis.y(), rotationAxis.z());
-    QMatrix4x4 rotation = m_selectedPoseRenderable->transform()->matrix();
-    rotation = addRotation * rotation;
-    // Restore position of before rotation
-    rotation.setColumn(3, QVector4D(m_selectedPoseRenderable->transform()->translation(), 1.0));
-    m_selectedPoseRenderable->transform()->setMatrix(rotation);
-    m_selectedPose->setRotation(m_selectedPoseRenderable->transform()->rotation().toRotationMatrix());
-
-    m_arcBallStartVector = m_arcBallEndVector;
-    m_poseRenderableRotated = true;
-    */
+void PoseEditor3DWindow::mouseReleaseEvent(QMouseEvent */*event*/) {
+    m_mouseDownOnObjectModelRenderable = false;
+    m_mouseMovedOnObjectModelRenderable = false;
+    m_pressedMouseButton = Qt3DRender::QPickEvent::NoButton;
 }
 
-void PoseEditor3DWindow::onMouseWheel(Qt3DInput::QWheelEvent *wheel) {
-    m_objectModelTransform->setTranslation(m_objectModelTransform->translation() + QVector3D(0, 0, wheel->angleDelta().y() / 15.f));
+void PoseEditor3DWindow::mouseMoveEvent(QMouseEvent *event) {
+    if (m_pressedMouseButton == Qt3DRender::QPickEvent::LeftButton && m_mouseDownOnObjectModelRenderable) {
+        m_translationHandler.translate(event->pos());
+    } else if (m_pressedMouseButton == Qt3DRender::QPickEvent::RightButton &&  m_mouseDownOnObjectModelRenderable) {
+        m_rotationHandler.rotate(event->pos());
+    }
+}
+
+void PoseEditor3DWindow::wheelEvent(QWheelEvent *event) {
+    m_objectModelTransform->setTranslation(m_objectModelTransform->translation()
+                                           + QVector3D(0, 0, event->angleDelta().y() / 15.f));
 }
 
 void PoseEditor3DWindow::onCurrentSettingsChanged(SettingsPtr settings) {
@@ -175,7 +180,7 @@ void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
         objectModelRenderable->setParent((Qt3DCore::QNode*) 0);
         delete objectModelRenderable;
     }
-    objectModelRenderable = new ObjectModelRenderable(m_rootEntity);
+    objectModelRenderable = new ObjectModelRenderable(m_objectModelRoot);
     // Needs to be placed after setRootEntity on the window because it doesn't work otherwise -> leave it here
     connect(objectModelRenderable, &ObjectModelRenderable::statusChanged, this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
     objectModelRenderable->setObjectModel(objectModel);
