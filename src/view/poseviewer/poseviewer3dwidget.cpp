@@ -351,6 +351,7 @@ void PoseViewer3DWidget::initQt3D() {
 }
 
 void PoseViewer3DWidget::paintGL() {
+    // In here we only take the offscreen texture from Qt3D to draw it on a quad
     m_elapsed = m_elapsedTimer.elapsed();
     // Restart the timer
     m_elapsedTimer.start();
@@ -426,6 +427,8 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
                                                 0,                0,                      q, qn,
                                                 0,                0,                     -1, 0);
     m_posesCamera->setProjectionMatrix(m_projectionMatrix);
+    m_poseRotationHandler.setProjectionMatrix(m_projectionMatrix);
+    m_poseTranslationHandler.setProjectionMatrix(m_projectionMatrix);
     m_backgroundImageRenderable->setEnabled(true);
 }
 
@@ -486,8 +489,12 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
             // method needs to translate/rotate the pose
             m_poseRenderablePressed = true;
             m_poseRotationHandler.setTransform(poseRenderable->transform());
+            // The position coordinates are modified to reflect the local coordinates on the
+            // image already, since Qt3D recieves the coordinates modified by the modification
+            // event filter
+            m_poseRotationHandler.initializeRotation(e->position());
             m_poseTranslationHandler.setTransform(poseRenderable->transform());
-            m_poseTranslationHandler.initialize(e->localIntersection(), e->worldIntersection());
+            m_poseTranslationHandler.initializeTranslation(e->localIntersection(), e->worldIntersection());
         }
     });
     connect(poseRenderable, &PoseRenderable::released,
@@ -687,16 +694,10 @@ float PoseViewer3DWidget::opacity() {
 
 void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
     m_firstClickPos = event->localPos();
-    m_initialRenderingPosition = renderingPosition();
+    m_initialRenderingPosition = m_renderingPosition;
     m_mouseCoordinatesModificationEventFilter->setOffset(m_initialRenderingPosition.x(), m_initialRenderingPosition.y());
-
-    // We need to subtract the rendering position because our widget receives the unmodified
-    // coordinates (i.e. with added rendering position offset)
-    m_poseRotationHandler.initialize(event->localPos() - m_renderingPosition);
-
-    m_mouseMoved = false;
-
     m_clickedMouseButton = event->button();
+    m_mouseMoved = false;
 }
 
 // We need to handle translating and rotating of objects here
@@ -714,7 +715,6 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
     bool translatingBackgroundImage = event->buttons()
             == m_settings->moveBackgroundImageRenderableMouseButton()
         && !translatingPose && !rotatingPose;
-    QPoint mousePosOnImage = event->pos() - m_renderingPosition;
 
     // Only translate the whole image when the user is not currently rotating or translating a pose
     if (translatingBackgroundImage) {
@@ -727,6 +727,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
         setRenderingPosition(finalPoint.x(), finalPoint.y());
         m_mouseCoordinatesModificationEventFilter->setOffset(renderingPosition().x(), renderingPosition().y());
     }
+    QPointF mousePosOnImage = event->localPos() - m_renderingPosition;
     if (translatingPose) {
         QPointF pickPosition = mousePosOnImage / (m_zoom / 100.f);
         m_poseTranslationHandler.translate(pickPosition);

@@ -15,7 +15,7 @@ public:
     TranslationHandler(QObject *parent = 0);
 
 public Q_SLOTS:
-    void initialize(const QVector3D &localIntersection,
+    void initializeTranslation(const QVector3D &localIntersection,
                     const QVector3D &worldIntersection);
     void translate(const QPointF &mousePosition);
 
@@ -24,6 +24,7 @@ private:
     QVector3D m_translationEndVector;
     QVector3D m_translationDifference;
     QVector3D m_initialPosition;
+    QMatrix4x4 m_currentTransformMatrix;
     float m_depth = 0.f;
 };
 

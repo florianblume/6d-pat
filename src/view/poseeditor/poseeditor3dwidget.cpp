@@ -119,6 +119,8 @@ PoseEditor3DWindow::~PoseEditor3DWindow() {
 }
 
 void PoseEditor3DWindow::reset3DScene() {
+    // No need to call camera()->viewAll(); here since we do this when
+    // loading the object model and do not transform the camera afterwards
     m_objectModelTransform->setTranslation(QVector3D());
     m_objectModelTransform->setRotation(QQuaternion());
 }
@@ -136,8 +138,8 @@ void PoseEditor3DWindow::onObjectModelRenderablePressed(Qt3DRender::QPickEvent *
     // Set this so we know for rotation that the mouse was pressed on the renderable first
     m_mouseMovedOnObjectModelRenderable = false;
     m_mouseDownOnObjectModelRenderable = true;
-    m_rotationHandler.initialize(event->position());
-    m_translationHandler.initialize(event->localIntersection(), event->worldIntersection());
+    m_rotationHandler.initializeRotation(event->position());
+    m_translationHandler.initializeTranslation(event->localIntersection(), event->worldIntersection());
 }
 
 void PoseEditor3DWindow::onObjectModelRenderableReleased(Qt3DRender::QPickEvent */*event*/) {

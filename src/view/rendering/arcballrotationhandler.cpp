@@ -7,7 +7,7 @@ ArcBallRotationHandler::ArcBallRotationHandler(QObject *parent) : ModificationHa
 
 }
 
-void ArcBallRotationHandler::initialize(const QPointF &mousePosition) {
+void ArcBallRotationHandler::initializeRotation(const QPointF &mousePosition) {
     m_arcBallStartVector = DisplayHelper::arcBallVectorForMousePos(mousePosition, m_size);
     m_arcBallEndVector   = m_arcBallStartVector;
 }

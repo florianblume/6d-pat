@@ -12,7 +12,7 @@ public:
     ArcBallRotationHandler(QObject *parent = 0);
 
 public Q_SLOTS:
-    void initialize(const QPointF &mousePosition);
+    void initializeRotation(const QPointF &mousePosition);
     void rotate(const QPointF &mousePosition);
 
 private:
