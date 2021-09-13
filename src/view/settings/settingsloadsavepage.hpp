@@ -30,7 +30,7 @@ private:
 
 private:
     Ui::SettingsLoadSavePage *ui;
-    Settings *settings;
+    Settings *m_settings;
 
     static const QString PLEASE_SELECT_A_PYTHON_SCRIPT;
 };

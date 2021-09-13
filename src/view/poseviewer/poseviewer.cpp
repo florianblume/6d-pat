@@ -21,7 +21,7 @@ PoseViewer::PoseViewer(QWidget *parent) :
                                      "image (if available) and normal image.");
     ui->buttonSwitchView->setEnabled(false);
 
-    DisplayHelper::setIcon(ui->buttonResetPosition, fa::arrows, 18);
+    DisplayHelper::setIcon(ui->buttonResetPosition, fa::compress, 18);
     ui->buttonResetPosition->setToolTip("Click to reset the position of the image.");
     ui->buttonResetPosition->setEnabled(false);
 

@@ -19,22 +19,22 @@ MainWindow::MainWindow(QWidget *parent,
                        SettingsStore *settingsStore) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    settingsStore(settingsStore),
-    modelManager(modelManager) {
+    m_settingsStore(settingsStore),
+    m_modelManager(modelManager) {
 
     ui->setupUi(this);
 
-    progressDialog = new QProgressDialog;
-    progressDialog->setRange(0, 0);
-    progressDialog->setCancelButton(Q_NULLPTR);
-    progressDialog->setModal(true);
-    progressDialog->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
-    progressDialog->setFixedSize(progressDialog->size());
+    m_progressDialog = new QProgressDialog;
+    m_progressDialog->setRange(0, 0);
+    m_progressDialog->setCancelButton(Q_NULLPTR);
+    m_progressDialog->setModal(true);
+    m_progressDialog->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::FramelessWindowHint);
+    m_progressDialog->setFixedSize(m_progressDialog->size());
 
     //tutorialScreen = new TutorialScreen(this);
     //tutorialScreen->setGeometry(this->geometry());
 
-    statusBar()->addPermanentWidget(statusBarLabel, 1);
+    statusBar()->addPermanentWidget(m_statusBarLabel, 1);
     setStatusBarText(QString("Loading..."));
     connect(modelManager, &ModelManager::stateChanged,
             this, &MainWindow::onModelManagerStateChanged);
@@ -42,10 +42,10 @@ MainWindow::MainWindow(QWidget *parent,
     connect(settingsStore, &SettingsStore::currentSettingsChanged,
             this, &MainWindow::onSettingsChanged);
 
-    galleryImageModel = new GalleryImageModel(modelManager);
-    setGalleryImageModel(galleryImageModel);
-    galleryObjectModelModel = new GalleryObjectModelModel(modelManager);
-    setGalleryObjectModelModel(galleryObjectModelModel);
+    m_galleryImageModel = new GalleryImageModel(modelManager);
+    setGalleryImageModel(m_galleryImageModel);
+    m_galleryObjectModelModel = new GalleryObjectModelModel(modelManager);
+    setGalleryObjectModelModel(m_galleryObjectModelModel);
 
     setPathsOnGalleriesAndBreadcrumbs();
 
@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent,
 
     setStatusBarText("Ready.");
 
-    progressDialog->close();
+    m_progressDialog->close();
 }
 
 MainWindow::~MainWindow() {
@@ -180,32 +180,32 @@ void MainWindow::setStatusBarTextReadyForPoseCreation(int numberOfCorrespondence
 }
 
 void MainWindow::showEvent(QShowEvent *e) {
-    if (!showInitialized) {
+    if (!m_showInitialized) {
         readSettings();
     }
-    showInitialized = true;
+    m_showInitialized = true;
     QMainWindow::showEvent(e);
 }
 
 void MainWindow::resizeEvent(QResizeEvent *e) {
     QMainWindow::resizeEvent(e);
-    if (tutorialScreen) {
-        tutorialScreen->setGeometry(0, 0,
+    if (m_tutorialScreen) {
+        m_tutorialScreen->setGeometry(0, 0,
                                     this->geometry().width(), this->geometry().height());
-        tutorialScreen->setCurrentViewWindow(QRect(100, 100, 100, 100));
+        m_tutorialScreen->setCurrentViewWindow(QRect(100, 100, 100, 100));
     }
 }
 
 void MainWindow::setStatusBarText(const QString& text) {
-    statusBarLabel->setText(tr(text.toStdString().c_str()));
+    m_statusBarLabel->setText(tr(text.toStdString().c_str()));
 }
 
 void MainWindow::showProgressView(bool show) {
     if (show) {
-        progressDialog->show();
+        m_progressDialog->show();
         this->setGraphicsEffect(new QGraphicsBlurEffect);
     } else {
-        progressDialog->close();
+        m_progressDialog->close();
         this->setGraphicsEffect({});
     }
 }
@@ -227,25 +227,25 @@ Gallery *MainWindow::galleryImages() {
 }
 
 void MainWindow::showDataLoadingProgressView(bool show) {
-    progressDialog->setLabelText(tr("Loading data..."));
+    m_progressDialog->setLabelText(tr("Loading data..."));
     showProgressView(show);
 }
 
 void MainWindow::showPoseRecoveringProgressView(bool show) {
-    progressDialog->setLabelText(tr("Recovering pose..."));
+    m_progressDialog->setLabelText(tr("Recovering pose..."));
     showProgressView(show);
 }
 
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
-    SettingsPtr settings = settingsStore->currentSettings();
+    SettingsPtr settings = m_settingsStore->currentSettings();
     settings->setImagesPath(path);
-    settingsStore->saveCurrentSettings();
+    m_settingsStore->saveCurrentSettings();
 }
 
 void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
-    SettingsPtr settings = settingsStore->currentSettings();
+    SettingsPtr settings = m_settingsStore->currentSettings();
     settings->setObjectModelsPath(path);
-    settingsStore->saveCurrentSettings();
+    m_settingsStore->saveCurrentSettings();
 }
 
 void MainWindow::displayWarning(const QString &title, const QString &text) {
@@ -270,40 +270,35 @@ bool MainWindow::showSaveUnsavedChangesDialog() {
 }
 
 void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
-    SettingsPtr settings = settingsStore->currentSettings();
-    galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
+    SettingsPtr settings = m_settingsStore->currentSettings();
+    m_galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
     ui->breadcrumbLeft->setCurrentPath(settings->imagesPath());
     ui->breadcrumbRight->setCurrentPath(settings->objectModelsPath());
 }
 
 void MainWindow::onSettingsChanged(SettingsPtr settings) {
-    galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
+    m_galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
     setPathsOnGalleriesAndBreadcrumbs();
 }
 
 void MainWindow::onActionAboutTriggered() {
-    QMessageBox about;
-    about.setText(tr("What is 6D-PAT?"));
-    about.setInformativeText(tr("6D pose annotation tool, "
-                                "or shorter 6D-PAT, is a tool "
-                                "that allows users to "
-                                "position 3D models of objects "
-                                "on images. Depending on the "
-                                "selected storage options the "
-                                "position and rotation are "
-                                "persisted for later use. "
-                                "The so annotated images can "
-                                "be used to e.g. train a neural "
-                                "network."
-                                "\n"
-                                "\n"
-                                "Created by Florian Blume, 2020 - 2021, GPLv3"));
-    about.setStandardButtons(QMessageBox::Ok);
-    QPixmap icon(":/images/about.png");
-    about.setIconPixmap(icon);
-    about.setDefaultButton(QMessageBox::Ok);
-    about.show();
-    about.exec();
+    QMessageBox::about(this, "6D-PAT",
+                       tr("6D pose annotation tool, "
+                            "or shorter 6D-PAT, is a tool "
+                            "that allows users to "
+                            "position 3D models of objects "
+                            "on images. Depending on the "
+                            "selected storage options the "
+                            "position and rotation are "
+                            "persisted for later use. "
+                            "The so annotated images can "
+                            "be used to e.g. train a neural "
+                            "network."
+                            "\n"
+                            "\n"
+                            "https://github.com/florianblume/6d-pat\n"
+                            "\n"
+                            "Created by Florian Blume, 2020 - 2021, GPLv3"));
 }
 
 void MainWindow::onActionExitTriggered() {
@@ -313,8 +308,8 @@ void MainWindow::onActionExitTriggered() {
 
 void MainWindow::onActionSettingsTriggered() {
     SettingsDialog* settingsDialog = new SettingsDialog(this);
-    settingsDialog->setSettingsStoreAndObjectModels(settingsStore,
-                                                    modelManager->objectModels());
+    settingsDialog->setSettingsStoreAndObjectModels(m_settingsStore,
+                                                    m_modelManager->objectModels());
     settingsDialog->show();
 }
 
@@ -394,7 +389,7 @@ void MainWindow::onActionTutorialScreenTriggered() {
 
 void MainWindow::onModelManagerStateChanged(ModelManager::State state,
                                             const QString &error) {
-    if (state == ModelManager::ErrorOccured || !error.isNull()) {
+    if (state == ModelManager::Error || !error.isNull()) {
         displayWarning("Error while loading or saving data", error);
     }
 }

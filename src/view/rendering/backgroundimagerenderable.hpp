@@ -32,12 +32,12 @@ Q_SIGNALS:
     void pressed(Qt3DRender::QPickEvent *pickEvent);
 
 private:
-    Qt3DExtras::QPlaneMesh *mesh;
-    Qt3DCore::QTransform *transform;
-    Qt3DExtras::QTextureMaterial *material;
-    Qt3DRender::QTexture2D *texture;
-    Qt3DRender::QTextureImage *textureImage;
-    Qt3DRender::QObjectPicker *objectPicker;
+    Qt3DExtras::QPlaneMesh *m_mesh;
+    Qt3DCore::QTransform *m_transform;
+    Qt3DExtras::QTextureMaterial *m_material;
+    Qt3DRender::QTexture2D *m_texture;
+    Qt3DRender::QTextureImage *m_textureImage;
+    Qt3DRender::QObjectPicker *m_objectPicker;
 };
 
 #endif // BACKGROUNDIMAGERENDERABLE_H

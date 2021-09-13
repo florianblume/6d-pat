@@ -400,12 +400,10 @@ void PosesEditingController::addPoint(A point,
 
 void PosesEditingController::add2DPoint(QPoint imagePoint) {
     addPoint<QPoint, QVector3D>(imagePoint, m_points2D, m_points3D);
-    qDebug() << m_points2D;
 }
 
 void PosesEditingController::add3DPoint(QVector3D objectModelPoint) {
     addPoint<QVector3D, QPoint>(objectModelPoint, m_points3D, m_points2D);
-    qDebug() << m_points3D;
 }
 
 QString correspondenceToString(QPoint point2D, QVector3D point3D) {

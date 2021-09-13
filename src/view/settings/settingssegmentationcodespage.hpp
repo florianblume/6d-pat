@@ -24,8 +24,8 @@ private Q_SLOTS:
 
 private:
     Ui::SettingsSegmentationCodesPage *ui;
-    Settings *settings;
-    QList<ObjectModelPtr> objectModels;
+    Settings *m_settings;
+    QList<ObjectModelPtr> m_objectModels;
 };
 
 #endif // SETTINGSSEGMENTATIONCODESPAGE_H

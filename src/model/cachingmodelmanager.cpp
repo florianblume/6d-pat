@@ -219,7 +219,7 @@ void CachingModelManager::reload() {
 }
 
 void CachingModelManager::onLoadAndStoreStrategyError(const QString &error) {
-    Q_EMIT stateChanged(CachingModelManager::State::ErrorOccured, error);
+    Q_EMIT stateChanged(CachingModelManager::State::Error, error);
 }
 
 void CachingModelManager::dataReady() {

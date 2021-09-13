@@ -30,7 +30,7 @@ private:
 
 private:
     Ui::SettingsPathsPage *ui;
-    Settings *settings;
+    Settings *m_settings;
 
     static const QString PLEASE_SELECT_A_FOLDER;
     static const QString PLEASE_SELECT_A_JSON_FILE;

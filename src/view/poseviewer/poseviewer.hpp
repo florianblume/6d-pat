@@ -89,8 +89,6 @@ private:
     // segmentation image
     bool m_showingNormalImage = true;
 
-    MouseCoordinatesModificationEventFilter *mouseCoordinatesModificationEventFilter;
-
     int m_zoom = 3;
     float m_zoomMultiplier = 1.f;
     int m_maxZoom = 200;

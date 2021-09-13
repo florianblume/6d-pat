@@ -47,19 +47,19 @@ void Gallery::selectPrevious() {
 }
 
 void Gallery::beginScrollLeft() {
-    scrollDirection = true;
-    scrollButtonDown = true;
+    m_scrollDirection = true;
+    m_scrollButtonDown = true;
     startScrollTimer();
 }
 
 void Gallery::beginScrollRight() {
-    scrollDirection = false;
-    scrollButtonDown = true;
+    m_scrollDirection = false;
+    m_scrollButtonDown = true;
     startScrollTimer();
 }
 
 void Gallery::endScroll() {
-    scrollButtonDown = false;
+    m_scrollButtonDown = false;
 }
 
 void Gallery::clearSelection(bool emitSignals) {
@@ -68,7 +68,7 @@ void Gallery::clearSelection(bool emitSignals) {
     // as a consequence when the user clicks an item the first time nothing
     // happens because due to the reset the gallery is supposed to ignore
     // the selection changes
-    ignoreSelectionChanges = !emitSignals
+    m_ignoreSelectionChanges = !emitSignals
                                 && !ui->listView->selectionModel()->selection().isEmpty();
     ui->listView->clearSelection();
 }
@@ -89,30 +89,30 @@ void Gallery::disable() {
 }
 
 void Gallery::startScrollTimer() {
-    scrollTimer = new QTimer(this);
-    connect(scrollTimer, SIGNAL(timeout()), this, SLOT(performScroll()));
-    scrollTimer->start(Gallery::SCROLL_TIMER_REFRESH_RATE);
+    m_scrollTimer = new QTimer(this);
+    connect(m_scrollTimer, SIGNAL(timeout()), this, SLOT(m_performScroll()));
+    m_scrollTimer->start(Gallery::SCROLL_TIMER_REFRESH_RATE);
 }
 
 void Gallery::performScroll() {
-    if (scrollButtonDown) {
+    if (m_scrollButtonDown) {
         //! The scroll button is still pressed, i.e. we have to in/decrement the value of the scrollbar
         QScrollBar* scrollBar = ui->listView->horizontalScrollBar();
-        int increment = (scrollDirection ? -1 : 1) * Gallery::SCROLL_INCREMENT_RATE;
+        int increment = (m_scrollDirection ? -1 : 1) * Gallery::SCROLL_INCREMENT_RATE;
         scrollBar->setSliderPosition(scrollBar->sliderPosition() + increment);
     } else {
-        scrollTimer->stop();
-        delete scrollTimer;
+        m_scrollTimer->stop();
+        delete m_scrollTimer;
     }
 }
 
 void Gallery::onSelectionChanged(const QItemSelection &selected,
                                  const QItemSelection &/* deselected */) {
-    if (selected.size() > 0 && !ignoreSelectionChanges) {
+    if (selected.size() > 0 && !m_ignoreSelectionChanges) {
         //! Weird, this should never be the case but the app crashes because sometimes selection is empty...
         //! Maybe in the future when I'm wiser I'll understand what is happening here...
         QItemSelectionRange range = selected.front();
         Q_EMIT selectedItemChanged(range.top());
     }
-    ignoreSelectionChanges = false;
+    m_ignoreSelectionChanges = false;
 }

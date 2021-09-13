@@ -5,8 +5,10 @@
 #include "view/rendering/backgroundimagerenderable.hpp"
 #include "view/rendering/poserenderable.hpp"
 #include "view/rendering/clickvisualizationrenderable.hpp"
-#include "mousecoordinatesmodificationeventfilter.hpp"
-#include "undomousecoordinatesmodificationeventfilter.hpp"
+#include "view/rendering/arcballrotationhandler.hpp"
+#include "view/rendering/translationhandler.hpp"
+#include "view/poseviewer/mousecoordinatesmodificationeventfilter.hpp"
+#include "view/poseviewer/undomousecoordinatesmodificationeventfilter.hpp"
 #include "settings/settings.hpp"
 
 #include <QString>
@@ -58,14 +60,16 @@
 #include <Qt3DRender/QParameter>
 #include <Qt3DRender/QRenderStateSet>
 #include <Qt3DRender/QFrustumCulling>
+#include <Qt3DRender/QBlendEquationArguments>
+#include <Qt3DRender/QBlendEquation>
 
 class PoseViewer3DWidget : public QOpenGLWidget
 {
     Q_OBJECT
 
-    Q_PROPERTY(float opacity WRITE setObjectsOpacity)
-    Q_PROPERTY(float zoom WRITE setZoom NOTIFY zoomChanged)
-    Q_PROPERTY(QPoint renderingPosition WRITE setRenderingPosition)
+    Q_PROPERTY(float opacity READ opacity WRITE setObjectsOpacity)
+    Q_PROPERTY(float zoom READ zoom WRITE setZoom NOTIFY zoomChanged)
+    Q_PROPERTY(QPoint renderingPosition READ renderingPosition WRITE setRenderingPosition)
 
 public:
     explicit PoseViewer3DWidget(QWidget *parent = nullptr);
@@ -133,7 +137,6 @@ private:
     void initOpenGL();
     void initQt3D();
     void setRenderingSize(int w, int h);
-    QVector3D arcBallVectorForMousePos(const QPointF pos);
     void setupZoomAnimation(int zoom);
     void setupRenderingPositionAnimation(int x, int y);
     void setupRenderingPositionAnimation(QPoint reinderingPosition);
@@ -249,6 +252,9 @@ private:
     // Poses branch
     Qt3DRender::QLayerFilter *m_posesLayerFilter;
     Qt3DRender::QLayer *m_posesLayer;
+    Qt3DRender::QRenderStateSet *m_posesRenderStateSet;
+    Qt3DRender::QBlendEquationArguments *m_posesBlendState;
+    Qt3DRender::QBlendEquation *m_posesBlendEquation;
     Qt3DRender::QFrustumCulling *m_posesFrustumCulling;
     // Filter which adds the parameter which removes the highlight color
     // Must be before the rest which draws the objects
@@ -283,15 +289,15 @@ private:
 
     QMatrix4x4 m_rotationMat;
 
-    // Arc ball vectors for rotation with mouse
-    QVector3D m_arcBallStartVector;
-    QVector3D m_arcBallEndVector;
+    ArcBallRotationHandler m_poseRotationHandler;
+    TranslationHandler m_poseTranslationHandler;
+
 
     // Arc ball vectors for translation with mouse
     QVector3D m_translationStartVector;
     QVector3D m_translationEndVector;
     QVector3D m_translationDifference;
-    QVector3D m_translationStart;
+    QVector3D m_initialPosition;
 
     float m_depth = 0.f;
 
@@ -318,10 +324,10 @@ private:
     // coordinates on the (potentially) offset image, we need to modify the mouse
     // coordinates to match the local coordinates of the image before passing
     // them on to Qt3D.
-    MouseCoordinatesModificationEventFilter *m_mouseCoordinatesModificationEventFilter;
+    QScopedPointer<MouseCoordinatesModificationEventFilter> m_mouseCoordinatesModificationEventFilter;
     // Afterwards we undo the modifications so that our widget receives the normal coordinates.
     // Note that we have to add the undo filter first to get it executed last
-    UndoMouseCoordinatesModificationEventFilter *m_undoMouseCoordinatesModificationEventFilter;
+    QScopedPointer<UndoMouseCoordinatesModificationEventFilter> m_undoMouseCoordinatesModificationEventFilter;
     bool m_mouseCoordinatesModificationEventFilterInstalled = false;
 
     // Zoom stuff

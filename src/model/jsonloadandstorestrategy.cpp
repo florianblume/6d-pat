@@ -40,80 +40,82 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
 
     QByteArray data = jsonFile.readAll();
     QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
+
     if (jsonDocument.isNull()) {
-        QJsonObject jsonObject = jsonDocument.object();
+        // JSON Document is null, an nerror occured, we cannot persist the pose
+        return false;
+    }
 
-        QString imagePath = objectImagePose.image()->imagePath();
-        QJsonArray entriesForImage;
+    QJsonObject jsonObject = jsonDocument.object();
 
-        if (deletePose) {
-            if (jsonObject.contains(imagePath)) {
-                entriesForImage = jsonObject[imagePath].toArray();
-                int index = 0;
-                for(const QJsonValue &entry : entriesForImage) {
-                    QJsonObject entryObject = entry.toObject();
-                    if (entryObject["id"] == objectImagePose.id()) {
-                        entriesForImage.removeAt(index);
-                    }
-                    index++;
+    QString imagePath = objectImagePose.image()->imagePath();
+    QJsonArray entriesForImage;
+
+    if (deletePose) {
+        if (jsonObject.contains(imagePath)) {
+            entriesForImage = jsonObject[imagePath].toArray();
+            int index = 0;
+            for(const QJsonValue &entry : entriesForImage) {
+                QJsonObject entryObject = entry.toObject();
+                if (entryObject["id"] == objectImagePose.id()) {
+                    entriesForImage.removeAt(index);
                 }
-                jsonObject[imagePath] = entriesForImage;
+                index++;
+            }
+            jsonObject[imagePath] = entriesForImage;
+        }
+    } else {
+        //! Preparation of 3D data for the JSON file
+        QMatrix3x3 rotationMatrix = objectImagePose.rotation().toRotationMatrix();
+        QJsonArray rotationMatrixArray;
+        rotationMatrixArray << rotationMatrix(0, 0) << rotationMatrix(0, 1) << rotationMatrix(0, 2)
+                            << rotationMatrix(1, 0) << rotationMatrix(1, 1) << rotationMatrix(1, 2)
+                            << rotationMatrix(2, 0) << rotationMatrix(2, 1) << rotationMatrix(2, 2);
+        QVector3D positionVector = objectImagePose.position();
+        QJsonArray positionVectorArray;
+        positionVectorArray << positionVector[0] << positionVector[1] << positionVector[2];
+        //! Check if any entries for the image exist
+        if (jsonObject.contains(imagePath)) {
+            //! There are some entries already and we check whether the pose
+            //! already exists
+            entriesForImage = jsonObject[imagePath].toArray();
+            //! We have to check whether our pose exists, and if it does, only update it
+            //! If we don't find it we have to create it anew and add it to the list of poses
+            bool entryFound = false;
+            //! Keep track of the index if we find an existing pose
+            int index = 0;
+            //! Create new entry object, as we can't modify the exisiting ones directly somehow
+            QJsonObject entry;
+            entry["id"] = objectImagePose.id();
+            entry["obj"] = objectImagePose.objectModel()->path();
+            entry["R"] = rotationMatrixArray;
+            entry["t"] = positionVectorArray;
+
+            for(const QJsonValue &_entry : entriesForImage) {
+                QJsonObject entryObject = _entry.toObject();
+                if (entryObject["id"] == objectImagePose.id()) {
+                    entryFound = true;
+                    entriesForImage[index] = entry;
+                }
+                index++;
+            }
+
+            if (!entryFound) {
+                entriesForImage << entry;
             }
         } else {
-            //! Preparation of 3D data for the JSON file
-            QMatrix3x3 rotationMatrix = objectImagePose.rotation().toRotationMatrix();
-            QJsonArray rotationMatrixArray;
-            rotationMatrixArray << rotationMatrix(0, 0) << rotationMatrix(0, 1) << rotationMatrix(0, 2)
-                                << rotationMatrix(1, 0) << rotationMatrix(1, 1) << rotationMatrix(1, 2)
-                                << rotationMatrix(2, 0) << rotationMatrix(2, 1) << rotationMatrix(2, 2);
-            QVector3D positionVector = objectImagePose.position();
-            QJsonArray positionVectorArray;
-            positionVectorArray << positionVector[0] << positionVector[1] << positionVector[2];
-            //! Check if any entries for the image exist
-            if (jsonObject.contains(imagePath)) {
-                //! There are some entries already and we check whether the pose
-                //! already exists
-                entriesForImage = jsonObject[imagePath].toArray();
-                //! We have to check whether our pose exists, and if it does, only update it
-                //! If we don't find it we have to create it anew and add it to the list of poses
-                bool entryFound = false;
-                //! Keep track of the index if we find an existing pose
-                int index = 0;
-                //! Create new entry object, as we can't modify the exisiting ones directly somehow
-                QJsonObject entry;
-                entry["id"] = objectImagePose.id();
-                entry["obj"] = objectImagePose.objectModel()->path();
-                entry["R"] = rotationMatrixArray;
-                entry["t"] = positionVectorArray;
-
-                for(const QJsonValue &_entry : entriesForImage) {
-                    QJsonObject entryObject = _entry.toObject();
-                    if (entryObject["id"] == objectImagePose.id()) {
-                        entryFound = true;
-                        entriesForImage[index] = entry;
-                    }
-                    index++;
-                }
-
-                if (!entryFound) {
-                    entriesForImage << entry;
-                }
-            } else {
-                QJsonObject newEntry;
-                newEntry["id"] = objectImagePose.id();
-                newEntry["obj"] = objectImagePose.objectModel()->path();
-                newEntry["t"] = positionVectorArray;
-                newEntry["R"] = rotationMatrixArray;
-                entriesForImage << newEntry;
-            }
+            QJsonObject newEntry;
+            newEntry["id"] = objectImagePose.id();
+            newEntry["obj"] = objectImagePose.objectModel()->path();
+            newEntry["t"] = positionVectorArray;
+            newEntry["R"] = rotationMatrixArray;
+            entriesForImage << newEntry;
         }
-        m_ignorePosesFileChanged = true;
-        jsonObject[imagePath] = entriesForImage;
-        jsonFile.resize(0);
-        jsonFile.write(QJsonDocument(jsonObject).toJson());
-    } else {
-        // TODO JsonDocument is null, ie an error occured
     }
+    m_ignorePosesFileChanged = true;
+    jsonObject[imagePath] = entriesForImage;
+    jsonFile.resize(0);
+    jsonFile.write(QJsonDocument(jsonObject).toJson());
 
     return true;
 }
@@ -455,6 +457,11 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
                                       image,
                                       objectModel));
                 poses.append(pose);
+            } else {
+                foundPosesWithInvalidPosesData = true;
+                if (poseEntry.contains("id")) {
+                    m_posesWithInvalidData.append(poseEntry["id"].toString());
+                }
             }
             index++;
         }
@@ -467,9 +474,11 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
 
     if (foundPosesWithInvalidPosesData) {
         Q_EMIT error(tr("There were poses with invalid data."));
+        qDebug() << "Poses with invalid data: ";
+        qDebug() << m_posesWithInvalidData;
     }
 
-    if (objectModels.size() == 0) {
+    if (poses.size() == 0) {
         // Nothing to do here, maybe the file is empty
         qDebug() << "No poses loaded";
     }

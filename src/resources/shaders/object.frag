@@ -74,7 +74,7 @@ uniform vec3 clicks[10];
 uniform vec3 colors[10];
 uniform int clickCount;
 uniform bool useDiffuseTexture;
-uniform float circumfence;
+uniform float clickDiameter;
 uniform vec4 selected;
 uniform float opacity;
 
@@ -103,12 +103,12 @@ void main()
        vec3 click = clicks[i];
        vec3 delta = abs(interpolatedVertex - click); // Get delta from middle vec3
        if (pow(delta.r, 2) + pow(delta.g, 2) + pow(delta.b, 2)
-               <= pow(circumfence, 2))
+               <= pow(clickDiameter, 2))
        {
            isClicked = true;
            index = i;
        } else if (pow(delta.r, 2) + pow(delta.g, 2) + pow(delta.b, 2)
-                  <= pow(circumfence, 2) + 0.1) {
+                  <= pow(clickDiameter, 2) + 0.1) {
            isAroundClick = true;
            index = i;
        }

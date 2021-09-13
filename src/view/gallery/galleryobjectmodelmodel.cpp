@@ -11,7 +11,7 @@
 #include <QApplication>
 
 GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager)
-    : modelManager(modelManager) {
+    : m_modelManager(modelManager) {
     Q_ASSERT(modelManager != Q_NULLPTR);
     m_objectModels = modelManager->objectModels();
     renderObjectModels();
@@ -33,7 +33,7 @@ QVariant GalleryObjectModelModel::dataForObjectModel(const ObjectModel& objectMo
         if (m_renderedObjectsModels.contains(objectModel.path())) {
             return QIcon(QPixmap::fromImage(m_renderedObjectsModels.value(objectModel.path())));
         } else {
-            return currentLoadingAnimationFrame;
+            return m_currentLoadingAnimationFrame;
         }
     }
 
@@ -46,7 +46,24 @@ void GalleryObjectModelModel::renderObjectModels() {
         m_currentlyRenderedImageIndex = 0;
         m_renderingObjectModels = true;
         m_offscreenEngine.setObjectModel(*m_objectModels[0]);
+        // Next object model rendering will be requested when
+        // receiving the rendering
         m_offscreenEngine.requestImage();
+    }
+}
+
+void GalleryObjectModelModel::onObjectModelRendered(QImage image) {
+    QString objectModel = m_objectModels[m_currentlyRenderedImageIndex]->path();
+    qDebug() << "Preview rendering finished for " + objectModel;
+    m_renderedObjectsModels.insert(objectModel, image);
+    m_currentlyRenderedImageIndex++;
+    if (m_currentlyRenderedImageIndex < m_objectModels.size()) {
+        m_offscreenEngine.setObjectModel(*m_objectModels[m_currentlyRenderedImageIndex]);
+        m_offscreenEngine.requestImage();
+    } else {
+        m_currentlyRenderedImageIndex = 0;
+        m_renderingObjectModels = false;
+        m_loadingIconUpdateTimer.stop();
     }
 }
 
@@ -55,7 +72,7 @@ QVariant GalleryObjectModelModel::data(const QModelIndex &index, int role) const
     //! If for some weird coincidence (maybe deletion of a object model on the filesystem) the passed index
     //! is out of bounds simply return a QVariant, the next time the data method is called everything should
     //! be finde again
-    if (!modelManager) {
+    if (!m_modelManager) {
         return QVariant();
     }
 
@@ -162,18 +179,18 @@ void GalleryObjectModelModel::onDataChanged(int data) {
     if (data & Data::Images) {
         // When the images change, the last selected image gets deselected
         // This means we have to reset the index
-        m_images = modelManager->images();
+        m_images = m_modelManager->images();
         m_currentSelectedImageIndex = -1;
         m_colorsOfCurrentImage.clear();
         m_indexMapping.clear();
         createIndexMapping();
     }
     if (data & Data::ObjectModels) {
-        if (modelManager) {
+        if (m_modelManager) {
             // When the object models change we need to re-render them
-            m_objectModels = modelManager->objectModels();
+            m_objectModels = m_modelManager->objectModels();
             renderObjectModels();
-            m_updateTimer.start();
+            m_loadingIconUpdateTimer.start();
         } else {
             m_objectModels.clear();
             m_indexMapping.clear();
@@ -231,20 +248,5 @@ void GalleryObjectModelModel::createIndexMapping() {
     // match the number of tools or when the user hasn't selected an object model to display yet
     for (int i = 0; i < m_objectModels.size(); i++) {
         m_indexMapping[i] = i;
-    }
-}
-
-void GalleryObjectModelModel::onObjectModelRendered(QImage image) {
-    QString objectModel = m_objectModels[m_currentlyRenderedImageIndex]->path();
-    qDebug() << "Preview rendering finished for " + objectModel;
-    m_renderedObjectsModels.insert(objectModel, image);
-    m_currentlyRenderedImageIndex++;
-    if (m_currentlyRenderedImageIndex < m_objectModels.size()) {
-        m_offscreenEngine.setObjectModel(*m_objectModels[m_currentlyRenderedImageIndex]);
-        m_offscreenEngine.requestImage();
-    } else {
-        m_currentlyRenderedImageIndex = 0;
-        m_renderingObjectModels = false;
-        m_updateTimer.stop();
     }
 }

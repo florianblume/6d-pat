@@ -20,7 +20,7 @@ SettingsPathsPage::~SettingsPathsPage() {
 }
 
 void SettingsPathsPage::setSettings(Settings *settings) {
-    this->settings = settings;
+    this->m_settings = settings;
     QString imagesPath = (settings->imagesPath() != Global::NO_PATH ?
                             settings->imagesPath() : PLEASE_SELECT_A_FOLDER);
     ui->editImagesPath->setText(imagesPath);
@@ -58,34 +58,34 @@ QString SettingsPathsPage::openFileDialogForPath(QString path) {
 
 //! Public slots
 void SettingsPathsPage::buttonImagesPathClicked() {
-    QString newPath = openFolderDialogForPath(settings->imagesPath());
+    QString newPath = openFolderDialogForPath(m_settings->imagesPath());
     if (newPath.compare("") != 0) {
         ui->editImagesPath->setText(newPath);
-        settings->setImagesPath(newPath);
+        m_settings->setImagesPath(newPath);
     }
 }
 
 void SettingsPathsPage::buttonSegmentationImagesPathClicked() {
-    QString newPath = openFolderDialogForPath(settings->segmentationImagesPath());
+    QString newPath = openFolderDialogForPath(m_settings->segmentationImagesPath());
     if (newPath.compare("") != 0) {
         ui->editSegmentationImagesPath->setText(newPath);
-        settings->setSegmentationImagePath(newPath);
+        m_settings->setSegmentationImagePath(newPath);
     }
 }
 
 void SettingsPathsPage::buttonObjectModelsPathClicked() {
-    QString newPath = openFolderDialogForPath(settings->objectModelsPath());
+    QString newPath = openFolderDialogForPath(m_settings->objectModelsPath());
     if (newPath.compare("") != 0) {
         ui->editObjectModelsPath->setText(newPath);
-        settings->setObjectModelsPath(newPath);
+        m_settings->setObjectModelsPath(newPath);
     }
 }
 
 void SettingsPathsPage::buttonPosesPathClicked() {
-    QString newPath = openFileDialogForPath(settings->posesFilePath());
+    QString newPath = openFileDialogForPath(m_settings->posesFilePath());
     if (newPath.compare("") != 0) {
         ui->editPosesPath->setText(newPath);
-        settings->setPosesFilePath(newPath);
+        m_settings->setPosesFilePath(newPath);
     }
 }
 

@@ -1,8 +1,7 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    misc/generalhelper.hpp \
+    $$PWD/generalhelper.hpp \
     misc/global.hpp
 
-SOURCES += \
-    misc/generalhelper.cpp
+SOURCES +=

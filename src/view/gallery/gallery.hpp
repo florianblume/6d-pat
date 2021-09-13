@@ -40,22 +40,22 @@ Q_SIGNALS:
 
 protected:
     // protected to grant access to subclasses
-    bool ignoreSelectionChanges = false;
+    bool m_ignoreSelectionChanges = false;
     Ui::Gallery *ui;
-
-private:
-    //! The members below are there for the buttons left and right of the scroll view to smoothly scroll
-    //! through the objects
-    bool scrollDirection = true;
-    bool scrollButtonDown = false;
-    QTimer* scrollTimer;
-    static const int SCROLL_INCREMENT_RATE;
-    static const int SCROLL_TIMER_REFRESH_RATE;
 
 private Q_SLOTS:
     void performScroll();
     void startScrollTimer();
     void onSelectionChanged(const QItemSelection &selected, const QItemSelection&);
+
+private:
+    //! The members below are there for the buttons left and right of the scroll view to smoothly scroll
+    //! through the objects
+    bool m_scrollDirection = true;
+    bool m_scrollButtonDown = false;
+    QTimer* m_scrollTimer;
+    static const int SCROLL_INCREMENT_RATE;
+    static const int SCROLL_TIMER_REFRESH_RATE;
 };
 
 #endif // GALLERY_H

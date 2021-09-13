@@ -5,6 +5,7 @@
 #include <QVariant>
 #include <QDebug>
 #include <QApplication>
+#include <QtMath>
 
 QColor DisplayHelper::colorForPosePointIndex(int index) {
     switch(index) {
@@ -121,4 +122,14 @@ DisplayHelper::QMessageBoxPtr DisplayHelper::messageBox(QWidget* parent,
     QPushButton *button = _messageBox->addButton(button2Text, button2Role);
     button->setIcon(awesomeIconForButtonRole(button2Role));
     return _messageBox;
+}
+
+int DisplayHelper::indexToMultisampleSamlpes(int index) {
+    return round(qPow(2, (double) index));
+}
+
+QVector3D DisplayHelper::arcBallVectorForMousePos(const QPointF &pos, const QSize &size) {
+    float ndcX = 2.0f * pos.x() / size.width() - 1.0f;
+    float ndcY = 1.0 - 2.0f * pos.y() / size.height();
+    return QVector3D(ndcX, ndcY, 0.0);
 }

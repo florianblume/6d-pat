@@ -40,12 +40,12 @@ private:
     void resizeImages();
 
 private:
-    ModelManager *modelManager;
-    QList<ImagePtr> imagesCache;
-    QPointer<ResizeImagesRunnable> resizeImagesRunnable;
-    QThreadPool resizeImagesThreadpool;
-    QMap<QString, QImage> resizedImagesCache;
-    bool abortResize = false;
+    ModelManager *m_modelManager;
+    QList<ImagePtr> m_imagesCache;
+    QPointer<ResizeImagesRunnable> m_resizeImagesRunnable;
+    QThreadPool m_resizeImagesThreadpool;
+    QMap<QString, QImage> m_resizedImagesCache;
+    bool m_abortResize = false;
 };
 
 #endif // GALLERYIMAGEMODEL_H

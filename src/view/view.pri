@@ -1,15 +1,17 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    $$PWD/poseviewer/mousecoordinatesmodificationeventfilter.hpp \
-    $$PWD/poseviewer/undomousecoordinatesmodificationeventfilter.hpp \
-    $$PWD/settings/settingsloadsavepage.hpp \
+    $$PWD/poseviewer/renderframegraph.hpp \
+    $$PWD/rendering/arcballrotationhandler.hpp \
+    $$PWD/rendering/modificationhandler.hpp \
+    $$PWD/rendering/translationhandler.hpp \
+    view/poseviewer/mousecoordinatesmodificationeventfilter.hpp \
+    view/poseviewer/undomousecoordinatesmodificationeventfilter.hpp \
+    view/settings/settingsloadsavepage.hpp \
     view/splashscreen/splashscreen.hpp \
     view/settings/settingspathspage.hpp \
     view/gallery/loadingiconmodel.hpp \
     view/gallery/galleryobjectmodels.hpp \
-    view/gallery/rendering/offscreenengine.hpp \
-    view/gallery/rendering/texturerendertarget.hpp \
     view/misc/displayhelper.hpp \
     view/mainwindow.hpp \
     view/breadcrumb/breadcrumbview.hpp \
@@ -18,8 +20,6 @@ HEADERS += \
     view/gallery/galleryobjectmodelmodel.hpp \
     view/gallery/iconexpandinglistview.hpp \
     view/rendering/backgroundimagerenderable.hpp \
-    view/rendering/objectmodelrenderablematerial.hpp \
-    view/rendering/poserenderable.hpp \
     view/settings/settingsdialog.hpp \
     view/settings/settingssegmentationcodespage.hpp \
     view/settings/settingsinterfacepage.hpp \
@@ -28,27 +28,26 @@ HEADERS += \
     view/poseeditor/poseeditor.hpp \
     view/poseeditor/poseeditor3dwidget.hpp \
     view/gallery/resizeimagesrunnable.hpp \
+    view/rendering/offscreenengine.hpp \
+    view/rendering/poserenderable.hpp \
     view/rendering/objectmodelrenderable.hpp \
+    view/rendering/texturerendertarget.hpp \
     view/rendering/clickvisualizationmaterial.hpp \
     view/rendering/clickvisualizationrenderable.hpp \
     view/tutorialscreen/tutorialscreen.hpp
 
 SOURCES += \
-    $$PWD/poseviewer/mousecoordinatesmodificationeventfilter.cpp \
-    $$PWD/poseviewer/undomousecoordinatesmodificationeventfilter.cpp \
-    $$PWD/settings/settingsloadsavepage.cpp \
+    $$PWD/poseviewer/renderframegraph.cpp \
+    $$PWD/rendering/arcballrotationhandler.cpp \
+    $$PWD/rendering/modificationhandler.cpp \
+    $$PWD/rendering/translationhandler.cpp \
+    view/poseviewer/mousecoordinatesmodificationeventfilter.cpp \
+    view/poseviewer/undomousecoordinatesmodificationeventfilter.cpp \
+    view/settings/settingsloadsavepage.cpp \
     view/splashscreen/splashscreen.cpp \
-    view/gallery/loadingiconmodel.cpp \
     view/settings/settingspathspage.cpp \
-    view/gallery/galleryobjectmodels.cpp \
     view/mainwindow.cpp \
     view/breadcrumb/breadcrumbview.cpp \
-    view/gallery/gallery.cpp \
-    view/gallery/galleryimagemodel.cpp \
-    view/gallery/galleryobjectmodelmodel.cpp \
-    view/gallery/iconexpandinglistview.cpp \
-    view/rendering/backgroundimagerenderable.cpp \
-    view/rendering/poserenderable.cpp \
     view/settings/settingsdialog.cpp \
     view/settings/settingssegmentationcodespage.cpp \
     view/settings/settingsinterfacepage.cpp \
@@ -56,18 +55,25 @@ SOURCES += \
     view/poseviewer/poseviewer3dwidget.cpp \
     view/poseeditor/poseeditor.cpp \
     view/poseeditor/poseeditor3dwidget.cpp \
-    view/gallery/resizeimagesrunnable.cpp \
     view/misc/displayhelper.cpp \
-    view/gallery/rendering/offscreenengine.cpp \
-    view/gallery/rendering/texturerendertarget.cpp \
+    view/gallery/loadingiconmodel.cpp \
+    view/gallery/galleryobjectmodels.cpp \
+    view/gallery/gallery.cpp \
+    view/gallery/galleryimagemodel.cpp \
+    view/gallery/galleryobjectmodelmodel.cpp \
+    view/gallery/iconexpandinglistview.cpp \
+    view/gallery/resizeimagesrunnable.cpp \
+    view/rendering/offscreenengine.cpp \
+    view/rendering/texturerendertarget.cpp \
+    view/rendering/backgroundimagerenderable.cpp \
+    view/rendering/poserenderable.cpp \
     view/rendering/objectmodelrenderable.cpp \
-    view/rendering/objectmodelrenderablematerial.cpp \
     view/rendering/clickvisualizationmaterial.cpp \
     view/rendering/clickvisualizationrenderable.cpp \
     view/tutorialscreen/tutorialscreen.cpp
 
 FORMS += \
-    $$PWD/settings/settingsloadsavepage.ui \
+    view/settings/settingsloadsavepage.ui \
     view/breadcrumb/breadcrumbview.ui \
     view/settings/settingspathspage.ui \
     view/mainwindow.ui \

@@ -16,12 +16,14 @@ public:
     LoadingIconModel();
 
 protected:
-    QTimer m_updateTimer;
-    QIcon currentLoadingAnimationFrame;
+    QTimer m_loadingIconUpdateTimer;
+    QIcon m_currentLoadingAnimationFrame;
 
 private:
     void updateListView();
-    QScopedPointer<QMovie> loadingAnimation;
+
+private:
+    QScopedPointer<QMovie> m_loadingAnimation;
 };
 
 #endif // LOADINGICONMODEL_H
