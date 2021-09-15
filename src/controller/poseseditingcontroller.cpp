@@ -124,17 +124,19 @@ void PosesEditingController::removePose() {
     for (int i = 0; i < m_posesForImage.size(); i++) {
         if (m_posesForImage[i] == m_selectedPose) {
             m_posesForImage.removeAt(i);
+            break;
         }
     }
     // Check if the pose has only been added
-    bool poseHasBeenAdded = false;
+    bool poseHasJustBeenAdded = false;
     for (int i = 0; i < m_posesToAdd.size(); i++) {
         if (m_posesToAdd[i] == m_selectedPose) {
             m_posesToAdd.removeAt(i);
-            poseHasBeenAdded = true;
+            poseHasJustBeenAdded = true;
+            break;
         }
     }
-    if (!poseHasBeenAdded) {
+    if (!poseHasJustBeenAdded) {
         m_posesToRemove.append(m_selectedPose);
     }
     m_mainWindow->poseViewer()->removePose(m_selectedPose);
@@ -166,6 +168,18 @@ void PosesEditingController::copyPosesFromImage(ImagePtr image) {
 
 // Called from the setters of the pose
 void PosesEditingController::onPoseChanged() {
+    // Quick check whether the controller should ignore changes in the pose
+    // values (rare case when modifying a pose, removing it and then clicking
+    // the reset button)
+    if (m_selectedPose.isNull()) {
+        return;
+    }
+    if (m_posesToAdd.contains(m_selectedPose)) {
+        // If the pose has just been added we do not need to store
+        // its modified values, it will get saved anyways (or not
+        // added when the user doesn't want it)
+        return;
+    }
     // Only assign true when actually changed
     PoseValues poseValues = m_unmodifiedPoses[m_selectedPose->id()];
     m_dirtyPoses[m_selectedPose] = poseValues.position != m_selectedPose->position()
@@ -186,7 +200,7 @@ void PosesEditingController::modelManagerStateChanged(ModelManager::State state)
     // We do not need to disable the UI here because the main window is
     // displaying a modal progress bar
     if (state == ModelManager::Loading) {
-        _savePoses(true);
+        showDialogAndSavePoses(true);
     }
 }
 
@@ -213,15 +227,15 @@ void PosesEditingController::onDataChanged(int /*data*/) {
 }
 
 void PosesEditingController::saveUnsavedChanges() {
-    _savePoses(true);
+    showDialogAndSavePoses(true);
 }
 
 void PosesEditingController::savePoses() {
-    _savePoses(false);
+    showDialogAndSavePoses(false);
 }
 
 void PosesEditingController::savePosesOrRestoreState() {
-    bool result = _savePoses(true);
+    bool result = showDialogAndSavePoses(true);
     // Result is true if poses have been saved
     if (!result) {
         // Set all poses to not dirty
@@ -239,12 +253,21 @@ void PosesEditingController::savePosesOrRestoreState() {
     }
 }
 
-bool PosesEditingController::_savePoses(bool showDialog) {
+bool PosesEditingController::showDialogAndSavePoses(bool showDialog) {
     QList<PosePtr> posesToSave = m_dirtyPoses.keys(true);
     m_mainWindow->poseEditor()->setEnabledButtonSave(false);
     bool noErrorSavingPoses = true;
     if (posesToSave.size() || m_posesToAdd.size() || m_posesToRemove.size()) {
-        qDebug() << posesToSave.size() + m_posesToAdd.size() + m_posesToRemove.size() << " poses dirty.";
+        int posesToSaveCount = posesToSave.size() + m_posesToAdd.size() + m_posesToRemove.size();
+        for (int i = 0; i < posesToSave.size(); i++) {
+            PosePtr pose = posesToSave[i];
+            // Check if the pose to remove has been modified to not count it twice
+            // when displaying how many poses are dirty
+            if (m_posesToRemove.contains(pose)) {
+                posesToSaveCount--;
+            }
+        }
+        qDebug() << posesToSaveCount << " poses dirty.";
         bool result = !showDialog;
         if (showDialog) {
             result =  m_mainWindow->showSaveUnsavedChangesDialog();
@@ -278,6 +301,13 @@ bool PosesEditingController::_savePoses(bool showDialog) {
             }
         } else if (showDialog && !result) {
             qDebug() << "Not saving poses as requested.";
+            // Need to clean up in case the user pressed only the reset button
+            for (int i = 0; i < m_posesToRemove.size(); i++) {
+                PosePtr poseToRemove = m_posesToRemove[i];
+                if (m_dirtyPoses.contains(poseToRemove)) {
+
+                }
+            }
         }
         if (noErrorSavingPoses) {
             m_posesToAdd.clear();
@@ -511,5 +541,5 @@ void PosesEditingController::reset() {
 }
 
 void PosesEditingController::onProgramClose() {
-    _savePoses(true);
+    showDialogAndSavePoses(true);
 }

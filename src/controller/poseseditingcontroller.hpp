@@ -53,7 +53,7 @@ private Q_SLOTS:
     void saveUnsavedChanges();
     void savePoses();
     void savePosesOrRestoreState();
-    bool _savePoses(bool showDialog);
+    bool showDialogAndSavePoses(bool showDialog);
     void onProgramClose();
 
     // React to clicks in the galleries

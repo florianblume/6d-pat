@@ -839,7 +839,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Reset the rotation and translation of the object model.</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the rotation and translation of the 3D view above.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string/>
