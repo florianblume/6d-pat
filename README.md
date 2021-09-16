@@ -40,16 +40,16 @@ Check out the [getting the program wiki page](https://github.com/florianblume/6d
 
 |  | OpenGL | Qt | OpenCV | Python | Pybind11
 --- | --- | --- | --- | --- | ---
-**Version** | *3.1* | *5.14* | *4.5* | *3.8* | *2.6.2*
+**Version** | >=*3.1* | >=*5.14* | >=*4.5* | ==*3.8* | ==*2.6.2*
 
-You need to have Qt >= 5.14 and OpenCV >= 4.5 installed. You can do so this way for example (if you don't want to manually install Qt and build OpenCV):
+For OpenGL, Qt and OpenCV these are the **minimum** versions you need to have installed. Python needs to be exactly 3.8 (C++ interface changes from version to version in Python) and I'm not sure about Pybind11 that's why I'm assuming you need exactly this version. You can do so this way for example (if you don't want to manually install Qt and build OpenCV):
 
     sudo add-apt-repository -y ppa:beineri/opt-qt-5.14.2-focal
     sudo apt-get update -qq
     sudo apt-get -y install qt514-meta-minimal qt5143d qt514gamepad python3 python3-dev python3-pybind11
     sudo apt-get -y install libopencv-dev
 
-Then open the project's main `6d-pat.pro` file in QtCreator and build the project. Everything should compile successfully.
+Then open the project's main `6d-pat.pro` file in QtCreator and build the project. Everything should compile successfully. If not: Feel free to open an issue and I'll try to help you.
 
 ## Setting up the program the first time
 
