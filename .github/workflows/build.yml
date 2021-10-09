@@ -8,23 +8,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Install other dependencies
-      run: sudo apt-get update && sudo apt-get install -y libopencv-dev libpython3.8 libpython3.8-dev
-    - name: Cache Pybind11
-      id: pybind11-cache
-      uses: actions/cache@v2
-      with:
-        path: ./pybind11-install
-        key: ${{ runner.os }}-pybind11-cache
-    - name: Install Pybind11
-      uses: florianblume/with-pybind11-action/@v0.3
-      with:
-        dir: ./pybind11-install
-        cached: ${{ steps.pybind11-cache.outputs.cache-hit }}
-        pybind11-version: '2.8.0'
+      run: sudo apt-get update && sudo apt-get install -y libopencv-dev libpython3 libpython3-dev python3-pybind11
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
