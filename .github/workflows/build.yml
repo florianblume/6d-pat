@@ -14,7 +14,7 @@ jobs:
     - name: Install other dependencies
       run: sudo apt-get update && sudo apt-get install -y libopencv-dev libpython3.8 libpython3.8-dev
     - name: Build PyBind11
-      run: cd .. && git clone https://github.com/pybind/pybind11.git && cd pybind11 && mkdir pybind11-build && cd pybind11-build && cmake .. && make && sudo make install
+      run: cd .. && git clone https://github.com/pybind/pybind11.git && cd pybind11 && mkdir pybind11-build && cd pybind11-build && cmake .. && make -j8 && sudo make install
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
