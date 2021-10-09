@@ -20,7 +20,7 @@ jobs:
         path: ./pybind11-install
         key: ${{ runner.os }}-pybind11-cache
     - name: Install Pybind11
-      uses: florianblume/with-pybind11-action/@v0.2
+      uses: florianblume/with-pybind11-action/@v0.3
       with:
         dir: ./pybind11-install
         cached: ${{ steps.pybind11-cache.outputs.cache-hit }}
