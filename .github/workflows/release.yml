@@ -68,4 +68,4 @@ jobs:
         files: |
           LICENSE
           README.md
-          6DPAT-$VERSION-x86_64.AppImage
+          6DPAT-${{ env.RELEASE_VERSION }}-x86_64.AppImage
