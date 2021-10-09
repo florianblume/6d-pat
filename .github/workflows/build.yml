@@ -20,11 +20,11 @@ jobs:
         path: ./pybind11-install
         key: ${{ runner.os }}-pybind11-cache
     - name: Install Pybind11
-      uses: florianblume/with-pybind11-action/@v0.1
+      uses: florianblume/with-pybind11-action/@v0.2
       with:
         dir: ./pybind11-install
         cached: ${{ steps.pybind11-cache.outputs.cache-hit }}
-        opencv-version: '2.8.0'
+        pybind11-version: '2.8.0'
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
