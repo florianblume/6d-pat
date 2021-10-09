@@ -8,7 +8,7 @@ on:
 
 jobs:
   tagged-release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
     - name: Set commit tag
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
@@ -53,18 +53,11 @@ jobs:
       run: |
         echo $'[Desktop Entry]\nType=Application\nName=6DPAT\nExec=6DPAT\nIcon=6DPAT\nCategories=Utility;Application;' > 6DPAT.desktop
         mv 6DPAT.desktop appdir/6DPAT.desktop
-        ls
-        ls appdir
     - name: Run linuxdeployqt
       run: |
-        wget https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage
-        chmod +x linuxdeployqt-5-x86_64.AppImage
-        ./linuxdeployqt-5-x86_64.AppImage appdir/6DPAT -extra-plugins=renderers,sceneparsers -bundle-non-qt-libs
-    - name: Run appimagetool
-      run: |
-        wget https://github.com/AppImage/AppImageKit/releases/download/12/appimagetool-x86_64.AppImage
-        chmod +x appimagetool-x86_64.AppImage
-        ./appimagetool-x86_64.AppImage appdir
+        wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
+        chmod +x linuxdeployqt-continuous-x86_64.AppImage
+        ./linuxdeployqt-continuous-x86_64.AppImage appdir/6DPAT -extra-plugins=sceneparsers -bundle-non-qt-libs -appimage -unsupported-allow-new-glibc
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
