@@ -18,7 +18,9 @@ The program allows you to select a folder and view the images contained in it in
 
 ## Getting the program
 
-### Running a release
+### Running the AppImage
+
+**Note:** The AppImage is built on Ubuntu 20.04 (the latest version) and thus requries you to have Ubuntu 20.04. You could try a virtual machine if you Ubuntu version doesn't match or build the program yourself.
 
 You can download the latest AppImage from the [releases page](https://github.com/florianblume/6d-pat/releases) which contains everything the program needs to run and should work on the latest Ubuntu out of the box.
 
