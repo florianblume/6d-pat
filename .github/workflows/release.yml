@@ -50,9 +50,6 @@ jobs:
     - name: Copy executable and icon
       run: |
         cp ./build/release/app/6DPAT appdir
-        cp ./build/release/src/lib6dpat.so appdir
-        cp ./build/release/app/lib6dpat.so.1 appdir
-        cp ./build/release/app/lib6dpat.so.1.0 appdir
         cp ./src/resources/images/icon.png appdir
         mv appdir/icon.png appdir/6DPAT.png
     - name: Create desktop file
@@ -60,6 +57,8 @@ jobs:
         echo $'[Desktop Entry]\nType=Application\nName=6DPAT\nExec=6DPAT\nIcon=6DPAT\nCategories=Utility;Application;' > 6DPAT.desktop
         mv 6DPAT.desktop appdir/6DPAT.desktop
     - name: Run linuxdeployqt
+      env:
+          LD_LIBRARY_PATH: ${{ env.LD_LIBRARY_PATH }};$PWD/build/release/src
       run: |
         wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
         chmod +x linuxdeployqt-continuous-x86_64.AppImage
