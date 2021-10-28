@@ -61,8 +61,8 @@ jobs:
         wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
         chmod +x linuxdeployqt-continuous-x86_64.AppImage
         export LD_LIBRARY_PATH="$PWD/build/release/src":$LD_LIBRARY_PATH
-        ECHO $PWD
-        ECHO $LD_LIBRARY_PATH
+        echo $PWD
+        echo $LD_LIBRARY_PATH
         ./linuxdeployqt-continuous-x86_64.AppImage appdir/6DPAT -extra-plugins=sceneparsers -bundle-non-qt-libs -appimage -unsupported-allow-new-glibc
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
