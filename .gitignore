@@ -1,3 +1,5 @@
 build
 *.pro.user
 *.pyc
+appdir
+*.autosave

@@ -1,5 +1,7 @@
 INCLUDEPATH += $$PWD
 
-HEADERS +=
+HEADERS += \
+    $$PWD/jsonloadandstorestrategytest.hpp
 
-SOURCES +=
+SOURCES += \
+    $$PWD/jsonloadandstorestrategytest.cpp

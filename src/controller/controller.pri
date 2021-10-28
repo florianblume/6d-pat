@@ -1,9 +1,9 @@
 INCLUDEPATH += $$PWD
 
 HEADERS  += \
-    controller/poseseditingcontroller.hpp \
-    controller/maincontroller.hpp
+    $$PWD/poseseditingcontroller.hpp \
+    $$PWD/maincontroller.hpp
 
 SOURCES += \
-    controller/poseseditingcontroller.cpp \
-    controller/maincontroller.cpp
+    $$PWD/poseseditingcontroller.cpp \
+    $$PWD/maincontroller.cpp

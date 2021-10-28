@@ -1,7 +1,7 @@
 #ifndef DISPALYHELPER_H
 #define DISPALYHELPER_H
 
-#include "QtAwesome.h"
+#include "3dparty/QtAwesome/QtAwesome.h"
 
 #include <memory>
 #include <QColor>

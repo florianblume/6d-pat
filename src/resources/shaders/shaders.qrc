@@ -1,12 +1,10 @@
 <RCC>
     <qresource prefix="/shaders">
-        <file>clicks.frag</file>
-        <file>clicks.vert</file>
-        <file>object.frag</file>
-        <file>object.vert</file>
         <file>phong.inc.frag</file>
         <file>object.frag.json</file>
         <file>visualizeclicks.inc.frag</file>
         <file>object.vert.json</file>
+        <file>clicks.frag</file>
+        <file>clicks.vert</file>
     </qresource>
 </RCC>

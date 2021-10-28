@@ -2,21 +2,21 @@ INCLUDEPATH += $$PWD
 
 HEADERS += \
     $$PWD/pythonloadandstorestrategy.hpp \
-    model/cachingmodelmanager.hpp \
-    model/data.hpp \
-    model/image.hpp \
-    model/loadandstorestrategy.hpp \
-    model/modelmanager.hpp \
-    model/objectmodel.hpp \
-    model/jsonloadandstorestrategy.hpp \
-    model/pose.hpp
+    $$PWD/cachingmodelmanager.hpp \
+    $$PWD/data.hpp \
+    $$PWD/image.hpp \
+    $$PWD/loadandstorestrategy.hpp \
+    $$PWD/modelmanager.hpp \
+    $$PWD/objectmodel.hpp \
+    $$PWD/jsonloadandstorestrategy.hpp \
+    $$PWD/pose.hpp
 
 SOURCES += \
     $$PWD/pythonloadandstorestrategy.cpp \
-    model/image.cpp \
-    model/objectmodel.cpp \
-    model/loadandstorestrategy.cpp \
-    model/cachingmodelmanager.cpp \
-    model/modelmanager.cpp \
-    model/jsonloadandstorestrategy.cpp \
-    model/pose.cpp
+    $$PWD/image.cpp \
+    $$PWD/objectmodel.cpp \
+    $$PWD/loadandstorestrategy.cpp \
+    $$PWD/cachingmodelmanager.cpp \
+    $$PWD/modelmanager.cpp \
+    $$PWD/jsonloadandstorestrategy.cpp \
+    $$PWD/pose.cpp

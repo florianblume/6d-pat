@@ -54,6 +54,6 @@ RUN git clone https://github.com/florianblume/6d-pat && \
 
 # To ensure that libpython3.8 will be found
 ENV ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PAT
-RUN mv /6d-pat/build/release/src/6DPAT /6DPAT
+RUN mv /6d-pat/build/release/app/6DPAT /6DPAT
 
 ENTRYPOINT ["/6DPAT"]

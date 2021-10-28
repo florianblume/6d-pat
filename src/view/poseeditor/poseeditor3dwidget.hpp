@@ -48,7 +48,6 @@ Q_SIGNALS:
 private Q_SLOTS:
     void onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status status);
     void onObjectModelRenderablePressed(Qt3DRender::QPickEvent *event);
-    void onObjectModelRenderableReleased(Qt3DRender::QPickEvent *event);
     void onObjectModelRenderableMoved(Qt3DRender::QPickEvent *event);
     void onCurrentSettingsChanged(SettingsPtr settings);
 
@@ -73,6 +72,7 @@ private:
 
     SettingsStore *m_settingsStore = Q_NULLPTR;
 
+    bool m_mouseMoved = false;
     bool m_mouseDownOnObjectModelRenderable = false;
     bool m_mouseMovedOnObjectModelRenderable = false;
 };

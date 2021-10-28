@@ -1,4 +1,6 @@
-#include "controller/maincontroller.hpp"
+#include <controller/maincontroller.hpp>
+
+#include <QApplication>
 
 int main(int argc, char *argv[]) {
     // Need to set this before the application starts

@@ -2,6 +2,6 @@ INCLUDEPATH += $$PWD
 
 HEADERS += \
     $$PWD/generalhelper.hpp \
-    misc/global.hpp
+    $$PWD/global.hpp
 
 SOURCES +=

@@ -18,7 +18,6 @@ void TranslationHandler::initializeTranslation(const QVector3D &localIntersectio
     // Store the depth for the mouseMove event
     // TODO do we need to make that configurable if the camera is somehow rotated?
     m_depth = projected.z();
-    qDebug() << m_depth;
     m_currentTransformMatrix = m_transform->matrix();
 }
 

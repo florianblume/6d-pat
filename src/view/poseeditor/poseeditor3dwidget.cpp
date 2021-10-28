@@ -98,7 +98,11 @@ PoseEditor3DWindow::PoseEditor3DWindow()
            [this](Qt3DRender::QPickEvent *pickEvent){
         if (!m_mouseMovedOnObjectModelRenderable &&
                 m_mouseDownOnObjectModelRenderable) {
-            Q_EMIT positionClicked(pickEvent->localIntersection());
+            // localIntersection() does not invert the model transformations apparently
+            // only the view transformations -> we have to invet them here manually
+            QVector4D localIntersection = QVector4D(pickEvent->localIntersection(), 1.0);
+            localIntersection = m_objectModelTransform->matrix().inverted() * localIntersection;
+            Q_EMIT positionClicked(localIntersection.toVector3D());
         }
         m_mouseMovedOnObjectModelRenderable = false;
         m_mouseDownOnObjectModelRenderable = false;
@@ -142,23 +146,19 @@ void PoseEditor3DWindow::onObjectModelRenderablePressed(Qt3DRender::QPickEvent *
     m_translationHandler.initializeTranslation(event->localIntersection(), event->worldIntersection());
 }
 
-void PoseEditor3DWindow::onObjectModelRenderableReleased(Qt3DRender::QPickEvent */*event*/) {
-    m_mouseDownOnObjectModelRenderable = false;
-    m_mouseMovedOnObjectModelRenderable = false;
-}
-
 void PoseEditor3DWindow::onObjectModelRenderableMoved(Qt3DRender::QPickEvent *event) {
-    m_mouseMovedOnObjectModelRenderable = true;
+    // We don't need to call this, mouseMoveEvent already sets the moved bool to true
+    // no matter where the mouse moves on the widget
+    //m_mouseMovedOnObjectModelRenderable = true;
     Q_EMIT mouseMoved(event->localIntersection());
 }
 
 void PoseEditor3DWindow::mouseReleaseEvent(QMouseEvent */*event*/) {
-    m_mouseDownOnObjectModelRenderable = false;
-    m_mouseMovedOnObjectModelRenderable = false;
     m_pressedMouseButton = Qt3DRender::QPickEvent::NoButton;
 }
 
 void PoseEditor3DWindow::mouseMoveEvent(QMouseEvent *event) {
+    m_mouseMovedOnObjectModelRenderable = true;
     if (m_pressedMouseButton == Qt3DRender::QPickEvent::LeftButton && m_mouseDownOnObjectModelRenderable) {
         m_translationHandler.translate(event->pos());
     } else if (m_pressedMouseButton == Qt3DRender::QPickEvent::RightButton &&  m_mouseDownOnObjectModelRenderable) {

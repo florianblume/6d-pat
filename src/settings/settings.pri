@@ -1,9 +1,9 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    settings/settings.hpp \
-    settings/settingsstore.hpp
+    $$PWD/settings.hpp \
+    $$PWD/settingsstore.hpp
 
 SOURCES += \
-    settings/settings.cpp \
-    settings/settingsstore.cpp
+    $$PWD/settings.cpp \
+    $$PWD/settingsstore.cpp
