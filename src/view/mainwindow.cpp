@@ -236,6 +236,11 @@ void MainWindow::showPoseRecoveringProgressView(bool show) {
     showProgressView(show);
 }
 
+void MainWindow::clearGallerySelections() {
+    ui->galleryLeft->clearSelection(false);
+    ui->galleryRight->clearSelection(false);
+}
+
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
     SettingsPtr settings = m_settingsStore->currentSettings();
     settings->setImagesPath(path);
@@ -266,7 +271,9 @@ bool MainWindow::showSaveUnsavedChangesDialog() {
                                                                          "Save them now?",
                                                                          "Yes", QMessageBox::YesRole,
                                                                          "No", QMessageBox::NoRole);
-    return QMessageBox::Yes == messageBox->exec();
+    auto returnValue = messageBox->exec();
+    // Message box returns 0 when yes is pressed
+    return 0 == returnValue;
 }
 
 void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
@@ -324,8 +331,8 @@ void MainWindow::onActionResetTriggered() {
 }
 
 void MainWindow::onActionReloadViewsTriggered() {
-    setStatusBarTextStartAddingCorrespondences();
     Q_EMIT reloadViewsRequested();
+    setStatusBarTextStartAddingCorrespondences();
 }
 
 void MainWindow::onActionTakeSnapshotTriggered() {

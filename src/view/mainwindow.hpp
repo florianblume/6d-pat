@@ -54,6 +54,9 @@ public:
     void showDataLoadingProgressView(bool show);
     void showPoseRecoveringProgressView(bool show);
 
+    // This is needed to clear the selections when e.g. relaoding the views
+    void clearGallerySelections();
+
 public Q_SLOTS:
 
     /*!

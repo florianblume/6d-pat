@@ -73,7 +73,7 @@ private:
     LoadAndStoreStrategyPtr m_currentStrategy;
     QScopedPointer<CachingModelManager> m_modelManager;
     QThread *m_modelManagerThread;
-    QScopedPointer<PosesEditingController> m_poseEditingModel;
+    QScopedPointer<PosesEditingController> m_poseEditingController;
 
     QScopedPointer<MainWindow> m_mainWindow;
 };

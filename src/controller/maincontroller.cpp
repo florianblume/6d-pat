@@ -65,7 +65,7 @@ void MainController::initialize() {
     });
 
     // Call here since we need the model manager and the main window
-    m_poseEditingModel.reset(new PosesEditingController(Q_NULLPTR, m_modelManager.get(), m_mainWindow.get()));
+    m_poseEditingController.reset(new PosesEditingController(Q_NULLPTR, m_modelManager.get(), m_mainWindow.get()));
 
     // This makes the ModelManager load data - don't call it before creating the MainWindow as we
     // want to show the progress loading view in the ModelManager state change callback
@@ -126,9 +126,13 @@ void MainController::onSettingsChanged(SettingsPtr settings) {
 }
 
 void MainController::onReloadViewsRequested() {
+    // First reset the pose editing controller so that it can ask whether the
+    // user wants to save any changes before resetting the views (looks nicer)
+    m_poseEditingController.reset();
     // Emit the signal to load data threadded, directly calling the methods
     // does not do anything threadded
     Q_EMIT reloadingData();
+    m_mainWindow->clearGallerySelections();
 }
 
 void MainController::onModelManagerStateChanged(ModelManager::State state, const QString &error) {

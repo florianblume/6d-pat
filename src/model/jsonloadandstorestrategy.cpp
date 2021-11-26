@@ -135,9 +135,13 @@ static QMatrix3x3 rotVectorFromJsonRotMatrix(QJsonArray &jsonRotationMatrix) {
     return rotationMatrix;
 }
 
-static ImagePtr createImageWithJsonParams(const QString &id, const QString& filename,
+static ImagePtr createImageWithJsonParams(const QString &id,
+                                          const QString& filename,
                                           const QString &segmentationFilename,
-                                          const QString &imagesPath, QJsonObject &json) {
+                                          const QString &imagesPath,
+                                          float defaultNearPlane,
+                                          float defaultFarPlane,
+                                          QJsonObject &json) {
     QJsonObject parameters = json[filename].toObject();
     if (!parameters.contains("K")) {
         return ImagePtr();
@@ -154,8 +158,8 @@ static ImagePtr createImageWithJsonParams(const QString &id, const QString& file
         (float) cameraMatrix[7].toDouble(),
         (float) cameraMatrix[8].toDouble()};
     QMatrix3x3 qtCameraMatrix = QMatrix3x3(values);
-    float nearPlane = 50;
-    float farPlane = 2000;
+    float nearPlane = defaultNearPlane;
+    float farPlane = defaultFarPlane;
     if (parameters.contains("nearPlane")) {
         nearPlane = (float) parameters["nearPlane"].toDouble();
     }
@@ -243,6 +247,17 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     }
 
     QJsonObject jsonObject = jsonDocument.object();
+    // The user can define the near and far plane per image or
+    // on a global level which will be used in case no individual
+    // near and far plane are set on the image
+    float nearPlane = NEAR_PLANE;
+    if (jsonObject.contains("nearPlane")) {
+        nearPlane = (float) jsonObject["nearPlane"].toDouble();
+    }
+    float farPlane = FAR_PLANE;
+    if (jsonObject.contains("farPlane")) {
+        farPlane = (float) jsonObject["farPlane"].toDouble();
+    }
     for (int i = 0; i < imageFiles.size(); i ++) {
         QString image = imageFiles[i];
         QString imageFilename = QFileInfo(image).fileName();
@@ -260,12 +275,16 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
                                                  imageFilename,
                                                  segmentationImageFilePath,
                                                  m_imagesPath,
+                                                 nearPlane,
+                                                 farPlane,
                                                  jsonObject);
         } else {
             newImage = createImageWithJsonParams(QString::number(i),
                                                  imageFilename,
                                                  "",
                                                  m_imagesPath,
+                                                 nearPlane,
+                                                 farPlane,
                                                  jsonObject);
         }
         if (!newImage) {
@@ -376,7 +395,7 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
 
     //! See loadImages for why we don't throw an exception here
     if (!QFileInfo(m_posesFilePath).exists()) {
-        Q_EMIT error(tr("Failed to load poses. Poses path does not exist."));
+        Q_EMIT error(tr("Failed to load poses. Poses file does not exist."));
         return poses;
     }
 

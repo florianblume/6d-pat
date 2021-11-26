@@ -88,7 +88,8 @@ PoseEditor3DWindow::PoseEditor3DWindow()
         m_lightTransform->setTranslation(this->camera()->position());
     });
 
-    this->renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    renderSettings()->pickingSettings()->setFaceOrientationPickingMode(Qt3DRender::QPickingSettings::FrontAndBackFace);
 
     m_picker = new Qt3DRender::QObjectPicker(m_rootEntity);
     m_picker->setHoverEnabled(true);
