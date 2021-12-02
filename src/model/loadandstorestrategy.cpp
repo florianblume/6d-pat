@@ -54,8 +54,11 @@ bool LoadAndStoreStrategy::setPath(const QString &path, QString &oldPath) {
     // Only check if path exists if the new path is not equal to NO_PATH
     // NO_PATH is the path set in the beginning when the program is launched the
     // first time
-    if (!QFileInfo(path).exists() && path != Global::NO_PATH)
-        return false;
+    // We don't do the check here anymore since we do it when loading and otherwise
+    // loading might succeed since the path is not changed but the user might
+    // assume that it actually was changed and get confused
+    //if (!QFileInfo(path).exists() && path != Global::NO_PATH)
+        //return false;
     if (oldPath == path)
         return true;
 

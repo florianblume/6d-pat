@@ -1,5 +1,7 @@
 INCLUDEPATH += $$PWD
 
-HEADERS  +=
+HEADERS  += \
+    $$PWD/poseeditingcontrollertest.hpp
 
-SOURCES +=
+SOURCES += \
+    $$PWD/poseeditingcontrollertest.cpp

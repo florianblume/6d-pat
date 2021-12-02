@@ -1,7 +1,9 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    $$PWD/jsonloadandstorestrategytest.hpp
+    $$PWD/jsonloadandstorestrategytest.hpp \
+    $$PWD/pythonloadandstorestrategytest.hpp
 
 SOURCES += \
-    $$PWD/jsonloadandstorestrategytest.cpp
+    $$PWD/jsonloadandstorestrategytest.cpp \
+    $$PWD/pythonloadandstorestrategytest.cpp

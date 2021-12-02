@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/data">
+        <file alias="test1.png">resources/images/test1.png</file>
+    </qresource>
+    <qresource prefix="/python"/>
+</RCC>

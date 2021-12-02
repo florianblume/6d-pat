@@ -186,10 +186,10 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     // is if this strategy was constructed with an empty path, all other methods of
     // setting the path check if the path exists
     if (!QFileInfo(m_imagesPath).exists()) {
-        Q_EMIT error(tr("Failed to load images. Images path does not exist."));
+        Q_EMIT error(tr("Failed to load images. Images dir does not exist."));
         return images;
     } else if (!QFileInfo(m_imagesPath).isDir()) {
-        Q_EMIT error(tr("Failed to load images. Images path is not a folder."));
+        Q_EMIT error(tr("Failed to load images. Images dir is not a folder."));
         return images;
     } else if (m_segmentationImagesPath != "" && !QFileInfo(m_segmentationImagesPath).exists()) {
         Q_EMIT error(tr("Failed to load segmentation images. Segmentation images path does not exist."));
@@ -229,7 +229,7 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     bool foundImageWithInvalidCameraMatrix = false;
 
     if (imageFiles.size() == 0) {
-        Q_EMIT error(tr("No images found at give location."));
+        Q_EMIT error(tr("No images found at images dir."));
         return images;
     } else if (!jsonFile.exists()) {
         Q_EMIT error(tr("Failed to load images. Camera info file info.json does not exist."));
@@ -355,7 +355,7 @@ QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
         });
 
     if (objectModels.size() == 0) {
-        Q_EMIT error(tr("No object models found at object models path."));
+        Q_EMIT error(tr("No object models found at object models dir."));
     }
     return objectModels;
 }
@@ -421,6 +421,10 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
     //! If we need to update missing IDs we have to write back the document
     bool documentDirty = false;
     for(const QString& imagePath : jsonObject.keys()) {
+        if (!jsonObject[imagePath].isArray()) {
+            Q_EMIT error(tr("The JSON poses file does not contain an array of image entries."));
+            return poses;
+        }
         QJsonArray entriesForImage = jsonObject[imagePath].toArray();
         //! Index to keep track of entries to be able to update the
         //! poses' IDs if necessary. See reason to update the IDs
@@ -428,14 +432,36 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
         int index = 0;
         for(const QJsonValue &poseEntryRaw : entriesForImage) {
             QJsonObject poseEntry = poseEntryRaw.toObject();
+            bool valuesValid = true;
+
             if (!poseEntry.contains("R") ||
                 !poseEntry.contains("t") ||
                 !poseEntry.contains("obj")) {
-                foundPosesWithInvalidPosesData = true;
-                continue;
+                valuesValid = false;
             }
 
-            //! Read rotation vector from json file
+            if (!poseEntry["R"].isArray()) {
+                valuesValid = false;
+            }
+
+            if (!poseEntry["t"].isArray()) {
+                valuesValid = false;
+            }
+
+            if (!poseEntry["obj"].isString()) {
+                valuesValid = false;
+            }
+
+            if (!imageMap.contains(imagePath)) {
+                valuesValid = false;
+            }
+
+            QString objectModelPath = poseEntry["obj"].toString();
+
+            if (!objectModelMap.contains(objectModelPath)) {
+                valuesValid = false;
+            }
+
             QJsonArray jsonRotationMatrix = poseEntry["R"].toArray();
             QMatrix3x3 rotationMatrix = rotVectorFromJsonRotMatrix(jsonRotationMatrix);
 
@@ -444,11 +470,10 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
                                                       (float) translation[1].toDouble(),
                                                       (float) translation[2].toDouble());
 
-            QString objectModelPath = poseEntry["obj"].toString();
             ImagePtr image = imageMap.value(imagePath);
             ObjectModelPtr objectModel = objectModelMap.value(objectModelPath);
 
-            if (image && objectModel) {
+            if (image && objectModel && valuesValid) {
                 //! If either is NULL, we do not manage the image or object model
                 //! specified in the JSON file, that's why we just skip the entry
                 //!
@@ -480,6 +505,8 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
                 foundPosesWithInvalidPosesData = true;
                 if (poseEntry.contains("id")) {
                     m_posesWithInvalidData.append(poseEntry["id"].toString());
+                } else {
+                    m_posesWithInvalidData.append("Unkown ID");
                 }
             }
             index++;
@@ -493,6 +520,7 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
 
     if (foundPosesWithInvalidPosesData) {
         Q_EMIT error(tr("There were poses with invalid data."));
+        // Invalid poses can be accessed through the strategy's public accessors
         qDebug() << "Poses with invalid data: ";
         qDebug() << m_posesWithInvalidData;
     }
