@@ -46,8 +46,8 @@ jobs:
     - name: execute tests
       working-directory: ./build/release
       run: |
-           ls
+           ll
            export LD_LIBRARY_PATH=~/build/release/src:$LD_LIBRARY_PATH
-           ls ~
-           ls ./build/release/src
+           ll ~
+           ll ./build/release/src
     
