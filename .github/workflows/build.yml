@@ -45,9 +45,5 @@ jobs:
     steps:
     - name: execute tests
       working-directory: ./build/release
-      run: |
-           ll
-           export LD_LIBRARY_PATH=~/build/release/src:$LD_LIBRARY_PATH
-           ll ~
-           ll ./build/release/src
+      run: ll
     
