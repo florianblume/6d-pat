@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
     - name: Install other dependencies
@@ -36,6 +36,15 @@ jobs:
       run: mkdir -p ./build/release
     - name: qmake
       working-directory: ./build/release
-      run: qmake ../../6d-pat.pro
+      run: qmake CONFIG+="Release" ../../6d-pat.pro
     - name: make
       run: make -j8 --directory ./build/release
+  tests:
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+    - name: execute tests
+      working-directory: ./build/release
+      run: export LD_LIBRARY_PATH=~/build/release/src:$LD_LIBRARY_PATH
+           ./tests/tests
+    
