@@ -25,7 +25,7 @@ class PoseRenderable : public ObjectModelRenderable
     Q_OBJECT
 
 public:
-    PoseRenderable(Qt3DCore::QEntity *parent, PosePtr pose);
+    PoseRenderable(Qt3DCore::QEntity *parent, const Pose &pose);
 
     QString poseID();
     ObjectModelPtr objectModel();
@@ -45,7 +45,7 @@ Q_SIGNALS:
     void exited();
 
 private:
-    PosePtr m_pose;
+    Pose m_pose;
 
     Qt3DRender::QObjectPicker *m_picker;
     Qt3DCore::QTransform *m_transform;

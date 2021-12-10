@@ -62,12 +62,12 @@ void PoseEditor::setSettingsStore(SettingsStore *settingsStore) {
     m_poseEditor3DWindow->setSettingsStore(settingsStore);
 }
 
-void PoseEditor::setCurrentImage(ImagePtr image) {
+void PoseEditor::setCurrentImage(const Image &image) {
     m_currentImage = image;
     setEnabledPoseInvariantControls(!m_currentImage.isNull());
 }
 
-void PoseEditor::setImages(const QList<ImagePtr> &images) {
+void PoseEditor::setImages(const QList<Image> &images) {
     this->m_images = images;
     // Disable because the user has to select an image first
     ui->buttonCopy->setEnabled(false);
@@ -78,7 +78,7 @@ void PoseEditor::setImages(const QList<ImagePtr> &images) {
     m_listViewImagesModel.setStringList(imagesList);
 }
 
-void PoseEditor::setPoses(const QList<PosePtr> &poses) {
+void PoseEditor::setPoses(const QList<Pose> &poses) {
     // Important leave it here
     m_currentlySelectedPose.reset();
     this->m_poses = poses;
@@ -87,7 +87,7 @@ void PoseEditor::setPoses(const QList<PosePtr> &poses) {
     setEnabledPoseEditorControls(false);
 }
 
-void PoseEditor::addPose(PosePtr pose) {
+void PoseEditor::addPose(const Pose &pose) {
     // This function will be called after adding a pose
     // so we can set the states of the controls
     // respectively
@@ -103,7 +103,7 @@ void PoseEditor::addPose(PosePtr pose) {
     setPoseValuesOnControls(*pose);
 }
 
-void PoseEditor::removePose(PosePtr pose) {
+void PoseEditor::removePose(const Pose &pose) {
     for (int i = 0; i < m_poses.size(); i++) {
         if (m_poses[i] == pose) {
             m_poses.removeAt(i);
@@ -205,9 +205,9 @@ void PoseEditor::setPosesOnPosesListView(const QString &poseToSelect) {
 }
 
 void PoseEditor::setPoseValuesOnControls(const Pose &pose) {
+    m_ignoreSpinBoxValueChanges = true;
     // TODO connect the signals that are to be added to the Pose class directly to the UI elements
     QVector3D position = pose.position();
-    m_ignoreSpinBoxValueChanges = true;
     ui->spinBoxTranslationX->setValue(position.x());
     ui->spinBoxTranslationY->setValue(position.y());
     ui->spinBoxTranslationZ->setValue(position.z());
@@ -244,7 +244,7 @@ void PoseEditor::onObjectModelClickedAt(const QVector3D &position) {
 }
 
 void PoseEditor::onObjectModelMouseMoved(const QVector3D &position) {
-    QString labelText = "x: " + QString::number(position.x())
+    QString labelText ="x: " + QString::number(position.x())
             + ", y: " + QString::number(position.y())
             + ", z: " + QString::number(position.z());
     ui->labelMousePosition->setText(labelText);
@@ -256,9 +256,12 @@ void PoseEditor::onObjectModelMouseExited() {
 
 void PoseEditor::updateCurrentlyEditedPose() {
     if (m_currentlySelectedPose) {
-        m_currentlySelectedPose->setPosition(QVector3D(ui->spinBoxTranslationX->value(),
-                                           ui->spinBoxTranslationY->value(),
-                                           ui->spinBoxTranslationZ->value()));
+        QVector3D position = QVector3D(ui->spinBoxTranslationX->value(),
+                                       ui->spinBoxTranslationY->value(),
+                                       ui->spinBoxTranslationZ->value());
+        // This sets the position of the pose, causes a flow of events which
+        // then overwrites the rotation which is set later --> Bug!
+        //m_currentlySelectedPose->setPosition(position);
         QVector3D rotation(ui->spinBoxRotationX->value(),
                            ui->spinBoxRotationY->value(),
                            ui->spinBoxRotationZ->value());

@@ -3,8 +3,8 @@
 Pose::Pose(QString id,
            QVector3D position,
            QQuaternion rotation,
-           ImagePtr image,
-           ObjectModelPtr objectModel)
+           const Image &image,
+           const ObjectModel &objectModel)
     : m_position(position),
       m_rotation(rotation),
       m_image(image),
@@ -12,7 +12,11 @@ Pose::Pose(QString id,
       m_id(id) {
 }
 
-Pose::Pose(QString id, QVector3D position, QMatrix3x3 rotation, ImagePtr image, ObjectModelPtr objectModel)
+Pose::Pose(QString id,
+           QVector3D position,
+           QMatrix3x3 rotation,
+           const Image &image,
+           const ObjectModel &objectModel)
     : Pose(id, position, QQuaternion::fromRotationMatrix(rotation), image, objectModel) {
 }
 
@@ -33,34 +37,31 @@ QQuaternion Pose::rotation() const {
     return m_rotation;
 }
 
-ImagePtr Pose::image() const {
+Image Pose::image() const {
     return m_image;
 }
 
-ObjectModelPtr Pose::objectModel() const {
+ObjectModel Pose::objectModel() const {
     return m_objectModel;
 }
 
 void Pose::setPosition(const QVector3D &position) {
     this->m_position = position;
-    Q_EMIT positionChanged(this->m_position);
 }
 
 void Pose::setRotation(const QMatrix3x3 &rotation) {
     this->m_rotation = QQuaternion::fromRotationMatrix(rotation);
-    Q_EMIT rotationChanged(this->m_rotation);
 }
 
 void Pose::setRotation(const QQuaternion &rotation) {
     this->m_rotation = rotation;
-    Q_EMIT rotationChanged(this->m_rotation);
 }
 
 QString Pose::id() const {
     return m_id;
 }
 
-bool Pose::operator==(const Pose& objectImagePose) {
+bool Pose::operator==(const Pose& objectImagePose) const {
     return m_id.compare(objectImagePose.id()) == 0;
 }
 

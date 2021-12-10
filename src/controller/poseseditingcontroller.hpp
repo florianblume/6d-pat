@@ -21,26 +21,24 @@ public:
                                     MainWindow *mainWindow);
 
 Q_SIGNALS:
-    void selectedPoseChanged(PosePtr selected, PosePtr deselected);
-    void poseValuesChanged(PosePtr pose);
     void posesDirtyChanged(bool dirty);
 
 private Q_SLOTS:
     // Pose Editing
-    void selectPose(PosePtr pose);
-    void addPose(PosePtr pose);
+    void setSelectedPose(const Pose &pose);
+    void addPose(const Pose &pose);
     void removePose();
     void duplicatePose();
-    void copyPosesFromImage(ImagePtr image);
+    void copyPosesFromImage(const Image &image);
     void onPoseChanged();
-    void onPosePositionChanged(QVector3D position);
-    void onPoseRotationChanged(QQuaternion rotation);
+    void onPosePositionChanged(const QVector3D &position);
+    void onPoseRotationChanged(const QQuaternion &rotation);
     void modelManagerStateChanged(ModelManager::State state);
     void onDataChanged(int data);
 
     // Pose Recovering
-    void add2DPoint(QPoint imagePoint);
-    void add3DPoint(QVector3D objectModelPoint);
+    void add2DPoint(const QPoint &imagePoint);
+    void add3DPoint(const QVector3D &objectModelPoint);
     void createPose();
     void abortPoseCreation();
     // Resets the current modifications so that the user doesn't have to
@@ -63,8 +61,8 @@ private Q_SLOTS:
 private:
     template<class A, class B>
     void addPoint(A point, QList<A> &listToAddTo, QList<B> &listToCompareTo);
-    PosePtr createNewPoseFromPose(PosePtr pose);
     void enableSaveButtonOnPoseEditor();
+    Pose createNewPoseFromPose(const Pose &pose);
 
 private:
     struct PoseValues {
@@ -80,21 +78,20 @@ private:
         ReadyForPoseCreation
     };
 
-    PosePtr m_selectedPose;
+    Pose *m_selectedPose = Q_NULLPTR;
+    Image *m_selectedImage = Q_NULLPTR;
+    ObjectModel *m_selectedObjectModel = Q_NULLPTR;
+
     ModelManager *m_modelManager;
     MainWindow *m_mainWindow;
 
-    ImagePtr m_currentImage;
-    QList<ImagePtr> m_images;
-    ObjectModelPtr m_currentObjectModel;
-    QList<ObjectModelPtr> m_objectModels;
-    QList<PosePtr> m_posesForImage;
-    QList<PosePtr> m_posesToAdd;
-    QList<PosePtr> m_posesToRemove;
-    QMap<QString, PoseValues> m_unmodifiedPoses;
-    // Needs to be <PosePtr, Bool> to be able to retrieve a list of
-    // PosePtr by bool value
-    QMap<PosePtr, bool> m_dirtyPoses;
+    QList<Image> m_images;
+    QList<ObjectModel> m_objectModels;
+    QList<Pose> m_posesForSelectedImage;
+
+    QList<Pose> m_posesToAdd;
+    QList<Pose> m_posesToRemove;
+    QList<Pose> m_dirtyPoses;
 
     // Pose Recovering
     int m_minimumNumberOfPoints = 6;

@@ -41,7 +41,7 @@ private:
 
 private:
     ModelManager *m_modelManager;
-    QList<ImagePtr> m_imagesCache;
+    QList<Image> m_imagesCache;
     QPointer<ResizeImagesRunnable> m_resizeImagesRunnable;
     QThreadPool m_resizeImagesThreadpool;
     QMap<QString, QImage> m_resizedImagesCache;

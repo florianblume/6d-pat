@@ -28,7 +28,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     int rowCount(const QModelIndex&) const;
     void setSegmentationCodesForObjectModels(QMap<QString, QString> codes);
-    void setPreviewRenderingSize(QSize size);
+    void setPreviewRenderingSize(const QSize &size);
     QSize previewRenderingSize();
     QModelIndex indexOfObjectModel(const ObjectModel &objectModel);
 
@@ -51,7 +51,7 @@ Q_SIGNALS:
 private Q_SLOTS:
     bool isNumberOfToolsCorrect() const;
     void onDataChanged(int data);
-    void onObjectModelRendered(QImage image);
+    void onObjectModelRendered(const QImage &image);
 
 private:
     QVariant dataForObjectModel(const ObjectModel& objectModel, int role) const;
@@ -60,10 +60,10 @@ private:
 
 private:
     ModelManager* m_modelManager;
-    QList<ObjectModelPtr> m_objectModels;
+    QList<ObjectModel> m_objectModels;
     QMap<QString,QImage> m_renderedObjectsModels;
     OffscreenEngine m_offscreenEngine{QSize(300, 300)};
-    QList<ImagePtr> m_images;
+    QList<Image> m_images;
     // Color codes
     QMap<QString, QString> m_codes;
     //! We need this in case that an object model will not be displayed due to its color

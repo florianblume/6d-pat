@@ -56,7 +56,7 @@ public:
      * \brief loadImages Loads the images.
      * \return the list of images
      */
-    virtual QList<ImagePtr> loadImages() = 0;
+    virtual QList<Image> loadImages() = 0;
 
     virtual QList<QString> imagesWithInvalidData() const;
 
@@ -66,7 +66,7 @@ public:
      * \brief loadObjectModels Loads the object models.
      * \return the list of object models
      */
-    virtual QList<ObjectModelPtr> loadObjectModels() = 0;
+    virtual QList<ObjectModel> loadObjectModels() = 0;
 
     void setPosesFilePath(const QString &posesFilePath);
 
@@ -75,8 +75,8 @@ public:
      * are stored depends on the strategy.
      * \return the list of all stored poses
      */
-    virtual QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
-                                       const QList<ObjectModelPtr> &objectModels) = 0;
+    virtual QList<Pose> loadPoses(const QList<Image> &images,
+                                  const QList<ObjectModel> &objectModels) = 0;
 
     virtual QList<QString> posesWithInvalidData() const;
 

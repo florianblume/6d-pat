@@ -43,7 +43,7 @@ public:
     ~OffscreenEngine();
 
     void setObjectModel(const ObjectModel &objectModel);
-    void setBackgroundColor(QColor color);
+    void setBackgroundColor(const QColor &color);
     void setSize(const QSize &size);
     QSize size();
 
@@ -51,8 +51,8 @@ public Q_SLOTS:
     void requestImage();
 
 Q_SIGNALS:
-    void imageReady(QImage image);
-    void sizeChanged(QSize newSize);
+    void imageReady(const QImage &image);
+    void sizeChanged(const QSize &newSize);
 
 private Q_SLOTS:
     void onSceneLoaderStatusChanged(Qt3DRender::QSceneLoader::Status status);

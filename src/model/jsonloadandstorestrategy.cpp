@@ -48,7 +48,7 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
 
     QJsonObject jsonObject = jsonDocument.object();
 
-    QString imagePath = objectImagePose.image()->imagePath();
+    QString imagePath = objectImagePose.image().imagePath();
     QJsonArray entriesForImage;
 
     if (deletePose) {
@@ -87,7 +87,7 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
             //! Create new entry object, as we can't modify the exisiting ones directly somehow
             QJsonObject entry;
             entry["id"] = objectImagePose.id();
-            entry["obj"] = objectImagePose.objectModel()->path();
+            entry["obj"] = objectImagePose.objectModel().path();
             entry["R"] = rotationMatrixArray;
             entry["t"] = positionVectorArray;
 
@@ -106,7 +106,7 @@ bool JsonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool del
         } else {
             QJsonObject newEntry;
             newEntry["id"] = objectImagePose.id();
-            newEntry["obj"] = objectImagePose.objectModel()->path();
+            newEntry["obj"] = objectImagePose.objectModel().path();
             newEntry["t"] = positionVectorArray;
             newEntry["R"] = rotationMatrixArray;
             entriesForImage << newEntry;
@@ -135,17 +135,14 @@ static QMatrix3x3 rotVectorFromJsonRotMatrix(QJsonArray &jsonRotationMatrix) {
     return rotationMatrix;
 }
 
-static ImagePtr createImageWithJsonParams(const QString &id,
-                                          const QString& filename,
-                                          const QString &segmentationFilename,
-                                          const QString &imagesPath,
-                                          float defaultNearPlane,
-                                          float defaultFarPlane,
-                                          QJsonObject &json) {
+static Image createImageWithJsonParams(const QString &id,
+                                       const QString& filename,
+                                       const QString &segmentationFilename,
+                                       const QString &imagesPath,
+                                       float defaultNearPlane,
+                                       float defaultFarPlane,
+                                       QJsonObject &json) {
     QJsonObject parameters = json[filename].toObject();
-    if (!parameters.contains("K")) {
-        return ImagePtr();
-    }
     QJsonArray cameraMatrix = parameters["K"].toArray();
     float values[9] = {
         (float) cameraMatrix[0].toDouble(),
@@ -166,12 +163,13 @@ static ImagePtr createImageWithJsonParams(const QString &id,
     if (parameters.contains("farPlane")) {
         farPlane = (float) parameters["farPlane"].toDouble();
     }
-    return ImagePtr(new Image(id, filename, segmentationFilename, imagesPath, qtCameraMatrix,
-                              nearPlane, farPlane));
+    return Image(id, filename, segmentationFilename,
+                 imagesPath, qtCameraMatrix,
+                 nearPlane, farPlane);
 }
 
-QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
-    QList<ImagePtr> images;
+QList<Image> JsonLoadAndStoreStrategy::loadImages() {
+    QList<Image> images;
     m_imagesWithInvalidData.clear();
 
     if (m_imagesPath == Global::NO_PATH) {
@@ -261,12 +259,21 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     for (int i = 0; i < imageFiles.size(); i ++) {
         QString image = imageFiles[i];
         QString imageFilename = QFileInfo(image).fileName();
-        ImagePtr newImage;
+        // If we don't have the camera matrix present in the cam info file skip this one
+        if (!jsonObject[imageFilename].toObject().contains("K")) {
+            // This can only happen when the camera matrix is invalid
+            foundImageWithInvalidCameraMatrix = true;
+            m_imagesWithInvalidData.append(imageFilename);
+            continue;
+        }
+        Image newImage;
         if (segmentationImagesPathSet) {
             if (i > segmentationImageFiles.size() - 1) {
+                // Nothing to do in this case, we don't know how to match images
+                // and segmentation images
                 Q_EMIT error(tr("Failed to load images. Number of segmentation images "
                                 "does not match number of images."));
-                return images;
+                return QList<Image>();
             }
             QString segmentationImageFile = segmentationImageFiles[i];
             QString segmentationImageFilePath =
@@ -287,13 +294,7 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
                                                  farPlane,
                                                  jsonObject);
         }
-        if (!newImage) {
-            // This can only happen when the camera matrix is invalid
-            foundImageWithInvalidCameraMatrix = true;
-            m_imagesWithInvalidData.append(imageFilename);
-        } else {
-            images.push_back(newImage);
-        }
+        images.push_back(newImage);
     }
 
     if (foundImageWithInvalidCameraMatrix) {
@@ -309,8 +310,8 @@ QList<ImagePtr> JsonLoadAndStoreStrategy::loadImages() {
     return images;
 }
 
-QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
-    QList<ObjectModelPtr> objectModels;
+QList<ObjectModel> JsonLoadAndStoreStrategy::loadObjectModels() {
+    QList<ObjectModel> objectModels;
 
     if (m_objectModelsPath == Global::NO_PATH) {
         // The only time when the object models path can be equal to the NO_PATH is
@@ -336,9 +337,9 @@ QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
         QFileInfo fileInfo(it.next());
         // We store only the filename as object model path, because that's
         // the format of the ground truth file used by the neural network
-        ObjectModelPtr objectModel(new ObjectModel(QString::number(index),
-                                                   fileInfo.fileName(),
-                                                   fileInfo.absolutePath()));
+        ObjectModel objectModel(QString::number(index),
+                                fileInfo.fileName(),
+                                fileInfo.absolutePath());
         objectModels.append(objectModel);
         index++;
     }
@@ -360,29 +361,29 @@ QList<ObjectModelPtr> JsonLoadAndStoreStrategy::loadObjectModels() {
     return objectModels;
 }
 
-QMap<QString, ImagePtr> createImageMap(const QList<ImagePtr> &images) {
-    QMap<QString, ImagePtr> imageMap;
+QMap<QString, Image> createImageMap(const QList<Image> &images) {
+    QMap<QString, Image> imageMap;
 
     for (int i = 0; i < images.size(); i++) {
-        imageMap[images.at(i)->imagePath()] = images.at(i);
+        imageMap[images.at(i).imagePath()] = images.at(i);
     }
 
     return imageMap;
 }
 
-QMap<QString, ObjectModelPtr> createObjectModelMap(const QList<ObjectModelPtr> &objectModels) {
-    QMap<QString, ObjectModelPtr> objectModelMap;
+QMap<QString, ObjectModel> createObjectModelMap(const QList<ObjectModel> &objectModels) {
+    QMap<QString, ObjectModel> objectModelMap;
 
     for (int i = 0; i < objectModels.size(); i++) {
-        objectModelMap[objectModels.at(i)->path()] = objectModels.at(i);
+        objectModelMap[objectModels.at(i).path()] = objectModels.at(i);
     }
 
     return objectModelMap;
 }
 
-QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images,
-                                                     const QList<ObjectModelPtr> &objectModels) {
-    QList<PosePtr> poses;
+QList<Pose> JsonLoadAndStoreStrategy::loadPoses(const QList<Image> &images,
+                                                const QList<ObjectModel> &objectModels) {
+    QList<Pose> poses;
     m_posesWithInvalidData.clear();
 
     if (m_posesFilePath == Global::NO_PATH) {
@@ -407,8 +408,8 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
         return poses;
     }
 
-    QMap<QString, ImagePtr> imageMap = createImageMap(images);
-    QMap<QString, ObjectModelPtr> objectModelMap = createObjectModelMap(objectModels);
+    QMap<QString, Image> imageMap = createImageMap(images);
+    QMap<QString, ObjectModel> objectModelMap = createObjectModelMap(objectModels);
     QByteArray data = jsonFile.readAll();
     QJsonDocument jsonDocument(QJsonDocument::fromJson(data));
 
@@ -470,45 +471,43 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
                                                       (float) translation[1].toDouble(),
                                                       (float) translation[2].toDouble());
 
-            ImagePtr image = imageMap.value(imagePath);
-            ObjectModelPtr objectModel = objectModelMap.value(objectModelPath);
-
-            if (image && objectModel && valuesValid) {
-                //! If either is NULL, we do not manage the image or object model
-                //! specified in the JSON file, that's why we just skip the entry
-                //!
-                QString id = "";
-                //! An external ground truth file (e.g. from TLESS) might not have
-                //! IDs of exisiting poses. We need IDs to be able to
-                //! modify poses but if we are not the creator of the
-                //! pose we thus have to add an ID.
-                if (poseEntry.contains("id")) {
-                    id = poseEntry["id"].toString();
-                } else {
-                    id = GeneralHelper::createPoseId(*image, *objectModel);
-                    //! No ID attatched to the entry yet -> write it to the file
-                    //! to be able to identify the poses later
-                    QJsonObject modifiedEntry(poseEntry);
-                    modifiedEntry["id"] = id;
-                    entriesForImage.replace(index, modifiedEntry);
-                    jsonObject[imagePath] = entriesForImage;
-                    documentDirty = true;
-                }
-
-                PosePtr pose(new Pose(id,
-                                      qtTranslationVector,
-                                      rotationMatrix,
-                                      image,
-                                      objectModel));
-                poses.append(pose);
-            } else {
-                foundPosesWithInvalidPosesData = true;
-                if (poseEntry.contains("id")) {
-                    m_posesWithInvalidData.append(poseEntry["id"].toString());
-                } else {
-                    m_posesWithInvalidData.append("Unkown ID");
-                }
+            QString id = "none";
+            if (poseEntry.contains("id")) {
+                id = poseEntry["id"].toString();
             }
+
+            if (!imageMap.contains(imagePath) ||
+                    !objectModelMap.contains(objectModelPath) ||
+                    !valuesValid) {
+                m_posesWithInvalidData.append(id);
+                continue;
+            }
+
+            Image image = imageMap.value(imagePath);
+            ObjectModel objectModel = objectModelMap.value(objectModelPath);
+
+            //! An external ground truth file (e.g. from TLESS) might not have
+            //! IDs of exisiting poses. We need IDs to be able to
+            //! modify poses but if we are not the creator of the
+            //! pose we thus have to add an ID.
+            if (id == "none") {
+                id = GeneralHelper::createPoseId(image, objectModel);
+                //! No ID attatched to the entry yet -> write it to the file
+                //! to be able to identify the poses later
+                QJsonObject modifiedEntry(poseEntry);
+                modifiedEntry["id"] = id;
+                entriesForImage.replace(index, modifiedEntry);
+                jsonObject[imagePath] = entriesForImage;
+                documentDirty = true;
+            }
+
+            Pose pose(id,
+                      qtTranslationVector,
+                      rotationMatrix,
+                      image,
+                      objectModel);
+            poses.append(pose);
+
             index++;
         }
         if (documentDirty) {

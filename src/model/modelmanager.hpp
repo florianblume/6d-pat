@@ -64,21 +64,21 @@ public:
      * \brief getImages Returns the list of all images loaded by this manager.
      * \return the list of all images loaded by this manager
      */
-   virtual QList<ImagePtr> images() const = 0;
+   virtual QList<Image> images() const = 0;
 
     /*!
      * \brief getPosesForImage Returns all ObjectImagePoses for the image at the given path.
      * \param imagePath the path of the image
      * \return the list of poses of the image at the given path
      */
-    virtual QList<PosePtr> posesForImage(const Image& image) const = 0;
+    virtual QList<Pose> posesForImage(const Image& image) const = 0;
 
     /*!
      * \brief getObjectModels Returns the list of all object models loaded by this manager.
      * \param objectModels the list that the object models are to be added to
      * \return the list of all objects models loaded by this manager
      */
-    virtual QList<ObjectModelPtr> objectModels() const = 0;
+    virtual QList<ObjectModel> objectModels() const = 0;
 
     /*!
      * \brief getPosesForObjectModels Returns all ObjectImagePoses for the object model at the given path.
@@ -86,16 +86,16 @@ public:
      * \param poses the list that the poses are to be added to
      * \return the list of poses of the object model at the given path
      */
-    virtual QList<PosePtr> posesForObjectModel(const ObjectModel& objectModel) const = 0;
+    virtual QList<Pose> posesForObjectModel(const ObjectModel& objectModel) const = 0;
 
     /*!
      * \brief getPoses Returns the poses maintained by this manager.
      * \param poses the list that the poses are to be added to
      * \return the list of poses maintained by this manager
      */
-    virtual QList<PosePtr> poses() const = 0;
+    virtual QList<Pose> poses() const = 0;
 
-    virtual PosePtr poseById(const QString &id) const = 0;
+    virtual bool poseById(const QString &id, Pose *pose) const = 0;
 
     /*!
      * \brief getPosesForImageAndObjectModel Returns all poses for the given image and object model.
@@ -104,8 +104,8 @@ public:
      * \param poses the list that the poses are to be added to
      * \return all poses of the given image and given object model
      */
-    virtual QList<PosePtr> posesForImageAndObjectModel(const Image& image,
-                                                          const ObjectModel& objectModel) = 0;
+    virtual QList<Pose> posesForImageAndObjectModel(const Image& image,
+                                                    const ObjectModel& objectModel) = 0;
 
     /*!
      * \brief addObjectImagePose Adds a new ObjectImagePose to the poses managed by this manager.
@@ -114,10 +114,10 @@ public:
      * this manager and added to the list of managed poses
      * \return true if creating and persisting the pose was successful
      */
-    virtual PosePtr addPose(ImagePtr image,
-                            ObjectModelPtr objectModel,
-                            const QVector3D &position,
-                            const QMatrix3x3 &rotation) = 0;
+    virtual bool addPose(const Image &image,
+                         const ObjectModel &objectModel,
+                         const QVector3D &position,
+                         const QMatrix3x3 &rotation) = 0;
 
     /*!
      * \brief addObjectImagePose Adds a new ObjectImagePose to the poses managed by this manager.
@@ -126,7 +126,7 @@ public:
      * this manager and added to the list of managed poses
      * \return the new pose if it was successfully created, null otherwise
      */
-    virtual PosePtr addPose(const Pose &pose) = 0;
+    virtual bool addPose(const Pose &pose) = 0;
 
     /*!
      * \brief addObjectImagePose Updates the given ObjectImagePose and automatically persists it according to the
@@ -158,9 +158,9 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void dataChanged(int data);
-    void poseAdded(PosePtr pose);
-    void poseUpdated(PosePtr pose);
-    void poseDeleted(PosePtr pose);
+    void poseAdded(const Pose &pose);
+    void poseUpdated(const Pose &pose);
+    void poseDeleted(const Pose &pose);
     void stateChanged(ModelManager::State state, const QString &error);
 };
 

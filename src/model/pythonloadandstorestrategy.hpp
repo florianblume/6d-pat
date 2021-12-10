@@ -21,12 +21,12 @@ public:
 
     bool persistPose(const Pose &objectImagePose, bool deletePose) override;
 
-    QList<ImagePtr> loadImages() override;
+    QList<Image> loadImages() override;
 
-    QList<ObjectModelPtr> loadObjectModels() override;
+    QList<ObjectModel> loadObjectModels() override;
 
-    QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
-                             const QList<ObjectModelPtr> &objectModels) override;
+    QList<Pose> loadPoses(const QList<Image> &images,
+                          const QList<ObjectModel> &objectModels) override;
 
 private:
     bool extractPath(py::dict &dict, const char *key,

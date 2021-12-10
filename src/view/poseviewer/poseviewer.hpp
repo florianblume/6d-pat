@@ -42,21 +42,20 @@ public:
     QSize imageSize();
 
 public Q_SLOTS:
-    void setImage(ImagePtr image);
-    void setPoses(const QList<PosePtr> &poses);
-    void addPose(PosePtr pose);
-    void removePose(PosePtr pose);
+    void setImage(const Image &image);
+    void setPoses(const QList<Pose> &poses);
+    void addPose(const Pose &pose);
+    void removePose(const Pose &pose);
     void setClicks(const QList<QPoint> &clicks);
-    // React to signal from PoseEditingModel
-    void selectPose(PosePtr selected, PosePtr deselected);
+    void setSelectedPose(int index);
 
     void reset();
     void onPoseCreationAborted();
     void takeSnapshot(const QString &path);
 
 Q_SIGNALS:
-    void imageClicked(QPoint position);
-    void poseSelected(PosePtr pose);
+    void imageClicked(const QPoint &position);
+    void poseSelected(int index);
     void snapshotSaved();
 
 private Q_SLOTS:
@@ -69,7 +68,7 @@ private Q_SLOTS:
     void onSliderZoomValueChanged(int zoom);
     void onZoomChangedBy3DWidget(int zoom);
     void resetPositionOfGraphicsView();
-    void onImageClicked(QPoint point);
+    void onImageClicked(const QPoint &point);
     // To get the new mouse buttons
     void currentSettingsChanged(SettingsPtr settings);
 
@@ -82,9 +81,9 @@ private:
     PoseViewer3DWidget *m_poseViewer3DWidget;
     QPointer<SettingsStore> m_settingsStore;
 
-    QList<PosePtr> m_poses;
-    PosePtr m_selectedPose;
-    ImagePtr m_currentlyDisplayedImage;
+    QList<Pose> m_poses;
+    Pose *m_selectedPose;
+    Image m_currentlyDisplayedImage;
     // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
     // segmentation image
     bool m_showingNormalImage = true;

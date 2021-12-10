@@ -210,19 +210,19 @@ void MainWindow::showProgressView(bool show) {
     }
 }
 
-PoseViewer *MainWindow::poseViewer() {
+PoseViewer *MainWindow::poseViewerView() {
     return ui->poseViewer;
 }
 
-PoseEditor *MainWindow::poseEditor() {
+PoseEditor *MainWindow::poseEditorView() {
     return ui->poseEditor;
 }
 
-GalleryObjectModels *MainWindow::galleryObjectModels() {
+GalleryObjectModels *MainWindow::objectModelsGalleryView() {
     return dynamic_cast<GalleryObjectModels*>(ui->galleryRight);
 }
 
-Gallery *MainWindow::galleryImages() {
+Gallery *MainWindow::imagesGalleryView() {
     return ui->galleryLeft;
 }
 

@@ -50,8 +50,8 @@ void MainController::initialize() {
     connect(m_modelManager.get(), &ModelManager::stateChanged,
             this, &MainController::onModelManagerStateChanged);
 
-    m_mainWindow->poseViewer()->setSettingsStore(m_settingsStore.get());
-    m_mainWindow->poseEditor()->setSettingsStore(m_settingsStore.get());
+    m_mainWindow->poseViewerView()->setSettingsStore(m_settingsStore.get());
+    m_mainWindow->poseEditorView()->setSettingsStore(m_settingsStore.get());
 
     showView();
 

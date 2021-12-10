@@ -23,7 +23,7 @@ public:
      * \param objectModel the associated object model
      */
     Pose(QString id, QVector3D position, QQuaternion rotation,
-         ImagePtr image, ObjectModelPtr objectModel);
+         const Image &image, const ObjectModel &objectModel);
 
     //! Constructor of class ObjectImagePose.
     /*!
@@ -33,7 +33,7 @@ public:
      * \param objectModel the associated object model
      */
     Pose(QString id, QVector3D position, QMatrix3x3 rotation,
-         ImagePtr image, ObjectModelPtr objectModel);
+         const Image &image, const ObjectModel &objectModel);
 
     /*!
      * \brief ObjectImagePose copy constructor for class ObjectImagePose.
@@ -58,13 +58,13 @@ public:
      * \brief getImage Returns the image associated with this pose.
      * \return the image associated with this pose
      */
-    ImagePtr image() const;
+    Image image() const;
 
     /*!
      * \brief getObjectModel Returns the object model associated with this pose.
      * \return the object model associated with this pose
      */
-    ObjectModelPtr objectModel() const;
+    ObjectModel objectModel() const;
 
     /*!
      * \brief getID Returns the unique ID of this pose.
@@ -77,7 +77,7 @@ public:
      * \param objectImagePose the other pose to check for
      * \return true if the IDs are the same, false otherwise
      */
-    bool operator==(const Pose& objectImagePose);
+    bool operator==(const Pose& objectImagePose) const;
 
     Pose& operator=(const Pose &other);
 
@@ -86,20 +86,15 @@ public Q_SLOTS:
     void setRotation(const QMatrix3x3 &rotation);
     void setRotation(const QQuaternion &rotation);
 
-
-Q_SIGNALS:
-    void positionChanged(QVector3D position);
-    void rotationChanged(QQuaternion rotation);
-
 private:
     //! The position of the object on the image. The value z is the depth, i.e. how large the object ist.
     QVector3D m_position;
     //! The rotation of the object on the image.
     QQuaternion m_rotation;
     //! The image associated with this corresopndence.
-    ImagePtr m_image;
+    Image m_image;
     //! The object model associated with this pose.
-    ObjectModelPtr m_objectModel;
+    ObjectModel m_objectModel;
     //! The ID of the pose. This is necessary becuase images might contain some objects multiple times.
     QString m_id;
 

@@ -47,10 +47,10 @@ public:
     void setStatusBarTextNotEnoughCorrespondences(int numberOfCorrespondences, int minNumberOfCorrespondences);
     void setStatusBarTextReadyForPoseCreation(int numberOfCorrespondences, int minNumberOfCorrespondences);
 
-    PoseViewer *poseViewer();
-    PoseEditor *poseEditor();
-    GalleryObjectModels *galleryObjectModels();
-    Gallery *galleryImages();
+    PoseViewer *poseViewerView();
+    PoseEditor *poseEditorView();
+    GalleryObjectModels *objectModelsGalleryView();
+    Gallery *imagesGalleryView();
     void showDataLoadingProgressView(bool show);
     void showPoseRecoveringProgressView(bool show);
 

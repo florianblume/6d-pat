@@ -1,6 +1,7 @@
 #ifndef CORRESPONDENCEEDITORCONTROLS_H
 #define CORRESPONDENCEEDITORCONTROLS_H
 
+#include "poseeditingview.hpp"
 #include "model/modelmanager.hpp"
 #include "misc/global.hpp"
 #include "view/poseeditor/poseeditor3dwidget.hpp"
@@ -20,7 +21,7 @@ namespace Ui {
 class PoseEditor;
 }
 
-class PoseEditor : public QWidget {
+class PoseEditor : public QWidget, public PoseEditingView {
 
     Q_OBJECT
 
@@ -45,29 +46,30 @@ public Q_SLOTS:
     // We don't actually need the image, only to check
     // whether to enable the copying and poses selection
     // list views
-    void setCurrentImage(ImagePtr image);
-    void setImages(const QList<ImagePtr> &images);
-    void setPoses(const QList<PosePtr> &poses);
-    void addPose(PosePtr pose);
-    void removePose(PosePtr pose);
+    void setSelectedImage(int index) override;
+    void setImages(const QList<Image> &images) override;
+    void setPoses(const QList<Pose> &poses) override;
+    void addPose(const Pose &pose) override;
+    void removePose(const Pose &pose) override;
     // For poses selected in the PoseViewer
-    void selectPose(PosePtr selected, PosePtr deselected);
-    void setObjectModel(ObjectModelPtr objectModel);
-    void setClicks(const QList<QVector3D> &clicks);
-    void onSelectedPoseValuesChanged(PosePtr pose);
-    void onPosesSaved();
-    void onPoseCreationAborted();
-    void reset();
+    void setSelectedPose(int index) override;
+    void setClicks(const QList<QVector3D> &clicks) override;
+    void onSelectedPoseValuesChanged(const Pose &pose) override;
+    void onPosesSaved() override;
+    void onPoseCreationAborted() override;
+    void reset() override;
+
+    void setObjectModel(const ObjectModel &objectModel);
     void leaveEvent(QEvent* event) override;
 
 Q_SIGNALS:
     void objectModelClickedAt(const QVector3D &position);
 
-    void poseSelected(PosePtr pose);
+    void poseSelected(const Pose &pose);
 
     void buttonCreateClicked();
     void buttonSaveClicked();
-    void buttonCopyClicked(ImagePtr imageToCopyFrom);
+    void buttonCopyClicked(const Image &imageToCopyFrom);
     void buttonDuplicateClicked();
     void buttonRemoveClicked();
 
@@ -114,12 +116,12 @@ private:
 
     PoseEditor3DWindow *m_poseEditor3DWindow;
 
-    QList<ImagePtr> m_images;
-    ImagePtr m_currentImage;
-    ObjectModelPtr m_currentObjectModel;
-    QList<PosePtr> m_poses;
-    PosePtr m_currentlySelectedPose;
-    PosePtr m_previouslySelectedPose;
+    QList<Image> m_images;
+    QList<Pose> m_poses;
+    Image *m_selectedImage;
+    ObjectModel *m_selectedObjectModel;
+    Pose *m_selectedPose;
+    Pose *m_selectedPoseIndex;
 
     // When the pose is selected by the pose viewer we still emit the pose selected signal
     // which causes the program to crash

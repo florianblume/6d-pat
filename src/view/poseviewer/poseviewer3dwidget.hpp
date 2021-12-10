@@ -80,15 +80,15 @@ public:
     void initializeGL() override;
     //void resizeGL(int w, int h) override;
 
-    void setSettings(SettingsPtr settings);
+    void setSettings(Settings *settings);
 
     // Data related methods
     void setBackgroundImage(const QString& image, const QMatrix3x3 &cameraMatrix,
                             float nearPlane, float farPlane);
     void setPoses(const QList<PosePtr> &poses);
-    void addPose(PosePtr pose);
-    void removePose(PosePtr pose);
-    void selectPose(PosePtr selected, PosePtr deselected);
+    void addPose(const Pose &pose);
+    void removePose(const Pose &pose);
+    void setSelectPose(int index);
     void setObjectsOpacity(float opacity);
     void setAnimatedObjectsOpacity(float opacity);
     float opacity();
@@ -98,15 +98,15 @@ public:
     // Rendering related methods
     void setSamples(int samples);
     void setRenderingPosition(float x, float y);
-    void setRenderingPosition(QPoint position);
+    void setRenderingPosition(const QPoint &position);
     void setAnimatedRenderingPosition(float x, float y);
-    void setAnimatedRenderingPosition(QPoint position);
+    void setAnimatedRenderingPosition(const QPoint &position);
     QPoint renderingPosition();
     int zoom();
     void setZoom(int zoom);
     void setAnimatedZoom(int zoom);
     void setAnimatedZoomAndRenderingPosition(int zoom, float x, float y);
-    void setAnimatedZoomAndRenderingPosition(int zoom, QPoint renderingPosition);
+    void setAnimatedZoomAndRenderingPosition(int zoom, const QPoint &renderingPosition);
 
     // Mouse events
     void mousePressEvent(QMouseEvent *event) override;
@@ -123,8 +123,8 @@ public Q_SLOTS:
     void takeSnapshot(const QString &path);
 
 Q_SIGNALS:
-    void positionClicked(QPoint position);
-    void poseSelected(PosePtr pose);
+    void positionClicked(const QPoint &position);
+    void poseSelected(int index);
     void snapshotSaved();
     void zoomChanged(int zoom);
 
@@ -142,12 +142,13 @@ private:
     void setupRenderingPositionAnimation(QPoint reinderingPosition);
 
 private:
-    PosePtr m_selectedPose;
+    QList<Pose> m_poses;
+    Pose *m_selectedPose;
     PoseRenderable *m_selectedPoseRenderable = Q_NULLPTR;
     PoseRenderable *m_hoveredPose = Q_NULLPTR;
     // The size of the loaded image
     QSize m_imageSize;
-    SettingsPtr m_settings;
+    Settings *m_settings;
     QLabel *m_fpsLabel;
     QElapsedTimer m_elapsedTimer;
     qint64 m_elapsed = 1;
