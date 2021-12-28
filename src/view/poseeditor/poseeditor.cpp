@@ -255,13 +255,15 @@ void PoseEditor::onObjectModelMouseExited() {
 }
 
 void PoseEditor::updateCurrentlyEditedPose() {
+    auto t1 = ui->spinBoxTranslationX->value();
+    auto t2 = ui->spinBoxTranslationY->value();
+    auto t3 = ui->spinBoxTranslationZ->value();
+    auto r1 = ui->spinBoxRotationX->value();
+    auto r2 = ui->spinBoxRotationY->value();
+    auto r3 = ui->spinBoxRotationZ->value();
     if (m_currentlySelectedPose) {
-        m_currentlySelectedPose->setPosition(QVector3D(ui->spinBoxTranslationX->value(),
-                                           ui->spinBoxTranslationY->value(),
-                                           ui->spinBoxTranslationZ->value()));
-        QVector3D rotation(ui->spinBoxRotationX->value(),
-                           ui->spinBoxRotationY->value(),
-                           ui->spinBoxRotationZ->value());
+        m_currentlySelectedPose->setPosition(QVector3D(t1, t2, t3));
+        QVector3D rotation(r1, r2, r3);
         m_currentlySelectedPose->setRotation(QQuaternion::fromEulerAngles(rotation));
     }
 }
