@@ -8,6 +8,8 @@
 class ObjectModel {
 
 public:
+    ObjectModel();
+
     //! Constructor of class ObjectModel.
     /*!
       This constructor stores the path to the 3D object model.

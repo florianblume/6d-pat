@@ -65,11 +65,6 @@ private:
     Pose createNewPoseFromPose(const Pose &pose);
 
 private:
-    struct PoseValues {
-        QVector3D position;
-        QQuaternion rotation;
-    };
-
     enum PoseRecoveringState {
         Empty,
         Missing2DPoint,

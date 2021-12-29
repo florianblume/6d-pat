@@ -283,8 +283,8 @@ bool PythonLoadAndStoreStrategy::extractFloat(py::dict &dict, const char *key,
     return true;
 }
 
-QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
-    QList<ImagePtr> images;
+QList<Image> PythonLoadAndStoreStrategy::loadImages() {
+    QList<Image> images;
     m_imagesWithInvalidData.clear();
 
     QFileInfo fileInfo(m_loadSaveScript);
@@ -338,8 +338,8 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
                     }
                     extractFloat(itemDict, KEY_NEAR_PLANE, nearPlane, NEAR_PLANE);
                     extractFloat(itemDict, KEY_FAR_PLANE, farPlane, FAR_PLANE);
-                    images.append(ImagePtr(new Image(imageID, imagePath, basePath,
-                                                     cameraMatrix, nearPlane, farPlane)));
+                    images.append(Image(imageID, imagePath, basePath,
+                                        cameraMatrix, nearPlane, farPlane));
                 } else {
                     qDebug() << "Return value for image is not a dict. Skipping image.";
                     m_imagesWithInvalidData.append(QString::number(i));
@@ -368,8 +368,8 @@ QList<ImagePtr> PythonLoadAndStoreStrategy::loadImages() {
     return images;
 }
 
-QList<ObjectModelPtr> PythonLoadAndStoreStrategy::loadObjectModels() {
-    QList<ObjectModelPtr> objectModels;
+QList<ObjectModel> PythonLoadAndStoreStrategy::loadObjectModels() {
+    QList<ObjectModel> objectModels;
     m_objectModelsWithInvalidData.clear();
 
     QFileInfo fileInfo(m_loadSaveScript);
@@ -408,7 +408,7 @@ QList<ObjectModelPtr> PythonLoadAndStoreStrategy::loadObjectModels() {
                                      true)) {
                         continue;
                     }
-                    objectModels.append(ObjectModelPtr(new ObjectModel(objID, objectModelPath, basePath)));
+                    objectModels.append(ObjectModel(objID, objectModelPath, basePath));
                 } else {
                     qDebug() << "Return value for object model is not a dict. Skipping object model.";
                     m_objectModelsWithInvalidData.append(QString::number(i));
@@ -454,10 +454,10 @@ bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool d
 
     try {
         QString poseIdD = objectImagePose.id();
-        QString imageID = objectImagePose.image()->id();
-        QString objID = objectImagePose.objectModel()->id();
-        QString imagePath = objectImagePose.image()->imagePath();
-        QString objectModelPath = objectImagePose.objectModel()->path();
+        QString imageID = objectImagePose.image().id();
+        QString objID = objectImagePose.objectModel().id();
+        QString imagePath = objectImagePose.image().imagePath();
+        QString objectModelPath = objectImagePose.objectModel().path();
         py::list rotation;
         // Transposed because QMatrix3x3 transposes it when loading from the float array
         const float* rotationValues = objectImagePose.rotation().toRotationMatrix().transposed().constData();
@@ -500,9 +500,9 @@ bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool d
     return false;
 }
 
-QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images,
-                                                     const QList<ObjectModelPtr> &objectModels) {
-    QList<PosePtr> poses;
+QList<Pose> PythonLoadAndStoreStrategy::loadPoses(const QList<Image> &images,
+                                                  const QList<ObjectModel> &objectModels) {
+    QList<Pose> poses;
     m_posesWithInvalidData.clear();
 
     QFileInfo fileInfo(m_loadSaveScript);
@@ -518,23 +518,23 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
     }
 
     // For faster lookup by ID
-    QMap<QString, ImagePtr> imagesForID;
-    QMap<QString, ImagePtr> imagesForPath;
-    Q_FOREACH(ImagePtr image, images) {
-        if (imagesForID.contains(image->id())) {
+    QMap<QString, Image> imagesForID;
+    QMap<QString, Image> imagesForPath;
+    Q_FOREACH(Image image, images) {
+        if (imagesForID.contains(image.id())) {
             qDebug() << "Two images with the same ID found, this should never happen.";
         }
-        imagesForID[image->id()] = image;
-        imagesForPath[image->imagePath()] = image;
+        imagesForID[image.id()] = image;
+        imagesForPath[image.imagePath()] = image;
     }
-    QMap<QString, ObjectModelPtr> objectModelsForID;
-    QMap<QString, ObjectModelPtr> objectModelsForPath;
-    Q_FOREACH(ObjectModelPtr objectModel, objectModels) {
-        if (objectModelsForID.contains(objectModel->id())) {
+    QMap<QString, ObjectModel> objectModelsForID;
+    QMap<QString, ObjectModel> objectModelsForPath;
+    Q_FOREACH(ObjectModel objectModel, objectModels) {
+        if (objectModelsForID.contains(objectModel.id())) {
             qDebug() << "Two object models with the same ID found, this should never happen.";
         }
-        objectModelsForID[objectModel->id()] = objectModel;
-        objectModelsForPath[objectModel->path()] = objectModel;
+        objectModelsForID[objectModel.id()] = objectModel;
+        objectModelsForPath[objectModel.path()] = objectModel;
     }
 
     try {
@@ -552,8 +552,8 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                         if (py::isinstance<py::dict>(listPosesForImages[j])) {
                             py::dict poseDict = py::dict(listPosesForImages[j]);
                             QString poseID;
-                            ImagePtr image;
-                            ObjectModelPtr objectModel;
+                            Image image;
+                            ObjectModel objectModel;
                             QMatrix3x3 rotation;
                             QVector3D translation;
                             if (!extractIDOrPathAndRetrieve(poseDict, KEY_IMG_ID, KEY_IMG_PATH,
@@ -581,7 +581,7 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                                 }
                             } else {
                                 // No error, if no ID is present, create one
-                                poseID = GeneralHelper::createPoseId(*image, *objectModel);
+                                poseID = GeneralHelper::createPoseId(image, objectModel);
                             }
                             // Get rotation
                             if (!extract3x3Matrix(poseDict, KEY_R, rotation, "pose", "Rotation matrix",
@@ -593,7 +593,7 @@ QList<PosePtr> PythonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &imag
                                 continue;
                             }
                             // Get translation
-                            poses.append(PosePtr(new Pose(poseID, translation, rotation, image, objectModel)));
+                            poses.append(Pose(poseID, translation, rotation, image, objectModel));
                         } else {
                             qDebug() << "Return value for pose is not "
                                         "a dict (Index:" << i << ", " << j << "). Skipping pose.";

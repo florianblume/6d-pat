@@ -1,6 +1,10 @@
 #include "objectmodel.hpp"
 #include <QDir>
 
+ObjectModel::ObjectModel() {
+
+}
+
 ObjectModel::ObjectModel(const QString &id, const QString& objectModelPath, const QString& basePath)
     : m_id(id),
       m_objectModelPath(objectModelPath),
