@@ -39,12 +39,6 @@ jobs:
       run: qmake CONFIG+="Release" ../../6d-pat.pro
     - name: make
       run: make -j8 --directory ./build/release
-    - name: 'Tar build for upload'
-      run: tar -cvf 6dpat.tar ./build/release
-    - uses: actions/upload-artifact@master
-      with:
-        name: 6dpat-build
-        path: ~/
   tests:
     runs-on: ubuntu-20.04
     needs: build
