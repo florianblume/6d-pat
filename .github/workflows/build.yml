@@ -39,13 +39,19 @@ jobs:
       run: qmake CONFIG+="Release" ../../6d-pat.pro
     - name: make
       run: make -j8 --directory ./build/release
+    - uses: actions/upload-artifact@master
+      with:
+        name: 6dpat-build
+        path: ./build/release
   tests:
     runs-on: ubuntu-20.04
     needs: build
     steps:
+    - uses: actions/download-artifact@master
+      with:
+        name: 6dpat-build
+        path: ./build/release
     - name: execute tests
       env:
         LD_LIBRARY_PATH: ~/build/release/src
-      run: |
-           ls -a
-    
+      run: ./build/release/tests/tests
