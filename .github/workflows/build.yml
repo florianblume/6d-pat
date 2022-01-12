@@ -39,6 +39,8 @@ jobs:
       run: qmake CONFIG+="Release" ../../6d-pat.pro
     - name: make
       run: make -j8 --directory ./build/release
+    - name: 'Tar build for upload'
+      run: tar -cvf 6dpat.tar ./build/release
     - uses: actions/upload-artifact@master
       with:
         name: 6dpat-build
@@ -51,6 +53,8 @@ jobs:
       with:
         name: 6dpat-build
         path: ./build/release
+    - name: 'Untar uploaded build'
+      run: tar -xvf 6dpat.tar
     - name: execute tests
       env:
         LD_LIBRARY_PATH: ~/build/release/src
