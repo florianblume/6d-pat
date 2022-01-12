@@ -44,8 +44,7 @@ jobs:
     needs: build
     steps:
     - name: execute tests
-      run: |
-           ls
-           export LD_LIBRARY_PATH=~/build/release/src:$LD_LIBRARY_PATH
-           ./tests/tests
+      env:
+        LD_LIBRARY_PATH: ~/build/release/src
+      run: ./build/release/tests/tests
     
