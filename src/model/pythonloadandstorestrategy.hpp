@@ -23,10 +23,10 @@ public:
 
     QList<Image> loadImages() override;
 
-    QList<ObjectModel> loadObjectModels() override;
+    ObjectModelList loadObjectModels() override;
 
     QList<Pose> loadPoses(const QList<Image> &images,
-                          const QList<ObjectModel> &objectModels) override;
+                          const ObjectModelList &objectModels) override;
 
 private:
     bool extractPath(py::dict &dict, const char *key,

@@ -368,8 +368,8 @@ QList<Image> PythonLoadAndStoreStrategy::loadImages() {
     return images;
 }
 
-QList<ObjectModel> PythonLoadAndStoreStrategy::loadObjectModels() {
-    QList<ObjectModel> objectModels;
+ObjectModelList PythonLoadAndStoreStrategy::loadObjectModels() {
+    ObjectModelList objectModels;
     m_objectModelsWithInvalidData.clear();
 
     QFileInfo fileInfo(m_loadSaveScript);
@@ -501,7 +501,7 @@ bool PythonLoadAndStoreStrategy::persistPose(const Pose &objectImagePose, bool d
 }
 
 QList<Pose> PythonLoadAndStoreStrategy::loadPoses(const QList<Image> &images,
-                                                  const QList<ObjectModel> &objectModels) {
+                                                  const ObjectModelList &objectModels) {
     QList<Pose> poses;
     m_posesWithInvalidData.clear();
 

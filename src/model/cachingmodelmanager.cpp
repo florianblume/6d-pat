@@ -74,7 +74,7 @@ QList<Pose> CachingModelManager::posesForImage(const Image &image) const  {
     return QList<Pose>();
 }
 
-QList<ObjectModel> CachingModelManager::objectModels() const {
+ObjectModelList CachingModelManager::objectModels() const {
     return m_objectModels;
 }
 

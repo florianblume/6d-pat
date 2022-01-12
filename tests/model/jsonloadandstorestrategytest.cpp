@@ -29,7 +29,7 @@ void JsonLoadAndStoreStrategyTest::initTestCase() {
 
 void JsonLoadAndStoreStrategyTest::loadNonExistingImagesDir() {
     m_strategy->setImagesPath("/idontexist");
-    QList<ImagePtr> images = m_strategy->loadImages();
+    ImageList images = m_strategy->loadImages();
     QTEST_ASSERT(images.size() == 0);
     QCOMPARE(m_signalSpy->count(), 1);
     QList<QVariant> arguments = m_signalSpy->takeFirst();
@@ -42,7 +42,7 @@ void JsonLoadAndStoreStrategyTest::loadImagesDirIsAFile() {
 }
 
 void JsonLoadAndStoreStrategyTest::loadEmptyImagesDirWithoutCamInfo() {
-    QList<ImagePtr> images = m_strategy->loadImages();
+    ImageList images = m_strategy->loadImages();
     QTEST_ASSERT(images.size() == 0);
     QCOMPARE(m_signalSpy->count(), 1);
     QList<QVariant> arguments = m_signalSpy->takeFirst();
@@ -69,7 +69,7 @@ void JsonLoadAndStoreStrategyTest::loadObjectModelsDirIsAFile() {
 }
 
 void JsonLoadAndStoreStrategyTest::loadEmptyObjectModelsDir() {
-    QList<ObjectModelPtr> models = m_strategy->loadObjectModels();
+    ObjectModelList models = m_strategy->loadObjectModels();
     QTEST_ASSERT(models.size() == 0);
     QCOMPARE(m_signalSpy->count(), 1);
     QList<QVariant> arguments = m_signalSpy->takeFirst();
@@ -81,11 +81,11 @@ void JsonLoadAndStoreStrategyTest::loadEmptyImagesAndObjectModelsDirWithNonExist
 }
 
 void JsonLoadAndStoreStrategyTest::loadEmptyImagesAndObjectModelsDirWithInvalidPosesFile() {
-    QList<ImagePtr> images = m_strategy->loadImages();
-    QList<ObjectModelPtr> models = m_strategy->loadObjectModels();
+    ImageList images = m_strategy->loadImages();
+    ObjectModelList models = m_strategy->loadObjectModels();
     // We get two errors from the previous loads that's why we have to reset here
     m_signalSpy->clear();
-    QList<PosePtr> poses = m_strategy->loadPoses(images, models);
+    PoseList poses = m_strategy->loadPoses(images, models);
     QTEST_ASSERT(poses.size() == 0);
     QCOMPARE(m_signalSpy->count(), 1);
     QList<QVariant> arguments = m_signalSpy->takeFirst();
@@ -98,7 +98,7 @@ void JsonLoadAndStoreStrategyTest::loadEmptyImagesAndObjectModelsDirWithCorruptP
 
 void JsonLoadAndStoreStrategyTest::loadImagesDirWithoutCamInfo() {
     QFile::copy(":/data/test1.png", QDir(m_imagesDir).filePath("test1.png"));
-    QList<ImagePtr> images = m_strategy->loadImages();
+    ImageList images = m_strategy->loadImages();
     //QTEST_ASSERT(images.size() == 1);
 }
 

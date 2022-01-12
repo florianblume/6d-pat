@@ -4,7 +4,7 @@
 #include <QImageReader>
 #include <QElapsedTimer>
 
-ResizeImagesRunnable::ResizeImagesRunnable(const QList<ImagePtr> &images) {
+ResizeImagesRunnable::ResizeImagesRunnable(const ImageList &images) {
     for (ImagePtr image: images) {
         m_images.append(*image.get());
     }

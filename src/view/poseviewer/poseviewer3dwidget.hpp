@@ -85,7 +85,7 @@ public:
     // Data related methods
     void setBackgroundImage(const QString& image, const QMatrix3x3 &cameraMatrix,
                             float nearPlane, float farPlane);
-    void setPoses(const QList<PosePtr> &poses);
+    void setPoses(const PoseList &poses);
     void addPose(const Pose &pose);
     void removePose(const Pose &pose);
     void setSelectPose(int index);

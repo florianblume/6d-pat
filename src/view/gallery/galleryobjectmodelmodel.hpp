@@ -60,7 +60,7 @@ private:
 
 private:
     ModelManager* m_modelManager;
-    QList<ObjectModel> m_objectModels;
+    ObjectModelList m_objectModels;
     QMap<QString,QImage> m_renderedObjectsModels;
     OffscreenEngine m_offscreenEngine{QSize(300, 300)};
     QList<Image> m_images;

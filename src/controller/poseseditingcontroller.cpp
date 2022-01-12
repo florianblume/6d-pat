@@ -80,23 +80,23 @@ PosesEditingController::PosesEditingController(QObject *parent, ModelManager *mo
 }
 
 void PosesEditingController::setSelectedPose(const Pose &pose) {
-    if (pose == m_selectedPose) {
+    if (pose == *m_selectedPose) {
         // When starting the program sometimes the gallery hasn't been initialized yet
         // m_mainWindow->galleryObjectModels()->clearSelection(false);
 
-        // TODO call the pose viewer and editor directly
+        // ####TODO#### call the pose viewer and editor directly
         //Q_EMIT selectedPoseChanged(PosePtr(), m_selectedPose);
     } else {
-        Pose oldPose = m_selectedPose;
-        m_selectedPose = pose;
+        m_selectedPose.reset(new Pose(pose));
         m_mainWindow->objectModelsGalleryView()->selectObjectModelByID(pose.objectModel(), false);
         // TODO call the pose viewer and editor directly
-        //Q_EMIT selectedPoseChanged(m_selectedPose, oldPose);
+        m_mainWindow->poseEditorView()->setSelectedPose(pose);
+        m_mainWindow->poseViewerView()->setSelectedPose(pose);
     }
     // Enable or disable to save button here because when we remove a pose
     // we emit a selected pose changed signal and we have to enable or
     // disable this button again
-    enableSaveButtonOnPoseEditor();
+    checkEnableSaveButtonOnPoseEditor();
 }
 
 void PosesEditingController::addPose(const Pose &pose) {
@@ -104,17 +104,14 @@ void PosesEditingController::addPose(const Pose &pose) {
     m_posesForSelectedImage.append(pose);
     m_mainWindow->poseEditorView()->addPose(pose);
     m_mainWindow->poseViewerView()->addPose(pose);
-    enableSaveButtonOnPoseEditor();
-    // No need to actual emit the selected pose changed signal
-    // here because PoseViewer and PoseEditor already
-    // select the new pose interally
-    m_selectedPose = pose;
+    checkEnableSaveButtonOnPoseEditor();
+    m_selectedPose.reset(new Pose(pose));
     abortPoseCreation();
 }
 
 void PosesEditingController::removePose() {
     for (int i = 0; i < m_posesForSelectedImage.size(); i++) {
-        if (m_posesForSelectedImage[i] == m_selectedPose) {
+        if (m_posesForSelectedImage[i] == *m_selectedPose) {
             m_posesForSelectedImage.removeAt(i);
             break;
         }
@@ -122,70 +119,37 @@ void PosesEditingController::removePose() {
     // Check if the pose has only been added
     bool poseHasJustBeenAdded = false;
     for (int i = 0; i < m_posesToAdd.size(); i++) {
-        if (m_posesToAdd[i] == m_selectedPose) {
+        if (m_posesToAdd[i] == *m_selectedPose) {
             m_posesToAdd.removeAt(i);
             poseHasJustBeenAdded = true;
             break;
         }
     }
     if (!poseHasJustBeenAdded) {
-        m_posesToRemove.append(m_selectedPose);
+        m_posesToRemove.append(*m_selectedPose);
     }
-    m_mainWindow->poseViewerView()->removePose(m_selectedPose);
-    m_mainWindow->poseEditorView()->removePose(m_selectedPose);
+    m_mainWindow->poseViewerView()->removePose(*m_selectedPose);
+    m_mainWindow->poseEditorView()->removePose(*m_selectedPose);
     abortPoseCreation();
     m_selectedPose.reset();
-    enableSaveButtonOnPoseEditor();
-    // Save button of PoseEditor gets enabled or disabled
-    // by receiving the signal of pose selected
-    Q_EMIT selectedPoseChanged(PosePtr(), PosePtr());
+    checkEnableSaveButtonOnPoseEditor();
 }
 
 void PosesEditingController::duplicatePose() {
-    addPose(createNewPoseFromPose(m_selectedPose));
+    addPose(createNewPoseFromPose(*m_selectedPose));
 }
 
-void PosesEditingController::copyPosesFromImage(ImagePtr image) {
+void PosesEditingController::copyPosesFromImage(const Image &image) {
     abortPoseCreation();
-    QList<PosePtr> poses = m_modelManager->posesForImage(*image);
-    for (const PosePtr &pose : poses) {
-        PosePtr newPose = createNewPoseFromPose(pose);
+    QList<Pose> poses = m_modelManager->posesForImage(image);
+    for (const Pose &pose : poses) {
+        Pose newPose = createNewPoseFromPose(pose);
         m_posesToAdd.append(newPose);
         m_posesForSelectedImage.append(newPose);
     }
     m_mainWindow->poseEditorView()->setPoses(m_posesForSelectedImage);
     m_mainWindow->poseEditorView()->setEnabledButtonSave(true);
     m_mainWindow->poseViewerView()->setPoses(m_posesForSelectedImage);
-}
-
-// Called from the setters of the pose
-void PosesEditingController::onPoseChanged() {
-    // Quick check whether the controller should ignore changes in the pose
-    // values (rare case when modifying a pose, removing it and then clicking
-    // the reset button)
-    if (m_selectedPose.isNull()) {
-        return;
-    }
-    if (m_posesToAdd.contains(m_selectedPose)) {
-        // If the pose has just been added we do not need to store
-        // its modified values, it will get saved anyways (or not
-        // added when the user doesn't want it)
-        return;
-    }
-    // Only assign true when actually changed
-    PoseValues poseValues = m_unmodifiedPoses[m_selectedPose->id()];
-    m_dirtyPoses[m_selectedPose] = poseValues.position != m_selectedPose->position()
-                                    || poseValues.rotation != m_selectedPose->rotation();
-    enableSaveButtonOnPoseEditor();
-    Q_EMIT poseValuesChanged(m_selectedPose);
-}
-
-void PosesEditingController::onPosePositionChanged(QVector3D /*position*/) {
-    onPoseChanged();
-}
-
-void PosesEditingController::onPoseRotationChanged(QQuaternion /*rotation*/) {
-    onPoseChanged();
 }
 
 void PosesEditingController::modelManagerStateChanged(ModelManager::State state) {
@@ -197,20 +161,14 @@ void PosesEditingController::modelManagerStateChanged(ModelManager::State state)
 }
 
 void PosesEditingController::onDataChanged(int /*data*/) {
-
     // Try to save poses still, it might be that the underlying
     // poses file has been changed but it might be an accident
     // so we try to save it
     savePosesOrRestoreState();
     abortPoseCreation();
-
-    // No matter what changed we need to reset the controller's state
     m_selectedPose.reset();
-    // Disconnect from pose and fire signals
-    selectPose(PosePtr());
     m_posesForSelectedImage.clear();
     m_dirtyPoses.clear();
-    m_unmodifiedPoses.clear();
     m_images = m_modelManager->images();
     m_objectModels = m_modelManager->objectModels();
     m_mainWindow->poseEditorView()->reset();
@@ -228,31 +186,16 @@ void PosesEditingController::savePoses() {
 
 void PosesEditingController::savePosesOrRestoreState() {
     bool result = showDialogAndSavePoses(true);
-    // Result is true if poses have been saved
-    if (!result) {
-        // Set all poses to not dirty
-        QList<PosePtr> dirtyPoses = m_dirtyPoses.keys(true);
-        for (const PosePtr &pose : dirtyPoses) {
-            PoseValues poseValues = m_unmodifiedPoses[pose->id()];
-            pose->setPosition(poseValues.position);
-            pose->setRotation(poseValues.rotation);
-            m_dirtyPoses[pose] = false;
-        }
-        // Set the original poses again
-        m_posesForSelectedImage = m_modelManager->posesForImage(*m_selectedImage);
-        m_mainWindow->poseEditorView()->setPoses(m_posesForSelectedImage);
-        m_mainWindow->poseViewerView()->setPoses(m_posesForSelectedImage);
-    }
 }
 
 bool PosesEditingController::showDialogAndSavePoses(bool showDialog) {
-    QList<PosePtr> posesToSave = m_dirtyPoses.keys(true);
+    QList<Pose> posesToSave = m_dirtyPoses;
     m_mainWindow->poseEditorView()->setEnabledButtonSave(false);
     bool noErrorSavingPoses = true;
     if (posesToSave.size() || m_posesToAdd.size() || m_posesToRemove.size()) {
         int posesToSaveCount = posesToSave.size() + m_posesToAdd.size() + m_posesToRemove.size();
         for (int i = 0; i < posesToSave.size(); i++) {
-            PosePtr pose = posesToSave[i];
+            Pose pose = posesToSave[i];
             // Check if the pose to remove has been modified to not count it twice
             // when displaying how many poses are dirty
             if (m_posesToRemove.contains(pose)) {
@@ -268,34 +211,28 @@ bool PosesEditingController::showDialogAndSavePoses(bool showDialog) {
         // else result will be true because result = !showDialog (the latter is false in this case)
         if (!showDialog || result) {
             qDebug() << "Adding " << m_posesToAdd.size() << " poses.";
-            for (const PosePtr &pose : m_posesToAdd) {
-                PosePtr newPose = m_modelManager->addPose(*pose);
-                // If there was an error saving the pose, the returned pointer will be null
-                noErrorSavingPoses &= !newPose.isNull();
+            for (const Pose &pose : m_posesToAdd) {
+                // If there was an error saving the pose, the model manager will return false
+                noErrorSavingPoses &= m_modelManager->addPose(pose);
             }
             qDebug() << "Saving " << posesToSave.size() << " poses.";
-            for (const PosePtr &pose : posesToSave) {
+            for (const Pose &pose : posesToSave) {
                 // No need to display a warning here because if something goes wrong
                 // the LoadAndStoreStrategy already notifies the MainWindow
-                bool updatedPoseSuccessfully = m_modelManager->updatePose(pose->id(),
-                                                                          pose->position(),
-                                                                          pose->rotation().toRotationMatrix());
-                noErrorSavingPoses &= updatedPoseSuccessfully;
-                if (updatedPoseSuccessfully) {
-                    m_dirtyPoses[pose] = false;
-                    m_unmodifiedPoses[pose->id()] = {.position = pose->position(),
-                                                     .rotation = pose->rotation()};
-                }
+                bool success = m_modelManager->updatePose(pose.id(),
+                                                          pose.position(),
+                                                          pose.rotation().toRotationMatrix());
+                noErrorSavingPoses &= success;
             }
             qDebug() << "Removing " << m_posesToRemove.size() << " poses.";
-            for (const PosePtr &pose : m_posesToRemove) {
-                noErrorSavingPoses  &= m_modelManager->removePose(pose->id());
+            for (const Pose &pose : m_posesToRemove) {
+                noErrorSavingPoses  &= m_modelManager->removePose(pose.id());
             }
         } else if (showDialog && !result) {
             qDebug() << "Not saving poses as requested.";
             // Need to clean up in case the user pressed only the reset button
             for (int i = 0; i < m_posesToRemove.size(); i++) {
-                PosePtr poseToRemove = m_posesToRemove[i];
+                Pose poseToRemove = m_posesToRemove[i];
                 if (m_dirtyPoses.contains(poseToRemove)) {
 
                 }
@@ -304,6 +241,7 @@ bool PosesEditingController::showDialogAndSavePoses(bool showDialog) {
         if (noErrorSavingPoses) {
             m_posesToAdd.clear();
             m_posesToRemove.clear();
+            m_dirtyPoses.clear();
         } else {
             qDebug() << "There was an error saving the poses.";
             // There was an error so we allow the option to try and save
@@ -332,8 +270,8 @@ void PosesEditingController::onSelectedImageChanged(int index) {
     m_posesToRemove.clear();
     m_dirtyPoses.clear();
 
-    m_selectedObjectModel = Q_NULLPTR;
-    m_selectedPose = Q_NULLPTR;
+    m_selectedObjectModel.reset();
+    m_selectedPose .reset();
 
     // So that the object model doesn't get reset by selecting a new image
     m_mainWindow->poseEditorView()->reset3DViewOnPoseSelectionChange(false);
@@ -348,11 +286,11 @@ void PosesEditingController::onSelectedImageChanged(int index) {
 
     // Index can be -1 when the views are reset
     if (index >= 0 && index < m_images.size()) {
-        m_selectedImage = &m_images[index];
+        m_selectedImage.reset(new Image(m_images[index]));
         m_posesForSelectedImage = m_modelManager->posesForImage(*m_selectedImage);
-        m_mainWindow->poseEditorView()->setCurrentImage(m_selectedImage);
+        m_mainWindow->poseEditorView()->setSelectedImage(*m_selectedImage);
         m_mainWindow->poseEditorView()->setPoses(m_posesForSelectedImage);
-        m_mainWindow->poseViewerView()->setImage(*m_selectedImage);
+        m_mainWindow->poseViewerView()->setSelectedImage(*m_selectedImage);
         m_mainWindow->poseViewerView()->setPoses(m_posesForSelectedImage);
     }
     m_mainWindow->poseEditorView()->reset3DViewOnPoseSelectionChange(true);
@@ -361,9 +299,9 @@ void PosesEditingController::onSelectedImageChanged(int index) {
 void PosesEditingController::onSelectedObjectModelChanged(int index) {
     // Index can be -1 when the views are reset
     if (index >= 0 && index < m_objectModels.size()) {
-        ObjectModel *objectModel = &m_objectModels[index];
-        m_mainWindow->poseEditorView()->setObjectModel(*objectModel);
-        m_selectedObjectModel = objectModel;
+        ObjectModel objectModel = m_objectModels[index];
+        m_mainWindow->poseEditorView()->setObjectModel(objectModel);
+        m_selectedObjectModel.reset(new ObjectModel(objectModel));
     }
     abortPoseCreation();
 }
@@ -378,7 +316,7 @@ Pose PosesEditingController::createNewPoseFromPose(const Pose &pose) {
                 pose.objectModel());
 }
 
-void PosesEditingController::enableSaveButtonOnPoseEditor() {
+void PosesEditingController::checkEnableSaveButtonOnPoseEditor() {
     m_mainWindow->poseEditorView()->setEnabledButtonSave(m_posesToAdd.size() ||
                                                          m_posesToRemove.size() ||
                                                          m_dirtyPoses.size());

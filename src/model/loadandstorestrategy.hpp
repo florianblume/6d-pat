@@ -66,7 +66,7 @@ public:
      * \brief loadObjectModels Loads the object models.
      * \return the list of object models
      */
-    virtual QList<ObjectModel> loadObjectModels() = 0;
+    virtual ObjectModelList loadObjectModels() = 0;
 
     void setPosesFilePath(const QString &posesFilePath);
 
@@ -76,7 +76,7 @@ public:
      * \return the list of all stored poses
      */
     virtual QList<Pose> loadPoses(const QList<Image> &images,
-                                  const QList<ObjectModel> &objectModels) = 0;
+                                  const ObjectModelList &objectModels) = 0;
 
     virtual QList<QString> posesWithInvalidData() const;
 

@@ -7,6 +7,7 @@
 #include "poseviewer3dwidget.hpp"
 #include "view/misc/displayhelper.hpp"
 #include "settings/settingsstore.hpp"
+#include "view/poseeditingview.hpp"
 
 #include <QList>
 #include <QMap>
@@ -30,27 +31,31 @@ class MoveableContainerWidget;
  * adding ObjectModels and place them at specific spots. It does NOT allow diret editing.
  * This is what the PoseEditorControls are for.
  */
-class PoseViewer : public QWidget
+class PoseViewer : public QWidget, public PoseEditingView
 {
     Q_OBJECT
 
 public:
     explicit PoseViewer(QWidget *parent = 0);
     ~PoseViewer();
-    ImagePtr currentlyViewedImage();
+    Image currentlyViewedImage();
     void setSettingsStore(SettingsStore *settingsStore);
     QSize imageSize();
 
 public Q_SLOTS:
-    void setImage(const Image &image);
-    void setPoses(const QList<Pose> &poses);
-    void addPose(const Pose &pose);
-    void removePose(const Pose &pose);
-    void setClicks(const QList<QPoint> &clicks);
-    void setSelectedPose(int index);
+    // PoseEditingView overrides
+    void setSelectedImage(const Image &image) override;
+    void setImages(const QList<Image> &images) override;
+    void setPoses(const QList<Pose> &poses) override;
+    void addPose(const Pose &pose) override;
+    void removePose(const Pose &pose) override;
+    void setSelectedPose(const Pose &pose) override;
+    void onSelectedPoseValuesChanged(const Pose &pose) override;
+    void onPosesSaved() override;
+    void onPoseCreationAborted() override;
+    void reset() override;
 
-    void reset();
-    void onPoseCreationAborted();
+    void setClicks(const QList<QPoint> &clicks);
     void takeSnapshot(const QString &path);
 
 Q_SIGNALS:
@@ -62,7 +67,7 @@ private Q_SLOTS:
     /*!
      * \brief showSegmentationImage is there for the switch view button
      */
-    void switchImage();
+    void switchSegmentaitonAndNormalImage();
     void onOpacityChanged(int opacity);
     // TODO rename to onZoomSliderValueChanged
     void onSliderZoomValueChanged(int zoom);
@@ -82,8 +87,8 @@ private:
     QPointer<SettingsStore> m_settingsStore;
 
     QList<Pose> m_poses;
-    Pose *m_selectedPose;
-    Image m_currentlyDisplayedImage;
+    Pose m_selectedPose;
+    Image m_selectedImage;
     // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
     // segmentation image
     bool m_showingNormalImage = true;

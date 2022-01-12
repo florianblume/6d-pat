@@ -30,7 +30,6 @@ private Q_SLOTS:
     void removePose();
     void duplicatePose();
     void copyPosesFromImage(const Image &image);
-    void onPoseChanged();
     void onPosePositionChanged(const QVector3D &position);
     void onPoseRotationChanged(const QQuaternion &rotation);
     void modelManagerStateChanged(ModelManager::State state);
@@ -61,7 +60,7 @@ private Q_SLOTS:
 private:
     template<class A, class B>
     void addPoint(A point, QList<A> &listToAddTo, QList<B> &listToCompareTo);
-    void enableSaveButtonOnPoseEditor();
+    void checkEnableSaveButtonOnPoseEditor();
     Pose createNewPoseFromPose(const Pose &pose);
 
 private:
@@ -73,15 +72,15 @@ private:
         ReadyForPoseCreation
     };
 
-    Pose *m_selectedPose = Q_NULLPTR;
-    Image *m_selectedImage = Q_NULLPTR;
-    ObjectModel *m_selectedObjectModel = Q_NULLPTR;
+    PosePtr m_selectedPose;
+    ImagePtr m_selectedImage;
+    ObjectModelPtr m_selectedObjectModel;
 
     ModelManager *m_modelManager;
     MainWindow *m_mainWindow;
 
     QList<Image> m_images;
-    QList<ObjectModel> m_objectModels;
+    ObjectModelList m_objectModels;
     QList<Pose> m_posesForSelectedImage;
 
     QList<Pose> m_posesToAdd;

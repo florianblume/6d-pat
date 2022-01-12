@@ -59,26 +59,26 @@ void PoseViewer::setSettingsStore(SettingsStore *settingsStore) {
     this->m_settingsStore = settingsStore;
     connect(settingsStore, &SettingsStore::currentSettingsChanged,
             this, &PoseViewer::currentSettingsChanged);
-    m_poseViewer3DWidget->setSettings(settingsStore->currentSettings());
+    m_poseViewer3DWidget->setSettings(settingsStore->currentSettings().get());
 }
 
 QSize PoseViewer::imageSize() {
     return m_poseViewer3DWidget->imageSize();
 }
 
-void PoseViewer::setPoses(const QList<PosePtr> &poses) {
+void PoseViewer::setPoses(const PoseList &poses) {
     setSliderTransparencyEnabled(poses.size() > 0);
     m_selectedPose.reset();
     m_poseViewer3DWidget->setPoses(poses);
 }
 
-void PoseViewer::addPose(PosePtr pose) {
+void PoseViewer::addPose(const Pose &pose) {
     m_poseViewer3DWidget->addPose(pose);
-    m_poseViewer3DWidget->selectPose(pose, PosePtr());
+    m_poseViewer3DWidget->selectPose(pose);
     setSliderTransparencyEnabled(true);
 }
 
-void PoseViewer::removePose(PosePtr pose) {
+void PoseViewer::removePose(const Pose &pose) {
     m_poseViewer3DWidget->removePose(pose);
 }
 
@@ -101,22 +101,22 @@ void PoseViewer::setSliderTransparencyEnabled(bool enabled) {
     ui->buttonTransparency->setEnabled(enabled);
 }
 
-ImagePtr PoseViewer::currentlyViewedImage() {
+Image PoseViewer::selectedImage() {
     return m_currentlyDisplayedImage;
 }
 
-void PoseViewer::setImage(ImagePtr image) {
+void PoseViewer::setImage(const Image &image) {
     // All resetting (removing clicks, removing pose renderables) is done by
     // the controllers (PoseEditingController & PoseRecoveringController) externally
-    m_currentlyDisplayedImage = image;
+    m_selectedImage = image;
     ui->buttonResetPosition->setEnabled(true);
     ui->sliderTransparency->setValue(100);
     setSliderZoomEnabled(true);
 
-    qDebug() << "Displaying image (" + m_currentlyDisplayedImage->imagePath() + ").";
+    qDebug() << "Displaying image (" + m_selectedImage.imagePath() + ").";
 
     // Enable/disable functionality to show only segmentation image instead of normal image
-    if (m_currentlyDisplayedImage->segmentationImagePath().isEmpty()) {
+    if (m_selectedImage.segmentationImagePath().isEmpty()) {
         ui->buttonSwitchView->setEnabled(false);
 
         // If we don't find a segmentation image, set that we will now display the normal image
@@ -126,8 +126,8 @@ void PoseViewer::setImage(ImagePtr image) {
     } else {
         ui->buttonSwitchView->setEnabled(true);
     }
-    QString toDisplay = m_showingNormalImage ?  m_currentlyDisplayedImage->absoluteImagePath() :
-                                    m_currentlyDisplayedImage->absoluteSegmentationImagePath();
+    QString toDisplay = m_showingNormalImage ?  m_selectedImage.absoluteImagePath() :
+                                    m_selectedImage.absoluteSegmentationImagePath();
     m_poseViewer3DWidget->setBackgroundImage(toDisplay, image->getCameraMatrix(),
                                              image->nearPlane(), image->farPlane());
 }
@@ -160,7 +160,7 @@ void PoseViewer::selectPose(PosePtr selected, PosePtr deselected) {
     m_poseViewer3DWidget->selectPose(selected, deselected);
 }
 
-void PoseViewer::switchImage() {
+void PoseViewer::switchSegmentaitonAndNormalImage() {
     m_showingNormalImage = !m_showingNormalImage;
 
     DisplayHelper::setIcon(ui->buttonSwitchView,

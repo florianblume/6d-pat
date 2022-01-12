@@ -432,7 +432,7 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
     m_backgroundImageRenderable->setEnabled(true);
 }
 
-void PoseViewer3DWidget::setPoses(const QList<PosePtr> &poses) {
+void PoseViewer3DWidget::setPoses(const PoseList &poses) {
     // Remove old poses
     for (int index = 0; index < m_poseRenderables.size(); index++) {
         PoseRenderable *renderable = m_poseRenderables[index];

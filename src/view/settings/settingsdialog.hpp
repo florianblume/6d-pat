@@ -18,7 +18,7 @@ public:
     explicit SettingsDialog(QWidget *parent = 0);
     ~SettingsDialog();
     void setSettingsStoreAndObjectModels(SettingsStore *settingsStore,
-                                            const QList<ObjectModelPtr> &objectModels);
+                                            const ObjectModelList &objectModels);
 
 public Q_SLOTS:
     void onAccepted(QAbstractButton* button);

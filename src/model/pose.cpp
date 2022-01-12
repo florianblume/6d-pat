@@ -1,5 +1,9 @@
 #include "pose.hpp"
 
+Pose::Pose() {
+
+}
+
 Pose::Pose(QString id,
            QVector3D position,
            QQuaternion rotation,

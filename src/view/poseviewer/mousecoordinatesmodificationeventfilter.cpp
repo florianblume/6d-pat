@@ -13,7 +13,7 @@ void MouseCoordinatesModificationEventFilter::setOffset(int x, int y) {
     m_offsetY = y;
 }
 
-void MouseCoordinatesModificationEventFilter::setOffset(QPoint offset) {
+void MouseCoordinatesModificationEventFilter::setOffset(const QPoint &offset) {
     m_offsetX = offset.x();
     m_offsetY = offset.y();
 }

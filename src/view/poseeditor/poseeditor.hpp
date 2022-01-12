@@ -1,7 +1,7 @@
 #ifndef CORRESPONDENCEEDITORCONTROLS_H
 #define CORRESPONDENCEEDITORCONTROLS_H
 
-#include "poseeditingview.hpp"
+#include "view/poseeditingview.hpp"
 #include "model/modelmanager.hpp"
 #include "misc/global.hpp"
 #include "view/poseeditor/poseeditor3dwidget.hpp"
@@ -43,23 +43,21 @@ public:
     void setSettingsStore(SettingsStore *settingsStore);
 
 public Q_SLOTS:
-    // We don't actually need the image, only to check
-    // whether to enable the copying and poses selection
-    // list views
-    void setSelectedImage(int index) override;
+    // PoseEditingView overrides
+    void setSelectedImage(const Image &imgae) override;
     void setImages(const QList<Image> &images) override;
     void setPoses(const QList<Pose> &poses) override;
     void addPose(const Pose &pose) override;
     void removePose(const Pose &pose) override;
-    // For poses selected in the PoseViewer
-    void setSelectedPose(int index) override;
-    void setClicks(const QList<QVector3D> &clicks) override;
+    void setSelectedPose(const Pose &pose) override;
     void onSelectedPoseValuesChanged(const Pose &pose) override;
     void onPosesSaved() override;
     void onPoseCreationAborted() override;
     void reset() override;
 
+    void setClicks(const QList<QVector3D> &clicks);
     void setObjectModel(const ObjectModel &objectModel);
+
     void leaveEvent(QEvent* event) override;
 
 Q_SIGNALS:
@@ -118,10 +116,9 @@ private:
 
     QList<Image> m_images;
     QList<Pose> m_poses;
-    Image *m_selectedImage;
-    ObjectModel *m_selectedObjectModel;
-    Pose *m_selectedPose;
-    Pose *m_selectedPoseIndex;
+    Image m_selectedImage;
+    ObjectModel m_selectedObjectModel;
+    Pose m_selectedPose;
 
     // When the pose is selected by the pose viewer we still emit the pose selected signal
     // which causes the program to crash

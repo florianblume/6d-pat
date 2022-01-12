@@ -78,7 +78,7 @@ public:
      * \param objectModels the list that the object models are to be added to
      * \return the list of all objects models loaded by this manager
      */
-    virtual QList<ObjectModel> objectModels() const = 0;
+    virtual ObjectModelList objectModels() const = 0;
 
     /*!
      * \brief getPosesForObjectModels Returns all ObjectImagePoses for the object model at the given path.

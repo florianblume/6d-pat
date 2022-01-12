@@ -30,7 +30,7 @@ public:
 
     QList<Pose> posesForImage(const Image &image) const override;
 
-    QList<ObjectModel> objectModels() const override;
+    ObjectModelList objectModels() const override;
 
     QList<Pose> posesForObjectModel(const ObjectModel &objectModel) const override;
 
@@ -80,7 +80,7 @@ private:
     //! Convenience map to store poses for images
     QMap<QString, QList<Pose>> m_posesForImages;
     //! The list of the loaded object models
-    QList<ObjectModel> m_objectModels;
+    ObjectModelList m_objectModels;
     //! Convenience map to store poses for object models
     QMap<QString, QList<Pose>> m_posesForObjectModels;
     //! The list of the object image poses

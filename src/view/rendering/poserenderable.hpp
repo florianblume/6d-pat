@@ -28,13 +28,15 @@ public:
     PoseRenderable(Qt3DCore::QEntity *parent, const Pose &pose);
 
     QString poseID();
-    ObjectModelPtr objectModel();
+    ObjectModel objectModel() const;
+    Pose pose() const;
     Qt3DCore::QTransform *transform() const;
+    void setTranslation(const QVector3D &translation);
+    void setRotation(const QQuaternion &rotation);
 
     // To retrieve the respective renderable
     bool operator==(const PoseRenderable &other);
 
-    PosePtr pose() const;
 
 Q_SIGNALS:
     void clicked(Qt3DRender::QPickEvent *pickEvent);

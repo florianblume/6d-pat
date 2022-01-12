@@ -26,7 +26,7 @@ SettingsDialog::~SettingsDialog() {
 }
 
 void SettingsDialog::setSettingsStoreAndObjectModels(SettingsStore *settingsStore,
-                                                     const QList<ObjectModelPtr> &objectModels) {
+                                                     const ObjectModelList &objectModels) {
     //! copy settings item, we don't want the settings item to be modified if we cancel the settings dialog
     this->m_settingsStore = settingsStore;
     SettingsPtr settings = settingsStore->currentSettings();

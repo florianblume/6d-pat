@@ -16,7 +16,7 @@ public:
     explicit SettingsSegmentationCodesPage(QWidget *parent = 0);
     ~SettingsSegmentationCodesPage();
     void setSettingsAndObjectModels(Settings *settings,
-                                    const QList<ObjectModelPtr> &objectModels);
+                                    const ObjectModelList &objectModels);
 
 private Q_SLOTS:
     void showColorDialog(int index);
@@ -25,7 +25,7 @@ private Q_SLOTS:
 private:
     Ui::SettingsSegmentationCodesPage *ui;
     Settings *m_settings;
-    QList<ObjectModelPtr> m_objectModels;
+    ObjectModelList m_objectModels;
 };
 
 #endif // SETTINGSSEGMENTATIONCODESPAGE_H

@@ -30,7 +30,7 @@ public:
 
     QList<Image> loadImages() override;
 
-    QList<ObjectModel> loadObjectModels() override;
+    ObjectModelList loadObjectModels() override;
 
     /*!
      * \brief loadPoses Loads the poses at the given path. How the poses are stored depends on the
@@ -46,7 +46,7 @@ public:
      * \throws an exception if the path to the folder that should hold the poses has not been set previously
      */
     QList<Pose> loadPoses(const QList<Image> &images,
-                          const QList<ObjectModel> &objectModels) override;
+                          const ObjectModelList &objectModels) override;
 };
 
 typedef QSharedPointer<JsonLoadAndStoreStrategy> JsonLoadAndStoreStrategyPtr;

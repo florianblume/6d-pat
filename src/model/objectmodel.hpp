@@ -61,5 +61,6 @@ private:
 };
 
 typedef QSharedPointer<ObjectModel> ObjectModelPtr;
+typedef QList<ObjectModel> ObjectModelList;
 
 #endif // OBJECTMODEL_H

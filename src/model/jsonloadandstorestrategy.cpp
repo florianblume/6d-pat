@@ -310,8 +310,8 @@ QList<Image> JsonLoadAndStoreStrategy::loadImages() {
     return images;
 }
 
-QList<ObjectModel> JsonLoadAndStoreStrategy::loadObjectModels() {
-    QList<ObjectModel> objectModels;
+ObjectModelList JsonLoadAndStoreStrategy::loadObjectModels() {
+    ObjectModelList objectModels;
 
     if (m_objectModelsPath == Global::NO_PATH) {
         // The only time when the object models path can be equal to the NO_PATH is
@@ -350,9 +350,9 @@ QList<ObjectModel> JsonLoadAndStoreStrategy::loadObjectModels() {
     std::sort(
         objectModels.begin(),
         objectModels.end(),
-        [&collator](ObjectModelPtr o1, ObjectModelPtr o2)
+        [&collator](ObjectModel &o1, ObjectModel &o2)
         {
-            return collator.compare(o1->path(), o2->path()) < 0;
+            return collator.compare(o1.path(), o2.path()) < 0;
         });
 
     if (objectModels.size() == 0) {
@@ -371,7 +371,7 @@ QMap<QString, Image> createImageMap(const QList<Image> &images) {
     return imageMap;
 }
 
-QMap<QString, ObjectModel> createObjectModelMap(const QList<ObjectModel> &objectModels) {
+QMap<QString, ObjectModel> createObjectModelMap(const ObjectModelList &objectModels) {
     QMap<QString, ObjectModel> objectModelMap;
 
     for (int i = 0; i < objectModels.size(); i++) {
@@ -382,7 +382,7 @@ QMap<QString, ObjectModel> createObjectModelMap(const QList<ObjectModel> &object
 }
 
 QList<Pose> JsonLoadAndStoreStrategy::loadPoses(const QList<Image> &images,
-                                                const QList<ObjectModel> &objectModels) {
+                                                const ObjectModelList &objectModels) {
     QList<Pose> poses;
     m_posesWithInvalidData.clear();
 

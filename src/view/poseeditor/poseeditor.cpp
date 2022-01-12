@@ -62,7 +62,7 @@ void PoseEditor::setSettingsStore(SettingsStore *settingsStore) {
     m_poseEditor3DWindow->setSettingsStore(settingsStore);
 }
 
-void PoseEditor::setCurrentImage(const Image &image) {
+void PoseEditor::setSelectedImage(const Image &image) {
     m_currentImage = image;
     setEnabledPoseInvariantControls(!m_currentImage.isNull());
 }

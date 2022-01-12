@@ -15,6 +15,8 @@ class Pose: public QObject {
     Q_OBJECT
 
 public:
+    Pose();
+
     //! Constructor of class ObjectImagePose.
     /*!
      * \brief ObjectImagePose Constructs an ObjectImagePose and assigns the passed values.
@@ -101,5 +103,6 @@ private:
 };
 
 typedef QSharedPointer<Pose> PosePtr;
+typedef QList<Pose> PoseList;
 
 #endif // OBJECTIMAGECORRESPONDENCE_H
