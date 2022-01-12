@@ -34,7 +34,7 @@ Enable X-server display for Docker:
     
 Run the Docker image:
 
-    docker run -ti --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix -v /dev/dri/card0:/dev/dri/card0 florianblume/6dpat /6DPAT
+    docker run -ti --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix -v /dev/dri/card0:/dev/dri/card0 florianblume/6dpat
 
 Check out the [getting the program wiki page](https://github.com/florianblume/6d-pat/wiki/1.-Getting-the-Program) for more details.
 
