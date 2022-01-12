@@ -47,6 +47,6 @@ jobs:
       env:
         LD_LIBRARY_PATH: ~/build/release/src
       run: |
-           ls .
-           ./build/release/tests/tests
+           ls -a
+           ls ~/build/release/
     
