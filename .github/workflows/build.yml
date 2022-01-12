@@ -49,13 +49,5 @@ jobs:
     runs-on: ubuntu-20.04
     needs: build
     steps:
-    - uses: actions/download-artifact@master
-      with:
-        name: 6dpat-build
-        path: ~/
-    - name: 'Untar uploaded build'
-      run: tar -xvf ~/6dpat.tar
-    - name: execute tests
-      env:
-        LD_LIBRARY_PATH: ~/build/release/src
-      run: ./build/release/tests/tests
+    - name: todo
+      run: echo todo
