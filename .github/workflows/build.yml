@@ -48,5 +48,4 @@ jobs:
         LD_LIBRARY_PATH: ~/build/release/src
       run: |
            ls -a
-           ls ~/build/release/
     
