@@ -62,7 +62,7 @@ void PoseViewer::setSettingsStore(SettingsStore *settingsStore) {
     m_poseViewer3DWidget->setSettings(settingsStore->currentSettings().get());
 }
 
-QSize PoseViewer::imageSize() {
+QSize PoseViewer::imageSize() const {
     return m_poseViewer3DWidget->imageSize();
 }
 
@@ -74,7 +74,7 @@ void PoseViewer::setPoses(const PoseList &poses) {
 
 void PoseViewer::addPose(const Pose &pose) {
     m_poseViewer3DWidget->addPose(pose);
-    m_poseViewer3DWidget->selectPose(pose);
+    m_poseViewer3DWidget->setSelectPose(pose);
     setSliderTransparencyEnabled(true);
 }
 
@@ -101,7 +101,7 @@ void PoseViewer::setSliderTransparencyEnabled(bool enabled) {
     ui->buttonTransparency->setEnabled(enabled);
 }
 
-Image PoseViewer::selectedImage() {
+Image PoseViewer::selectedImage() const {
     return m_currentlyDisplayedImage;
 }
 
@@ -150,13 +150,7 @@ void PoseViewer::takeSnapshot(const QString &path) {
     m_poseViewer3DWidget->takeSnapshot(path);
 }
 
-void PoseViewer::currentSettingsChanged(SettingsPtr settings) {
-    // Cannot accept empty settings but should never happen
-    Q_ASSERT(!settings.isNull());
-    m_poseViewer3DWidget->setSettings(settings);
-}
-
-void PoseViewer::selectPose(PosePtr selected, PosePtr deselected) {
+void PoseViewer::setSelectPose(const Pose &pose) {
     m_poseViewer3DWidget->selectPose(selected, deselected);
 }
 
@@ -168,15 +162,15 @@ void PoseViewer::switchSegmentaitonAndNormalImage() {
                            18);
 
     if (m_showingNormalImage) {
-        m_poseViewer3DWidget->setBackgroundImage(m_currentlyDisplayedImage->absoluteImagePath(),
-                                                 m_currentlyDisplayedImage->getCameraMatrix(),
-                                                 m_currentlyDisplayedImage->nearPlane(),
-                                                 m_currentlyDisplayedImage->farPlane());
+        m_poseViewer3DWidget->setBackgroundImage(m_selectedImage->absoluteImagePath(),
+                                                 m_selectedImage->getCameraMatrix(),
+                                                 m_selectedImage->nearPlane(),
+                                                 m_selectedImage->farPlane());
     } else {
-        m_poseViewer3DWidget->setBackgroundImage(m_currentlyDisplayedImage->absoluteSegmentationImagePath(),
-                                                 m_currentlyDisplayedImage->getCameraMatrix(),
-                                                 m_currentlyDisplayedImage->nearPlane(),
-                                                 m_currentlyDisplayedImage->farPlane());
+        m_poseViewer3DWidget->setBackgroundImage(m_selectedImage->absoluteSegmentationImagePath(),
+                                                 m_selectedImage->getCameraMatrix(),
+                                                 m_selectedImage->nearPlane(),
+                                                 m_selectedImage->farPlane());
     }
 
     if (m_showingNormalImage)
@@ -208,9 +202,9 @@ void PoseViewer::resetPositionOfGraphicsView() {
     m_poseViewer3DWidget->setRenderingPosition(0, 0);
 }
 
-void PoseViewer::onImageClicked(QPoint point) {
+void PoseViewer::onImageClicked(const QPoint &point) {
     QPoint scaledPoint(point.x() / this->m_zoomMultiplier, point.y() / this->m_zoomMultiplier);
-    qDebug() << "Image (" + m_currentlyDisplayedImage->imagePath() + ") clicked at: (" +
+    qDebug() << "Image (" + m_selectedImage->imagePath() + ") clicked at: (" +
                 QString::number(scaledPoint.x()) + ", " + QString::number(scaledPoint.y()) + ").";
     Q_EMIT imageClicked(scaledPoint);
 }

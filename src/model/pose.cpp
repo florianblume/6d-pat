@@ -69,6 +69,10 @@ bool Pose::operator==(const Pose& objectImagePose) const {
     return m_id.compare(objectImagePose.id()) == 0;
 }
 
+bool Pose::operator!=(const Pose &pose) const {
+    return !(*this == pose);
+}
+
 Pose& Pose::operator=(const Pose &other) {
     m_id = other.m_id;
     m_image = other.m_image;

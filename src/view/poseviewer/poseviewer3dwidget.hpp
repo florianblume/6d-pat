@@ -10,6 +10,7 @@
 #include "view/poseviewer/mousecoordinatesmodificationeventfilter.hpp"
 #include "view/poseviewer/undomousecoordinatesmodificationeventfilter.hpp"
 #include "settings/settings.hpp"
+#include "settings/settingsstore.hpp"
 
 #include <QString>
 #include <QLabel>
@@ -80,7 +81,7 @@ public:
     void initializeGL() override;
     //void resizeGL(int w, int h) override;
 
-    void setSettings(Settings *settings);
+    void setSettingsStore(SettingsStore *settingsStore);
 
     // Data related methods
     void setBackgroundImage(const QString& image, const QMatrix3x3 &cameraMatrix,
@@ -88,7 +89,7 @@ public:
     void setPoses(const PoseList &poses);
     void addPose(const Pose &pose);
     void removePose(const Pose &pose);
-    void setSelectPose(int index);
+    void setSelectPose(const Pose &pose);
     void setObjectsOpacity(float opacity);
     void setAnimatedObjectsOpacity(float opacity);
     float opacity();
@@ -124,13 +125,15 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void positionClicked(const QPoint &position);
-    void poseSelected(int index);
+    void poseSelected(const Pose &pose);
     void snapshotSaved();
     void zoomChanged(int zoom);
 
 private Q_SLOTS:
     // Called by Qt3D when the snapshot is ready
     void onSnapshotReady();
+    // To get the new mouse buttons
+    void currentSettingsChanged(const Settings &settings);
 
 private:
     void init();
@@ -142,13 +145,15 @@ private:
     void setupRenderingPositionAnimation(QPoint reinderingPosition);
 
 private:
-    QList<Pose> m_poses;
-    Pose *m_selectedPose;
+    PoseList m_poses;
+    PosePtr m_selectedPose;
     PoseRenderable *m_selectedPoseRenderable = Q_NULLPTR;
     PoseRenderable *m_hoveredPose = Q_NULLPTR;
+
     // The size of the loaded image
     QSize m_imageSize;
-    Settings *m_settings;
+    SettingsStore *m_settingsStore;
+    Settings m_settings;
     QLabel *m_fpsLabel;
     QElapsedTimer m_elapsedTimer;
     qint64 m_elapsed = 1;
@@ -156,7 +161,7 @@ private:
     float m_fpsAlpha = 0.9;
     QTimer m_updateFPSLabelTimer;
 
-    /*!
+    /*
      *
      * Offscreen rendering framegraph. The widget renders everything using
      * Qt3D into an offscreen texture which is then used to draw the texture
@@ -217,7 +222,7 @@ private:
     // Default zoom is 100%
     int m_zoom = 100;
 
-    /*!
+    /*
      *
      * The actual frame graph for rendering the background image,
      * the poses and the clicks.

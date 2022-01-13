@@ -38,9 +38,9 @@ class PoseViewer : public QWidget, public PoseEditingView
 public:
     explicit PoseViewer(QWidget *parent = 0);
     ~PoseViewer();
-    Image currentlyViewedImage();
+    Image currentlyViewedImage() const;
     void setSettingsStore(SettingsStore *settingsStore);
-    QSize imageSize();
+    QSize imageSize() const;
 
 public Q_SLOTS:
     // PoseEditingView overrides
@@ -74,8 +74,6 @@ private Q_SLOTS:
     void onZoomChangedBy3DWidget(int zoom);
     void resetPositionOfGraphicsView();
     void onImageClicked(const QPoint &point);
-    // To get the new mouse buttons
-    void currentSettingsChanged(SettingsPtr settings);
 
 private:
     void setSliderZoomEnabled(bool enabled);
@@ -86,16 +84,16 @@ private:
     PoseViewer3DWidget *m_poseViewer3DWidget;
     QPointer<SettingsStore> m_settingsStore;
 
-    QList<Pose> m_poses;
-    Pose m_selectedPose;
-    Image m_selectedImage;
+    PoseList m_poses;
+    PosePtr m_selectedPose;
+    ImagePtr m_selectedImage;
     // Stores, whether we are currently looking at the "normal" image, or the (maybe present)
     // segmentation image
     bool m_showingNormalImage = true;
 
     int m_zoom = 3;
     float m_zoomMultiplier = 1.f;
-    int m_maxZoom = 200;
+    const int m_maxZoom = 200;
 
     bool m_ignoreZoomSliderChange = false;
 };

@@ -44,7 +44,7 @@ public:
      * \brief currentSettings can be used to obtain the current settings of this SettingsStore
      * \return the current settings
      */
-    SettingsPtr currentSettings();
+    Settings currentSettings();
 
 Q_SIGNALS:
     /*!
@@ -53,7 +53,7 @@ Q_SIGNALS:
      * to reload the current settings using the provided identifier
      * \param currentSettings the current settings of this SettingsStore with all updated parameters
      */
-    void currentSettingsChanged(SettingsPtr currentSettings);
+    void currentSettingsChanged(const Settings &currentSettings);
 
 private:
     SettingsPtr createEmptyPreferences(const QString &identifier);

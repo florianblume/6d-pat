@@ -43,17 +43,17 @@ void SettingsStore::saveCurrentSettings() {
     //! But first remove all old entries, in case that the user deleted some codes
     settings.beginGroup(identifier + COLOR_CODES_GROUP);
     settings.remove("");
-    for (auto objectModelIdentifier : currentSettings()->segmentationCodes().keys()) {
+    for (auto objectModelIdentifier : m_currentSettings->segmentationCodes().keys()) {
         settings.setValue(objectModelIdentifier,
-                          currentSettings()->segmentationCodeForObjectModel(objectModelIdentifier));
+                          m_currentSettings->segmentationCodeForObjectModel(objectModelIdentifier));
     }
     settings.endGroup();
 
-    Q_EMIT currentSettingsChanged(m_currentSettings);
+    Q_EMIT currentSettingsChanged(*m_currentSettings);
 }
 
-SettingsPtr SettingsStore::currentSettings() {
-    return m_currentSettings;
+Settings SettingsStore::currentSettings() {
+    return *m_currentSettings.get();
 }
 
 void SettingsStore::setCurrentSettings(const QString &identifier) {
@@ -113,7 +113,7 @@ void SettingsStore::setCurrentSettings(const QString &identifier) {
     settings.endGroup();
 
     m_currentSettings = settingsPointer;
-    Q_EMIT currentSettingsChanged(m_currentSettings);
+    Q_EMIT currentSettingsChanged(*m_currentSettings);
 }
 
 const QString SettingsStore::ORGANIZATION = "Floretti Konfetti Inc.";

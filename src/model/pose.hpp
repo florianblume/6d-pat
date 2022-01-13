@@ -79,7 +79,9 @@ public:
      * \param objectImagePose the other pose to check for
      * \return true if the IDs are the same, false otherwise
      */
-    bool operator==(const Pose& objectImagePose) const;
+    bool operator==(const Pose& pose) const;
+
+    bool operator!=(const Pose& pose) const;
 
     Pose& operator=(const Pose &other);
 
