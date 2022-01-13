@@ -38,7 +38,7 @@ class PoseViewer : public QWidget, public PoseEditingView
 public:
     explicit PoseViewer(QWidget *parent = 0);
     ~PoseViewer();
-    Image currentlyViewedImage() const;
+    Image selectedImage() const;
     void setSettingsStore(SettingsStore *settingsStore);
     QSize imageSize() const;
 

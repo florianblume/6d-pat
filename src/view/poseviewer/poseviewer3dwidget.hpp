@@ -89,7 +89,7 @@ public:
     void setPoses(const PoseList &poses);
     void addPose(const Pose &pose);
     void removePose(const Pose &pose);
-    void setSelectPose(const Pose &pose);
+    void setSelectedPose(const Pose &pose);
     void setObjectsOpacity(float opacity);
     void setAnimatedObjectsOpacity(float opacity);
     float opacity();
