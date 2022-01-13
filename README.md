@@ -32,7 +32,7 @@ Enable X-server display for Docker:
 
     xhost +local:root
     
-Run the Docker image:
+Run the Docker image (command changed! omit `/6DPAT` at the end, this is now in the entrypoint):
 
     docker run -ti --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix/:/tmp/.X11-unix -v /dev/dri/card0:/dev/dri/card0 florianblume/6dpat
 
