@@ -54,34 +54,29 @@ void PoseEditor::setEnabledButtonSave(bool enabled) {
     ui->buttonSave->setEnabled(enabled);
 }
 
-void PoseEditor::reset3DViewOnPoseSelectionChange(bool reset) {
-    m_reset3DViewerOnPoseSelectionChange = reset;
-}
-
 void PoseEditor::setSettingsStore(SettingsStore *settingsStore) {
     m_poseEditor3DWindow->setSettingsStore(settingsStore);
 }
 
 void PoseEditor::setSelectedImage(const Image &image) {
-    m_currentImage = image;
-    setEnabledPoseInvariantControls(!m_currentImage.isNull());
+    m_selectedImage.reset(new Image(image));
 }
 
 void PoseEditor::setImages(const QList<Image> &images) {
-    this->m_images = images;
+    m_images = images;
     // Disable because the user has to select an image first
     ui->buttonCopy->setEnabled(false);
     QStringList imagesList;
-    for (const ImagePtr &image : images) {
-        imagesList << image->imagePath();
+    for (const Image &image : images) {
+        imagesList << image.imagePath();
     }
     m_listViewImagesModel.setStringList(imagesList);
 }
 
 void PoseEditor::setPoses(const QList<Pose> &poses) {
     // Important leave it here
-    m_currentlySelectedPose.reset();
-    this->m_poses = poses;
+    m_selectedPose.reset();
+    m_poses = poses;
     setPosesOnPosesListView();
     resetControlsValues();
     setEnabledPoseEditorControls(false);
@@ -99,8 +94,8 @@ void PoseEditor::addPose(const Pose &pose) {
     // Add the pose to the list view and select it
     // but do not react to selection change
     m_ignorePoseSelectionChanges = true;
-    setPosesOnPosesListView(pose->id());
-    setPoseValuesOnControls(*pose);
+    setPosesOnPosesListView(pose.id());
+    setPoseValuesOnControls(pose);
 }
 
 void PoseEditor::removePose(const Pose &pose) {
@@ -111,10 +106,10 @@ void PoseEditor::removePose(const Pose &pose) {
     }
     QStringList list("None");
     int index = 1;
-    for (PosePtr &pose : m_poses) {
-        QString id = pose->id();
+    for (const Pose &pose : m_poses) {
+        QString id = pose.id();
         list << id;
-        m_posesIndices[pose->id()] = index;
+        m_posesIndices[pose.id()] = index;
         index++;
     }
     // Don't enable save button here, the controller does it for us
@@ -123,7 +118,7 @@ void PoseEditor::removePose(const Pose &pose) {
     m_listViewPosesModel.setStringList(list);
     resetControlsValues();
     setEnabledPoseEditorControls(false);
-    setEnabledPoseInvariantControls(m_currentImage);
+    setEnabledPoseInvariantControls(m_selectedImage);
 }
 
 void PoseEditor::setEnabledPoseEditorControls(bool enabled) {
@@ -180,14 +175,14 @@ void PoseEditor::setPosesOnPosesListView(const QString &poseToSelect) {
     int index = 1;
     int _index = 0;
     bool poseSelected = false;
-    for (PosePtr &pose : m_poses) {
-        QString id = pose->id();
+    for (const Pose &pose : m_poses) {
+        QString id = pose.id();
         list << id;
         if (id == poseToSelect) {
             _index = index;
             poseSelected = true;
         }
-        m_posesIndices[pose->id()] = index;
+        m_posesIndices[pose.id()] = index;
         index++;
     }
     m_listViewPosesModel.setStringList(list);
@@ -229,12 +224,12 @@ void PoseEditor::onButtonReset3DSceneClicked() {
 }
 
 void PoseEditor::onObjectModelLoaded() {
-    setEnabledPoseInvariantControls(!m_currentImage.isNull());
-    setEnabledPoseEditorControls(!m_currentlySelectedPose.isNull());
+    setEnabledPoseInvariantControls(!m_selectedImage.isNull());
+    setEnabledPoseEditorControls(!m_selectedPose.isNull());
 }
 
 void PoseEditor::onObjectModelClickedAt(const QVector3D &position) {
-    qDebug() << "Object model (" + m_currentObjectModel->path() + ") clicked at: (" +
+    qDebug() << "Object model (" + m_selectedObjectModel->path() + ") clicked at: (" +
                 QString::number(position.x())
                 + ", "
                 + QString::number(position.y())
@@ -255,17 +250,18 @@ void PoseEditor::onObjectModelMouseExited() {
 }
 
 void PoseEditor::updateCurrentlyEditedPose() {
-    if (m_currentlySelectedPose) {
-        QVector3D position = QVector3D(ui->spinBoxTranslationX->value(),
-                                       ui->spinBoxTranslationY->value(),
-                                       ui->spinBoxTranslationZ->value());
+    QVector3D position = QVector3D(ui->spinBoxTranslationX->value(),
+                                   ui->spinBoxTranslationY->value(),
+                                   ui->spinBoxTranslationZ->value());
+    QVector3D rotation = QVector3D(ui->spinBoxRotationX->value(),
+                                   ui->spinBoxRotationY->value(),
+                                   ui->spinBoxRotationZ->value());
+    // Should always be true
+    if (!m_selectedPose.isNull()) {
         // This sets the position of the pose, causes a flow of events which
         // then overwrites the rotation which is set later --> Bug!
-        //m_currentlySelectedPose->setPosition(position);
-        QVector3D rotation(ui->spinBoxRotationX->value(),
-                           ui->spinBoxRotationY->value(),
-                           ui->spinBoxRotationZ->value());
-        m_currentlySelectedPose->setRotation(QQuaternion::fromEulerAngles(rotation));
+        m_selectedPose->setPosition(position);
+        m_selectedPose->setRotation(QQuaternion::fromEulerAngles(rotation));
     }
 }
 
@@ -275,7 +271,7 @@ void PoseEditor::onButtonRemoveClicked() {
 
 void PoseEditor::onButtonCopyClicked() {
     QModelIndex index = ui->listViewImages->currentIndex();
-    ImagePtr imageToCopyFrom = m_images[index.row()];
+    Image imageToCopyFrom = m_images[index.row()];
     Q_EMIT buttonCopyClicked(imageToCopyFrom);
 }
 
@@ -298,7 +294,7 @@ void PoseEditor::onListViewPosesSelectionChanged(const QItemSelection &selected,
     if (!m_ignorePoseSelectionChanges) {
         QItemSelectionRange range = selected.front();
         int index = range.top();
-        PosePtr poseToSelect;
+        Pose poseToSelect;
         if (index > 0) {
             // --index because None ist 0-th element and indices of poses are +1
             poseToSelect = m_poses[--index];
@@ -312,73 +308,46 @@ void PoseEditor::onListViewPosesSelectionChanged(const QItemSelection &selected,
 }
 
 // Only called internally
-void PoseEditor::setObjectModel(ObjectModelPtr objectModel) {
-    qDebug() << "Setting object model (" + objectModel->path() + ") to display.";
-    m_currentObjectModel = objectModel;
-    m_poseEditor3DWindow->setObjectModel(*objectModel);
+void PoseEditor::setObjectModel(const ObjectModel &objectModel) {
+    qDebug() << "Setting object model (" + objectModel.path() + ") to display.";
+    m_selectedObjectModel.reset(new ObjectModel(objectModel));
+    m_poseEditor3DWindow->setObjectModel(objectModel);
 }
 
 void PoseEditor::setClicks(const QList<QVector3D> &clicks) {
     m_poseEditor3DWindow->setClicks(clicks);
 }
 
-void PoseEditor::onSelectedPoseValuesChanged(PosePtr pose) {
+void PoseEditor::onSelectedPoseValuesChanged(const Pose &pose) {
     // Callback for PoseEditingController when the poes values have changed
     // (because the user rotated/moved the pose in the PoseViewer)
     m_ignoreSpinBoxValueChanges = true;
-    setPoseValuesOnControls(*pose);
+    setPoseValuesOnControls(pose);
 }
 
 // Will be called by the PoseEditingController
 void PoseEditor::onPosesSaved() {
+    ui->buttonSave->setEnabled(false);
 }
 
 // Called by the PoseEditingController
-void PoseEditor::selectPose(PosePtr selected, PosePtr deselected) {
-    // We store the currently selected pose and the previously selected
-    // pose separately due to various reasons
-    m_currentlySelectedPose = selected;
-
+void PoseEditor::setSelectedPose(const Pose &pose) {
     QModelIndex indexToSelect;
     setEnabledPoseEditorControls(false);
 
-    if (selected.isNull()) {
-        resetControlsValues();
-        indexToSelect = ui->listViewPoses->model()->index(0, 0);
-        // This check allows controlling externally when the 3D viewer is reset
-        // when selecting a null pose. Selecting a null pose also happens when
-        // the user selects different image to view from the gallery but we
-        // don't want the object model to hide in this case
-        if (m_reset3DViewerOnPoseSelectionChange) {
-            m_poseEditor3DWindow->reset();
-        }
-        // Here we enable the controls directly and do not wait for the objectModelLoaded signal
-        // by the 3D viewer because no object model will be loaded
-        setEnabledPoseInvariantControls(!m_currentImage.isNull());
-    } else {
-        setPoseValuesOnControls(*selected);
-        int index = m_posesIndices[selected->id()];
-        indexToSelect = ui->listViewPoses->model()->index(index, 0);
-        m_poseEditor3DWindow->setObjectModel(*selected->objectModel());
-        // The user selected a pose, deselected it and selected it again
-        if (!selected.isNull()) {
-            setEnabledPoseEditorControls(true);
-        }
-    }
+    setPoseValuesOnControls(pose);
+    int index = m_posesIndices[pose.id()];
+    indexToSelect = ui->listViewPoses->model()->index(index, 0);
+    m_poseEditor3DWindow->setObjectModel(pose.objectModel());
+    m_selectedPose.reset(new Pose(pose));
+}
 
-    // Set to true because the function we are currently in is called by the PoseEditingController
-    // and we don't want to set a new selected pose
-    m_ignorePoseSelectionChanges = true;
+void PoseEditor::deselectSelectedPose() {
+    resetControlsValues();
+    m_poseEditor3DWindow->reset();
+    setEnabledPoseInvariantControls(!m_selectedImage.isNull());
+    QModelIndex indexToSelect = ui->listViewPoses->model()->index(0, 0);
     ui->listViewPoses->selectionModel()->select(indexToSelect, QItemSelectionModel::ClearAndSelect);
-
-    if (m_previouslySelectedPose.isNull()) {
-        // On program start select the first pose
-        m_previouslySelectedPose = selected;
-    }
-    if (selected.isNull()) {
-        // If the use deselected a pose store the last selected
-        m_previouslySelectedPose = deselected;
-    }
 }
 
 void PoseEditor::onPoseCreationAborted() {
@@ -389,12 +358,11 @@ void PoseEditor::onPoseCreationAborted() {
 void PoseEditor::reset() {
     qDebug() << "Resetting pose editor.";
     m_poseEditor3DWindow->reset();
-    m_currentImage.reset();
+    m_selectedImage.reset();
     m_images.clear();
-    m_currentObjectModel.reset();
-    m_currentlySelectedPose.reset();
+    m_selectedObjectModel.reset();
+    m_selectedPose.reset();
     m_poses.clear();
-    m_previouslySelectedPose.reset();
     m_listViewPosesModel.setStringList({});
     m_listViewImagesModel.setStringList({});
     resetControlsValues();

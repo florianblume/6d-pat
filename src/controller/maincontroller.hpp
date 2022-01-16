@@ -39,7 +39,7 @@ Q_SIGNALS:
     void reloadingData();
 
 private Q_SLOTS:
-    void onSettingsChanged(SettingsPtr settings);
+    void onSettingsChanged(const Settings &settings);
     void onReloadViewsRequested();
     void onModelManagerStateChanged(ModelManager::State state,
                                     const QString &error);

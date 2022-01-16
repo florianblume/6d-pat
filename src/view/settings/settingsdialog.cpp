@@ -28,19 +28,19 @@ SettingsDialog::~SettingsDialog() {
 void SettingsDialog::setSettingsStoreAndObjectModels(SettingsStore *settingsStore,
                                                      const ObjectModelList &objectModels) {
     //! copy settings item, we don't want the settings item to be modified if we cancel the settings dialog
-    this->m_settingsStore = settingsStore;
-    SettingsPtr settings = settingsStore->currentSettings();
-    ui->pageInterface->setSettings(settings.get());
-    ui->pagePaths->setSettings(settings.get());
-    ui->pageLoadSave->setSettings(settings.get());
-    ui->pageSegmentationCodes->setSettingsAndObjectModels(settings.get(), objectModels);
+    m_settingsStore = settingsStore;
+    m_settings.reset(new Settings(settingsStore->currentSettings()));
+    ui->pageInterface->setSettings(m_settings.get());
+    ui->pagePaths->setSettings(m_settings.get());
+    ui->pageLoadSave->setSettings(m_settings.get());
+    ui->pageSegmentationCodes->setSettingsAndObjectModels(m_settings.get(), objectModels);
 }
 
 //! The weird connection in the UI file of the dialog's method clicked(QAbstractButton)
 //! comes from that the dialog somehow doesn't fire its accepted() method...
 void SettingsDialog::onAccepted(QAbstractButton* button) {
     if (ui->buttonBox->buttonRole(button) == QDialogButtonBox::ApplyRole) {
-        m_settingsStore->saveCurrentSettings();
+        m_settingsStore->saveCurrentSettings(*m_settings.get());
         close();
     }
 }

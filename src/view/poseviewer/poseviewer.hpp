@@ -7,7 +7,6 @@
 #include "poseviewer3dwidget.hpp"
 #include "view/misc/displayhelper.hpp"
 #include "settings/settingsstore.hpp"
-#include "view/poseeditingview.hpp"
 
 #include <QList>
 #include <QMap>
@@ -31,9 +30,9 @@ class MoveableContainerWidget;
  * adding ObjectModels and place them at specific spots. It does NOT allow diret editing.
  * This is what the PoseEditorControls are for.
  */
-class PoseViewer : public QWidget, public PoseEditingView
-{
-    Q_OBJECT
+class PoseViewer : public QWidget {
+
+Q_OBJECT
 
 public:
     explicit PoseViewer(QWidget *parent = 0);
@@ -43,25 +42,28 @@ public:
     QSize imageSize() const;
 
 public Q_SLOTS:
-    // PoseEditingView overrides
-    void setSelectedImage(const Image &image) override;
-    void setImages(const QList<Image> &images) override;
-    void setPoses(const QList<Pose> &poses) override;
-    void addPose(const Pose &pose) override;
-    void removePose(const Pose &pose) override;
-    void setSelectedPose(const Pose &pose) override;
-    void onSelectedPoseValuesChanged(const Pose &pose) override;
-    void onPosesSaved() override;
-    void onPoseCreationAborted() override;
-    void reset() override;
+    void setImages(const QList<Image> &images);
+    void setSelectedImage(const Image &image);
+    void setPoses(const QList<Pose> &poses);
+    void addPose(const Pose &pose);
+    void removePose(const Pose &pose);
+    void setSelectedPose(const Pose &pose);
+    void deselectSelectedPose();
+    void onSelectedPoseValuesChanged(const Pose &pose);
+    void onPosesSaved();
+    void onPoseCreationAborted();
+    void reset();
+
+    bool hasSelectedImage();
 
     void setClicks(const QList<QPoint> &clicks);
     void takeSnapshot(const QString &path);
 
 Q_SIGNALS:
     void imageClicked(const QPoint &position);
-    void poseSelected(int index);
     void snapshotSaved();
+    void poseValuesChanged(const Pose &pose);
+    void poseSelected(const Pose &pose);
 
 private Q_SLOTS:
     /*!

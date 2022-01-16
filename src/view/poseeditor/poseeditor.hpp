@@ -1,7 +1,6 @@
 #ifndef CORRESPONDENCEEDITORCONTROLS_H
 #define CORRESPONDENCEEDITORCONTROLS_H
 
-#include "view/poseeditingview.hpp"
 #include "model/modelmanager.hpp"
 #include "misc/global.hpp"
 #include "view/poseeditor/poseeditor3dwidget.hpp"
@@ -21,7 +20,7 @@ namespace Ui {
 class PoseEditor;
 }
 
-class PoseEditor : public QWidget, public PoseEditingView {
+class PoseEditor : public QWidget {
 
     Q_OBJECT
 
@@ -30,30 +29,20 @@ public:
     ~PoseEditor();
     void setEnabledButtonRecoverPose(bool enabled);
     void setEnabledButtonSave(bool enabled);
-    /*!
-     * \brief reset3DViewOnPoseSelectionChange cryptic name for a function that
-     * simply sets this bool value so that the PoseEditingController can set it to
-     * false to keep the PoseEditor from resetting the 3D viewer when selecting
-     * a different image (we don't want to reset the 3D viewer in thise case
-     * because then the user has to search for it again but likely the next
-     * image shows the same object model)
-     * \param reset
-     */
-    void reset3DViewOnPoseSelectionChange(bool reset);
     void setSettingsStore(SettingsStore *settingsStore);
 
 public Q_SLOTS:
-    // PoseEditingView overrides
-    void setSelectedImage(const Image &imgae) override;
-    void setImages(const QList<Image> &images) override;
-    void setPoses(const QList<Pose> &poses) override;
-    void addPose(const Pose &pose) override;
-    void removePose(const Pose &pose) override;
-    void setSelectedPose(const Pose &pose) override;
-    void onSelectedPoseValuesChanged(const Pose &pose) override;
-    void onPosesSaved() override;
-    void onPoseCreationAborted() override;
-    void reset() override;
+    void setSelectedImage(const Image &imgae);
+    void setImages(const QList<Image> &images);
+    void setPoses(const QList<Pose> &poses);
+    void addPose(const Pose &pose);
+    void removePose(const Pose &pose);
+    void setSelectedPose(const Pose &pose);
+    void deselectSelectedPose();
+    void onSelectedPoseValuesChanged(const Pose &pose);
+    void onPosesSaved();
+    void onPoseCreationAborted();
+    void reset();
 
     void setClicks(const QList<QVector3D> &clicks);
     void setObjectModel(const ObjectModel &objectModel);
@@ -62,14 +51,13 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void objectModelClickedAt(const QVector3D &position);
-
-    void poseSelected(const Pose &pose);
-
     void buttonCreateClicked();
     void buttonSaveClicked();
     void buttonCopyClicked(const Image &imageToCopyFrom);
     void buttonDuplicateClicked();
     void buttonRemoveClicked();
+    void poseValuesChanged(const Pose &pose);
+    void poseSelected(const Pose &pose);
 
 private Q_SLOTS:
     /*!
@@ -116,9 +104,9 @@ private:
 
     QList<Image> m_images;
     QList<Pose> m_poses;
-    Image m_selectedImage;
-    ObjectModel m_selectedObjectModel;
-    Pose m_selectedPose;
+    ImagePtr m_selectedImage;
+    ObjectModelPtr m_selectedObjectModel;
+    PosePtr m_selectedPose;
 
     // When the pose is selected by the pose viewer we still emit the pose selected signal
     // which causes the program to crash
@@ -136,8 +124,6 @@ private:
     // To prevent from reacting to the poses list view selection changed signal again
     // when we receive the selected pose changed signal from the PoseEditingController
     bool m_ignorePoseSelectionChanges = false;
-
-    bool m_reset3DViewerOnPoseSelectionChange = true;
 };
 
 #endif // CORRESPONDENCEEDITORCONTROLS_H

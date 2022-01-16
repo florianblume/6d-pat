@@ -13,8 +13,7 @@
  * \brief The CachingModelManager class implements the ModelManager interface. To improve the speed of the application
  * this manager chaches the list of entities and refreshes them when necessary.
  */
-class CachingModelManager : public ModelManager
-{
+class CachingModelManager : public ModelManager{
 
     Q_OBJECT
 
@@ -53,9 +52,6 @@ public:
                     const QMatrix3x3 &rotation) override;
 
     bool removePose(const QString &id) override;
-
-Q_SIGNALS:
-    void dataReady();
 
 public Q_SLOTS:
     void reload() override;

@@ -134,7 +134,7 @@ QSize OffscreenEngine::size() {
     return m_textureTarget->size();
 }
 
-void OffscreenEngine::setBackgroundColor(QColor color) {
+void OffscreenEngine::setBackgroundColor(const QColor &color) {
     m_clearBuffers->setClearColor(color);
 }
 

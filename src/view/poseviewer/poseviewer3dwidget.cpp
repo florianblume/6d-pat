@@ -388,7 +388,6 @@ void PoseViewer3DWidget::reset() {
 
 void PoseViewer3DWidget::setSettingsStore(SettingsStore *settingsStore) {
     m_settingsStore = settingsStore;
-    m_settings = settingsStore->currentSettings();
 }
 
 void PoseViewer3DWidget::setClicks(const QList<QPoint> &clicks) {
@@ -457,7 +456,7 @@ void PoseViewer3DWidget::addPose(const Pose &pose) {
     m_poseRenderableForId[pose.id()] = poseRenderable;
     connect(poseRenderable, &PoseRenderable::clicked,
             [poseRenderable, this](Qt3DRender::QPickEvent *e){
-        if (e->button() == m_settings.selectPoseRenderableMouseButton()
+        if (e->button() == m_settingsStore->currentSettings().selectPoseRenderableMouseButton()
                 && !(m_poseRenderableRotated || m_poseRenderableTranslated)) {
             Q_EMIT poseSelected(poseRenderable->pose());
         }
@@ -516,7 +515,7 @@ void PoseViewer3DWidget::removePose(const Pose &pose) {
     }
 }
 
-void PoseViewer3DWidget::setSelectPose(const Pose &pose) {
+void PoseViewer3DWidget::setSelectedPose(const Pose &pose) {
     if (!m_selectedPose.isNull()) {
         QString currentlySelectedPoseID = m_selectedPose->id();
         PoseRenderable *formerlySelected = m_poseRenderableForId[currentlySelectedPoseID];
@@ -660,7 +659,6 @@ void PoseViewer3DWidget::onSnapshotReady() {
 }
 
 void PoseViewer3DWidget::currentSettingsChanged(const Settings &settings) {
-    m_settings = settings;
     // Needs to be applied immediately
     setSamples(settings.multisampleSamples());
     m_fpsLabel->setVisible(settings.showFPSLabel());
@@ -717,13 +715,13 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
     // The user is translating a pose when they have selected one, clicked it, and are now
     // moving the mouse with the mouse button down
     bool translatingPose = m_poseRenderablePressed && event->buttons()
-                             == m_settings.translatePoseRenderableMouseButton()
+                             == m_settingsStore->currentSettings().translatePoseRenderableMouseButton()
                            && !m_selectedPose.isNull();
     bool rotatingPose = m_poseRenderablePressed && event->buttons()
-                          == m_settings.rotatePoseRenderableMouseButton()
+                          == m_settingsStore->currentSettings().rotatePoseRenderableMouseButton()
                         && !m_selectedPose.isNull();
     bool translatingBackgroundImage = event->buttons()
-            == m_settings.moveBackgroundImageRenderableMouseButton()
+            == m_settingsStore->currentSettings().moveBackgroundImageRenderableMouseButton()
         && !translatingPose && !rotatingPose;
 
     // Only translate the whole image when the user is not currently rotating or translating a pose
@@ -755,7 +753,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
-    if (event->button() == m_settings.addCorrespondencePointMouseButton()
+    if (event->button() == m_settingsStore->currentSettings().addCorrespondencePointMouseButton()
             && !m_mouseMoved && m_backgroundImageRenderable != Q_NULLPTR) {
         Q_EMIT positionClicked(event->pos() - renderingPosition());
     }

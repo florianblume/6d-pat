@@ -58,6 +58,10 @@ QSize PoseViewer::imageSize() const {
     return m_poseViewer3DWidget->imageSize();
 }
 
+void PoseViewer::setImages(const QList<Image> &images) {
+
+}
+
 void PoseViewer::setPoses(const PoseList &poses) {
     setSliderTransparencyEnabled(poses.size() > 0);
     m_selectedPose.reset();
@@ -134,6 +138,10 @@ void PoseViewer::reset() {
     m_selectedImage.reset();
 }
 
+bool PoseViewer::hasSelectedImage() {
+    return m_selectedImage;
+}
+
 void PoseViewer::onPoseCreationAborted() {
     m_poseViewer3DWidget->setClicks({});
 }
@@ -144,6 +152,18 @@ void PoseViewer::takeSnapshot(const QString &path) {
 
 void PoseViewer::setSelectedPose(const Pose &pose) {
     m_poseViewer3DWidget->setSelectedPose(pose);
+}
+
+void PoseViewer::deselectSelectedPose() {
+
+}
+
+void PoseViewer::onSelectedPoseValuesChanged(const Pose &pose) {
+
+}
+
+void PoseViewer::onPosesSaved() {
+
 }
 
 void PoseViewer::switchSegmentaitonAndNormalImage() {

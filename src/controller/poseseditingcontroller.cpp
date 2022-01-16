@@ -152,6 +152,10 @@ void PosesEditingController::copyPosesFromImage(const Image &image) {
     m_mainWindow->poseViewerView()->setPoses(m_posesForSelectedImage);
 }
 
+void PosesEditingController::onPoseValuesChanged(const Pose &pose) {
+
+}
+
 void PosesEditingController::modelManagerStateChanged(ModelManager::State state) {
     // We do not need to disable the UI here because the main window is
     // displaying a modal progress bar
@@ -273,8 +277,6 @@ void PosesEditingController::onSelectedImageChanged(int index) {
     m_selectedObjectModel.reset();
     m_selectedPose .reset();
 
-    // So that the object model doesn't get reset by selecting a new image
-    m_mainWindow->poseEditorView()->reset3DViewOnPoseSelectionChange(false);
     // Do not reset the editor because then we reset the object model that
     // is being displayed -> Might become annoying when selecting the next
     // image showing the same object and having to search for the object
@@ -293,13 +295,12 @@ void PosesEditingController::onSelectedImageChanged(int index) {
         m_mainWindow->poseViewerView()->setSelectedImage(*m_selectedImage);
         m_mainWindow->poseViewerView()->setPoses(m_posesForSelectedImage);
     }
-    m_mainWindow->poseEditorView()->reset3DViewOnPoseSelectionChange(true);
 }
 
 void PosesEditingController::onSelectedObjectModelChanged(int index) {
     // Index can be -1 when the views are reset
     if (index >= 0 && index < m_objectModels.size()) {
-        ObjectModel objectModel = m_objectModels[index];
+        ObjectModel objectModel = m_objectModels.at(index);
         m_mainWindow->poseEditorView()->setObjectModel(objectModel);
         m_selectedObjectModel.reset(new ObjectModel(objectModel));
     }

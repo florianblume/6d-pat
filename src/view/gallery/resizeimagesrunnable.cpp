@@ -5,9 +5,7 @@
 #include <QElapsedTimer>
 
 ResizeImagesRunnable::ResizeImagesRunnable(const ImageList &images) {
-    for (ImagePtr image: images) {
-        m_images.append(*image.get());
-    }
+    m_images = images;
 }
 
 void ResizeImagesRunnable::run() {

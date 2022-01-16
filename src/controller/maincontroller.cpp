@@ -29,8 +29,7 @@ int MainController::exec() {
 
 void MainController::initialize() {
     m_settingsStore.reset(new SettingsStore(m_settingsIdentifier));
-    Settings tmp(*m_settingsStore->currentSettings());
-    m_currentSettings.reset(new Settings(tmp));
+    m_currentSettings.reset(new Settings(m_settingsStore->currentSettings()));
 
     initializeStrategies();
     selectCurrentStrategy();
@@ -104,18 +103,17 @@ void MainController::showView() {
     m_mainWindow->repaint();
 }
 
-void MainController::onSettingsChanged(SettingsPtr settings) {
-    bool changed = m_currentSettings->imagesPath() != settings->imagesPath() ||
-            m_currentSettings->segmentationImagesPath() != settings->segmentationImagesPath() ||
-                   m_currentSettings->objectModelsPath() != settings->objectModelsPath() ||
-                   m_currentSettings->posesFilePath() != settings->posesFilePath() ||
-                   m_currentSettings->usedLoadAndStoreStrategy() != settings->usedLoadAndStoreStrategy() ||
-                   m_currentSettings->loadSaveScriptPath() != settings->loadSaveScriptPath();
+void MainController::onSettingsChanged(const Settings &settings) {
+    bool changed = m_currentSettings->imagesPath() != settings.imagesPath() ||
+            m_currentSettings->segmentationImagesPath() != settings.segmentationImagesPath() ||
+                   m_currentSettings->objectModelsPath() != settings.objectModelsPath() ||
+                   m_currentSettings->posesFilePath() != settings.posesFilePath() ||
+                   m_currentSettings->usedLoadAndStoreStrategy() != settings.usedLoadAndStoreStrategy() ||
+                   m_currentSettings->loadSaveScriptPath() != settings.loadSaveScriptPath();
     // We need to reset the stored currentSettings like this here because we need settings
     // that are independend of the settings of the settings store because those might get
     // altered but we want to be able to compare if something has changed
-    Settings tmp(*settings);
-    m_currentSettings.reset(new Settings(tmp));
+    m_currentSettings.reset(new Settings(settings));
     selectCurrentStrategy();
     m_modelManager->setLoadAndStoreStrategy(m_currentStrategy);
     if (changed) {

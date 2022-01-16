@@ -19,17 +19,14 @@ SettingsSegmentationCodesPage::~SettingsSegmentationCodesPage() {
     delete ui;
 }
 
-void SettingsSegmentationCodesPage::setSettingsAndObjectModels(Settings *preferences,
+void SettingsSegmentationCodesPage::setSettingsAndObjectModels(Settings *settings,
                                                                const ObjectModelList &objectModels) {
-    this->m_settings = preferences;
-    this->m_objectModels = objectModels;
-
-    if (!preferences)
-        return;
+    m_settings = settings;
+    m_objectModels = objectModels;
 
     int i = 0;
     for(const ObjectModel &objectModel : this->m_objectModels) {
-        const QString &code = preferences->segmentationCodeForObjectModel(objectModel.path());
+        const QString &code = settings->segmentationCodeForObjectModel(objectModel.path());
         ui->tableSegmentationCodes->insertRow(i);
         ui->tableSegmentationCodes->setItem(i, 0, new QTableWidgetItem(objectModel.path()));
         if (code.compare("") != 0) {

@@ -134,7 +134,7 @@ void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoade
     m_lightEntity->setEnabled(!objectModelRenderable->hasTextureMaterial());
     camera()->viewAll();
     if (status == Qt3DRender::QSceneLoader::Ready) {
-        objectModelRenderable->setClickDiameter(m_settingsStore->currentSettings()->click3DSize());
+        objectModelRenderable->setClickDiameter(m_settingsStore->currentSettings().click3DSize());
     }
 }
 
@@ -172,9 +172,9 @@ void PoseEditor3DWindow::wheelEvent(QWheelEvent *event) {
                                            + QVector3D(0, 0, event->angleDelta().y() / 15.f));
 }
 
-void PoseEditor3DWindow::onCurrentSettingsChanged(SettingsPtr settings) {
+void PoseEditor3DWindow::onCurrentSettingsChanged(const Settings &settings) {
     if (objectModelRenderable) {
-        objectModelRenderable->setClickDiameter(settings->click3DSize());
+        objectModelRenderable->setClickDiameter(settings.click3DSize());
     }
 }
 
@@ -189,7 +189,7 @@ void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
     objectModelRenderable->setObjectModel(objectModel);
     objectModelRenderable->setEnabled(true);
     if (m_settingsStore) {
-        objectModelRenderable->setClickDiameter(m_settingsStore->currentSettings()->click3DSize());
+        objectModelRenderable->setClickDiameter(m_settingsStore->currentSettings().click3DSize());
     }
     setClicks({});
 }

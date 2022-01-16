@@ -30,8 +30,8 @@ SettingsInterfacePage::~SettingsInterfacePage() {
     delete ui;
 }
 
-void SettingsInterfacePage::setSettings(Settings* settings) {
-    this->m_settings = settings;
+void SettingsInterfacePage::setSettings(Settings *settings) {
+    m_settings = settings;
     setComboBoxSelectedForMouseButton(ui->comboBoxAddCorrespondencePoint,
                                       settings->addCorrespondencePointMouseButton());
     setComboBoxSelectedForMouseButton(ui->comboBoxMoveImage,

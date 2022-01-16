@@ -119,7 +119,7 @@ Q_SIGNALS:
     void closingProgram();
 
 private Q_SLOTS:
-    void onSettingsChanged(SettingsPtr settings);
+    void onSettingsChanged(const Settings &settings);
     void onActionAboutTriggered();
     void onActionExitTriggered();
     void onActionSettingsTriggered();

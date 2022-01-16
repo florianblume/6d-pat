@@ -211,14 +211,9 @@ void CachingModelManager::reload() {
     m_objectModels = m_loadAndStoreStrategy->loadObjectModels();
     m_poses = m_loadAndStoreStrategy->loadPoses(m_images, m_objectModels);
     createConditionalCache();
-    Q_EMIT dataReady();
+    Q_EMIT stateChanged(CachingModelManager::State::Ready, QString());
 }
 
 void CachingModelManager::onLoadAndStoreStrategyError(const QString &error) {
     Q_EMIT stateChanged(CachingModelManager::State::Error, error);
-}
-
-void CachingModelManager::dataReady() {
-    Q_EMIT stateChanged(CachingModelManager::State::Ready, QString());
-    Q_EMIT dataChanged(Data::Images | Data::ObjectModels | Data::Poses);
 }

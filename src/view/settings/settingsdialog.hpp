@@ -29,6 +29,7 @@ private Q_SLOTS:
 private:
     Ui::SettingsDialog *ui;
     SettingsStore *m_settingsStore;
+    SettingsPtr m_settings;
 };
 
 #endif // SETTINGSDIALOG_H

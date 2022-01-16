@@ -21,7 +21,7 @@ SettingsLoadSavePage::~SettingsLoadSavePage() {
 }
 
 void SettingsLoadSavePage::setSettings(Settings *settings) {
-    this->m_settings = settings;
+    m_settings = settings;
     ui->radioButtonDefault->setChecked(settings->usedLoadAndStoreStrategy()
                                        == Settings::UsedLoadAndStoreStrategy::Default);
     ui->radioButtonPythonScript->setChecked(settings->usedLoadAndStoreStrategy()

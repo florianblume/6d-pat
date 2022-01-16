@@ -1,7 +1,6 @@
 INCLUDEPATH += $$PWD
 
 HEADERS += \
-    $$PWD/poseeditingview.hpp \
     $$PWD/poseviewer/renderframegraph.hpp \
     $$PWD/rendering/arcballrotationhandler.hpp \
     $$PWD/rendering/modificationhandler.hpp \
@@ -38,7 +37,6 @@ HEADERS += \
     $$PWD/tutorialscreen/tutorialscreen.hpp
 
 SOURCES += \
-    $$PWD/poseeditingview.cpp \
     $$PWD/poseviewer/renderframegraph.cpp \
     $$PWD/rendering/arcballrotationhandler.cpp \
     $$PWD/rendering/modificationhandler.cpp \

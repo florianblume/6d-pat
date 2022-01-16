@@ -153,7 +153,6 @@ private:
     // The size of the loaded image
     QSize m_imageSize;
     SettingsStore *m_settingsStore;
-    Settings m_settings;
     QLabel *m_fpsLabel;
     QElapsedTimer m_elapsedTimer;
     qint64 m_elapsed = 1;

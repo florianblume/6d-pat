@@ -12,8 +12,7 @@
  * caching already loaded images or object models and writes poses to text files. That is why it is important to set the
  * proper path to the folder of poses before using this strategy.
  */
-class JsonLoadAndStoreStrategy : public LoadAndStoreStrategy
-{
+class JsonLoadAndStoreStrategy : public LoadAndStoreStrategy {
 
     Q_OBJECT
 

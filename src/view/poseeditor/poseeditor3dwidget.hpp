@@ -49,7 +49,7 @@ private Q_SLOTS:
     void onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status status);
     void onObjectModelRenderablePressed(Qt3DRender::QPickEvent *event);
     void onObjectModelRenderableMoved(Qt3DRender::QPickEvent *event);
-    void onCurrentSettingsChanged(SettingsPtr settings);
+    void onCurrentSettingsChanged(const Settings &settings);
 
 private:
     Qt3DCore::QEntity *m_rootEntity;

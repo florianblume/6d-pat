@@ -30,7 +30,7 @@ public:
      * the user needs to call saveCurrentSettings() to persist the settings and make them available
      * throughout the program.
      */
-    void saveCurrentSettings();
+    void saveCurrentSettings(const Settings &currentSettings);
 
     /*!
      * \brief setCurrentSettings sets the identifier of the current settings of this SettingsStore.

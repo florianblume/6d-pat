@@ -30,8 +30,7 @@ private Q_SLOTS:
     void removePose();
     void duplicatePose();
     void copyPosesFromImage(const Image &image);
-    void onPosePositionChanged(const QVector3D &position);
-    void onPoseRotationChanged(const QQuaternion &rotation);
+    void onPoseValuesChanged(const Pose &pose);
     void modelManagerStateChanged(ModelManager::State state);
     void onDataChanged(int data);
 

@@ -242,15 +242,15 @@ void MainWindow::clearGallerySelections() {
 }
 
 void MainWindow::onImagesPathChangedByNavigation(const QString &path) {
-    SettingsPtr settings = m_settingsStore->currentSettings();
-    settings->setImagesPath(path);
-    m_settingsStore->saveCurrentSettings();
+    Settings settings = m_settingsStore->currentSettings();
+    settings.setImagesPath(path);
+    m_settingsStore->saveCurrentSettings(settings);
 }
 
 void MainWindow::onObjectModelsPathChangedByNavigation(const QString &path) {
-    SettingsPtr settings = m_settingsStore->currentSettings();
-    settings->setObjectModelsPath(path);
-    m_settingsStore->saveCurrentSettings();
+    Settings settings = m_settingsStore->currentSettings();
+    settings.setObjectModelsPath(path);
+    m_settingsStore->saveCurrentSettings(settings);
 }
 
 void MainWindow::displayWarning(const QString &title, const QString &text) {
@@ -277,14 +277,14 @@ bool MainWindow::showSaveUnsavedChangesDialog() {
 }
 
 void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
-    SettingsPtr settings = m_settingsStore->currentSettings();
-    m_galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
-    ui->breadcrumbLeft->setCurrentPath(settings->imagesPath());
-    ui->breadcrumbRight->setCurrentPath(settings->objectModelsPath());
+    Settings settings = m_settingsStore->currentSettings();
+    m_galleryObjectModelModel->setSegmentationCodesForObjectModels(settings.segmentationCodes());
+    ui->breadcrumbLeft->setCurrentPath(settings.imagesPath());
+    ui->breadcrumbRight->setCurrentPath(settings.objectModelsPath());
 }
 
-void MainWindow::onSettingsChanged(SettingsPtr settings) {
-    m_galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
+void MainWindow::onSettingsChanged(const Settings &settings) {
+    m_galleryObjectModelModel->setSegmentationCodesForObjectModels(settings.segmentationCodes());
     setPathsOnGalleriesAndBreadcrumbs();
 }
 
@@ -336,11 +336,11 @@ void MainWindow::onActionReloadViewsTriggered() {
 }
 
 void MainWindow::onActionTakeSnapshotTriggered() {
-    if (!ui->poseViewer->currentlyViewedImage().isNull()) {
+    if (ui->poseViewer->hasSelectedImage()) {
         QSettings settings("Floretti Konfetti Inc.", "6D-PAT");
         QString picturesLocation = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
-        Image *currentlyViewedImage = ui->poseViewer->currentlyViewedImage().get();
-        const QString &imagePath = currentlyViewedImage->absoluteImagePath();
+        Image currentlyViewedImage = ui->poseViewer->selectedImage();
+        const QString &imagePath = currentlyViewedImage.absoluteImagePath();
         const QString &imageName = QFileInfo{imagePath}.fileName();
         // Default new image name and path when none have been set
         QString defaultPath = QFileInfo(QDir(picturesLocation).filePath("snapshot_" + imageName)).absoluteFilePath();

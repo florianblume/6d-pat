@@ -20,7 +20,7 @@ SettingsPathsPage::~SettingsPathsPage() {
 }
 
 void SettingsPathsPage::setSettings(Settings *settings) {
-    this->m_settings = settings;
+    m_settings = settings;
     QString imagesPath = (settings->imagesPath() != Global::NO_PATH ?
                             settings->imagesPath() : PLEASE_SELECT_A_FOLDER);
     ui->editImagesPath->setText(imagesPath);

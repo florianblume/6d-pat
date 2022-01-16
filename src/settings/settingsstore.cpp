@@ -13,7 +13,8 @@ QSharedPointer<Settings> SettingsStore::createEmptyPreferences(const QString &id
     return QSharedPointer<Settings>(new Settings(identifier));
 }
 
-void SettingsStore::saveCurrentSettings() {
+void SettingsStore::saveCurrentSettings(const Settings &currentSettings) {
+    m_currentSettings.reset(new Settings(currentSettings));
     QSettings settings(ORGANIZATION, APPLICATION);
     const QString &identifier = PREFERENCES + m_currentSettings->identifier();
     settings.beginGroup(identifier);

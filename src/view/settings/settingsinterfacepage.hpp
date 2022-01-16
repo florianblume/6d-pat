@@ -20,7 +20,7 @@ class SettingsInterfacePage : public QWidget {
 public:
     explicit SettingsInterfacePage(QWidget *parent = 0);
     ~SettingsInterfacePage();
-    void setSettings(Settings* settings);
+    void setSettings(Settings *settings);
 
 private Q_SLOTS:
     void comboBoxAddCorrespondencePointSelectedIndexChanged(int index);
@@ -37,7 +37,7 @@ private:
 
 private:
     Ui::SettingsInterfacePage *ui;
-    Settings *m_settings = Q_NULLPTR;
+    Settings *m_settings;
     QStringListModel *m_mouseButtonModel;
 };
 

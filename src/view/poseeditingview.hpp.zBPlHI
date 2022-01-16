@@ -13,7 +13,7 @@ public:
     virtual void addPose(const Pose &pose) = 0;
     virtual void removePose(const Pose &pose) = 0;
     virtual void setSelectedPose(const Pose &pose) = 0;
-    virtual void deselectPose() = 0;
+    virtual void deselectSelectedPose() = 0;
     virtual void onSelectedPoseValuesChanged(const Pose &pose) = 0;
     virtual void onPosesSaved() = 0;
     virtual void onPoseCreationAborted() = 0;
