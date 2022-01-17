@@ -294,15 +294,14 @@ void PoseEditor::onListViewPosesSelectionChanged(const QItemSelection &selected,
     if (!m_ignorePoseSelectionChanges) {
         QItemSelectionRange range = selected.front();
         int index = range.top();
-        Pose poseToSelect;
         if (index > 0) {
             // --index because None ist 0-th element and indices of poses are +1
-            poseToSelect = m_poses[--index];
+            Q_EMIT poseSelected(m_poses[--index]);
         } else {
             // If the user selected None then disable the controls
             setEnabledPoseEditorControls(false);
+            Q_EMIT poseDeselected();
         }
-        Q_EMIT poseSelected(poseToSelect);
     }
     m_ignorePoseSelectionChanges = false;
 }

@@ -129,8 +129,7 @@ private Q_SLOTS:
     void onActionTakeSnapshotTriggered();
     void onSnapshotSaved();
     void onActionTutorialScreenTriggered();
-    void onModelManagerStateChanged(ModelManager::State state,
-                                    const QString &error);
+    void onModelManagerError(const QString &errorMessage);
 
     /*!
      * \brief displayWarning displays a warning as a popup box.

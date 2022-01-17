@@ -8,7 +8,7 @@ GalleryImageModel::GalleryImageModel(ModelManager* modelManager) {
     this->m_modelManager = modelManager;
     m_imagesCache = modelManager->images();
     resizeImages();
-    connect(modelManager, &ModelManager::dataChanged,
+    connect(modelManager, &ModelManager::finishedLoadingData,
             this, &GalleryImageModel::onDataChanged);
 }
 

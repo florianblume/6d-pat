@@ -30,7 +30,7 @@ private:
 
 private:
     Ui::SettingsLoadSavePage *ui;
-    Settings *m_settings;
+    Settings *m_settings = Q_NULLPTR;
 
     static const QString PLEASE_SELECT_A_PYTHON_SCRIPT;
 };

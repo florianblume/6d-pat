@@ -157,11 +157,12 @@ public Q_SLOTS:
     virtual void reload() = 0;
 
 Q_SIGNALS:
-    void dataChanged(int data);
     void poseAdded(const Pose &pose);
     void poseUpdated(const Pose &pose);
     void poseDeleted(const Pose &pose);
-    void stateChanged(ModelManager::State state, const QString &error);
+    void loadingData(int data);
+    void finishedLoadingData(int data);
+    void error(const QString &errorMessage);
 };
 
 #endif // MODELMANAGER_H

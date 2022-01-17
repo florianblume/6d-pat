@@ -41,8 +41,8 @@ Q_SIGNALS:
 private Q_SLOTS:
     void onSettingsChanged(const Settings &settings);
     void onReloadViewsRequested();
-    void onModelManagerStateChanged(ModelManager::State state,
-                                    const QString &error);
+    void onModelManagerLoadingtData(int data);
+    void onModelManagerFinishedLoadingData(int data);
 
 private:
     /*!

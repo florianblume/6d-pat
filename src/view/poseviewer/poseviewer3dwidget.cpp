@@ -458,7 +458,11 @@ void PoseViewer3DWidget::addPose(const Pose &pose) {
             [poseRenderable, this](Qt3DRender::QPickEvent *e){
         if (e->button() == m_settingsStore->currentSettings().selectPoseRenderableMouseButton()
                 && !(m_poseRenderableRotated || m_poseRenderableTranslated)) {
-            Q_EMIT poseSelected(poseRenderable->pose());
+            if (poseRenderable != m_selectedPoseRenderable) {
+                Q_EMIT poseSelected(poseRenderable->pose());
+            } else {
+                Q_EMIT poseDeselected();
+            }
         }
     });
     connect(poseRenderable, &PoseRenderable::moved,

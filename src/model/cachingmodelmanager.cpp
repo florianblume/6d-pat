@@ -5,7 +5,7 @@
 
 CachingModelManager::CachingModelManager(LoadAndStoreStrategyPtr loadAndStoreStrategy) : ModelManager(loadAndStoreStrategy) {
     connect(loadAndStoreStrategy.get(), &LoadAndStoreStrategy::dataChanged,
-            this, &CachingModelManager::dataChanged);
+            this, &CachingModelManager::onDataChanged);
     connect(loadAndStoreStrategy.get(), &LoadAndStoreStrategy::error,
             this, &CachingModelManager::onLoadAndStoreStrategyError);
 }
@@ -15,12 +15,12 @@ CachingModelManager::~CachingModelManager() {
 
 void CachingModelManager::setLoadAndStoreStrategy(LoadAndStoreStrategyPtr strategy) {
     disconnect(m_loadAndStoreStrategy.get(), &LoadAndStoreStrategy::dataChanged,
-            this, &CachingModelManager::dataChanged);
+            this, &CachingModelManager::onDataChanged);
     disconnect(m_loadAndStoreStrategy.get(), &LoadAndStoreStrategy::error,
             this, &CachingModelManager::onLoadAndStoreStrategyError);
     m_loadAndStoreStrategy = strategy;
     connect(m_loadAndStoreStrategy.get(), &LoadAndStoreStrategy::dataChanged,
-            this, &CachingModelManager::dataChanged);
+            this, &CachingModelManager::onDataChanged);
     connect(m_loadAndStoreStrategy.get(), &LoadAndStoreStrategy::error,
             this, &CachingModelManager::onLoadAndStoreStrategyError);
 }
@@ -44,22 +44,24 @@ void CachingModelManager::createConditionalCache() {
 }
 
 void CachingModelManager::onDataChanged(int data) {
-    Q_EMIT stateChanged(State::Loading, QString());
+    // Set poses data flag to true if images are being loaded
+    // since then poses will be reloaded, too
+    data |= ((data & Data::Images) << 2);
+    data |= ((data & Data::ObjectModels) << 1);
+    Q_EMIT loadingData(data);
+    // Same for object models
     if (data == Images) {
         m_images = m_loadAndStoreStrategy->loadImages();
         // Add to flag that poses have been changed too
-        data |= Data::Poses;
     }
     if (data == ObjectModels) {
         m_objectModels = m_loadAndStoreStrategy->loadObjectModels();
         // Add to flag that poses have been changed too
-        data |= Data::Poses;
     }
     // We need to load poses no matter what
     m_poses = m_loadAndStoreStrategy->loadPoses(m_images, m_objectModels);
     createConditionalCache();
-    Q_EMIT stateChanged(ModelManager::State::Ready, QString());
-    Q_EMIT dataChanged(data);
+    Q_EMIT finishedLoadingData(data);
 }
 
 QList<Image> CachingModelManager::images() const {
@@ -206,14 +208,15 @@ bool CachingModelManager::removePose(const QString &id) {
 }
 
 void CachingModelManager::reload() {
-    Q_EMIT stateChanged(CachingModelManager::State::Loading, QString());
+    // 7 is images, object models and poses set to true
+    Q_EMIT loadingData(7);
     m_images = m_loadAndStoreStrategy->loadImages();
     m_objectModels = m_loadAndStoreStrategy->loadObjectModels();
     m_poses = m_loadAndStoreStrategy->loadPoses(m_images, m_objectModels);
     createConditionalCache();
-    Q_EMIT stateChanged(CachingModelManager::State::Ready, QString());
+    Q_EMIT finishedLoadingData(7);
 }
 
-void CachingModelManager::onLoadAndStoreStrategyError(const QString &error) {
-    Q_EMIT stateChanged(CachingModelManager::State::Error, error);
+void CachingModelManager::onLoadAndStoreStrategyError(const QString &errorMessage) {
+    Q_EMIT error(errorMessage);
 }

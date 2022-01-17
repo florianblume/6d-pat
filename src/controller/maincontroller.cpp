@@ -46,8 +46,8 @@ void MainController::initialize() {
     m_mainWindow.reset(new MainWindow(0, m_modelManager.get(), m_settingsStore.get()));
     connect(m_mainWindow.get(), &MainWindow::reloadViewsRequested,
             this, &MainController::onReloadViewsRequested);
-    connect(m_modelManager.get(), &ModelManager::stateChanged,
-            this, &MainController::onModelManagerStateChanged);
+    connect(m_modelManager.get(), &ModelManager::loadingData,
+            this, &MainController::onModelManagerLoadingtData);
 
     m_mainWindow->poseViewerView()->setSettingsStore(m_settingsStore.get());
     m_mainWindow->poseEditorView()->setSettingsStore(m_settingsStore.get());
@@ -127,24 +127,24 @@ void MainController::onReloadViewsRequested() {
     // First reset the pose editing controller so that it can ask whether the
     // user wants to save any changes before resetting the views (looks nicer)
     m_poseEditingController.reset();
+    m_mainWindow->clearGallerySelections();
     // Emit the signal to load data threadded, directly calling the methods
     // does not do anything threadded
     Q_EMIT reloadingData();
-    m_mainWindow->clearGallerySelections();
 }
 
-void MainController::onModelManagerStateChanged(ModelManager::State state, const QString &error) {
-    // First hide the progress viwe (e.g. for Ready or ErrorOccured)
-    m_mainWindow->showDataLoadingProgressView(false);
-    if (state == ModelManager::Ready && !m_initialized) {
+void MainController::onModelManagerLoadingtData(int /*data*/) {
+    if (!m_initialized) {
         // First state change means model manager is ready but we are not initialized yet
         QTimer::singleShot(1000, m_splashScreen, &QWidget::close);
         m_initialized = true;
-    } else if (state == ModelManager::Loading) {
-        if (m_initialized) {
-            // Only show when initialized, otherwise we're showing the splash screen
-            // which shows a progress bar
-            m_mainWindow->showDataLoadingProgressView(true);
-        }
+    } else {
+        // Only show when initialized, otherwise we're showing the splash screen
+        // which shows a progress bar
+        m_mainWindow->showDataLoadingProgressView(true);
     }
+}
+
+void MainController::onModelManagerFinishedLoadingData(int data) {
+    m_mainWindow->showDataLoadingProgressView(false);
 }

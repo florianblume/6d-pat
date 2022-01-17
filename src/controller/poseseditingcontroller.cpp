@@ -16,46 +16,26 @@ PosesEditingController::PosesEditingController(QObject *parent, ModelManager *mo
     , m_mainWindow(mainWindow) {
 
     // Check whether we have poses to save before the manager reloads
-    connect(modelManager, &ModelManager::stateChanged,
-            this, &PosesEditingController::modelManagerStateChanged);
-    connect(modelManager, &ModelManager::dataChanged,
-            this, &PosesEditingController::onDataChanged);
-
-    // Connect the PoseEditor and PoseViewer to the PoseEditingController
-    /*
-     *
-     * TODO Call manually!
-    connect(this, &PosesEditingController::selectedPoseChanged,
-            mainWindow->poseViewerView(), &PoseViewer::selectPose);
-    connect(this, &PosesEditingController::selectedPoseChanged,
-            mainWindow->poseEditorView(), &PoseEditor::setSelectedPose);
-    */
+    connect(modelManager, &ModelManager::loadingData,
+            this, &PosesEditingController::onModelManagerLoadingData);
+    connect(modelManager, &ModelManager::finishedLoadingData,
+            this, &PosesEditingController::onModelManagerFinishedLoadingData);
 
     // React to the user selecting a different pose
     connect(mainWindow->poseViewerView(), &PoseViewer::poseSelected,
-            this, &PosesEditingController::setSelectedPose);
+            this, &PosesEditingController::onSetSelectedPose);
     connect(mainWindow->poseEditorView(), &PoseEditor::poseSelected,
-            this, &PosesEditingController::setSelectedPose);
-
-    // React to changes to the pose but only in editor because ther we have
-    // to set the new pose values on the controls and would have to register
-    // with every new selected pose. The pose viewer doesn't get notified
-    // by changes in the pose because PoseRenderables register with the
-    // respective pose and update their position and rotation automatically.
-
-    // TODO Call manually!
-    //connect(this, &PosesEditingController::poseValuesChanged,
-    //        mainWindow->poseEditorView(), &PoseEditor::onSelectedPoseValuesChanged);
+            this, &PosesEditingController::onSetSelectedPose);
 
     // React to buttons
     connect(mainWindow->poseEditorView(), &PoseEditor::buttonSaveClicked,
             this, &PosesEditingController::savePoses);
     connect(mainWindow->poseEditorView(), &PoseEditor::buttonRemoveClicked,
-            this, &PosesEditingController::removePose);
+            this, &PosesEditingController::onRemovePose);
     connect(mainWindow->poseEditorView(), &PoseEditor::buttonCopyClicked,
             this, &PosesEditingController::copyPosesFromImage);
     connect(mainWindow->poseEditorView(), &PoseEditor::buttonDuplicateClicked,
-            this, &PosesEditingController::duplicatePose);
+            this, &PosesEditingController::onDuplicatePose);
 
     // React to pose recovering
     connect(mainWindow->poseEditorView(), &PoseEditor::objectModelClickedAt,
@@ -79,13 +59,10 @@ PosesEditingController::PosesEditingController(QObject *parent, ModelManager *mo
             this, &PosesEditingController::onSelectedObjectModelChanged);
 }
 
-void PosesEditingController::setSelectedPose(const Pose &pose) {
+void PosesEditingController::onSetSelectedPose(const Pose &pose) {
     if (pose == *m_selectedPose) {
-        // When starting the program sometimes the gallery hasn't been initialized yet
-        // m_mainWindow->galleryObjectModels()->clearSelection(false);
-
-        // ####TODO#### call the pose viewer and editor directly
-        //Q_EMIT selectedPoseChanged(PosePtr(), m_selectedPose);
+        m_mainWindow->poseEditorView()->deselectSelectedPose();
+        m_mainWindow->poseViewerView()->deselectSelectedPose();
     } else {
         m_selectedPose.reset(new Pose(pose));
         m_mainWindow->objectModelsGalleryView()->selectObjectModelByID(pose.objectModel(), false);
@@ -99,7 +76,7 @@ void PosesEditingController::setSelectedPose(const Pose &pose) {
     checkEnableSaveButtonOnPoseEditor();
 }
 
-void PosesEditingController::addPose(const Pose &pose) {
+void PosesEditingController::onAddPose(const Pose &pose) {
     m_posesToAdd.append(pose);
     m_posesForSelectedImage.append(pose);
     m_mainWindow->poseEditorView()->addPose(pose);
@@ -109,7 +86,7 @@ void PosesEditingController::addPose(const Pose &pose) {
     abortPoseCreation();
 }
 
-void PosesEditingController::removePose() {
+void PosesEditingController::onRemovePose() {
     for (int i = 0; i < m_posesForSelectedImage.size(); i++) {
         if (m_posesForSelectedImage[i] == *m_selectedPose) {
             m_posesForSelectedImage.removeAt(i);
@@ -135,8 +112,8 @@ void PosesEditingController::removePose() {
     checkEnableSaveButtonOnPoseEditor();
 }
 
-void PosesEditingController::duplicatePose() {
-    addPose(createNewPoseFromPose(*m_selectedPose));
+void PosesEditingController::onDuplicatePose() {
+    onAddPose(createNewPoseFromPose(*m_selectedPose));
 }
 
 void PosesEditingController::copyPosesFromImage(const Image &image) {
@@ -153,21 +130,17 @@ void PosesEditingController::copyPosesFromImage(const Image &image) {
 }
 
 void PosesEditingController::onPoseValuesChanged(const Pose &pose) {
-
+    m_mainWindow->poseEditorView()->poseValuesChanged(pose);
+    m_mainWindow->poseViewerView()->poseValuesChanged(pose);
 }
 
-void PosesEditingController::modelManagerStateChanged(ModelManager::State state) {
+void PosesEditingController::onModelManagerLoadingData(int data) {
     // We do not need to disable the UI here because the main window is
     // displaying a modal progress bar
-    if (state == ModelManager::Loading) {
-        showDialogAndSavePoses(true);
-    }
+    showDialogAndSavePoses(true);
 }
 
-void PosesEditingController::onDataChanged(int /*data*/) {
-    // Try to save poses still, it might be that the underlying
-    // poses file has been changed but it might be an accident
-    // so we try to save it
+void PosesEditingController::onModelManagerFinishedLoadingData(int /*data*/) {
     savePosesOrRestoreState();
     abortPoseCreation();
     m_selectedPose.reset();
@@ -441,7 +414,7 @@ void PosesEditingController::createPose() {
         rotMatrix.at<float>(2, 0), rotMatrix.at<float>(2, 1), rotMatrix.at<float>(2, 2)
     });
 
-    addPose(Pose(GeneralHelper::createPoseId(*m_selectedImage, *m_selectedObjectModel),
+    onAddPose(Pose(GeneralHelper::createPoseId(*m_selectedImage, *m_selectedObjectModel),
                  position,
                  QQuaternion::fromRotationMatrix(rotationMatrix),
                  *m_selectedImage,

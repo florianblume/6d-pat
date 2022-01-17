@@ -126,6 +126,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void positionClicked(const QPoint &position);
     void poseSelected(const Pose &pose);
+    void poseDeselected();
     void snapshotSaved();
     void zoomChanged(int zoom);
 

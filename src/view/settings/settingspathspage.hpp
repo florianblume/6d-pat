@@ -25,12 +25,12 @@ private Q_SLOTS:
     void buttonPosesPathClicked();
 
 private:
-    QString openFolderDialogForPath(QString path);
-    QString openFileDialogForPath(QString path);
+    QString openFolderDialogForPath(const QString &path);
+    QString openFileDialogForPath(const QString &path);
 
 private:
     Ui::SettingsPathsPage *ui;
-    Settings *m_settings;
+    Settings *m_settings = Q_NULLPTR;
 
     static const QString PLEASE_SELECT_A_FOLDER;
     static const QString PLEASE_SELECT_A_JSON_FILE;

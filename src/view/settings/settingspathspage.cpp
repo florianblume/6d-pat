@@ -33,20 +33,21 @@ void SettingsPathsPage::setSettings(Settings *settings) {
     ui->editSegmentationImagesPath->setText(settings->segmentationImagesPath());
 }
 
-QString SettingsPathsPage::openFolderDialogForPath(QString path) {
-    if (path == Global::NO_PATH) {
+QString SettingsPathsPage::openFolderDialogForPath(const QString &path) {
+    QString modifiedPath = path;
+    if (modifiedPath == Global::NO_PATH) {
         // When no path is selected, simply select the home directory to open
-        path = QDir::homePath();
+        modifiedPath = QDir::homePath();
     }
     QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                    path,
+                                                    modifiedPath,
                                                     QFileDialog::ShowDirsOnly
                                                     | QFileDialog::DontResolveSymlinks
                                                     | QFileDialog::DontUseNativeDialog);
     return dir;
 }
 
-QString SettingsPathsPage::openFileDialogForPath(QString path) {
+QString SettingsPathsPage::openFileDialogForPath(const QString &path) {
     QString dir = QFileDialog::getOpenFileName(this,
                                                tr("Open File"),
                                                path,

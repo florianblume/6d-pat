@@ -18,7 +18,7 @@ GalleryObjectModelModel::GalleryObjectModelModel(ModelManager* modelManager)
     m_images = modelManager->images();
     // Create default index mapping
     createIndexMapping();
-    connect(modelManager, &ModelManager::dataChanged,
+    connect(modelManager, &ModelManager::finishedLoadingData,
             this, &GalleryObjectModelModel::onDataChanged);
     connect(&m_offscreenEngine, &OffscreenEngine::imageReady, this, &GalleryObjectModelModel::onObjectModelRendered);
 }

@@ -25,14 +25,14 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     // Pose Editing
-    void setSelectedPose(const Pose &pose);
-    void addPose(const Pose &pose);
-    void removePose();
-    void duplicatePose();
+    void onSetSelectedPose(const Pose &pose);
+    void onAddPose(const Pose &pose);
+    void onRemovePose();
+    void onDuplicatePose();
     void copyPosesFromImage(const Image &image);
     void onPoseValuesChanged(const Pose &pose);
-    void modelManagerStateChanged(ModelManager::State state);
-    void onDataChanged(int data);
+    void onModelManagerLoadingData(int data);
+    void onModelManagerFinishedLoadingData(int data);
 
     // Pose Recovering
     void add2DPoint(const QPoint &imagePoint);

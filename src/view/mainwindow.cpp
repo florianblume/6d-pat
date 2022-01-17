@@ -36,8 +36,8 @@ MainWindow::MainWindow(QWidget *parent,
 
     statusBar()->addPermanentWidget(m_statusBarLabel, 1);
     setStatusBarText(QString("Loading..."));
-    connect(modelManager, &ModelManager::stateChanged,
-            this, &MainWindow::onModelManagerStateChanged);
+    connect(modelManager, &ModelManager::error,
+            this, &MainWindow::onModelManagerError);
 
     connect(settingsStore, &SettingsStore::currentSettingsChanged,
             this, &MainWindow::onSettingsChanged);
@@ -394,11 +394,10 @@ void MainWindow::onActionTutorialScreenTriggered() {
                                                    "florianblume/6d-pat/issues/63");
 }
 
-void MainWindow::onModelManagerStateChanged(ModelManager::State state,
-                                            const QString &error) {
-    if (state == ModelManager::Error || !error.isNull()) {
-        displayWarning("Error while loading or saving data", error);
-    }
+void MainWindow::onModelManagerError(const QString &errorMessage) {
+    // Remove progress view that might still be displayed from data loading
+    showProgressView(false);
+    displayWarning("Error while loading or saving data", errorMessage);
 }
 
 const QString MainWindow::SETTINGS_NAME = "FlorettiKonfetti Inc.";

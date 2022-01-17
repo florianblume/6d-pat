@@ -58,6 +58,7 @@ Q_SIGNALS:
     void buttonRemoveClicked();
     void poseValuesChanged(const Pose &pose);
     void poseSelected(const Pose &pose);
+    void poseDeselected();
 
 private Q_SLOTS:
     /*!

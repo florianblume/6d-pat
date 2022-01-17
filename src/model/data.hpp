@@ -2,6 +2,7 @@
 #define DATA_HPP
 
 enum Data {
+    None         = -1,
     Images       = 1,
     ObjectModels = 2,
     Poses        = 4
