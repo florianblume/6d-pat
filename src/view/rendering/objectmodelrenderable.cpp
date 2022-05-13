@@ -44,6 +44,14 @@ bool ObjectModelRenderable::hasTextureMaterial() const {
     return m_hasTextureMaterial;
 }
 
+QVector3D ObjectModelRenderable::maxMeshExtent() const {
+    return m_maxMeshExtent;
+}
+
+QVector3D ObjectModelRenderable::minMeshExtent() const {
+    return m_minMeshExtent;
+}
+
 Qt3DRender::QSceneLoader::Status ObjectModelRenderable::status() const {
     return m_sceneLoader->status();
 }

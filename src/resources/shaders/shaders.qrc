@@ -6,5 +6,7 @@
         <file>object.vert.json</file>
         <file>clicks.frag</file>
         <file>clicks.vert</file>
+        <file>gizmo.vert</file>
+        <file>gizmo.frag</file>
     </qresource>
 </RCC>

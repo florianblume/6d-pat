@@ -33,7 +33,7 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_root(new Qt3DCore::QEntity)
       , m_offscreenSurface(new QOffscreenSurface)
       , m_renderStateSet(new Qt3DRender::QRenderStateSet)
-      , m_depthTest(new Qt3DRender::QDepthTest)
+      , m_posesDepthTest(new Qt3DRender::QDepthTest)
       , m_multisampleAntialiasing(new Qt3DRender::QMultiSampleAntiAliasing)
       , m_renderTargetSelector(new Qt3DRender::QRenderTargetSelector)
       , m_renderSurfaceSelector(new Qt3DRender::QRenderSurfaceSelector)
@@ -68,13 +68,23 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_posesCamera(new Qt3DRender::QCamera)
       , m_posesCameraSelector(new Qt3DRender::QCameraSelector)
       , m_snapshotRenderCapture(new Qt3DRender::QRenderCapture)
+      // Clear depth for gizmo
+      , m_clearBuffers2(new Qt3DRender::QClearBuffers)
+      , m_noDraw2(new Qt3DRender::QNoDraw)
+      // Gizmo branch
+      , m_gizmoLayerFilter(new Qt3DRender::QLayerFilter)
+      , m_gizmoLayer(new Qt3DRender::QLayer)
+      , m_gizmoRenderStateSet(new Qt3DRender::QRenderStateSet)
+      , m_gizmoDepthTest(new Qt3DRender::QDepthTest)
+      , m_gizmoCameraSelector(new Qt3DRender::QCameraSelector)
       // Click visualization branch
       , m_clickVisualizationLayerFilter(new Qt3DRender::QLayerFilter)
       , m_clickVisualizationLayer(new Qt3DRender::QLayer)
       , m_clickVisualizationCameraSelector(new Qt3DRender::QCameraSelector)
       , m_clickVisualizationCamera(new Qt3DRender::QCamera)
       , m_clickVisualizationNoDepthMask(new Qt3DRender::QNoDepthMask)
-      , m_clickVisualizationRenderable(new ClickVisualizationRenderable) {
+      , m_clickVisualizationRenderable(new ClickVisualizationRenderable)
+      , m_gizmo(new Qt3DGizmo) {
     m_samples = QSurfaceFormat::defaultFormat().samples();
     m_fpsLabel = new QLabel(this);
     m_fpsLabel->setGeometry(QRect(10, 10, 80, 20));
@@ -250,8 +260,6 @@ void PoseViewer3DWidget::initQt3D() {
     m_renderTarget->addOutput(m_depthOutput);
 
     m_renderStateSet->addRenderState(m_multisampleAntialiasing);
-    m_renderStateSet->addRenderState(m_depthTest);
-    m_depthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
     m_renderTargetSelector->setParent(m_renderStateSet);
     m_renderTargetSelector->setTarget(m_renderTarget);
 
@@ -262,7 +270,6 @@ void PoseViewer3DWidget::initQt3D() {
      * Setup of the actual frame graph responsible for rendering the
      * background image, the poses and the clicks
      */
-
     m_sceneRoot->setParent(m_root);
 
     m_viewport->setParent(m_renderSurfaceSelector);
@@ -291,17 +298,13 @@ void PoseViewer3DWidget::initQt3D() {
     // and one with the wrong depth for the background image somehow
     m_backgroundNoPicking->setParent(m_backgroundNoDepthMask);
 
-    // We need to clear the depth buffer so that we can draw the click overlay
-    m_clearBuffers2 = new Qt3DRender::QClearBuffers(m_viewport);
-    m_clearBuffers2->setBuffers(Qt3DRender::QClearBuffers::DepthBuffer);
-    m_noDraw2 = new Qt3DRender::QNoDraw(m_clearBuffers2);
-
     // Third branch that draws the poses
     m_posesLayerFilter->setParent(m_viewport);
-    m_posesLayerFilter->addLayer(m_backgroundLayer);
-    m_posesLayerFilter->addLayer(m_clickVisualizationLayer);
-    m_posesLayerFilter->setFilterMode(Qt3DRender::QLayerFilter::DiscardAnyMatchingLayers);
+    m_posesLayerFilter->addLayer(m_posesLayer);
+    m_posesLayer->setRecursive(true);
     m_posesRenderStateSet->setParent(m_posesLayerFilter);
+    m_posesRenderStateSet->addRenderState(m_posesDepthTest);
+    m_posesDepthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
     m_posesRenderStateSet->addRenderState(m_posesBlendState);
     m_posesRenderStateSet->addRenderState(m_posesBlendEquation);
     m_posesBlendState->setSourceRgb(Qt3DRender::QBlendEquationArguments::SourceAlpha);
@@ -323,16 +326,36 @@ void PoseViewer3DWidget::initQt3D() {
     m_poseTranslationHandler.setProjectionMatrix(m_posesCamera->projectionMatrix());
     m_poseTranslationHandler.setViewMatrix(m_posesCamera->viewMatrix());
 
-    // Fourth branch that captures the rendered output
+    // Fourth branch that clears the depth buffers for the gizmo
+    m_clearBuffers2->setParent(m_viewport);
+    m_clearBuffers2->setBuffers(Qt3DRender::QClearBuffers::DepthBuffer);
+    m_noDraw2->setParent(m_clearBuffers2);
 
-    // Fith branch draws the clicks
+    // fith branch that draws the gizmo
+    m_gizmoLayerFilter->setParent(m_viewport);
+    m_gizmoLayerFilter->addLayer(m_gizmoLayer);
+    m_gizmoLayer->setRecursive(true);
+    m_gizmoRenderStateSet->setParent(m_gizmoLayerFilter);
+    m_gizmoDepthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
+    m_gizmoRenderStateSet->addRenderState(m_gizmoDepthTest);
+    m_gizmoCameraSelector->setParent(m_gizmoRenderStateSet);
+    m_gizmoCameraSelector->setCamera(m_posesCamera);
+
+    m_gizmo->setParent(m_sceneRoot);
+    m_gizmo->setCamera(m_posesCamera);
+    m_gizmo->setWindowSize(size());
+    m_gizmo->setScale(10);
+    m_gizmo->addComponent(m_gizmoLayer);
+    m_gizmo->setHideMouseWhileTransforming(false);
+
+    // Sixth branch draws the clicks
     m_clickVisualizationLayerFilter->setParent(m_viewport);
     m_clickVisualizationLayerFilter->addLayer(m_clickVisualizationLayer);
     m_clickVisualizationCameraSelector->setParent(m_clickVisualizationLayerFilter);
     m_clickVisualizationCamera->setParent(m_clickVisualizationCameraSelector);
     m_clickVisualizationCamera->lens()->setOrthographicProjection(-this->size().width() / 2.f, this->size().width() / 2.f,
-                                                                -this->size().height() / 2.f, this->size().height() / 2.f,
-                                                                0.1f, 1000.f);
+                                                                  -this->size().height() / 2.f, this->size().height() / 2.f,
+                                                                  0.1f, 1000.f);
     m_clickVisualizationCamera->setPosition(QVector3D(0, 0, 1));
     m_clickVisualizationCamera->setViewCenter(QVector3D(0, 0, 0));
     m_clickVisualizationCamera->setUpVector(QVector3D(0, 1, 0));
@@ -345,6 +368,8 @@ void PoseViewer3DWidget::initQt3D() {
     // Global rendering config
     m_renderSettings->pickingSettings()->setPickMethod(
                 Qt3DRender::QPickingSettings::TrianglePicking);
+    m_renderSettings->pickingSettings()->setPickResultMode(
+                Qt3DRender::QPickingSettings::NearestPriorityPick);
     // RenderStateSet is the first node of the overall framegraph
     m_renderSettings->setActiveFrameGraph(m_renderStateSet);
     m_inputSettings->setEventSource(this);
@@ -454,6 +479,7 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     // TODO need to add functionality to select the pose if it is a pose
     // that has been added by creating a new pose
     PoseRenderable *poseRenderable = new PoseRenderable(m_sceneRoot, pose);
+    poseRenderable->addComponent(m_posesLayer);
     m_poseRenderables.append(poseRenderable);
     m_poseRenderableForId[pose->id()] = poseRenderable;
     connect(poseRenderable, &PoseRenderable::clicked,
@@ -527,8 +553,12 @@ void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
     // (which we don't want, if the same pose is selected again it is deselected)
     if (!selected.isNull() && selected != deselected) {
         PoseRenderable *newSelected = m_poseRenderableForId[selected->id()];
+        m_gizmo->setDelegateTransform(newSelected->transform());
+        m_gizmo->setEnabled(true);
         newSelected->setSelected(true);
         m_selectedPoseRenderable = newSelected;
+    } else {
+        m_gizmo->setEnabled(false);
     }
     m_selectedPose = selected;
 }
@@ -553,7 +583,7 @@ void PoseViewer3DWidget::setRenderingSize(int w, int h) {
     m_renderSurfaceSelector->setExternalRenderTargetSize(scaledSize);
     m_clickVisualizationRenderable->setSize(scaledSize);
     m_clickVisualizationCamera->lens()->setOrthographicProjection(-w / 2.f, w / 2.f,
-                                                                -h / 2.f, h / 2.f,
+                                                                  -h / 2.f, h / 2.f,
                                                                   0.1f, 1000.f);
 }
 
@@ -727,20 +757,6 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
         setRenderingPosition(finalPoint.x(), finalPoint.y());
         m_mouseCoordinatesModificationEventFilter->setOffset(renderingPosition().x(), renderingPosition().y());
     }
-    QPointF mousePosOnImage = event->localPos() - m_renderingPosition;
-    if (translatingPose) {
-        QPointF pickPosition = mousePosOnImage / (m_zoom / 100.f);
-        m_poseTranslationHandler.translate(pickPosition);
-        m_selectedPose->setPosition(m_selectedPoseRenderable->transform()->translation());
-        m_poseRenderableTranslated = true;
-        QApplication::setOverrideCursor(Qt::BlankCursor);
-    }
-    if (rotatingPose) {
-        m_poseRotationHandler.rotate(mousePosOnImage);
-        m_selectedPose->setRotation(m_selectedPoseRenderable->transform()->rotation().toRotationMatrix());
-        m_poseRenderableRotated = true;
-        QApplication::setOverrideCursor(Qt::BlankCursor);
-    }
     m_mouseMoved = true;
 }
 
@@ -749,8 +765,6 @@ void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
             && !m_mouseMoved && m_backgroundImageRenderable != Q_NULLPTR) {
         Q_EMIT positionClicked(event->pos() - renderingPosition());
     }
-
-    QApplication::setOverrideCursor(Qt::ArrowCursor);
 
     m_mouseMoved = false;
     m_poseRenderablePressed = false;

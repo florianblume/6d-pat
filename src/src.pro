@@ -4,10 +4,11 @@ TEMPLATE = lib
 
 # This check is only there for when you build the project with your
 # own Qt libraries
-lessThan(QT_MINOR_VERSION, 14) {
+
+lessThan(QT_MAJOR_VERSION, 5) {
     error(Needs at least Qt >= 5.14 to run - found $$[QT_VERSION].)
 } else {
-    lessThan(QT_MAJOR_VERSION, 5) {
+    equals(QT_MAJOR_VERSION, 5) : lessThan(QT_MINOR_VERSION, 14) {
         error(Needs at least Qt >= 5.14 to run - found $$[QT_VERSION].)
     }
 }

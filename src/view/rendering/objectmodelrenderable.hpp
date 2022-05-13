@@ -36,6 +36,8 @@ public:
     bool isSelected() const;
     bool isHovered() const;
     bool hasTextureMaterial() const;
+    QVector3D maxMeshExtent() const;
+    QVector3D minMeshExtent() const;
 
 public Q_SLOTS:
     void setObjectModel(const ObjectModel &m_objectModel);
