@@ -28,6 +28,7 @@ Q_SIGNALS:
     void statusChanged(Qt3DRender::QSceneLoader::Status status);
     void selectedChanged(bool selected);
     void clicksChanged();
+    void meshExtentChanged();
 
 public:
     ObjectModelRenderable(Qt3DCore::QEntity *parent);

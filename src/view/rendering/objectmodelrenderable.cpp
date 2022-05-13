@@ -198,18 +198,20 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
             QObject::connect(geometry, &Qt3DRender::QGeometry::maxExtentChanged, [this, geometry](){
                 QVector3D maxExtent = geometry->maxExtent();
                 m_maxMeshExtent.setX(qMax(maxExtent.x(), m_maxMeshExtent.x()));
-                m_maxMeshExtent.setX(qMax(maxExtent.y(), m_maxMeshExtent.y()));
-                m_maxMeshExtent.setX(qMax(maxExtent.z(), m_maxMeshExtent.z()));
+                m_maxMeshExtent.setY(qMax(maxExtent.y(), m_maxMeshExtent.y()));
+                m_maxMeshExtent.setZ(qMax(maxExtent.z(), m_maxMeshExtent.z()));
                 // Need to update when the extents change
                 setClickDiameter(m_clickDiameter);
+                Q_EMIT meshExtentChanged();
             });
             QObject::connect(geometry, &Qt3DRender::QGeometry::minExtentChanged, [this, geometry](){
                 QVector3D minExtent = geometry->minExtent();
-                m_minMeshExtent.setX(qMax(minExtent.x(), m_minMeshExtent.x()));
-                m_minMeshExtent.setX(qMax(minExtent.y(), m_minMeshExtent.y()));
-                m_minMeshExtent.setX(qMax(minExtent.z(), m_minMeshExtent.z()));
+                m_minMeshExtent.setX(qMin(minExtent.x(), m_minMeshExtent.x()));
+                m_minMeshExtent.setY(qMin(minExtent.y(), m_minMeshExtent.y()));
+                m_minMeshExtent.setZ(qMin(minExtent.z(), m_minMeshExtent.z()));
                 // Need to update when the extents change
                 setClickDiameter(m_clickDiameter);
+                Q_EMIT meshExtentChanged();
             });
         }
         traverseNodes(node);

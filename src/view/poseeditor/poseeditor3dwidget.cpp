@@ -72,6 +72,7 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     m_camera->setPosition(QVector3D(15, 10, 20));
     m_camera->setUpVector(QVector3D(0, 1, 0));
     m_camera->setViewCenter(QVector3D(0, 0, 0));
+    m_formerCameraPos = m_camera->position();
 
     // Third branch, clear depth buffers
     m_clearBuffers2->setParent(m_viewport);
@@ -96,6 +97,9 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     setRootEntity(m_rootEntity);
     m_objectModelRoot->setParent(m_rootEntity);
     m_objectModelRoot->addComponent(m_objectModelTransform);
+
+    connect(m_camera, &Qt3DRender::QCamera::positionChanged,
+            this, &PoseEditor3DWindow::onCameraPositionChanged);
 
     // Setup gizmo
     m_gizmo->setParent(m_rootEntity);
@@ -226,16 +230,40 @@ void PoseEditor3DWindow::onCurrentSettingsChanged(SettingsPtr settings) {
     }
 }
 
+void PoseEditor3DWindow::onMeshExtentChanged() {
+    qDebug() << "mesh";
+    adjustGizmoSize();
+}
+
+void PoseEditor3DWindow::onCameraPositionChanged() {
+    float depth = QVector3D::dotProduct(m_objectModelTransform->translation() - m_camera->position(),
+                                        m_camera->viewVector());
+    qDebug() << "camera";
+    adjustGizmoSize();
+}
+
+void PoseEditor3DWindow::adjustGizmoSize() {
+    QVector3D maxExtent = objectModelRenderable->maxMeshExtent();
+    QVector4D projected = m_camera->projectionMatrix() * m_camera->viewMatrix() * m_objectModelTransform->matrix() * QVector4D(maxExtent, 1.0);
+    projected /= projected.w();
+    int x = width() * projected.x() / 2 + width() / 2.f;
+    int y = height() * projected.y() / 2 + height() / 2.f;
+    qDebug() << "test" << x << y;
+}
+
 void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
     if (objectModelRenderable) {
         objectModelRenderable->setParent((Qt3DCore::QNode*) 0);
         delete objectModelRenderable;
     }
+    m_formerCameraPos = m_camera->position();
     objectModelRenderable = new ObjectModelRenderable(m_objectModelRoot);
     objectModelRenderable->addComponent(m_objectModelLayer);
     // Needs to be placed after setRootEntity on the window because it doesn't work otherwise -> leave it here
     connect(objectModelRenderable, &ObjectModelRenderable::statusChanged,
             this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
+    connect(objectModelRenderable, &ObjectModelRenderable::meshExtentChanged,
+            this, &PoseEditor3DWindow::onMeshExtentChanged);
     objectModelRenderable->setObjectModel(objectModel);
     objectModelRenderable->setEnabled(true);
     m_gizmo->setEnabled(true);

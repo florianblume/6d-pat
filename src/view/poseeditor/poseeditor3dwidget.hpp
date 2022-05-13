@@ -57,8 +57,12 @@ private Q_SLOTS:
     void onObjectModelRenderablePressed(Qt3DRender::QPickEvent *event);
     void onObjectModelRenderableMoved(Qt3DRender::QPickEvent *event);
     void onCurrentSettingsChanged(SettingsPtr settings);
+    void onMeshExtentChanged();
+    void onCameraPositionChanged();
 
 private:
+    void adjustGizmoSize();
+
     // Framegraph stuff
     // Base framegraph
     Qt3DRender::QRenderSurfaceSelector *m_renderSurfaceSelector;
@@ -99,6 +103,8 @@ private:
     ObjectModelRenderable *objectModelRenderable = Q_NULLPTR;
     Qt3DCore::QEntity *m_lightEntity;
     Qt3DCore::QTransform *m_lightTransform;
+
+    QVector3D m_formerCameraPos;
 
     Qt3DRender::QPickEvent::Buttons m_pressedMouseButton = Qt3DRender::QPickEvent::NoButton;
     Qt3DGizmo *m_gizmo;

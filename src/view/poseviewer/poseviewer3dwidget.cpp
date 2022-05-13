@@ -436,7 +436,6 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
         int x = -loadedImage.width() / 2 + ((QWidget*) this->parent())->width() / 2;
         int y = -loadedImage.height() / 2 + ((QWidget*) this->parent())->height() / 2;
         setRenderingPosition(x, y);
-        m_mouseCoordinatesModificationEventFilter->setOffset(x, y);
     } else {
         m_backgroundImageRenderable->setImage(image);
     }
@@ -448,9 +447,9 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
     float qn = -2 * (farPlane * nearPlane) / depth;
     const QMatrix3x3 K = cameraMatrix;
     m_projectionMatrix = QMatrix4x4(2 * K(0, 0) / w, -2 * K(0, 1) / w, (-2 * K(0, 2) + w) / w, 0,
-                                                0,  2 * K(1, 1) / h,  (2 * K(1 ,2) - h) / h, 0,
-                                                0,                0,                      q, qn,
-                                                0,                0,                     -1, 0);
+                                                  0,  2 * K(1, 1) / h,  (2 * K(1 ,2) - h) / h, 0,
+                                                  0,                0,                      q, qn,
+                                                  0,                0,                     -1, 0);
     m_posesCamera->setProjectionMatrix(m_projectionMatrix);
     m_poseRotationHandler.setProjectionMatrix(m_projectionMatrix);
     m_poseTranslationHandler.setProjectionMatrix(m_projectionMatrix);
@@ -592,12 +591,12 @@ QPoint PoseViewer3DWidget::renderingPosition() {
 }
 
 void PoseViewer3DWidget::setRenderingPosition(float x, float y) {
-    m_renderingPosition = QPoint(x, y);
+    setRenderingPosition(QPoint(x, y));
 }
 
 void PoseViewer3DWidget::setRenderingPosition(QPoint position) {
-    setRenderingPosition(position.x(), position.y());
-    m_mouseCoordinatesModificationEventFilter->setOffset(position);
+    m_renderingPosition = position;
+    m_mouseCoordinatesModificationEventFilter->setOffset(m_renderingPosition);
 }
 
 void PoseViewer3DWidget::setupRenderingPositionAnimation(QPoint rendernigPosition) {
@@ -636,9 +635,9 @@ void PoseViewer3DWidget::setZoom(int zoom) {
                                                                m_imageSize.height() * scale));
     m_clickVisualizationRenderable->setSize(m_imageSize * scale);
     m_clickVisualizationCamera->lens()->setOrthographicProjection(
-                -(m_imageSize.width() * scale) / 2.f, (m_imageSize.width() * scale) / 2.f,
-                -(m_imageSize.height() * scale) / 2.f, (m_imageSize.height() * scale) / 2.f,
-                0.1f, 1000.f);
+        -(m_imageSize.width() * scale) / 2.f, (m_imageSize.width() * scale) / 2.f,
+        -(m_imageSize.height() * scale) / 2.f, (m_imageSize.height() * scale) / 2.f,
+        0.1f, 1000.f);
     Q_EMIT zoomChanged(zoom);
 }
 
@@ -755,7 +754,6 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
         m_newPos.setX(diff.x());
         m_newPos.setY(diff.y());
         setRenderingPosition(finalPoint.x(), finalPoint.y());
-        m_mouseCoordinatesModificationEventFilter->setOffset(renderingPosition().x(), renderingPosition().y());
     }
     m_mouseMoved = true;
 }

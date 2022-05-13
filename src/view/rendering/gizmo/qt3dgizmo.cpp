@@ -129,6 +129,7 @@ void Qt3DGizmoPrivate::initialize(Qt3DRender::QPickEvent *event,
         m_plane = initializeTranslationPlane(m_rayFromClickPosition,
                                              event->worldIntersection(),
                                              axisConstraint);
+        qDebug() << m_plane.position;
     } else {
         m_plane = initializeRotationPlane(m_delegateTransform->translation(),
                                           axisConstraint);
