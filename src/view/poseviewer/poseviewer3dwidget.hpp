@@ -132,6 +132,9 @@ Q_SIGNALS:
 private Q_SLOTS:
     // Called by Qt3D when the snapshot is ready
     void onSnapshotReady();
+    void onGizmoIsTranslating();
+    void onGizmoIsRotating();
+    void onGizmoTransformingEnded();
 
 private:
     void init();
@@ -298,15 +301,7 @@ private:
     QMatrix4x4 m_rotationMat;
 
     Qt3DGizmo *m_gizmo = Q_NULLPTR;
-    ArcBallRotationHandler m_poseRotationHandler;
-    TranslationHandler m_poseTranslationHandler;
-
-
-    // Arc ball vectors for translation with mouse
-    QVector3D m_translationStartVector;
-    QVector3D m_translationEndVector;
-    QVector3D m_translationDifference;
-    QVector3D m_initialPosition;
+    bool m_gizmoIsTransforming = false;
 
     float m_depth = 0.f;
 

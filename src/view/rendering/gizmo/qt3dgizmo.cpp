@@ -129,7 +129,7 @@ void Qt3DGizmoPrivate::initialize(Qt3DRender::QPickEvent *event,
         m_plane = initializeTranslationPlane(m_rayFromClickPosition,
                                              event->worldIntersection(),
                                              axisConstraint);
-        qDebug() << m_plane.position;
+        Q_EMIT isTranslating();
     } else {
         m_plane = initializeRotationPlane(m_delegateTransform->translation(),
                                           axisConstraint);
@@ -140,6 +140,7 @@ void Qt3DGizmoPrivate::initialize(Qt3DRender::QPickEvent *event,
         // to obtain a vector from origin
         m_lastPositionOnRotationHandle = (intersection.second - m_plane.position).normalized();
         m_initialOrientation = m_delegateTransform->rotation();
+        Q_EMIT isRotating();
     }
 }
 
@@ -216,7 +217,11 @@ Qt3DGizmo::Qt3DGizmo(Qt3DCore::QNode *parent)
     d->m_mouseHandler->setSourceDevice(d->m_mouseDevice);
     addComponent(d->m_mouseHandler);
     connect(d->m_mouseHandler, &Qt3DInput::QMouseHandler::released,
-            this, [d](){
+            this, [d, this](){
+        if (d->m_isTransforming) {
+            d->m_isTransforming = false;
+            Q_EMIT transformingEnded();
+        }
         d->m_mouseDownOnHandle = false;
         d->removeHighlightsFromHanldes();
         d->m_spherePhongMaterial->setAmbient(QColor(50, 50, 50, 50));
@@ -232,6 +237,7 @@ Qt3DGizmo::Qt3DGizmo(Qt3DCore::QNode *parent)
                 d->m_currentlyHidingMouse = true;
             }
             d->update(e->x(), e->y());
+            d->m_isTransforming = true;
         }
     });
     connect(d->m_mouseHandler, &Qt3DInput::QMouseHandler::exited,
@@ -240,6 +246,10 @@ Qt3DGizmo::Qt3DGizmo(Qt3DCore::QNode *parent)
         QApplication::restoreOverrideCursor();
         d->m_currentlyHidingMouse = false;
     });
+    connect(d, &Qt3DGizmoPrivate::isTranslating,
+            this, &Qt3DGizmo::isTranslating);
+    connect(d, &Qt3DGizmoPrivate::isRotating,
+            this, &Qt3DGizmo::isRotating);
 
     d->m_ownTransform = new Qt3DCore::QTransform;
     addComponent(d->m_ownTransform);

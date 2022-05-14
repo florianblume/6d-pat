@@ -85,6 +85,8 @@ public:
 
 class Qt3DGizmoPrivate : public QObject {
 
+Q_OBJECT
+
 public:
     Qt3DGizmoPrivate();
 
@@ -119,7 +121,7 @@ public:
 
     Handle::AxisConstraint m_axisConstraint;
 
-
+    bool m_isTransforming = false;
     bool m_mouseDownOnHandle = false;
 
     QColor m_handleHighlightColor = QColor(255, 255, 180);
@@ -169,6 +171,10 @@ public:
     RotationHandle *m_rotationHandleY;
     RotationHandle *m_rotationHandleZ;
     QList<Handle*> m_rotationHandles;
+
+Q_SIGNALS:
+    void isTranslating();
+    void isRotating();
 
 public Q_SLOTS:
     void onMouseRelease();

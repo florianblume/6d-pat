@@ -321,10 +321,6 @@ void PoseViewer3DWidget::initQt3D() {
     m_posesCamera->setPosition({0, 0, 0});
     m_posesCamera->setViewCenter({0, 0, 1});
     m_posesCamera->setUpVector({0, -1, 0});
-    m_poseRotationHandler.setProjectionMatrix(m_posesCamera->projectionMatrix());
-    m_poseRotationHandler.setViewMatrix(m_posesCamera->viewMatrix());
-    m_poseTranslationHandler.setProjectionMatrix(m_posesCamera->projectionMatrix());
-    m_poseTranslationHandler.setViewMatrix(m_posesCamera->viewMatrix());
 
     // Fourth branch that clears the depth buffers for the gizmo
     m_clearBuffers2->setParent(m_viewport);
@@ -341,12 +337,19 @@ void PoseViewer3DWidget::initQt3D() {
     m_gizmoCameraSelector->setParent(m_gizmoRenderStateSet);
     m_gizmoCameraSelector->setCamera(m_posesCamera);
 
+    // Setup gizmo
     m_gizmo->setParent(m_sceneRoot);
     m_gizmo->setCamera(m_posesCamera);
     m_gizmo->setWindowSize(size());
     m_gizmo->setScale(10);
     m_gizmo->addComponent(m_gizmoLayer);
     m_gizmo->setHideMouseWhileTransforming(false);
+    connect(m_gizmo, &Qt3DGizmo::isTranslating,
+            this, &PoseViewer3DWidget::onGizmoIsTranslating);
+    connect(m_gizmo, &Qt3DGizmo::isRotating,
+            this, &PoseViewer3DWidget::onGizmoIsRotating);
+    connect(m_gizmo, &Qt3DGizmo::transformingEnded,
+            this, &PoseViewer3DWidget::onGizmoTransformingEnded);
 
     // Sixth branch draws the clicks
     m_clickVisualizationLayerFilter->setParent(m_viewport);
@@ -426,8 +429,7 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
     QImage loadedImage(image);
     m_imageSize = loadedImage.size();
     setRenderingSize(loadedImage.width(), loadedImage.height());
-    m_poseRotationHandler.setSize(m_imageSize);
-    m_poseTranslationHandler.setSize(m_imageSize);
+    m_gizmo->setWindowSize(loadedImage.size());
 
     if (m_backgroundImageRenderable.isNull()) {
         m_backgroundImageRenderable = new BackgroundImageRenderable(m_sceneRoot, image);
@@ -451,8 +453,6 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
                                                   0,                0,                      q, qn,
                                                   0,                0,                     -1, 0);
     m_posesCamera->setProjectionMatrix(m_projectionMatrix);
-    m_poseRotationHandler.setProjectionMatrix(m_projectionMatrix);
-    m_poseTranslationHandler.setProjectionMatrix(m_projectionMatrix);
     m_backgroundImageRenderable->setEnabled(true);
 }
 
@@ -490,9 +490,11 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     });
     connect(poseRenderable, &PoseRenderable::moved,
             [this, poseRenderable](Qt3DRender::QPickEvent *e){
-        poseRenderable->setHovered(true);
-        m_hoveredPose = poseRenderable;
-        m_mouseOverPoseRenderable = true;
+        if (!m_gizmoIsTransforming) {
+            poseRenderable->setHovered(true);
+            m_hoveredPose = poseRenderable;
+            m_mouseOverPoseRenderable = true;
+        }
     });
     // Excited can only be handled in lambdas because
     // it does not provide a pick event object to retrieve the pose renderable
@@ -513,13 +515,6 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
             // Here we set all initial values that the mouseMove event
             // method needs to translate/rotate the pose
             m_poseRenderablePressed = true;
-            m_poseRotationHandler.setTransform(poseRenderable->transform());
-            // The position coordinates are modified to reflect the local coordinates on the
-            // image already, since Qt3D recieves the coordinates modified by the modification
-            // event filter
-            m_poseRotationHandler.initializeRotation(e->position());
-            m_poseTranslationHandler.setTransform(poseRenderable->transform());
-            m_poseTranslationHandler.initializeTranslation(e->localIntersection(), e->worldIntersection());
         }
     });
     connect(poseRenderable, &PoseRenderable::released,
@@ -631,6 +626,7 @@ void PoseViewer3DWidget::setZoom(int zoom) {
     m_renderingScale = scale;
     m_colorTexture->setSize(m_imageSize.width() * scale, m_imageSize.height() * scale);
     m_depthTexture->setSize(m_imageSize.width() * scale, m_imageSize.height() * scale);
+    m_gizmo->setWindowSize(QSize(m_imageSize.width() * scale, m_imageSize.height() * scale));
     m_renderSurfaceSelector->setExternalRenderTargetSize(QSize(m_imageSize.width() * scale,
                                                                m_imageSize.height() * scale));
     m_clickVisualizationRenderable->setSize(m_imageSize * scale);
@@ -685,6 +681,18 @@ void PoseViewer3DWidget::onSnapshotReady() {
     Q_EMIT snapshotSaved();
 }
 
+void PoseViewer3DWidget::onGizmoIsTranslating() {
+    m_gizmoIsTransforming = true;
+}
+
+void PoseViewer3DWidget::onGizmoIsRotating() {
+    m_gizmoIsTransforming = true;
+}
+
+void PoseViewer3DWidget::onGizmoTransformingEnded() {
+    m_gizmoIsTransforming = false;
+}
+
 void PoseViewer3DWidget::takeSnapshot(const QString &path) {
     m_snapshotPath = path;
     m_snapshotRenderPassFilter->addParameter(m_removeHighlightParameter);
@@ -733,17 +741,9 @@ void PoseViewer3DWidget::mousePressEvent(QMouseEvent *event) {
 // instead of Qt3D itself because if we move the mouse too fast
 // it doesn't receive events anymore
 void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
-    // The user is translating a pose when they have selected one, clicked it, and are now
-    // moving the mouse with the mouse button down
-    bool translatingPose = m_poseRenderablePressed && event->buttons()
-                             == m_settings->translatePoseRenderableMouseButton()
-                           && !m_selectedPose.isNull();
-    bool rotatingPose = m_poseRenderablePressed && event->buttons()
-                          == m_settings->rotatePoseRenderableMouseButton()
-                        && !m_selectedPose.isNull();
     bool translatingBackgroundImage = event->buttons()
             == m_settings->moveBackgroundImageRenderableMouseButton()
-        && !translatingPose && !rotatingPose;
+        && !m_gizmoIsTransforming;
 
     // Only translate the whole image when the user is not currently rotating or translating a pose
     if (translatingBackgroundImage) {

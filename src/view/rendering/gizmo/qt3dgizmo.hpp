@@ -105,6 +105,11 @@ Q_SIGNALS:
     void hideMouseWhileTransformingChanged(bool hideMouseWhileTransforming);
     void flatAppearanceChanged(bool flatAppearance);
 
+    // Emitted when transforming starts
+    void isTranslating();
+    void isRotating();
+    void transformingEnded();
+
 protected:
     Qt3DGizmoPrivate *d_ptr;
 
