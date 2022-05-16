@@ -453,6 +453,10 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
         setRenderingPosition(x, y);
     } else {
         m_backgroundImageRenderable->setImage(image);
+        // We need to call this function for some reason, no
+        // visual changes afterwards but if we don't do this
+        // poses are not selectable
+        setRenderingSize(loadedImage.size() * m_renderingScale);
     }
 
     float w = loadedImage.width();
