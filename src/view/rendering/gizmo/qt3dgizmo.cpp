@@ -71,28 +71,6 @@ Plane Qt3DGizmoPrivate::initializeTranslationPlane(const Ray &clickRay,
     return Plane(position, planeNormal);
 }
 
-Plane Qt3DGizmoPrivate::initializeRotationPlane(const QVector3D &position,
-                                                Handle::AxisConstraint translationConstraint) {
-    QVector3D normal;
-    // Rotation can only occur in these axes
-    switch (translationConstraint) {
-    case Handle::XTrans:
-        normal = QVector3D(1, 0, 0);
-        break;
-    case Handle::YTrans:
-        normal = QVector3D(0, 1, 0);
-        break;
-    case Handle::ZTrans:
-        normal = QVector3D(0, 0, 1);
-        break;
-    default:
-        // Can never occur
-        break;
-    }
-
-    return Plane(position, normal);
-}
-
 // Called by initializeTranslationPlane
 QVector3D Qt3DGizmoPrivate::computePlaneNormal(const Ray &ray, Handle::AxisConstraint axisConstraint) {
     QVector3D normal = ray.start - ray.end;
@@ -112,6 +90,30 @@ QVector3D Qt3DGizmoPrivate::computePlaneNormal(const Ray &ray, Handle::AxisConst
     }
 
     return normal;
+}
+
+Plane Qt3DGizmoPrivate::initializeRotationPlane(const QVector3D &position,
+                                                Handle::AxisConstraint translationConstraint) {
+    QVector3D normal;
+    // Rotation can only occur in these axes
+    switch (translationConstraint) {
+    case Handle::XTrans:
+        normal = QVector3D(1, 0, 0);
+        break;
+    case Handle::YTrans:
+        normal = QVector3D(0, 1, 0);
+        break;
+    case Handle::ZTrans:
+        normal = QVector3D(0, 0, 1);
+        break;
+    default:
+        // Can never occur
+        break;
+    }
+
+    normal = m_delegateTransform->rotation().rotatedVector(normal);
+
+    return Plane(position, normal);
 }
 
 void Qt3DGizmoPrivate::initialize(Qt3DRender::QPickEvent *event,
@@ -140,6 +142,9 @@ void Qt3DGizmoPrivate::initialize(Qt3DRender::QPickEvent *event,
         // to obtain a vector from origin
         m_lastPositionOnRotationHandle = (intersection.second - m_plane.position).normalized();
         m_initialOrientation = m_delegateTransform->rotation();
+        m_initRotationHandleX = m_rotationHandleX->transform()->rotation();
+        m_initRotationHandleY = m_rotationHandleY->transform()->rotation();
+        m_initRotationHandleZ = m_rotationHandleZ->transform()->rotation();
         Q_EMIT isRotating();
     }
 }
@@ -180,6 +185,9 @@ void Qt3DGizmoPrivate::update(int x, int y) {
         QQuaternion rotation = QQuaternion::rotationTo(m_lastPositionOnRotationHandle,
                                                        point);
         m_delegateTransform->setRotation(rotation * m_initialOrientation);
+        m_rotationHandleX->transform()->setRotation(rotation * m_initRotationHandleX);
+        m_rotationHandleY->transform()->setRotation(rotation * m_initRotationHandleY);
+        m_rotationHandleZ->transform()->setRotation(rotation * m_initRotationHandleZ);
     }
 }
 
@@ -366,6 +374,10 @@ Qt3DGizmo::Qt3DGizmo(Qt3DCore::QNode *parent)
                                  d->m_rotationHandleY,
                                  d->m_rotationHandleZ});
 
+    d->m_defaultRotationHandleX = d->m_rotationHandleX->transform()->rotation();
+    d->m_defaultRotationHandleY = d->m_rotationHandleY->transform()->rotation();
+    d->m_defaultRotationHandleZ = d->m_rotationHandleZ->transform()->rotation();
+
     for (int i = 0; i < d->m_rotationHandles.size(); i++) {
         d->m_rotationHandles[i]->setEnabled(false);
     }
@@ -477,6 +489,12 @@ void Qt3DGizmo::setDelegateTransform(Qt3DCore::QTransform *transform) {
     setEnabled(true);
     d->m_delegateTransform = transform;
     d->m_ownTransform->setTranslation(transform->translation());
+    d->m_rotationHandleX->transform()->setRotation(
+                d->m_delegateTransform->rotation() * d->m_defaultRotationHandleX);
+    d->m_rotationHandleY->transform()->setRotation(
+                d->m_delegateTransform->rotation() * d->m_defaultRotationHandleY);
+    d->m_rotationHandleZ->transform()->setRotation(
+                d->m_delegateTransform->rotation() * d->m_defaultRotationHandleZ);
     disconnect(d->m_delegateTransformTranslationChangedConnection);
     disconnect(d->m_delegateTransformAdjustScaleConnection);
     d->m_delegateTransformTranslationChangedConnection = connect(

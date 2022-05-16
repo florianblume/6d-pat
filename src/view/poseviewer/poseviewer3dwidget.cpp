@@ -12,6 +12,7 @@
 #include <QFrame>
 #include <QImage>
 #include <QMouseEvent>
+#include <QTimer>
 
 #include <QOpenGLFunctions>
 
@@ -579,9 +580,9 @@ void PoseViewer3DWidget::setSamples(int samples) {
 void PoseViewer3DWidget::setRenderingSize(const QSize &size) {
     int w = size.width();
     int h = size.height();
+    m_gizmo->setWindowSize(size);
     m_colorTexture->setSize(w, h);
     m_depthTexture->setSize(w, h);
-    m_gizmo->setWindowSize(size);
     m_renderSurfaceSelector->setExternalRenderTargetSize(size);
     m_clickVisualizationRenderable->setSize(size);
     m_clickVisualizationCamera->lens()->setOrthographicProjection(-w / 2.f, w / 2.f,
@@ -783,8 +784,6 @@ void PoseViewer3DWidget::wheelEvent(QWheelEvent *event) {
     // Calculate rendering offset so that we zoom directly to the mouse location
     QPoint newRenderingPosition = event->pos() - float(newZoom) / float(zoom()) * (event->pos() - renderingPosition());
     if (newZoom >= m_minZoom && newZoom <= m_maxZoom) {
-        // Is a bit buggy
-        // setAnimatedZoomAndRenderingPosition(newZoom, newRenderingPosition);
         setZoom(newZoom);
         setRenderingPosition(newRenderingPosition);
     }

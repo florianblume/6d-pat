@@ -20,8 +20,6 @@ SettingsInterfacePage::SettingsInterfacePage(QWidget *parent) :
     ui->comboBoxAddCorrespondencePoint->setModel(m_mouseButtonModel);
     ui->comboBoxMoveImage->setModel(m_mouseButtonModel);
     ui->comboBoxSelectPose->setModel(m_mouseButtonModel);
-    ui->comboBoxTranslatePose->setModel(m_mouseButtonModel);
-    ui->comboBoxRotatePose->setModel(m_mouseButtonModel);
 }
 
 SettingsInterfacePage::~SettingsInterfacePage() {
@@ -38,10 +36,6 @@ void SettingsInterfacePage::setSettings(Settings* settings) {
                                       settings->moveBackgroundImageRenderableMouseButton());
     setComboBoxSelectedForMouseButton(ui->comboBoxSelectPose,
                                       settings->selectPoseRenderableMouseButton());
-    setComboBoxSelectedForMouseButton(ui->comboBoxTranslatePose,
-                                      settings->translatePoseRenderableMouseButton());
-    setComboBoxSelectedForMouseButton(ui->comboBoxRotatePose,
-                                      settings->rotatePoseRenderableMouseButton());
     ui->doubleSpinBoxClick3DCircumference->setValue(settings->click3DSize());
     ui->checkBoxShowFPSLabel->setChecked(settings->showFPSLabel());
     ui->comboBoxMultisampling->setCurrentIndex(settings->multisampleSamples());
@@ -62,18 +56,6 @@ void SettingsInterfacePage::comboBoxMoveImageSelectedIndexChanged(int index) {
 void SettingsInterfacePage::comboBoxSelectPoseSelectedIndexChanged(int index) {
     if (m_settings) {
         m_settings->setSelectPoseRenderableMouseButton(Settings::MOUSE_BUTTONS.keys()[index]);
-    }
-}
-
-void SettingsInterfacePage::comboBoxTranslatePoseSelectedIndexChanged(int index) {
-    if (m_settings) {
-        m_settings->setTranslatePoseRenderableMouseButton(Settings::MOUSE_BUTTONS.keys()[index]);
-    }
-}
-
-void SettingsInterfacePage::comboBoxRotatePoseSelectedIndexChanged(int index) {
-    if (m_settings) {
-        m_settings->setRotatePoseRenderableMouseButton(Settings::MOUSE_BUTTONS.keys()[index]);
     }
 }
 

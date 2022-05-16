@@ -26,8 +26,6 @@ private Q_SLOTS:
     void comboBoxAddCorrespondencePointSelectedIndexChanged(int index);
     void comboBoxMoveImageSelectedIndexChanged(int index);
     void comboBoxSelectPoseSelectedIndexChanged(int index);
-    void comboBoxTranslatePoseSelectedIndexChanged(int index);
-    void comboBoxRotatePoseSelectedIndexChanged(int index);
     void doubleSpinBoxClick3DCircumferenceChanged(double value);
     void comboBoxMultisampleSamlpesSelectedIndexChanged(int index);
     void checkBoxShowFPSLabelStateChanged(int state);

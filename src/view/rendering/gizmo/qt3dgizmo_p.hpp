@@ -96,8 +96,8 @@ public:
     Ray generate3DRayFromScreenToInfinity(int x, int y);
     static Plane initializeTranslationPlane(const Ray &clickRay, const QVector3D &position,
                                             Handle::AxisConstraint translationConstraint);
-    static Plane initializeRotationPlane(const QVector3D &position,
-                                         Handle::AxisConstraint translationConstraint);
+    Plane initializeRotationPlane(const QVector3D &position,
+                                  Handle::AxisConstraint translationConstraint);
     static QVector3D computePlaneNormal(const Ray &ray, Handle::AxisConstraint translationConstraint);
     QVector3D applyTranslationConstraint(const QVector3D &position, const QVector3D &intersectionPosition,
                                          Handle::AxisConstraint translationConstraint);
@@ -171,6 +171,14 @@ public:
     RotationHandle *m_rotationHandleY;
     RotationHandle *m_rotationHandleZ;
     QList<Handle*> m_rotationHandles;
+
+    QQuaternion m_initRotationHandleX;
+    QQuaternion m_initRotationHandleY;
+    QQuaternion m_initRotationHandleZ;
+
+    QQuaternion m_defaultRotationHandleX;
+    QQuaternion m_defaultRotationHandleY;
+    QQuaternion m_defaultRotationHandleZ;
 
 Q_SIGNALS:
     void isTranslating();

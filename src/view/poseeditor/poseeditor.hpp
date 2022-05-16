@@ -90,6 +90,7 @@ private Q_SLOTS:
     void onButtonDuplicateClicked();
     void onButtonRemoveClicked();
     void onButtonCopyClicked();
+    void onButtonShowGizmoClicked();
 
     /*!
      * \brief onListViewPosesSelectionChanged Reacts to the user selecting a different pose from

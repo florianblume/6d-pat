@@ -196,6 +196,29 @@
           <number>20</number>
          </property>
          <item>
+          <widget class="QPushButton" name="buttonReset3DScene">
+           <property name="maximumSize">
+            <size>
+             <width>30</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the rotation and translation of the 3D view above.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="buttonShowGizmo">
+           <property name="text">
+            <string>Hide Gizmo</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="labelMousePosition">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -830,22 +853,6 @@
             <property name="spacing">
              <number>0</number>
             </property>
-            <item row="0" column="0">
-             <widget class="QPushButton" name="buttonReset3DScene">
-              <property name="maximumSize">
-               <size>
-                <width>30</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the rotation and translation of the 3D view above.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="0">
              <widget class="QFrame" name="frame_10">
               <property name="frameShape">
@@ -1497,6 +1504,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonShowGizmo</sender>
+   <signal>clicked()</signal>
+   <receiver>PoseEditor</receiver>
+   <slot>onButtonShowGizmoClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>87</x>
+     <y>41</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onButtonCreateClicked()</slot>
@@ -1510,5 +1533,6 @@
   <slot>onSpinBoxValueChanged()</slot>
   <slot>onButtonCopyClicked()</slot>
   <slot>onButtonReset3DSceneClicked()</slot>
+  <slot>onButtonShowGizmoClicked()</slot>
  </slots>
 </ui>

@@ -150,16 +150,12 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     m_objectModelRoot->addComponent(m_picker);
     connect(m_picker, &Qt3DRender::QObjectPicker::clicked,
            [this](Qt3DRender::QPickEvent *pickEvent){
-        if (!m_mouseMovedOnObjectModelRenderable &&
-                m_mouseDownOnObjectModelRenderable &&
-                pickEvent->button() == Qt3DRender::QPickEvent::LeftButton) {
+        if (pickEvent->button() == m_settingsStore->currentSettings()->addCorrespondencePointMouseButton()) {
             // localIntersection() does not invert the model transformations apparently
             // only the view transformations -> we have to invet them here manually
             QVector4D localIntersection = QVector4D(pickEvent->localIntersection(), 1.0);
             localIntersection = m_objectModelTransform->matrix().inverted() * localIntersection;
             Q_EMIT positionClicked(localIntersection.toVector3D());
-        } else if (pickEvent->button() == Qt3DRender::QPickEvent::RightButton) {
-            m_gizmo->setEnabled(!m_gizmo->isEnabled());
         }
         m_mouseMovedOnObjectModelRenderable = false;
         m_mouseDownOnObjectModelRenderable = false;
@@ -173,9 +169,9 @@ PoseEditor3DWindow::PoseEditor3DWindow()
 }
 
 PoseEditor3DWindow::~PoseEditor3DWindow() {
-    if (objectModelRenderable) {
-        objectModelRenderable->setParent((Qt3DCore::QNode *) 0);
-        objectModelRenderable->deleteLater();
+    if (m_objectModelRenderable) {
+        m_objectModelRenderable->setParent((Qt3DCore::QNode *) 0);
+        m_objectModelRenderable->deleteLater();
     }
 }
 
@@ -186,13 +182,20 @@ void PoseEditor3DWindow::reset3DScene() {
     m_objectModelTransform->setRotation(QQuaternion());
 }
 
+void PoseEditor3DWindow::showGizmo(bool show) {
+    if (m_objectModelRenderable) {
+        m_gizmo->setEnabled(show);
+    }
+    m_showGizmo = show;
+}
+
 void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status status) {
     // Only enable when we don't have texture, texture is enough to be able to properly see the
     // model and lightning makes it more difficult
-    m_lightEntity->setEnabled(!objectModelRenderable->hasTextureMaterial());
-    m_camera->viewEntity(objectModelRenderable);
+    m_lightEntity->setEnabled(!m_objectModelRenderable->hasTextureMaterial());
+    m_camera->viewEntity(m_objectModelRenderable);
     if (status == Qt3DRender::QSceneLoader::Ready) {
-        objectModelRenderable->setClickDiameter(m_settingsStore->currentSettings()->click3DSize());
+        m_objectModelRenderable->setClickDiameter(m_settingsStore->currentSettings()->click3DSize());
     }
 }
 
@@ -219,42 +222,48 @@ void PoseEditor3DWindow::wheelEvent(QWheelEvent *event) {
     m_camera->setPosition(m_camera->position() + m_camera->position() * delta);
 }
 
+bool PoseEditor3DWindow::showingGizmo() {
+    return m_showGizmo;
+}
+
 void PoseEditor3DWindow::onCurrentSettingsChanged(SettingsPtr settings) {
-    if (objectModelRenderable) {
-        objectModelRenderable->setClickDiameter(settings->click3DSize());
+    if (m_objectModelRenderable) {
+        m_objectModelRenderable->setClickDiameter(settings->click3DSize());
     }
 }
 
 void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
-    if (objectModelRenderable) {
-        objectModelRenderable->setParent((Qt3DCore::QNode*) 0);
-        delete objectModelRenderable;
+    if (m_objectModelRenderable) {
+        m_objectModelRenderable->setParent((Qt3DCore::QNode*) 0);
+        delete m_objectModelRenderable;
     }
     m_formerCameraPos = m_camera->position();
-    objectModelRenderable = new ObjectModelRenderable(m_objectModelRoot);
-    objectModelRenderable->addComponent(m_objectModelLayer);
+    m_objectModelRenderable = new ObjectModelRenderable(m_objectModelRoot);
+    m_objectModelRenderable->addComponent(m_objectModelLayer);
     // Needs to be placed after setRootEntity on the window because it doesn't work otherwise -> leave it here
-    connect(objectModelRenderable, &ObjectModelRenderable::statusChanged,
+    connect(m_objectModelRenderable, &ObjectModelRenderable::statusChanged,
             this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
-    objectModelRenderable->setObjectModel(objectModel);
-    objectModelRenderable->setEnabled(true);
-    m_gizmo->setEnabled(true);
+    m_objectModelRenderable->setObjectModel(objectModel);
+    m_objectModelRenderable->setEnabled(true);
+    if (m_showGizmo) {
+        m_gizmo->setEnabled(true);
+    }
     if (m_settingsStore) {
-        objectModelRenderable->setClickDiameter(m_settingsStore->currentSettings()->click3DSize());
+        m_objectModelRenderable->setClickDiameter(m_settingsStore->currentSettings()->click3DSize());
     }
     setClicks({});
 }
 
 void PoseEditor3DWindow::setClicks(const QList<QVector3D> &clicks) {
-    if (objectModelRenderable) {
-        objectModelRenderable->setClicks(clicks);
+    if (m_objectModelRenderable) {
+        m_objectModelRenderable->setClicks(clicks);
     }
 }
 
 void PoseEditor3DWindow::reset() {
     setClicks({});
-    if (objectModelRenderable) {
-        objectModelRenderable->setEnabled(false);
+    if (m_objectModelRenderable) {
+        m_objectModelRenderable->setEnabled(false);
         m_gizmo->setEnabled(false);
     }
 }

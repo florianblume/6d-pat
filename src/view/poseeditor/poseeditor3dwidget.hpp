@@ -41,11 +41,13 @@ public:
     void setSettingsStore(SettingsStore *settingsStore);
     void mouseReleaseEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
+    bool showingGizmo();
 
     ~PoseEditor3DWindow();
 
 public Q_SLOTS:
     void reset3DScene();
+    void showGizmo(bool show);
 
 Q_SIGNALS:
     void positionClicked(const QVector3D &position);
@@ -96,7 +98,7 @@ private:
     Qt3DCore::QEntity *m_objectModelRoot;
     Qt3DRender::QObjectPicker *m_picker;
     Qt3DCore::QTransform *m_objectModelTransform;
-    ObjectModelRenderable *objectModelRenderable = Q_NULLPTR;
+    ObjectModelRenderable *m_objectModelRenderable = Q_NULLPTR;
     Qt3DCore::QEntity *m_lightEntity;
     Qt3DCore::QTransform *m_lightTransform;
 
@@ -104,6 +106,7 @@ private:
 
     Qt3DRender::QPickEvent::Buttons m_pressedMouseButton = Qt3DRender::QPickEvent::NoButton;
     Qt3DGizmo *m_gizmo;
+    bool m_showGizmo = true;
 
     SettingsStore *m_settingsStore = Q_NULLPTR;
 
