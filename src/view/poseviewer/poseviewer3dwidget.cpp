@@ -341,7 +341,7 @@ void PoseViewer3DWidget::initQt3D() {
     m_gizmo->setParent(m_sceneRoot);
     m_gizmo->setCamera(m_posesCamera);
     m_gizmo->setWindowSize(size());
-    m_gizmo->setScale(10);
+    m_gizmo->setScale((width() / 100) * 20);
     m_gizmo->addComponent(m_gizmoLayer);
     m_gizmo->setHideMouseWhileTransforming(false);
     connect(m_gizmo, &Qt3DGizmo::isTranslating,
@@ -428,8 +428,7 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
                                             float nearPlane, float farPlane) {
     QImage loadedImage(image);
     m_imageSize = loadedImage.size();
-    setRenderingSize(loadedImage.width(), loadedImage.height());
-    m_gizmo->setWindowSize(loadedImage.size());
+    setRenderingSize(m_imageSize);
 
     if (m_backgroundImageRenderable.isNull()) {
         m_backgroundImageRenderable = new BackgroundImageRenderable(m_sceneRoot, image);
@@ -521,6 +520,13 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
             [this](){
         m_poseRenderablePressed = false;
     });
+    // We need to make the controller aware of the changes, this can only go through
+    // the Pose itself
+    connect(poseRenderable->transform(), &Qt3DCore::QTransform::matrixChanged,
+            this, [poseRenderable](){
+        poseRenderable->pose()->setPosition(poseRenderable->transform()->translation());
+        poseRenderable->pose()->setRotation(poseRenderable->transform()->rotation());
+    });
 }
 
 void PoseViewer3DWidget::removePose(PosePtr pose) {
@@ -570,15 +576,17 @@ void PoseViewer3DWidget::setSamples(int samples) {
     }
 }
 
-void PoseViewer3DWidget::setRenderingSize(int w, int h) {
-    QSize scaledSize = m_imageSize * m_renderingScale;
-    m_colorTexture->setSize(scaledSize.width(), scaledSize.height());
-    m_depthTexture->setSize(scaledSize.width(), scaledSize.height());
-    m_renderSurfaceSelector->setExternalRenderTargetSize(scaledSize);
-    m_clickVisualizationRenderable->setSize(scaledSize);
+void PoseViewer3DWidget::setRenderingSize(const QSize &size) {
+    int w = size.width();
+    int h = size.height();
+    m_colorTexture->setSize(w, h);
+    m_depthTexture->setSize(w, h);
+    m_gizmo->setWindowSize(size);
+    m_renderSurfaceSelector->setExternalRenderTargetSize(size);
+    m_clickVisualizationRenderable->setSize(size);
     m_clickVisualizationCamera->lens()->setOrthographicProjection(-w / 2.f, w / 2.f,
                                                                   -h / 2.f, h / 2.f,
-                                                                  0.1f, 1000.f);
+                                                                  0.1f    , 1000.f);
 }
 
 QPoint PoseViewer3DWidget::renderingPosition() {
@@ -624,16 +632,8 @@ void PoseViewer3DWidget::setZoom(int zoom) {
     m_zoom = zoom;
     float scale = zoom / 100.f;
     m_renderingScale = scale;
-    m_colorTexture->setSize(m_imageSize.width() * scale, m_imageSize.height() * scale);
-    m_depthTexture->setSize(m_imageSize.width() * scale, m_imageSize.height() * scale);
-    m_gizmo->setWindowSize(QSize(m_imageSize.width() * scale, m_imageSize.height() * scale));
-    m_renderSurfaceSelector->setExternalRenderTargetSize(QSize(m_imageSize.width() * scale,
-                                                               m_imageSize.height() * scale));
-    m_clickVisualizationRenderable->setSize(m_imageSize * scale);
-    m_clickVisualizationCamera->lens()->setOrthographicProjection(
-        -(m_imageSize.width() * scale) / 2.f, (m_imageSize.width() * scale) / 2.f,
-        -(m_imageSize.height() * scale) / 2.f, (m_imageSize.height() * scale) / 2.f,
-        0.1f, 1000.f);
+    QSize scaledSize = m_renderingScale * m_imageSize;
+    setRenderingSize(scaledSize);
     Q_EMIT zoomChanged(zoom);
 }
 

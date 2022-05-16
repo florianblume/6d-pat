@@ -98,9 +98,6 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     m_objectModelRoot->setParent(m_rootEntity);
     m_objectModelRoot->addComponent(m_objectModelTransform);
 
-    connect(m_camera, &Qt3DRender::QCamera::positionChanged,
-            this, &PoseEditor3DWindow::onCameraPositionChanged);
-
     // Setup gizmo
     m_gizmo->setParent(m_rootEntity);
     m_gizmo->setDelegateTransform(m_objectModelTransform);
@@ -108,7 +105,7 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     m_gizmo->setEnabled(false);
     m_gizmo->setHideMouseWhileTransforming(false);
     m_gizmo->addComponent(m_gizmoLayer);
-    m_gizmo->setScale(0.5);
+    m_gizmo->setScale(150);
     m_gizmo->setScaleToCameraDistance(true);
 
     connect(this, &Qt3DExtras::Qt3DWindow::widthChanged,
@@ -218,37 +215,14 @@ void PoseEditor3DWindow::mouseReleaseEvent(QMouseEvent */*event*/) {
 }
 
 void PoseEditor3DWindow::wheelEvent(QWheelEvent *event) {
-    float delta = event->angleDelta().y() / 1000.f;
-    //m_camera->setPosition(delta * m_camera->position() + m_camera->position());
-    qDebug() << 1.0 / (m_gizmo->scale() * delta) + m_gizmo->scale();
-    //m_gizmo->setScale(1.0 / (m_gizmo->scale() * delta) + m_gizmo->scale());
+    float delta = -event->angleDelta().y() / 1000.f;
+    m_camera->setPosition(m_camera->position() + m_camera->position() * delta);
 }
 
 void PoseEditor3DWindow::onCurrentSettingsChanged(SettingsPtr settings) {
     if (objectModelRenderable) {
         objectModelRenderable->setClickDiameter(settings->click3DSize());
     }
-}
-
-void PoseEditor3DWindow::onMeshExtentChanged() {
-    qDebug() << "mesh";
-    adjustGizmoSize();
-}
-
-void PoseEditor3DWindow::onCameraPositionChanged() {
-    float depth = QVector3D::dotProduct(m_objectModelTransform->translation() - m_camera->position(),
-                                        m_camera->viewVector());
-    qDebug() << "camera";
-    adjustGizmoSize();
-}
-
-void PoseEditor3DWindow::adjustGizmoSize() {
-    QVector3D maxExtent = objectModelRenderable->maxMeshExtent();
-    QVector4D projected = m_camera->projectionMatrix() * m_camera->viewMatrix() * m_objectModelTransform->matrix() * QVector4D(maxExtent, 1.0);
-    projected /= projected.w();
-    int x = width() * projected.x() / 2 + width() / 2.f;
-    int y = height() * projected.y() / 2 + height() / 2.f;
-    qDebug() << "test" << x << y;
 }
 
 void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
@@ -262,8 +236,6 @@ void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
     // Needs to be placed after setRootEntity on the window because it doesn't work otherwise -> leave it here
     connect(objectModelRenderable, &ObjectModelRenderable::statusChanged,
             this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
-    connect(objectModelRenderable, &ObjectModelRenderable::meshExtentChanged,
-            this, &PoseEditor3DWindow::onMeshExtentChanged);
     objectModelRenderable->setObjectModel(objectModel);
     objectModelRenderable->setEnabled(true);
     m_gizmo->setEnabled(true);

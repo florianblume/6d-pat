@@ -196,10 +196,22 @@ void Qt3DGizmoPrivate::removeHighlightsFromHanldes() {
 
 void Qt3DGizmoPrivate::adjustScaleToCameraDistance() {
     if (m_scaleToCameraDistance && m_delegateTransform && m_camera) {
+        /*
         float depth = QVector3D::dotProduct(m_delegateTransform->translation() - m_camera->position(),
                                             m_camera->viewVector());
-        m_actualScale = depth * 0.008 * m_scale;
+        qDebug() << depth;
+        m_actualScale = (1.0 / depth) * 100000 * m_scale;
         m_ownTransform->setScale(m_actualScale);
+        */
+        float reciprScaleOnscreen = (2.0 * m_scale / m_windowSize.width());
+
+        float w = (m_camera->projectionMatrix() *
+                   m_camera->viewMatrix() *
+                   m_delegateTransform->matrix() *
+                   QVector4D(0, 0, 0, 1)).w();
+        w *= reciprScaleOnscreen;
+
+        m_ownTransform->setScale(w);
     }
 }
 
@@ -444,6 +456,7 @@ void Qt3DGizmo::setMode(Mode mode) {
 void Qt3DGizmo::setWindowSize(const QSize &size) {
     Q_D(Qt3DGizmo);
     d->m_windowSize = size;
+    d->adjustScaleToCameraDistance();
     Q_EMIT windowSizeChanged(d->m_windowSize);
 }
 

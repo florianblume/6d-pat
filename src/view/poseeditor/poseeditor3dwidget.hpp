@@ -57,12 +57,8 @@ private Q_SLOTS:
     void onObjectModelRenderablePressed(Qt3DRender::QPickEvent *event);
     void onObjectModelRenderableMoved(Qt3DRender::QPickEvent *event);
     void onCurrentSettingsChanged(SettingsPtr settings);
-    void onMeshExtentChanged();
-    void onCameraPositionChanged();
 
 private:
-    void adjustGizmoSize();
-
     // Framegraph stuff
     // Base framegraph
     Qt3DRender::QRenderSurfaceSelector *m_renderSurfaceSelector;

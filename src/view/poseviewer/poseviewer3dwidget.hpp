@@ -140,7 +140,7 @@ private:
     void init();
     void initOpenGL();
     void initQt3D();
-    void setRenderingSize(int w, int h);
+    void setRenderingSize(const QSize &size);
     void setupZoomAnimation(int zoom);
     void setupRenderingPositionAnimation(int x, int y);
     void setupRenderingPositionAnimation(QPoint reinderingPosition);
