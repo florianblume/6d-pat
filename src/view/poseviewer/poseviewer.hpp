@@ -27,7 +27,7 @@ class MoveableContainerWidget;
 
 /*!
  * \brief The PoseEditor class holds the image that is to be annotated and allows
- * adding ObjectModels and place them at specific spots. It does NOT allow diret editing.
+ * adding ObjectModels and place them at specific spots.
  * This is what the PoseEditorControls are for.
  */
 class PoseViewer : public QWidget

@@ -3,8 +3,7 @@
 #include <QStyleOptionProgressBar>
 
 SplashScreen::SplashScreen(QWidget *parent) :
-    QSplashScreen(parent) {
-    this->setPixmap(QPixmap(":/images/splashscreen.png"));
+    QSplashScreen(QPixmap(":/images/splashscreen.png")) {
 }
 
 void SplashScreen::showProgressBar(bool show) {

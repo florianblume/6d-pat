@@ -278,6 +278,12 @@ void PoseEditor::onButtonCopyClicked() {
     Q_EMIT buttonCopyClicked(imageToCopyFrom);
 }
 
+void PoseEditor::onButtonShowGizmoClicked() {
+    bool showingGizmo = m_poseEditor3DWindow->showingGizmo();
+    m_poseEditor3DWindow->showGizmo(!showingGizmo);
+    ui->buttonShowGizmo->setText(showingGizmo ? "Show Gizmo" : "Hide Gizmo");
+}
+
 void PoseEditor::onButtonCreateClicked() {
     Q_EMIT buttonCreateClicked();
 }

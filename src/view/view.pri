@@ -3,6 +3,13 @@ INCLUDEPATH += $$PWD
 HEADERS += \
     $$PWD/poseviewer/renderframegraph.hpp \
     $$PWD/rendering/arcballrotationhandler.hpp \
+    $$PWD/rendering/gizmo/arrowtranslationhandle.hpp \
+    $$PWD/rendering/gizmo/flatmaterial.hpp \
+    $$PWD/rendering/gizmo/handle.hpp \
+    $$PWD/rendering/gizmo/planetranslationhandle.hpp \
+    $$PWD/rendering/gizmo/qt3dgizmo.hpp \
+    $$PWD/rendering/gizmo/qt3dgizmo_p.hpp \
+    $$PWD/rendering/gizmo/rotationhandle.hpp \
     $$PWD/rendering/modificationhandler.hpp \
     $$PWD/rendering/translationhandler.hpp \
     $$PWD/poseviewer/mousecoordinatesmodificationeventfilter.hpp \
@@ -39,6 +46,12 @@ HEADERS += \
 SOURCES += \
     $$PWD/poseviewer/renderframegraph.cpp \
     $$PWD/rendering/arcballrotationhandler.cpp \
+    $$PWD/rendering/gizmo/arrowtranslationhandle.cpp \
+    $$PWD/rendering/gizmo/flatmaterial.cpp \
+    $$PWD/rendering/gizmo/handle.cpp \
+    $$PWD/rendering/gizmo/planetranslationhandle.cpp \
+    $$PWD/rendering/gizmo/qt3dgizmo.cpp \
+    $$PWD/rendering/gizmo/rotationhandle.cpp \
     $$PWD/rendering/modificationhandler.cpp \
     $$PWD/rendering/translationhandler.cpp \
     $$PWD/poseviewer/mousecoordinatesmodificationeventfilter.cpp \

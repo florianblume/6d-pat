@@ -16,89 +16,141 @@
 #include <Qt3DExtras/QSphereMesh>
 #include <Qt3DRender/QMaterial>
 #include <Qt3DRender/QRenderSettings>
-#include <Qt3DRender/qpickingsettings.h>
+#include <Qt3DRender/QViewport>
+#include <Qt3DRender/QPickingSettings>
+#include <Qt3DRender/QLayer>
 
 PoseEditor3DWindow::PoseEditor3DWindow()
     : Qt3DExtras::Qt3DWindow()
+    // Root framegraph
+    , m_renderSurfaceSelector(new Qt3DRender::QRenderSurfaceSelector)
+    , m_renderStateSet(new Qt3DRender::QRenderStateSet)
+    , m_multisampleAntialiasing(new Qt3DRender::QMultiSampleAntiAliasing)
+    , m_depthTest(new Qt3DRender::QDepthTest)
+    , m_viewport(new Qt3DRender::QViewport)
+    // First clear buffers
+    , m_clearBuffers(new Qt3DRender::QClearBuffers)
+    , m_noDraw(new Qt3DRender::QNoDraw)
+    // Object branch
+    , m_camera(new Qt3DRender::QCamera)
+    , m_cameraSelector(new Qt3DRender::QCameraSelector)
+    , m_objectModelLayerFilter(new Qt3DRender::QLayerFilter)
+    , m_objectModelLayer(new Qt3DRender::QLayer)
+    // Second clear buffers for depth
+    , m_clearBuffers2(new Qt3DRender::QClearBuffers)
+    , m_noDraw2(new Qt3DRender::QNoDraw)
+    // Gizmo branch, to draw it ontop of the object
+    , m_gizmoCameraSelector(new Qt3DRender::QCameraSelector)
+    , m_gizmoRenderStateSet(new Qt3DRender::QRenderStateSet)
+    , m_gizmoCullFace(new Qt3DRender::QCullFace)
+    , m_gizmoLayerFilter(new Qt3DRender::QLayerFilter)
+    , m_gizmoLayer(new Qt3DRender::QLayer)
+    // Entity tree
     , m_rootEntity(new Qt3DCore::QEntity)
     , m_objectModelRoot(new Qt3DCore::QEntity)
     , m_objectModelTransform(new Qt3DCore::QTransform)
-    , m_renderStateSet(new Qt3DRender::QRenderStateSet)
-    , m_multisampleAntialiasing(new Qt3DRender::QMultiSampleAntiAliasing)
-    , m_depthTest(new Qt3DRender::QDepthTest) {
+    , m_gizmo(new Qt3DGizmo) {
+
+    // Setup framegraph
+    // Root
+    m_renderSurfaceSelector->setSurface(this);
+    m_viewport->setParent(m_renderSurfaceSelector);
+
+    // First branch, clear all buffers
+    m_clearBuffers->setParent(m_viewport);
+    m_clearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
+    m_clearBuffers->setClearColor(Qt::white);
+    m_noDraw->setParent(m_clearBuffers);
+
+    // Second Branch, draw object model
+    m_objectModelLayerFilter->setParent(m_viewport);
+    m_objectModelLayerFilter->addLayer(m_objectModelLayer);
+    m_objectModelLayer->setRecursive(true);
+    m_cameraSelector->setParent(m_objectModelLayerFilter);
+    m_cameraSelector->setCamera(m_camera);
+    m_camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
+    m_camera->setPosition(QVector3D(15, 10, 20));
+    m_camera->setUpVector(QVector3D(0, 1, 0));
+    m_camera->setViewCenter(QVector3D(0, 0, 0));
+    m_formerCameraPos = m_camera->position();
+
+    // Third branch, clear depth buffers
+    m_clearBuffers2->setParent(m_viewport);
+    m_clearBuffers2->setBuffers(Qt3DRender::QClearBuffers::DepthBuffer);
+    m_noDraw2->setParent(m_clearBuffers2);
+
+    // Fourth branch, draw gizmo
+    m_gizmoLayerFilter->setParent(m_viewport);
+    m_gizmoLayerFilter->addLayer(m_gizmoLayer);
+    m_gizmoLayer->setRecursive(true);
+    m_gizmoRenderStateSet->setParent(m_gizmoLayerFilter);
+    m_gizmoRenderStateSet->addRenderState(m_gizmoCullFace);
+    m_gizmoCullFace->setMode(Qt3DRender::QCullFace::NoCulling);
+    m_gizmoCameraSelector->setParent(m_gizmoRenderStateSet);
+    m_gizmoCameraSelector->setCamera(m_camera);
+
+    setActiveFrameGraph(m_renderSurfaceSelector);
+    renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
+    renderSettings()->pickingSettings()->setFaceOrientationPickingMode(Qt3DRender::QPickingSettings::FrontAndBackFace);
+    renderSettings()->pickingSettings()->setPickResultMode(Qt3DRender::QPickingSettings::NearestPriorityPick);
+
     setRootEntity(m_rootEntity);
     m_objectModelRoot->setParent(m_rootEntity);
     m_objectModelRoot->addComponent(m_objectModelTransform);
-    m_rotationHandler.setTransform(m_objectModelTransform);
-    m_translationHandler.setTransform(m_objectModelTransform);
 
-    m_depthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
-    m_renderStateSet->addRenderState(m_depthTest);
-    m_renderStateSet->addRenderState(m_multisampleAntialiasing);
-    activeFrameGraph()->setParent(m_renderStateSet);
-    setActiveFrameGraph(m_renderStateSet);
+    // Setup gizmo
+    m_gizmo->setParent(m_rootEntity);
+    m_gizmo->setDelegateTransform(m_objectModelTransform);
+    m_gizmo->setCamera(m_camera);
+    m_gizmo->setEnabled(false);
+    m_gizmo->setHideMouseWhileTransforming(false);
+    m_gizmo->addComponent(m_gizmoLayer);
+    m_gizmo->setScale(150);
+    m_gizmo->setScaleToCameraDistance(true);
 
-    Qt3DRender::QCamera *camera = this->camera();
-
-    camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
-    camera->setPosition(QVector3D(0, 0, 20.0f));
-    camera->setUpVector(QVector3D(0, 1, 0));
-    camera->setViewCenter(QVector3D(0, 0, 0));
-    connect(camera, &Qt3DRender::QCamera::viewMatrixChanged,
-            [this, camera](){
-        m_rotationHandler.setViewMatrix(camera->viewMatrix());
-        m_translationHandler.setViewMatrix(camera->viewMatrix());
-    });
-    connect(camera, &Qt3DRender::QCamera::projectionMatrixChanged,
-            [this, camera](){
-        m_rotationHandler.setProjectionMatrix(camera->projectionMatrix());
-        m_translationHandler.setProjectionMatrix(camera->projectionMatrix());
-
-    });
     connect(this, &Qt3DExtras::Qt3DWindow::widthChanged,
             [this](){
-        m_rotationHandler.setWidth(this->width());
-        m_translationHandler.setWidth(this->width());
-        this->camera()->lens()->setPerspectiveProjection(45.0f,
-                                                         this->width() / (float) this->height(),
-                                                         0.1f, 1000.0f);
+        m_gizmo->setWindowSize(size());
+        m_camera->lens()->setPerspectiveProjection(
+                    45.0f,
+                    this->width() / (float) this->height(),
+                    0.1f, 1000.0f);
 
     });
     connect(this, &Qt3DExtras::Qt3DWindow::heightChanged,
             [this](){
-        m_rotationHandler.setHeight(this->height());
-        m_translationHandler.setHeight(this->height());
-        this->camera()->lens()->setPerspectiveProjection(45.0f,
-                                                         this->width() / (float) this->height(),
-                                                         0.1f, 1000.0f);
+        m_gizmo->setWindowSize(size());
+        m_camera->lens()->setPerspectiveProjection(
+                    45.0f,
+                    this->width() / (float) this->height(),
+                    0.1f, 1000.0f);
 
     });
 
+    // Setup some light
     m_lightEntity = new Qt3DCore::QEntity(m_rootEntity);
     Qt3DRender::QPointLight *light = new Qt3DRender::QPointLight(m_lightEntity);
     light->setColor("white");
     light->setIntensity(0.5);
     m_lightEntity->addComponent(light);
+    m_lightEntity->addComponent(m_objectModelLayer);
     Qt3DCore::QTransform *m_lightTransform = new Qt3DCore::QTransform(m_lightEntity);
-    m_lightTransform->setTranslation(camera->position());
+    //m_lightTransform->setTranslation(2 * m_camera->position());
     m_lightEntity->addComponent(m_lightTransform);
     // Need to keep this although we do not actually move the camera anymore
-    connect(camera, &Qt3DRender::QCamera::positionChanged,
+    connect(m_camera, &Qt3DRender::QCamera::positionChanged,
             [m_lightTransform, this](){
-        m_lightTransform->setTranslation(this->camera()->position());
+        m_lightTransform->setTranslation(2 * m_camera->position());
     });
 
-    renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
-    renderSettings()->pickingSettings()->setFaceOrientationPickingMode(Qt3DRender::QPickingSettings::FrontAndBackFace);
-
-    m_picker = new Qt3DRender::QObjectPicker(m_rootEntity);
+    // Setup the picker for the object model
+    m_picker = new Qt3DRender::QObjectPicker(m_objectModelRoot);
     m_picker->setHoverEnabled(true);
     m_picker->setDragEnabled(true);
-    m_rootEntity->addComponent(m_picker);
+    m_objectModelRoot->addComponent(m_picker);
     connect(m_picker, &Qt3DRender::QObjectPicker::clicked,
            [this](Qt3DRender::QPickEvent *pickEvent){
-        if (!m_mouseMovedOnObjectModelRenderable &&
-                m_mouseDownOnObjectModelRenderable) {
+        if (pickEvent->button() == m_settingsStore->currentSettings()->addCorrespondencePointMouseButton()) {
             // localIntersection() does not invert the model transformations apparently
             // only the view transformations -> we have to invet them here manually
             QVector4D localIntersection = QVector4D(pickEvent->localIntersection(), 1.0);
@@ -117,9 +169,9 @@ PoseEditor3DWindow::PoseEditor3DWindow()
 }
 
 PoseEditor3DWindow::~PoseEditor3DWindow() {
-    if (objectModelRenderable) {
-        objectModelRenderable->setParent((Qt3DCore::QNode *) 0);
-        objectModelRenderable->deleteLater();
+    if (m_objectModelRenderable) {
+        m_objectModelRenderable->setParent((Qt3DCore::QNode *) 0);
+        m_objectModelRenderable->deleteLater();
     }
 }
 
@@ -130,11 +182,20 @@ void PoseEditor3DWindow::reset3DScene() {
     m_objectModelTransform->setRotation(QQuaternion());
 }
 
+void PoseEditor3DWindow::showGizmo(bool show) {
+    if (m_objectModelRenderable) {
+        m_gizmo->setEnabled(show);
+    }
+    m_showGizmo = show;
+}
+
 void PoseEditor3DWindow::onObjectRenderableStatusChanged(Qt3DRender::QSceneLoader::Status status) {
-    m_lightEntity->setEnabled(!objectModelRenderable->hasTextureMaterial());
-    camera()->viewAll();
+    // Only enable when we don't have texture, texture is enough to be able to properly see the
+    // model and lightning makes it more difficult
+    m_lightEntity->setEnabled(!m_objectModelRenderable->hasTextureMaterial());
+    m_camera->viewEntity(m_objectModelRenderable);
     if (status == Qt3DRender::QSceneLoader::Ready) {
-        objectModelRenderable->setClickDiameter(m_settingsStore->currentSettings()->click3DSize());
+        m_objectModelRenderable->setClickDiameter(m_settingsStore->currentSettings()->click3DSize());
     }
 }
 
@@ -143,8 +204,6 @@ void PoseEditor3DWindow::onObjectModelRenderablePressed(Qt3DRender::QPickEvent *
     // Set this so we know for rotation that the mouse was pressed on the renderable first
     m_mouseMovedOnObjectModelRenderable = false;
     m_mouseDownOnObjectModelRenderable = true;
-    m_rotationHandler.initializeRotation(event->position());
-    m_translationHandler.initializeTranslation(event->localIntersection(), event->worldIntersection());
 }
 
 void PoseEditor3DWindow::onObjectModelRenderableMoved(Qt3DRender::QPickEvent *event) {
@@ -158,52 +217,54 @@ void PoseEditor3DWindow::mouseReleaseEvent(QMouseEvent */*event*/) {
     m_pressedMouseButton = Qt3DRender::QPickEvent::NoButton;
 }
 
-void PoseEditor3DWindow::mouseMoveEvent(QMouseEvent *event) {
-    m_mouseMovedOnObjectModelRenderable = true;
-    if (m_pressedMouseButton == Qt3DRender::QPickEvent::LeftButton && m_mouseDownOnObjectModelRenderable) {
-        m_translationHandler.translate(event->pos());
-    } else if (m_pressedMouseButton == Qt3DRender::QPickEvent::RightButton &&  m_mouseDownOnObjectModelRenderable) {
-        m_rotationHandler.rotate(event->pos());
-    }
+void PoseEditor3DWindow::wheelEvent(QWheelEvent *event) {
+    float delta = -event->angleDelta().y() / 1000.f;
+    m_camera->setPosition(m_camera->position() + m_camera->position() * delta);
 }
 
-void PoseEditor3DWindow::wheelEvent(QWheelEvent *event) {
-    m_objectModelTransform->setTranslation(m_objectModelTransform->translation()
-                                           + QVector3D(0, 0, event->angleDelta().y() / 15.f));
+bool PoseEditor3DWindow::showingGizmo() {
+    return m_showGizmo;
 }
 
 void PoseEditor3DWindow::onCurrentSettingsChanged(SettingsPtr settings) {
-    if (objectModelRenderable) {
-        objectModelRenderable->setClickDiameter(settings->click3DSize());
+    if (m_objectModelRenderable) {
+        m_objectModelRenderable->setClickDiameter(settings->click3DSize());
     }
 }
 
 void PoseEditor3DWindow::setObjectModel(const ObjectModel &objectModel) {
-    if (objectModelRenderable) {
-        objectModelRenderable->setParent((Qt3DCore::QNode*) 0);
-        delete objectModelRenderable;
+    if (m_objectModelRenderable) {
+        m_objectModelRenderable->setParent((Qt3DCore::QNode*) 0);
+        delete m_objectModelRenderable;
     }
-    objectModelRenderable = new ObjectModelRenderable(m_objectModelRoot);
+    m_formerCameraPos = m_camera->position();
+    m_objectModelRenderable = new ObjectModelRenderable(m_objectModelRoot);
+    m_objectModelRenderable->addComponent(m_objectModelLayer);
     // Needs to be placed after setRootEntity on the window because it doesn't work otherwise -> leave it here
-    connect(objectModelRenderable, &ObjectModelRenderable::statusChanged, this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
-    objectModelRenderable->setObjectModel(objectModel);
-    objectModelRenderable->setEnabled(true);
+    connect(m_objectModelRenderable, &ObjectModelRenderable::statusChanged,
+            this, &PoseEditor3DWindow::onObjectRenderableStatusChanged);
+    m_objectModelRenderable->setObjectModel(objectModel);
+    m_objectModelRenderable->setEnabled(true);
+    if (m_showGizmo) {
+        m_gizmo->setEnabled(true);
+    }
     if (m_settingsStore) {
-        objectModelRenderable->setClickDiameter(m_settingsStore->currentSettings()->click3DSize());
+        m_objectModelRenderable->setClickDiameter(m_settingsStore->currentSettings()->click3DSize());
     }
     setClicks({});
 }
 
 void PoseEditor3DWindow::setClicks(const QList<QVector3D> &clicks) {
-    if (objectModelRenderable) {
-        objectModelRenderable->setClicks(clicks);
+    if (m_objectModelRenderable) {
+        m_objectModelRenderable->setClicks(clicks);
     }
 }
 
 void PoseEditor3DWindow::reset() {
     setClicks({});
-    if (objectModelRenderable) {
-        objectModelRenderable->setEnabled(false);
+    if (m_objectModelRenderable) {
+        m_objectModelRenderable->setEnabled(false);
+        m_gizmo->setEnabled(false);
     }
 }
 

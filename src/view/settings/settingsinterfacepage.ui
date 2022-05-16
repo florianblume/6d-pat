@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>350</height>
+    <height>347</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -25,7 +25,7 @@
   <property name="maximumSize">
    <size>
     <width>16777215</width>
-    <height>400</height>
+    <height>347</height>
    </size>
   </property>
   <property name="palette">
@@ -184,38 +184,12 @@
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QLabel" name="labelAddCorrespondencePoint">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-          <horstretch>3</horstretch>
-          <verstretch>1</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>The mouse button to add a 2D point on the image in the pose viewer.</string>
-        </property>
-        <property name="text">
-         <string>Add 2D correspondence point</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="labelRotatePose">
-        <property name="toolTip">
-         <string>The mouse button to rotate a 3D object model of a pose in the pose viewer with. The pose has to be selected to be able to rotate it.</string>
-        </property>
-        <property name="text">
-         <string>Rotate pose</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="labelMoveImage">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
           <horstretch>1</horstretch>
-          <verstretch>1</verstretch>
+          <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="minimumSize">
@@ -235,12 +209,15 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="comboBoxSelectPose"/>
+      </item>
       <item row="2" column="0">
        <widget class="QLabel" name="labelSelectPose">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
           <horstretch>1</horstretch>
-          <verstretch>1</verstretch>
+          <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="toolTip">
@@ -251,30 +228,8 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="labelTranslatePose">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-          <horstretch>1</horstretch>
-          <verstretch>1</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>20</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The mouse button to move, i.e. translate, the 3D object model of a pose in the pose viewer. The pose needs to be selected to be able to translate it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Translate pose</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="comboBoxMoveImage"/>
       </item>
       <item row="0" column="1">
        <widget class="QComboBox" name="comboBoxAddCorrespondencePoint">
@@ -286,17 +241,37 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="comboBoxMoveImage"/>
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelAddCorrespondencePoint">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>3</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>The mouse button to add a 2D point on the image in the pose viewer.</string>
+        </property>
+        <property name="text">
+         <string>Add 2D correspondence point</string>
+        </property>
+       </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QComboBox" name="comboBoxSelectPose"/>
-      </item>
-      <item row="3" column="1">
-       <widget class="QComboBox" name="comboBoxTranslatePose"/>
-      </item>
-      <item row="4" column="1">
-       <widget class="QComboBox" name="comboBoxRotatePose"/>
+      <item row="3" column="0">
+       <widget class="QFrame" name="frame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -346,38 +321,6 @@
     <hint type="sourcelabel">
      <x>308</x>
      <y>186</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>139</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxTranslatePose</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>SettingsInterfacePage</receiver>
-   <slot>comboBoxTranslatePoseSelectedIndexChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>308</x>
-     <y>216</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>139</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>comboBoxRotatePose</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>SettingsInterfacePage</receiver>
-   <slot>comboBoxRotatePoseSelectedIndexChanged(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>308</x>
-     <y>246</y>
     </hint>
     <hint type="destinationlabel">
      <x>199</x>

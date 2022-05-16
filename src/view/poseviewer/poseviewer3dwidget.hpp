@@ -7,6 +7,7 @@
 #include "view/rendering/clickvisualizationrenderable.hpp"
 #include "view/rendering/arcballrotationhandler.hpp"
 #include "view/rendering/translationhandler.hpp"
+#include "view/rendering/gizmo/qt3dgizmo.hpp"
 #include "view/poseviewer/mousecoordinatesmodificationeventfilter.hpp"
 #include "view/poseviewer/undomousecoordinatesmodificationeventfilter.hpp"
 #include "settings/settings.hpp"
@@ -131,12 +132,15 @@ Q_SIGNALS:
 private Q_SLOTS:
     // Called by Qt3D when the snapshot is ready
     void onSnapshotReady();
+    void onGizmoIsTranslating();
+    void onGizmoIsRotating();
+    void onGizmoTransformingEnded();
 
 private:
     void init();
     void initOpenGL();
     void initQt3D();
-    void setRenderingSize(int w, int h);
+    void setRenderingSize(const QSize &size);
     void setupZoomAnimation(int zoom);
     void setupRenderingPositionAnimation(int x, int y);
     void setupRenderingPositionAnimation(QPoint reinderingPosition);
@@ -188,7 +192,7 @@ private:
     // Offscreen framegraph
     QOffscreenSurface *m_offscreenSurface;
     Qt3DRender::QRenderStateSet *m_renderStateSet;
-    Qt3DRender::QDepthTest *m_depthTest;
+    Qt3DRender::QDepthTest *m_posesDepthTest;
     Qt3DRender::QMultiSampleAntiAliasing *m_multisampleAntialiasing;
     Qt3DRender::QRenderTargetSelector *m_renderTargetSelector;
     Qt3DRender::QRenderSurfaceSelector *m_renderSurfaceSelector;
@@ -221,11 +225,11 @@ private:
      * The actual frame graph for rendering the background image,
      * the poses and the clicks.
      *
-     *                                     root
-     *                                      |
-     *     -------------------------------------------------------------
-     *     |                  |               |             |          |
-     *  Clear buffers   Draw background   Draw poses   Clear depth   Draw clicks
+     *                                                      root
+     *                                                      |
+     *     -------------------------------------------------------------------------------------------
+     *     |                  |               |             |          |                  |          |
+     *  Clear buffers   Draw background   Draw poses   Clear depth   Draw gizmo   Clear depth   Draw clicks
      *                      image
      *
      */
@@ -267,9 +271,16 @@ private:
     Qt3DRender::QRenderCapture *m_snapshotRenderCapture;
     Qt3DRender::QRenderCaptureReply *m_snapshotRenderCaptureReply;
 
-    // Clear depth buffer before drawing clicks
+    // Clear depth buffer before drawing gizmo and clicks
     Qt3DRender::QClearBuffers *m_clearBuffers2;
     Qt3DRender::QNoDraw *m_noDraw2;
+
+    // ClickVisualization branch
+    Qt3DRender::QLayerFilter *m_gizmoLayerFilter;
+    Qt3DRender::QLayer *m_gizmoLayer;
+    Qt3DRender::QRenderStateSet *m_gizmoRenderStateSet;
+    Qt3DRender::QDepthTest *m_gizmoDepthTest;
+    Qt3DRender::QCameraSelector *m_gizmoCameraSelector;
 
     // ClickVisualization branch
     Qt3DRender::QLayerFilter *m_clickVisualizationLayerFilter;
@@ -289,15 +300,8 @@ private:
 
     QMatrix4x4 m_rotationMat;
 
-    ArcBallRotationHandler m_poseRotationHandler;
-    TranslationHandler m_poseTranslationHandler;
-
-
-    // Arc ball vectors for translation with mouse
-    QVector3D m_translationStartVector;
-    QVector3D m_translationEndVector;
-    QVector3D m_translationDifference;
-    QVector3D m_initialPosition;
+    Qt3DGizmo *m_gizmo = Q_NULLPTR;
+    bool m_gizmoIsTransforming = false;
 
     float m_depth = 0.f;
 

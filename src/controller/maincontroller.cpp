@@ -128,7 +128,7 @@ void MainController::onSettingsChanged(SettingsPtr settings) {
 void MainController::onReloadViewsRequested() {
     // First reset the pose editing controller so that it can ask whether the
     // user wants to save any changes before resetting the views (looks nicer)
-    m_poseEditingController.reset();
+    m_poseEditingController->reset();
     // Emit the signal to load data threadded, directly calling the methods
     // does not do anything threadded
     Q_EMIT reloadingData();

@@ -19,6 +19,8 @@ public:
     explicit PosesEditingController(QObject *parent,
                                     ModelManager *modelManager,
                                     MainWindow *mainWindow);
+    // Public so that the maincontroller can access it
+    void reset();
 
 Q_SIGNALS:
     void selectedPoseChanged(PosePtr selected, PosePtr deselected);
@@ -43,9 +45,6 @@ private Q_SLOTS:
     void add3DPoint(QVector3D objectModelPoint);
     void createPose();
     void abortPoseCreation();
-    // Resets the current modifications so that the user doesn't have to
-    // select a new image to reset the current view
-    void reset();
 
     // This function is there for e.g. when the user selects a different image and has modified
     // a pose without saving, savePoses simply saves the poses when the user clicks on the
