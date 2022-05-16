@@ -204,13 +204,6 @@ void Qt3DGizmoPrivate::removeHighlightsFromHanldes() {
 
 void Qt3DGizmoPrivate::adjustScaleToCameraDistance() {
     if (m_scaleToCameraDistance && m_delegateTransform && m_camera) {
-        /*
-        float depth = QVector3D::dotProduct(m_delegateTransform->translation() - m_camera->position(),
-                                            m_camera->viewVector());
-        qDebug() << depth;
-        m_actualScale = (1.0 / depth) * 100000 * m_scale;
-        m_ownTransform->setScale(m_actualScale);
-        */
         float reciprScaleOnscreen = (2.0 * m_scale / m_windowSize.width());
 
         float w = (m_camera->projectionMatrix() *
@@ -300,8 +293,10 @@ Qt3DGizmo::Qt3DGizmo(Qt3DCore::QNode *parent)
     });
     connect(d->m_sphereObjectPicker, &Qt3DRender::QObjectPicker::moved,
             this, [d](){
-        d->m_spherePhongMaterial->setAmbient(d->m_handleHighlightColor);
-        d->m_sphereFlatMaterial->setColor(d->m_handleHighlightColor);
+        if (!d->m_isTransforming){
+            d->m_spherePhongMaterial->setAmbient(d->m_handleHighlightColor);
+            d->m_sphereFlatMaterial->setColor(d->m_handleHighlightColor);
+        }
     });
     connect(d->m_sphereObjectPicker, &Qt3DRender::QObjectPicker::exited,
             this, [d](){

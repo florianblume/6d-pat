@@ -312,16 +312,15 @@ void PoseViewer3DWidget::initQt3D() {
     m_posesBlendState->setDestinationRgb(Qt3DRender::QBlendEquationArguments::OneMinusSourceAlpha);
     m_posesBlendEquation->setBlendFunction(Qt3DRender::QBlendEquation::Add);
     m_posesFrustumCulling->setParent(m_posesRenderStateSet);
-    m_snapshotRenderPassFilter->setParent(m_posesFrustumCulling);
-    m_removeHighlightParameter->setName("selected");
-    m_removeHighlightParameter->setValue(QVector4D(0.f, 0.f, 0.f, 0.f));
-    // Will be added when a snapshot is requested
-    //snapshotRenderPassFilter->addParameter(removeHighlightParameter);
-    m_posesCameraSelector->setParent(m_snapshotRenderPassFilter);
+    m_posesCameraSelector->setParent(m_posesFrustumCulling);
     m_posesCameraSelector->setCamera(m_posesCamera);
     m_posesCamera->setPosition({0, 0, 0});
     m_posesCamera->setViewCenter({0, 0, 1});
     m_posesCamera->setUpVector({0, -1, 0});
+    m_snapshotRenderPassFilter->setParent(m_posesCameraSelector);
+    m_removeHighlightParameter->setName("selected");
+    m_removeHighlightParameter->setValue(QVector4D(0.f, 0.f, 0.f, 0.f));
+    m_snapshotRenderCapture->setParent(m_posesCameraSelector);
 
     // Fourth branch that clears the depth buffers for the gizmo
     m_clearBuffers2->setParent(m_viewport);
@@ -434,9 +433,23 @@ void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3
     if (m_backgroundImageRenderable.isNull()) {
         m_backgroundImageRenderable = new BackgroundImageRenderable(m_sceneRoot, image);
         m_backgroundImageRenderable->addComponent(m_backgroundLayer);
+        QSize parentSize = ((QWidget*) this->parent())->size();
+        int zoom = 100;
+        if (loadedImage.width() > parentSize.width()) {
+            zoom = parentSize.width() * 100  / loadedImage.width();
+        }
+        if (loadedImage.height() > parentSize.height()) {
+            int secondZoom = parentSize.height() * 100 / loadedImage.height();
+            if (secondZoom < zoom) {
+                zoom = secondZoom;
+            }
+        }
+        setZoom(zoom);
+        QSize imageSize(loadedImage.width() * m_renderingScale,
+                        loadedImage.height() * m_renderingScale);
         // Only set the image position the first time
-        int x = -loadedImage.width() / 2 + ((QWidget*) this->parent())->width() / 2;
-        int y = -loadedImage.height() / 2 + ((QWidget*) this->parent())->height() / 2;
+        int x = -imageSize.width() / 2 + parentSize.width() / 2;
+        int y = -imageSize.height() / 2 + parentSize.height() / 2;
         setRenderingPosition(x, y);
     } else {
         m_backgroundImageRenderable->setImage(image);

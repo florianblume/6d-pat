@@ -265,9 +265,9 @@ void MainWindow::displayWarning(const QString &title, const QString &text) {
 bool MainWindow::showSaveUnsavedChangesDialog() {
     DisplayHelper::QMessageBoxPtr messageBox = DisplayHelper::messageBox(this,
                                                                          QMessageBox::Warning,
-                                                                         "Unsaved pose modifications",
-                                                                         "You have unsaved modifications of the currently edited pose."
-                                                                         " The action you just performed would discard these modifications. "
+                                                                         "Unsaved Edits",
+                                                                         "You have unsaved edits of the current poses."
+                                                                         "\n\n"
                                                                          "Save them now?",
                                                                          "Yes", QMessageBox::YesRole,
                                                                          "No", QMessageBox::NoRole);
