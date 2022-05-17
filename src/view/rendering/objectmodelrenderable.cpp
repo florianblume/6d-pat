@@ -53,6 +53,10 @@ QVector3D ObjectModelRenderable::minMeshExtent() const {
     return m_minMeshExtent;
 }
 
+float ObjectModelRenderable::opacity() const {
+    return m_opacity;
+}
+
 Qt3DRender::QSceneLoader::Status ObjectModelRenderable::status() const {
     return m_sceneLoader->status();
 }
@@ -127,6 +131,7 @@ void ObjectModelRenderable::setHovered(bool hovered) {
 }
 
 void ObjectModelRenderable::setOpacity(float opacity) {
+    m_opacity = opacity;
     for (Qt3DRender::QParameter *parameter : m_opacityParameters) {
         parameter->setValue(opacity);
     }
@@ -202,7 +207,6 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
                 m_maxMeshExtent.setX(qMax(maxExtent.x(), m_maxMeshExtent.x()));
                 m_maxMeshExtent.setY(qMax(maxExtent.y(), m_maxMeshExtent.y()));
                 m_maxMeshExtent.setZ(qMax(maxExtent.z(), m_maxMeshExtent.z()));
-                float size = (m_maxMeshExtent - m_minMeshExtent).length();
                 // Need to update when the extents change
                 setClickDiameter(m_clickDiameter);
                 Q_EMIT meshExtentChanged();
@@ -213,7 +217,6 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
                 m_minMeshExtent.setX(qMin(minExtent.x(), m_minMeshExtent.x()));
                 m_minMeshExtent.setY(qMin(minExtent.y(), m_minMeshExtent.y()));
                 m_minMeshExtent.setZ(qMin(minExtent.z(), m_minMeshExtent.z()));
-                float size = (m_maxMeshExtent - m_minMeshExtent).length();
                 // Need to update when the extents change
                 setClickDiameter(m_clickDiameter);
                 Q_EMIT meshExtentChanged();

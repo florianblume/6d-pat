@@ -68,6 +68,7 @@ private Q_SLOTS:
     // TODO rename to onZoomSliderValueChanged
     void onSliderZoomValueChanged(int zoom);
     void onZoomChangedBy3DWidget(int zoom);
+    void onOpacityChangedBy3DWidget(float opacity);
     void resetPositionOfGraphicsView();
     void onImageClicked(QPoint point);
     // To get the new mouse buttons

@@ -20,8 +20,7 @@
 //! essentially (i.e. displays an object model) but takes in a pose
 //! to compute the position of the object according to the pose.
 //!
-class PoseRenderable : public ObjectModelRenderable
-{
+class PoseRenderable : public ObjectModelRenderable {
     Q_OBJECT
 
 public:

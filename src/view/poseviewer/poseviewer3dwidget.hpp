@@ -128,6 +128,7 @@ Q_SIGNALS:
     void poseSelected(PosePtr pose);
     void snapshotSaved();
     void zoomChanged(int zoom);
+    void opacityChanged(float opacity);
 
 private Q_SLOTS:
     // Called by Qt3D when the snapshot is ready

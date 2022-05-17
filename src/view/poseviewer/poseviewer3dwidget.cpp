@@ -575,6 +575,8 @@ void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
         m_gizmo->setEnabled(true);
         newSelected->setSelected(true);
         m_selectedPoseRenderable = newSelected;
+        m_opacity = m_selectedPoseRenderable->opacity();
+        Q_EMIT opacityChanged(m_opacity);
     } else {
         m_gizmo->setEnabled(false);
     }
@@ -720,9 +722,13 @@ void PoseViewer3DWidget::takeSnapshot(const QString &path) {
 }
 
 void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
-    this->m_opacity = opacity;
-    for (PoseRenderable *poseRenderable : m_poseRenderables) {
-        poseRenderable->setOpacity(opacity);
+    m_opacity = opacity;
+    if (m_selectedPose) {
+        m_selectedPoseRenderable->setOpacity(opacity);
+    } else {
+        for (PoseRenderable *poseRenderable : m_poseRenderables) {
+            poseRenderable->setOpacity(opacity);
+        }
     }
 }
 

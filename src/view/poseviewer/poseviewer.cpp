@@ -44,6 +44,8 @@ PoseViewer::PoseViewer(QWidget *parent) :
             this, &PoseViewer::snapshotSaved);
     connect(m_poseViewer3DWidget, &PoseViewer3DWidget::zoomChanged,
             this, &PoseViewer::onZoomChangedBy3DWidget);
+    connect(m_poseViewer3DWidget, &PoseViewer3DWidget::opacityChanged,
+            this, &PoseViewer::onOpacityChangedBy3DWidget);
 }
 
 PoseViewer::~PoseViewer() {
@@ -202,6 +204,10 @@ void PoseViewer::onZoomChangedBy3DWidget(int zoom) {
     m_ignoreZoomSliderChange = true;
     ui->sliderZoom->setValue(zoom);
     ui->labelZoom->setText(QString::number(zoom) + "%");
+}
+
+void PoseViewer::onOpacityChangedBy3DWidget(float opacity) {
+    ui->sliderTransparency->setValue(opacity * 100);
 }
 
 void PoseViewer::resetPositionOfGraphicsView() {
