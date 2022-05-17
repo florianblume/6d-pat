@@ -70,7 +70,7 @@ private Q_SLOTS:
     void onZoomChangedBy3DWidget(int zoom);
     void onOpacityChangedBy3DWidget(float opacity);
     void resetPositionOfGraphicsView();
-    void onImageClicked(QPoint point);
+    void onImageClicked(const QPoint &point);
     // To get the new mouse buttons
     void currentSettingsChanged(SettingsPtr settings);
 
@@ -90,8 +90,6 @@ private:
     // segmentation image
     bool m_showingNormalImage = true;
 
-    int m_zoom = 3;
-    float m_zoomMultiplier = 1.f;
     int m_maxZoom = 200;
 
     bool m_ignoreZoomSliderChange = false;

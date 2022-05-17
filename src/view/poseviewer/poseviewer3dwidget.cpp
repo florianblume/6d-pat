@@ -421,7 +421,12 @@ void PoseViewer3DWidget::setSettings(SettingsPtr settings) {
 }
 
 void PoseViewer3DWidget::setClicks(const QList<QPoint> &clicks) {
-    m_clickVisualizationRenderable->setClicks(clicks);
+    QList<QPoint> scaledClicks;
+    float zoom = m_zoom / 100.f;
+    for (const QPoint &point : clicks) {
+        scaledClicks.append(QPoint(point.x() * zoom, point.y() * zoom));
+    }
+    m_clickVisualizationRenderable->setClicks(scaledClicks);
 }
 
 void PoseViewer3DWidget::setBackgroundImage(const QString& image, const QMatrix3x3 &cameraMatrix,
@@ -785,7 +790,7 @@ void PoseViewer3DWidget::mouseMoveEvent(QMouseEvent *event) {
 void PoseViewer3DWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (event->button() == m_settings->addCorrespondencePointMouseButton()
             && !m_mouseMoved && m_backgroundImageRenderable != Q_NULLPTR) {
-        Q_EMIT positionClicked(event->pos() - renderingPosition());
+        Q_EMIT positionClicked((event->pos() - renderingPosition()) / m_renderingScale);
     }
 
     m_mouseMoved = false;

@@ -153,9 +153,7 @@ PoseEditor3DWindow::PoseEditor3DWindow()
         if (pickEvent->button() == m_settingsStore->currentSettings()->addCorrespondencePointMouseButton()) {
             // localIntersection() does not invert the model transformations apparently
             // only the view transformations -> we have to invet them here manually
-            QVector4D localIntersection = QVector4D(pickEvent->localIntersection(), 1.0);
-            localIntersection = m_objectModelTransform->matrix().inverted() * localIntersection;
-            Q_EMIT positionClicked(localIntersection.toVector3D());
+            Q_EMIT positionClicked(pickEvent->localIntersection());
         }
         m_mouseMovedOnObjectModelRenderable = false;
         m_mouseDownOnObjectModelRenderable = false;

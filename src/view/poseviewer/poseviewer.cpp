@@ -85,12 +85,7 @@ void PoseViewer::removePose(PosePtr pose) {
 }
 
 void PoseViewer::setClicks(const QList<QPoint> &clicks) {
-    QList<QPoint> scaledClicks = clicks;
-    for (QPoint &click : scaledClicks) {
-        click.setX((int) (click.x() * this->m_zoomMultiplier));
-        click.setY((int) (click.y() * this->m_zoomMultiplier));
-    }
-    m_poseViewer3DWidget->setClicks(scaledClicks);
+    m_poseViewer3DWidget->setClicks(clicks);
 }
 
 void PoseViewer::setSliderZoomEnabled(bool enabled) {
@@ -214,9 +209,8 @@ void PoseViewer::resetPositionOfGraphicsView() {
     m_poseViewer3DWidget->setRenderingPosition(0, 0);
 }
 
-void PoseViewer::onImageClicked(QPoint point) {
-    QPoint scaledPoint(point.x() / this->m_zoomMultiplier, point.y() / this->m_zoomMultiplier);
+void PoseViewer::onImageClicked(const QPoint &point) {
     qDebug() << "Image (" + m_currentlyDisplayedImage->imagePath() + ") clicked at: (" +
-                QString::number(scaledPoint.x()) + ", " + QString::number(scaledPoint.y()) + ").";
-    Q_EMIT imageClicked(scaledPoint);
+                QString::number(point.x()) + ", " + QString::number(point.y()) + ").";
+    Q_EMIT imageClicked(point);
 }
