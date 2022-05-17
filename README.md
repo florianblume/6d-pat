@@ -57,7 +57,7 @@ Then open the project's main `6d-pat.pro` file in QtCreator and build the projec
 
 ## Setting up the program the first time
 
-Check out the [program setup wiki page](https://github.com/florianblume/6d-pat/wiki/2.-Setting-up-the-Program) to see in detail how to set up the program.
+Check out the [program setup wiki page](https://github.com/florianblume/6d-pat/wiki/Setting-up-the-Program) to see in detail how to set up the program.
 
 ## Recovering poses
 
