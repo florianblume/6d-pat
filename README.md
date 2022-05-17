@@ -16,6 +16,14 @@ The program allows you to select a folder and view the images contained in it in
 
 ![Imgur](https://i.imgur.com/lwsKfn3.png)
 
+The whole annotation process:
+
+https://user-images.githubusercontent.com/2170192/168912875-174275bf-1ba5-435b-9b52-58f2a8fb3b3a.mp4
+
+Browsing images and modifying poses:
+
+https://user-images.githubusercontent.com/2170192/168913251-e22fe621-d06b-4ab4-a594-b9bb51ee44dd.mp4
+
 *Objects and images are from the [T-Less Dataset](http://cmp.felk.cvut.cz/t-less/).*
 
 ## Getting the program
