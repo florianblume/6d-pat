@@ -216,6 +216,15 @@ void Qt3DGizmoPrivate::adjustScaleToCameraDistance() {
     }
 }
 
+void Qt3DGizmoPrivate::updateRotationHandlesRotation() {
+    m_rotationHandleX->transform()->setRotation(
+                m_delegateTransform->rotation() * m_defaultRotationHandleX);
+    m_rotationHandleY->transform()->setRotation(
+                m_delegateTransform->rotation() * m_defaultRotationHandleY);
+    m_rotationHandleZ->transform()->setRotation(
+                m_delegateTransform->rotation() * m_defaultRotationHandleZ);
+}
+
 void Qt3DGizmoPrivate::onMouseRelease() {
     m_mouseDownOnHandle = false;
 }
@@ -484,17 +493,18 @@ void Qt3DGizmo::setDelegateTransform(Qt3DCore::QTransform *transform) {
     setEnabled(true);
     d->m_delegateTransform = transform;
     d->m_ownTransform->setTranslation(transform->translation());
-    d->m_rotationHandleX->transform()->setRotation(
-                d->m_delegateTransform->rotation() * d->m_defaultRotationHandleX);
-    d->m_rotationHandleY->transform()->setRotation(
-                d->m_delegateTransform->rotation() * d->m_defaultRotationHandleY);
-    d->m_rotationHandleZ->transform()->setRotation(
-                d->m_delegateTransform->rotation() * d->m_defaultRotationHandleZ);
+    d->updateRotationHandlesRotation();
+
     disconnect(d->m_delegateTransformTranslationChangedConnection);
+    disconnect(d->m_delegateTransformRotationChangedConnection);
     disconnect(d->m_delegateTransformAdjustScaleConnection);
+
     d->m_delegateTransformTranslationChangedConnection = connect(
                 d->m_delegateTransform, &Qt3DCore::QTransform::translationChanged,
                 d->m_ownTransform, &Qt3DCore::QTransform::setTranslation);
+    d->m_delegateTransformRotationChangedConnection = connect(
+                d->m_delegateTransform, &Qt3DCore::QTransform::rotationChanged,
+                d, &Qt3DGizmoPrivate::updateRotationHandlesRotation);
     d->m_delegateTransformAdjustScaleConnection = connect(
                 d->m_delegateTransform, &Qt3DCore::QTransform::translationChanged,
                 d, &Qt3DGizmoPrivate::adjustScaleToCameraDistance);

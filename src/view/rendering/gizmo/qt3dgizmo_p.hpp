@@ -141,6 +141,7 @@ public:
     Qt3DCore::QTransform *m_delegateTransform = Q_NULLPTR;
     Qt3DCore::QTransform *m_ownTransform;
     QMetaObject::Connection m_delegateTransformTranslationChangedConnection;
+    QMetaObject::Connection m_delegateTransformRotationChangedConnection;
     QMetaObject::Connection m_delegateTransformAdjustScaleConnection;
 
     QMetaObject::Connection m_cameraViewMatrixChangedConnection;
@@ -186,6 +187,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void onMouseRelease();
+    void updateRotationHandlesRotation();
 
 private:
     Qt3DGizmo *q_ptr;

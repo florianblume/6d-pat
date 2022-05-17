@@ -204,7 +204,7 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
                 m_maxMeshExtent.setZ(qMax(maxExtent.z(), m_maxMeshExtent.z()));
                 float size = (m_maxMeshExtent - m_minMeshExtent).length();
                 // Need to update when the extents change
-                setClickDiameter(m_clickDiameter * size);
+                setClickDiameter(m_clickDiameter);
                 Q_EMIT meshExtentChanged();
             });
             QObject::connect(geometry, &Qt3DRender::QGeometry::minExtentChanged, [this, geometry](){
@@ -215,7 +215,7 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
                 m_minMeshExtent.setZ(qMin(minExtent.z(), m_minMeshExtent.z()));
                 float size = (m_maxMeshExtent - m_minMeshExtent).length();
                 // Need to update when the extents change
-                setClickDiameter(m_clickDiameter * size);
+                setClickDiameter(m_clickDiameter);
                 Q_EMIT meshExtentChanged();
             });
         }
