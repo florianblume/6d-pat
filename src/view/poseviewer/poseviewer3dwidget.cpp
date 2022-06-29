@@ -22,8 +22,9 @@
 #include <Qt3DRender/QParameter>
 
 PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
-    : QOpenGLWidget(parent)
-      // Qt3D core stuff
+      : QOpenGLWidget(parent)
+      // Offscreen to texture rendering, so we can use it in the draw
+      // part of the Qt3DWidget
       , m_aspectEngine(new Qt3DCore::QAspectEngine)
       , m_renderAspect(new Qt3DRender::QRenderAspect(Qt3DRender::QRenderAspect::Threaded))
       , m_inputAspect(new Qt3DInput::QInputAspect)
@@ -47,8 +48,29 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_sceneRoot(new Qt3DCore::QEntity)
       // Main branch
       , m_viewport(new Qt3DRender::QViewport)
+      // First branch clears buffers
       , m_clearBuffers(new Qt3DRender::QClearBuffers)
       , m_noDraw(new Qt3DRender::QNoDraw)
+      // Draw poses to texture branch, without the highlighted pose
+      , m_posesTexturePosesLayerFilter(new Qt3DRender::QLayerFilter)
+      , m_posesTexturePosesLayer(new Qt3DRender::QLayer)
+      , m_posesTextureRenderTargetSelector(new Qt3DRender::QRenderTargetSelector)
+      , m_posesTextureRenderStateSet(new Qt3DRender::QRenderStateSet)
+      , m_posesTexturePosesDepthTest(new Qt3DRender::QDepthTest)
+      , m_posesTexturePosesBlendState(new Qt3DRender::QBlendEquationArguments)
+      , m_posesTexturePosesBlendEquation(new Qt3DRender::QBlendEquation)
+      , m_posesTexturePosesFrustumCulling(new Qt3DRender::QFrustumCulling)
+      , m_posesTextureStencilOperation(new Qt3DRender::QStencilOperation)
+      , m_posesTexturePosesCamera(new Qt3DRender::QCamera)
+      , m_posesTexturePosesCameraSelector(new Qt3DRender::QCameraSelector)
+      , m_posesTextureMultisampleAntialiasing(new Qt3DRender::QMultiSampleAntiAliasing)
+      , m_posesTextureRenderTarget(new Qt3DRender::QRenderTarget)
+      , m_posesTextureColorOutput(new Qt3DRender::QRenderTargetOutput)
+      , m_posesTextureColorTexture(new Qt3DRender::QTexture2DMultisample)
+      , m_posesTextureDepthOutput(new Qt3DRender::QRenderTargetOutput)
+      , m_posesTextureDepthTexture(new Qt3DRender::QTexture2DMultisample)
+      , m_posesTextureStencilOutput(new Qt3DRender::QRenderTargetOutput)
+      , m_posesTextureStencilTexture(new Qt3DRender::QTexture2DMultisample)
       // Background branch
       , m_backgroundLayerFilter(new Qt3DRender::QLayerFilter)
       , m_backgroundLayer(new Qt3DRender::QLayer)
@@ -56,22 +78,6 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_backgroundCameraSelector(new Qt3DRender::QCameraSelector)
       , m_backgroundNoDepthMask(new Qt3DRender::QNoDepthMask)
       , m_backgroundNoPicking(new Qt3DRender::QNoPicking)
-      // Poses branch
-      , m_posesLayerFilter(new Qt3DRender::QLayerFilter)
-      , m_posesLayer(new Qt3DRender::QLayer)
-      , m_posesRenderStateSet(new Qt3DRender::QRenderStateSet)
-      , m_posesBlendState(new Qt3DRender::QBlendEquationArguments)
-      , m_posesBlendEquation(new Qt3DRender::QBlendEquation)
-      , m_posesFrustumCulling(new Qt3DRender::QFrustumCulling)
-      , m_snapshotRenderPassFilter(new Qt3DRender::QRenderPassFilter)
-      , m_removeHighlightParameter(new Qt3DRender::QParameter)
-      // Rest of poses branch
-      , m_posesCamera(new Qt3DRender::QCamera)
-      , m_posesCameraSelector(new Qt3DRender::QCameraSelector)
-      , m_snapshotRenderCapture(new Qt3DRender::QRenderCapture)
-      // Clear depth for gizmo
-      , m_clearBuffers2(new Qt3DRender::QClearBuffers)
-      , m_noDraw2(new Qt3DRender::QNoDraw)
       // Gizmo branch
       , m_gizmoLayerFilter(new Qt3DRender::QLayerFilter)
       , m_gizmoLayer(new Qt3DRender::QLayer)
