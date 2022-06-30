@@ -15,6 +15,7 @@
 #include <QMap>
 #include <QDir>
 #include <QThread>
+#include <QTextStream>
 
 JsonLoadAndStoreStrategy::JsonLoadAndStoreStrategy()  {
 }
@@ -393,15 +394,25 @@ QList<PosePtr> JsonLoadAndStoreStrategy::loadPoses(const QList<ImagePtr> &images
         return poses;
     }
 
-    //! See loadImages for why we don't throw an exception here
-    if (!QFileInfo(m_posesFilePath).exists()) {
+    bool foundPosesWithInvalidPosesData = false;
+
+    QFile jsonFile(m_posesFilePath);
+
+    if (!jsonFile.exists()) {
         Q_EMIT error(tr("Failed to load poses. Poses file does not exist."));
         return poses;
     }
 
-    bool foundPosesWithInvalidPosesData = false;
+    if (jsonFile.size() == 0) {
+        // Empty document which is not a valid JSON document (needs at least {})
+        QFile tmpFile(m_posesFilePath);
+        if (tmpFile.open(QFile::WriteOnly)) {
+            QTextStream stream(&tmpFile);
+            stream << "{}";
+            tmpFile.close();
+        }
+    }
 
-    QFile jsonFile(m_posesFilePath);
     if (!jsonFile.open(QFile::ReadWrite)) {
         Q_EMIT error(tr("Failed to load poses. Poses file is not readable or writable."));
         return poses;

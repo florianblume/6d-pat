@@ -107,33 +107,6 @@ PoseViewer3DWidget::~PoseViewer3DWidget() {
     doneCurrent();
 }
 
-const char *vertexShaderSource =
-        "#version 150\n"
-        "attribute highp vec3 vertex;\n"
-        "attribute mediump vec2 texCoord;\n"
-        "varying mediump vec2 texc;\n"
-        "uniform mediump mat4 matrix;\n"
-        "void main(void)\n"
-        "{\n"
-        "    gl_Position = matrix * vec4(vertex.xyz, 1.0);\n"
-        "    texc = texCoord;\n"
-        "}\n";
-
-const char *fragmentShaderSource =
-        "#version 150\n"
-        "uniform sampler2DMS texture;\n"
-        "varying mediump vec2 texc;\n"
-        "uniform int samples;\n"
-        "void main(void)\n"
-        "{\n"
-        "   ivec2 tc = ivec2(floor(textureSize(texture) * texc));\n"
-        "   vec4 color = vec4(0.0);\n"
-        "   for(int i = 0; i < samples; i++) {\n"
-        "       color += texelFetch(texture, tc, i);\n"
-        "   }\n"
-        "   gl_FragColor = color / float(samples);\n"
-        "}\n";
-
 void PoseViewer3DWidget::initializeGL() {
     // We need a current context to setup OpenGL that's why
     // we call the init methods here
@@ -176,10 +149,10 @@ void PoseViewer3DWidget::initOpenGL() {
 
 
     QOpenGLShader *vshader = new QOpenGLShader(QOpenGLShader::Vertex, this);
-    vshader->compileSourceCode(vertexShaderSource);
+    vshader->compileSourceFile(QStringLiteral(":/shaders/image_plane.vert"));
 
     QOpenGLShader *fshader = new QOpenGLShader(QOpenGLShader::Fragment, this);
-    fshader->compileSourceCode(fragmentShaderSource);
+    fshader->compileSourceFile(QStringLiteral(":/shaders/image_plane.frag"));
 
     m_shaderProgram = new QOpenGLShaderProgram;
     m_shaderProgram->addShader(vshader);

@@ -8,5 +8,7 @@
         <file>clicks.vert</file>
         <file>gizmo.vert</file>
         <file>gizmo.frag</file>
+        <file>image_plane.frag</file>
+        <file>image_plane.vert</file>
     </qresource>
 </RCC>
