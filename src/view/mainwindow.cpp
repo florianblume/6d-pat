@@ -144,7 +144,9 @@ void MainWindow::setGalleryObjectModelModel(GalleryObjectModelModel* model) {
 }
 
 void MainWindow::setStatusBarTextStartAddingCorrespondences() {
-    setStatusBarText("Start adding correspondences by clicking on either the image or object model.");
+    Qt::MouseButton button = this->m_settingsStore->currentSettings()->addCorrespondencePointMouseButton();
+    QString buttonString = DisplayHelper::qtMouseButtonToString(button);
+    setStatusBarText("Start adding correspondences by clicking [" + buttonString + "] on either the image or object model.");
 }
 
 void MainWindow::setStatusBarText2DPointMissing(int numberOfCorrespondences, int minNumberOfCorrespondences) {
