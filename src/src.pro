@@ -45,6 +45,7 @@ include(view/view.pri)
 include(3dparty/QtAwesome/QtAwesome.pri)
 
 RESOURCES += resources/shaders/shaders.qrc \
+             resources/example_data/example_data.qrc \
              resources/images/images.qrc \
              resources/fonts/fonts.qrc \
              resources/stylesheets/stylesheets.qrc

@@ -146,6 +146,12 @@ void ObjectModelRenderable::setClickDiameter(float clickDiameter) {
 
 void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
     for (Qt3DCore::QNode *node : currentNode->childNodes()) {
+        if (Qt3DRender::QParameter* parameter = dynamic_cast<Qt3DRender::QParameter *>(node)) {
+            if (parameter->name() == "opacity") {
+                // There are some mateials which already have an opacity parameter
+                m_opacityParameters.append(parameter);
+            }
+        }
         if (Qt3DRender::QMaterial* material = dynamic_cast<Qt3DRender::QMaterial *>(node)) {
             Qt3DRender::QParameter *opacityParameter = new Qt3DRender::QParameter();
             opacityParameter->setName("opacity");

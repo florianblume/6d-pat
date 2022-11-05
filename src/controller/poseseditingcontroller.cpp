@@ -84,6 +84,7 @@ void PosesEditingController::selectPose(PosePtr pose) {
         // When starting the program sometimes the gallery hasn't been initialized yet
         // m_mainWindow->galleryObjectModels()->clearSelection(false);
 
+        m_mainWindow->galleryObjectModels()->clearSelection(false);
         Q_EMIT selectedPoseChanged(PosePtr(), m_selectedPose);
         // Selecting the same pose again deselects it
         m_selectedPose.reset();
@@ -224,6 +225,8 @@ void PosesEditingController::onDataChanged(int /*data*/) {
     m_mainWindow->poseEditor()->reset();
     m_mainWindow->poseEditor()->setImages(m_images);
     m_mainWindow->poseViewer()->reset();
+    // Somehow it doesn't get cleared when changing data
+    m_mainWindow->galleryImages()->clearSelection(false);
 }
 
 void PosesEditingController::saveUnsavedChanges() {
