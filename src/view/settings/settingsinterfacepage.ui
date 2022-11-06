@@ -107,6 +107,9 @@
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="1">
        <widget class="QDoubleSpinBox" name="doubleSpinBoxClick3DCircumference">
+        <property name="toolTip">
+         <string>Sets the size of the click visualization on the 3D model in the pose editor (right view). The circumference of the clicks is computed by using the distance of the minimum and maximum 3D extent of the object multiplied by this factor.</string>
+        </property>
         <property name="decimals">
          <number>4</number>
         </property>
@@ -125,7 +128,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets the size of the click visualization on the 3D model in the pose editor. The circumference of the clicks is computed by using the distance of the minimum and maximum 3D extent of the object multiplied by this factor.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets the size of the click visualization on the 3D model in the pose editor (right view). The circumference of the clicks is computed by using the distance of the minimum and maximum 3D extent of the object multiplied by this factor.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>3D click circumference</string>
@@ -134,6 +137,9 @@
       </item>
       <item row="3" column="0">
        <widget class="QCheckBox" name="checkBoxShowFPSLabel">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to show the FPS in the Pose Viewer (left view).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Show FPS Label</string>
         </property>
@@ -210,7 +216,11 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QComboBox" name="comboBoxSelectPose"/>
+       <widget class="QComboBox" name="comboBoxSelectPose">
+        <property name="toolTip">
+         <string>The mouse button to select a 3D object model of a pose in the pose viewer.</string>
+        </property>
+       </widget>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="labelSelectPose">
@@ -229,7 +239,11 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QComboBox" name="comboBoxMoveImage"/>
+       <widget class="QComboBox" name="comboBoxMoveImage">
+        <property name="toolTip">
+         <string>The mouse button to move the image in the pose viewer with.</string>
+        </property>
+       </widget>
       </item>
       <item row="0" column="1">
        <widget class="QComboBox" name="comboBoxAddCorrespondencePoint">
@@ -238,6 +252,9 @@
           <horstretch>2</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>The mouse button to add a 2D point on the image in the pose viewer.</string>
         </property>
        </widget>
       </item>
