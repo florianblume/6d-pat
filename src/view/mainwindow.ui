@@ -903,7 +903,7 @@
     <string>Abort Creation</string>
    </property>
    <property name="toolTip">
-    <string>Abort pose creation, i.e. remove all correspondences.</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Abort pose creation, i.e. remove all added correspondence points.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
   <action name="actionReload_Views">
@@ -934,7 +934,7 @@
   </action>
   <action name="actionReset">
    <property name="text">
-    <string>Reset</string>
+    <string>Reset Scene</string>
    </property>
    <property name="toolTip">
     <string>Reset all modifications of the currently viewed image.</string>

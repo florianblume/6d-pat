@@ -51,6 +51,7 @@ public:
     static int indexToMultisampleSamlpes(int index);
 
     static QVector3D arcBallVectorForMousePos(const QPointF &pos, const QSize &size);
+    static QString qtMouseButtonToString(Qt::MouseButton mouseButton);
 
 private:
     static QPointer<QtAwesome> m_qtAwesome;

@@ -172,6 +172,19 @@ QListWidget#listWidgetSettings {
     border-radius: 2px;
 }
 
+QLabel#labelSelectedItemName:enabled {
+    border: 1px solid #75c1ff;
+    border-radius: 2px;
+    background-color: #c6e5ff;
+    padding: 4px 9px;
+}
+
+QLabel#labelSelectedItemName:disabled {
+    border: none;
+    background-color: none;
+    padding: 4px 9px;
+}
+
 QStackedWidget#stackedWidgetSettings {
     border: 1px solid rgb(200, 200, 200);
     border-radius: 2px;

@@ -47,6 +47,9 @@ public:
      */
     QList<PosePtr> loadPoses(const QList<ImagePtr> &images,
                                const QList<ObjectModelPtr> &objectModels) override;
+
+private:
+    bool m_firstStart = false;
 };
 
 typedef QSharedPointer<JsonLoadAndStoreStrategy> JsonLoadAndStoreStrategyPtr;

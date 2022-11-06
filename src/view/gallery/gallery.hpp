@@ -25,11 +25,6 @@ public:
     void setModel(QAbstractListModel* model);
 
 public Q_SLOTS:
-    void selectNext();
-    void selectPrevious();
-    void beginScrollLeft();
-    void beginScrollRight();
-    void endScroll();
     void clearSelection(bool emitSignals);
     void reset();
     void enable();
@@ -44,18 +39,7 @@ protected:
     Ui::Gallery *ui;
 
 private Q_SLOTS:
-    void performScroll();
-    void startScrollTimer();
     void onSelectionChanged(const QItemSelection &selected, const QItemSelection&);
-
-private:
-    //! The members below are there for the buttons left and right of the scroll view to smoothly scroll
-    //! through the objects
-    bool m_scrollDirection = true;
-    bool m_scrollButtonDown = false;
-    QTimer* m_scrollTimer;
-    static const int SCROLL_INCREMENT_RATE;
-    static const int SCROLL_TIMER_REFRESH_RATE;
 };
 
 #endif // GALLERY_H

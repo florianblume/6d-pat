@@ -133,3 +133,20 @@ QVector3D DisplayHelper::arcBallVectorForMousePos(const QPointF &pos, const QSiz
     float ndcY = 1.0 - 2.0f * pos.y() / size.height();
     return QVector3D(ndcX, ndcY, 0.0);
 }
+
+QString DisplayHelper::qtMouseButtonToString(Qt::MouseButton mouseButton) {
+    switch (mouseButton) {
+    case Qt::LeftButton:
+        return "left mouse button";
+    case Qt::RightButton:
+        return "right mouse button";
+    case Qt::MiddleButton:
+        return "middle mouse button";
+    case Qt::BackButton:
+        return "back mouse button";
+    case Qt::ForwardButton:
+        return "foward mouse button";
+    default:
+        return "unkown mouse button";
+    }
+}
