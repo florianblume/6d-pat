@@ -41,6 +41,8 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_renderTarget(new Qt3DRender::QRenderTarget)
       , m_colorOutput(new Qt3DRender::QRenderTargetOutput)
       , m_colorTexture(new Qt3DRender::QTexture2DMultisample)
+      , m_outlineOutput(new Qt3DRender::QRenderTargetOutput)
+      , m_outlineTexture(new Qt3DRender::QTexture2DMultisample)
       , m_depthOutput(new Qt3DRender::QRenderTargetOutput)
       , m_depthTexture(new Qt3DRender::QTexture2DMultisample)
       , m_initialized(false)
@@ -216,6 +218,20 @@ void PoseViewer3DWidget::initQt3D() {
     m_colorTexture->setSamples(m_samples);
     m_renderTarget->addOutput(m_colorOutput);
 
+    // Setup outline
+    m_outlineOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color1);
+
+    // Create a outline texture to render into.
+    m_outlineTexture->setSize(width(), height());
+    m_outlineTexture->setFormat(Qt3DRender::QAbstractTexture::RGB8_UNorm);
+    m_outlineTexture->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
+    m_outlineTexture->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
+
+    // Hook the texture up to our output, and the output up to this object.
+    m_outlineOutput->setTexture(m_outlineTexture);
+    m_outlineTexture->setSamples(m_samples);
+    m_renderTarget->addOutput(m_outlineOutput);
+
     // Setup depth
     m_depthOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Depth);
 
@@ -253,7 +269,7 @@ void PoseViewer3DWidget::initQt3D() {
     // First branch that clears the buffers
     m_clearBuffers->setParent(m_viewport);
     m_clearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
-    m_clearBuffers->setClearColor(Qt::white);
+    m_clearBuffers->setClearColor(Qt::black);
     m_noDraw->setParent(m_clearBuffers);
 
     // Second branch that draws the background image
@@ -372,7 +388,7 @@ void PoseViewer3DWidget::paintGL() {
         QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
         m_shaderProgram->setUniformValue("matrix", m);
-        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_colorTexture->handle().toUInt());
+        glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_outlineTexture->handle().toUInt());
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     }
     m_shaderProgram->release();

@@ -200,6 +200,8 @@ private:
     Qt3DRender::QRenderTarget *m_renderTarget;
     Qt3DRender::QRenderTargetOutput *m_colorOutput;
     Qt3DRender::QTexture2DMultisample *m_colorTexture;
+    Qt3DRender::QRenderTargetOutput *m_outlineOutput;
+    Qt3DRender::QTexture2DMultisample *m_outlineTexture;
     Qt3DRender::QRenderTargetOutput *m_depthOutput;
     Qt3DRender::QTexture2DMultisample *m_depthTexture;
 
