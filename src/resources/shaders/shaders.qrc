@@ -10,5 +10,7 @@
         <file>gizmo.frag</file>
         <file>image_plane.frag</file>
         <file>image_plane.vert</file>
+        <file>outline.frag</file>
+        <file>outline.vert</file>
     </qresource>
 </RCC>

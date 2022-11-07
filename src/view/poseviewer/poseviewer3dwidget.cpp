@@ -580,6 +580,7 @@ void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
 void PoseViewer3DWidget::setSamples(int samples) {
     m_samples = DisplayHelper::indexToMultisampleSamlpes(samples);
     m_colorTexture->setSamples(m_samples);
+    m_outlineTexture->setSamples(m_samples);
     m_depthTexture->setSamples(m_samples);
     if (m_initialized) {
         makeCurrent();
@@ -595,6 +596,7 @@ void PoseViewer3DWidget::setRenderingSize(const QSize &size) {
     int h = size.height();
     m_gizmo->setWindowSize(size);
     m_colorTexture->setSize(w, h);
+    m_outlineTexture->setSize(w, h);
     m_depthTexture->setSize(w, h);
     m_renderSurfaceSelector->setExternalRenderTargetSize(size);
     m_clickVisualizationRenderable->setSize(size);

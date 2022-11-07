@@ -161,7 +161,7 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
 
             Qt3DRender::QParameter *highlightedOrSelectedParameter = new Qt3DRender::QParameter();
             highlightedOrSelectedParameter->setName("highlightedOrSelectedColor");
-            highlightedOrSelectedParameter->setValue(QVector4D(0.f, 0.f, 0.f, 0.f));
+            highlightedOrSelectedParameter->setValue(QVector4D(1.f, 1.f, 1.f, 1.f));
             material->addParameter(highlightedOrSelectedParameter);
             m_highlightedOrSelectedParameters.append(highlightedOrSelectedParameter);
 
