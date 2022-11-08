@@ -268,6 +268,9 @@ private:
     Qt3DRender::QRenderStateSet *m_posesRenderStateSet;
     Qt3DRender::QBlendEquationArguments *m_posesBlendState;
     Qt3DRender::QBlendEquation *m_posesBlendEquation;
+    Qt3DRender::QLayerFilter *m_posesStencilLayerFilter;
+    Qt3DRender::QLayer *m_posesStencilLayer;
+    Qt3DRender::QRenderStateSet *m_posesStencilRenderStateSet;
     Qt3DRender::QStencilMask *m_posesStencilMask;
     Qt3DRender::QStencilOperation *m_posesStencilOperation;
     Qt3DRender::QStencilTest *m_posesStencilTest;

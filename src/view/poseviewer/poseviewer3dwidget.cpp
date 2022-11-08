@@ -64,6 +64,9 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_posesRenderStateSet(new Qt3DRender::QRenderStateSet)
       , m_posesBlendState(new Qt3DRender::QBlendEquationArguments)
       , m_posesBlendEquation(new Qt3DRender::QBlendEquation)
+      , m_posesStencilLayerFilter(new Qt3DRender::QLayerFilter)
+      , m_posesStencilLayer(new Qt3DRender::QLayer)
+      , m_posesStencilRenderStateSet(new Qt3DRender::QRenderStateSet)
       , m_posesStencilMask(new Qt3DRender::QStencilMask)
       , m_posesStencilOperation(new Qt3DRender::QStencilOperation)
       , m_posesStencilTest(new Qt3DRender::QStencilTest)
@@ -312,21 +315,6 @@ void PoseViewer3DWidget::initQt3D() {
     m_posesBlendState->setSourceRgb(Qt3DRender::QBlendEquationArguments::SourceAlpha);
     m_posesBlendState->setDestinationRgb(Qt3DRender::QBlendEquationArguments::OneMinusSourceAlpha);
     m_posesBlendEquation->setBlendFunction(Qt3DRender::QBlendEquation::Add);
-    // Stencil stuff
-    m_posesStencilMask->setBackOutputMask(0xFF);
-    m_posesStencilMask->setFrontOutputMask(0xFF);
-    m_posesRenderStateSet->addRenderState(m_posesStencilMask);
-    m_posesStencilOperation->front()->setAllTestsPassOperation(Qt3DRender::QStencilOperationArguments::Replace);
-    m_posesStencilOperation->back()->setStencilTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
-    m_posesStencilOperation->back()->setDepthTestFailureOperation(Qt3DRender::QStencilOperationArguments::Replace);
-    m_posesStencilOperation->front()->setAllTestsPassOperation(Qt3DRender::QStencilOperationArguments::Replace);
-    m_posesStencilOperation->front()->setStencilTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
-    m_posesStencilOperation->front()->setDepthTestFailureOperation(Qt3DRender::QStencilOperationArguments::Replace);
-    m_posesRenderStateSet->addRenderState(m_posesStencilOperation);
-    m_posesStencilTest->front()->setStencilFunction(Qt3DRender::QStencilTestArguments::Always);
-    m_posesStencilTest->front()->setComparisonMask(0xFF);
-    m_posesStencilTest->front()->setReferenceValue(1);
-    m_posesRenderStateSet->addRenderState(m_posesStencilTest);
     // The rest
     m_posesFrustumCulling->setParent(m_posesRenderStateSet);
     m_posesCameraSelector->setParent(m_posesFrustumCulling);
@@ -338,6 +326,24 @@ void PoseViewer3DWidget::initQt3D() {
     m_removeHighlightParameter->setName("selected");
     m_removeHighlightParameter->setValue(QVector4D(0.f, 0.f, 0.f, 0.f));
     m_snapshotRenderCapture->setParent(m_posesCameraSelector);
+    // Stencil stuff
+    m_posesStencilLayerFilter->setParent(m_snapshotRenderPassFilter);
+    m_posesStencilLayerFilter->addLayer(m_posesStencilLayer);
+    m_posesStencilRenderStateSet->setParent(m_posesStencilLayerFilter);
+    m_posesStencilMask->setBackOutputMask(0xFF);
+    m_posesStencilMask->setFrontOutputMask(0xFF);
+    m_posesStencilRenderStateSet->addRenderState(m_posesStencilMask);
+    m_posesStencilOperation->front()->setAllTestsPassOperation(Qt3DRender::QStencilOperationArguments::Replace);
+    m_posesStencilOperation->back()->setStencilTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
+    m_posesStencilOperation->back()->setDepthTestFailureOperation(Qt3DRender::QStencilOperationArguments::Replace);
+    m_posesStencilOperation->front()->setAllTestsPassOperation(Qt3DRender::QStencilOperationArguments::Replace);
+    m_posesStencilOperation->front()->setStencilTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
+    m_posesStencilOperation->front()->setDepthTestFailureOperation(Qt3DRender::QStencilOperationArguments::Replace);
+    m_posesStencilRenderStateSet->addRenderState(m_posesStencilOperation);
+    m_posesStencilTest->front()->setStencilFunction(Qt3DRender::QStencilTestArguments::Always);
+    m_posesStencilTest->front()->setComparisonMask(0xFF);
+    m_posesStencilTest->front()->setReferenceValue(1);
+    m_posesStencilRenderStateSet->addRenderState(m_posesStencilTest);
 
     // Fourth branch that clears the depth buffers for the gizmo
     m_clearBuffers2->setParent(m_viewport);
@@ -353,7 +359,6 @@ void PoseViewer3DWidget::initQt3D() {
     // Fith branch that draws the outline
     m_outlineLayerFilter->setParent(m_viewport);
     m_outlineLayerFilter->addLayer(m_outlineLayer);
-    m_outlineLayer->setRecursive(true);
     m_outlineRenderStateSet->setParent(m_outlineLayerFilter);
     m_outlineStencilTest->front()->setStencilFunction(Qt3DRender::QStencilTestArguments::NotEqual);
     m_outlineStencilTest->front()->setReferenceValue(1);
@@ -558,6 +563,7 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
             [this, poseRenderable](Qt3DRender::QPickEvent *e){
         if (!m_gizmoIsTransforming) {
             poseRenderable->setHovered(true);
+            poseRenderable->addComponent(m_posesStencilLayer);
             m_hoveredPose = poseRenderable;
             m_mouseOverPoseRenderable = true;
         }
@@ -567,6 +573,7 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     connect(poseRenderable, &PoseRenderable::exited,
             [this, poseRenderable](){
         m_mouseOverPoseRenderable = false;
+        poseRenderable->removeComponent(m_posesStencilLayer);
         poseRenderable->setHovered(false);
         m_hoveredPose = Q_NULLPTR;
     });

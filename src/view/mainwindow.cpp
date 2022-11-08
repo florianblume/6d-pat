@@ -69,6 +69,10 @@ MainWindow::MainWindow(QWidget *parent,
 }
 
 MainWindow::~MainWindow() {
+    m_progressDialog->close();
+    delete m_progressDialog;
+    delete m_galleryImageModel;
+    delete m_galleryObjectModelModel;
     delete ui;
 }
 

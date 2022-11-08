@@ -13,8 +13,8 @@ GalleryImageModel::GalleryImageModel(ModelManager* modelManager) {
 }
 
 GalleryImageModel::~GalleryImageModel() {
-    m_resizeImagesThreadpool.killTimer(0);
     m_resizeImagesRunnable->stop();
+    m_resizeImagesThreadpool.killTimer(0);
     m_resizeImagesThreadpool.waitForDone();
     delete m_resizeImagesRunnable;
 }

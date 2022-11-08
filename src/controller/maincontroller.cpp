@@ -13,6 +13,8 @@ MainController::MainController(int &argc, char **argv, int)
 }
 
 MainController::~MainController() {
+    delete m_splashScreen;
+    // TODO delete model manager thread
 }
 
 int MainController::exec() {
