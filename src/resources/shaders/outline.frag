@@ -13,22 +13,29 @@ void main(void)
 {
     int index = 0;
     int size = 2;
-    vec4 highlightColor = vec4(1.0, 0.0, 0.0, 1.0);
-    vec4 selectedColor = vec4(0.0, 1.0, 0.0, 1.0);
+    vec4 selectedColor = vec4(1.0, 0.0, 0.0, 1.0);
+    vec4 highlightColor = vec4(0.0, 1.0, 0.0, 1.0);
+    vec4 currentColor = texelFetch(objectModelRenderings, ivec2(gl_FragCoord.xy), 1);
+    if (currentColor.r < 0.1 && currentColor.g < 0.1 && currentColor.b < 0.1) {
+        discard;
+        return;
+    }
 
-    for (int x = -size; x <= size; x++) {
-        for (int y = -size; y <= size; y++) {
-            ivec2 pos = ivec2(gl_FragCoord.xy) + ivec2(x, y);
-            if (pos.x >= 0 && pos.y <= imageSize.x && pos.y >= 0 && pos.y <= imageSize.y) {
-                ivec2 tc = pos;
+    for (int x = -size; x < size; x++ ) {
+        for (int y = -size; y < size; y++) {
+            ivec2 tc = ivec2(gl_FragCoord.xy) + ivec2(x, y);
+            if (tc.x >= 0 && tc.x <= imageSize.x && tc.y >= 0 && tc.y <= imageSize.y) {
                 vec4 color = vec4(0.0);
-                for(int i = 0; i < samples; i++) {
+                for(int i = 0; i < 1; i++) {
                     color += texelFetch(objectModelRenderings, tc, i);
                 }
-                if (color.a != 0.0) {
+                color = color / float(samples);
+                if (color.r > 0.1) {
                     fragColor = selectedColor;
-                } else if (color.b != 0.0) {
+                    return;
+                } else if (color.g > 0.1) {
                     fragColor = highlightColor;
+                    return;
                 }
             }
         }
