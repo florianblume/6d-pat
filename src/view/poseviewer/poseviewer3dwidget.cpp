@@ -318,10 +318,10 @@ void PoseViewer3DWidget::initQt3D() {
     m_posesRenderStateSet->addRenderState(m_posesStencilMask);
     m_posesStencilOperation->front()->setAllTestsPassOperation(Qt3DRender::QStencilOperationArguments::Replace);
     m_posesStencilOperation->back()->setStencilTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
-    m_posesStencilOperation->back()->setDepthTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
+    m_posesStencilOperation->back()->setDepthTestFailureOperation(Qt3DRender::QStencilOperationArguments::Replace);
     m_posesStencilOperation->front()->setAllTestsPassOperation(Qt3DRender::QStencilOperationArguments::Replace);
     m_posesStencilOperation->front()->setStencilTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
-    m_posesStencilOperation->front()->setDepthTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
+    m_posesStencilOperation->front()->setDepthTestFailureOperation(Qt3DRender::QStencilOperationArguments::Replace);
     m_posesRenderStateSet->addRenderState(m_posesStencilOperation);
     m_posesStencilTest->front()->setStencilFunction(Qt3DRender::QStencilTestArguments::Always);
     m_posesStencilTest->front()->setComparisonMask(0xFF);

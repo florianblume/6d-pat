@@ -5,6 +5,7 @@ uniform mat4 modelViewProjection;
 uniform sampler2DMS objectModelRenderings;
 uniform int samples;
 uniform ivec2 imageSize;
+uniform ivec4 cameraFrame;
 in vec2 texc;
 
 out vec4 fragColor;
