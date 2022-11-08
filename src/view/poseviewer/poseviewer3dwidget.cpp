@@ -31,7 +31,9 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_renderSettings(new Qt3DRender::QRenderSettings)
       , m_inputSettings(new Qt3DInput::QInputSettings)
       , m_frameAction(new Qt3DLogic::QFrameAction)
+      , m_initialized(false)
       , m_root(new Qt3DCore::QEntity)
+      , m_sceneRoot(new Qt3DCore::QEntity)
       , m_offscreenSurface(new QOffscreenSurface)
       , m_renderStateSet(new Qt3DRender::QRenderStateSet)
       , m_posesDepthTest(new Qt3DRender::QDepthTest)
@@ -43,10 +45,8 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_colorTextureMS(new Qt3DRender::QTexture2DMultisample)
       , m_outlineOutputMS(new Qt3DRender::QRenderTargetOutput)
       , m_outlineTextureMS(new Qt3DRender::QTexture2DMultisample)
-      , m_depthOutputMS(new Qt3DRender::QRenderTargetOutput)
-      , m_depthTextureMS(new Qt3DRender::QTexture2DMultisample)
-      , m_initialized(false)
-      , m_sceneRoot(new Qt3DCore::QEntity)
+      , m_depthStencilOutputMS(new Qt3DRender::QRenderTargetOutput)
+      , m_depthStencilTextureMS(new Qt3DRender::QTexture2DMultisample)
       // Main branch
       , m_viewport(new Qt3DRender::QViewport)
       , m_clearBuffers(new Qt3DRender::QClearBuffers)
@@ -64,6 +64,9 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_posesRenderStateSet(new Qt3DRender::QRenderStateSet)
       , m_posesBlendState(new Qt3DRender::QBlendEquationArguments)
       , m_posesBlendEquation(new Qt3DRender::QBlendEquation)
+      , m_posesStencilMask(new Qt3DRender::QStencilMask)
+      , m_posesStencilOperation(new Qt3DRender::QStencilOperation)
+      , m_posesStencilTest(new Qt3DRender::QStencilTest)
       , m_posesFrustumCulling(new Qt3DRender::QFrustumCulling)
       , m_snapshotRenderPassFilter(new Qt3DRender::QRenderPassFilter)
       , m_removeHighlightParameter(new Qt3DRender::QParameter)
@@ -77,6 +80,9 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       // Outline branch
       , m_outlineLayerFilter(new Qt3DRender::QLayerFilter)
       , m_outlineLayer(new Qt3DRender::QLayer)
+      , m_outlineRenderStateSet(new Qt3DRender::QRenderStateSet)
+      , m_outlineStencilTest(new Qt3DRender::QStencilTest)
+      , m_outlineStencilMask(new Qt3DRender::QStencilMask)
       , m_outlineCameraSelector(new Qt3DRender::QCameraSelector)
       , m_outlineNoDepthMask(new Qt3DRender::QNoDepthMask)
       , m_outlineNoPicking(new Qt3DRender::QNoPicking)
@@ -240,21 +246,21 @@ void PoseViewer3DWidget::initQt3D() {
     m_renderTargetMS->addOutput(m_outlineOutputMS);
 
     // Setup depth
-    m_depthOutputMS->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Depth);
+    m_depthStencilOutputMS->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::DepthStencil);
 
     // Create depth texture
-    m_depthTextureMS->setSize(width(), height());
-    m_depthTextureMS->setSamples(m_samples);
-    m_depthTextureMS->setFormat(Qt3DRender::QAbstractTexture::DepthFormat);
-    m_depthTextureMS->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
-    m_depthTextureMS->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
-    m_depthTextureMS->setComparisonFunction(Qt3DRender::QAbstractTexture::CompareLessEqual);
-    m_depthTextureMS->setComparisonMode(Qt3DRender::QAbstractTexture::CompareRefToTexture);
+    m_depthStencilTextureMS->setSize(width(), height());
+    m_depthStencilTextureMS->setSamples(m_samples);
+    m_depthStencilTextureMS->setFormat(Qt3DRender::QAbstractTexture::D24S8);
+    m_depthStencilTextureMS->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
+    m_depthStencilTextureMS->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
+    m_depthStencilTextureMS->setComparisonFunction(Qt3DRender::QAbstractTexture::CompareLessEqual);
+    m_depthStencilTextureMS->setComparisonMode(Qt3DRender::QAbstractTexture::CompareRefToTexture);
 
     // Hook up the depth texture
-    m_depthOutputMS->setTexture(m_depthTextureMS);
-    m_depthTextureMS->setSamples(m_samples);
-    m_renderTargetMS->addOutput(m_depthOutputMS);
+    m_depthStencilOutputMS->setTexture(m_depthStencilTextureMS);
+    m_depthStencilTextureMS->setSamples(m_samples);
+    m_renderTargetMS->addOutput(m_depthStencilOutputMS);
 
     m_renderSurfaceSelector->setSurface(m_offscreenSurface);
     //m_renderSurfaceSelector->setParent(m_renderTargetSelector);
@@ -298,6 +304,7 @@ void PoseViewer3DWidget::initQt3D() {
     m_posesLayerFilter->addLayer(m_posesLayer);
     m_posesLayer->setRecursive(true);
     m_posesRenderStateSet->setParent(m_posesLayerFilter);
+    // Depth stuff
     m_posesRenderStateSet->addRenderState(m_posesDepthTest);
     m_posesDepthTest->setDepthFunction(Qt3DRender::QDepthTest::LessOrEqual);
     m_posesRenderStateSet->addRenderState(m_posesBlendState);
@@ -305,6 +312,22 @@ void PoseViewer3DWidget::initQt3D() {
     m_posesBlendState->setSourceRgb(Qt3DRender::QBlendEquationArguments::SourceAlpha);
     m_posesBlendState->setDestinationRgb(Qt3DRender::QBlendEquationArguments::OneMinusSourceAlpha);
     m_posesBlendEquation->setBlendFunction(Qt3DRender::QBlendEquation::Add);
+    // Stencil stuff
+    m_posesStencilMask->setBackOutputMask(0xFF);
+    m_posesStencilMask->setFrontOutputMask(0xFF);
+    m_posesRenderStateSet->addRenderState(m_posesStencilMask);
+    m_posesStencilOperation->front()->setAllTestsPassOperation(Qt3DRender::QStencilOperationArguments::Replace);
+    m_posesStencilOperation->back()->setStencilTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
+    m_posesStencilOperation->back()->setDepthTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
+    m_posesStencilOperation->front()->setAllTestsPassOperation(Qt3DRender::QStencilOperationArguments::Replace);
+    m_posesStencilOperation->front()->setStencilTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
+    m_posesStencilOperation->front()->setDepthTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
+    m_posesRenderStateSet->addRenderState(m_posesStencilOperation);
+    m_posesStencilTest->front()->setStencilFunction(Qt3DRender::QStencilTestArguments::Always);
+    m_posesStencilTest->front()->setComparisonMask(0xFF);
+    m_posesStencilTest->front()->setReferenceValue(1);
+    m_posesRenderStateSet->addRenderState(m_posesStencilTest);
+    // The rest
     m_posesFrustumCulling->setParent(m_posesRenderStateSet);
     m_posesCameraSelector->setParent(m_posesFrustumCulling);
     m_posesCameraSelector->setCamera(m_posesCamera);
@@ -331,7 +354,15 @@ void PoseViewer3DWidget::initQt3D() {
     m_outlineLayerFilter->setParent(m_viewport);
     m_outlineLayerFilter->addLayer(m_outlineLayer);
     m_outlineLayer->setRecursive(true);
-    m_outlineCameraSelector->setParent(m_outlineLayerFilter);
+    m_outlineRenderStateSet->setParent(m_outlineLayerFilter);
+    m_outlineStencilTest->front()->setStencilFunction(Qt3DRender::QStencilTestArguments::NotEqual);
+    m_outlineStencilTest->front()->setReferenceValue(1);
+    m_outlineStencilTest->front()->setComparisonMask(0xFF);
+    m_outlineRenderStateSet->addRenderState(m_outlineStencilTest);
+    m_outlineStencilMask->setBackOutputMask(0x00);
+    m_outlineStencilMask->setFrontOutputMask(0x00);
+    m_outlineRenderStateSet->addRenderState(m_outlineStencilMask);
+    m_outlineCameraSelector->setParent(m_outlineRenderStateSet);
     // We're reusing the background camera here, no need to construct the same camera again
     m_outlineCameraSelector->setCamera(m_backgroundCamera);
     m_outlineNoDepthMask->setParent(m_outlineCameraSelector);
@@ -605,7 +636,7 @@ void PoseViewer3DWidget::setSamples(int samples) {
     m_samples = DisplayHelper::indexToMultisampleSamlpes(samples);
     m_colorTextureMS->setSamples(m_samples);
     m_outlineTextureMS->setSamples(m_samples);
-    m_depthTextureMS->setSamples(m_samples);
+    m_depthStencilTextureMS->setSamples(m_samples);
     m_outlineRenderable->setSamples(m_samples);
     if (m_initialized) {
         makeCurrent();
@@ -622,7 +653,7 @@ void PoseViewer3DWidget::setRenderingSize(const QSize &size) {
     m_gizmo->setWindowSize(size);
     m_colorTextureMS->setSize(w, h);
     m_outlineTextureMS->setSize(w, h);
-    m_depthTextureMS->setSize(w, h);
+    m_depthStencilTextureMS->setSize(w, h);
     m_outlineRenderable->setImageSize(size);
     m_renderSurfaceSelector->setExternalRenderTargetSize(size);
     m_clickVisualizationRenderable->setSize(size);

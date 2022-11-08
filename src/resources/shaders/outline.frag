@@ -13,20 +13,15 @@ void main(void)
 {
     int index = 0;
     int size = 2;
-    vec4 selectedColor = vec4(1.0, 0.0, 0.0, 1.0);
-    vec4 highlightColor = vec4(0.0, 1.0, 0.0, 1.0);
-    vec4 currentColor = texelFetch(objectModelRenderings, ivec2(gl_FragCoord.xy), 1);
-    if (currentColor.r < 0.1 && currentColor.g < 0.1 && currentColor.b < 0.1) {
-        discard;
-        return;
-    }
+    vec4 selectedColor = vec4(1.0, 0.8, 0.3, 1.0);
+    vec4 highlightColor = vec4(1.0, 1.0, 1.0, 1.0);
 
     for (int x = -size; x < size; x++ ) {
         for (int y = -size; y < size; y++) {
             ivec2 tc = ivec2(gl_FragCoord.xy) + ivec2(x, y);
             if (tc.x >= 0 && tc.x <= imageSize.x && tc.y >= 0 && tc.y <= imageSize.y) {
                 vec4 color = vec4(0.0);
-                for(int i = 0; i < 1; i++) {
+                for(int i = 0; i < samples; i++) {
                     color += texelFetch(objectModelRenderings, tc, i);
                 }
                 color = color / float(samples);

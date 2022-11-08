@@ -64,7 +64,11 @@
 #include <Qt3DRender/QFrustumCulling>
 #include <Qt3DRender/QBlendEquationArguments>
 #include <Qt3DRender/QBlendEquation>
-#include <Qt3DRender/QBlitFramebuffer>
+#include <Qt3DRender/QStencilMask>
+#include <Qt3DRender/QStencilOperation>
+#include <Qt3DRender/QStencilTest>
+#include <Qt3DRender/QStencilOperationArguments>
+#include <Qt3DRender/QStencilTestArguments>
 
 class PoseViewer3DWidget : public QOpenGLWidget
 {
@@ -188,25 +192,6 @@ private:
     // To get notified when a frame is ready
     Qt3DLogic::QFrameAction *m_frameAction;
 
-    // Scene
-    // Scene root will be added as a child
-    Qt3DCore::QEntity *m_root;
-
-    // Offscreen framegraph
-    QOffscreenSurface *m_offscreenSurface;
-    Qt3DRender::QRenderStateSet *m_renderStateSet;
-    Qt3DRender::QDepthTest *m_posesDepthTest;
-    Qt3DRender::QMultiSampleAntiAliasing *m_multisampleAntialiasing;
-    Qt3DRender::QRenderTargetSelector *m_renderTargetSelector;
-    Qt3DRender::QRenderSurfaceSelector *m_renderSurfaceSelector;
-    Qt3DRender::QRenderTarget *m_renderTargetMS;
-    Qt3DRender::QRenderTargetOutput *m_colorOutputMS;
-    Qt3DRender::QTexture2DMultisample *m_colorTextureMS;
-    Qt3DRender::QRenderTargetOutput *m_outlineOutputMS;
-    Qt3DRender::QTexture2DMultisample *m_outlineTextureMS;
-    Qt3DRender::QRenderTargetOutput *m_depthOutputMS;
-    Qt3DRender::QTexture2DMultisample *m_depthTextureMS;
-
     // OpenGL setup
     bool m_initialized;
 
@@ -239,8 +224,27 @@ private:
      *
      */
 
+    // Scene
+    // Scene root will be added as a child
+    Qt3DCore::QEntity *m_root;
+
     // Root entity
     Qt3DCore::QEntity *m_sceneRoot;
+
+    // Offscreen framegraph
+    QOffscreenSurface *m_offscreenSurface;
+    Qt3DRender::QRenderStateSet *m_renderStateSet;
+    Qt3DRender::QDepthTest *m_posesDepthTest;
+    Qt3DRender::QMultiSampleAntiAliasing *m_multisampleAntialiasing;
+    Qt3DRender::QRenderTargetSelector *m_renderTargetSelector;
+    Qt3DRender::QRenderSurfaceSelector *m_renderSurfaceSelector;
+    Qt3DRender::QRenderTarget *m_renderTargetMS;
+    Qt3DRender::QRenderTargetOutput *m_colorOutputMS;
+    Qt3DRender::QTexture2DMultisample *m_colorTextureMS;
+    Qt3DRender::QRenderTargetOutput *m_outlineOutputMS;
+    Qt3DRender::QTexture2DMultisample *m_outlineTextureMS;
+    Qt3DRender::QRenderTargetOutput *m_depthStencilOutputMS;
+    Qt3DRender::QTexture2DMultisample *m_depthStencilTextureMS;
 
     // Base framegraph
     Qt3DRender::QViewport *m_viewport;
@@ -264,6 +268,9 @@ private:
     Qt3DRender::QRenderStateSet *m_posesRenderStateSet;
     Qt3DRender::QBlendEquationArguments *m_posesBlendState;
     Qt3DRender::QBlendEquation *m_posesBlendEquation;
+    Qt3DRender::QStencilMask *m_posesStencilMask;
+    Qt3DRender::QStencilOperation *m_posesStencilOperation;
+    Qt3DRender::QStencilTest *m_posesStencilTest;
     Qt3DRender::QFrustumCulling *m_posesFrustumCulling;
     // Filter which adds the parameter which removes the highlight color
     // Must be before the rest which draws the objects
@@ -283,6 +290,9 @@ private:
     // Outline branch
     Qt3DRender::QLayerFilter *m_outlineLayerFilter;
     Qt3DRender::QLayer *m_outlineLayer;
+    Qt3DRender::QRenderStateSet *m_outlineRenderStateSet;
+    Qt3DRender::QStencilTest *m_outlineStencilTest;
+    Qt3DRender::QStencilMask *m_outlineStencilMask;
     // We'll reuse the background camera
     //Qt3DRender::QCamera *m_outlineCamera;
     Qt3DRender::QCameraSelector *m_outlineCameraSelector;
