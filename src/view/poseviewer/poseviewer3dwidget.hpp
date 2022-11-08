@@ -5,6 +5,7 @@
 #include "view/rendering/backgroundimagerenderable.hpp"
 #include "view/rendering/poserenderable.hpp"
 #include "view/rendering/clickvisualizationrenderable.hpp"
+#include "view/rendering/outlinerenderable.hpp"
 #include "view/rendering/arcballrotationhandler.hpp"
 #include "view/rendering/translationhandler.hpp"
 #include "view/rendering/gizmo/qt3dgizmo.hpp"
@@ -63,6 +64,7 @@
 #include <Qt3DRender/QFrustumCulling>
 #include <Qt3DRender/QBlendEquationArguments>
 #include <Qt3DRender/QBlendEquation>
+#include <Qt3DRender/QBlitFramebuffer>
 
 class PoseViewer3DWidget : public QOpenGLWidget
 {
@@ -197,13 +199,13 @@ private:
     Qt3DRender::QMultiSampleAntiAliasing *m_multisampleAntialiasing;
     Qt3DRender::QRenderTargetSelector *m_renderTargetSelector;
     Qt3DRender::QRenderSurfaceSelector *m_renderSurfaceSelector;
-    Qt3DRender::QRenderTarget *m_renderTarget;
-    Qt3DRender::QRenderTargetOutput *m_colorOutput;
-    Qt3DRender::QTexture2DMultisample *m_colorTexture;
-    Qt3DRender::QRenderTargetOutput *m_outlineOutput;
-    Qt3DRender::QTexture2DMultisample *m_outlineTexture;
-    Qt3DRender::QRenderTargetOutput *m_depthOutput;
-    Qt3DRender::QTexture2DMultisample *m_depthTexture;
+    Qt3DRender::QRenderTarget *m_renderTargetMS;
+    Qt3DRender::QRenderTargetOutput *m_colorOutputMS;
+    Qt3DRender::QTexture2DMultisample *m_colorTextureMS;
+    Qt3DRender::QRenderTargetOutput *m_outlineOutputMS;
+    Qt3DRender::QTexture2DMultisample *m_outlineTextureMS;
+    Qt3DRender::QRenderTargetOutput *m_depthOutputMS;
+    Qt3DRender::QTexture2DMultisample *m_depthTextureMS;
 
     // OpenGL setup
     bool m_initialized;
@@ -274,9 +276,19 @@ private:
     Qt3DRender::QRenderCapture *m_snapshotRenderCapture;
     Qt3DRender::QRenderCaptureReply *m_snapshotRenderCaptureReply;
 
-    // Clear depth buffer before drawing gizmo and clicks
+    // Clear depth buffer before drawing outline, gizmo and clicks
     Qt3DRender::QClearBuffers *m_clearBuffers2;
     Qt3DRender::QNoDraw *m_noDraw2;
+
+    // Outline branch
+    Qt3DRender::QLayerFilter *m_outlineLayerFilter;
+    Qt3DRender::QLayer *m_outlineLayer;
+    // We'll reuse the background camera
+    //Qt3DRender::QCamera *m_outlineCamera;
+    Qt3DRender::QCameraSelector *m_outlineCameraSelector;
+    Qt3DRender::QNoDepthMask *m_outlineNoDepthMask;
+    Qt3DRender::QNoPicking *m_outlineNoPicking;
+    QPointer<OutlineRenderable> m_outlineRenderable;
 
     // ClickVisualization branch
     Qt3DRender::QLayerFilter *m_gizmoLayerFilter;

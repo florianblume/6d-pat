@@ -75,9 +75,6 @@ private:
     float m_clickDiameter = 0.01f;
     float m_opacity = 1.0f;
 
-    QVector4D m_selectedColor = QVector4D(0.2, 0.2, 0.2, 0.0);
-    QVector4D m_highlightedColor = QVector4D(0.1, 0.1, 0.1, 0.0);
-
     bool m_hasTextureMaterial = false;
 };
 

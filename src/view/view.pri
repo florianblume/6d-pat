@@ -11,6 +11,8 @@ HEADERS += \
     $$PWD/rendering/gizmo/qt3dgizmo_p.hpp \
     $$PWD/rendering/gizmo/rotationhandle.hpp \
     $$PWD/rendering/modificationhandler.hpp \
+    $$PWD/rendering/outlinematerial.hpp \
+    $$PWD/rendering/outlinerenderable.hpp \
     $$PWD/rendering/translationhandler.hpp \
     $$PWD/poseviewer/mousecoordinatesmodificationeventfilter.hpp \
     $$PWD/poseviewer/undomousecoordinatesmodificationeventfilter.hpp \
@@ -53,6 +55,8 @@ SOURCES += \
     $$PWD/rendering/gizmo/qt3dgizmo.cpp \
     $$PWD/rendering/gizmo/rotationhandle.cpp \
     $$PWD/rendering/modificationhandler.cpp \
+    $$PWD/rendering/outlinematerial.cpp \
+    $$PWD/rendering/outlinerenderable.cpp \
     $$PWD/rendering/translationhandler.cpp \
     $$PWD/poseviewer/mousecoordinatesmodificationeventfilter.cpp \
     $$PWD/poseviewer/undomousecoordinatesmodificationeventfilter.cpp \

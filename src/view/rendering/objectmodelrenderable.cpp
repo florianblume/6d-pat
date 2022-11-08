@@ -23,6 +23,10 @@
 #include <Qt3DExtras/QNormalDiffuseMapAlphaMaterial>
 #include <Qt3DExtras/QNormalDiffuseSpecularMapMaterial>
 
+static const QVector4D NO_HIGHLIGHT_COLOR = QVector4D(0.0, 0.0, 0.0, 0.0);
+static const QVector4D SELECTED_COLOR = QVector4D(1.0, 0.0, 0.0, 1.0);
+static const QVector4D HIGHLIGHTED_COLOR = QVector4D(0.0, 1.0, 0.0, 1.0);
+
 ObjectModelRenderable::ObjectModelRenderable(Qt3DCore::QEntity *parent)
     : Qt3DCore::QEntity(parent) {
     initialize();
@@ -103,9 +107,9 @@ void ObjectModelRenderable::setClicks(QList<QVector3D> clicks) {
 void ObjectModelRenderable::setSelected(bool selected) {
     QVector4D color;
     if (selected) {
-        color = m_selectedColor;
+        color = SELECTED_COLOR;
     } else {
-        color = QVector4D(0.0, 0.0, 0.0, 0.0);
+        color = NO_HIGHLIGHT_COLOR;
     }
     for (Qt3DRender::QParameter *parameter : m_highlightedOrSelectedParameters) {
         parameter->setValue(color);
@@ -117,12 +121,12 @@ void ObjectModelRenderable::setSelected(bool selected) {
 void ObjectModelRenderable::setHovered(bool hovered) {
     QVector4D color;
     if (hovered && !m_selected) {
-        color = m_highlightedColor;
+        color = HIGHLIGHTED_COLOR;
     } else if (!m_selected) {
         // We are unhovered and unselected
-        color = QVector4D(0.0, 0.0, 0.0, 0.0);
+        color = NO_HIGHLIGHT_COLOR;
     } else {
-        color = m_selectedColor;
+        color = SELECTED_COLOR;
     }
     for (Qt3DRender::QParameter *parameter : m_highlightedOrSelectedParameters) {
         parameter->setValue(color);
@@ -161,7 +165,7 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
 
             Qt3DRender::QParameter *highlightedOrSelectedParameter = new Qt3DRender::QParameter();
             highlightedOrSelectedParameter->setName("highlightedOrSelectedColor");
-            highlightedOrSelectedParameter->setValue(QVector4D(1.f, 1.f, 1.f, 1.f));
+            highlightedOrSelectedParameter->setValue(QVector4D(0.f, 0.f, 0.f, 0.f));
             material->addParameter(highlightedOrSelectedParameter);
             m_highlightedOrSelectedParameters.append(highlightedOrSelectedParameter);
 
