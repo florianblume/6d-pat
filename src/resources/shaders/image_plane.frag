@@ -13,3 +13,18 @@ void main(void) {
    }
    fragColor = color / float(samples);
 }
+
+/*
+#version 150
+uniform sampler2D texture;
+in vec2 texc;
+uniform int samples;
+
+out vec4 fragColor;
+
+void main(void) {
+   vec4 color = texture2D(texture, texc);
+   fragColor = color;
+}
+
+  */

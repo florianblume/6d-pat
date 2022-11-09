@@ -13,7 +13,7 @@ class OutlineRenderable : public Qt3DCore::QEntity {
 
 public:
     OutlineRenderable(Qt3DCore::QNode *parent = Q_NULLPTR);
-    void setObjectModelRenderingsTextureParameter(Qt3DRender::QTexture2DMultisample *outlineTexture);
+    void setObjectModelRenderingsTextureParameter(Qt3DRender::QTexture2D *outlineTexture);
     void setSamples(int samples);
     void setImageSize(const QSize &size);
 

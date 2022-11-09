@@ -16,13 +16,15 @@
 #include <Qt3DRender/QTexture>
 #include <Qt3DRender/QObjectPicker>
 #include <Qt3DRender/QParameter>
+#include <Qt3DRender/QShaderProgram>
+#include <Qt3DRender/QRenderPass>
+#include <Qt3DRender/QFilterKey>
 
 class ObjectModelRenderable : public Qt3DCore::QEntity
 {
     Q_OBJECT
 
     Q_PROPERTY(Qt3DRender::QSceneLoader::Status status READ status NOTIFY statusChanged)
-    Q_PROPERTY(bool selected READ isSelected WRITE setSelected NOTIFY selectedChanged)
 
 Q_SIGNALS:
     void statusChanged(Qt3DRender::QSceneLoader::Status status);
@@ -34,8 +36,6 @@ public:
     ObjectModelRenderable(Qt3DCore::QEntity *parent);
     ObjectModelRenderable(Qt3DCore::QEntity *parent, const ObjectModel &m_objectModel);
     Qt3DRender::QSceneLoader::Status status() const;
-    bool isSelected() const;
-    bool isHovered() const;
     bool hasTextureMaterial() const;
     QVector3D maxMeshExtent() const;
     QVector3D minMeshExtent() const;
@@ -44,8 +44,6 @@ public:
 public Q_SLOTS:
     void setObjectModel(const ObjectModel &m_objectModel);
     void setClicks(QList<QVector3D> clicks);
-    void setSelected(bool selected);
-    void setHovered(bool hovered);
     void setOpacity(float opacity);
     void setClickDiameter(float circumference);
 
@@ -57,16 +55,20 @@ private:
     void traverseNodes(Qt3DCore::QNode *currentNode);
 
 private:
-    bool m_selected = false;
-    bool m_hovered = false;
-
     QPointer<Qt3DRender::QSceneLoader> m_sceneLoader;
     QList<Qt3DRender::QParameter*> m_opacityParameters;
-    QList<Qt3DRender::QParameter*> m_highlightedOrSelectedParameters;
     QList<Qt3DRender::QParameter*> m_clicksParameters;
     QList<Qt3DRender::QParameter*> m_colorsParameters;
     QList<Qt3DRender::QParameter*> m_clickCountParameters;
     QList<Qt3DRender::QParameter*> m_clickDiameterParameters;
+    QPointer<Qt3DRender::QRenderPass> m_outlineHighlightedRenderPass;
+    QPointer<Qt3DRender::QFilterKey> m_outlineHighlightedFilterKey;
+    QPointer<Qt3DRender::QParameter> m_outlineHighlightedColorParameter;
+    QPointer<Qt3DRender::QShaderProgram> m_outlineHighlightedShaderProgram;
+    QPointer<Qt3DRender::QRenderPass> m_outlineSelectedRenderPass;
+    QPointer<Qt3DRender::QFilterKey> m_outlineSelectedFilterKey;
+    QPointer<Qt3DRender::QParameter> m_outlineSelectedColorParameter;
+    QPointer<Qt3DRender::QShaderProgram> m_outlineSelectedShaderProgram;
     Qt3DRender::QObjectPicker *m_picker;
 
     QList<QVector3D> m_clicks;

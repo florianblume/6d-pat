@@ -231,23 +231,36 @@ private:
     // Root entity
     Qt3DCore::QEntity *m_sceneRoot;
 
-    // Offscreen framegraph
+    // Base framegraph drawing offscreen
     QOffscreenSurface *m_offscreenSurface;
-    Qt3DRender::QRenderStateSet *m_renderStateSet;
-    Qt3DRender::QDepthTest *m_posesDepthTest;
-    Qt3DRender::QMultiSampleAntiAliasing *m_multisampleAntialiasing;
-    Qt3DRender::QRenderTargetSelector *m_renderTargetSelector;
     Qt3DRender::QRenderSurfaceSelector *m_renderSurfaceSelector;
+    Qt3DRender::QViewport *m_viewport;
+
+    // Render stuff for outline framegraph
+    Qt3DRender::QLayerFilter *m_posesOutlineLayerFilter;
+    Qt3DRender::QLayer *m_posesOutlineLayer;
+    Qt3DRender::QRenderPassFilter *m_posesOutlineRenderPassFilter;
+    Qt3DRender::QFilterKey *m_posesOutlineFilterKey;
+    Qt3DRender::QRenderTargetSelector *m_posesOutlineRenderTargetSelector;
+    Qt3DRender::QRenderTarget *m_posesOutlineRenderTarget;
+    Qt3DRender::QRenderTargetOutput *m_posesOutlineOutput;
+    Qt3DRender::QTexture2D *m_posesOutlineTexture;
+    Qt3DRender::QClearBuffers *m_posesOutlineClearBuffers;
+    Qt3DRender::QNoDraw *m_posesOutlineNoDraw;
+    Qt3DRender::QCameraSelector *m_posesOutlineCameraSelector;
+
+    // Normal framegraph
+    Qt3DRender::QRenderPassFilter *m_renderPassFilter;
+    Qt3DRender::QFilterKey *m_filterKey;
+    Qt3DRender::QRenderTargetSelector *m_renderTargetSelector;
     Qt3DRender::QRenderTarget *m_renderTargetMS;
     Qt3DRender::QRenderTargetOutput *m_colorOutputMS;
     Qt3DRender::QTexture2DMultisample *m_colorTextureMS;
-    Qt3DRender::QRenderTargetOutput *m_outlineOutputMS;
-    Qt3DRender::QTexture2DMultisample *m_outlineTextureMS;
     Qt3DRender::QRenderTargetOutput *m_depthStencilOutputMS;
     Qt3DRender::QTexture2DMultisample *m_depthStencilTextureMS;
-
-    // Base framegraph
-    Qt3DRender::QViewport *m_viewport;
+    Qt3DRender::QRenderStateSet *m_renderStateSet;
+    Qt3DRender::QDepthTest *m_posesDepthTest;
+    Qt3DRender::QMultiSampleAntiAliasing *m_multisampleAntialiasing;
 
     // First branch - clear the buffers
     Qt3DRender::QClearBuffers *m_clearBuffers;
@@ -268,12 +281,6 @@ private:
     Qt3DRender::QRenderStateSet *m_posesRenderStateSet;
     Qt3DRender::QBlendEquationArguments *m_posesBlendState;
     Qt3DRender::QBlendEquation *m_posesBlendEquation;
-    Qt3DRender::QLayerFilter *m_posesStencilLayerFilter;
-    Qt3DRender::QLayer *m_posesStencilLayer;
-    Qt3DRender::QRenderStateSet *m_posesStencilRenderStateSet;
-    Qt3DRender::QStencilMask *m_posesStencilMask;
-    Qt3DRender::QStencilOperation *m_posesStencilOperation;
-    Qt3DRender::QStencilTest *m_posesStencilTest;
     Qt3DRender::QFrustumCulling *m_posesFrustumCulling;
     // Filter which adds the parameter which removes the highlight color
     // Must be before the rest which draws the objects

@@ -34,23 +34,42 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_initialized(false)
       , m_root(new Qt3DCore::QEntity)
       , m_sceneRoot(new Qt3DCore::QEntity)
+
+      // Main branch
       , m_offscreenSurface(new QOffscreenSurface)
-      , m_renderStateSet(new Qt3DRender::QRenderStateSet)
-      , m_posesDepthTest(new Qt3DRender::QDepthTest)
-      , m_multisampleAntialiasing(new Qt3DRender::QMultiSampleAntiAliasing)
-      , m_renderTargetSelector(new Qt3DRender::QRenderTargetSelector)
       , m_renderSurfaceSelector(new Qt3DRender::QRenderSurfaceSelector)
+      , m_viewport(new Qt3DRender::QViewport)
+
+      // Outline poses rendering stuff
+      , m_posesOutlineLayerFilter(new Qt3DRender::QLayerFilter)
+      , m_posesOutlineLayer(new Qt3DRender::QLayer)
+      , m_posesOutlineRenderPassFilter(new Qt3DRender::QRenderPassFilter)
+      , m_posesOutlineFilterKey(new Qt3DRender::QFilterKey)
+      , m_posesOutlineRenderTargetSelector(new Qt3DRender::QRenderTargetSelector)
+      , m_posesOutlineRenderTarget(new Qt3DRender::QRenderTarget)
+      , m_posesOutlineOutput(new Qt3DRender::QRenderTargetOutput)
+      , m_posesOutlineTexture(new Qt3DRender::QTexture2D)
+      // Clearing outline render target
+      , m_posesOutlineClearBuffers(new Qt3DRender::QClearBuffers)
+      , m_posesOutlineNoDraw(new Qt3DRender::QNoDraw)
+      , m_posesOutlineCameraSelector(new Qt3DRender::QCameraSelector)
+
+      // Normal rendering stuff
+      , m_renderPassFilter(new Qt3DRender::QRenderPassFilter)
+      , m_filterKey(new Qt3DRender::QFilterKey)
+      , m_renderTargetSelector(new Qt3DRender::QRenderTargetSelector)
       , m_renderTargetMS(new Qt3DRender::QRenderTarget)
       , m_colorOutputMS(new Qt3DRender::QRenderTargetOutput)
       , m_colorTextureMS(new Qt3DRender::QTexture2DMultisample)
-      , m_outlineOutputMS(new Qt3DRender::QRenderTargetOutput)
-      , m_outlineTextureMS(new Qt3DRender::QTexture2DMultisample)
       , m_depthStencilOutputMS(new Qt3DRender::QRenderTargetOutput)
       , m_depthStencilTextureMS(new Qt3DRender::QTexture2DMultisample)
-      // Main branch
-      , m_viewport(new Qt3DRender::QViewport)
+      , m_renderStateSet(new Qt3DRender::QRenderStateSet)
+      , m_posesDepthTest(new Qt3DRender::QDepthTest)
+      , m_multisampleAntialiasing(new Qt3DRender::QMultiSampleAntiAliasing)
+      // Clearing main render target
       , m_clearBuffers(new Qt3DRender::QClearBuffers)
       , m_noDraw(new Qt3DRender::QNoDraw)
+
       // Background branch
       , m_backgroundLayerFilter(new Qt3DRender::QLayerFilter)
       , m_backgroundLayer(new Qt3DRender::QLayer)
@@ -58,18 +77,13 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_backgroundCameraSelector(new Qt3DRender::QCameraSelector)
       , m_backgroundNoDepthMask(new Qt3DRender::QNoDepthMask)
       , m_backgroundNoPicking(new Qt3DRender::QNoPicking)
+
       // Poses branch
       , m_posesLayerFilter(new Qt3DRender::QLayerFilter)
       , m_posesLayer(new Qt3DRender::QLayer)
       , m_posesRenderStateSet(new Qt3DRender::QRenderStateSet)
       , m_posesBlendState(new Qt3DRender::QBlendEquationArguments)
       , m_posesBlendEquation(new Qt3DRender::QBlendEquation)
-      , m_posesStencilLayerFilter(new Qt3DRender::QLayerFilter)
-      , m_posesStencilLayer(new Qt3DRender::QLayer)
-      , m_posesStencilRenderStateSet(new Qt3DRender::QRenderStateSet)
-      , m_posesStencilMask(new Qt3DRender::QStencilMask)
-      , m_posesStencilOperation(new Qt3DRender::QStencilOperation)
-      , m_posesStencilTest(new Qt3DRender::QStencilTest)
       , m_posesFrustumCulling(new Qt3DRender::QFrustumCulling)
       , m_snapshotRenderPassFilter(new Qt3DRender::QRenderPassFilter)
       , m_removeHighlightParameter(new Qt3DRender::QParameter)
@@ -77,9 +91,12 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_posesCamera(new Qt3DRender::QCamera)
       , m_posesCameraSelector(new Qt3DRender::QCameraSelector)
       , m_snapshotRenderCapture(new Qt3DRender::QRenderCapture)
-      // Clear depth for gizmo
+
+      // Clear depth for gizmo, we need depth to draw it
+      // because it's a 3D object
       , m_clearBuffers2(new Qt3DRender::QClearBuffers)
       , m_noDraw2(new Qt3DRender::QNoDraw)
+
       // Outline branch
       , m_outlineLayerFilter(new Qt3DRender::QLayerFilter)
       , m_outlineLayer(new Qt3DRender::QLayer)
@@ -90,12 +107,14 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_outlineNoDepthMask(new Qt3DRender::QNoDepthMask)
       , m_outlineNoPicking(new Qt3DRender::QNoPicking)
       , m_outlineRenderable(new OutlineRenderable)
+
       // Gizmo branch
       , m_gizmoLayerFilter(new Qt3DRender::QLayerFilter)
       , m_gizmoLayer(new Qt3DRender::QLayer)
       , m_gizmoRenderStateSet(new Qt3DRender::QRenderStateSet)
       , m_gizmoDepthTest(new Qt3DRender::QDepthTest)
       , m_gizmoCameraSelector(new Qt3DRender::QCameraSelector)
+
       // Click visualization branch
       , m_clickVisualizationLayerFilter(new Qt3DRender::QLayerFilter)
       , m_clickVisualizationLayer(new Qt3DRender::QLayer)
@@ -211,83 +230,99 @@ void PoseViewer3DWidget::initQt3D() {
      * Setup of the framegraph that renders everything into
      * an offscreen texture.
      */
-
-    m_offscreenSurface->setFormat(QSurfaceFormat::defaultFormat());
-    m_offscreenSurface->create();
-
     //m_aspectEngine->registerAspect(new Qt3DCore::QCoreAspect);
     m_aspectEngine->registerAspect(m_renderAspect);
     m_aspectEngine->registerAspect(m_inputAspect);
     m_aspectEngine->registerAspect(m_logicAspect);
 
+    m_offscreenSurface->setFormat(QSurfaceFormat::defaultFormat());
+    m_offscreenSurface->create();
+
+    // Root of whole framegraph
+    m_renderSurfaceSelector->setSurface(m_offscreenSurface);
+    m_viewport->setParent(m_renderSurfaceSelector);
+
+    // ///////////////////////////////
+    // Outline rendering framegraph //
+    // ///////////////////////////////
+    m_posesOutlineLayerFilter->setParent(m_viewport);
+    m_posesOutlineLayerFilter->addLayer(m_posesOutlineLayer);
+    m_posesOutlineLayer->setRecursive(true);
+    m_posesOutlineRenderPassFilter->setParent(m_posesOutlineLayerFilter);
+    m_posesOutlineFilterKey->setName(QStringLiteral("renderingStyle"));
+    m_posesOutlineFilterKey->setValue(QStringLiteral("outlineHighlighted"));
+    m_posesOutlineRenderPassFilter->addMatch(m_posesOutlineFilterKey);
+    m_posesOutlineRenderTargetSelector->setParent(m_posesOutlineRenderPassFilter);
+    m_posesOutlineOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color0);
+    // Create a outline texture to render into.
+    m_posesOutlineTexture->setSize(width(), height());
+    m_posesOutlineTexture->setFormat(Qt3DRender::QAbstractTexture::RGB8_UNorm);
+    m_posesOutlineTexture->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
+    m_posesOutlineTexture->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
+    // Hook the texture up to our output, and the output up to this object.
+    m_posesOutlineOutput->setTexture(m_posesOutlineTexture);
+    m_posesOutlineRenderTarget->addOutput(m_posesOutlineOutput);
+    m_posesOutlineRenderTargetSelector->setTarget(m_posesOutlineRenderTarget);
+    // First leaf clear buffers
+    m_posesOutlineClearBuffers->setParent(m_posesOutlineRenderTargetSelector);
+    m_posesOutlineClearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
+    m_posesOutlineClearBuffers->setClearColor(Qt::red);
+    m_posesOutlineNoDraw->setParent(m_posesOutlineClearBuffers);
+    // Second leaf draws the objects
+    m_posesOutlineCameraSelector->setParent(m_posesOutlineRenderTargetSelector);
+    m_posesOutlineCameraSelector->setCamera(m_posesCamera);
+
+    // /////////////////////////////
+    // Main rendering framegraph //
+    // /////////////////////////////
+    m_renderTargetSelector->setParent(m_viewport);
+    // Set the targets on the render target selector
+    m_renderTargetSelector->setTarget(m_renderTargetMS);
+    m_renderPassFilter->setParent(m_renderTargetSelector);
+    m_filterKey->setParent(m_sceneRoot);
+    m_filterKey->setName(QStringLiteral("renderingStyle"));
+    m_filterKey->setValue(QStringLiteral("outlineHighlighted"));
+    m_renderPassFilter->addMatch(m_filterKey);
+
     // Setup color with multisampling
     m_colorOutputMS->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color0);
-
     // Create a color texture to render into.
     m_colorTextureMS->setSize(width(), height());
     m_colorTextureMS->setFormat(Qt3DRender::QAbstractTexture::RGB8_UNorm);
     m_colorTextureMS->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
     m_colorTextureMS->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
-
     // Hook the texture up to our output, and the output up to this object.
     m_colorOutputMS->setTexture(m_colorTextureMS);
     m_colorTextureMS->setSamples(m_samples);
     m_renderTargetMS->addOutput(m_colorOutputMS);
 
-    // Setup outline
-    m_outlineOutputMS->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color1);
-
-    // Create a outline texture to render into.
-    m_outlineTextureMS->setSize(width(), height());
-    m_outlineTextureMS->setFormat(Qt3DRender::QAbstractTexture::RGB8_UNorm);
-    m_outlineTextureMS->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
-    m_outlineTextureMS->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
-
-    // Hook the texture up to our output, and the output up to this object.
-    m_outlineOutputMS->setTexture(m_outlineTextureMS);
-    m_outlineTextureMS->setSamples(m_samples);
-    m_renderTargetMS->addOutput(m_outlineOutputMS);
-
     // Setup depth
-    m_depthStencilOutputMS->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::DepthStencil);
-
+    m_depthStencilOutputMS->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Depth);
     // Create depth texture
     m_depthStencilTextureMS->setSize(width(), height());
     m_depthStencilTextureMS->setSamples(m_samples);
-    m_depthStencilTextureMS->setFormat(Qt3DRender::QAbstractTexture::D24S8);
+    m_depthStencilTextureMS->setFormat(Qt3DRender::QAbstractTexture::DepthFormat);
     m_depthStencilTextureMS->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
     m_depthStencilTextureMS->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
     m_depthStencilTextureMS->setComparisonFunction(Qt3DRender::QAbstractTexture::CompareLessEqual);
     m_depthStencilTextureMS->setComparisonMode(Qt3DRender::QAbstractTexture::CompareRefToTexture);
-
     // Hook up the depth texture
     m_depthStencilOutputMS->setTexture(m_depthStencilTextureMS);
     m_depthStencilTextureMS->setSamples(m_samples);
     m_renderTargetMS->addOutput(m_depthStencilOutputMS);
 
-    m_renderSurfaceSelector->setSurface(m_offscreenSurface);
-    //m_renderSurfaceSelector->setParent(m_renderTargetSelector);
-
-    m_renderStateSet->setParent(m_renderSurfaceSelector);
+    // RenderStateSet will be used as parent for all subsequent branches
+    m_renderStateSet->setParent(m_renderPassFilter);
     m_renderStateSet->addRenderState(m_multisampleAntialiasing);
-    m_renderTargetSelector->setParent(m_renderStateSet);
-    m_renderTargetSelector->setTarget(m_renderTargetMS);
-
-    // Setup of the actual frame graph responsible for rendering the
-    // background image, the poses and the clicks
-    m_sceneRoot->setParent(m_root);
-
-    // Root viewport
-    m_viewport->setParent(m_renderTargetSelector);
 
     // First branch that clears the buffers
-    m_clearBuffers->setParent(m_viewport);
+    m_clearBuffers->setParent(m_renderStateSet);
     m_clearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
-    m_clearBuffers->setClearColor(Qt::black);
+    m_clearBuffers->setClearColor(Qt::blue);
     m_noDraw->setParent(m_clearBuffers);
 
     // Second branch that draws the background image
-    m_backgroundLayerFilter->setParent(m_viewport);
+    m_backgroundLayerFilter->setParent(m_renderStateSet);
     m_backgroundLayerFilter->addLayer(m_backgroundLayer);
     m_backgroundCameraSelector->setParent(m_backgroundLayerFilter);
     m_backgroundCamera->setParent(m_backgroundCameraSelector);
@@ -303,7 +338,7 @@ void PoseViewer3DWidget::initQt3D() {
     m_backgroundNoPicking->setParent(m_backgroundNoDepthMask);
 
     // Third branch that draws the poses
-    m_posesLayerFilter->setParent(m_viewport);
+    m_posesLayerFilter->setParent(m_renderStateSet);
     m_posesLayerFilter->addLayer(m_posesLayer);
     m_posesLayer->setRecursive(true);
     m_posesRenderStateSet->setParent(m_posesLayerFilter);
@@ -326,48 +361,22 @@ void PoseViewer3DWidget::initQt3D() {
     m_removeHighlightParameter->setName("selected");
     m_removeHighlightParameter->setValue(QVector4D(0.f, 0.f, 0.f, 0.f));
     m_snapshotRenderCapture->setParent(m_posesCameraSelector);
-    // Stencil stuff
-    m_posesStencilLayerFilter->setParent(m_snapshotRenderPassFilter);
-    m_posesStencilLayerFilter->addLayer(m_posesStencilLayer);
-    m_posesStencilRenderStateSet->setParent(m_posesStencilLayerFilter);
-    m_posesStencilMask->setBackOutputMask(0xFF);
-    m_posesStencilMask->setFrontOutputMask(0xFF);
-    m_posesStencilRenderStateSet->addRenderState(m_posesStencilMask);
-    m_posesStencilOperation->front()->setAllTestsPassOperation(Qt3DRender::QStencilOperationArguments::Replace);
-    m_posesStencilOperation->back()->setStencilTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
-    m_posesStencilOperation->back()->setDepthTestFailureOperation(Qt3DRender::QStencilOperationArguments::Replace);
-    m_posesStencilOperation->front()->setAllTestsPassOperation(Qt3DRender::QStencilOperationArguments::Replace);
-    m_posesStencilOperation->front()->setStencilTestFailureOperation(Qt3DRender::QStencilOperationArguments::Keep);
-    m_posesStencilOperation->front()->setDepthTestFailureOperation(Qt3DRender::QStencilOperationArguments::Replace);
-    m_posesStencilRenderStateSet->addRenderState(m_posesStencilOperation);
-    m_posesStencilTest->front()->setStencilFunction(Qt3DRender::QStencilTestArguments::Always);
-    m_posesStencilTest->front()->setComparisonMask(0xFF);
-    m_posesStencilTest->front()->setReferenceValue(1);
-    m_posesStencilRenderStateSet->addRenderState(m_posesStencilTest);
 
     // Fourth branch that clears the depth buffers for the gizmo
-    m_clearBuffers2->setParent(m_viewport);
+    m_clearBuffers2->setParent(m_renderStateSet);
     m_clearBuffers2->setBuffers(Qt3DRender::QClearBuffers::DepthBuffer);
     m_noDraw2->setParent(m_clearBuffers2);
 
-    // Setup outline
+    // Setup outline renderable
     m_outlineRenderable->setParent(m_sceneRoot);
     m_outlineRenderable->setImageSize(size());
-    m_outlineRenderable->setObjectModelRenderingsTextureParameter(m_outlineTextureMS);
+    m_outlineRenderable->setObjectModelRenderingsTextureParameter(m_posesOutlineTexture);
     m_outlineRenderable->addComponent(m_outlineLayer);
 
     // Fith branch that draws the outline
-    m_outlineLayerFilter->setParent(m_viewport);
+    m_outlineLayerFilter->setParent(m_renderStateSet);
     m_outlineLayerFilter->addLayer(m_outlineLayer);
-    m_outlineRenderStateSet->setParent(m_outlineLayerFilter);
-    m_outlineStencilTest->front()->setStencilFunction(Qt3DRender::QStencilTestArguments::NotEqual);
-    m_outlineStencilTest->front()->setReferenceValue(1);
-    m_outlineStencilTest->front()->setComparisonMask(0xFF);
-    m_outlineRenderStateSet->addRenderState(m_outlineStencilTest);
-    m_outlineStencilMask->setBackOutputMask(0x00);
-    m_outlineStencilMask->setFrontOutputMask(0x00);
-    m_outlineRenderStateSet->addRenderState(m_outlineStencilMask);
-    m_outlineCameraSelector->setParent(m_outlineRenderStateSet);
+    m_outlineCameraSelector->setParent(m_outlineLayerFilter);
     // We're reusing the background camera here, no need to construct the same camera again
     m_outlineCameraSelector->setCamera(m_backgroundCamera);
     m_outlineNoDepthMask->setParent(m_outlineCameraSelector);
@@ -377,7 +386,7 @@ void PoseViewer3DWidget::initQt3D() {
     m_outlineNoPicking->setParent(m_outlineNoDepthMask);
 
     // Sixth branch that draws the gizmo
-    m_gizmoLayerFilter->setParent(m_viewport);
+    m_gizmoLayerFilter->setParent(m_renderStateSet);
     m_gizmoLayerFilter->addLayer(m_gizmoLayer);
     m_gizmoLayer->setRecursive(true);
     m_gizmoRenderStateSet->setParent(m_gizmoLayerFilter);
@@ -401,7 +410,7 @@ void PoseViewer3DWidget::initQt3D() {
             this, &PoseViewer3DWidget::onGizmoTransformingEnded);
 
     // Seventh branch draws the clicks
-    m_clickVisualizationLayerFilter->setParent(m_viewport);
+    m_clickVisualizationLayerFilter->setParent(m_renderStateSet);
     m_clickVisualizationLayerFilter->addLayer(m_clickVisualizationLayer);
     m_clickVisualizationCameraSelector->setParent(m_clickVisualizationLayerFilter);
     m_clickVisualizationCamera->setParent(m_clickVisualizationCameraSelector);
@@ -417,6 +426,9 @@ void PoseViewer3DWidget::initQt3D() {
     m_clickVisualizationRenderable->addComponent(m_clickVisualizationLayer);
     m_clickVisualizationRenderable->setSize(this->size());
 
+    // Setup of the actual frame graph responsible for rendering the
+    // background image, the poses and the clicks
+    m_sceneRoot->setParent(m_root);
     // Global rendering config
     m_renderSettings->pickingSettings()->setPickMethod(
                 Qt3DRender::QPickingSettings::TrianglePicking);
@@ -562,8 +574,7 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     connect(poseRenderable, &PoseRenderable::moved,
             [this, poseRenderable](Qt3DRender::QPickEvent *e){
         if (!m_gizmoIsTransforming) {
-            poseRenderable->setHovered(true);
-            poseRenderable->addComponent(m_posesStencilLayer);
+            poseRenderable->addComponent(m_posesOutlineLayer);
             m_hoveredPose = poseRenderable;
             m_mouseOverPoseRenderable = true;
         }
@@ -573,8 +584,7 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     connect(poseRenderable, &PoseRenderable::exited,
             [this, poseRenderable](){
         m_mouseOverPoseRenderable = false;
-        poseRenderable->removeComponent(m_posesStencilLayer);
-        poseRenderable->setHovered(false);
+        poseRenderable->removeComponent(m_posesOutlineLayer);
         m_hoveredPose = Q_NULLPTR;
     });
     connect(poseRenderable, &PoseRenderable::pressed,
@@ -619,8 +629,6 @@ void PoseViewer3DWidget::removePose(PosePtr pose) {
 
 void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
     if (!deselected.isNull()) {
-        PoseRenderable *formerSelected = m_poseRenderableForId[deselected->id()];
-        formerSelected->setSelected(false);
         m_selectedPoseRenderable = Q_NULLPTR;
     }
     // Check for inequality because otherwise the pose gets selected again
@@ -629,7 +637,6 @@ void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
         PoseRenderable *newSelected = m_poseRenderableForId[selected->id()];
         m_gizmo->setDelegateTransform(newSelected->transform());
         m_gizmo->setEnabled(true);
-        newSelected->setSelected(true);
         m_selectedPoseRenderable = newSelected;
         m_opacity = m_selectedPoseRenderable->opacity();
         Q_EMIT opacityChanged(m_opacity);
@@ -642,7 +649,6 @@ void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
 void PoseViewer3DWidget::setSamples(int samples) {
     m_samples = DisplayHelper::indexToMultisampleSamlpes(samples);
     m_colorTextureMS->setSamples(m_samples);
-    m_outlineTextureMS->setSamples(m_samples);
     m_depthStencilTextureMS->setSamples(m_samples);
     m_outlineRenderable->setSamples(m_samples);
     if (m_initialized) {
@@ -659,7 +665,7 @@ void PoseViewer3DWidget::setRenderingSize(const QSize &size) {
     int h = size.height();
     m_gizmo->setWindowSize(size);
     m_colorTextureMS->setSize(w, h);
-    m_outlineTextureMS->setSize(w, h);
+    m_posesOutlineTexture->setSize(w, h);
     m_depthStencilTextureMS->setSize(w, h);
     m_outlineRenderable->setImageSize(size);
     m_renderSurfaceSelector->setExternalRenderTargetSize(size);
@@ -909,7 +915,7 @@ void PoseViewer3DWidget::leaveEvent(QEvent *event) {
     if (m_hoveredPose) {
         // When the mouse leaves the widget the hovering
         // color does not get removed
-        m_hoveredPose->setHovered(false);
+        m_hoveredPose->removeComponent(m_outlineLayer);
     }
 }
 

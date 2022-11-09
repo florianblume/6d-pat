@@ -11,11 +11,11 @@
 #include <Qt3DRender/QShaderProgramBuilder>
 #include <Qt3DRender/QGeometryRenderer>
 #include <Qt3DRender/QEffect>
-#include <Qt3DRender/QParameter>
-#include <Qt3DRender/QShaderProgram>
 #include <Qt3DRender/QGeometryRenderer>
 #include <Qt3DRender/QGeometry>
 #include <Qt3DRender/QAttribute>
+#include <Qt3DRender/QGraphicsApiFilter>
+#include <Qt3DRender/QTechnique>
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DExtras/QDiffuseMapMaterial>
 #include <Qt3DExtras/QDiffuseSpecularMapMaterial>
@@ -65,21 +65,11 @@ Qt3DRender::QSceneLoader::Status ObjectModelRenderable::status() const {
     return m_sceneLoader->status();
 }
 
-bool ObjectModelRenderable::isSelected() const {
-    return m_selected;
-}
-
-bool ObjectModelRenderable::isHovered() const {
-    return m_hovered;
-}
-
 void ObjectModelRenderable::setObjectModel(const ObjectModel &objectModel) {
-    m_selected = false;
     m_clicksParameters.clear();
     m_clickDiameterParameters.clear();
     m_colorsParameters.clear();
     m_opacityParameters.clear();
-    m_highlightedOrSelectedParameters.clear();
     m_sceneLoader->setEnabled(false);
     m_sceneLoader->setSource(QUrl::fromLocalFile(objectModel.absolutePath()));
 }
@@ -104,36 +94,6 @@ void ObjectModelRenderable::setClicks(QList<QVector3D> clicks) {
     Q_EMIT clicksChanged();
 }
 
-void ObjectModelRenderable::setSelected(bool selected) {
-    QVector4D color;
-    if (selected) {
-        color = SELECTED_COLOR;
-    } else {
-        color = NO_HIGHLIGHT_COLOR;
-    }
-    for (Qt3DRender::QParameter *parameter : m_highlightedOrSelectedParameters) {
-        parameter->setValue(color);
-    }
-    m_selected = selected;
-    Q_EMIT selectedChanged(selected);
-}
-
-void ObjectModelRenderable::setHovered(bool hovered) {
-    QVector4D color;
-    if (hovered && !m_selected) {
-        color = HIGHLIGHTED_COLOR;
-    } else if (!m_selected) {
-        // We are unhovered and unselected
-        color = NO_HIGHLIGHT_COLOR;
-    } else {
-        color = SELECTED_COLOR;
-    }
-    for (Qt3DRender::QParameter *parameter : m_highlightedOrSelectedParameters) {
-        parameter->setValue(color);
-    }
-    m_hovered = hovered;
-}
-
 void ObjectModelRenderable::setOpacity(float opacity) {
     m_opacity = opacity;
     for (Qt3DRender::QParameter *parameter : m_opacityParameters) {
@@ -156,18 +116,15 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
                 m_opacityParameters.append(parameter);
             }
         }
+        if (Qt3DRender::QFilterKey* filterKey = dynamic_cast<Qt3DRender::QFilterKey *>(node)) {
+            qDebug() << filterKey->name() << filterKey->value();
+        }
         if (Qt3DRender::QMaterial* material = dynamic_cast<Qt3DRender::QMaterial *>(node)) {
             Qt3DRender::QParameter *opacityParameter = new Qt3DRender::QParameter();
             opacityParameter->setName("opacity");
             opacityParameter->setValue(1.0);
             material->addParameter(opacityParameter);
             m_opacityParameters.append(opacityParameter);
-
-            Qt3DRender::QParameter *highlightedOrSelectedParameter = new Qt3DRender::QParameter();
-            highlightedOrSelectedParameter->setName("highlightedOrSelectedColor");
-            highlightedOrSelectedParameter->setValue(QVector4D(0.f, 0.f, 0.f, 0.f));
-            material->addParameter(highlightedOrSelectedParameter);
-            m_highlightedOrSelectedParameters.append(highlightedOrSelectedParameter);
 
             Qt3DRender::QParameter *clicksParameter = new Qt3DRender::QParameter();
             clicksParameter->setName("clicks[0]");
@@ -198,6 +155,31 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
             QVariant shininess = material->property("shininess");
             if (shininess.isValid()) {
                 material->setProperty("shininess", 0.0);
+            }
+
+            // Add render passes for outline effects to the material
+            m_outlineHighlightedRenderPass = new Qt3DRender::QRenderPass();
+            m_outlineHighlightedFilterKey = new Qt3DRender::QFilterKey();
+            m_outlineHighlightedFilterKey->setName(QStringLiteral("renderingStyle"));
+            m_outlineHighlightedFilterKey->setValue(QStringLiteral("test"));
+            m_outlineHighlightedRenderPass->addFilterKey(m_outlineHighlightedFilterKey);
+            m_outlineHighlightedShaderProgram = new Qt3DRender::QShaderProgram();
+            // The shader codes are the same for highlighting and selecting but the color parameter is different
+            m_outlineHighlightedShaderProgram->setVertexShaderCode(
+                        Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/outline.vert"))));
+            m_outlineHighlightedShaderProgram->setFragmentShaderCode(
+                        Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/outline.frag"))));
+            m_outlineHighlightedRenderPass->setShaderProgram(m_outlineHighlightedShaderProgram);
+            m_outlineHighlightedColorParameter = new Qt3DRender::QParameter(
+                        QStringLiteral("color"), HIGHLIGHTED_COLOR);
+            m_outlineHighlightedRenderPass->addParameter(m_outlineHighlightedColorParameter);
+            QVector<Qt3DRender::QTechnique*> techniques = material->effect()->techniques();
+            // Now add that render pass to the only technique we support (i.e. OpenGL 3.x)
+            for (int i = 0; i < techniques.size(); i++) {
+                if (techniques[i]->graphicsApiFilter()->api() == Qt3DRender::QGraphicsApiFilter::OpenGL &&
+                    techniques[i]->graphicsApiFilter()->majorVersion() == 3) {
+                    techniques[i]->addRenderPass(m_outlineHighlightedRenderPass);
+                }
             }
         }
         if (Qt3DExtras::QPhongMaterial* material = dynamic_cast<Qt3DExtras::QPhongMaterial *>(node)) {

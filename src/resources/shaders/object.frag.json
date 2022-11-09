@@ -60,43 +60,7 @@
                  "substitution": "vec4 $result = visualizeClicks($currentColor, $interpolatedVertex, $clickCount, $clicks, $clickColors, $clickDiameter);"
               }
             ]
-      },
-      "fragColor0": {
-              "inputs": [
-                  "fragColor"
-              ],
-              "rules": [
-                  {
-                      "format": {
-                          "api": "OpenGLCoreProfile",
-                          "major": 3,
-                          "minor": 0
-                      },
-                      "substitution": "fragColor0 = $fragColor;",
-                      "headerSnippets": [
-                          "out vec4 fragColor0;"
-                      ]
-                  }
-              ]
-          },
-      "fragColor1": {
-          "inputs": [
-              "fragColor"
-          ],
-          "rules": [
-              {
-                  "format": {
-                      "api": "OpenGLCoreProfile",
-                      "major": 3,
-                      "minor": 0
-                  },
-                  "substitution": "fragColor1 = $fragColor;",
-                  "headerSnippets": [
-                      "out vec4 fragColor1;"
-                  ]
-              }
-          ]
-      }
+       }
     },
     "nodes": [
         {
@@ -111,21 +75,6 @@
                 "type": {
                     "type": "QShaderLanguage::VariableType",
                     "value": "QShaderLanguage::Float"
-                }
-            }
-        },
-        {
-            "uuid": "{00000000-0000-0000-0000-000000000102}",
-            "type": "input",
-            "parameters": {
-                "name": "highlightedOrSelectedColor",
-                "qualifier": {
-                    "type": "QShaderLanguage::StorageQualifier",
-                    "value": "QShaderLanguage::Uniform"
-                },
-                "type": {
-                    "type": "QShaderLanguage::VariableType",
-                    "value": "QShaderLanguage::Vec4"
                 }
             }
         },
@@ -479,11 +428,7 @@
         },
         {
             "uuid": "{00000000-0000-0000-0000-000000000025}",
-            "type": "fragColor0"
-        },
-        {
-            "uuid": "{00000000-0000-0000-0000-000000000026}",
-            "type": "fragColor1"
+            "type": "fragColor"
         }
     ],
     "edges": [
@@ -720,12 +665,6 @@
             "sourceUuid": "{00000000-0000-0000-0000-000000000110}",
             "sourcePort": "result",
             "targetUuid": "{00000000-0000-0000-0000-000000000025}",
-            "targetPort": "fragColor"
-        },
-        {
-            "sourceUuid": "{00000000-0000-0000-0000-000000000102}",
-            "sourcePort": "value",
-            "targetUuid": "{00000000-0000-0000-0000-000000000026}",
             "targetPort": "fragColor"
         }
     ]

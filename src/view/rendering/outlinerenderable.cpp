@@ -13,7 +13,7 @@ OutlineRenderable::OutlineRenderable(Qt3DCore::QNode *parent)
     m_transform->setRotationX(90);
 }
 
-void OutlineRenderable::setObjectModelRenderingsTextureParameter(Qt3DRender::QTexture2DMultisample *objectModelRenderingsTexture) {
+void OutlineRenderable::setObjectModelRenderingsTextureParameter(Qt3DRender::QTexture2D *objectModelRenderingsTexture) {
     m_material->setObjectModelRenderingsTextureParameter(objectModelRenderingsTexture);
 }
 

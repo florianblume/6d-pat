@@ -13,9 +13,9 @@ OutlineMaterial::OutlineMaterial()
     , m_imageSizeParameter(new Qt3DRender::QParameter(QStringLiteral("imageSize"), QVariant())){
 
     m_shaderProgram->setVertexShaderCode(
-                Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/outline.vert"))));
+                Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/outline_plane.vert"))));
     m_shaderProgram->setFragmentShaderCode(
-                Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/outline.frag"))));
+                Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/outline_plane.frag"))));
 
     m_technique->graphicsApiFilter()->setApi(Qt3DRender::QGraphicsApiFilter::OpenGL);
     m_technique->graphicsApiFilter()->setMajorVersion(3);
@@ -37,7 +37,7 @@ OutlineMaterial::OutlineMaterial()
     setEffect(m_effect);
 }
 
-void OutlineMaterial::setObjectModelRenderingsTextureParameter(Qt3DRender::QTexture2DMultisample *outlineTexture) {
+void OutlineMaterial::setObjectModelRenderingsTextureParameter(Qt3DRender::QTexture2D *outlineTexture) {
     m_objectModelRenderingsTextureParameter->setValue(QVariant::fromValue(outlineTexture));
 }
 
