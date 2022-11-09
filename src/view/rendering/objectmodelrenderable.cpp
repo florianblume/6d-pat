@@ -23,9 +23,7 @@
 #include <Qt3DExtras/QNormalDiffuseMapAlphaMaterial>
 #include <Qt3DExtras/QNormalDiffuseSpecularMapMaterial>
 
-static const QVector4D NO_HIGHLIGHT_COLOR = QVector4D(0.0, 0.0, 0.0, 0.0);
-static const QVector4D SELECTED_COLOR = QVector4D(1.0, 0.0, 0.0, 1.0);
-static const QVector4D HIGHLIGHTED_COLOR = QVector4D(0.0, 1.0, 0.0, 1.0);
+static const QVector4D SEGMENTATION_COLOR = QVector4D(0.0, 1.0, 0.0, 1.0);
 
 ObjectModelRenderable::ObjectModelRenderable(Qt3DCore::QEntity *parent)
     : Qt3DCore::QEntity(parent) {
@@ -164,7 +162,7 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
                         Qt3DRender::QShaderProgram::loadSource(QUrl(QStringLiteral("qrc:/shaders/outline.frag"))));
             m_outlineHighlightedRenderPass->setShaderProgram(m_outlineHighlightedShaderProgram);
             m_outlineHighlightedColorParameter = new Qt3DRender::QParameter(
-                        QStringLiteral("color"), HIGHLIGHTED_COLOR);
+                        QStringLiteral("color"), SEGMENTATION_COLOR);
             m_outlineHighlightedRenderPass->addParameter(m_outlineHighlightedColorParameter);
 
             m_outlineTechnique = new Qt3DRender::QTechnique;
@@ -174,7 +172,7 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
             m_outlineTechnique->graphicsApiFilter()->setProfile(Qt3DRender::QGraphicsApiFilter::CoreProfile);
             m_outlineHighlightedFilterKey = new Qt3DRender::QFilterKey();
             m_outlineHighlightedFilterKey->setName(QStringLiteral("renderingStyle"));
-            m_outlineHighlightedFilterKey->setValue(QStringLiteral("outlineHighlighted"));
+            m_outlineHighlightedFilterKey->setValue(QStringLiteral("outline"));
             m_outlineTechnique->addFilterKey(m_outlineHighlightedFilterKey);
             m_outlineTechnique->addRenderPass(m_outlineHighlightedRenderPass);
             material->effect()->addTechnique(m_outlineTechnique);

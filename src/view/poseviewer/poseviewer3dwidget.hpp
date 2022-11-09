@@ -34,6 +34,7 @@
 #include <QOpenGLShader>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
+#include <QVector4D>
 
 #include <Qt3DCore/QAspectEngine>
 #include <Qt3DLogic/QLogicAspect>
@@ -238,19 +239,27 @@ private:
     Qt3DRender::QViewport *m_viewport;
 
     // Render stuff for outline framegraph
-    Qt3DRender::QLayerFilter *m_posesOutlineLayerFilter;
-    Qt3DRender::QLayer *m_posesOutlineLayer;
     Qt3DRender::QTechniqueFilter *m_posesOutlineTechniqueFilter;
     Qt3DRender::QFilterKey *m_posesOutlineFilterKey;
-    Qt3DRender::QRenderTargetSelector *m_posesOutlineRenderTargetSelector;
-    Qt3DRender::QRenderTarget *m_posesOutlineRenderTarget;
+    Qt3DRender::QCameraSelector *m_posesOutlineCameraSelector;
+    // For the highlighted
+    Qt3DRender::QLayerFilter *m_posesOutlineHighlightedLayerFilter;
+    Qt3DRender::QLayer *m_posesOutlineHighlightedLayer;
+    Qt3DRender::QRenderTargetSelector *m_posesOutlineHighlightedRenderTargetSelector;
+    Qt3DRender::QRenderTarget *m_posesOutlineHighlightedRenderTarget;
     Qt3DRender::QRenderTargetOutput *m_posesOutlineHighlightedOutput;
     Qt3DRender::QTexture2D *m_posesOutlineHighlightedTexture;
+    Qt3DRender::QClearBuffers *m_posesOutlineHighlightedClearBuffers;
+    Qt3DRender::QNoDraw *m_posesOutlineHighlightedNoDraw;
+    // For the selected
+    Qt3DRender::QLayerFilter *m_posesOutlineSelectedLayerFilter;
+    Qt3DRender::QLayer *m_posesOutlineSelectedLayer;
+    Qt3DRender::QRenderTargetSelector *m_posesOutlineSelectedRenderTargetSelector;
+    Qt3DRender::QRenderTarget *m_posesOutlineSelectedRenderTarget;
     Qt3DRender::QRenderTargetOutput *m_posesOutlineSelectedOutput;
     Qt3DRender::QTexture2D *m_posesOutlineSelectedTexture;
-    Qt3DRender::QClearBuffers *m_posesOutlineClearBuffers;
-    Qt3DRender::QNoDraw *m_posesOutlineNoDraw;
-    Qt3DRender::QCameraSelector *m_posesOutlineCameraSelector;
+    Qt3DRender::QClearBuffers *m_posesOutlineSelectedClearBuffers;
+    Qt3DRender::QNoDraw *m_posesOutlineSelectedNoDraw;
 
     // Normal framegraph
     Qt3DRender::QTechniqueFilter *m_mainTechniqueFilter;

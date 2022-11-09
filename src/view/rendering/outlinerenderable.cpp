@@ -17,6 +17,10 @@ void OutlineRenderable::setOutlineRenderingTexture(Qt3DRender::QTexture2D *objec
     m_material->setOutlineRenderingTexture(objectModelRenderingsTexture);
 }
 
+void OutlineRenderable::setOutlineColor(const QVector4D &color) {
+    m_material->setOutlineColor(color);
+}
+
 void OutlineRenderable::setImageSize(const QSize &size) {
     m_material->setImageSize(size);
 }

@@ -9,6 +9,7 @@ OutlineMaterial::OutlineMaterial()
     , m_shaderProgram(new Qt3DRender::QShaderProgram())
     , m_filterKey(new Qt3DRender::QFilterKey)
     , m_outlineRenderingTextureParameter(new Qt3DRender::QParameter(QStringLiteral("outlineRendering"), QVariantList()))
+    , m_outlineColorParameter(new Qt3DRender::QParameter(QStringLiteral("outlineColor"), QVariant()))
     , m_imageSizeParameter(new Qt3DRender::QParameter(QStringLiteral("imageSize"), QVariant())){
 
     m_shaderProgram->setVertexShaderCode(
@@ -30,6 +31,7 @@ OutlineMaterial::OutlineMaterial()
     m_technique->addRenderPass(m_renderPass);
     m_effect->addTechnique(m_technique);
     m_effect->addParameter(m_outlineRenderingTextureParameter);
+    m_effect->addParameter(m_outlineColorParameter);
     m_effect->addParameter(m_imageSizeParameter);
 
     setEffect(m_effect);
@@ -37,6 +39,10 @@ OutlineMaterial::OutlineMaterial()
 
 void OutlineMaterial::setOutlineRenderingTexture(Qt3DRender::QTexture2D *texture) {
     m_outlineRenderingTextureParameter->setValue(QVariant::fromValue(texture));
+}
+
+void OutlineMaterial::setOutlineColor(const QVector4D &color) {
+    m_outlineColorParameter->setValue(color);
 }
 
 void OutlineMaterial::setImageSize(const QSize &size) {

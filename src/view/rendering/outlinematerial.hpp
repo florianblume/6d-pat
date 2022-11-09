@@ -9,11 +9,13 @@
 #include <Qt3DRender/QTexture>
 #include <Qt3DRender/QFilterKey>
 #include <Qt3DRender/QParameter>
+#include <QVector4D>
 
 class OutlineMaterial : public Qt3DRender::QMaterial {
 public:
     OutlineMaterial();
     void setOutlineRenderingTexture(Qt3DRender::QTexture2D *texture);
+    void setOutlineColor(const QVector4D &color);
     void setImageSize(const QSize &size);
 
 private:
@@ -23,6 +25,7 @@ private:
     Qt3DRender::QShaderProgram *m_shaderProgram;
     Qt3DRender::QFilterKey *m_filterKey;
     Qt3DRender::QParameter *m_outlineRenderingTextureParameter;
+    Qt3DRender::QParameter *m_outlineColorParameter;
     Qt3DRender::QParameter *m_imageSizeParameter;
 };
 

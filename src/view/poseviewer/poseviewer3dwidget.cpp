@@ -41,20 +41,27 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_viewport(new Qt3DRender::QViewport)
 
       // Outline poses rendering stuff
-      , m_posesOutlineLayerFilter(new Qt3DRender::QLayerFilter)
-      , m_posesOutlineLayer(new Qt3DRender::QLayer)
       , m_posesOutlineTechniqueFilter(new Qt3DRender::QTechniqueFilter)
       , m_posesOutlineFilterKey(new Qt3DRender::QFilterKey)
-      , m_posesOutlineRenderTargetSelector(new Qt3DRender::QRenderTargetSelector)
-      , m_posesOutlineRenderTarget(new Qt3DRender::QRenderTarget)
+      , m_posesOutlineCameraSelector(new Qt3DRender::QCameraSelector)
+      , m_posesOutlineHighlightedLayerFilter(new Qt3DRender::QLayerFilter)
+      , m_posesOutlineHighlightedLayer(new Qt3DRender::QLayer)
+      , m_posesOutlineHighlightedRenderTargetSelector(new Qt3DRender::QRenderTargetSelector)
+      , m_posesOutlineHighlightedRenderTarget(new Qt3DRender::QRenderTarget)
       , m_posesOutlineHighlightedOutput(new Qt3DRender::QRenderTargetOutput)
       , m_posesOutlineHighlightedTexture(new Qt3DRender::QTexture2D)
+      // Clearing outline render target
+      , m_posesOutlineHighlightedClearBuffers(new Qt3DRender::QClearBuffers)
+      , m_posesOutlineHighlightedNoDraw(new Qt3DRender::QNoDraw)
+      , m_posesOutlineSelectedLayerFilter(new Qt3DRender::QLayerFilter)
+      , m_posesOutlineSelectedLayer(new Qt3DRender::QLayer)
+      , m_posesOutlineSelectedRenderTargetSelector(new Qt3DRender::QRenderTargetSelector)
+      , m_posesOutlineSelectedRenderTarget(new Qt3DRender::QRenderTarget)
       , m_posesOutlineSelectedOutput(new Qt3DRender::QRenderTargetOutput)
       , m_posesOutlineSelectedTexture(new Qt3DRender::QTexture2D)
       // Clearing outline render target
-      , m_posesOutlineClearBuffers(new Qt3DRender::QClearBuffers)
-      , m_posesOutlineNoDraw(new Qt3DRender::QNoDraw)
-      , m_posesOutlineCameraSelector(new Qt3DRender::QCameraSelector)
+      , m_posesOutlineSelectedClearBuffers(new Qt3DRender::QClearBuffers)
+      , m_posesOutlineSelectedNoDraw(new Qt3DRender::QNoDraw)
 
       // Normal rendering stuff
       , m_mainTechniqueFilter(new Qt3DRender::QTechniqueFilter)
@@ -248,15 +255,16 @@ void PoseViewer3DWidget::initQt3D() {
     // ///////////////////////////////
     // Outline rendering framegraph //
     // ///////////////////////////////
-    m_posesOutlineLayerFilter->setParent(m_viewport);
-    m_posesOutlineLayerFilter->addLayer(m_posesOutlineLayer);
-    m_posesOutlineLayer->setRecursive(true);
-    m_posesOutlineTechniqueFilter->setParent(m_posesOutlineLayerFilter);
+    m_posesOutlineTechniqueFilter->setParent(m_viewport);
     m_posesOutlineFilterKey->setName(QStringLiteral("renderingStyle"));
-    m_posesOutlineFilterKey->setValue(QStringLiteral("outlineHighlighted"));
+    m_posesOutlineFilterKey->setValue(QStringLiteral("outline"));
     m_posesOutlineTechniqueFilter->addMatch(m_posesOutlineFilterKey);
-    m_posesOutlineRenderTargetSelector->setParent(m_posesOutlineTechniqueFilter);
+    // Second leaf draws the objects
+    m_posesOutlineCameraSelector->setParent(m_posesOutlineTechniqueFilter);
+    m_posesOutlineCameraSelector->setCamera(m_posesCamera);
 
+    // Highlighted
+    m_posesOutlineHighlightedRenderTargetSelector->setParent(m_posesOutlineCameraSelector);
     m_posesOutlineHighlightedOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color0);
     // Create a outline texture to render into.
     m_posesOutlineHighlightedTexture->setSize(width(), height());
@@ -265,9 +273,21 @@ void PoseViewer3DWidget::initQt3D() {
     m_posesOutlineHighlightedTexture->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
     // Hook the texture up to our output, and the output up to this object.
     m_posesOutlineHighlightedOutput->setTexture(m_posesOutlineHighlightedTexture);
-    m_posesOutlineRenderTarget->addOutput(m_posesOutlineHighlightedOutput);
+    m_posesOutlineHighlightedRenderTarget->addOutput(m_posesOutlineHighlightedOutput);
+    m_posesOutlineHighlightedRenderTargetSelector->setTarget(m_posesOutlineHighlightedRenderTarget);
 
-    m_posesOutlineSelectedOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color1);
+    m_posesOutlineHighlightedClearBuffers->setParent(m_posesOutlineHighlightedRenderTargetSelector);
+    m_posesOutlineHighlightedClearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
+    m_posesOutlineHighlightedClearBuffers->setClearColor(Qt::black);
+    m_posesOutlineHighlightedNoDraw->setParent(m_posesOutlineHighlightedClearBuffers);
+
+    m_posesOutlineHighlightedLayerFilter->setParent(m_posesOutlineHighlightedRenderTargetSelector);
+    m_posesOutlineHighlightedLayerFilter->addLayer(m_posesOutlineHighlightedLayer);
+    m_posesOutlineHighlightedLayer->setRecursive(true);
+
+    // Selected
+    m_posesOutlineSelectedRenderTargetSelector->setParent(m_posesOutlineCameraSelector);
+    m_posesOutlineSelectedOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color0);
     // Create a outline texture to render into.
     m_posesOutlineSelectedTexture->setSize(width(), height());
     m_posesOutlineSelectedTexture->setFormat(Qt3DRender::QAbstractTexture::RGB8_UNorm);
@@ -275,17 +295,17 @@ void PoseViewer3DWidget::initQt3D() {
     m_posesOutlineSelectedTexture->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
     // Hook the texture up to our output, and the output up to this object.
     m_posesOutlineSelectedOutput->setTexture(m_posesOutlineSelectedTexture);
-    m_posesOutlineRenderTarget->addOutput(m_posesOutlineSelectedOutput);
+    m_posesOutlineSelectedRenderTarget->addOutput(m_posesOutlineSelectedOutput);
 
-    m_posesOutlineRenderTargetSelector->setTarget(m_posesOutlineRenderTarget);
-    // First leaf clear buffers
-    m_posesOutlineClearBuffers->setParent(m_posesOutlineRenderTargetSelector);
-    m_posesOutlineClearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
-    m_posesOutlineClearBuffers->setClearColor(Qt::black);
-    m_posesOutlineNoDraw->setParent(m_posesOutlineClearBuffers);
-    // Second leaf draws the objects
-    m_posesOutlineCameraSelector->setParent(m_posesOutlineRenderTargetSelector);
-    m_posesOutlineCameraSelector->setCamera(m_posesCamera);
+    m_posesOutlineSelectedRenderTargetSelector->setTarget(m_posesOutlineSelectedRenderTarget);
+    m_posesOutlineSelectedClearBuffers->setParent(m_posesOutlineSelectedRenderTargetSelector);
+    m_posesOutlineSelectedClearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
+    m_posesOutlineSelectedClearBuffers->setClearColor(Qt::black);
+    m_posesOutlineSelectedNoDraw->setParent(m_posesOutlineSelectedClearBuffers);
+
+    m_posesOutlineSelectedLayerFilter->setParent(m_posesOutlineSelectedRenderTargetSelector);
+    m_posesOutlineSelectedLayerFilter->addLayer(m_posesOutlineSelectedLayer);
+    m_posesOutlineSelectedLayer->setRecursive(true);
 
     // /////////////////////////////
     // Main rendering framegraph //
@@ -386,14 +406,14 @@ void PoseViewer3DWidget::initQt3D() {
     m_outlineHighlightedRenderable->setParent(m_sceneRoot);
     m_outlineHighlightedRenderable->setImageSize(size());
     m_outlineHighlightedRenderable->setOutlineRenderingTexture(m_posesOutlineHighlightedTexture);
+    m_outlineHighlightedRenderable->setOutlineColor(QVector4D(1.0f, 1.0f, 1.0f, 1.0f));
     m_outlineHighlightedRenderable->addComponent(m_outlinePlaneLayer);
 
-    /*
     m_outlineSelectedRenderable->setParent(m_sceneRoot);
     m_outlineSelectedRenderable->setImageSize(size());
     m_outlineSelectedRenderable->setOutlineRenderingTexture(m_posesOutlineSelectedTexture);
+    m_outlineSelectedRenderable->setOutlineColor(QVector4D(1.0f, 0.8f, 0.3f, 1.0f));
     m_outlineSelectedRenderable->addComponent(m_outlinePlaneLayer);
-    */
 
     // Fith branch that draws the outline
     m_outlinePlaneLayerFilter->setParent(m_renderStateSet);
@@ -596,7 +616,7 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     connect(poseRenderable, &PoseRenderable::moved,
             [this, poseRenderable](Qt3DRender::QPickEvent *e){
         if (!m_gizmoIsTransforming) {
-            poseRenderable->addComponent(m_posesOutlineLayer);
+            poseRenderable->addComponent(m_posesOutlineHighlightedLayer);
             m_hoveredPose = poseRenderable;
             m_mouseOverPoseRenderable = true;
         }
@@ -606,7 +626,7 @@ void PoseViewer3DWidget::addPose(PosePtr pose) {
     connect(poseRenderable, &PoseRenderable::exited,
             [this, poseRenderable](){
         m_mouseOverPoseRenderable = false;
-        poseRenderable->removeComponent(m_posesOutlineLayer);
+        poseRenderable->removeComponent(m_posesOutlineHighlightedLayer);
         m_hoveredPose = Q_NULLPTR;
     });
     connect(poseRenderable, &PoseRenderable::pressed,
@@ -651,12 +671,14 @@ void PoseViewer3DWidget::removePose(PosePtr pose) {
 
 void PoseViewer3DWidget::selectPose(PosePtr selected, PosePtr deselected) {
     if (!deselected.isNull()) {
+        m_selectedPoseRenderable->removeComponent(m_posesOutlineSelectedLayer);
         m_selectedPoseRenderable = Q_NULLPTR;
     }
     // Check for inequality because otherwise the pose gets selected again
     // (which we don't want, if the same pose is selected again it is deselected)
     if (!selected.isNull() && selected != deselected) {
         PoseRenderable *newSelected = m_poseRenderableForId[selected->id()];
+        newSelected->addComponent(m_posesOutlineSelectedLayer);
         m_gizmo->setDelegateTransform(newSelected->transform());
         m_gizmo->setEnabled(true);
         m_selectedPoseRenderable = newSelected;
