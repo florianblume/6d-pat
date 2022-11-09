@@ -25,8 +25,8 @@ OutlineMaterial::OutlineMaterial()
     m_filterKey->setParent(this);
     m_filterKey->setName(QStringLiteral("renderingStyle"));
     m_filterKey->setValue(QStringLiteral("forward"));
-
     m_technique->addFilterKey(m_filterKey);
+
     m_renderPass->setShaderProgram(m_shaderProgram);
     m_technique->addRenderPass(m_renderPass);
     m_effect->addTechnique(m_technique);

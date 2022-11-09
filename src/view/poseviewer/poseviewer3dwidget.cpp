@@ -43,7 +43,7 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       // Outline poses rendering stuff
       , m_posesOutlineLayerFilter(new Qt3DRender::QLayerFilter)
       , m_posesOutlineLayer(new Qt3DRender::QLayer)
-      , m_posesOutlineRenderPassFilter(new Qt3DRender::QRenderPassFilter)
+      , m_posesOutlineTechniqueFilter(new Qt3DRender::QTechniqueFilter)
       , m_posesOutlineFilterKey(new Qt3DRender::QFilterKey)
       , m_posesOutlineRenderTargetSelector(new Qt3DRender::QRenderTargetSelector)
       , m_posesOutlineRenderTarget(new Qt3DRender::QRenderTarget)
@@ -55,8 +55,8 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_posesOutlineCameraSelector(new Qt3DRender::QCameraSelector)
 
       // Normal rendering stuff
-      , m_renderPassFilter(new Qt3DRender::QRenderPassFilter)
-      , m_filterKey(new Qt3DRender::QFilterKey)
+      , m_mainTechniqueFilter(new Qt3DRender::QTechniqueFilter)
+      , m_mainFilterKey(new Qt3DRender::QFilterKey)
       , m_renderTargetSelector(new Qt3DRender::QRenderTargetSelector)
       , m_renderTargetMS(new Qt3DRender::QRenderTarget)
       , m_colorOutputMS(new Qt3DRender::QRenderTargetOutput)
@@ -98,8 +98,8 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_noDraw2(new Qt3DRender::QNoDraw)
 
       // Outline branch
-      , m_outlineLayerFilter(new Qt3DRender::QLayerFilter)
-      , m_outlineLayer(new Qt3DRender::QLayer)
+      , m_outlinePlaneLayerFilter(new Qt3DRender::QLayerFilter)
+      , m_outlinePlaneLayer(new Qt3DRender::QLayer)
       , m_outlineRenderStateSet(new Qt3DRender::QRenderStateSet)
       , m_outlineStencilTest(new Qt3DRender::QStencilTest)
       , m_outlineStencilMask(new Qt3DRender::QStencilMask)
@@ -248,11 +248,11 @@ void PoseViewer3DWidget::initQt3D() {
     m_posesOutlineLayerFilter->setParent(m_viewport);
     m_posesOutlineLayerFilter->addLayer(m_posesOutlineLayer);
     m_posesOutlineLayer->setRecursive(true);
-    m_posesOutlineRenderPassFilter->setParent(m_posesOutlineLayerFilter);
+    m_posesOutlineTechniqueFilter->setParent(m_posesOutlineLayerFilter);
     m_posesOutlineFilterKey->setName(QStringLiteral("renderingStyle"));
     m_posesOutlineFilterKey->setValue(QStringLiteral("outlineHighlighted"));
-    m_posesOutlineRenderPassFilter->addMatch(m_posesOutlineFilterKey);
-    m_posesOutlineRenderTargetSelector->setParent(m_posesOutlineRenderPassFilter);
+    m_posesOutlineTechniqueFilter->addMatch(m_posesOutlineFilterKey);
+    m_posesOutlineRenderTargetSelector->setParent(m_posesOutlineTechniqueFilter);
     m_posesOutlineOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color0);
     // Create a outline texture to render into.
     m_posesOutlineTexture->setSize(width(), height());
@@ -266,7 +266,7 @@ void PoseViewer3DWidget::initQt3D() {
     // First leaf clear buffers
     m_posesOutlineClearBuffers->setParent(m_posesOutlineRenderTargetSelector);
     m_posesOutlineClearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
-    m_posesOutlineClearBuffers->setClearColor(Qt::red);
+    m_posesOutlineClearBuffers->setClearColor(Qt::green);
     m_posesOutlineNoDraw->setParent(m_posesOutlineClearBuffers);
     // Second leaf draws the objects
     m_posesOutlineCameraSelector->setParent(m_posesOutlineRenderTargetSelector);
@@ -278,11 +278,11 @@ void PoseViewer3DWidget::initQt3D() {
     m_renderTargetSelector->setParent(m_viewport);
     // Set the targets on the render target selector
     m_renderTargetSelector->setTarget(m_renderTargetMS);
-    m_renderPassFilter->setParent(m_renderTargetSelector);
-    m_filterKey->setParent(m_sceneRoot);
-    m_filterKey->setName(QStringLiteral("renderingStyle"));
-    m_filterKey->setValue(QStringLiteral("outlineHighlighted"));
-    m_renderPassFilter->addMatch(m_filterKey);
+    m_mainTechniqueFilter->setParent(m_renderTargetSelector);
+    m_mainFilterKey->setParent(m_mainTechniqueFilter);
+    m_mainFilterKey->setName(QStringLiteral("renderingStyle"));
+    m_mainFilterKey->setValue(QStringLiteral("forward"));
+    m_mainTechniqueFilter->addMatch(m_mainFilterKey);
 
     // Setup color with multisampling
     m_colorOutputMS->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color0);
@@ -312,13 +312,13 @@ void PoseViewer3DWidget::initQt3D() {
     m_renderTargetMS->addOutput(m_depthStencilOutputMS);
 
     // RenderStateSet will be used as parent for all subsequent branches
-    m_renderStateSet->setParent(m_renderPassFilter);
+    m_renderStateSet->setParent(m_mainTechniqueFilter);
     m_renderStateSet->addRenderState(m_multisampleAntialiasing);
 
     // First branch that clears the buffers
     m_clearBuffers->setParent(m_renderStateSet);
     m_clearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
-    m_clearBuffers->setClearColor(Qt::blue);
+    m_clearBuffers->setClearColor(Qt::white);
     m_noDraw->setParent(m_clearBuffers);
 
     // Second branch that draws the background image
@@ -371,12 +371,12 @@ void PoseViewer3DWidget::initQt3D() {
     m_outlineRenderable->setParent(m_sceneRoot);
     m_outlineRenderable->setImageSize(size());
     m_outlineRenderable->setObjectModelRenderingsTextureParameter(m_posesOutlineTexture);
-    m_outlineRenderable->addComponent(m_outlineLayer);
+    m_outlineRenderable->addComponent(m_outlinePlaneLayer);
 
     // Fith branch that draws the outline
-    m_outlineLayerFilter->setParent(m_renderStateSet);
-    m_outlineLayerFilter->addLayer(m_outlineLayer);
-    m_outlineCameraSelector->setParent(m_outlineLayerFilter);
+    m_outlinePlaneLayerFilter->setParent(m_renderStateSet);
+    m_outlinePlaneLayerFilter->addLayer(m_outlinePlaneLayer);
+    m_outlineCameraSelector->setParent(m_outlinePlaneLayerFilter);
     // We're reusing the background camera here, no need to construct the same camera again
     m_outlineCameraSelector->setCamera(m_backgroundCamera);
     m_outlineNoDepthMask->setParent(m_outlineCameraSelector);
@@ -915,7 +915,7 @@ void PoseViewer3DWidget::leaveEvent(QEvent *event) {
     if (m_hoveredPose) {
         // When the mouse leaves the widget the hovering
         // color does not get removed
-        m_hoveredPose->removeComponent(m_outlineLayer);
+        m_hoveredPose->removeComponent(m_outlinePlaneLayer);
     }
 }
 

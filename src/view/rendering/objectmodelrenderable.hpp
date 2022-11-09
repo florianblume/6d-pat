@@ -19,6 +19,7 @@
 #include <Qt3DRender/QShaderProgram>
 #include <Qt3DRender/QRenderPass>
 #include <Qt3DRender/QFilterKey>
+#include <Qt3DRender/QTechnique>
 
 class ObjectModelRenderable : public Qt3DCore::QEntity
 {
@@ -61,6 +62,8 @@ private:
     QList<Qt3DRender::QParameter*> m_colorsParameters;
     QList<Qt3DRender::QParameter*> m_clickCountParameters;
     QList<Qt3DRender::QParameter*> m_clickDiameterParameters;
+    // Will be used for both render passes
+    QPointer<Qt3DRender::QTechnique> m_outlineTechnique;
     QPointer<Qt3DRender::QRenderPass> m_outlineHighlightedRenderPass;
     QPointer<Qt3DRender::QFilterKey> m_outlineHighlightedFilterKey;
     QPointer<Qt3DRender::QParameter> m_outlineHighlightedColorParameter;

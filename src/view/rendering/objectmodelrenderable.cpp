@@ -116,9 +116,6 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
                 m_opacityParameters.append(parameter);
             }
         }
-        if (Qt3DRender::QFilterKey* filterKey = dynamic_cast<Qt3DRender::QFilterKey *>(node)) {
-            qDebug() << filterKey->name() << filterKey->value();
-        }
         if (Qt3DRender::QMaterial* material = dynamic_cast<Qt3DRender::QMaterial *>(node)) {
             Qt3DRender::QParameter *opacityParameter = new Qt3DRender::QParameter();
             opacityParameter->setName("opacity");
@@ -159,10 +156,6 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
 
             // Add render passes for outline effects to the material
             m_outlineHighlightedRenderPass = new Qt3DRender::QRenderPass();
-            m_outlineHighlightedFilterKey = new Qt3DRender::QFilterKey();
-            m_outlineHighlightedFilterKey->setName(QStringLiteral("renderingStyle"));
-            m_outlineHighlightedFilterKey->setValue(QStringLiteral("test"));
-            m_outlineHighlightedRenderPass->addFilterKey(m_outlineHighlightedFilterKey);
             m_outlineHighlightedShaderProgram = new Qt3DRender::QShaderProgram();
             // The shader codes are the same for highlighting and selecting but the color parameter is different
             m_outlineHighlightedShaderProgram->setVertexShaderCode(
@@ -173,14 +166,17 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
             m_outlineHighlightedColorParameter = new Qt3DRender::QParameter(
                         QStringLiteral("color"), HIGHLIGHTED_COLOR);
             m_outlineHighlightedRenderPass->addParameter(m_outlineHighlightedColorParameter);
-            QVector<Qt3DRender::QTechnique*> techniques = material->effect()->techniques();
-            // Now add that render pass to the only technique we support (i.e. OpenGL 3.x)
-            for (int i = 0; i < techniques.size(); i++) {
-                if (techniques[i]->graphicsApiFilter()->api() == Qt3DRender::QGraphicsApiFilter::OpenGL &&
-                    techniques[i]->graphicsApiFilter()->majorVersion() == 3) {
-                    techniques[i]->addRenderPass(m_outlineHighlightedRenderPass);
-                }
-            }
+
+            m_outlineTechnique = new Qt3DRender::QTechnique;
+            m_outlineTechnique->graphicsApiFilter()->setApi(Qt3DRender::QGraphicsApiFilter::OpenGL);
+            m_outlineTechnique->graphicsApiFilter()->setMajorVersion(3);
+            m_outlineTechnique->graphicsApiFilter()->setMinorVersion(0);
+            m_outlineHighlightedFilterKey = new Qt3DRender::QFilterKey();
+            m_outlineHighlightedFilterKey->setName(QStringLiteral("renderingStyle"));
+            m_outlineHighlightedFilterKey->setValue(QStringLiteral("forward"));
+            m_outlineTechnique->addFilterKey(m_outlineHighlightedFilterKey);
+            m_outlineTechnique->addRenderPass(m_outlineHighlightedRenderPass);
+            material->effect()->addTechnique(m_outlineTechnique);
         }
         if (Qt3DExtras::QPhongMaterial* material = dynamic_cast<Qt3DExtras::QPhongMaterial *>(node)) {
             // TODO make configurable from settings

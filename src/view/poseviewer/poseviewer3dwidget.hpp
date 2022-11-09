@@ -58,6 +58,7 @@
 #include <Qt3DRender/QMultiSampleAntiAliasing>
 #include <Qt3DRender/QRenderCapture>
 #include <Qt3DRender/QRenderCaptureReply>
+#include <Qt3DRender/QTechniqueFilter>
 #include <Qt3DRender/QRenderPassFilter>
 #include <Qt3DRender/QParameter>
 #include <Qt3DRender/QRenderStateSet>
@@ -239,7 +240,7 @@ private:
     // Render stuff for outline framegraph
     Qt3DRender::QLayerFilter *m_posesOutlineLayerFilter;
     Qt3DRender::QLayer *m_posesOutlineLayer;
-    Qt3DRender::QRenderPassFilter *m_posesOutlineRenderPassFilter;
+    Qt3DRender::QTechniqueFilter *m_posesOutlineTechniqueFilter;
     Qt3DRender::QFilterKey *m_posesOutlineFilterKey;
     Qt3DRender::QRenderTargetSelector *m_posesOutlineRenderTargetSelector;
     Qt3DRender::QRenderTarget *m_posesOutlineRenderTarget;
@@ -250,8 +251,8 @@ private:
     Qt3DRender::QCameraSelector *m_posesOutlineCameraSelector;
 
     // Normal framegraph
-    Qt3DRender::QRenderPassFilter *m_renderPassFilter;
-    Qt3DRender::QFilterKey *m_filterKey;
+    Qt3DRender::QTechniqueFilter *m_mainTechniqueFilter;
+    Qt3DRender::QFilterKey *m_mainFilterKey;
     Qt3DRender::QRenderTargetSelector *m_renderTargetSelector;
     Qt3DRender::QRenderTarget *m_renderTargetMS;
     Qt3DRender::QRenderTargetOutput *m_colorOutputMS;
@@ -298,8 +299,8 @@ private:
     Qt3DRender::QNoDraw *m_noDraw2;
 
     // Outline branch
-    Qt3DRender::QLayerFilter *m_outlineLayerFilter;
-    Qt3DRender::QLayer *m_outlineLayer;
+    Qt3DRender::QLayerFilter *m_outlinePlaneLayerFilter;
+    Qt3DRender::QLayer *m_outlinePlaneLayer;
     Qt3DRender::QRenderStateSet *m_outlineRenderStateSet;
     Qt3DRender::QStencilTest *m_outlineStencilTest;
     Qt3DRender::QStencilMask *m_outlineStencilMask;
