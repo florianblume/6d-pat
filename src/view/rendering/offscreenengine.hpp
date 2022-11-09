@@ -28,6 +28,8 @@
 #include <Qt3DRender/QCameraSelector>
 #include <Qt3DRender/QCamera>
 #include <Qt3DRender/QSceneLoader>
+#include <Qt3DRender/QTechniqueFilter>
+#include <Qt3DRender/QFilterKey>
 
 // The OffscreenEngine brings together various Qt3D classes that are required in order to
 // perform basic scene rendering. Of these, the most important for this project is the OffscreenSurfaceFrameGraph.
@@ -72,6 +74,8 @@ private:
 
     OffscreenTextureRenderTarget *m_textureTarget;
     QOffscreenSurface *m_offscreenSurface;
+    Qt3DRender::QTechniqueFilter *m_techniqueFilter;
+    Qt3DRender::QFilterKey *m_filterKey;
     Qt3DRender::QRenderSurfaceSelector *m_renderSurfaceSelector;
     Qt3DRender::QRenderTargetSelector *m_renderTargetSelector;
     Qt3DRender::QViewport *m_viewport;

@@ -13,8 +13,7 @@
 class OutlineMaterial : public Qt3DRender::QMaterial {
 public:
     OutlineMaterial();
-    void setObjectModelRenderingsTextureParameter(Qt3DRender::QTexture2D *outlineTexture);
-    void setSamples(int samples);
+    void setOutlineRenderingTexture(Qt3DRender::QTexture2D *texture);
     void setImageSize(const QSize &size);
 
 private:
@@ -23,8 +22,7 @@ private:
     Qt3DRender::QRenderPass *m_renderPass;
     Qt3DRender::QShaderProgram *m_shaderProgram;
     Qt3DRender::QFilterKey *m_filterKey;
-    Qt3DRender::QParameter *m_objectModelRenderingsTextureParameter;
-    Qt3DRender::QParameter *m_samplesParameter;
+    Qt3DRender::QParameter *m_outlineRenderingTextureParameter;
     Qt3DRender::QParameter *m_imageSizeParameter;
 };
 

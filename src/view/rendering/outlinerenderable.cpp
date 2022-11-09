@@ -13,12 +13,8 @@ OutlineRenderable::OutlineRenderable(Qt3DCore::QNode *parent)
     m_transform->setRotationX(90);
 }
 
-void OutlineRenderable::setObjectModelRenderingsTextureParameter(Qt3DRender::QTexture2D *objectModelRenderingsTexture) {
-    m_material->setObjectModelRenderingsTextureParameter(objectModelRenderingsTexture);
-}
-
-void OutlineRenderable::setSamples(int samples) {
-    m_material->setSamples(samples);
+void OutlineRenderable::setOutlineRenderingTexture(Qt3DRender::QTexture2D *objectModelRenderingsTexture) {
+    m_material->setOutlineRenderingTexture(objectModelRenderingsTexture);
 }
 
 void OutlineRenderable::setImageSize(const QSize &size) {

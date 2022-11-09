@@ -47,8 +47,10 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_posesOutlineFilterKey(new Qt3DRender::QFilterKey)
       , m_posesOutlineRenderTargetSelector(new Qt3DRender::QRenderTargetSelector)
       , m_posesOutlineRenderTarget(new Qt3DRender::QRenderTarget)
-      , m_posesOutlineOutput(new Qt3DRender::QRenderTargetOutput)
-      , m_posesOutlineTexture(new Qt3DRender::QTexture2D)
+      , m_posesOutlineHighlightedOutput(new Qt3DRender::QRenderTargetOutput)
+      , m_posesOutlineHighlightedTexture(new Qt3DRender::QTexture2D)
+      , m_posesOutlineSelectedOutput(new Qt3DRender::QRenderTargetOutput)
+      , m_posesOutlineSelectedTexture(new Qt3DRender::QTexture2D)
       // Clearing outline render target
       , m_posesOutlineClearBuffers(new Qt3DRender::QClearBuffers)
       , m_posesOutlineNoDraw(new Qt3DRender::QNoDraw)
@@ -106,7 +108,8 @@ PoseViewer3DWidget::PoseViewer3DWidget(QWidget *parent)
       , m_outlineCameraSelector(new Qt3DRender::QCameraSelector)
       , m_outlineNoDepthMask(new Qt3DRender::QNoDepthMask)
       , m_outlineNoPicking(new Qt3DRender::QNoPicking)
-      , m_outlineRenderable(new OutlineRenderable)
+      , m_outlineHighlightedRenderable(new OutlineRenderable)
+      , m_outlineSelectedRenderable(new OutlineRenderable)
 
       // Gizmo branch
       , m_gizmoLayerFilter(new Qt3DRender::QLayerFilter)
@@ -253,20 +256,32 @@ void PoseViewer3DWidget::initQt3D() {
     m_posesOutlineFilterKey->setValue(QStringLiteral("outlineHighlighted"));
     m_posesOutlineTechniqueFilter->addMatch(m_posesOutlineFilterKey);
     m_posesOutlineRenderTargetSelector->setParent(m_posesOutlineTechniqueFilter);
-    m_posesOutlineOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color0);
+
+    m_posesOutlineHighlightedOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color0);
     // Create a outline texture to render into.
-    m_posesOutlineTexture->setSize(width(), height());
-    m_posesOutlineTexture->setFormat(Qt3DRender::QAbstractTexture::RGB8_UNorm);
-    m_posesOutlineTexture->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
-    m_posesOutlineTexture->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
+    m_posesOutlineHighlightedTexture->setSize(width(), height());
+    m_posesOutlineHighlightedTexture->setFormat(Qt3DRender::QAbstractTexture::RGB8_UNorm);
+    m_posesOutlineHighlightedTexture->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
+    m_posesOutlineHighlightedTexture->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
     // Hook the texture up to our output, and the output up to this object.
-    m_posesOutlineOutput->setTexture(m_posesOutlineTexture);
-    m_posesOutlineRenderTarget->addOutput(m_posesOutlineOutput);
+    m_posesOutlineHighlightedOutput->setTexture(m_posesOutlineHighlightedTexture);
+    m_posesOutlineRenderTarget->addOutput(m_posesOutlineHighlightedOutput);
+
+    m_posesOutlineSelectedOutput->setAttachmentPoint(Qt3DRender::QRenderTargetOutput::Color1);
+    // Create a outline texture to render into.
+    m_posesOutlineSelectedTexture->setSize(width(), height());
+    m_posesOutlineSelectedTexture->setFormat(Qt3DRender::QAbstractTexture::RGB8_UNorm);
+    m_posesOutlineSelectedTexture->setMinificationFilter(Qt3DRender::QAbstractTexture::Linear);
+    m_posesOutlineSelectedTexture->setMagnificationFilter(Qt3DRender::QAbstractTexture::Linear);
+    // Hook the texture up to our output, and the output up to this object.
+    m_posesOutlineSelectedOutput->setTexture(m_posesOutlineSelectedTexture);
+    m_posesOutlineRenderTarget->addOutput(m_posesOutlineSelectedOutput);
+
     m_posesOutlineRenderTargetSelector->setTarget(m_posesOutlineRenderTarget);
     // First leaf clear buffers
     m_posesOutlineClearBuffers->setParent(m_posesOutlineRenderTargetSelector);
     m_posesOutlineClearBuffers->setBuffers(Qt3DRender::QClearBuffers::AllBuffers);
-    m_posesOutlineClearBuffers->setClearColor(Qt::green);
+    m_posesOutlineClearBuffers->setClearColor(Qt::black);
     m_posesOutlineNoDraw->setParent(m_posesOutlineClearBuffers);
     // Second leaf draws the objects
     m_posesOutlineCameraSelector->setParent(m_posesOutlineRenderTargetSelector);
@@ -368,10 +383,17 @@ void PoseViewer3DWidget::initQt3D() {
     m_noDraw2->setParent(m_clearBuffers2);
 
     // Setup outline renderable
-    m_outlineRenderable->setParent(m_sceneRoot);
-    m_outlineRenderable->setImageSize(size());
-    m_outlineRenderable->setObjectModelRenderingsTextureParameter(m_posesOutlineTexture);
-    m_outlineRenderable->addComponent(m_outlinePlaneLayer);
+    m_outlineHighlightedRenderable->setParent(m_sceneRoot);
+    m_outlineHighlightedRenderable->setImageSize(size());
+    m_outlineHighlightedRenderable->setOutlineRenderingTexture(m_posesOutlineHighlightedTexture);
+    m_outlineHighlightedRenderable->addComponent(m_outlinePlaneLayer);
+
+    /*
+    m_outlineSelectedRenderable->setParent(m_sceneRoot);
+    m_outlineSelectedRenderable->setImageSize(size());
+    m_outlineSelectedRenderable->setOutlineRenderingTexture(m_posesOutlineSelectedTexture);
+    m_outlineSelectedRenderable->addComponent(m_outlinePlaneLayer);
+    */
 
     // Fith branch that draws the outline
     m_outlinePlaneLayerFilter->setParent(m_renderStateSet);
@@ -650,7 +672,6 @@ void PoseViewer3DWidget::setSamples(int samples) {
     m_samples = DisplayHelper::indexToMultisampleSamlpes(samples);
     m_colorTextureMS->setSamples(m_samples);
     m_depthStencilTextureMS->setSamples(m_samples);
-    m_outlineRenderable->setSamples(m_samples);
     if (m_initialized) {
         makeCurrent();
         m_shaderProgram->bind();
@@ -665,9 +686,11 @@ void PoseViewer3DWidget::setRenderingSize(const QSize &size) {
     int h = size.height();
     m_gizmo->setWindowSize(size);
     m_colorTextureMS->setSize(w, h);
-    m_posesOutlineTexture->setSize(w, h);
+    m_posesOutlineHighlightedTexture->setSize(w, h);
+    m_posesOutlineSelectedTexture->setSize(w, h);
     m_depthStencilTextureMS->setSize(w, h);
-    m_outlineRenderable->setImageSize(size);
+    m_outlineHighlightedRenderable->setImageSize(size);
+    m_outlineSelectedRenderable->setImageSize(size);
     m_renderSurfaceSelector->setExternalRenderTargetSize(size);
     m_clickVisualizationRenderable->setSize(size);
     m_clickVisualizationCamera->lens()->setOrthographicProjection(-w / 2.f, w / 2.f,

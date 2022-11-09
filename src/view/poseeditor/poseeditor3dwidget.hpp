@@ -22,6 +22,8 @@
 #include <Qt3DRender/QRenderStateSet>
 #include <Qt3DRender/QDepthTest>
 #include <Qt3DRender/QMultiSampleAntiAliasing>
+#include <Qt3DRender/QTechniqueFilter>
+#include <Qt3DRender/QFilterKey>
 #include <Qt3DRender/QRenderSurfaceSelector>
 #include <Qt3DRender/QClearBuffers>
 #include <Qt3DRender/QNoDraw>
@@ -63,6 +65,8 @@ private Q_SLOTS:
 private:
     // Framegraph stuff
     // Base framegraph
+    Qt3DRender::QTechniqueFilter *m_techniqueFilter;
+    Qt3DRender::QFilterKey *m_filterKey;
     Qt3DRender::QRenderSurfaceSelector *m_renderSurfaceSelector;
     Qt3DRender::QRenderStateSet *m_renderStateSet;
     Qt3DRender::QMultiSampleAntiAliasing *m_multisampleAntialiasing;

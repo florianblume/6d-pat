@@ -244,8 +244,10 @@ private:
     Qt3DRender::QFilterKey *m_posesOutlineFilterKey;
     Qt3DRender::QRenderTargetSelector *m_posesOutlineRenderTargetSelector;
     Qt3DRender::QRenderTarget *m_posesOutlineRenderTarget;
-    Qt3DRender::QRenderTargetOutput *m_posesOutlineOutput;
-    Qt3DRender::QTexture2D *m_posesOutlineTexture;
+    Qt3DRender::QRenderTargetOutput *m_posesOutlineHighlightedOutput;
+    Qt3DRender::QTexture2D *m_posesOutlineHighlightedTexture;
+    Qt3DRender::QRenderTargetOutput *m_posesOutlineSelectedOutput;
+    Qt3DRender::QTexture2D *m_posesOutlineSelectedTexture;
     Qt3DRender::QClearBuffers *m_posesOutlineClearBuffers;
     Qt3DRender::QNoDraw *m_posesOutlineNoDraw;
     Qt3DRender::QCameraSelector *m_posesOutlineCameraSelector;
@@ -309,7 +311,8 @@ private:
     Qt3DRender::QCameraSelector *m_outlineCameraSelector;
     Qt3DRender::QNoDepthMask *m_outlineNoDepthMask;
     Qt3DRender::QNoPicking *m_outlineNoPicking;
-    QPointer<OutlineRenderable> m_outlineRenderable;
+    QPointer<OutlineRenderable> m_outlineHighlightedRenderable;
+    QPointer<OutlineRenderable> m_outlineSelectedRenderable;
 
     // ClickVisualization branch
     Qt3DRender::QLayerFilter *m_gizmoLayerFilter;

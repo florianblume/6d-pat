@@ -170,10 +170,11 @@ void ObjectModelRenderable::traverseNodes(Qt3DCore::QNode *currentNode) {
             m_outlineTechnique = new Qt3DRender::QTechnique;
             m_outlineTechnique->graphicsApiFilter()->setApi(Qt3DRender::QGraphicsApiFilter::OpenGL);
             m_outlineTechnique->graphicsApiFilter()->setMajorVersion(3);
-            m_outlineTechnique->graphicsApiFilter()->setMinorVersion(0);
+            m_outlineTechnique->graphicsApiFilter()->setMinorVersion(1);
+            m_outlineTechnique->graphicsApiFilter()->setProfile(Qt3DRender::QGraphicsApiFilter::CoreProfile);
             m_outlineHighlightedFilterKey = new Qt3DRender::QFilterKey();
             m_outlineHighlightedFilterKey->setName(QStringLiteral("renderingStyle"));
-            m_outlineHighlightedFilterKey->setValue(QStringLiteral("forward"));
+            m_outlineHighlightedFilterKey->setValue(QStringLiteral("outlineHighlighted"));
             m_outlineTechnique->addFilterKey(m_outlineHighlightedFilterKey);
             m_outlineTechnique->addRenderPass(m_outlineHighlightedRenderPass);
             material->effect()->addTechnique(m_outlineTechnique);

@@ -8,8 +8,7 @@ OutlineMaterial::OutlineMaterial()
     , m_renderPass(new Qt3DRender::QRenderPass())
     , m_shaderProgram(new Qt3DRender::QShaderProgram())
     , m_filterKey(new Qt3DRender::QFilterKey)
-    , m_objectModelRenderingsTextureParameter(new Qt3DRender::QParameter(QStringLiteral("objectModelRenderings"), QVariantList()))
-    , m_samplesParameter(new Qt3DRender::QParameter(QStringLiteral("samples"), 1))
+    , m_outlineRenderingTextureParameter(new Qt3DRender::QParameter(QStringLiteral("outlineRendering"), QVariantList()))
     , m_imageSizeParameter(new Qt3DRender::QParameter(QStringLiteral("imageSize"), QVariant())){
 
     m_shaderProgram->setVertexShaderCode(
@@ -30,19 +29,14 @@ OutlineMaterial::OutlineMaterial()
     m_renderPass->setShaderProgram(m_shaderProgram);
     m_technique->addRenderPass(m_renderPass);
     m_effect->addTechnique(m_technique);
-    m_effect->addParameter(m_objectModelRenderingsTextureParameter);
-    m_effect->addParameter(m_samplesParameter);
+    m_effect->addParameter(m_outlineRenderingTextureParameter);
     m_effect->addParameter(m_imageSizeParameter);
 
     setEffect(m_effect);
 }
 
-void OutlineMaterial::setObjectModelRenderingsTextureParameter(Qt3DRender::QTexture2D *outlineTexture) {
-    m_objectModelRenderingsTextureParameter->setValue(QVariant::fromValue(outlineTexture));
-}
-
-void OutlineMaterial::setSamples(int samples) {
-    m_samplesParameter->setValue(samples);
+void OutlineMaterial::setOutlineRenderingTexture(Qt3DRender::QTexture2D *texture) {
+    m_outlineRenderingTextureParameter->setValue(QVariant::fromValue(texture));
 }
 
 void OutlineMaterial::setImageSize(const QSize &size) {
