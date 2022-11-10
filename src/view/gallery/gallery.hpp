@@ -29,6 +29,7 @@ public Q_SLOTS:
     void reset();
     void enable();
     void disable();
+    bool hasItemSelection();
 
 Q_SIGNALS:
     void selectedItemChanged(int index);

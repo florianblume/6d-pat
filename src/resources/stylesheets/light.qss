@@ -148,7 +148,7 @@ QLineEdit {
     border: 1px solid #cccccc;
     border-radius: 2px;
     padding: 5px 10px;
-    selection-color: #c6e5ff;
+    selection-background-color: #9ed2ff;
 }
 
 QLineEdit:hover:!pressed {

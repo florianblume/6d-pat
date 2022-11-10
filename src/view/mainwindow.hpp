@@ -41,7 +41,7 @@ public:
     void resizeEvent(QResizeEvent *e) override;
 
     void abortPoseCreation();
-    void setStatusBarTextStartAddingCorrespondences();
+    void setStatusBarTextIdle();
     void setStatusBarText2DPointMissing(int numberOfCorrespondences, int minNumberOfCorrespondences);
     void setStatusBarText3DPointMissing(int numberOfCorrespondences, int minNumberOfCorrespondences);
     void setStatusBarTextNotEnoughCorrespondences(int numberOfCorrespondences, int minNumberOfCorrespondences);

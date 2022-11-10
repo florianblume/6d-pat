@@ -336,7 +336,7 @@ void PosesEditingController::onSelectedImageChanged(int index) {
     m_points2D.clear();
     m_points3D.clear();
     m_state = Empty;
-    m_mainWindow->setStatusBarTextStartAddingCorrespondences();
+    m_mainWindow->setStatusBarTextIdle();
     m_posesToAdd.clear();
     m_posesToRemove.clear();
     m_dirtyPoses.clear();
@@ -521,7 +521,7 @@ void PosesEditingController::createPose() {
                              m_currentObjectModel));
 
     addPose(newPose);
-    m_mainWindow->setStatusBarTextStartAddingCorrespondences();
+    m_mainWindow->setStatusBarTextIdle();
     m_points2D.clear();
     m_mainWindow->poseViewer()->onPoseCreationAborted();
     m_points3D.clear();
@@ -533,7 +533,7 @@ void PosesEditingController::abortPoseCreation() {
     m_state = Empty;
     m_points2D.clear();
     m_points3D.clear();
-    m_mainWindow->setStatusBarTextStartAddingCorrespondences();
+    m_mainWindow->setStatusBarTextIdle();
     m_mainWindow->poseEditor()->onPoseCreationAborted();
     m_mainWindow->poseViewer()->onPoseCreationAborted();
 }

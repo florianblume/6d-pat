@@ -135,6 +135,7 @@ QVector3D DisplayHelper::arcBallVectorForMousePos(const QPointF &pos, const QSiz
 }
 
 QString DisplayHelper::qtMouseButtonToString(Qt::MouseButton mouseButton) {
+    qDebug() << mouseButton;
     switch (mouseButton) {
     case Qt::LeftButton:
         return "left mouse button";
