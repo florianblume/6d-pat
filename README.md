@@ -6,11 +6,20 @@
 
 *For detiled explanations checkout the [WikiPage](https://github.com/florianblume/6d-pat/wiki).*
 
-### What is it?
+## What is this program for?
 
 With 6D-PAT you can create 6D annotations on images for 6D pose estimation, i.e. annotate 2D images with the 3D rotation and 3D translation of 3D models.
 
-### How does it work?
+## Quickstart (only for Ubuntu)
+
+1. Get the latest AppImage from the [releases page](https://github.com/florianblume/6d-pat/releases).
+2. Download [zipped example data](https://github.com/florianblume/6d-pat/blob/master/example_data/example_data.zip).
+3. Unzip the zip file in a location of your liking
+4. Give the downloaded AppImage permissions to be executed
+5. Execute with double-click
+6. Go to `Settings` -> `Paths` and point to the directories unpacked from the zip files. You should then be able to see the example data.
+
+## How does it work?
 
 The program allows you to select a folder and view the images contained in it in a gallery. Selecting one of the images will display it at a larger scale to create new 6D pose annotations. The 3D models for those annotations are displayed in a second gallery which also loads the models from a specified folder. In the 3D viewer of the program, you can inspect a selected 3D model, rotate it and use it to create a new pose annotation.
 
