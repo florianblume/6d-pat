@@ -60,7 +60,7 @@
                  "substitution": "vec4 $result = visualizeClicks($currentColor, $interpolatedVertex, $clickCount, $clicks, $clickColors, $clickDiameter);"
               }
             ]
-      }
+       }
     },
     "nodes": [
         {
@@ -75,21 +75,6 @@
                 "type": {
                     "type": "QShaderLanguage::VariableType",
                     "value": "QShaderLanguage::Float"
-                }
-            }
-        },
-        {
-            "uuid": "{00000000-0000-0000-0000-000000000102}",
-            "type": "input",
-            "parameters": {
-                "name": "highlightedOrSelectedColor",
-                "qualifier": {
-                    "type": "QShaderLanguage::StorageQualifier",
-                    "value": "QShaderLanguage::Uniform"
-                },
-                "type": {
-                    "type": "QShaderLanguage::VariableType",
-                    "value": "QShaderLanguage::Vec4"
                 }
             }
         },
@@ -629,26 +614,14 @@
             "targetPort": "shininess"
         },
         {
-            "sourceUuid": "{00000000-0000-0000-0000-000000000024}",
-            "sourcePort": "outputColor",
-            "targetUuid": "{00000000-0000-0000-0000-000000000109}",
-            "targetPort": "first"
-        },
-        {
-            "sourceUuid": "{00000000-0000-0000-0000-000000000102}",
-            "sourcePort": "value",
-            "targetUuid": "{00000000-0000-0000-0000-000000000109}",
-            "targetPort": "second"
-        },
-        {
             "sourceUuid": "{00000000-0000-0000-0000-000000000101}",
             "sourcePort": "value",
             "targetUuid": "{00000000-0000-0000-0000-000000000111}",
             "targetPort": "opacity"
         },
         {
-            "sourceUuid": "{00000000-0000-0000-0000-000000000109}",
-            "sourcePort": "sum",
+            "sourceUuid": "{00000000-0000-0000-0000-000000000024}",
+            "sourcePort": "outputColor",
             "targetUuid": "{00000000-0000-0000-0000-000000000111}",
             "targetPort": "color"
         },

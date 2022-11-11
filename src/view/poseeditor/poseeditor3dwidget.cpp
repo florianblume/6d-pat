@@ -23,6 +23,8 @@
 PoseEditor3DWindow::PoseEditor3DWindow()
     : Qt3DExtras::Qt3DWindow()
     // Root framegraph
+    , m_techniqueFilter(new Qt3DRender::QTechniqueFilter)
+    , m_filterKey(new Qt3DRender::QFilterKey)
     , m_renderSurfaceSelector(new Qt3DRender::QRenderSurfaceSelector)
     , m_renderStateSet(new Qt3DRender::QRenderStateSet)
     , m_multisampleAntialiasing(new Qt3DRender::QMultiSampleAntiAliasing)
@@ -53,6 +55,10 @@ PoseEditor3DWindow::PoseEditor3DWindow()
 
     // Setup framegraph
     // Root
+    m_filterKey->setName(QStringLiteral("renderingStyle"));
+    m_filterKey->setValue(QStringLiteral("forward"));
+    m_techniqueFilter->addMatch(m_filterKey);
+    m_renderSurfaceSelector->setParent(m_techniqueFilter);
     m_renderSurfaceSelector->setSurface(this);
     m_viewport->setParent(m_renderSurfaceSelector);
 
@@ -89,7 +95,7 @@ PoseEditor3DWindow::PoseEditor3DWindow()
     m_gizmoCameraSelector->setParent(m_gizmoRenderStateSet);
     m_gizmoCameraSelector->setCamera(m_camera);
 
-    setActiveFrameGraph(m_renderSurfaceSelector);
+    setActiveFrameGraph(m_techniqueFilter);
     renderSettings()->pickingSettings()->setPickMethod(Qt3DRender::QPickingSettings::TrianglePicking);
     renderSettings()->pickingSettings()->setFaceOrientationPickingMode(Qt3DRender::QPickingSettings::FrontAndBackFace);
     renderSettings()->pickingSettings()->setPickResultMode(Qt3DRender::QPickingSettings::NearestPriorityPick);

@@ -60,6 +60,10 @@ void Gallery::disable() {
     setEnabled(false);
 }
 
+bool Gallery::hasItemSelection() {
+    return ui->listView->selectionModel()->hasSelection();
+}
+
 void Gallery::onSelectionChanged(const QItemSelection &selected,
                                  const QItemSelection &/* deselected */) {
     if (selected.size() > 0 && !m_ignoreSelectionChanges) {

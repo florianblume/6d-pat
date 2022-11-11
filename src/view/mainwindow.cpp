@@ -69,6 +69,10 @@ MainWindow::MainWindow(QWidget *parent,
 }
 
 MainWindow::~MainWindow() {
+    m_progressDialog->close();
+    delete m_progressDialog;
+    delete m_galleryImageModel;
+    delete m_galleryObjectModelModel;
     delete ui;
 }
 
@@ -143,10 +147,31 @@ void MainWindow::setGalleryObjectModelModel(GalleryObjectModelModel* model) {
     connect(model, &GalleryObjectModelModel::displayedObjectModelsChanged, ui->galleryRight, &Gallery::reset);
 }
 
-void MainWindow::setStatusBarTextStartAddingCorrespondences() {
-    Qt::MouseButton button = this->m_settingsStore->currentSettings()->addCorrespondencePointMouseButton();
-    QString buttonString = DisplayHelper::qtMouseButtonToString(button);
-    setStatusBarText("Start adding correspondences by clicking [" + buttonString + "] on either the image or object model.");
+void MainWindow::setStatusBarTextIdle() {
+    bool selectItemsFirst = false;
+    QString message;
+    if (!ui->galleryLeft->hasItemSelection()) {
+        message += "Select an image from the images gallery. ";
+        selectItemsFirst = true;
+    }
+    if (!ui->galleryRight->hasItemSelection()) {
+        message += "Select an object model from the object models gallery.";
+        selectItemsFirst = true;
+    }
+    if (selectItemsFirst) {
+        setStatusBarText(message);
+    } else {
+        Qt::MouseButton buttonCorrespondences = this->m_settingsStore->currentSettings()->addCorrespondencePointMouseButton();
+        QString buttonCorrespondencesString = DisplayHelper::qtMouseButtonToString(buttonCorrespondences);
+        Qt::MouseButton buttonSelectPoseRenderable = this->m_settingsStore->currentSettings()->selectPoseRenderableMouseButton();
+        QString buttonSelectPoseRenderableString = DisplayHelper::qtMouseButtonToString(buttonSelectPoseRenderable);
+        Qt::MouseButton buttonMoveImage = this->m_settingsStore->currentSettings()->moveBackgroundImageRenderableMouseButton();
+        QString buttonMoveImageString = DisplayHelper::qtMouseButtonToString(buttonMoveImage);
+        setStatusBarText(
+                    "Start adding correspondences with [" + buttonCorrespondencesString +
+                    "] on image or object model. Select a pose with [" + buttonSelectPoseRenderableString + "]. " +
+                    "Move the image with [" + buttonMoveImageString + "].");
+    }
 }
 
 void MainWindow::setStatusBarText2DPointMissing(int numberOfCorrespondences, int minNumberOfCorrespondences) {
@@ -288,6 +313,10 @@ void MainWindow::setPathsOnGalleriesAndBreadcrumbs() {
 void MainWindow::onSettingsChanged(SettingsPtr settings) {
     m_galleryObjectModelModel->setSegmentationCodesForObjectModels(settings->segmentationCodes());
     setPathsOnGalleriesAndBreadcrumbs();
+    if (m_statusBarLabel->text().contains("Start adding correspondences")) {
+        // A bit hacky but this way we know when to update the displayed buttons
+        setStatusBarTextIdle();
+    }
 }
 
 void MainWindow::onActionAboutTriggered() {
@@ -328,13 +357,13 @@ void MainWindow::onActionAbortCreationTriggered() {
 }
 
 void MainWindow::onActionResetTriggered() {
-    setStatusBarTextStartAddingCorrespondences();
+    setStatusBarTextIdle();
     Q_EMIT resetRequested();
 }
 
 void MainWindow::onActionReloadViewsTriggered() {
     Q_EMIT reloadViewsRequested();
-    setStatusBarTextStartAddingCorrespondences();
+    setStatusBarTextIdle();
 }
 
 void MainWindow::onActionTakeSnapshotTriggered() {

@@ -5,6 +5,7 @@
 #include "view/rendering/backgroundimagerenderable.hpp"
 #include "view/rendering/poserenderable.hpp"
 #include "view/rendering/clickvisualizationrenderable.hpp"
+#include "view/rendering/outlinerenderable.hpp"
 #include "view/rendering/arcballrotationhandler.hpp"
 #include "view/rendering/translationhandler.hpp"
 #include "view/rendering/gizmo/qt3dgizmo.hpp"
@@ -33,6 +34,7 @@
 #include <QOpenGLShader>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
+#include <QVector4D>
 
 #include <Qt3DCore/QAspectEngine>
 #include <Qt3DLogic/QLogicAspect>
@@ -57,12 +59,18 @@
 #include <Qt3DRender/QMultiSampleAntiAliasing>
 #include <Qt3DRender/QRenderCapture>
 #include <Qt3DRender/QRenderCaptureReply>
+#include <Qt3DRender/QTechniqueFilter>
 #include <Qt3DRender/QRenderPassFilter>
 #include <Qt3DRender/QParameter>
 #include <Qt3DRender/QRenderStateSet>
 #include <Qt3DRender/QFrustumCulling>
 #include <Qt3DRender/QBlendEquationArguments>
 #include <Qt3DRender/QBlendEquation>
+#include <Qt3DRender/QStencilMask>
+#include <Qt3DRender/QStencilOperation>
+#include <Qt3DRender/QStencilTest>
+#include <Qt3DRender/QStencilOperationArguments>
+#include <Qt3DRender/QStencilTestArguments>
 
 class PoseViewer3DWidget : public QOpenGLWidget
 {
@@ -186,23 +194,6 @@ private:
     // To get notified when a frame is ready
     Qt3DLogic::QFrameAction *m_frameAction;
 
-    // Scene
-    // Scene root will be added as a child
-    Qt3DCore::QEntity *m_root;
-
-    // Offscreen framegraph
-    QOffscreenSurface *m_offscreenSurface;
-    Qt3DRender::QRenderStateSet *m_renderStateSet;
-    Qt3DRender::QDepthTest *m_posesDepthTest;
-    Qt3DRender::QMultiSampleAntiAliasing *m_multisampleAntialiasing;
-    Qt3DRender::QRenderTargetSelector *m_renderTargetSelector;
-    Qt3DRender::QRenderSurfaceSelector *m_renderSurfaceSelector;
-    Qt3DRender::QRenderTarget *m_renderTarget;
-    Qt3DRender::QRenderTargetOutput *m_colorOutput;
-    Qt3DRender::QTexture2DMultisample *m_colorTexture;
-    Qt3DRender::QRenderTargetOutput *m_depthOutput;
-    Qt3DRender::QTexture2DMultisample *m_depthTexture;
-
     // OpenGL setup
     bool m_initialized;
 
@@ -235,11 +226,53 @@ private:
      *
      */
 
+    // Scene
+    // Scene root will be added as a child
+    Qt3DCore::QEntity *m_root;
+
     // Root entity
     Qt3DCore::QEntity *m_sceneRoot;
 
-    // Base framegraph
+    // Base framegraph drawing offscreen
+    QOffscreenSurface *m_offscreenSurface;
+    Qt3DRender::QRenderSurfaceSelector *m_renderSurfaceSelector;
     Qt3DRender::QViewport *m_viewport;
+
+    // Render stuff for outline framegraph
+    Qt3DRender::QTechniqueFilter *m_posesOutlineTechniqueFilter;
+    Qt3DRender::QFilterKey *m_posesOutlineFilterKey;
+    Qt3DRender::QCameraSelector *m_posesOutlineCameraSelector;
+    // For the highlighted
+    Qt3DRender::QLayerFilter *m_posesOutlineHighlightedLayerFilter;
+    Qt3DRender::QLayer *m_posesOutlineHighlightedLayer;
+    Qt3DRender::QRenderTargetSelector *m_posesOutlineHighlightedRenderTargetSelector;
+    Qt3DRender::QRenderTarget *m_posesOutlineHighlightedRenderTarget;
+    Qt3DRender::QRenderTargetOutput *m_posesOutlineHighlightedOutput;
+    Qt3DRender::QTexture2D *m_posesOutlineHighlightedTexture;
+    Qt3DRender::QClearBuffers *m_posesOutlineHighlightedClearBuffers;
+    Qt3DRender::QNoDraw *m_posesOutlineHighlightedNoDraw;
+    // For the selected
+    Qt3DRender::QLayerFilter *m_posesOutlineSelectedLayerFilter;
+    Qt3DRender::QLayer *m_posesOutlineSelectedLayer;
+    Qt3DRender::QRenderTargetSelector *m_posesOutlineSelectedRenderTargetSelector;
+    Qt3DRender::QRenderTarget *m_posesOutlineSelectedRenderTarget;
+    Qt3DRender::QRenderTargetOutput *m_posesOutlineSelectedOutput;
+    Qt3DRender::QTexture2D *m_posesOutlineSelectedTexture;
+    Qt3DRender::QClearBuffers *m_posesOutlineSelectedClearBuffers;
+    Qt3DRender::QNoDraw *m_posesOutlineSelectedNoDraw;
+
+    // Normal framegraph
+    Qt3DRender::QTechniqueFilter *m_mainTechniqueFilter;
+    Qt3DRender::QFilterKey *m_mainFilterKey;
+    Qt3DRender::QRenderTargetSelector *m_renderTargetSelector;
+    Qt3DRender::QRenderTarget *m_renderTargetMS;
+    Qt3DRender::QRenderTargetOutput *m_colorOutputMS;
+    Qt3DRender::QTexture2DMultisample *m_colorTextureMS;
+    Qt3DRender::QRenderTargetOutput *m_depthStencilOutputMS;
+    Qt3DRender::QTexture2DMultisample *m_depthStencilTextureMS;
+    Qt3DRender::QRenderStateSet *m_renderStateSet;
+    Qt3DRender::QDepthTest *m_posesDepthTest;
+    Qt3DRender::QMultiSampleAntiAliasing *m_multisampleAntialiasing;
 
     // First branch - clear the buffers
     Qt3DRender::QClearBuffers *m_clearBuffers;
@@ -272,9 +305,23 @@ private:
     Qt3DRender::QRenderCapture *m_snapshotRenderCapture;
     Qt3DRender::QRenderCaptureReply *m_snapshotRenderCaptureReply;
 
-    // Clear depth buffer before drawing gizmo and clicks
+    // Clear depth buffer before drawing outline, gizmo and clicks
     Qt3DRender::QClearBuffers *m_clearBuffers2;
     Qt3DRender::QNoDraw *m_noDraw2;
+
+    // Outline branch
+    Qt3DRender::QLayerFilter *m_outlinePlaneLayerFilter;
+    Qt3DRender::QLayer *m_outlinePlaneLayer;
+    Qt3DRender::QRenderStateSet *m_outlineRenderStateSet;
+    Qt3DRender::QStencilTest *m_outlineStencilTest;
+    Qt3DRender::QStencilMask *m_outlineStencilMask;
+    // We'll reuse the background camera
+    //Qt3DRender::QCamera *m_outlineCamera;
+    Qt3DRender::QCameraSelector *m_outlineCameraSelector;
+    Qt3DRender::QNoDepthMask *m_outlineNoDepthMask;
+    Qt3DRender::QNoPicking *m_outlineNoPicking;
+    QPointer<OutlineRenderable> m_outlineHighlightedRenderable;
+    QPointer<OutlineRenderable> m_outlineSelectedRenderable;
 
     // ClickVisualization branch
     Qt3DRender::QLayerFilter *m_gizmoLayerFilter;

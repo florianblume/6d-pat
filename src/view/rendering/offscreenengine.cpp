@@ -27,7 +27,13 @@ OffscreenEngine::OffscreenEngine(const QSize &size) {
     m_offscreenSurface->setFormat(QSurfaceFormat::defaultFormat());
     m_offscreenSurface->create();
 
-    m_renderSurfaceSelector = new Qt3DRender::QRenderSurfaceSelector();
+    m_techniqueFilter = new Qt3DRender::QTechniqueFilter();
+    m_filterKey = new Qt3DRender::QFilterKey();
+    m_filterKey->setName(QStringLiteral("renderingStyle"));
+    m_filterKey->setValue(QStringLiteral("forward"));
+    m_techniqueFilter->addMatch(m_filterKey);
+
+    m_renderSurfaceSelector = new Qt3DRender::QRenderSurfaceSelector(m_techniqueFilter);
 
     // Hook it up to the frame graph.
     m_renderSurfaceSelector->setSurface(m_offscreenSurface);
@@ -54,7 +60,7 @@ OffscreenEngine::OffscreenEngine(const QSize &size) {
 
     m_renderCapture = new Qt3DRender::QRenderCapture(m_cameraSelector);
 
-    m_renderSettings->setActiveFrameGraph(m_renderSurfaceSelector);
+    m_renderSettings->setActiveFrameGraph(m_techniqueFilter);
     m_aspectEngine->setRootEntity(root);
 
     m_sceneRoot = new Qt3DCore::QEntity(root.get());
