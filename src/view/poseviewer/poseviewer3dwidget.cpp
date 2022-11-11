@@ -846,6 +846,7 @@ void PoseViewer3DWidget::setObjectsOpacity(float opacity) {
 void PoseViewer3DWidget::setAnimatedObjectsOpacity(float opacity) {
     if (m_opacityAnimation.isNull()) {
         m_opacityAnimation.reset(new QPropertyAnimation(this, "opacity"));
+        m_opacityAnimation->setStartValue(m_opacity);
         m_opacityAnimation->setDuration(50);
     } else {
         m_opacityAnimation->stop();
