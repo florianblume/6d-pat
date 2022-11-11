@@ -12,11 +12,11 @@ With 6D-PAT you can create 6D annotations on images for 6D pose estimation, i.e.
 
 ## Quickstart (only for Ubuntu)
 
-1. Get the latest AppImage from the [releases page](https://github.com/florianblume/6d-pat/releases).
+1. Get the latest AppImage from the [releases page](https://github.com/florianblume/6d-pat/releases) or use [Docker](https://github.com/florianblume/6d-pat/wiki/Getting-the-Program#using-docker).
 2. Download [zipped example data](https://github.com/florianblume/6d-pat/blob/master/example_data/example_data.zip).
-3. Unzip the zip file in a location of your liking
-4. Give the downloaded AppImage permissions to be executed
-5. Execute with double-click
+3. Unzip the zip file in a location of your liking. If you want to use Docker, remember to mount the data directory.
+4. Give the downloaded AppImage permissions to be executed.
+5. Execute with double-click.
 6. Go to `Settings` -> `Paths` and point to the directories unpacked from the zip files. You should then be able to see the example data.
 
 ## How does it work?
