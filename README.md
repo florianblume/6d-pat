@@ -91,3 +91,7 @@ To start recovering poses, follow these steps:
 10. After pose refinement, don't forget to press "Save"
 
 More steps and details are on the [wiki page](https://github.com/florianblume/6d-pat/wiki/Recovering-Poses).
+
+---
+
+If you use my program in your research, please cite it using GitHub's citation functionality in the right menu bar.
