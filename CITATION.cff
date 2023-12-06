@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Florian"
+  given-names: "Blume"
+  orcid: "https://orcid.org/0000-0002-7557-1508"
+title: "6D-PAT"
+version: 2.5.3
+date-released: 2022
+url: "https://github.com/florianblume/6d-pat"
