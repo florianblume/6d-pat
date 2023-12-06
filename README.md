@@ -94,4 +94,6 @@ More steps and details are on the [wiki page](https://github.com/florianblume/6d
 
 ---
 
+Citation
+
 If you use my program in your research, please cite it using GitHub's citation functionality in the right menu bar.
